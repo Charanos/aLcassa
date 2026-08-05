@@ -14,6 +14,8 @@ import { DataList, type Column } from '@/components/presentation/DataList';
 import { DocCard } from '@/components/presentation/DocCard';
 import { TrackerHeader } from '@/components/presentation/TrackerHeader';
 import { TrackerMotion } from '@/components/presentation/TrackerMotion';
+import { TrackerDashboardHero } from '@/components/presentation/TrackerDashboardHero';
+import { InteractiveDecisionMatrix } from '@/components/presentation/InteractiveDecisionMatrix';
 import { Timeline, MILESTONE_STATUS } from '@/components/presentation/Timeline';
 import { FoundationExplorer } from '@/components/presentation/FoundationExplorer';
 import { ProgressLine } from '@/components/presentation/Charts';
@@ -169,75 +171,16 @@ export default async function ProjectTrackerPage() {
       <CommandPalette commands={commands} />
       <TrackerHeader theme={theme} sections={SECTIONS} />
 
-      <main id="main" className="mx-auto px-5 pb-28 md:px-8" style={{ maxWidth: 'var(--surface-width)' }}>
-        {/* ═══ TITLE BLOCK ═══════════════════════════════════════════════ */}
-        <div id="top" className="pt-14 md:pt-20">
-          <div className="flex items-center gap-3">
-            <span
-              data-hero-rule
-              aria-hidden
-              className="block h-px w-7 origin-left"
-              style={{ background: 'var(--copper-rule)' }}
-            />
-            <span data-hero-eyebrow className="t-eyebrow text-[var(--copper-ink)]">
-              {ENGAGEMENT.studio} · platform foundation · phase 1
-            </span>
-          </div>
-
-          <h1 data-hero-title className="t-display mt-5 text-[var(--ink-primary)]">
-            Conduit
-          </h1>
-
-          <p
-            data-hero-lede
-            className="t-lede mt-5 text-[var(--ink-secondary)]"
-            style={{ maxWidth: 'var(--measure-prose)' }}
-          >
-            The platform layer beneath a customer support inbox: tenancy with real isolation,
-            authentication, subscription structure, an owner-level console, AI rules readable by
-            machines, and documentation good enough that a stranger can pick the codebase up cold.
-          </p>
-
-          <dl className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
-            <Fact hero k="Prepared for" v={ENGAGEMENT.client} />
-            <Fact hero k="Project lead" v={ENGAGEMENT.projectLead} />
-            <Fact hero k="Against" v={`Brief ${ENGAGEMENT.briefVersion}`} />
-            <Fact hero k="Issued" v={ENGAGEMENT.briefDate} />
-            <Fact hero k="Duration" v="9 working weeks" />
-            <Fact hero k="Status" v="For review" tone="var(--ochre-ink)" />
-          </dl>
-
-          <div className="mt-10 flex flex-wrap gap-3">
-            <a
-              data-hero-action
-              href="#status"
-              className="t-compact inline-flex items-center rounded-chip border px-4 text-[var(--action-primary-fg)] transition-colors duration-[var(--motion-fade)] hover:bg-[var(--copper-ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
-              style={{
-                background: 'var(--action-primary-bg)',
-                borderColor: 'var(--action-primary-border)',
-                minHeight: 'var(--control-lg)',
-              }}
-            >
-              Where delivery stands
-            </a>
-            <a
-              data-hero-action
-              href="#documents"
-              className="t-compact inline-flex items-center rounded-chip border px-4 text-[var(--ink-primary)] transition-colors duration-[var(--motion-fade)] hover:border-[var(--rule-strong)] hover:bg-[var(--surface-raised)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
-              style={{ borderColor: 'var(--rule-base)', minHeight: 'var(--control-lg)' }}
-            >
-              Documentation and design
-            </a>
-            <Link
-              data-hero-action
-              href="/"
-              className="t-compact inline-flex items-center rounded-chip px-4 text-[var(--copper-ink)] transition-colors duration-[var(--motion-fade)] hover:bg-[var(--copper-tint)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
-              style={{ minHeight: 'var(--control-lg)' }}
-            >
-              See the product surface
-            </Link>
-          </div>
-        </div>
+      <main id="main" className="mx-auto px-5 pb-28 md:px-8" style={{ maxWidth: '1280px' }}>
+        <TrackerDashboardHero
+          client={ENGAGEMENT.client}
+          projectLead={ENGAGEMENT.projectLead}
+          briefVersion={ENGAGEMENT.briefVersion}
+          briefDate={ENGAGEMENT.briefDate}
+          overallProgress={overall}
+          blockingCount={blocking.length}
+          complianceCount={complianceMet}
+        />
 
         <div className="mt-16 grid gap-16 md:mt-24 md:gap-24">
           {/* ═══ 1 · STATUS ══════════════════════════════════════════════ */}
@@ -409,7 +352,6 @@ export default async function ProjectTrackerPage() {
             </div>
           </SheetSection>
 
-          {/* ═══ 5 · DECISIONS ═══════════════════════════════════════════ */}
           <SheetSection
             id="decisions"
             n="5.0"
@@ -417,39 +359,7 @@ export default async function ProjectTrackerPage() {
             lede="Seven questions, five of them blocking. Each one changes a table or a policy, so none can wait until it is convenient. A schema locked without the AI rules precedence answer is a schema that gets migrated in week seven."
             aside={`${String(blocking.length)} blocking`}
           >
-            <div className="grid gap-3" data-reveal-group>
-              {OPEN_DECISIONS.map((decision) => {
-                const isBlocking = decision.severity === 'blocking';
-                return (
-                  <Panel key={decision.question} tone={isBlocking ? 'ochre' : 'slate'} reveal>
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-                      <h3 className="t-panel text-[var(--ink-primary)]">{decision.question}</h3>
-                      <StatusChip
-                        tone={isBlocking ? 'ochre' : 'slate'}
-                        icon={isBlocking ? IconAlertTriangle : IconPointer}
-                        size="sm"
-                      >
-                        {isBlocking ? `Blocks ${decision.blocks}` : 'Proposal'}
-                      </StatusChip>
-                      <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
-                        {decision.when}
-                      </span>
-                    </div>
-
-                    <p
-                      className="t-compact mt-2 text-[var(--ink-secondary)]"
-                      style={{ maxWidth: 'var(--measure-prose)' }}
-                    >
-                      {decision.detail}
-                    </p>
-
-                    <p className="t-caption mt-2 text-[var(--ink-tertiary)]">
-                      Drawn and specified in {decision.where}
-                    </p>
-                  </Panel>
-                );
-              })}
-            </div>
+            <InteractiveDecisionMatrix decisions={[...OPEN_DECISIONS]} />
 
             <div className="mt-6" data-reveal>
               <h3 className="t-micro mb-3 text-[var(--ink-tertiary)]">What we need from you</h3>

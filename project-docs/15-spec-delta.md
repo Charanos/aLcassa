@@ -368,6 +368,64 @@ no leading icons, nothing that was not there before. Where a change earns its
 place and where it does not are two different questions, and this is a record
 of asking both. `src/components/access/AuthShell.tsx`.
 
+### A8 · Delivery vocabulary is removed from public surfaces
+
+"Phase 1" and "Phase 2" are DELIVERY vocabulary. They mean something precise
+to Andishi and to the client reading the tracker, and nothing at all to a
+business owner deciding whether to sign up, to whom "Phase 1" simply reads as
+unfinished. The marketing page and the access screens now say what a customer
+would say: channels are "Coming soon", the eyebrow is "Customer support
+platform", the status band is "Where this is today".
+
+**The honesty is unchanged, which is the point.** `01 D-05` and `10 §2`
+require these surfaces never to imply a working inbox, and they still do not:
+"Currently in development" remains in the lede, the status panel remains, and
+every channel is still marked as not yet available. Only the jargon moved.
+
+The project tracker keeps phase and milestone language throughout. It is a
+delivery document for the client, and there the vocabulary is correct.
+
+### A9 · The access aside cannot influence the form's layout
+
+Two columns sharing a grid row means the taller one sets the height. The
+aside animates: its audit stream grew from two rows to five on a 2.2 second
+loop, and its credential caption swapped between a one-line and a two-line
+sentence. Each change resized the row, stretched the form column, and moved
+the form vertically while somebody was typing into it.
+
+Two independent mechanisms now prevent it, because one would be a coincidence
+rather than a guarantee. The aside is `sticky` at exactly `100dvh` with
+`align-self: start`, so it contributes a fixed height regardless of content
+and scrolls internally if it ever overflows. Separately, every panel inside it
+is height-locked: fixed slot counts rather than sliced arrays, and reserved
+caption heights rather than conditional text.
+
+`src/components/access/AuthShell.tsx`, `AuthAside.tsx`.
+
+### A10 · The access shell is a server component again
+
+A `'use client'` directive had been added to the top of `AuthShell` so the
+aside's panels could hold state. That directive is contagious downward through
+a module, so it turned the FORM column into a client component too: every
+access form lost server rendering as a side effect of a decorative panel
+beside it. The boundary now sits in `AuthAside.tsx`, where the interactivity
+actually is.
+
+### A11 · The hero schematic's motion states the diagram's claim
+
+The connector paths carried `animate-pulse` and the convergence point carried
+`animate-ping`. Both are ambient throbs: they draw the eye without telling it
+anything, and a reader watching a line fade in and out learns nothing.
+
+The paths now carry a directional dash travelling left to right, from the
+channels toward the workspace core, each offset in time so the four read as
+independent streams. That is the single true statement the diagram makes, and
+the motion is now the sentence rather than decoration on top of it. Under
+`prefers-reduced-motion` the dash is removed and the still hairline underneath
+carries the diagram, which is the resting state it was drawn to work in.
+
+`src/components/marketing/HeroDiagram.tsx`, `@keyframes hero-flow`.
+
 ### A6 · The palette cannot carry six categorical chart series
 
 Running the six-check validator over the six hues as a chart palette fails, and

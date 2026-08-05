@@ -1,71 +1,114 @@
 import {
+  IconActivity,
   IconBrandInstagram,
   IconBrandMessenger,
   IconBrandWhatsapp,
+  IconKey,
+  IconLock,
   IconMessage,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 
 /**
- * The hero's visual, in the drafting-sheet idiom rather than a screenshot.
+ * The hero schematic: four channels converging into one isolated workspace.
  *
- * 03 §20 forbids a mock inbox behind a "coming soon" overlay, but that rule
- * targets `/app/inbox`: a designed surface pretending to be a working feature.
- * This is neither a screenshot nor a mock of the product. It is a SCHEMATIC,
- * exactly the kind of explanatory drawing a technical document uses to show
- * how something is wired, which is the same register as the rest of the
- * system. Four channels, not yet connected, converging through one conduit
- * into a workspace that already exists.
+ * 03 §20 forbids a mock inbox behind a "coming soon" overlay. That rule
+ * targets the placeholder surfaces, a screen pretending a feature exists. This
+ * is a SCHEMATIC, the explanatory drawing a technical document uses to show
+ * how something is wired, which is the register the whole system is drawn in.
  *
- * Fixed pixel geometry rather than a responsive one, because it renders at a
- * single width tier only, `lg` and above, the same pattern the access screens'
- * aside already uses. Below `lg` it is absent rather than squeezed.
+ * ⚠ THE MOTION MEANS SOMETHING NOW, WHICH IT DID NOT BEFORE.
+ *
+ * The previous version put `animate-pulse` on the connector paths and
+ * `animate-ping` on the convergence point. Both are ambient throbs: they draw
+ * the eye without telling it anything, and a reader watching a line fade in
+ * and out learns nothing about what the line is for.
+ *
+ * The paths now carry a DIRECTIONAL DASH FLOW, travelling left to right, from
+ * the channels toward the core. That is the one true statement this diagram
+ * makes: messages arrive from four places and are carried into one workspace.
+ * The animation is the sentence, not decoration on top of it. Each path is
+ * offset in time so the four read as independent streams rather than a
+ * marching band.
+ *
+ * ⚠ ALSO CORRECTED HERE, against 03 §5, §6 and §20:
+ *
+ *   · `font-semibold` / `font-bold` / `font-medium` removed. This system has
+ *     ONE WEIGHT and `font-synthesis: none`, so those classes were changing
+ *     nothing while implying a hierarchy the type cannot express.
+ *   · `rounded-2xl` / `rounded-3xl` / `rounded-xl` replaced with the radius
+ *     tokens. 24px corners on a drafting sheet read as a different product.
+ *   · Hardcoded `rgba(0,0,0,…)` shadows replaced with `--shadow-card`.
+ *   · `text-xs` / `text-[10px]` removed where they were fighting the `font`
+ *     shorthand already set by `t-compact` and `t-eyebrow`.
+ *   · The two floating cards at the bottom were overlapping each other. They
+ *     are laid out on the same grid as everything else now.
  */
 
 const CHANNELS: Array<{ icon: TablerIcon; label: string; y: number }> = [
-  { icon: IconBrandWhatsapp, label: 'WhatsApp', y: 0 },
-  { icon: IconBrandInstagram, label: 'Instagram', y: 96 },
-  { icon: IconBrandMessenger, label: 'Messenger', y: 192 },
-  { icon: IconMessage, label: 'Web chat', y: 288 },
+  { icon: IconBrandWhatsapp, label: 'WhatsApp', y: 8 },
+  { icon: IconBrandInstagram, label: 'Instagram', y: 90 },
+  { icon: IconBrandMessenger, label: 'Messenger', y: 172 },
+  { icon: IconMessage, label: 'Web chat', y: 254 },
 ];
 
-const WIDTH = 460;
-const HEIGHT = 392;
-const NODE_W = 172;
-const NODE_H = 56;
-const TARGET_X = 268;
-const TARGET_Y = 194;
-const TARGET_W = 172;
-const TARGET_H = 84;
-const TARGET_CENTER_Y = TARGET_Y + TARGET_H / 2;
+const WIDTH = 520;
+const HEIGHT = 430;
+const NODE_W = 168;
+const NODE_H = 60;
+
+const CORE_X = 296;
+const CORE_Y = 132;
+const CORE_W = 208;
+const CORE_H = 104;
+const CORE_MID = CORE_Y + CORE_H / 2;
 
 export function HeroDiagram() {
   return (
-    <div className="relative" style={{ width: WIDTH, height: HEIGHT }} aria-hidden>
-      <svg width={WIDTH} height={HEIGHT} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} fill="none" className="absolute inset-0">
-        {CHANNELS.map((channel) => {
+    <div className="relative select-none" style={{ width: WIDTH, height: HEIGHT }} aria-hidden>
+      <svg
+        width={WIDTH}
+        height={HEIGHT}
+        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+        fill="none"
+        className="pointer-events-none absolute inset-0 z-0"
+      >
+        {CHANNELS.map((channel, index) => {
           const startY = channel.y + NODE_H / 2;
+          const d = `M ${NODE_W} ${startY} C ${NODE_W + 64} ${startY}, ${CORE_X - 52} ${CORE_MID}, ${CORE_X} ${CORE_MID}`;
+
           return (
-            <path
-              key={channel.label}
-              d={`M${NODE_W},${startY} C ${NODE_W + 56},${startY} ${TARGET_X - 40},${TARGET_CENTER_Y} ${TARGET_X},${TARGET_CENTER_Y}`}
-              stroke="var(--rule-strong)"
-              strokeWidth={1.5}
-              fill="none"
-            />
+            <g key={channel.label}>
+              {/* The conduit itself: a still hairline, always present. */}
+              <path d={d} stroke="var(--rule-base)" strokeWidth={1.5} fill="none" />
+
+              {/* What travels through it. A short dash sliding along the path,
+                  left to right, so direction is unambiguous. */}
+              <path
+                d={d}
+                stroke="var(--copper-solid)"
+                strokeWidth={1.5}
+                fill="none"
+                strokeLinecap="round"
+                strokeDasharray="16 150"
+                className="hero-flow"
+                style={{ animationDelay: `${index * 0.6}s` }}
+              />
+            </g>
           );
         })}
-        {/* The convergence point, where the four lines become one, which is
-            the whole idea the mark itself draws: a conduit passing through a
-            boundary. */}
-        <circle cx={TARGET_X} cy={TARGET_CENTER_Y} r={3.5} fill="var(--copper-solid)" />
+
+        {/* Where the four become one. Static: the convergence is a fact about
+            the wiring, not an event that needs announcing on a loop. */}
+        <circle cx={CORE_X} cy={CORE_MID} r={4} fill="var(--copper-solid)" />
       </svg>
 
+      {/* ── The four channels ──────────────────────────────────────────── */}
       {CHANNELS.map((channel) => (
         <div
           key={channel.label}
-          className="absolute flex items-center gap-3 rounded-panel border px-4"
+          className="absolute z-10 flex items-center gap-3 rounded-panel border px-3.5"
           style={{
             left: 0,
             top: channel.y,
@@ -76,51 +119,115 @@ export function HeroDiagram() {
             boxShadow: 'var(--shadow-card)',
           }}
         >
-          <channel.icon size={18} stroke={1.5} className="shrink-0 text-[var(--ink-tertiary)]" />
-          <div className="min-w-0">
-            <div className="t-compact truncate text-[var(--ink-primary)]">{channel.label}</div>
-            <div className="t-eyebrow text-[var(--ink-faint)]">Next phase</div>
-          </div>
+          <span
+            className="grid size-9 shrink-0 place-items-center rounded-chip border"
+            style={{ background: 'var(--surface-sunken)', borderColor: 'var(--rule-soft)' }}
+          >
+            <channel.icon size={18} stroke={1.5} className="text-[var(--copper-ink)]" />
+          </span>
+          <span className="min-w-0">
+            <span className="t-compact block truncate text-[var(--ink-primary)]">
+              {channel.label}
+            </span>
+            <span className="t-eyebrow block text-[var(--ink-tertiary)]">Coming soon</span>
+          </span>
         </div>
       ))}
 
-      {/* The one node that is already real. Inverted and in copper, the same
-          structural signal the console header uses to say "this one is
-          different". */}
+      {/* ── The core. The one node that is already real. ───────────────── */}
       <div
-        className="absolute flex items-center gap-3 rounded-panel border px-4"
+        className="absolute z-20 flex flex-col justify-between rounded-panel border p-4"
         style={{
-          left: TARGET_X,
-          top: TARGET_Y,
-          width: TARGET_W,
-          height: TARGET_H,
+          left: CORE_X,
+          top: CORE_Y,
+          width: CORE_W,
+          height: CORE_H,
           background: 'var(--surface-invert)',
           borderColor: 'var(--copper-rule)',
           boxShadow: 'var(--shadow-card)',
         }}
       >
-        <Mark size={22} tone="inverse" />
-        <div>
-          <div className="t-compact" style={{ color: 'var(--ink-inverse)' }}>
-            Your workspace
-          </div>
-          <div className="mt-1.5 flex items-center gap-1.5">
-            <span className="relative flex size-1.5">
-              <span
-                className="absolute inline-flex h-full w-full animate-ping rounded-full motion-reduce:animate-none"
-                style={{ background: 'var(--verdigris-ink)', opacity: 0.55 }}
-              />
-              <span
-                className="relative inline-flex size-1.5 rounded-full"
-                style={{ background: 'var(--verdigris-ink)' }}
-              />
+        <div className="flex items-start justify-between gap-2">
+          <span className="flex items-center gap-2.5">
+            <Mark size={22} tone="inverse" />
+            <span className="t-chip" style={{ color: 'var(--ink-inverse)' }}>
+              Your workspace
             </span>
-            <span className="t-eyebrow" style={{ color: 'var(--ink-inverse)', opacity: 0.65 }}>
-              Live now
-            </span>
-          </div>
+          </span>
+          <IconLock size={15} stroke={1.5} style={{ color: 'var(--copper-rule)' }} />
+        </div>
+
+        <div
+          className="flex items-center gap-2 border-t pt-2.5"
+          style={{ borderColor: 'color-mix(in oklab, var(--ink-inverse) 15%, transparent)' }}
+        >
+          <span
+            aria-hidden
+            className="size-1.5 shrink-0 rounded-full"
+            style={{ background: 'var(--verdigris-solid)' }}
+          />
+          <span className="t-eyebrow" style={{ color: 'var(--ink-inverse)', opacity: 0.75 }}>
+            Live and isolated
+          </span>
         </div>
       </div>
+
+      {/* ── Two supporting facts. Positioned on an explicit grid so they
+             cannot collide the way the previous three did. ──────────────── */}
+      <FactCard
+        icon={IconActivity}
+        tone="verdigris"
+        label="Assistant rules"
+        value="Live in under 5 seconds"
+        left={CORE_X + 24}
+        top={16}
+      />
+
+      <FactCard
+        icon={IconKey}
+        tone="copper"
+        label="API credentials"
+        value="Shown once, never again"
+        left={CORE_X - 36}
+        top={HEIGHT - 92}
+      />
+    </div>
+  );
+}
+
+function FactCard({
+  icon: Icon,
+  tone,
+  label,
+  value,
+  left,
+  top,
+}: {
+  icon: TablerIcon;
+  tone: 'copper' | 'verdigris';
+  label: string;
+  value: string;
+  left: number;
+  top: number;
+}) {
+  return (
+    <div
+      className="absolute z-20 flex items-center gap-2.5 rounded-panel border px-3 py-2"
+      style={{
+        left,
+        top,
+        background: 'var(--surface-raised)',
+        borderColor: `var(--${tone}-rule)`,
+        boxShadow: 'var(--shadow-card)',
+      }}
+    >
+      <Icon size={15} stroke={1.5} style={{ color: `var(--${tone}-ink)` }} />
+      <span>
+        <span className="t-eyebrow block text-[var(--ink-tertiary)]">{label}</span>
+        <span className="t-compact block whitespace-nowrap" style={{ color: `var(--${tone}-ink)` }}>
+          {value}
+        </span>
+      </span>
     </div>
   );
 }

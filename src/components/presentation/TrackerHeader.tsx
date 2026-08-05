@@ -5,12 +5,8 @@ import { CommandHint } from './CommandPalette';
 import type { ResolvedTheme } from '@/lib/theme';
 
 /**
- * The sheet chrome.
- *
- * Three things happen here that make a long document navigable: the reading
- * progress rule along the bottom edge, the section nav that highlights as you
- * pass, and the palette. The progress rule is the header's bottom border rather
- * than a separate bar, so it costs no vertical space at all.
+ * TrackerHeader: Production-grade header for the project delivery tracker.
+ * Theme-aware background, flush to top, expandable 1280px width container.
  */
 export function TrackerHeader({
   theme,
@@ -21,12 +17,12 @@ export function TrackerHeader({
 }) {
   return (
     <header
-      className="sticky top-0 z-40 border-b"
-      style={{ background: 'var(--surface-page)', borderColor: 'var(--rule-base)' }}
+      className="sticky top-0 z-40 w-full border-b backdrop-blur-md transition-colors duration-200"
+      style={{ background: 'var(--surface-page)', borderColor: 'var(--rule-soft)' }}
     >
       <div
         className="mx-auto flex h-16 items-center gap-5 px-5 md:px-8"
-        style={{ maxWidth: 'var(--surface-width)' }}
+        style={{ maxWidth: '1280px' }}
       >
         <Link
           href="#top"
@@ -47,8 +43,6 @@ export function TrackerHeader({
                   className="t-eyebrow group relative block rounded-chip px-2.5 py-2 text-[var(--ink-tertiary)] transition-colors duration-[var(--motion-fade)] hover:text-[var(--copper-ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] data-[active=true]:text-[var(--copper-ink)]"
                 >
                   {section.label}
-                  {/* The active underline. A 1px rule rather than a pill,
-                      because a pill is a shape this system does not have. */}
                   <span
                     aria-hidden
                     className="absolute inset-x-2.5 -bottom-0.5 h-px origin-left scale-x-0 transition-transform duration-[var(--motion-fade)] group-data-[active=true]:scale-x-100"
@@ -67,9 +61,7 @@ export function TrackerHeader({
         </div>
       </div>
 
-      {/* Reading progress, scrubbed against document scroll. It sits on the
-          header's own bottom edge, so it reads as the rule filling in rather
-          than as a separate progress bar bolted on top. */}
+      {/* Reading progress bar line */}
       <span
         data-read-progress
         aria-hidden

@@ -3,18 +3,13 @@ import type { Metadata } from 'next';
 import { AuthShell, TenantAside } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field, PasswordField } from '@/components/primitives/Field';
+import { WorkspaceSlugPreview } from '@/components/access/WorkspaceSlugPreview';
 
 export const metadata: Metadata = {
   title: 'Create your workspace',
   robots: { index: false, follow: false },
 };
 
-/**
- * 02 §3 · 10 §3. Creates the tenant, the membership and the owner IN ONE
- * TRANSACTION. 04 §4.1 is emphatic about why: a half-provisioned tenant is
- * worse than a failed sign-up, because it presents as a working account that
- * quietly cannot do things.
- */
 export default function SignUpPage() {
   return (
     <AuthShell
@@ -37,13 +32,7 @@ export default function SignUpPage() {
       <form className="grid gap-4" method="post" action="/api/v1/auth/sign-up">
         <Field label="Your name" name="fullName" autoComplete="name" required />
 
-        <Field
-          label="Company name"
-          name="companyName"
-          autoComplete="organization"
-          required
-          helper="Shown to your team and on their invitations."
-        />
+        <WorkspaceSlugPreview />
 
         <Field
           label="Email"

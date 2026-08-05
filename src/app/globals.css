@@ -371,6 +371,47 @@
   }
 }
 
+/*
+ * The hero schematic's signal flow. A short dash travelling ALONG each
+ * connector path, left to right, from a channel toward the workspace core.
+ *
+ * Direction is the whole point: this replaced an `animate-pulse` throb that
+ * drew the eye without saying anything. A dash that moves one way states the
+ * diagram's single claim, that messages arrive from four places and are
+ * carried into one workspace, in the only language a diagram has.
+ *
+ * The offset counts DOWN so travel is forward along the path. `--flow-len`
+ * matches the dasharray gap in HeroDiagram.
+ */
+@keyframes hero-flow {
+  from {
+    stroke-dashoffset: 166;
+    opacity: 0;
+  }
+  12%,
+  88% {
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+.hero-flow {
+  animation: hero-flow 3.2s linear infinite;
+}
+
+/* Ambient motion is optional by definition. Under `reduce` the flowing dash
+ * is removed entirely and the still hairline underneath carries the diagram,
+ * which is the resting state it was drawn to work in. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-flow {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* ═══ 3 · UTILITIES ════════════════════════════════════════════════════════ */
 
 @layer utilities {

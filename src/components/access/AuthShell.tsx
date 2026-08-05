@@ -1,36 +1,45 @@
 import Link from 'next/link';
-import {
-  IconClockHour3,
-  IconEye,
-  IconHistory,
-  IconKey,
-  IconShieldLock,
-  IconUsers,
-  type Icon as TablerIcon,
-} from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
+import { PlatformAside, TenantAside } from './AuthAside';
+
+export { PlatformAside, TenantAside };
 
 /**
  * Design sheet 08 · Access. The shell every access screen sits in.
  *
- * ⚠ THE ASIDE IS REVAMPED. THE FORM COLUMN IS DELIBERATELY UNTOUCHED. The
- * first pass at the aside put a mark, two paragraphs and an address in a plain
- * sunken column with a lot of unused space, and on review it read as a
- * placeholder waiting to be designed rather than a finished screen. It now
- * carries a properly sized mark and wordmark, a sheet reference tying it to
- * the actual design set, a short scannable trust list rather than prose alone,
- * a whisper of the system's own hatch texture, and a title-block footer
- * instead of a bare address line. The interactive column, the fields and their
- * own card treatment, is out of scope for this pass and stays exactly as it
- * was: review found the forms themselves already correct.
+ * ⚠ THIS IS A SERVER COMPONENT AGAIN, DELIBERATELY. The animated panels in the
+ * aside need state, so a `'use client'` directive had been added here, at the
+ * top of the shell. That directive is contagious downward: it turned the FORM
+ * column into a client component too, so every access form lost server
+ * rendering as a side effect of a decorative panel beside it. The boundary now
+ * lives in `AuthAside.tsx`, where the interactivity actually is.
  *
- * Below `lg` the aside drops away and the form stands alone, because on a
- * phone the form is the whole job.
+ * ⚠ THE ASIDE CANNOT AFFECT THE FORM'S LAYOUT, AND THAT IS ENFORCED HERE.
+ *
+ * The two columns previously shared a grid row whose height was set by
+ * whichever column was taller. The aside animates: its audit stream grew from
+ * two rows to five, its credential caption swapped between a one-line and a
+ * two-line sentence. Each change resized the row, which stretched the form
+ * column and shifted the form vertically while somebody was typing into it.
+ *
+ * Two independent mechanisms now prevent that, because one would be a
+ * coincidence rather than a guarantee:
+ *
+ *   1. The aside is `sticky` at exactly `100dvh` with `align-self: start`, so
+ *      it contributes a FIXED height to the row no matter what it contains.
+ *      It scrolls internally if its content ever exceeds the viewport.
+ *   2. The panels inside it are individually height-locked, in AuthAside.tsx.
+ *
+ * The form column keeps its own `min-h-dvh` and centres within itself, so its
+ * geometry is a function of the form alone.
+ *
+ * Below `lg` the aside is not rendered at all: on a phone the form is the
+ * whole job, and a decorative column would be a screenful to scroll past.
  *
  * The platform variant inverts the aside, the same structural signal the
- * console header uses in 03 §4: Brian should be able to tell at a glance
- * that he is on the platform door rather than the tenant one, before he has
- * read a word. There is deliberately no navigational path between them. 02 §3.
+ * console header uses in 03 §4: which door you are at is legible before you
+ * have read a word. There is deliberately no navigational path between the
+ * two. 02 §3.
  */
 export function AuthShell({
   eyebrow,
@@ -52,81 +61,12 @@ export function AuthShell({
   const platform = variant === 'platform';
 
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[1fr_minmax(440px,44%)]">
-      {/* ── The aside. Order swapped so the form is FIRST in the DOM: a
-             keyboard or screen reader user reaches the thing they came for
-             without traversing marketing copy. ─────────────────────────── */}
-      <aside
-        className="relative order-2 hidden flex-col justify-between overflow-hidden p-10 lg:flex xl:p-14"
-        style={{
-          background: platform ? 'var(--surface-invert)' : 'var(--surface-sunken)',
-          color: platform ? 'var(--ink-inverse)' : 'var(--ink-primary)',
-        }}
-      >
-        {/* A whisper of the system's own hatch, the technical-drawing texture
-            rather than a gradient. Tenant only: on the inverted platform
-            surface the neutral hatch reads as noise rather than texture, so
-            it is left off there. */}
-        {!platform ? (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{ backgroundImage: 'var(--hatch-graphite)', opacity: 0.05 }}
-          />
-        ) : null}
-
-        <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <Mark size={30} tone={platform ? 'inverse' : 'copper'} />
-            <span className="t-panel" style={{ fontSize: '20px' }}>
-              Conduit
-            </span>
-          </div>
-
-          {/* The sheet reference, promoted off the same line as the wordmark
-              rather than squeezed beside it: two things fighting for one row
-              read as cramped, and this is a label the wordmark doesn't need
-              to share space with. 08 is the actual number of the access sheet
-              in design-docs, covering login, reset, invitation, sessions and
-              the role matrix, both doors. */}
-          <span
-            className="t-eyebrow mt-3 block"
-            style={{ color: platform ? 'var(--ink-inverse)' : 'var(--ink-faint)', opacity: platform ? 0.5 : 1 }}
-          >
-            Sheet 08 · Access
-          </span>
-        </div>
-
-        <div className="relative z-10" style={{ maxWidth: '40ch' }}>
-          {aside}
-        </div>
-
-        {/* The title block. A bare address line read as an afterthought; a
-            small key-value row is the same drafting-sheet idiom the marketing
-            page and the tracker both close on. */}
-        <div
-          className="relative z-10 flex items-baseline justify-between gap-4 border-t pt-5"
-          style={{ borderColor: platform ? 'rgb(255 255 255 / 0.12)' : 'var(--rule-soft)' }}
-        >
-          <span
-            className="t-eyebrow"
-            style={{ color: platform ? 'var(--ink-inverse)' : 'var(--ink-tertiary)', opacity: platform ? 0.55 : 1 }}
-          >
-            Andishi
-          </span>
-          <span
-            className="t-caption"
-            style={{ color: platform ? 'var(--ink-inverse)' : 'var(--ink-tertiary)', opacity: platform ? 0.4 : 0.9 }}
-          >
-            Northern Bypass, Nairobi
-          </span>
-        </div>
-      </aside>
-
-      {/* ── The form ─────────────────────────────────────────────────── */}
+    <div className="grid min-h-dvh items-start lg:grid-cols-[1fr_minmax(480px,46%)]">
+      {/* ── The form. First in the DOM so a keyboard or screen reader user
+             reaches what they came for without traversing the aside. ─────── */}
       <main
         id="main"
-        className="order-1 flex flex-col justify-center px-5 py-12 md:px-10 lg:px-14"
+        className="order-1 flex min-h-dvh flex-col justify-center px-6 py-12 md:px-12 lg:px-16"
         style={{ background: 'var(--surface-page)' }}
       >
         <div className="mx-auto w-full" style={{ maxWidth: '420px' }}>
@@ -134,7 +74,7 @@ export function AuthShell({
             href="/"
             className="mb-10 inline-flex items-center gap-2.5 rounded-chip focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)] lg:hidden"
           >
-            <Mark size={20} />
+            <Mark size={22} />
             <span className="t-chip text-[var(--ink-primary)]">Conduit</span>
           </Link>
 
@@ -142,7 +82,7 @@ export function AuthShell({
             <div className="mb-3 flex items-center gap-2.5">
               <span
                 aria-hidden
-                className="block h-px w-5"
+                className="block h-px w-6"
                 style={{ background: platform ? 'var(--slate-rule)' : 'var(--copper-rule)' }}
               />
               <span
@@ -165,88 +105,118 @@ export function AuthShell({
           <div className="mt-8">{children}</div>
 
           {footer ? (
-            <div className="mt-6 border-t pt-6" style={{ borderColor: 'var(--rule-soft)' }}>
+            <div className="mt-8 border-t pt-6" style={{ borderColor: 'var(--rule-soft)' }}>
               {footer}
             </div>
           ) : null}
         </div>
       </main>
-    </div>
-  );
-}
 
-/**
- * A trust row: one glyph, one short line. Three or four of these read faster
- * than two paragraphs of prose and say the same thing, which is the entire
- * argument for using them in an aside a reader spends four seconds on.
- */
-function TrustRow({ icon: Icon, children }: { icon: TablerIcon; children: React.ReactNode }) {
-  return (
-    <li className="flex items-start gap-2.5">
-      <Icon size={16} stroke={1.5} aria-hidden className="mt-0.5 shrink-0 opacity-70" />
-      <span className="t-compact" style={{ opacity: 0.85 }}>
-        {children}
-      </span>
-    </li>
-  );
-}
+      {/* ── The aside. Height-locked to the viewport, sticky, internally
+             scrollable. Nothing it does can reach the column beside it. ──── */}
+      <aside
+        aria-label="About this platform"
+        className="relative order-2 hidden lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:overflow-y-auto"
+        style={{
+          background: platform ? 'var(--surface-invert)' : 'var(--surface-sunken)',
+          borderLeft: '1px solid var(--rule-soft)',
+        }}
+      >
+        {/* The drafting-sheet ground: a measured dot grid rather than a
+            gradient. Fixed to the aside, so it does not scroll with content. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: 'radial-gradient(circle, var(--rule-base) 1px, transparent 1px)',
+            backgroundSize: '22px 22px',
+            opacity: platform ? 0.12 : 0.4,
+          }}
+        />
 
-/** The standard aside content for the tenant door. */
-export function TenantAside() {
-  return (
-    <div>
-      <p className="t-lede text-[var(--ink-primary)]">
-        One inbox for every message your customers send.
-      </p>
-      <p className="t-compact mt-4 text-[var(--ink-secondary)]">
-        The platform foundation is live. Channel connections arrive in the next phase, and your
-        workspace, your team and your assistant rules are ready for them now.
-      </p>
+        <div className="relative z-10 flex min-h-full flex-col justify-between gap-10 p-10 xl:p-12">
+          <div>
+            <div className="flex items-start justify-between gap-4">
+              <Link href="/" className="flex items-center gap-3">
+                <Mark size={26} tone={platform ? 'inverse' : 'copper'} />
+                <span className="grid gap-1">
+                  <span
+                    className="t-panel leading-none"
+                    style={{ color: platform ? 'var(--ink-inverse)' : 'var(--ink-primary)' }}
+                  >
+                    Conduit
+                  </span>
+                  <span
+                    className="t-eyebrow leading-none"
+                    style={{
+                      color: platform ? 'var(--ink-inverse)' : 'var(--ink-tertiary)',
+                      opacity: platform ? 0.55 : 1,
+                    }}
+                  >
+                    {platform ? 'Platform console' : 'Customer support platform'}
+                  </span>
+                </span>
+              </Link>
 
-      <ul className="mt-7 grid gap-3.5">
-        <TrustRow icon={IconUsers}>Owners, admins and agents, with a real permission model.</TrustRow>
-        <TrustRow icon={IconShieldLock}>
-          Your data is isolated at the database level, not by application code.
-        </TrustRow>
-        <TrustRow icon={IconKey}>An API key is shown once. Not even we can read it back.</TrustRow>
-      </ul>
-    </div>
-  );
-}
+              <span
+                className="t-eyebrow shrink-0 rounded-chip border px-2.5 py-1"
+                style={{
+                  color: 'var(--copper-ink)',
+                  borderColor: platform
+                    ? 'color-mix(in oklab, var(--ink-inverse) 15%, transparent)'
+                    : 'var(--rule-base)',
+                  background: platform
+                    ? 'color-mix(in oklab, var(--ink-inverse) 6%, transparent)'
+                    : 'var(--surface-raised)',
+                }}
+              >
+                Sheet 08 · Access
+              </span>
+            </div>
 
-/** 10 §3. The platform door says what it is and that access is logged. */
-export function PlatformAside() {
-  return (
-    <div>
-      <p className="t-lede" style={{ color: 'var(--ink-inverse)' }}>
-        This account manages every workspace.
-      </p>
-      <p className="t-compact mt-4" style={{ color: 'var(--ink-inverse)', opacity: 0.75 }}>
-        Every action taken here is written to the platform audit log, and every time you step into a
-        workspace it is written to that workspace&rsquo;s own log as well, where its owner can see
-        it.
-      </p>
+            <div className="mt-9">{aside ?? (platform ? <PlatformAside /> : <TenantAside />)}</div>
+          </div>
 
-      <ul className="mt-7 grid gap-3.5">
-        <li className="flex items-start gap-2.5">
-          <IconEye size={16} stroke={1.5} aria-hidden className="mt-0.5 shrink-0" style={{ color: 'var(--ink-inverse)', opacity: 0.55 }} />
-          <span className="t-compact" style={{ color: 'var(--ink-inverse)', opacity: 0.85 }}>
-            Support access is a scoped session, never a bypass.
-          </span>
-        </li>
-        <li className="flex items-start gap-2.5">
-          <IconHistory size={16} stroke={1.5} aria-hidden className="mt-0.5 shrink-0" style={{ color: 'var(--ink-inverse)', opacity: 0.55 }} />
-          <span className="t-compact" style={{ color: 'var(--ink-inverse)', opacity: 0.85 }}>
-            A tenant can see, and end, any session you open into their workspace.
-          </span>
-        </li>
-        <li className="flex items-start gap-2.5">
-          <IconClockHour3 size={16} stroke={1.5} aria-hidden className="mt-0.5 shrink-0" style={{ color: 'var(--ink-inverse)', opacity: 0.55 }} />
-          <span className="t-compact" style={{ color: 'var(--ink-inverse)', opacity: 0.85 }}>
-            Sessions last eight hours.
-          </span>
-        </li>
-      </ul>
+          <div
+            className="flex items-center justify-between gap-4 border-t pt-5"
+            style={{
+              borderColor: platform
+                ? 'color-mix(in oklab, var(--ink-inverse) 12%, transparent)'
+                : 'var(--rule-soft)',
+            }}
+          >
+            <span
+              className="t-eyebrow"
+              style={{
+                color: platform ? 'var(--ink-inverse)' : 'var(--ink-tertiary)',
+                opacity: platform ? 0.5 : 1,
+              }}
+            >
+              Andishi · Nairobi
+            </span>
+
+            <span
+              className="t-chip inline-flex items-center gap-1.5 rounded-chip border px-2.5 py-1"
+              style={{
+                color: 'var(--verdigris-ink)',
+                background: platform
+                  ? 'color-mix(in oklab, var(--ink-inverse) 5%, transparent)'
+                  : 'var(--verdigris-tint)',
+                borderColor: platform
+                  ? 'color-mix(in oklab, var(--ink-inverse) 10%, transparent)'
+                  : 'var(--verdigris-rule)',
+              }}
+            >
+              <span
+                aria-hidden
+                className="size-1.5 rounded-full"
+                style={{ background: 'var(--verdigris-solid)' }}
+              />
+              Isolation active
+            </span>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }
