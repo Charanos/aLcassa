@@ -426,6 +426,20 @@
 
   /* Sheet 02: a table cell truncates and reveals in full on hover. A row that
    * grows to two lines breaks the rhythm of the grid. */
+  /* Hover elevation, as a class because an inline style cannot carry `:hover`
+   * and the shadow is four layers deep. */
+  .panel-lift {
+    box-shadow: var(--shadow-card);
+  }
+  .panel-lift:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* A field sits INTO the sheet: the same light source, inverted. */
+  .field-sunken {
+    box-shadow: var(--shadow-sunken);
+  }
+
   .truncate-cell {
     overflow: hidden;
     text-overflow: ellipsis;

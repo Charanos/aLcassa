@@ -126,26 +126,58 @@ export function Panel({
       {...(reveal ? { 'data-reveal': '' } : {})}
       className={[
         'relative min-w-0 overflow-hidden rounded-panel border p-5',
-        'transition-[border-color,box-shadow,transform] duration-[var(--motion-fade)]',
-        interactive ? 'hover:-translate-y-px hover:border-[var(--rule-strong)]' : '',
+        'transition-[border-color,box-shadow,transform] duration-[var(--motion-base,200ms)]',
+        interactive ? 'panel-lift hover:-translate-y-0.5 hover:border-[var(--rule-base)]' : '',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
       style={{
         background: 'var(--surface-raised)',
-        borderColor: 'var(--rule-base)',
+        // A softer hairline than the tables use: with three layers of light
+        // doing the separating, a full-strength rule reads as a second edge.
+        borderColor: 'var(--rule-soft)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
       {tone ? (
-        <span
-          aria-hidden
-          className="absolute inset-x-0 top-0 block h-px"
-          style={{ background: `var(--${tone}-rule)` }}
-        />
+        <>
+          {/*
+           * THE ACCENT, SOFTENED TO MATCH THE CARD.
+           *
+           * A 3px rule down the left made every panel read as a callout. A hard
+           * 1px line across the top replaced that with a stray line touching
+           * nothing. Both were the same mistake: a hard edge on a soft surface.
+           *
+           * This is light rather than line. The hue bleeds down from the top in
+           * a wash that fades to nothing before the heading, and a short soft
+           * segment sits at the corner where the eye enters the card, blurred
+           * at its trailing end so it dissolves rather than stops. No part of it
+           * has a crisp boundary, which is what lets it sit on a card whose own
+           * lift is made of light.
+           *
+           * State is still carried by the chip on the title line, which has the
+           * glyph and the word. This is atmosphere, and it is allowed to be
+           * quiet because it is not the thing doing the work.
+           */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 block h-24"
+            style={{
+              background: `radial-gradient(120% 100% at 12% 0%, color-mix(in oklab, var(--${tone}-tint) 85%, transparent) 0%, transparent 70%)`,
+            }}
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute top-0 left-5 block h-[3px] w-24 rounded-b-full"
+            style={{
+              background: `linear-gradient(to right, color-mix(in oklab, var(--${tone}-ink) 55%, transparent), transparent)`,
+              filter: 'blur(0.5px)',
+            }}
+          />
+        </>
       ) : null}
-      {children}
+      <div className="relative">{children}</div>
     </div>
   );
 }

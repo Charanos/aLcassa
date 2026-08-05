@@ -155,7 +155,20 @@ export function DataList<T>({
             {fields.length > 0 ? (
               <dl
                 className="mt-3 grid gap-x-4 gap-y-2 border-t pt-3"
-                style={{ borderColor: 'var(--rule-soft)', gridTemplateColumns: 'auto 1fr' }}
+                style={{
+                  borderColor: 'var(--rule-soft)',
+                  /*
+                   * `minmax(0, 1fr)` RATHER THAN `1fr`, AND IT IS THE WHOLE BUG.
+                   *
+                   * A `1fr` track is `minmax(auto, 1fr)`, and `auto` refuses to
+                   * shrink below its content's minimum. The content here is
+                   * file paths like `src/lib/http/pipeline.ts`, which have no
+                   * break opportunity, so the track was sized to the longest
+                   * path and pushed the card wider than the phone. The card
+                   * layout was correct; the track was not.
+                   */
+                  gridTemplateColumns: 'auto minmax(0, 1fr)',
+                }}
               >
                 {fields.map((column) => (
                   <div key={column.key} className="contents">
@@ -165,8 +178,12 @@ export function DataList<T>({
                     <dd
                       className={[
                         column.mono ? 't-data' : 't-caption',
-                        'self-baseline text-right text-[var(--ink-secondary)]',
+                        'min-w-0 self-baseline text-right text-[var(--ink-secondary)]',
                       ].join(' ')}
+                      /* An identifier must wrap somewhere rather than
+                       * truncate: a half-shown path is not usable, and this
+                       * is a column a reader copies from. */
+                      style={{ overflowWrap: 'anywhere' }}
                     >
                       {column.cell(row)}
                     </dd>

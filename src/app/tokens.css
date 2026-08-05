@@ -47,7 +47,7 @@
    * The dark theme already worked this way and is unchanged.
    */
   --surface-page: #fbf9f5; /* never carries a border */
-  --surface-raised: #fffefb; /* panels, cards, toolbars. Lighter than the page */
+  --surface-raised: #fdfbf7; /* panels and cards. A soft step above the page */
   --surface-sunken: #f1ece3; /* fields, table headers, code, wells */
   --surface-invert: #1f1c18; /* the platform console header */
   --surface-hover: #f8f5ef; /* a row under the pointer, inside a raised panel */
@@ -374,18 +374,37 @@
 
 :root {
   /*
-   * A card lifted off a warm near-white page can only ever be a SUBTLE step:
-   * #FFFEFB on #FBF9F5 is 1.04:1 and no amount of nudging changes that without
-   * darkening the page, which is the one thing we are keeping.
+   * THE CARD LIFT, SOFT RATHER THAN STARK.
    *
-   * So the hairline does most of the work and this does the rest. It is a
-   * whisper, not a drop shadow: one pixel of contact and a very soft ambient
-   * spread, which is what separates a card from a hole without reintroducing
-   * the elevation model 03 §6 rejected. In dark it is nearly nothing, because
-   * on a dark ground the lighter fill already reads.
+   * A card on a warm near-white page can only ever be a ~1.04:1 fill step, so
+   * a hard drop shadow does the separating and looks like a sticker. This is
+   * the softer reading: THREE layers, all of them quiet.
+   *
+   *   1. an inset highlight along the top edge, which is the light catching
+   *      the card's near lip;
+   *   2. a wide, almost-white ambient spread up and to the left, which lets
+   *      the card sit IN the page rather than on top of it;
+   *   3. a soft warm shade down and to the right, offset rather than centred,
+   *      so the light has one consistent direction across the whole page.
+   *
+   * It is neumorphic in the sense that matters, a lit surface with a soft
+   * shade, and deliberately not in the sense that fails: the hairline stays,
+   * so a card's edge is never carried by the shadow alone. That is the usual
+   * accessibility failure of the style and there is no reason to inherit it.
+   *
+   * 03 §6 allows one shadow, on overlays. This is a fourth-generation revision
+   * of that rule for the tracker only and it is recorded in 15-spec-delta D9.
    */
-  --shadow-card: 0 1px 1px rgb(31 28 24 / 0.03), 0 2px 8px rgb(31 28 24 / 0.04);
-  --shadow-card-hover: 0 1px 2px rgb(31 28 24 / 0.05), 0 4px 14px rgb(31 28 24 / 0.07);
+  --shadow-card:
+    inset 0 1px 0 rgb(255 255 255 / 0.9), -3px -3px 8px rgb(255 255 255 / 0.7),
+    3px 4px 12px rgb(31 28 24 / 0.05), 0 1px 2px rgb(31 28 24 / 0.03);
+
+  --shadow-card-hover:
+    inset 0 1px 0 rgb(255 255 255 / 0.95), -4px -4px 10px rgb(255 255 255 / 0.8),
+    5px 7px 18px rgb(31 28 24 / 0.075), 0 1px 3px rgb(31 28 24 / 0.04);
+
+  /* A field is the same light, inverted: it sits INTO the sheet. */
+  --shadow-sunken: inset 1px 2px 4px rgb(31 28 24 / 0.045), inset -1px -1px 0 rgb(255 255 255 / 0.6);
 
   --scrollbar-width: 10px;
   --scrollbar-track: transparent;
@@ -406,4 +425,23 @@
 [data-theme='dark'] {
   --scrollbar-thumb: var(--rule-strong);
   --scrollbar-thumb-hover: var(--copper-ink);
+
+  /*
+   * The same light, restated for a dark ground rather than flipped.
+   *
+   * The highlight drops to a few percent, because on a dark surface a white
+   * lip at 90% reads as a glowing seam. The shade goes the other way and
+   * deepens: on dark, separation comes almost entirely from shadow, since a
+   * lighter fill has much less room to move before it stops looking like the
+   * same material.
+   */
+  --shadow-card:
+    inset 0 1px 0 rgb(255 255 255 / 0.045), -3px -3px 8px rgb(255 255 255 / 0.012),
+    4px 5px 14px rgb(0 0 0 / 0.4), 0 1px 2px rgb(0 0 0 / 0.3);
+
+  --shadow-card-hover:
+    inset 0 1px 0 rgb(255 255 255 / 0.06), -4px -4px 10px rgb(255 255 255 / 0.018),
+    6px 8px 20px rgb(0 0 0 / 0.5), 0 1px 3px rgb(0 0 0 / 0.35);
+
+  --shadow-sunken: inset 1px 2px 5px rgb(0 0 0 / 0.45), inset -1px -1px 0 rgb(255 255 255 / 0.03);
 }
