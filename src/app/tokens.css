@@ -22,24 +22,63 @@
 :root {
   color-scheme: light;
 
-  /* ─ Surface. The sheet beneath everything, and the two steps above it. ─ */
+  /* ─ Surface. The sheet, and the steps either side of it. ─
+   *
+   * ⚠ THE LIGHT RAMP IS INVERTED RELATIVE TO SHEET 01, DELIBERATELY.
+   *
+   * The sheet raised a panel by going DARKER than the page (#F4F0E8 on
+   * #FBF9F5). That is internally consistent and on this surface it read as
+   * flat: a page of cards all slightly darker than their ground looks like a
+   * page of holes rather than a page of cards, and the eye gets no help finding
+   * the edges.
+   *
+   * A panel now goes LIGHTER than the page, which is what a physical card on a
+   * drafting sheet actually does under a light. The page keeps its warm vellum
+   * ground, so nothing about the character of the palette changes; only the
+   * direction of the step does.
+   *
+   * `sunken` stays below the page, because a field genuinely is a well.
+   * The result is a real three-step ramp instead of two steps in one direction:
+   *
+   *      raised   #FFFEFB   a card, sitting on the sheet
+   *      page     #FBF9F5   the sheet
+   *      sunken   #F1ECE3   a well cut into it
+   *
+   * The dark theme already worked this way and is unchanged.
+   */
   --surface-page: #fbf9f5; /* never carries a border */
-  --surface-raised: #f4f0e8; /* panels, toolbars, table headers, footers */
-  --surface-sunken: #ede8de; /* fields and anything receiving input */
+  --surface-raised: #fffefb; /* panels, cards, toolbars. Lighter than the page */
+  --surface-sunken: #f1ece3; /* fields, table headers, code, wells */
   --surface-invert: #1f1c18; /* the platform console header */
-  --surface-hover: #f7f4ee; /* a row under the pointer */
+  --surface-hover: #f8f5ef; /* a row under the pointer, inside a raised panel */
 
-  /* ─ Rules. The only structure in the system. ─ */
-  --rule-soft: #e4ddcf; /* rows within a panel */
-  --rule-base: #cfc5b2; /* a panel edge, a field at rest */
-  --rule-strong: #b3a995; /* the one weight allowed to divide a screen */
+  /* ─ Rules. The only structure in the system. ─
+   * Warmed very slightly against the new lighter panel so a card edge still
+   * reads at a glance now that the fill contrast has shifted direction. */
+  --rule-soft: #ece5d8; /* rows within a panel */
+  --rule-base: #d8cfbd; /* a panel edge, a field at rest */
+  --rule-strong: #bcb2a0; /* the one weight allowed to divide a screen */
 
   /* ─ Ink. Four steps, each measured against surface-page. ─ */
   --ink-primary: #1f1c18; /* 16.1:1 */
   --ink-secondary: #55504a; /* 8.42:1 */
-  --ink-tertiary: #6c665d; /* 5.71:1 */
-  --ink-faint: #a79e8f; /* 2.61:1 · non-informational only */
+  --ink-tertiary: #635d54; /* 6.42:1 · lifted from #6C665D, see the note below */
+  --ink-faint: #8f8778; /* 3.42:1 · lifted from #A79E8F */
   --ink-inverse: #fbf9f5; /* on a solid hue or the inverted header */
+
+  /*
+   * ⚠ CONTRAST LIFT on the tertiary and faint steps, both themes.
+   *
+   * Sheet 01 measured a floor of 4.58:1 and every pair cleared AA at its size.
+   * That was true and it was still too tight in practice, because on a reading
+   * surface the tertiary step carries INFORMATION: the source line under a
+   * document card, a milestone week, a file path. 4.5:1 is a floor for a body
+   * of text, not a target for 13px metadata a reader scans rather than reads.
+   *
+   * Tertiary now clears 6:1 in both themes and faint clears 3:1, which keeps
+   * faint usable for the rules and eyebrows it was drawn for. The hue angles
+   * are untouched, so nothing about the palette's character moves.
+   */
 
   /* ─ Six hues, four variants each: ink · solid · tint · rule. ─
    * Copper      interaction, focus, the support session
@@ -112,9 +151,9 @@
   --rule-strong: #6e675c;
 
   --ink-primary: #ede9e1; /* 14.2:1 */
-  --ink-secondary: #b0a99e; /* 7.31:1 */
-  --ink-tertiary: #8a8377; /* 4.58:1 · the contrast floor of the system */
-  --ink-faint: #5f5a53; /* 2.44:1 · non-informational only */
+  --ink-secondary: #b8b1a6; /* 8.05:1 · lifted from #B0A99E */
+  --ink-tertiary: #9a9388; /* 6.03:1 · lifted from #8A8377, the old floor */
+  --ink-faint: #6f6960; /* 3.12:1 */
   --ink-inverse: #12110f;
 
   --copper-ink: #e09b66; /* 7.05:1 */
@@ -316,4 +355,55 @@
   --hatch-graphite: repeating-linear-gradient(45deg, var(--graphite-rule) 0 1px, transparent 1px 6px);
   --hatch-oxide: repeating-linear-gradient(45deg, var(--oxide-rule) 0 1px, transparent 1px 6px);
   --hatch-slate: repeating-linear-gradient(45deg, var(--slate-rule) 0 1px, transparent 1px 6px);
+}
+
+/* ═══ 8 · THE REVIEW SURFACE ═══════════════════════════════════════════════
+ * Tokens used ONLY by the presentation surface at `/`, kept separate so it is
+ * obvious which values the product does not touch.
+ *
+ * ⚠ THE PRESENTATION SURFACE DIVERGES FROM 03 §7 DELIBERATELY, and the
+ * divergence is scoped. `/app`, `/platform` and `/product` keep the rule that
+ * motion confirms and never entertains, because that is the product Brian is
+ * approving and he will see those screens a hundred times a day. This surface
+ * is read a handful of times, in a meeting, by someone deciding whether to sign
+ * something, and it earns a different budget. Recorded in 15-spec-delta A4.
+ *
+ * Every duration here is still bounded, and every animation is gated behind
+ * prefers-reduced-motion at the source rather than at the stylesheet.
+ */
+
+:root {
+  /*
+   * A card lifted off a warm near-white page can only ever be a SUBTLE step:
+   * #FFFEFB on #FBF9F5 is 1.04:1 and no amount of nudging changes that without
+   * darkening the page, which is the one thing we are keeping.
+   *
+   * So the hairline does most of the work and this does the rest. It is a
+   * whisper, not a drop shadow: one pixel of contact and a very soft ambient
+   * spread, which is what separates a card from a hole without reintroducing
+   * the elevation model 03 §6 rejected. In dark it is nearly nothing, because
+   * on a dark ground the lighter fill already reads.
+   */
+  --shadow-card: 0 1px 1px rgb(31 28 24 / 0.03), 0 2px 8px rgb(31 28 24 / 0.04);
+  --shadow-card-hover: 0 1px 2px rgb(31 28 24 / 0.05), 0 4px 14px rgb(31 28 24 / 0.07);
+
+  --scrollbar-width: 10px;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: var(--rule-base);
+  --scrollbar-thumb-hover: var(--copper-rule);
+
+  /* Theme crossfade. The toggle is instant and client-side; this is what stops
+   * an instant change from reading as a flicker. */
+  --theme-transition: 280ms;
+
+  /* Reveal choreography. GSAP reads these so the timing lives in the token
+   * file with everything else rather than as numbers scattered in a hook. */
+  --reveal-distance: 18px;
+  --reveal-duration: 0.75s;
+  --reveal-stagger: 0.055s;
+}
+
+[data-theme='dark'] {
+  --scrollbar-thumb: var(--rule-strong);
+  --scrollbar-thumb-hover: var(--copper-ink);
 }

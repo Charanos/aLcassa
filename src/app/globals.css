@@ -115,6 +115,27 @@
     /* Sheet 02: automatic hyphenation is off throughout. A ragged edge is
      * preferable to a broken tenant name. */
     hyphens: none;
+
+    /* Kerning, standard ligatures and contextual alternates, on explicitly
+     * rather than left to a browser default that differs per engine. Libertinus
+     * has a properly built kern table and it is the difference between "Ta" and
+     * "Ta" at display size. */
+    font-kerning: normal;
+    font-feature-settings:
+      'kern' 1,
+      'liga' 1,
+      'calt' 1;
+
+    scroll-behavior: smooth;
+    /* The sticky header is 3.5rem. Without this, every in-page anchor lands
+     * with its heading underneath the header. */
+    scroll-padding-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {
@@ -125,6 +146,41 @@
     /* Tabular figures everywhere, so a column of numbers can be compared down
      * its right edge. Mono is already even. */
     font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * ANTIALIASING, SET PER THEME RATHER THAN GLOBALLY.
+   *
+   * `-webkit-font-smoothing: antialiased` is usually applied blanket, and on a
+   * LIGHT ground that is a mistake: it drops the extra coverage subpixel
+   * rendering gives, so strokes thin out. In a system with ONE WEIGHT and no
+   * bold to fall back on, thinning the only weight there is costs real
+   * legibility rather than looking slightly lighter.
+   *
+   * On a DARK ground the opposite is true. Light text on dark bloats under
+   * subpixel rendering and the counters in a serif start to fill in, so
+   * greyscale antialiasing is what keeps Libertinus Serif crisp at 56px.
+   *
+   * So: subpixel on light, greyscale on dark. Which is what the two screenshots
+   * of this page side by side actually needed.
+   */
+  :root {
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+  }
+
+  [data-theme='dark'] {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Optical correction. At display size a serif needs to tighten; at caption
+   * size it needs to open. The scale in tokens.css carries tracking per step,
+   * and this is the piece that cannot live in a `font` shorthand. */
+  .t-display,
+  .t-title {
+    font-optical-sizing: auto;
+    font-variant-ligatures: common-ligatures discretionary-ligatures;
   }
 
   p,
@@ -175,6 +231,112 @@
   ::selection {
     background: var(--selection-bg);
     color: var(--selection-fg);
+  }
+
+  /*
+   * THE SCROLLBAR.
+   *
+   * A drafting sheet has a measured edge, and the default Windows scrollbar is
+   * a grey slab that belongs to no design system at all. This one is built from
+   * the surface ramp: the track is the page, the thumb is a rule, and it warms
+   * to copper on hover the same way every other interactive edge in the system
+   * does.
+   *
+   * `scrollbar-gutter: stable` reserves the track whether or not content
+   * overflows, so a page that grows past the viewport does not shift sideways
+   * by 10px the moment it does. That shift is small, and on a page a reader
+   * scrolls back and forth through it is very noticeable.
+   */
+  html {
+    scrollbar-gutter: stable;
+    /* Firefox and the standard property. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  ::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--r-chip);
+    /* A transparent border with background-clip gives the thumb breathing room
+     * inside its track without a second element. */
+    border: 3px solid transparent;
+    background-clip: content-box;
+    transition: background-color var(--motion-fade) var(--ease-standard);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /*
+   * THEME CROSSFADE.
+   *
+   * The toggle is instant and client-side, which without this reads as a
+   * flicker rather than a change. Only colour properties transition: a
+   * transition on `all` would catch layout and turn a theme change into a
+   * reflow animation.
+   *
+   * The exclusion list matters. Anything mid-animation under GSAP must not
+   * pick up a CSS transition on the same properties, or the two fight and the
+   * result stutters.
+   */
+  :root:not([data-theme-ready='false']) body,
+  :root:not([data-theme-ready='false']) body * {
+    transition:
+      background-color var(--theme-transition) var(--ease-standard),
+      border-color var(--theme-transition) var(--ease-standard),
+      color var(--theme-transition) var(--ease-standard),
+      outline-color var(--theme-transition) var(--ease-standard);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root body,
+    :root body * {
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /*
+   * ⚠ NOTHING HERE HIDES CONTENT. THAT IS THE WHOLE POINT.
+   *
+   * The first version of this set `[data-reveal] { opacity: 0 }` and let GSAP
+   * bring elements in. It is the standard pattern and it is WRONG for a page
+   * whose job is to be read: any failure between the stylesheet and the
+   * timeline — a blocked script, a CSP mistake, a trigger that never fires
+   * because the element was already past the fold on load — leaves a heading
+   * with nothing under it. Content that needs JavaScript to become visible is
+   * content that can be invisible.
+   *
+   * So the reveal is ADDITIVE now. Elements are visible by default; the motion
+   * layer hides only what is currently below the fold, animates it in, and has
+   * a watchdog that reverses itself if anything is still hidden after a beat.
+   * `will-change` is the only thing declared here, and it is a hint, not a
+   * state.
+   */
+  [data-reveal] {
+    will-change: transform, opacity;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      opacity: 1 !important;
+      transform: none !important;
+      will-change: auto;
+    }
   }
 
   /* An unstyled interactive element is a defect, but an unreachable one is a

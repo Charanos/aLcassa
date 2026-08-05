@@ -12,19 +12,44 @@ import { NextResponse, type NextRequest } from 'next/server';
  * and the coarse redirect for an unauthenticated request to a private tree.
  */
 
+/**
+ * 04 §7. Strict CSP with nonces.
+ *
+ * ⚠ TWO THINGS HERE ARE EASY TO GET WRONG AND BOTH WERE, INITIALLY.
+ *
+ * 1. THE NONCE MUST BE ON THE REQUEST HEADERS, NOT ONLY THE RESPONSE.
+ *    Next.js generates its own script tags, and it discovers the nonce to stamp
+ *    on them by reading the `Content-Security-Policy` header off the REQUEST.
+ *    Setting the policy only on the response produces a page whose CSP demands
+ *    a nonce and whose scripts have none, so under `strict-dynamic` the browser
+ *    blocks every bundle. The page renders, the markup is right, and nothing is
+ *    interactive: no hydration, no theme toggle, no palette, and any content
+ *    revealed by script stays invisible forever.
+ *
+ * 2. DEVELOPMENT NEEDS `unsafe-eval`.
+ *    The dev bundler evaluates modules as strings for hot reloading. Production
+ *    does not, so the exemption is scoped to development rather than shipped.
+ *
+ * Both failures look identical from the server: 200, correct HTML, dead page.
+ * Only the browser console names them.
+ */
+const isDev = process.env.NODE_ENV === 'development';
+
 const CSP_DIRECTIVES = (nonce: string) =>
   [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-    "style-src 'self' 'unsafe-inline'", // Tailwind emits a stylesheet; inline styles come from it only
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''}`,
+    // Tailwind emits a stylesheet, and the design system sets token values
+    // through inline `style` attributes on server-rendered elements.
+    "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
-    "font-src 'self'",
-    "connect-src 'self'",
-    "frame-ancestors 'none'", // 04 §7
+    "font-src 'self' data:",
+    `connect-src 'self'${isDev ? ' ws: wss:' : ''}`,
+    "frame-ancestors 'none'",
     "form-action 'self'",
     "base-uri 'self'",
     "object-src 'none'",
-    'upgrade-insecure-requests',
+    ...(isDev ? [] : ['upgrade-insecure-requests']),
   ].join('; ');
 
 /** 02 §3. Two doors, two cookie names, no navigational path between them. */
@@ -37,10 +62,15 @@ export function middleware(request: NextRequest): NextResponse {
   const nonce = crypto.randomUUID().replace(/-/g, '');
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
 
+  const csp = CSP_DIRECTIVES(nonce);
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-nonce', nonce);
   requestHeaders.set('x-request-id', requestId);
   requestHeaders.set('x-pathname', pathname);
+  // This line is what lets Next stamp the nonce onto its own script tags.
+  // Without it the policy blocks the bundles it is supposed to permit.
+  requestHeaders.set('content-security-policy', csp);
 
   // ─ Coarse access control. The real authorisation happens in the pipeline;
   //   this only avoids rendering a shell for a request that has no session. ─
@@ -65,7 +95,7 @@ export function middleware(request: NextRequest): NextResponse {
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
 
-  response.headers.set('Content-Security-Policy', CSP_DIRECTIVES(nonce));
+  response.headers.set('Content-Security-Policy', csp);
   response.headers.set('X-Request-Id', requestId);
 
   // 02 §10. Nothing under these trees is ever indexed.

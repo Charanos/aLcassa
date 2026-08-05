@@ -140,6 +140,48 @@ mode". `10 §1` rule 7 and `11 §6` rule 16 forbid em dashes in any copy.
 
 **Resolution.** The copy deck wins. The frame's strings are those in `10 §11`.
 
+### D8 · The 3px left rule on panels is removed
+
+`03` uses a coloured left rule to mark a panel that carries state, and sheet 04
+draws the same. In practice it did three jobs badly at once: it made every panel
+read as a callout, so a page of them looked like a stack of warnings; it broke
+the card's geometry, since the left padding no longer matched the other three
+sides; and it put state at the extreme left edge, which is where the eye scans
+last.
+
+State now lives in the chip on the title line, which already carries a glyph and
+a word and therefore survives colour blindness and a printed page. A panel with
+a state gets a one-pixel accent along its TOP edge instead, directly above the
+heading it qualifies. Most panels get no accent at all.
+
+### D9 · The light surface ramp is inverted, and the tertiary ink is lifted
+
+Sheet 01 raises a panel by going DARKER than the page, `#F4F0E8` on `#FBF9F5`.
+Internally consistent, and on a page of cards it read as a page of holes. A
+panel now goes LIGHTER than the page, `#FFFEFB`, which is what a card on a
+drafting sheet does under a light. `sunken` stays below the page, so the result
+is a genuine three-step ramp rather than two steps in one direction. The dark
+theme already worked this way and is unchanged.
+
+The tertiary and faint ink steps are lifted in both themes: tertiary now clears
+6:1 rather than sitting on the measured 4.58:1 floor. On a reading surface that
+step carries information (a source line, a milestone week, a file path), and
+4.5:1 is a floor for a body of text rather than a target for 13px metadata.
+
+A whisper of elevation is added for cards on the tracker, `--shadow-card`. On a
+warm near-white ground a lighter fill can only ever be a 1.04:1 step, so the
+hairline plus one pixel of contact shadow does the rest.
+
+### D10 · Tables destructure into cards below `md`
+
+`03 §12` puts the data grid in a horizontally scrolling container. That is right
+for the console at 1440 and wrong for a page read on a phone: the row labels
+leave the screen, the reader loses which column they are in, and the gesture
+fights page scroll. The tracker's tables render as a real `<table>` above `md`
+and as one card per row below it, with the column name as the term and the cell
+as the definition. Same data, one source, two honest presentations, and neither
+scrolls sideways. `src/components/presentation/DataList.tsx`.
+
 ### D7 · AI rules precedence is recommended differently by each set
 
 **Conflict.** `01 D-08` recommends the layered model, where master rules carry a
@@ -181,16 +223,61 @@ the difference between a policy that applies to everyone and one that applies to
 everyone except the connection most likely to be misused. `check-policies.ts`
 asserts it.
 
-### A3 · The presentation surface occupies `/`
+### A3 · The project tracker at `/project-tracker`
 
-Temporary. The marketing page specified in `02 §2` and `10 §2` is intact at
-`/product`. At launch the two swap back. Recorded here so it is not discovered
-later.
+A permanent client-facing surface, not in any document because no document
+anticipated one. It carries delivery status, the update feed, the milestone
+tracker, the compliance register, the documentation set and the design set. `/`
+is the marketing page from `02 §2`, unchanged.
 
-The client-facing surface deliberately omits document 01, which declares itself
-an internal working document, and the commercial terms, which belong in the
-signed brief rather than on a shared link. Both are filtered by an explicit flag
-in `src/lib/presentation/documents.ts` rather than by being forgotten.
+The surface deliberately omits document 01, which declares itself an internal
+working document, and the commercial terms, which belong in the signed brief
+rather than on a shared link. Both are filtered by an explicit flag in
+`src/lib/presentation/documents.ts` AND refused at their URL, because a filter
+that only hides a link is not a control.
+
+Two fields in `engagement.ts` are the tracker: `status` and `progress` per
+milestone. Everything else in that file is contract and does not move.
+
+### A4 · GSAP and scroll-triggered motion, on the tracker only
+
+`03 §7` and `11 §6` rule 20 forbid GSAP, scroll-triggered animation and
+counting-up numbers. The tracker uses all three. `/`, `/app` and `/platform`
+do not, and that boundary is the whole justification: the product is seen a
+hundred times a day and anything that animates on arrival becomes a tax by
+Wednesday, whereas the tracker is read a handful of times by someone deciding
+whether to sign something.
+
+**The rule that came out of getting this wrong first:** content is never hidden
+by CSS and left waiting for script to reveal it. The first implementation put
+`opacity: 0` on every revealed element and let ScrollTrigger bring them in; a
+CSP mistake killed every bundle and the client saw a page of headings with
+nothing underneath. The reveal is now additive, only elements currently below
+the fold are hidden, and a watchdog restores anything still hidden after 2.5
+seconds. `src/components/presentation/TrackerMotion.tsx` carries the reasoning.
+
+### A5 · The CSP needed the nonce on the request, and dev needs `unsafe-eval`
+
+Next discovers the nonce to stamp on its own script tags by reading the
+`Content-Security-Policy` header off the REQUEST. Setting it only on the
+response produced a page whose policy demanded a nonce and whose scripts had
+none, so `strict-dynamic` blocked every bundle: 200 response, correct markup,
+completely dead page. The dev bundler additionally evaluates modules as strings,
+so development carries `unsafe-eval` and production does not. `src/middleware.ts`.
+
+### A6 · The palette cannot carry six categorical chart series
+
+Running the six-check validator over the six hues as a chart palette fails, and
+not marginally: copper against ochre is ΔE 6.8 to normal vision and 1.5 under
+deuteranopia. They are adjacent warm hues chosen so a row of status chips does
+not vibrate, and that restraint makes them unusable as neighbouring series.
+
+Rather than invent chart-only hues and give the product a second palette, the
+charts use forms that do not need categorical colour: magnitude by category with
+the category on the axis and ONE hue, and direct labels on every value. Identity
+never rests on colour, which `03 §3` rule 3 already required. The passing
+three-hue order, where one is needed, is slate → oxide → verdigris. Never copper
+adjacent to ochre.
 
 ---
 

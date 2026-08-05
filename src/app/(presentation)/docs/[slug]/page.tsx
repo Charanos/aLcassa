@@ -60,13 +60,13 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
           className="mx-auto flex h-14 items-center gap-4 px-5 md:px-8"
           style={{ maxWidth: '1180px' }}
         >
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href="/project-tracker" className="flex items-center gap-2.5">
             <Mark size={20} />
             <span className="t-chip text-[var(--ink-primary)]">Conduit</span>
           </Link>
 
           <Link
-            href="/#s6"
+            href="/project-tracker#documents"
             className="t-eyebrow ml-2 flex items-center gap-1.5 text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
           >
             <IconArrowNarrowLeft size={14} stroke={1.5} aria-hidden />

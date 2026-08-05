@@ -1,5 +1,11 @@
 import 'server-only';
 import { cookies, headers } from 'next/headers';
+import {
+  isThemePreference,
+  THEME_COOKIE,
+  type ResolvedTheme,
+  type ThemePreference,
+} from './theme-shared';
 
 /**
  * 03 §19. The theme is resolved server side so there is no flash.
@@ -16,16 +22,14 @@ import { cookies, headers } from 'next/headers';
  * preference renders light for that one navigation and correctly from then on.
  * Light is the ground the drafting sheet is drawn on, so a wrong first frame
  * there is the less jarring of the two.
+ *
+ * Once a reader presses the toggle, the client writes the cookie directly and
+ * this reads it on every subsequent render. See ThemeToggle for why the toggle
+ * is not a server action.
  */
 
-export const THEME_COOKIE = 'conduit_theme';
-
-export type ThemePreference = 'light' | 'dark' | 'system';
-export type ResolvedTheme = 'light' | 'dark';
-
-export function isThemePreference(value: string | undefined): value is ThemePreference {
-  return value === 'light' || value === 'dark' || value === 'system';
-}
+export { THEME_COOKIE, isThemePreference, THEME_COOKIE_MAX_AGE } from './theme-shared';
+export type { ThemePreference, ResolvedTheme } from './theme-shared';
 
 export async function getThemePreference(): Promise<ThemePreference> {
   const store = await cookies();
