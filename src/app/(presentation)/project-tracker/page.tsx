@@ -9,14 +9,14 @@ import {
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
-import { Fact, Panel, SheetSection, StatTile, StatusChip, type Tone } from '@/components/presentation/Sheet';
+import { Fact, Panel, SheetSection, StatTile, StatusChip, Well, type Tone } from '@/components/presentation/Sheet';
 import { DataList, type Column } from '@/components/presentation/DataList';
 import { DocCard } from '@/components/presentation/DocCard';
 import { TrackerHeader } from '@/components/presentation/TrackerHeader';
 import { TrackerMotion } from '@/components/presentation/TrackerMotion';
 import { Timeline, MILESTONE_STATUS } from '@/components/presentation/Timeline';
 import { FoundationExplorer } from '@/components/presentation/FoundationExplorer';
-import { CategoryBars } from '@/components/presentation/Charts';
+import { ProgressLine } from '@/components/presentation/Charts';
 import { CommandPalette, type Command } from '@/components/presentation/CommandPalette';
 import { getThemePreference, resolveTheme } from '@/lib/theme';
 import {
@@ -129,12 +129,17 @@ export default async function ProjectTrackerPage() {
     { id: 'action-product', label: 'Open the product surface', group: 'Actions', href: '/' },
   ];
 
-  /** Milestone progress as magnitude. One hue, direct labels, status as a chip
-   *  in the timeline beneath rather than as a second colour dimension. */
+  /**
+   * Milestone progress as a SEQUENCE rather than a set of categories: M0
+   * genuinely precedes M1, which precedes M2, in a way "Data model" and
+   * "API" as areas do not precede each other. The line's x-axis label is the
+   * short id, since eight full names side by side would collide; the full
+   * name and status are what the tooltip is for.
+   */
   const milestoneChart = MILESTONES.map((m) => ({
-    label: `${m.id} · ${m.name}`,
+    label: m.id,
     value: m.progress,
-    note: MILESTONE_STATUS[m.status].label,
+    note: `${m.name} · ${MILESTONE_STATUS[m.status].label}`,
   }));
 
   const requirementColumns: Array<Column<(typeof REQUIREMENTS)[number]>> = [
@@ -163,7 +168,7 @@ export default async function ProjectTrackerPage() {
       <CommandPalette commands={commands} />
       <TrackerHeader theme={theme} sections={SECTIONS} />
 
-      <main id="main" className="mx-auto px-5 pb-28 md:px-8" style={{ maxWidth: '1240px' }}>
+      <main id="main" className="mx-auto px-5 pb-28 md:px-8" style={{ maxWidth: 'var(--surface-width)' }}>
         {/* ═══ TITLE BLOCK ═══════════════════════════════════════════════ */}
         <div id="top" className="pt-14 md:pt-20">
           <div className="flex items-center gap-3">
@@ -359,7 +364,7 @@ export default async function ProjectTrackerPage() {
           >
             <Panel className="mb-6" reveal>
               <h3 className="t-micro mb-3 text-[var(--ink-tertiary)]">Progress by milestone</h3>
-              <CategoryBars data={milestoneChart} suffix="%" max={100} height={300} labelWidth={168} />
+              <ProgressLine data={milestoneChart} suffix="%" height={260} />
             </Panel>
 
             <Timeline milestones={MILESTONES} />
@@ -484,25 +489,19 @@ export default async function ProjectTrackerPage() {
                     </p>
 
                     <dl className="mt-4 grid gap-4 md:grid-cols-2">
-                      <div
-                        className="rounded-chip border p-3"
-                        style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-sunken)' }}
-                      >
+                      <Well>
                         <dt className="t-eyebrow text-[var(--ink-tertiary)]">In place</dt>
                         <dd className="t-caption mt-1.5 text-[var(--ink-secondary)]">
                           {item.evidence}
                         </dd>
-                      </div>
+                      </Well>
                       {item.outstanding ? (
-                        <div
-                          className="rounded-chip border p-3"
-                          style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-sunken)' }}
-                        >
+                        <Well>
                           <dt className="t-eyebrow text-[var(--ink-tertiary)]">Outstanding</dt>
                           <dd className="t-caption mt-1.5 text-[var(--ink-secondary)]">
                             {item.outstanding}
                           </dd>
-                        </div>
+                        </Well>
                       ) : null}
                     </dl>
                   </Panel>

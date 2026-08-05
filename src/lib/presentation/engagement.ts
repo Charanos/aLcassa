@@ -323,6 +323,13 @@ export const COMPLIANCE = [
 export const UPDATES = [
   {
     date: '2026-08-05',
+    title: 'Foundation-phase visual pass complete',
+    body: 'Final UI/UX review before the delivery milestones begin. Chart forms revised to fit what each is actually showing: the readiness breakdown is a donut with the total in its centre, milestone progress is a line across the sequence rather than a bar. One page width now shared by the marketing page, the tracker and the document viewer, replacing three pages that had each picked their own. The marketing hero rebuilt with a title-block fact row and a technical schematic in place of a plain two-button block. The access screens carry a properly weighted mark, a trust list and a title-block footer rather than an empty column.',
+    milestone: 'M0',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-08-05',
     title: 'Architectural foundation established',
     body: 'Schema, policies, the policy check script and the generated isolation suite are in the repository and green. The request pipeline, the shared entitlement guard, the audit writer, the redacting logger and the cache layer are built. The token system, both application shells and the boundary frame are built.',
     milestone: 'M0, M1',

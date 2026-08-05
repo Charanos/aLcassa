@@ -14,6 +14,7 @@ import {
 } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 import { Button } from '@/components/primitives/Button';
+import { HeroDiagram } from '@/components/marketing/HeroDiagram';
 
 export const metadata: Metadata = {
   title: { absolute: 'One inbox for every message your customers send · Conduit' },
@@ -85,7 +86,7 @@ export default function MarketingPage() {
       >
         <div
           className="mx-auto flex h-16 items-center gap-4 px-5 md:px-8"
-          style={{ maxWidth: '1100px' }}
+          style={{ maxWidth: 'var(--surface-width)' }}
         >
           <Link
             href="/"
@@ -106,37 +107,80 @@ export default function MarketingPage() {
         </div>
       </header>
 
-      <main id="main" className="mx-auto px-5 pb-24 md:px-8" style={{ maxWidth: '1100px' }}>
-        {/* ── Hero ────────────────────────────────────────────────────── */}
-        <section className="pt-16 md:pt-28">
-          <div className="flex items-center gap-3">
-            <span
-              aria-hidden
-              className="block h-px w-7"
-              style={{ background: 'var(--copper-rule)' }}
-            />
-            <p className="t-eyebrow text-[var(--copper-ink)]">Customer support platform</p>
+      <main id="main" className="mx-auto px-5 pb-24 md:px-8" style={{ maxWidth: 'var(--surface-width)' }}>
+        {/*
+          ── Hero ───────────────────────────────────────────────────────
+
+          ⚠ REVAMPED. The tracker's hero read as more considered than this
+          one for two nameable reasons rather than a vague polish gap: it
+          carried a small TITLE-BLOCK fact row (prepared for, issued, status,
+          duration) that gave it the density and specificity of a drafting
+          sheet rather than a generic SaaS hero, and it filled the width
+          rather than sitting as a lone column of text in a lot of empty
+          page. Both are addressed here: the fact row below is the same
+          drafting-sheet motif restated in marketing terms, and the schematic
+          on the right gives the hero a second thing to look at without
+          resorting to a screenshot or a gradient. 03 §20's checklist still
+          holds throughout: no gradient, no glass, nothing that counts up.
+        */}
+        <section className="grid gap-12 pt-16 md:pt-24 lg:grid-cols-[1.05fr_auto] lg:items-center lg:gap-10">
+          <div>
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden
+                className="block h-px w-7"
+                style={{ background: 'var(--copper-rule)' }}
+              />
+              <p className="t-eyebrow text-[var(--copper-ink)]">Customer support platform</p>
+            </div>
+
+            <h1 className="t-display mt-6 text-[var(--ink-primary)]" style={{ maxWidth: '17ch' }}>
+              One inbox for every message your customers send.
+            </h1>
+
+            <p
+              className="t-lede mt-7 text-[var(--ink-secondary)]"
+              style={{ maxWidth: 'var(--measure-prose)' }}
+            >
+              WhatsApp, Instagram, Messenger and your website, handled in one place by one team.
+              Currently in development.
+            </p>
+
+            <dl className="mt-9 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
+              <div>
+                <dt className="t-eyebrow text-[var(--ink-tertiary)]">Status</dt>
+                <dd className="t-data mt-1.5" style={{ color: 'var(--ochre-ink)' }}>
+                  In development
+                </dd>
+              </div>
+              <div>
+                <dt className="t-eyebrow text-[var(--ink-tertiary)]">Foundation</dt>
+                <dd className="t-data mt-1.5" style={{ color: 'var(--verdigris-ink)' }}>
+                  Live
+                </dd>
+              </div>
+              <div>
+                <dt className="t-eyebrow text-[var(--ink-tertiary)]">Channels</dt>
+                <dd className="t-data mt-1.5 text-[var(--ink-primary)]">Next phase</dd>
+              </div>
+              <div>
+                <dt className="t-eyebrow text-[var(--ink-tertiary)]">Built for</dt>
+                <dd className="t-data mt-1.5 text-[var(--ink-primary)]">B2B teams</dd>
+              </div>
+            </dl>
+
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Button asChild variant="primary" size="lg">
+                <Link href="/sign-up">Request access</Link>
+              </Button>
+              <Button asChild variant="secondary" size="lg">
+                <Link href="/sign-in">Sign in</Link>
+              </Button>
+            </div>
           </div>
 
-          <h1 className="t-display mt-6 text-[var(--ink-primary)]" style={{ maxWidth: '17ch' }}>
-            One inbox for every message your customers send.
-          </h1>
-
-          <p
-            className="t-lede mt-7 text-[var(--ink-secondary)]"
-            style={{ maxWidth: 'var(--measure-prose)' }}
-          >
-            WhatsApp, Instagram, Messenger and your website, handled in one place by one team.
-            Currently in development.
-          </p>
-
-          <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Button asChild variant="primary" size="lg">
-              <Link href="/sign-up">Request access</Link>
-            </Button>
-            <Button asChild variant="secondary" size="lg">
-              <Link href="/sign-in">Sign in</Link>
-            </Button>
+          <div className="hidden justify-self-end lg:block">
+            <HeroDiagram />
           </div>
         </section>
 
@@ -305,7 +349,7 @@ export default function MarketingPage() {
       <footer className="border-t" style={{ borderColor: 'var(--rule-soft)' }}>
         <div
           className="mx-auto flex flex-wrap items-start justify-between gap-8 px-5 py-10 md:px-8"
-          style={{ maxWidth: '1100px' }}
+          style={{ maxWidth: 'var(--surface-width)' }}
         >
           <div className="flex items-center gap-2.5">
             <Mark size={20} />

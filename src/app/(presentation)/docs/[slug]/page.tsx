@@ -58,7 +58,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
       >
         <div
           className="mx-auto flex h-14 items-center gap-4 px-5 md:px-8"
-          style={{ maxWidth: '1180px' }}
+          style={{ maxWidth: 'var(--surface-width)' }}
         >
           <Link href="/project-tracker" className="flex items-center gap-2.5">
             <Mark size={20} />
@@ -84,7 +84,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
 
       <div
         className="mx-auto flex gap-10 px-5 pb-24 md:px-8"
-        style={{ maxWidth: '1180px' }}
+        style={{ maxWidth: 'var(--surface-width)' }}
       >
         {/* The index, fixed. A reader in a review meeting jumps between
             documents constantly, and a back-and-forth through the hub would

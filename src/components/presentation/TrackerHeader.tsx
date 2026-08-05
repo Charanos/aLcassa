@@ -26,7 +26,7 @@ export function TrackerHeader({
     >
       <div
         className="mx-auto flex h-16 items-center gap-5 px-5 md:px-8"
-        style={{ maxWidth: '1240px' }}
+        style={{ maxWidth: 'var(--surface-width)' }}
       >
         <Link
           href="#top"

@@ -170,7 +170,51 @@ step carries information (a source line, a milestone week, a file path), and
 
 A whisper of elevation is added for cards on the tracker, `--shadow-card`. On a
 warm near-white ground a lighter fill can only ever be a 1.04:1 step, so the
-hairline plus one pixel of contact shadow does the rest.
+hairline plus a soft contact shadow does the rest. This went through three
+revisions before landing, and the sequence is worth keeping because each one
+was rejected by review for a specific, nameable reason:
+
+1. A hairline top rule in a state's hue. Read as a stray line touching
+   nothing, an applied mark rather than a property of the card.
+2. A radial wash bleeding from the top corner plus a short blurred segment.
+   Same complaint restated in a softer material: still a decoration drawn ON
+   the card.
+3. **Coloured neumorphism, the version that shipped.** No mark of any kind.
+   A toned panel's ambient shadow pair, the soft light on its near lip and the
+   soft shade falling away from it, is mixed from `--{tone}-ink` at 8 percent
+   rather than from neutral graphite, using `color-mix()` so nothing extra is
+   drawn and the shadow simply glows the colour of the state it names. State
+   is still named exactly, on the chip on the title line; the colour on the
+   card is atmosphere confirming what the chip already said, per `03 §3` rule
+   3, never the only carrier of it.
+
+**Extremely soft is a deliberate constraint, not a first pass to be turned
+up.** The tone mix sits at 8 percent specifically so a reader could not name
+the hue if asked, and six of these in a row still read as belonging to the
+same page rather than as six different colours competing for attention. A
+neumorphic shadow that is legible as "coloured" on inspection but invisible as
+a decision on a normal read is the target register; anything louder starts
+reading as a highlight rather than as light.
+
+`src/components/presentation/Sheet.tsx`, the `toneShadow` function.
+
+### D11 · Nested content blocks go lighter, never darker
+
+A block nested inside a card, such as the "in place" and "outstanding" pair on
+the compliance register, defaults toward `--surface-sunken`, the way a field is
+sunk. That default is wrong here. A field is sunk because it RECEIVES INPUT and
+a well is the correct affordance for that; a fact block receives nothing, and
+stacking two dark steps, page darker than card darker than sunken block, reads
+as the content being buried rather than organised.
+
+In a coloured-neumorphic system depth comes from layers of LIGHT, not layers of
+shade, so a block one level further from the page goes one step CLOSER to the
+light source instead: `--surface-well`, pure white in light and a touch lighter
+than `--surface-raised` in dark, carrying its own small soft lift,
+`--shadow-well`, scaled down from the card shadow rather than a border doing
+the separating.
+
+`src/components/presentation/Sheet.tsx`, the `Well` component.
 
 ### D10 · Tables destructure into cards below `md`
 
@@ -199,6 +243,47 @@ the schema locks is a migration in week seven.
 The recommendation put to the client is **layered**, on the grounds in `01 D-08`.
 
 **Where:** `src/db/schema/airules.ts`.
+
+### D12 · A pie chart, deliberately, against the `dataviz` skill's default
+
+The chart guidance this project follows recommends against a pie chart as a
+default. The readiness breakdown on the foundation explorer (built,
+scaffolded, planned) is one now, drawn as a donut with the total in the hole.
+The set is fixed at exactly three items, the reader's actual question is
+"what share of the whole is each", which a pie answers more directly than a
+bar does, and the guard rails stay on: a direct label, a percentage and a
+legend row per segment, plus the system's own hatch fill standing in for
+"planned" rather than a fourth colour. `src/components/presentation/Charts.tsx`,
+`ProportionDonut`.
+
+### D13 · Milestone progress is a line, not a bar
+
+Areas and milestones are both "categories" in the loose sense, and the
+foundation-by-area chart stays a horizontal bar for that reason. Milestones are
+different: M0 genuinely precedes M1, which precedes M2, each a dependency of
+the next, which is the definition of an ordered axis rather than a set. A line
+is the form for change across an ordered axis; a bar is the form for magnitude
+across an unordered one. `ProgressLine` in the same file.
+
+### D14 · One width, shared by every reading surface
+
+The marketing page, the tracker and the document viewer each carried their own
+hardcoded page width, 1100px, 1240px and 1180px respectively, which is how
+three pages meant to read as one product ended up visibly disagreeing about
+how wide a page is. `--surface-width: 1240px` in `tokens.css` is now the one
+number all three read, so the question cannot recur by a future page picking
+its own value again.
+
+### D15 · A schematic on the marketing hero, not a screenshot
+
+03 §20 forbids a mock inbox behind a "coming soon" overlay, but that rule
+targets the placeholder surfaces, a designed screen pretending a feature exists
+that does not. The marketing hero now carries a technical illustration instead:
+four channel nodes, not yet connected, converging through a single line into a
+workspace node that is real. It is drawn in the same rule-and-panel vocabulary
+as everything else, self-contained SVG and HTML rather than an image asset, and
+it says the same thing the copy already says, honestly, rather than implying a
+working inbox. `src/components/marketing/HeroDiagram.tsx`.
 
 ---
 
@@ -264,6 +349,24 @@ response produced a page whose policy demanded a nonce and whose scripts had
 none, so `strict-dynamic` blocked every bundle: 200 response, correct markup,
 completely dead page. The dev bundler additionally evaluates modules as strings,
 so development carries `unsafe-eval` and production does not. `src/middleware.ts`.
+
+### A7 · The access screens' aside carries a trust list, not just prose
+
+`02 §3` specifies the routes and `10 §3` specifies the copy; neither speaks to
+the aside's visual density. The first pass put a mark, two paragraphs and an
+address in a plain sunken column, which read as a placeholder rather than a
+finished screen once the tracker and the marketing hero had already set a
+higher bar. The aside now carries a properly sized mark and wordmark, a small
+reference to the actual design sheet the screen is drawn from ("Sheet 08 ·
+Access"), a short scannable trust list in place of the second paragraph of
+prose, a whisper of the system's own hatch texture, and a title-block footer
+in place of a bare address line.
+
+Deliberately scoped to the aside only. The form column, the fields themselves,
+was reviewed and found already correct, so it is untouched: no card wrapper,
+no leading icons, nothing that was not there before. Where a change earns its
+place and where it does not are two different questions, and this is a record
+of asking both. `src/components/access/AuthShell.tsx`.
 
 ### A6 · The palette cannot carry six categorical chart series
 

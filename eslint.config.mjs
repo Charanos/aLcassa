@@ -15,7 +15,26 @@ const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
  *   06 §11  no console.*, because that is how customer data reaches a log
  */
 export default tseslint.config(
-  { ignores: ['.next/**', 'node_modules/**', 'project-docs/**', 'design-docs/**', 'src/db/migrations/**'] },
+  {
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'project-docs/**',
+      'design-docs/**',
+      'src/db/migrations/**',
+      // Third-party design-tool assets copied verbatim into public/, not
+      // authored here and not meant to pass this project's rules.
+      'public/design/**',
+      // Next.js writes this file; it is never hand-edited and it predates
+      // this config existing, so it is not a source file to lint.
+      'next-env.d.ts',
+      // Config files that intentionally sit outside tsconfig's `include`
+      // (see tsconfig.json), so the typed lint rules below have no project
+      // to resolve them against. They are plain JS/config, not app code.
+      'eslint.config.mjs',
+      'postcss.config.mjs',
+    ],
+  },
 
   ...compat.extends('next/core-web-vitals'),
   ...tseslint.configs.recommendedTypeChecked,

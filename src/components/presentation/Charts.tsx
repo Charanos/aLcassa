@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
+  CartesianGrid,
   Cell,
   LabelList,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -80,6 +85,49 @@ function useTokens() {
   }, []);
 
   return tokens;
+}
+
+const TONE_NAMES = ['copper', 'verdigris', 'ochre', 'oxide', 'slate', 'graphite'] as const;
+type ToneName = (typeof TONE_NAMES)[number];
+
+const TONE_FALLBACK: Record<ToneName, string> = {
+  copper: '#A6572A',
+  verdigris: '#1A6155',
+  ochre: '#78570F',
+  oxide: '#98301D',
+  slate: '#425A79',
+  graphite: '#55504A',
+};
+
+/**
+ * Resolves `--{tone}-ink` to an actual colour string for every tone, re-read
+ * on theme flip. A Recharts `Cell` sets `fill` as an SVG attribute rather than
+ * a style in some render paths, and `var()` resolution in a bare SVG
+ * presentation attribute is not reliable across engines, so the colour has to
+ * be a real value by the time it reaches the chart. `useTokens` above does the
+ * same thing for the single series hue; this is the six-tone version of it.
+ */
+export function useToneColors(): Record<ToneName, string> {
+  const [colors, setColors] = useState<Record<ToneName, string>>(TONE_FALLBACK);
+
+  useEffect(() => {
+    const read = () => {
+      const s = getComputedStyle(document.documentElement);
+      const next = { ...TONE_FALLBACK };
+      TONE_NAMES.forEach((tone) => {
+        const value = s.getPropertyValue(`--${tone}-ink`).trim();
+        if (value) next[tone] = value;
+      });
+      setColors(next);
+    };
+
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+
+  return colors;
 }
 
 type Datum = { label: string; value: number; note?: string };
@@ -194,6 +242,208 @@ export function CategoryBars({
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+/**
+ * A line across the milestones, in delivery order.
+ *
+ * Unlike the foundation breakdown, milestones have a genuine sequence: M0
+ * before M1 before M2, each one a step the last depends on. That is exactly
+ * the case a line earns its keep over a bar, per the form heuristic: change
+ * across an ORDERED axis reads as a line, magnitude across an unordered one
+ * reads as a bar. One hue, direct labels on every point since eight points is
+ * not enough to need thinning, and a very soft fill under the line rather than
+ * a hard area, so the shape reads without competing with the numbers.
+ */
+export function ProgressLine({
+  data,
+  suffix = '',
+  height = 240,
+}: {
+  data: Datum[];
+  suffix?: string;
+  height?: number;
+}) {
+  const t = useTokens();
+  const gradientId = 'conduit-progress-fill';
+
+  return (
+    <div style={{ width: '100%', height }}>
+      <ResponsiveContainer>
+        <AreaChart data={data} margin={{ top: 26, right: 12, bottom: 4, left: 0 }}>
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={t.series} stopOpacity={0.18} />
+              <stop offset="100%" stopColor={t.series} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid vertical={false} stroke={t.grid} />
+          <XAxis
+            dataKey="label"
+            tickLine={false}
+            axisLine={{ stroke: t.rule }}
+            tick={{ fill: t.axis, fontSize: 11, fontFamily: 'var(--font-mono)' }}
+            interval={0}
+          />
+          <YAxis hide domain={[0, 100]} />
+          <Tooltip
+            cursor={{ stroke: t.rule, strokeWidth: 1 }}
+            content={<ChartTooltip suffix={suffix} surface={t.surface} rule={t.rule} ink={t.ink} />}
+          />
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke={t.series}
+            strokeWidth={2}
+            fill={`url(#${gradientId})`}
+            dot={{ r: 4, fill: t.series, strokeWidth: 2, stroke: t.surface }}
+            activeDot={{ r: 6, strokeWidth: 0 }}
+            isAnimationActive={false}
+          >
+            <LabelList
+              dataKey="value"
+              position="top"
+              formatter={(value: unknown) =>
+                typeof value === 'number' ? `${value}${suffix}` : ''
+              }
+              style={{ fill: t.ink, fontSize: 11, fontFamily: 'var(--font-mono)' }}
+            />
+          </Area>
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+/**
+ * A proportion of a fixed, small, exhaustive whole, as a donut.
+ *
+ * ⚠ THIS IS DELIBERATELY A PIE, AND `dataviz`'s DEFAULT ADVICE IS TO AVOID ONE.
+ *
+ * The usual failure a pie chart invites is exactly the one the palette
+ * validator caught earlier in this file: many wedges, hues too close to
+ * separate, angle judged worse than length. None of that applies to what this
+ * draws. The set is fixed at three items (built, scaffolded, planned), the
+ * actual question being asked is "what share of the whole is each", which is
+ * the one question a pie answers better than a bar, and the segments still
+ * carry a direct label, a percentage and a legend row rather than depending on
+ * angle alone.
+ *
+ * The centre is not decoration. A donut's hole is normally empty; putting the
+ * total there answers the first question a reader has, "how many items is
+ * this", before they have read a single wedge.
+ */
+export function ProportionDonut({
+  segments,
+  centerLabel,
+  size = 168,
+}: {
+  segments: Array<{ label: string; value: number; ink: string; hatch?: boolean }>;
+  centerLabel: { value: number; caption: string };
+  size?: number;
+}) {
+  const t = useTokens();
+  const total = segments.reduce((sum, segment) => sum + segment.value, 0) || 1;
+  const patternId = 'conduit-donut-hatch';
+
+  return (
+    <div className="flex flex-col items-center gap-5 sm:flex-row">
+      <div className="relative shrink-0" style={{ width: size, height: size }}>
+        <ResponsiveContainer>
+          <PieChart>
+            {/* The system's own hatch, reused rather than invented: it already
+                means "this capacity exists and is not available yet", which is
+                precisely what the "planned" wedge is. */}
+            <defs>
+              <pattern
+                id={patternId}
+                patternUnits="userSpaceOnUse"
+                width="6"
+                height="6"
+                patternTransform="rotate(45)"
+              >
+                <rect width="6" height="6" fill={t.surface} />
+                <line x1="0" y1="0" x2="0" y2="6" stroke={t.rule} strokeWidth="1.6" />
+              </pattern>
+            </defs>
+            <Pie
+              data={segments}
+              dataKey="value"
+              nameKey="label"
+              innerRadius="66%"
+              outerRadius="99%"
+              paddingAngle={3}
+              stroke={t.surface}
+              strokeWidth={2}
+              isAnimationActive={false}
+            >
+              {segments.map((segment) => (
+                <Cell key={segment.label} fill={segment.hatch ? `url(#${patternId})` : segment.ink} />
+              ))}
+            </Pie>
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const point = payload[0]?.payload as
+                  | (typeof segments)[number]
+                  | undefined;
+                if (!point) return null;
+                return (
+                  <div
+                    className="rounded-chip border px-3 py-2"
+                    style={{ background: t.surface, borderColor: t.rule, boxShadow: 'var(--shadow-overlay)' }}
+                  >
+                    <div className="t-caption" style={{ color: t.ink }}>
+                      {point.label}
+                    </div>
+                    <div className="t-data" style={{ color: t.ink, fontSize: 15 }}>
+                      {point.value} · {Math.round((point.value / total) * 100)}%
+                    </div>
+                  </div>
+                );
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+
+        {/* The centre label sits in the donut's hole as a plain absolutely
+            positioned layer, since recharts has no first-class slot for one. */}
+        <div className="pointer-events-none absolute inset-0 grid place-items-center">
+          <div className="text-center">
+            <div className="t-data tabular-nums" style={{ color: t.ink, fontSize: 26, lineHeight: 1 }}>
+              {centerLabel.value}
+            </div>
+            <div className="t-eyebrow mt-1.5" style={{ color: t.axis }}>
+              {centerLabel.caption}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ul className="grid w-full gap-2">
+        {segments.map((segment) => (
+          <li key={segment.label} className="flex items-center gap-2.5">
+            <span
+              aria-hidden
+              className="size-2.5 shrink-0 rounded-[2px]"
+              style={{
+                background: segment.hatch ? undefined : segment.ink,
+                backgroundImage: segment.hatch ? 'var(--hatch-graphite)' : undefined,
+                boxShadow: `inset 0 0 0 1px ${segment.ink}`,
+              }}
+            />
+            <span className="t-caption flex-1 text-[var(--ink-secondary)]">{segment.label}</span>
+            <span className="t-data tabular-nums text-[var(--ink-primary)]" style={{ fontSize: '12px' }}>
+              {segment.value}
+            </span>
+            <span className="t-caption w-9 text-right text-[var(--ink-tertiary)]">
+              {Math.round((segment.value / total) * 100)}%
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -36,8 +36,12 @@ const nextConfig: NextConfig = {
   // client must never be traced into a client bundle.
   serverExternalPackages: ['@node-rs/argon2', 'postgres'],
 
-  async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }];
+  // Next's own type requires this to return a Promise. Nothing here needs to
+  // await anything, so `Promise.resolve(...)` returns one directly rather
+  // than marking the function `async` with no `await` inside it, which is a
+  // lint error in its own right.
+  headers() {
+    return Promise.resolve([{ source: '/:path*', headers: securityHeaders }]);
   },
 };
 

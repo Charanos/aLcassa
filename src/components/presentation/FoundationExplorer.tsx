@@ -12,7 +12,7 @@ import {
 import { Checkbox, SegmentedControl, Select, SortHeader } from './Controls';
 import { DataList, type Column } from './DataList';
 import { StatusChip, type Tone } from './Sheet';
-import { CategoryBars, StackedMeter } from './Charts';
+import { CategoryBars, ProportionDonut, useToneColors } from './Charts';
 import type { FoundationItem, FoundationState } from '@/lib/presentation/foundation';
 
 /**
@@ -39,6 +39,7 @@ type SortKey = 'area' | 'what' | 'state' | 'milestone';
 const STATE_ORDER: FoundationState[] = ['built', 'scaffolded', 'planned'];
 
 export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
+  const toneColors = useToneColors();
   const [states, setStates] = useState<Set<FoundationState>>(new Set(STATE_ORDER));
   const [areas, setAreas] = useState<string>('all');
   const [query, setQuery] = useState('');
@@ -185,12 +186,12 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
           <p className="t-caption mt-1 mb-4 text-[var(--ink-tertiary)]">
             {visible.length} of {items.length} items shown
           </p>
-          <StackedMeter
-            total={visible.length || 1}
+          <ProportionDonut
+            centerLabel={{ value: visible.length, caption: 'shown' }}
             segments={STATE_ORDER.map((state) => ({
               label: STATE[state].label,
               value: visible.filter((item) => item.state === state).length,
-              fill: `var(--${STATE[state].tone}-ink)`,
+              ink: toneColors[STATE[state].tone],
               hatch: state === 'planned',
             }))}
           />

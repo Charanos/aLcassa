@@ -48,7 +48,8 @@
    */
   --surface-page: #fbf9f5; /* never carries a border */
   --surface-raised: #fdfbf7; /* panels and cards. A soft step above the page */
-  --surface-sunken: #f1ece3; /* fields, table headers, code, wells */
+  --surface-sunken: #f1ece3; /* fields, table headers, code, wells that receive input */
+  --surface-well: #ffffff; /* a fact block nested inside a card. LIGHTER, not darker */
   --surface-invert: #1f1c18; /* the platform console header */
   --surface-hover: #f8f5ef; /* a row under the pointer, inside a raised panel */
 
@@ -143,6 +144,7 @@
   --surface-page: #141310;
   --surface-raised: #1d1b17;
   --surface-sunken: #100f0c;
+  --surface-well: #24211b; /* lighter than raised, same "closer to the light" rule */
   --surface-invert: #edE9e1;
   --surface-hover: #24211c;
 
@@ -374,6 +376,17 @@
 
 :root {
   /*
+   * ONE WIDTH, EVERY READING SURFACE.
+   *
+   * The marketing page, the tracker and the document viewer each grew their
+   * own hardcoded maxWidth (1100px, 1240px, 1180px), which is how three pages
+   * that are supposed to feel like one product ended up visibly disagreeing
+   * about how wide a page is. There is exactly one number now, and every one
+   * of those surfaces reads it from here rather than restating it.
+   */
+  --surface-width: 1240px;
+
+  /*
    * THE CARD LIFT, SOFT RATHER THAN STARK.
    *
    * A card on a warm near-white page can only ever be a ~1.04:1 fill step, so
@@ -396,15 +409,22 @@
    * of that rule for the tracker only and it is recorded in 15-spec-delta D9.
    */
   --shadow-card:
-    inset 0 1px 0 rgb(255 255 255 / 0.9), -3px -3px 8px rgb(255 255 255 / 0.7),
-    3px 4px 12px rgb(31 28 24 / 0.05), 0 1px 2px rgb(31 28 24 / 0.03);
+    inset 0 1px 0 rgb(255 255 255 / 0.8), -3px -3px 11px rgb(255 255 255 / 0.55),
+    3px 4px 17px rgb(31 28 24 / 0.032), 0 1px 2px rgb(31 28 24 / 0.02);
 
   --shadow-card-hover:
-    inset 0 1px 0 rgb(255 255 255 / 0.95), -4px -4px 10px rgb(255 255 255 / 0.8),
-    5px 7px 18px rgb(31 28 24 / 0.075), 0 1px 3px rgb(31 28 24 / 0.04);
+    inset 0 1px 0 rgb(255 255 255 / 0.85), -4px -4px 13px rgb(255 255 255 / 0.62),
+    5px 7px 23px rgb(31 28 24 / 0.045), 0 1px 3px rgb(31 28 24 / 0.028);
 
   /* A field is the same light, inverted: it sits INTO the sheet. */
-  --shadow-sunken: inset 1px 2px 4px rgb(31 28 24 / 0.045), inset -1px -1px 0 rgb(255 255 255 / 0.6);
+  --shadow-sunken: inset 1px 2px 5px rgb(31 28 24 / 0.035), inset -1px -1px 0 rgb(255 255 255 / 0.5);
+
+  /* A nested fact block, the same light again, scaled down. Smaller offsets
+   * and a lighter touch than the card it sits inside, so the eye reads it as
+   * one step closer rather than as a second, competing card. */
+  --shadow-well:
+    inset 0 1px 0 rgb(255 255 255 / 0.85), -2px -2px 7px rgb(255 255 255 / 0.6),
+    2px 3px 9px rgb(31 28 24 / 0.028);
 
   --scrollbar-width: 10px;
   --scrollbar-track: transparent;
@@ -436,12 +456,16 @@
    * same material.
    */
   --shadow-card:
-    inset 0 1px 0 rgb(255 255 255 / 0.045), -3px -3px 8px rgb(255 255 255 / 0.012),
-    4px 5px 14px rgb(0 0 0 / 0.4), 0 1px 2px rgb(0 0 0 / 0.3);
+    inset 0 1px 0 rgb(255 255 255 / 0.035), -3px -3px 11px rgb(255 255 255 / 0.009),
+    4px 5px 19px rgb(0 0 0 / 0.3), 0 1px 2px rgb(0 0 0 / 0.2);
 
   --shadow-card-hover:
-    inset 0 1px 0 rgb(255 255 255 / 0.06), -4px -4px 10px rgb(255 255 255 / 0.018),
-    6px 8px 20px rgb(0 0 0 / 0.5), 0 1px 3px rgb(0 0 0 / 0.35);
+    inset 0 1px 0 rgb(255 255 255 / 0.05), -4px -4px 13px rgb(255 255 255 / 0.014),
+    6px 8px 25px rgb(0 0 0 / 0.38), 0 1px 3px rgb(0 0 0 / 0.26);
 
-  --shadow-sunken: inset 1px 2px 5px rgb(0 0 0 / 0.45), inset -1px -1px 0 rgb(255 255 255 / 0.03);
+  --shadow-sunken: inset 1px 2px 5px rgb(0 0 0 / 0.36), inset -1px -1px 0 rgb(255 255 255 / 0.025);
+
+  --shadow-well:
+    inset 0 1px 0 rgb(255 255 255 / 0.045), -2px -2px 7px rgb(255 255 255 / 0.011),
+    3px 4px 11px rgb(0 0 0 / 0.24);
 }

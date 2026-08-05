@@ -88,23 +88,47 @@ export function SheetSection({
 export type Tone = 'copper' | 'ochre' | 'verdigris' | 'slate' | 'oxide' | 'graphite';
 
 /**
- * ⚠ THE 3px LEFT RULE IS GONE, AND IT SHOULD BE.
+ * ⚠ THE ACCENT, THIRD REWRITE. COLOURED NEUMORPHISM RATHER THAN A MARK.
  *
- * It was doing three jobs badly at once. It made every panel look like a
- * callout even when the panel was ordinary content; a page of them read as a
- * stack of warnings. It broke the card's own geometry, so the left padding no
- * longer matched the other three sides. And it encoded state in a place the eye
- * scans last, at the extreme left edge, below the heading it belongs to.
+ * Attempt one was a 3px rule down the left: every panel read as a callout, and
+ * a page of them read as a stack of warnings. Attempt two was a hairline across
+ * the top, then a soft wash bleeding from the corner: both were a decoration
+ * drawn ON the card rather than a property OF it, and on review they read as
+ * exactly that, an applied mark rather than something the surface itself was
+ * doing.
  *
- * State now lives where it is read: in the chip on the title line, which
- * already carries a glyph and a word, so it survives colour blindness and a
- * printed page. A panel with a `tone` gets one HAIRLINE ACCENT ALONG ITS TOP
- * EDGE instead: it reads as a card with a marked edge rather than a quoted
- * block, it keeps the padding symmetrical, and it sits directly above the
- * heading it qualifies.
+ * This version has no drawn mark at all. THE SHADOW ITSELF CARRIES THE HUE.
+ * A toned panel's neumorphic pair, the soft light catching its near lip and the
+ * soft shade falling away from it, is mixed from `--{tone}-ink` rather than
+ * from neutral graphite. The result is a card that glows faintly the colour of
+ * its own state, which is the actual definition of "coloured neumorphism" as
+ * distinct from the plain kind: the elevation model does not change, only
+ * which hue it is lit with.
  *
- * A panel with no state gets no accent at all, which is most of them.
+ * `color-mix()` against `--{tone}-ink` is what makes this theme-safe without a
+ * second definition: that token is already re-tuned per theme for contrast, so
+ * the same formula reads as a muted glow in light and a warmer one in dark with
+ * no `[data-theme='dark']` branch needed here.
+ *
+ * State is still named and worded on the chip on the title line. The colour on
+ * the card is atmosphere confirming what the chip already said, never the only
+ * carrier of it. 03 §3 rule 3.
  */
+function toneShadow(tone: Tone | undefined): string | undefined {
+  if (!tone) return undefined;
+
+  // EXTREMELY SOFT is the brief. Wide blur, low offset, low saturation of the
+  // mix: a colour a reader would struggle to name if asked, and would still
+  // clock as "belonging together" if six of these sat in a row. That is the
+  // register a glow needs to hold, distinct from a badge, which is allowed to
+  // be exact because naming the state precisely is its entire job.
+  return [
+    `-3px -3px 12px color-mix(in oklab, var(--${tone}-ink) 8%, transparent)`,
+    `4px 5px 18px color-mix(in oklab, var(--${tone}-ink) 8%, transparent)`,
+    'var(--shadow-card)',
+  ].join(', ');
+}
+
 export function Panel({
   children,
   className,
@@ -127,57 +151,57 @@ export function Panel({
       className={[
         'relative min-w-0 overflow-hidden rounded-panel border p-5',
         'transition-[border-color,box-shadow,transform] duration-[var(--motion-base,200ms)]',
-        interactive ? 'panel-lift hover:-translate-y-0.5 hover:border-[var(--rule-base)]' : '',
+        interactive && !tone
+          ? 'panel-lift hover:-translate-y-0.5 hover:border-[var(--rule-base)]'
+          : '',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
       style={{
         background: 'var(--surface-raised)',
-        // A softer hairline than the tables use: with three layers of light
-        // doing the separating, a full-strength rule reads as a second edge.
-        borderColor: 'var(--rule-soft)',
-        boxShadow: 'var(--shadow-card)',
+        // A toned panel's hairline picks up a whisper of the hue too, so the
+        // edge and the glow read as one decision rather than two.
+        borderColor: tone
+          ? `color-mix(in oklab, var(--${tone}-rule) 30%, var(--rule-soft) 70%)`
+          : 'var(--rule-soft)',
+        boxShadow: toneShadow(tone) ?? 'var(--shadow-card)',
       }}
     >
-      {tone ? (
-        <>
-          {/*
-           * THE ACCENT, SOFTENED TO MATCH THE CARD.
-           *
-           * A 3px rule down the left made every panel read as a callout. A hard
-           * 1px line across the top replaced that with a stray line touching
-           * nothing. Both were the same mistake: a hard edge on a soft surface.
-           *
-           * This is light rather than line. The hue bleeds down from the top in
-           * a wash that fades to nothing before the heading, and a short soft
-           * segment sits at the corner where the eye enters the card, blurred
-           * at its trailing end so it dissolves rather than stops. No part of it
-           * has a crisp boundary, which is what lets it sit on a card whose own
-           * lift is made of light.
-           *
-           * State is still carried by the chip on the title line, which has the
-           * glyph and the word. This is atmosphere, and it is allowed to be
-           * quiet because it is not the thing doing the work.
-           */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 block h-24"
-            style={{
-              background: `radial-gradient(120% 100% at 12% 0%, color-mix(in oklab, var(--${tone}-tint) 85%, transparent) 0%, transparent 70%)`,
-            }}
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute top-0 left-5 block h-[3px] w-24 rounded-b-full"
-            style={{
-              background: `linear-gradient(to right, color-mix(in oklab, var(--${tone}-ink) 55%, transparent), transparent)`,
-              filter: 'blur(0.5px)',
-            }}
-          />
-        </>
-      ) : null}
-      <div className="relative">{children}</div>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * A NESTED CONTENT BLOCK. Used for a sub-fact inside a Panel, such as the
+ * "in place" / "outstanding" pair on the compliance register.
+ *
+ * ⚠ IT GOES LIGHTER, NOT DARKER.
+ *
+ * The instinct for a block nested inside a card is to sink it, `--surface-
+ * sunken`, the way a field is sunk. That is wrong here: a field is sunk
+ * because it RECEIVES input and a well is the correct affordance for that. A
+ * fact block does not receive anything, and stacking two dark steps, page
+ * darker than raised darker than sunken, reads as the content getting buried
+ * rather than organised.
+ *
+ * In a coloured-neumorphic system depth comes from LAYERS OF LIGHT, not from
+ * layers of shade, so a block one level further from the page goes one step
+ * CLOSER to the light source: `--surface-well`, lighter than the card it sits
+ * in, with its own small soft lift rather than a border doing the separating.
+ */
+export function Well({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div
+      className={['rounded-chip border p-3', className].filter(Boolean).join(' ')}
+      style={{
+        background: 'var(--surface-well)',
+        borderColor: 'var(--rule-soft)',
+        boxShadow: 'var(--shadow-well)',
+      }}
+    >
+      {children}
     </div>
   );
 }
