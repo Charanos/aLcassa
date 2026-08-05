@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Mark } from '@/components/brand/Mark';
-import { ThemeToggle } from './ThemeToggle';
+import { ThemeToggle } from '@/components/primitives/ThemeToggle';
 import { CommandHint } from './CommandPalette';
 import type { ResolvedTheme } from '@/lib/theme';
 

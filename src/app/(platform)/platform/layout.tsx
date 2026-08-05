@@ -8,6 +8,7 @@ import {
   IconShieldLock,
 } from '@tabler/icons-react';
 import { AppShell, type NavGroup } from '@/components/structure/AppShell';
+import { getThemePreference, resolveTheme } from '@/lib/theme';
 
 /**
  * 02 §6 · 09 §1. The platform console. Brian's workspace, and the one interface
@@ -44,8 +45,9 @@ const navigation: NavGroup[] = [
   },
 ];
 
-export default function PlatformLayout({ children }: { children: React.ReactNode }) {
+export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
   const environment = process.env.NEXT_PUBLIC_ENVIRONMENT ?? 'development';
+  const theme = await resolveTheme(await getThemePreference());
 
   return (
     <AppShell
@@ -56,6 +58,7 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
       titleBlock={{ label: 'Platform', value: environment.toUpperCase(), revision: 'rev 3.1' }}
       navigation={navigation}
       role="platform_admin"
+      theme={theme}
       // TODO(M4): the organization switcher goes here. It is available from
       // EVERY console page, it is the SECOND focusable element after the skip
       // link (sheet 13: stepping into a tenant is the commonest keyboard action

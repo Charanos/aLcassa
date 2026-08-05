@@ -14,7 +14,9 @@ import {
 } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 import { Button } from '@/components/primitives/Button';
+import { ThemeToggle } from '@/components/primitives/ThemeToggle';
 import { HeroDiagram } from '@/components/marketing/HeroDiagram';
+import { getThemePreference, resolveTheme } from '@/lib/theme';
 
 export const metadata: Metadata = {
   title: { absolute: 'One inbox for every message your customers send · Conduit' },
@@ -76,7 +78,9 @@ const LIVE_NOW: Array<{ icon: TablerIcon; title: string; body: string }> = [
   },
 ];
 
-export default function MarketingPage() {
+export default async function MarketingPage() {
+  const theme = await resolveTheme(await getThemePreference());
+
   return (
     <div style={{ background: 'var(--surface-page)' }}>
       {/* ── Chrome ────────────────────────────────────────────────────── */}
@@ -97,6 +101,7 @@ export default function MarketingPage() {
           </Link>
 
           <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle theme={theme} compact />
             <Button asChild variant="quiet" size="md">
               <Link href="/sign-in">Sign in</Link>
             </Button>
@@ -345,50 +350,65 @@ export default function MarketingPage() {
         </section>
       </main>
 
-      {/* ── Footer ────────────────────────────────────────────────────── */}
+      {/* ── Footer ─────────────────────────────────────────────────────
+          Revamped to close on the same title-block idiom every other
+          surface signs off with (the tracker, the access screens' aside):
+          a mark and a credit line, not just a legal link row with nothing
+          underneath it. */}
       <footer className="border-t" style={{ borderColor: 'var(--rule-soft)' }}>
-        <div
-          className="mx-auto flex flex-wrap items-start justify-between gap-8 px-5 py-10 md:px-8"
-          style={{ maxWidth: 'var(--surface-width)' }}
-        >
-          <div className="flex items-center gap-2.5">
-            <Mark size={20} />
-            <span className="t-chip text-[var(--ink-primary)]">Conduit</span>
+        <div className="mx-auto px-5 py-10 md:px-8" style={{ maxWidth: 'var(--surface-width)' }}>
+          <div className="flex flex-wrap items-start justify-between gap-8">
+            <div className="flex items-center gap-2.5">
+              <Mark size={20} />
+              <span className="t-chip text-[var(--ink-primary)]">Conduit</span>
+            </div>
+
+            <nav aria-label="Legal and status" className="flex flex-wrap gap-x-6 gap-y-2">
+              <Link
+                className="t-caption text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
+                href="/legal/terms"
+              >
+                Terms of service
+              </Link>
+              <Link
+                className="t-caption text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
+                href="/legal/privacy"
+              >
+                Privacy notice
+              </Link>
+              {/*
+                02 §2. The data processing terms are NOT decoration. The
+                platform is a processor for its tenants, who are controllers
+                for their own customers, and that relationship needs to exist
+                in writing before the first paying customer. A linked page is
+                the cheapest correct version of it. 01 D-09.
+              */}
+              <Link
+                className="t-caption text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
+                href="/legal/dpa"
+              >
+                Data processing terms
+              </Link>
+              <Link
+                className="t-caption text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
+                href="/status"
+              >
+                Status
+              </Link>
+            </nav>
           </div>
 
-          <nav aria-label="Legal and status" className="flex flex-wrap gap-x-6 gap-y-2">
-            <Link
-              className="t-caption text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
-              href="/legal/terms"
-            >
-              Terms of service
-            </Link>
-            <Link
-              className="t-caption text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
-              href="/legal/privacy"
-            >
-              Privacy notice
-            </Link>
-            {/*
-              02 §2. The data processing terms are NOT decoration. The platform
-              is a processor for its tenants, who are controllers for their own
-              customers, and that relationship needs to exist in writing before
-              the first paying customer. A linked page is the cheapest correct
-              version of it. 01 D-09.
-            */}
-            <Link
-              className="t-caption text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
-              href="/legal/dpa"
-            >
-              Data processing terms
-            </Link>
-            <Link
-              className="t-caption text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
-              href="/status"
-            >
-              Status
-            </Link>
-          </nav>
+          <div
+            className="mt-8 flex flex-wrap items-baseline justify-between gap-4 border-t pt-5"
+            style={{ borderColor: 'var(--rule-soft)' }}
+          >
+            <span className="t-eyebrow text-[var(--ink-tertiary)]">
+              Andishi · Northern Bypass, Nairobi
+            </span>
+            <span className="t-caption text-[var(--ink-faint)]">
+              Currently in development. Channel connections arrive next phase.
+            </span>
+          </div>
         </div>
       </footer>
     </div>

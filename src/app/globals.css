@@ -356,6 +356,21 @@
   }
 }
 
+/* ═══ 2.5 · KEYFRAMES ══════════════════════════════════════════════════════
+ * 03 §15. Skeleton rule: opacity pulse between 0.55 and 1 over 1400ms, WITH
+ * NO SHIMMER SWEEP. A moving gradient reads as a bar filling toward a known
+ * duration, a claim this system cannot make; a pulse reads only as "waiting".
+ */
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
 /* ═══ 3 · UTILITIES ════════════════════════════════════════════════════════ */
 
 @layer utilities {

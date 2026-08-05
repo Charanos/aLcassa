@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { getThemePreference, resolveTheme } from '@/lib/theme';
+import { ToastProvider } from '@/components/primitives/Toast';
 import './globals.css';
 
 /**
@@ -38,7 +39,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         >
           Skip to content
         </a>
-        {children}
+        {/* One provider, mounted once, so any page can call `useToast()`
+            without knowing whether it needs to bring its own stack. 03 §9. */}
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

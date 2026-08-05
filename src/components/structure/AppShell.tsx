@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { Mark } from '@/components/brand/Mark';
+import { ThemeToggle } from '@/components/primitives/ThemeToggle';
+import type { ResolvedTheme } from '@/lib/theme-shared';
 
 /**
  * 03 §4 · 02 §8. ONE SHELL, TWO APPLICATIONS.
@@ -40,6 +42,10 @@ export type AppShellProps = {
   titleBlock: { label: string; value: string; revision?: string };
   navigation: NavGroup[];
   role: string;
+  /** Resolved server side by the layout, same as every other surface. The
+   *  toggle lives IN the shell rather than in `headerActions`, so a future
+   *  page cannot ship without it by forgetting to pass it. 03 §19. */
+  theme: ResolvedTheme;
   headerActions?: React.ReactNode;
   children: React.ReactNode;
 };
@@ -49,6 +55,7 @@ export function AppShell({
   titleBlock,
   navigation,
   role,
+  theme,
   headerActions,
   children,
 }: AppShellProps) {
@@ -91,7 +98,10 @@ export function AppShell({
           </span>
         </Link>
 
-        <div className="ml-auto flex items-center gap-2">{headerActions}</div>
+        <div className="ml-auto flex items-center gap-2">
+          {headerActions}
+          <ThemeToggle theme={theme} compact />
+        </div>
       </header>
 
       <div className="flex">

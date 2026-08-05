@@ -1,0 +1,159 @@
+'use client';
+
+import { useId, useState } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
+import { Button } from './Button';
+import { Field } from './Field';
+
+/**
+ * 03 §9. "Title, one-sentence consequence, cancel then confirm. Confirm never
+ * default-focused." The last rule is the one worth stating twice: a dialog
+ * that opens with focus already on the destructive button is one accidental
+ * Enter key away from firing it, which is exactly the failure mode a
+ * confirmation dialog exists to prevent.
+ *
+ * Radix `Dialog` gives the focus trap, `Esc` handling and focus return for
+ * free, per 03 §17; this wraps it in the visual and behavioural contract
+ * rather than reimplementing dialog mechanics.
+ */
+export function ConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  consequence,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  tone = 'primary',
+  onConfirm,
+  loading = false,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  /** One sentence. What confirming actually does. */
+  consequence: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  tone?: 'primary' | 'destructive';
+  onConfirm: () => void;
+  loading?: boolean;
+}) {
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay
+          className="fixed inset-0 z-[150]"
+          style={{ background: 'var(--scrim)' }}
+        />
+        <Dialog.Content
+          className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
+          style={{
+            background: 'var(--surface-raised)',
+            borderColor: 'var(--rule-base)',
+            boxShadow: 'var(--shadow-overlay)',
+          }}
+          // Confirm is never default-focused. Radix focuses the first
+          // focusable element by default, which for this layout is Cancel,
+          // and that ordering is deliberate rather than incidental.
+        >
+          <Dialog.Title className="t-panel text-[var(--ink-primary)]">{title}</Dialog.Title>
+          <Dialog.Description className="t-compact mt-2 text-[var(--ink-secondary)]">
+            {consequence}
+          </Dialog.Description>
+
+          <div className="mt-6 flex justify-end gap-2.5">
+            <Dialog.Close asChild>
+              <Button variant="secondary">{cancelLabel}</Button>
+            </Dialog.Close>
+            <Button variant={tone === 'destructive' ? 'destructive' : 'primary'} loading={loading} onClick={onConfirm}>
+              {confirmLabel}
+            </Button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
+/**
+ * 03 §9. "Type-to-confirm. Reserved for suspension, hard delete and
+ * credential revocation." The confirm button is disabled until the typed
+ * value matches exactly, which is what makes this meaningfully different from
+ * `ConfirmDialog`: it costs the reader a moment of genuine attention rather
+ * than one more click their hand already knows how to make.
+ */
+export function DestructiveConfirm({
+  open,
+  onOpenChange,
+  title,
+  consequence,
+  /** What the reader must type. Usually the tenant name, the credential
+   *  name, or the literal word the action performs. */
+  confirmValue,
+  confirmFieldLabel = 'Type to confirm',
+  confirmLabel = 'Confirm',
+  onConfirm,
+  loading = false,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  consequence: string;
+  confirmValue: string;
+  confirmFieldLabel?: string;
+  confirmLabel?: string;
+  onConfirm: () => void;
+  loading?: boolean;
+}) {
+  const [typed, setTyped] = useState('');
+  const fieldId = useId();
+  const matches = typed === confirmValue;
+
+  return (
+    <Dialog.Root
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) setTyped('');
+        onOpenChange(next);
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--scrim)' }} />
+        <Dialog.Content
+          className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[440px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
+          style={{
+            background: 'var(--surface-raised)',
+            borderColor: 'var(--oxide-rule)',
+            boxShadow: 'var(--shadow-overlay)',
+          }}
+        >
+          <Dialog.Title className="t-panel text-[var(--ink-primary)]">{title}</Dialog.Title>
+          <Dialog.Description className="t-compact mt-2 text-[var(--ink-secondary)]">
+            {consequence} This cannot be undone.
+          </Dialog.Description>
+
+          <div className="mt-5">
+            <Field
+              id={fieldId}
+              label={confirmFieldLabel}
+              value={typed}
+              onChange={(event) => setTyped(event.target.value)}
+              placeholder={confirmValue}
+              autoComplete="off"
+              helper={`Type "${confirmValue}" exactly to enable the button below.`}
+            />
+          </div>
+
+          <div className="mt-4 flex justify-end gap-2.5">
+            <Dialog.Close asChild>
+              <Button variant="secondary">Cancel</Button>
+            </Dialog.Close>
+            <Button variant="destructive" loading={loading} disabled={!matches} onClick={onConfirm}>
+              {confirmLabel}
+            </Button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}

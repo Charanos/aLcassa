@@ -18,6 +18,7 @@ import { Timeline, MILESTONE_STATUS } from '@/components/presentation/Timeline';
 import { FoundationExplorer } from '@/components/presentation/FoundationExplorer';
 import { ProgressLine } from '@/components/presentation/Charts';
 import { CommandPalette, type Command } from '@/components/presentation/CommandPalette';
+import { ErrorBoundary } from '@/components/primitives/ErrorBoundary';
 import { getThemePreference, resolveTheme } from '@/lib/theme';
 import {
   CLIENT_INPUTS,
@@ -364,7 +365,9 @@ export default async function ProjectTrackerPage() {
           >
             <Panel className="mb-6" reveal>
               <h3 className="t-micro mb-3 text-[var(--ink-tertiary)]">Progress by milestone</h3>
-              <ProgressLine data={milestoneChart} suffix="%" height={260} />
+              <ErrorBoundary label="The milestone chart">
+                <ProgressLine data={milestoneChart} suffix="%" height={260} />
+              </ErrorBoundary>
             </Panel>
 
             <Timeline milestones={MILESTONES} />
@@ -389,7 +392,9 @@ export default async function ProjectTrackerPage() {
             lede="An honest account of the repository as it stands. Built can be opened during the walkthrough; scaffolded means a real file with a real contract and no logic above it; planned is a milestone commitment and nothing more."
             aside="This repository"
           >
-            <FoundationExplorer items={FOUNDATION} />
+            <ErrorBoundary label="The foundation explorer">
+              <FoundationExplorer items={FOUNDATION} />
+            </ErrorBoundary>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2" data-reveal-group>
               {STACK.map((entry) => (

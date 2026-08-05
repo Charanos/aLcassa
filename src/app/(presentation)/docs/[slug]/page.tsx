@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { IconArrowLeft, IconArrowRight, IconArrowNarrowLeft } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 import { Markdown } from '@/components/presentation/Markdown';
-import { ThemeToggle } from '@/components/presentation/ThemeToggle';
+import { ThemeToggle } from '@/components/primitives/ThemeToggle';
 import { getThemePreference, resolveTheme } from '@/lib/theme';
 import { clientDocs, findDoc, neighbours, readDoc } from '@/lib/presentation/readDoc';
 
