@@ -1,0 +1,88 @@
+// @ts-check
+import { FlatCompat } from '@eslint/eslintrc';
+import tseslint from 'typescript-eslint';
+
+const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
+
+/**
+ * The rules below are not style preferences. Four of them are the mechanical
+ * enforcement of guarantees in 06 · Tenancy and Isolation, and a violation of
+ * any of them is a security defect rather than a lint warning.
+ *
+ *   06 §7   the service role client is importable only inside modules/platform
+ *   04 §3   modules talk to each other through index.ts, never into internal/
+ *   06 §2   no application-level tenant filter, no tenantId read off a request
+ *   06 §11  no console.*, because that is how customer data reaches a log
+ */
+export default tseslint.config(
+  { ignores: ['.next/**', 'node_modules/**', 'project-docs/**', 'design-docs/**', 'src/db/migrations/**'] },
+
+  ...compat.extends('next/core-web-vitals'),
+  ...tseslint.configs.recommendedTypeChecked,
+
+  {
+    languageOptions: {
+      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/ban-ts-comment': [
+        'error',
+        { 'ts-ignore': 'allow-with-description', minimumDescriptionLength: 10 },
+      ],
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
+
+      // 06 §11. Structured logging only. A console.log during debugging is the
+      // documented route by which a customer record reaches a log line.
+      'no-console': 'error',
+
+      // 06 §7 · 05 I-05. The one thing in this system that bypasses RLS.
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/lib/db/serviceClient', '@/lib/db/serviceClient'],
+              message:
+                'The service role client may only be imported inside src/modules/platform. Use support mode to read tenant data. See 06 §7.',
+            },
+            {
+              group: ['@/modules/*/internal/*', '@/modules/*/repository', '@/modules/*/service'],
+              message:
+                'Import a module through its index.ts only. Internals are private. See 04 §3.',
+            },
+          ],
+        },
+      ],
+
+      // 06 §2 rule 2 · 05 I-04.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "MemberExpression[object.name=/^(body|payload|query|params|searchParams|headers)$/][property.name=/^tenant_?[Ii]d$/]",
+          message:
+            'tenant_id is resolved server side from the session and the membership record. It is never read from a request. See 06 §2 rule 2.',
+        },
+        {
+          selector: "CallExpression[callee.property.name='eq'][arguments.0.property.name='tenantId']",
+          message:
+            'Isolation is Row Level Security, not an application filter. If a query appears to need one, you have found a missing policy. See 06 §2 rule 1 and 11 §6 rule 1.',
+        },
+      ],
+    },
+  },
+
+  // The one place the service role client may be imported. 06 §7.
+  {
+    files: ['src/modules/platform/**/*.ts', 'src/lib/db/serviceClient.ts'],
+    rules: { 'no-restricted-imports': 'off' },
+  },
+
+  // Scripts and tests run outside the request pipeline.
+  {
+    files: ['scripts/**/*.ts', 'tests/**/*.ts', 'src/db/seed/**/*.ts'],
+    rules: { 'no-console': 'off', 'no-restricted-imports': 'off' },
+  },
+);

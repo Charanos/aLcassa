@@ -1,0 +1,319 @@
+/*
+ * CONDUIT · TOKENS
+ * ────────────────────────────────────────────────────────────────────────────
+ * Values from design-docs sheet 01 (Token sheet, revision 3.1, issued 04 Aug
+ * 2026), which carries measured contrast ratios. Semantic alias names from
+ * project-docs/03-design-system.md §2, so both documents stay usable against
+ * this file. Where the two disagreed on a value, the sheet won; every such
+ * difference is recorded in project-docs/15-spec-delta.md.
+ *
+ * Three laws, from sheet 01:
+ *   Depth is a tint, never a shadow. One shadow token, and it belongs to the
+ *   dialog and the command palette alone.
+ *   Hue is never alone. Every status carries a glyph and a word.
+ *   The palette is closed. A seventh hue requires one to be retired.
+ *
+ * A raw hex in a component file is a defect. A ramp token in a component file
+ * is a code smell. Components consume the semantic aliases in §3 only.
+ */
+
+/* ═══ 1 · LIGHT THEME ══════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light;
+
+  /* ─ Surface. The sheet beneath everything, and the two steps above it. ─ */
+  --surface-page: #fbf9f5; /* never carries a border */
+  --surface-raised: #f4f0e8; /* panels, toolbars, table headers, footers */
+  --surface-sunken: #ede8de; /* fields and anything receiving input */
+  --surface-invert: #1f1c18; /* the platform console header */
+  --surface-hover: #f7f4ee; /* a row under the pointer */
+
+  /* ─ Rules. The only structure in the system. ─ */
+  --rule-soft: #e4ddcf; /* rows within a panel */
+  --rule-base: #cfc5b2; /* a panel edge, a field at rest */
+  --rule-strong: #b3a995; /* the one weight allowed to divide a screen */
+
+  /* ─ Ink. Four steps, each measured against surface-page. ─ */
+  --ink-primary: #1f1c18; /* 16.1:1 */
+  --ink-secondary: #55504a; /* 8.42:1 */
+  --ink-tertiary: #6c665d; /* 5.71:1 */
+  --ink-faint: #a79e8f; /* 2.61:1 · non-informational only */
+  --ink-inverse: #fbf9f5; /* on a solid hue or the inverted header */
+
+  /* ─ Six hues, four variants each: ink · solid · tint · rule. ─
+   * Copper      interaction, focus, the support session
+   * Verdigris   provisioned, within limits, passing
+   * Ochre       a refusal the reader can resolve
+   * Oxide       a refusal they cannot, and every destructive action
+   * Slate       system and machine facts
+   * Graphite    inert. archived, revoked, disabled, out of scope
+   */
+  --copper-ink: #8a4a1e; /* 5.62:1 */
+  --copper-solid: #a6572a;
+  --copper-tint: #f4e7da;
+  --copper-rule: #b98553;
+
+  --verdigris-ink: #1a6155; /* 5.95:1 */
+  --verdigris-solid: #1f6f61;
+  --verdigris-tint: #dfebe7;
+  --verdigris-rule: #6ea396;
+
+  --ochre-ink: #78570f; /* 5.53:1 */
+  --ochre-solid: #8a6614;
+  --ochre-tint: #f3ead3;
+  --ochre-rule: #ae9450;
+
+  --oxide-ink: #98301d; /* 6.16:1 */
+  --oxide-solid: #a83722;
+  --oxide-tint: #f7e4de;
+  --oxide-rule: #c48371;
+
+  --slate-ink: #425a79; /* 5.80:1 */
+  --slate-solid: #4b6588;
+  --slate-tint: #e4e9f0;
+  --slate-rule: #8399b3;
+
+  --graphite-ink: #55504a; /* 6.41:1 */
+  --graphite-solid: #6c665d;
+  --graphite-tint: #eae6de;
+  --graphite-rule: #a79e8f;
+
+  /* ─ Interaction ─ */
+  --focus: var(--copper-solid);
+  --selection-bg: var(--copper-tint);
+  --selection-fg: var(--ink-primary);
+  --scrim: rgb(31 28 24 / 0.5);
+
+  /* ─ Disabled. Sheet 01: nothing is disabled by opacity, so that the
+   *   contrast of a disabled control is a decision rather than a by-product. ─ */
+  --disabled-surface: #ede8de;
+  --disabled-rule: #e4ddcf;
+  --disabled-ink: #a79e8f;
+}
+
+/* ═══ 2 · DARK THEME ═══════════════════════════════════════════════════════
+ * Not an inversion. Both themes are generated from the same six hue angles:
+ * ink lightens, tints darken toward the page, and every ratio was measured
+ * again rather than assumed to have survived the flip.
+ */
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --surface-page: #141310;
+  --surface-raised: #1d1b17;
+  --surface-sunken: #100f0c;
+  --surface-invert: #edE9e1;
+  --surface-hover: #24211c;
+
+  --rule-soft: #2e2a25;
+  --rule-base: #46413a;
+  --rule-strong: #6e675c;
+
+  --ink-primary: #ede9e1; /* 14.2:1 */
+  --ink-secondary: #b0a99e; /* 7.31:1 */
+  --ink-tertiary: #8a8377; /* 4.58:1 · the contrast floor of the system */
+  --ink-faint: #5f5a53; /* 2.44:1 · non-informational only */
+  --ink-inverse: #12110f;
+
+  --copper-ink: #e09b66; /* 7.05:1 */
+  --copper-solid: #d3862f;
+  --copper-tint: #2a1d12;
+  --copper-rule: #6b4824;
+
+  --verdigris-ink: #6fc3af; /* 7.92:1 */
+  --verdigris-solid: #2e8c7b;
+  --verdigris-tint: #13221e;
+  --verdigris-rule: #335b50;
+
+  --ochre-ink: #dcb05a; /* 8.34:1 */
+  --ochre-solid: #b8862c;
+  --ochre-tint: #241c0d;
+  --ochre-rule: #5a481d;
+
+  --oxide-ink: #e9887a; /* 6.81:1 */
+  --oxide-solid: #d9614a;
+  --oxide-tint: #2a1512;
+  --oxide-rule: #663026;
+
+  --slate-ink: #94adce; /* 7.67:1 */
+  --slate-solid: #5c7ba3;
+  --slate-tint: #15191f;
+  --slate-rule: #35455a;
+
+  --graphite-ink: #b0a99e; /* 7.28:1 */
+  --graphite-solid: #8a8377;
+  --graphite-tint: #1f1c18;
+  --graphite-rule: #443f38;
+
+  --focus: var(--copper-ink);
+  --selection-bg: var(--copper-tint);
+  --selection-fg: var(--ink-primary);
+  --scrim: rgb(0 0 0 / 0.66);
+
+  --disabled-surface: #1d1b17;
+  --disabled-rule: #2e2a25;
+  --disabled-ink: #5f5a53;
+}
+
+/* ═══ 3 · SEMANTIC ALIASES ═════════════════════════════════════════════════
+ * 03 §2. The only layer a component is allowed to read. Both themes resolve
+ * through these, so a component file never names a theme.
+ */
+
+:root,
+[data-theme='dark'] {
+  --text-primary: var(--ink-primary);
+  --text-body: var(--ink-secondary);
+  --text-muted: var(--ink-tertiary);
+  --text-placeholder: var(--ink-tertiary);
+  --text-faint: var(--ink-faint);
+  --text-brand: var(--copper-ink);
+  --text-inverse: var(--ink-inverse);
+
+  --border-soft: var(--rule-soft);
+  --border-default: var(--rule-base);
+  --border-emphasis: var(--rule-strong);
+  --border-focus: var(--focus);
+
+  --action-primary-bg: var(--copper-solid);
+  --action-primary-fg: var(--ink-inverse);
+  --action-primary-border: var(--copper-ink);
+
+  --action-destructive-bg: var(--oxide-solid);
+  --action-destructive-fg: var(--ink-inverse);
+  --action-destructive-border: var(--oxide-ink);
+
+  --action-quiet-fg: var(--copper-ink);
+  --action-quiet-hover-bg: var(--copper-tint);
+}
+
+/* ═══ 4 · TYPE ═════════════════════════════════════════════════════════════
+ * Sheet 02. Fourteen steps, three families, ONE WEIGHT.
+ *
+ * Under the house rule of medium and normal only, every Libertinus family here
+ * ships exactly one usable weight, so this system has no weight axis at all.
+ * Hierarchy is carried by size, family switch, colour, case, tracking, rules
+ * and space. Emphasis inside a paragraph is a family switch or a step of ink,
+ * never a weight change. `font-synthesis: none` is set in globals.css: without
+ * it the browser fakes a bold and an oblique and breaks the system silently.
+ */
+
+:root {
+  --font-serif: 'Libertinus Serif', Georgia, serif; /* to read */
+  --font-sans: 'Libertinus Sans', Optima, Candara, sans-serif; /* to operate */
+  --font-mono: 'Libertinus Mono', ui-monospace, monospace; /* to verify */
+  --font-math: 'Libertinus Math', var(--font-mono); /* MathExpr only */
+
+  /* size · line-height · tracking */
+  --t-display: 400 56px/1.05 var(--font-serif);
+  --t-display-tracking: -0.02em;
+  --t-title: 400 34px/1.15 var(--font-serif);
+  --t-title-tracking: -0.012em;
+  --t-heading: 400 26px/1.2 var(--font-serif);
+  --t-heading-tracking: -0.008em;
+  --t-panel: 400 19px/1.25 var(--font-serif);
+  --t-lede: 400 18px/1.5 var(--font-serif);
+
+  --t-body: 400 15px/1.55 var(--font-sans);
+  --t-compact: 400 14px/1.5 var(--font-sans);
+  --t-caption: 400 13px/1.45 var(--font-sans);
+  --t-label: 400 12px/1.4 var(--font-sans);
+  --t-label-tracking: 0.01em;
+  --t-micro: 400 11px/1.35 var(--font-sans); /* uppercase table headers */
+  --t-micro-tracking: 0.04em;
+
+  --t-data: 400 14px/1.5 var(--font-mono);
+  --t-code: 400 12.5px/1.75 var(--font-mono);
+  --t-chip: 400 11px/1 var(--font-mono); /* uppercase */
+  --t-chip-tracking: 0.06em;
+  --t-eyebrow: 400 10px/1 var(--font-mono); /* uppercase */
+  --t-eyebrow-tracking: 0.16em;
+
+  /* Measure. Sheet 02: prose 62ch, interface body 52ch, helper line 44ch. */
+  --measure-prose: 62ch;
+  --measure-body: 52ch;
+  --measure-helper: 44ch;
+}
+
+/* ═══ 5 · SPACE, RADIUS, ELEVATION ═════════════════════════════════════════ */
+
+:root {
+  --s-0: 2px; /* hairline offsets only */
+  --s-1: 4px; /* glyph to its label */
+  --s-2: 8px; /* inside a chip */
+  --s-3: 12px; /* between controls */
+  --s-4: 16px; /* panel padding, tight */
+  --s-5: 24px; /* panel padding, standard */
+  --s-6: 32px; /* between panels */
+  --s-7: 48px; /* between sections */
+
+  --r-chip: 4px; /* chips, fields, buttons */
+  --r-panel: 6px; /* panels and cards */
+  --r-overlay: 8px; /* dialog, command palette, brand mark */
+  --r-full: 999px; /* avatars only */
+
+  /* The one shadow in the system. Dialog and command palette, nothing else.
+   * A panel is separated from the page by one tint step and one hairline. */
+  --shadow-overlay: 0 1px 2px rgb(31 28 24 / 0.06), 0 16px 40px rgb(31 28 24 / 0.14);
+
+  /* Control heights, sheet 03. Every one sits inside a 44px hit region. */
+  --control-sm: 32px; /* in-row */
+  --control-md: 36px; /* toolbar */
+  --control-lg: 44px; /* form, dialog */
+  --hit-target: 44px;
+
+  /* Row heights, sheet 04. Density is a first-class setting, persisted per user. */
+  --row-comfortable: 56px; /* tenant application default */
+  --row-compact: 44px; /* platform console default, for long lists */
+
+  /* Layout, sheet 04. */
+  --nav-width: 220px;
+  --nav-rail-width: 56px;
+  --content-max: 1200px;
+
+  /* The frame is 3px of copper inset around the entire viewport. Layout insets
+   * to accommodate it rather than overlaying, so nothing is ever hidden
+   * beneath it. 03 §8 · 06 §6. */
+  --boundary-width: 3px;
+}
+
+/* ═══ 6 · MOTION ═══════════════════════════════════════════════════════════
+ * Sheet 13. Motion confirms, it never entertains. Nothing exceeds 200ms except
+ * the skeleton pulse, and no token moves anything more than 4px.
+ */
+
+:root {
+  --motion-instant: 0ms; /* nav selection, tab change, filter apply */
+  --motion-fade: 120ms; /* panel and popover, opacity only */
+  --motion-overlay: 160ms; /* dialog and palette, opacity plus 4px rise */
+  --motion-banner: 180ms; /* height and opacity, so nothing below jumps */
+  --motion-toast: 200ms;
+  --motion-skeleton: 1200ms; /* pulse between two surface tints, no sweep */
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fade: 0ms;
+    --motion-overlay: 0ms;
+    --motion-banner: 0ms;
+    --motion-toast: 0ms;
+  }
+}
+
+/* ═══ 7 · HATCH ════════════════════════════════════════════════════════════
+ * The one texture. It says "this space exists and you cannot use it", which no
+ * flat grey communicates as clearly. Used for disabled surfaces, suspended
+ * rows, unavailable capacity in a limit bar, and a value withheld from the
+ * support role.
+ */
+
+:root {
+  --hatch-graphite: repeating-linear-gradient(45deg, var(--graphite-rule) 0 1px, transparent 1px 6px);
+  --hatch-oxide: repeating-linear-gradient(45deg, var(--oxide-rule) 0 1px, transparent 1px 6px);
+  --hatch-slate: repeating-linear-gradient(45deg, var(--slate-rule) 0 1px, transparent 1px 6px);
+}

@@ -1,0 +1,159 @@
+/**
+ * 07 §2. The error code catalogue.
+ *
+ * These strings are stable. The browser maps them to copy from 10 · Copy Deck,
+ * and Phase 2 maps them to behaviour, so renaming one is a breaking API change
+ * and belongs in /v2. Adding one is not.
+ *
+ * Every message here is written to be shown to a user. Where something is not
+ * safe to display, the code stays generic and the detail goes to the log.
+ */
+
+export const ERROR_CODES = {
+  // ─ Authentication and identity ─
+  AUTH_INVALID_CREDENTIALS: 'auth.invalid_credentials',
+  AUTH_ACCOUNT_LOCKED: 'auth.account_locked',
+  AUTH_SESSION_EXPIRED: 'auth.session_expired',
+  AUTH_EMAIL_UNVERIFIED: 'auth.email_unverified',
+  AUTH_NO_MEMBERSHIP: 'auth.no_membership',
+
+  // ─ Tenancy ─
+  TENANT_SUSPENDED: 'tenant.suspended',
+  TENANT_NOT_FOUND: 'tenant.not_found',
+
+  // ─ Membership ─
+  MEMBER_LAST_OWNER: 'member.last_owner',
+  MEMBER_ALREADY_EXISTS: 'member.already_exists',
+
+  // ─ Invitations ─
+  INVITATION_EXPIRED: 'invitation.expired',
+  INVITATION_ALREADY_ACCEPTED: 'invitation.already_accepted',
+  INVITATION_REVOKED: 'invitation.revoked',
+
+  // ─ Entitlements ─
+  ENTITLEMENT_LIMIT_REACHED: 'entitlement.limit_reached',
+  ENTITLEMENT_FEATURE_UNAVAILABLE: 'entitlement.feature_unavailable',
+  SUBSCRIPTION_NOT_ACTIVE: 'subscription.not_active',
+
+  // ─ Credentials ─
+  CREDENTIAL_NOT_FOUND: 'credential.not_found',
+  CREDENTIAL_REVOKED: 'credential.revoked',
+  CREDENTIAL_SCOPE_MISSING: 'credential.scope_missing',
+  CREDENTIAL_LIMIT_REACHED: 'credential.limit_reached',
+
+  // ─ AI rules ─
+  RULES_VERSION_CONFLICT: 'rules.version_conflict',
+  RULES_FIELD_LOCKED: 'rules.field_locked',
+
+  // ─ Support mode and platform ─
+  SUPPORT_SESSION_EXPIRED: 'support.session_expired',
+  SUPPORT_NOT_PERMITTED: 'support.not_permitted',
+  PLATFORM_NOT_ADMIN: 'platform.not_admin',
+
+  // ─ Generic ─
+  VALIDATION_FAILED: 'validation.failed',
+  RATE_LIMIT_EXCEEDED: 'rate_limit.exceeded',
+  NOT_FOUND: 'not_found',
+  INTERNAL: 'internal',
+} as const;
+
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
+
+/**
+ * The status each code answers with.
+ *
+ * `404`, NEVER `403`, for a resource in another tenant. A 403 confirms the
+ * resource exists, which is an information leak on a multi-tenant platform.
+ * 07 §1 · 11 §6 rule 7. Note that TENANT_NOT_FOUND and NOT_FOUND are the only
+ * codes a cross-tenant request can ever produce, and both are 404.
+ */
+export const ERROR_STATUS: Record<ErrorCode, number> = {
+  [ERROR_CODES.AUTH_INVALID_CREDENTIALS]: 401,
+  [ERROR_CODES.AUTH_ACCOUNT_LOCKED]: 423,
+  [ERROR_CODES.AUTH_SESSION_EXPIRED]: 401,
+  [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 403,
+  [ERROR_CODES.AUTH_NO_MEMBERSHIP]: 403,
+
+  [ERROR_CODES.TENANT_SUSPENDED]: 403,
+  [ERROR_CODES.TENANT_NOT_FOUND]: 404,
+
+  [ERROR_CODES.MEMBER_LAST_OWNER]: 409,
+  [ERROR_CODES.MEMBER_ALREADY_EXISTS]: 409,
+
+  [ERROR_CODES.INVITATION_EXPIRED]: 410,
+  [ERROR_CODES.INVITATION_ALREADY_ACCEPTED]: 409,
+  [ERROR_CODES.INVITATION_REVOKED]: 410,
+
+  [ERROR_CODES.ENTITLEMENT_LIMIT_REACHED]: 403,
+  [ERROR_CODES.ENTITLEMENT_FEATURE_UNAVAILABLE]: 403,
+  [ERROR_CODES.SUBSCRIPTION_NOT_ACTIVE]: 403,
+
+  [ERROR_CODES.CREDENTIAL_NOT_FOUND]: 404,
+  [ERROR_CODES.CREDENTIAL_REVOKED]: 401,
+  [ERROR_CODES.CREDENTIAL_SCOPE_MISSING]: 403,
+  [ERROR_CODES.CREDENTIAL_LIMIT_REACHED]: 403,
+
+  [ERROR_CODES.RULES_VERSION_CONFLICT]: 409,
+  [ERROR_CODES.RULES_FIELD_LOCKED]: 403,
+
+  [ERROR_CODES.SUPPORT_SESSION_EXPIRED]: 401,
+  [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 403,
+  [ERROR_CODES.PLATFORM_NOT_ADMIN]: 403,
+
+  [ERROR_CODES.VALIDATION_FAILED]: 422,
+  [ERROR_CODES.RATE_LIMIT_EXCEEDED]: 429,
+  [ERROR_CODES.NOT_FOUND]: 404,
+  [ERROR_CODES.INTERNAL]: 500,
+};
+
+/**
+ * Default messages, from 10 · Copy Deck. A handler may pass a more specific
+ * message; it may not invent a tone. No em dashes, no exclamation marks, and
+ * never an apology for the system.
+ */
+export const ERROR_MESSAGES: Record<ErrorCode, string> = {
+  [ERROR_CODES.AUTH_INVALID_CREDENTIALS]: 'That email and password do not match.',
+  [ERROR_CODES.AUTH_ACCOUNT_LOCKED]: 'Too many sign-in attempts. Try again shortly.',
+  [ERROR_CODES.AUTH_SESSION_EXPIRED]:
+    'You have been signed out. Sign in again and we will bring you back here.',
+  [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 'Confirm your email before continuing.',
+  [ERROR_CODES.AUTH_NO_MEMBERSHIP]:
+    'Your account is not attached to a workspace. If you were invited, use the link in your invitation email. Otherwise get in touch.',
+
+  [ERROR_CODES.TENANT_SUSPENDED]: 'This workspace is suspended. Get in touch to resolve it.',
+  [ERROR_CODES.TENANT_NOT_FOUND]: 'That is not here, or you do not have access to it.',
+
+  [ERROR_CODES.MEMBER_LAST_OWNER]:
+    'Every workspace needs an owner. Transfer ownership before removing this account.',
+  [ERROR_CODES.MEMBER_ALREADY_EXISTS]: 'That person is already on this team.',
+
+  [ERROR_CODES.INVITATION_EXPIRED]: 'This invitation has expired. Ask for a new one.',
+  [ERROR_CODES.INVITATION_ALREADY_ACCEPTED]: 'This invitation has already been accepted.',
+  [ERROR_CODES.INVITATION_REVOKED]: 'This invitation was withdrawn.',
+
+  [ERROR_CODES.ENTITLEMENT_LIMIT_REACHED]: 'You have used everything your plan includes here.',
+  [ERROR_CODES.ENTITLEMENT_FEATURE_UNAVAILABLE]: 'Your plan does not include this.',
+  [ERROR_CODES.SUBSCRIPTION_NOT_ACTIVE]: 'This workspace does not have an active subscription.',
+
+  [ERROR_CODES.CREDENTIAL_NOT_FOUND]: 'That is not here, or you do not have access to it.',
+  [ERROR_CODES.CREDENTIAL_REVOKED]: 'This credential was revoked.',
+  [ERROR_CODES.CREDENTIAL_SCOPE_MISSING]:
+    'This credential does not have the scope required for that. Add it in the dashboard under API credentials.',
+  [ERROR_CODES.CREDENTIAL_LIMIT_REACHED]:
+    'You have created every credential your plan includes.',
+
+  [ERROR_CODES.RULES_VERSION_CONFLICT]:
+    'These rules were changed while you were editing. Review the differences before publishing.',
+  [ERROR_CODES.RULES_FIELD_LOCKED]: 'This is set by the platform and cannot be changed here.',
+
+  [ERROR_CODES.SUPPORT_SESSION_EXPIRED]:
+    'Your support session ended. Switch in again to continue.',
+  [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 'This account cannot enter support mode.',
+  [ERROR_CODES.PLATFORM_NOT_ADMIN]: 'This account does not manage the platform.',
+
+  [ERROR_CODES.VALIDATION_FAILED]: 'Some of what was sent is not valid.',
+  [ERROR_CODES.RATE_LIMIT_EXCEEDED]:
+    'That is a lot of requests in a short time. Wait a moment and try again.',
+  [ERROR_CODES.NOT_FOUND]: 'That is not here, or you do not have access to it.',
+  [ERROR_CODES.INTERNAL]: 'Something broke on our side. We have logged it.',
+};

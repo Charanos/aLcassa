@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css" />
+<style>
+@font-face { font-family: 'Libertinus Serif'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Serif'; font-style: italic; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-italic.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-sans@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-mono@latest/latin-400-normal.woff2) format('woff2'); }
+body { margin: 0; background: #E7E2D9; }
+a { color: #8A4A1E; text-decoration: none; border-bottom: 1px solid #B98553; }
+a:hover { color: #A6572A; border-bottom-color: #A6572A; }
+</style>
+</helmet>
+
+<div style="position: relative; width: 1440px; margin: 0 auto; background: #FBF9F5; color: #1F1C18; font-family: 'Libertinus Sans', Optima, Candara, sans-serif; font-weight: 400; font-size: 15px; line-height: 1.55; box-shadow: 0 0 0 1px #E4DDCF;">
+
+<div style="position: absolute; top: 0; bottom: 0; left: 76px; width: 1px; background: #EFE9DE;"></div>
+<div style="position: absolute; top: 300px; left: 40px; width: 24px; display: grid; gap: 3px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; letter-spacing: 0.1em; color: #A79E8F;">
+<div style="color: #A6572A;">1</div><div style="color: #A6572A;">1</div>
+<div style="height: 18px; width: 1px; background: #DAD3C7; margin: 4px 0 4px 5px;"></div>
+<div>1</div><div>4</div>
+</div>
+
+<div style="position: relative; padding: 64px 72px 0 128px;">
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 60px;">
+<div style="max-width: 740px;">
+<div style="display: flex; align-items: center; gap: 12px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #8A4A1E;">
+<span style="width: 26px; height: 1px; background: #B98553;"></span>Andishi · rev 3.1 amendment
+</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 76px; line-height: 1; letter-spacing: -0.022em; margin-top: 20px;">Platform health</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 25px; line-height: 1.42; color: #55504A; margin-top: 16px; max-width: 42ch; text-wrap: pretty;">Service status, database and cache, error rate, and the businesses that need a decision today. Instrumented from week 2, so this page has history behind it before it is needed.</div>
+</div>
+<div style="flex: none; width: 320px; padding-top: 8px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">Right now</div>
+<div style="margin-top: 14px; padding: 18px 20px; border-radius: 6px; background: #F3EAD3; box-shadow: 0 0 0 1px #AE9450;">
+<div style="display: flex; align-items: center; gap: 8px;">
+<i class="ti ti-clock-hour-3" style="font-size: 18px; color: #78570F;"></i>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #78570F;">{{ degradedLabel }}</span>
+</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-style: italic; font-size: 17px; color: #78570F; margin-top: 10px; text-wrap: pretty;">Everything correct. The cache is slow, which costs speed and nothing else.</div>
+</div>
+<div style="font-size: 13.5px; color: #55504A; margin-top: 12px; text-wrap: pretty;">The severity is stated before any row is read, from the degradation contract in the brief rather than from a colour alone.</div>
+</div>
+</div>
+
+<div style="display: flex; gap: 48px; margin-top: 40px; padding-bottom: 20px;">
+<sc-for list="{{ meta }}" as="m" hint-placeholder-count="6">
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #A79E8F;">{{ m.k }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13.5px; margin-top: 6px; color: {{ m.fg }};">{{ m.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="height: 1px; background: #CFC5B2; margin: 0 72px 0 128px;"></div>
+
+<div style="position: relative; padding: 44px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">1.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Services</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">{{ upLabel }} · refreshed every 30 s</span>
+</div>
+
+<div style="border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1px #CFC5B2;">
+<div style="display: grid; grid-template-columns: 280px 150px 1fr 150px; padding: 10px 20px; background: #F7F4EE; border-bottom: 1px solid #B3A995; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: #6C665D;">
+<div>Service</div><div>State</div><div>24 hours</div><div style="text-align: right;">Now</div>
+</div>
+<sc-for list="{{ services }}" as="s" hint-placeholder-count="6">
+<div style="display: grid; grid-template-columns: 280px 150px 1fr 150px; align-items: center; padding: 14px 20px; border-bottom: 1px solid #E4DDCF; background: {{ s.bg }};">
+<div style="display: flex; align-items: center; gap: 11px;">
+<div style="width: 28px; height: 28px; flex: none; border-radius: 999px; background: {{ s.tint }}; box-shadow: 0 0 0 1px {{ s.rule }}; display: flex; align-items: center; justify-content: center;"><i class="ti {{ s.glyph }}" style="font-size: 15px; color: {{ s.ink }};"></i></div>
+<div>
+<div style="font-size: 15px;">{{ s.name }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #6C665D;">{{ s.detail }}</div>
+</div>
+</div>
+<div>
+<span style="display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border: 1px solid {{ s.rule }}; background: {{ s.tint }}; color: {{ s.ink }}; border-radius: 4px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;"><i class="ti {{ s.icon }}" style="font-size: 14px;"></i>{{ s.state }}</span>
+</div>
+<div style="display: flex; align-items: flex-end; gap: 2px; height: 28px; padding: 0 20px;">
+<sc-for list="{{ s.bars }}" as="b" hint-placeholder-count="24">
+<div style="flex: 1; height: {{ b.h }}; background: {{ b.c }}; border-radius: 1px;"></div>
+</sc-for>
+</div>
+<div style="text-align: right; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: {{ s.valueFg }};">{{ s.value }}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px;">
+<sc-for list="{{ metrics }}" as="m" hint-placeholder-count="4">
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #CFC5B2; padding: 18px 20px;">
+<div style="display: flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: #6C665D;"><i class="ti {{ m.icon }}" style="font-size: 14px;"></i>{{ m.label }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 28px; line-height: 1.1; margin-top: 12px; color: {{ m.fg }};">{{ m.value }}</div>
+<div style="font-size: 13px; color: #55504A; margin-top: 5px; text-wrap: pretty;">{{ m.sub }}</div>
+<div style="margin-top: 12px; height: 7px; border-radius: 2px; background: #EDE8DE; box-shadow: 0 0 0 1px #E4DDCF; overflow: hidden;"><div style="height: 100%; width: {{ m.pct }}; background: {{ m.fill }};"></div></div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #A79E8F; margin-top: 6px;">{{ m.against }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">2.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Needs a decision</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">Ordered by what the owner can act on</span>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 420px; gap: 20px; align-items: start;">
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #CFC5B2; overflow: hidden;">
+<sc-for list="{{ attention }}" as="a" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: 1fr 200px 132px 104px; align-items: center; padding: 14px 20px; border-bottom: 1px solid #E4DDCF;">
+<div style="display: flex; align-items: center; gap: 11px;">
+<div style="width: 30px; height: 30px; flex: none; border-radius: 5px; background: {{ a.markTint }}; box-shadow: 0 0 0 1px {{ a.markRule }}; display: flex; align-items: center; justify-content: center; font-family: 'Libertinus Serif', Georgia, serif; font-size: 15px; color: {{ a.markInk }};">{{ a.letter }}</div>
+<div>
+<div style="font-size: 14.5px;">{{ a.name }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #6C665D;">{{ a.slug }}</div>
+</div>
+</div>
+<div style="font-size: 13.5px; color: #55504A; text-wrap: pretty;">{{ a.why }}</div>
+<div>
+<span style="display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border: 1px solid {{ a.rule }}; background: {{ a.tint }}; color: {{ a.ink }}; border-radius: 4px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;"><i class="ti {{ a.icon }}" style="font-size: 13px;"></i>{{ a.tag }}</span>
+</div>
+<div style="text-align: right;"><span style="font-size: 13.5px; color: #8A4A1E;">{{ a.action }}</span></div>
+</div>
+</sc-for>
+<div style="padding: 12px 20px; background: #F4F0E8; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">5 open · each row carries the action rather than a link that means read more</div>
+</div>
+<div style="display: grid; gap: 16px;">
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #CFC5B2; padding: 20px 22px;">
+<div style="display: flex; align-items: center; gap: 8px;"><i class="ti ti-alert-triangle" style="font-size: 17px; color: #98301D;"></i><span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 19px;">Errors, 24 hours</span></div>
+<div style="margin-top: 14px;">
+<sc-for list="{{ errors }}" as="e" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: 1fr 54px 72px; gap: 10px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid #E4DDCF;">
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px;">{{ e.code }}</div>
+<div style="font-size: 12.5px; color: #6C665D; text-wrap: pretty;">{{ e.what }}</div>
+</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; text-align: right; color: {{ e.fg }};">{{ e.n }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; text-align: right; color: #A79E8F;">{{ e.trend }}</div>
+</div>
+</sc-for>
+</div>
+<div style="font-size: 13px; color: #55504A; margin-top: 12px; text-wrap: pretty;">Refusals are counted separately from failures. A rejected scope is the guard working, not an error.</div>
+</div>
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #6EA396; padding: 20px 22px;">
+<div style="display: flex; align-items: center; gap: 8px; color: #1A6155;"><i class="ti ti-shield-check" style="font-size: 17px;"></i><span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 19px;">Isolation suite</span></div>
+<div style="margin-top: 12px; display: grid; gap: 9px;">
+<sc-for list="{{ isolation }}" as="i" hint-placeholder-count="4">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 9px; border-bottom: 1px solid #E4DDCF;">
+<span style="font-size: 13.5px; color: #55504A;">{{ i.k }}</span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; color: {{ i.fg }};">{{ i.v }}</span>
+</div>
+</sc-for>
+</div>
+<div style="font-size: 13px; color: #55504A; margin-top: 12px; text-wrap: pretty;">Runs on every push. A table without a policy fails the build, so this number cannot silently fall behind the schema.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">3.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Degraded, in both themes</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+<div style="border-radius: 6px; background: #F4F0E8; box-shadow: 0 0 0 1px #E4DDCF; padding: 22px;">
+<div style="background: #F3EAD3; border-radius: 4px; box-shadow: 0 0 0 1px #AE9450; padding: 12px 14px; display: flex; align-items: center; gap: 12px;">
+<i class="ti ti-clock-hour-3" style="font-size: 19px; color: #78570F; flex: none;"></i>
+<div style="flex: 1;">
+<div style="font-size: 14px; color: #78570F;">Cache is unreachable — responses are slower</div>
+<div style="font-size: 13px; color: #55504A; margin-top: 1px;">Every correctness property still holds. Rules read direct from Postgres.</div>
+</div>
+<div style="height: 32px; padding: 0 12px; border: 1px solid #AE9450; border-radius: 4px; display: inline-flex; align-items: center; font-size: 13px; color: #78570F; flex: none;">Status</div>
+</div>
+<div style="margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+<div style="background: #FBF9F5; border-radius: 4px; box-shadow: 0 0 0 1px #E4DDCF; padding: 13px 15px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #A79E8F;">Still true</div>
+<div style="font-size: 13.5px; color: #1A6155; margin-top: 6px; text-wrap: pretty;">Isolation, entitlements, audit, every correctness property.</div>
+</div>
+<div style="background: #FBF9F5; border-radius: 4px; box-shadow: 0 0 0 1px #E4DDCF; padding: 13px 15px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #A79E8F;">Changed</div>
+<div style="font-size: 13.5px; color: #78570F; margin-top: 6px; text-wrap: pretty;">Rules reads cost a database round trip. Nothing else.</div>
+</div>
+</div>
+</div>
+<div style="border-radius: 6px; background: #141310; box-shadow: 0 0 0 1px #46413A; padding: 22px;">
+<div style="background: #241C0D; border-radius: 4px; box-shadow: 0 0 0 1px #5A481D; padding: 12px 14px; display: flex; align-items: center; gap: 12px;">
+<i class="ti ti-clock-hour-3" style="font-size: 19px; color: #DCB05A; flex: none;"></i>
+<div style="flex: 1;">
+<div style="font-size: 14px; color: #DCB05A;">Cache is unreachable — responses are slower</div>
+<div style="font-size: 13px; color: #B0A99E; margin-top: 1px;">Every correctness property still holds. Rules read direct from Postgres.</div>
+</div>
+<div style="height: 32px; padding: 0 12px; border: 1px solid #5A481D; border-radius: 4px; display: inline-flex; align-items: center; font-size: 13px; color: #DCB05A; flex: none;">Status</div>
+</div>
+<div style="margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+<div style="background: #1D1B17; border-radius: 4px; box-shadow: 0 0 0 1px #2E2A25; padding: 13px 15px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #6E675C;">Still true</div>
+<div style="font-size: 13.5px; color: #6FC3AF; margin-top: 6px; text-wrap: pretty;">Isolation, entitlements, audit, every correctness property.</div>
+</div>
+<div style="background: #1D1B17; border-radius: 4px; box-shadow: 0 0 0 1px #2E2A25; padding: 13px 15px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #6E675C;">Changed</div>
+<div style="font-size: 13.5px; color: #DCB05A; margin-top: 6px; text-wrap: pretty;">Rules reads cost a database round trip. Nothing else.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 64px 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">4.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Why it is built this way</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; margin-top: 22px;">
+<sc-for list="{{ notes }}" as="n" hint-placeholder-count="8">
+<div style="padding-left: 16px; border-left: 2px solid {{ n.mark }};">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: {{ n.fg }};">{{ n.k }}</div>
+<div style="font-size: 14px; color: #55504A; margin-top: 7px; text-wrap: pretty;">{{ n.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 18px 72px 18px 128px; border-top: 1px solid #E4DDCF; background: #F7F4EE; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">
+<span>Conduit · design system · sheet 11 of 14</span>
+<span>Andishi · commercial in confidence</span>
+<span>Rev 3.1 · 04 Aug 2026</span>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440}}">
+class Component extends DCLogic {
+  renderVals() {
+    const series = (base, spikes) => {
+      const out = [];
+      for (let i = 0; i < 24; i++) {
+        const v = spikes[i] != null ? spikes[i] : base + ((i * 7) % 5) - 2;
+        const pct = Math.max(10, Math.min(100, v));
+        out.push({ h: pct + '%', c: pct > 70 ? '#8A6614' : '#6EA396' });
+      }
+      return out;
+    };
+    const S = [
+      { name: 'Application', detail: 'Next.js on Vercel · 3 regions', glyph: 'ti-browser', state: 'Operational', value: '142 ms p95', valueFg: '#1F1C18', bars: series(26, {}), ink: '#1A6155', tint: '#DFEBE7', rule: '#6EA396', icon: 'ti-circle-check', bg: '#FBF9F5' },
+      { name: 'Database', detail: 'Supabase Postgres · pooled', glyph: 'ti-database', state: 'Operational', value: '18 ms p95', valueFg: '#1F1C18', bars: series(22, { 9: 64 }), ink: '#1A6155', tint: '#DFEBE7', rule: '#6EA396', icon: 'ti-circle-check', bg: '#FBF9F5' },
+      { name: 'Cache', detail: 'Upstash Redis · 4 scoped uses', glyph: 'ti-bolt', state: 'Degraded', value: '2 timeouts', valueFg: '#78570F', bars: series(28, { 14: 92, 15: 88, 16: 74 }), ink: '#78570F', tint: '#F3EAD3', rule: '#AE9450', icon: 'ti-clock-hour-3', bg: '#FDFAF2' },
+      { name: 'Auth', detail: 'Supabase Auth · email and password', glyph: 'ti-user', state: 'Operational', value: '211 ms p95', valueFg: '#1F1C18', bars: series(30, {}), ink: '#1A6155', tint: '#DFEBE7', rule: '#6EA396', icon: 'ti-circle-check', bg: '#FBF9F5' },
+      { name: 'Service door', detail: 'Scoped credential reads', glyph: 'ti-key', state: 'Operational', value: '6 ms p95', valueFg: '#1F1C18', bars: series(14, {}), ink: '#1A6155', tint: '#DFEBE7', rule: '#6EA396', icon: 'ti-circle-check', bg: '#FBF9F5' },
+      { name: 'Uptime checks', detail: 'External probe · 60 s interval', glyph: 'ti-activity-heartbeat', state: 'Operational', value: '99.98 %', valueFg: '#1F1C18', bars: series(18, {}), ink: '#1A6155', tint: '#DFEBE7', rule: '#6EA396', icon: 'ti-circle-check', bg: '#FBF9F5' },
+    ];
+    const up = S.filter((s) => s.state === 'Operational').length;
+    const MARK = [
+      { tint: '#F3EAD3', ink: '#78570F', rule: '#AE9450' },
+      { tint: '#E4E9F0', ink: '#425A79', rule: '#8399B3' },
+      { tint: '#F7E4DE', ink: '#98301D', rule: '#C48371' },
+      { tint: '#EAE6DE', ink: '#55504A', rule: '#A79E8F' },
+      { tint: '#DFEBE7', ink: '#1A6155', rule: '#6EA396' },
+    ];
+
+    return {
+      services: S,
+      upLabel: up + ' of ' + S.length + ' operational',
+      degradedLabel: (S.length - up) + ' degraded · cache',
+      meta: [
+        { k: 'Sheet', v: '11 of 14', fg: '#1F1C18' },
+        { k: 'Requirement', v: '10 · M6', fg: '#1F1C18' },
+        { k: 'Access', v: 'Platform owner only', fg: '#1F1C18' },
+        { k: 'Public page', v: 'status.conduit.andishi.co.ke', fg: '#1F1C18' },
+        { k: 'p95 target', v: '400 ms · 50 concurrent', fg: '#1F1C18' },
+        { k: 'Status', v: 'For review', fg: '#78570F' },
+      ],
+      metrics: [
+        { label: 'Dashboard p95', icon: 'ti-activity-heartbeat', value: '142 ms', sub: 'Target is 400 ms at 50 concurrent sessions', pct: '36%', fill: '#1F6F61', against: '36 percent of budget', fg: '#1F1C18' },
+        { label: 'Cache hit rate', icon: 'ti-bolt', value: '99.1 %', sub: 'Rules reads served without a database round trip', pct: '99%', fill: '#1F6F61', against: 'target 95 percent', fg: '#1F1C18' },
+        { label: 'DB connections', icon: 'ti-database', value: '34 / 60', sub: 'Pooled · peak 41 in the last 24 hours', pct: '57%', fill: '#4B6588', against: '57 percent of pool', fg: '#1F1C18' },
+        { label: 'Error rate', icon: 'ti-alert-triangle', value: '0.14 %', sub: '38 failures in 27,104 requests', pct: '28%', fill: '#8A6614', against: 'alert threshold 0.5 percent', fg: '#78570F' },
+      ],
+      attention: [
+        { name: 'Halo Fitness', slug: 'halo-fitness', why: '15 of 15 seats for 6 days', tag: 'Near limit', icon: 'ti-clock-hour-3', ink: '#78570F', tint: '#F3EAD3', rule: '#AE9450', action: 'Offer Scale', letter: 'H' },
+        { name: 'Northwind Traders', slug: 'northwind', why: '5 of 6 channels connected', tag: 'Near limit', icon: 'ti-clock-hour-3', ink: '#78570F', tint: '#F3EAD3', rule: '#AE9450', action: 'Review', letter: 'N' },
+        { name: 'Tamarind Hotels', slug: 'tamarind', why: 'Past due 11 days', tag: 'Past due', icon: 'ti-alert-triangle', ink: '#98301D', tint: '#F7E4DE', rule: '#C48371', action: 'Contact', letter: 'T' },
+        { name: 'Sable & Finch', slug: 'sable-finch', why: 'Past due 3 days', tag: 'Past due', icon: 'ti-alert-triangle', ink: '#98301D', tint: '#F7E4DE', rule: '#C48371', action: 'Contact', letter: 'S' },
+        { name: 'Baraka Logistics', slug: 'baraka-log', why: 'Trial ends in 2 days', tag: 'Trialing', icon: 'ti-terminal-2', ink: '#425A79', tint: '#E4E9F0', rule: '#8399B3', action: 'Assign plan', letter: 'B' },
+      ].map((a, i) => Object.assign({}, a, {
+        markTint: MARK[i % MARK.length].tint, markInk: MARK[i % MARK.length].ink, markRule: MARK[i % MARK.length].rule,
+      })),
+      errors: [
+        { code: 'cache.timeout', what: 'Redis read exceeded its 50 ms budget', n: '21', trend: '+21', fg: '#78570F' },
+        { code: 'db.deadlock', what: 'Retried and succeeded', n: '11', trend: '−4', fg: '#1F1C18' },
+        { code: 'auth.rate_limited', what: 'Refusal, not a failure', n: '104', trend: '+12', fg: '#6C665D' },
+        { code: 'entitlement.exceeded', what: 'Refusal, not a failure', n: '37', trend: '+6', fg: '#6C665D' },
+        { code: 'handler.unhandled', what: 'Paged on sight', n: '0', trend: '0', fg: '#1A6155' },
+      ],
+      isolation: [
+        { k: 'Tenant-scoped tables', v: '11', fg: '#1F1C18' },
+        { k: 'Tables with a policy', v: '11 of 11', fg: '#1A6155' },
+        { k: 'Cross-tenant attempts', v: '22 · all refused', fg: '#1A6155' },
+        { k: 'Last run', v: '38 min ago · green', fg: '#1A6155' },
+      ],
+      notes: [
+        { k: 'The diagnosis leads', v: 'The severity is written as a sentence before any row is read, so a reader knows whether to worry before they know which service is affected.', mark: '#AE9450', fg: '#78570F' },
+        { k: 'Degraded is ochre, not red', v: 'Oxide is reserved for a failure of correctness. A slow cache is a pending condition, so it takes ochre — and the same hue marks the spike in its bar series.', mark: '#AE9450', fg: '#78570F' },
+        { k: 'Bars are readings', v: 'Twenty-four hourly values per service, drawn from the same data as the state chip, with over-threshold bars in ochre. The cache row is legible at a glance.', mark: '#6EA396', fg: '#1A6155' },
+        { k: 'Every metric names its budget', v: 'A number without a target is trivia. Each card carries the threshold from the definition of done underneath its fill.', mark: '#8399B3', fg: '#425A79' },
+        { k: 'Refusals are not failures', v: 'Rate limits and entitlement rejections are the guard working. They are counted, shown in graphite, and excluded from the error rate.', mark: '#A79E8F', fg: '#55504A' },
+        { k: 'Needs a decision, not attention', v: 'The list is ordered by what the owner can act on, and each row carries the action rather than a link that means read more.', mark: '#B98553', fg: '#8A4A1E' },
+        { k: 'The isolation suite is here', v: 'The severe risk in the brief is a policy gap. Its status belongs beside uptime, not buried in CI, so 11 of 11 is visible daily.', mark: '#6EA396', fg: '#1A6155' },
+        { k: 'Proposed', v: 'Degraded thresholds, the refresh interval and the alert level on error rate are proposed. Error tracking and uptime vendors are named at design lock.', mark: '#AE9450', fg: '#78570F' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

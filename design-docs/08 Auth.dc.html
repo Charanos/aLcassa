@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css" />
+<script src="./image-slot.js"></script>
+<style>
+@font-face { font-family: 'Libertinus Serif'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Serif'; font-style: italic; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-italic.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-sans@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-mono@latest/latin-400-normal.woff2) format('woff2'); }
+body { margin: 0; background: #E7E2D9; }
+a { color: #8A4A1E; text-decoration: none; border-bottom: 1px solid #B98553; }
+a:hover { color: #A6572A; border-bottom-color: #A6572A; }
+</style>
+</helmet>
+
+<div style="position: relative; width: 1440px; margin: 0 auto; background: #FBF9F5; color: #1F1C18; font-family: 'Libertinus Sans', Optima, Candara, sans-serif; font-weight: 400; font-size: 15px; line-height: 1.55; box-shadow: 0 0 0 1px #E4DDCF;">
+
+<div style="position: absolute; top: 0; bottom: 0; left: 76px; width: 1px; background: #EFE9DE;"></div>
+<div style="position: absolute; top: 300px; left: 40px; width: 24px; display: grid; gap: 3px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; letter-spacing: 0.1em; color: #A79E8F;">
+<div style="color: #A6572A;">0</div><div style="color: #A6572A;">8</div>
+<div style="height: 18px; width: 1px; background: #DAD3C7; margin: 4px 0 4px 5px;"></div>
+<div>1</div><div>4</div>
+</div>
+
+<div style="position: relative; padding: 64px 72px 0 128px;">
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 60px;">
+<div style="max-width: 740px;">
+<div style="display: flex; align-items: center; gap: 12px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #8A4A1E;">
+<span style="width: 26px; height: 1px; background: #B98553;"></span>Andishi · platform foundation · phase 1
+</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 76px; line-height: 1; letter-spacing: -0.022em; margin-top: 20px;">Access</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 25px; line-height: 1.42; color: #55504A; margin-top: 16px; max-width: 42ch; text-wrap: pretty;">Everything a person does to get in, everything they can revoke afterwards, and the matrix that decides what they may touch once inside.</div>
+</div>
+<div style="flex: none; width: 320px; padding-top: 8px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">Two doors, one guard</div>
+<div style="margin-top: 14px; display: grid; gap: 10px;">
+<div style="padding: 13px 15px; border-radius: 6px; background: #F4F0E8; box-shadow: 0 0 0 1px #E4DDCF;">
+<div style="display: flex; align-items: center; gap: 8px;"><i class="ti ti-user" style="font-size: 16px; color: #8A4A1E;"></i><span style="font-size: 14px;">Session cookie</span></div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11px; color: #6C665D; margin-top: 5px;">A person, in a browser, with a role</div>
+</div>
+<div style="padding: 13px 15px; border-radius: 6px; background: #F4F0E8; box-shadow: 0 0 0 1px #E4DDCF;">
+<div style="display: flex; align-items: center; gap: 8px;"><i class="ti ti-key" style="font-size: 16px; color: #425A79;"></i><span style="font-size: 14px;">API credential</span></div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11px; color: #6C665D; margin-top: 5px;">A machine, with scopes, no session</div>
+</div>
+</div>
+<div style="font-size: 13.5px; color: #55504A; margin-top: 12px; text-wrap: pretty;">Both resolve to the same tenant context and pass the same guard. Only the way they are proven differs.</div>
+</div>
+</div>
+
+<div style="display: flex; gap: 48px; margin-top: 40px; padding-bottom: 20px;">
+<sc-for list="{{ meta }}" as="m" hint-placeholder-count="6">
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #A79E8F;">{{ m.k }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13.5px; margin-top: 6px; color: {{ m.fg }};">{{ m.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="height: 1px; background: #CFC5B2; margin: 0 72px 0 128px;"></div>
+
+<div style="position: relative; padding: 44px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">1.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">The unauthenticated screens</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">One 400 card, centred</span>
+</div>
+
+<div style="border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 1px #CFC5B2; background: #F4F0E8; padding: 30px 26px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: start;">
+
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #CFC5B2; padding: 28px;">
+<div style="display: flex; align-items: center; gap: 9px;">
+<div style="width: 24px; height: 24px; border-radius: 5px; background: #A6572A; display: flex; align-items: center; justify-content: center; color: #FBF9F5;"><i class="ti ti-topology-star-3" style="font-size: 15px;"></i></div>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 19px;">Conduit</span>
+</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 26px; margin-top: 20px; line-height: 1.2;">Sign in</div>
+<div style="font-size: 14px; color: #55504A; margin-top: 5px; text-wrap: pretty;">Use the address your team invited.</div>
+<div style="margin-top: 20px; display: grid; gap: 14px;">
+<div>
+<div style="font-size: 12px; color: #55504A;">Work email</div>
+<div style="margin-top: 6px; height: 44px; padding: 0 12px; background: #EDE8DE; border: 1px solid #CFC5B2; border-radius: 4px; display: flex; align-items: center; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px;">grace@northwind.co.ke</div>
+</div>
+<div>
+<div style="display: flex; align-items: baseline; justify-content: space-between;">
+<span style="font-size: 12px; color: #55504A;">Password</span>
+<span style="font-size: 12px; color: #8A4A1E;">Forgotten it?</span>
+</div>
+<div style="margin-top: 6px; height: 44px; padding: 0 12px; background: #EDE8DE; border: 1px solid #CFC5B2; border-radius: 4px; outline: 2px solid #A6572A; outline-offset: 2px; display: flex; align-items: center; justify-content: space-between; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: #6C665D;"><span>••••••••••••</span><i class="ti ti-eye" style="font-size: 16px; color: #55504A;"></i></div>
+</div>
+<div style="height: 44px; border: 1px solid #8A4A1E; background: #A6572A; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; color: #FBF9F5;"><i class="ti ti-login-2" style="font-size: 16px;"></i>Sign in</div>
+<div style="font-size: 13px; color: #6C665D; text-wrap: pretty;">Sessions last 14 days on this device and can be revoked from settings.</div>
+</div>
+</div>
+
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #CFC5B2; padding: 28px;">
+<div style="display: flex; align-items: center; gap: 8px; color: #55504A;"><i class="ti ti-mail-forward" style="font-size: 18px;"></i><span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;">Reset · step 2 of 3</span></div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 26px; margin-top: 20px; line-height: 1.2;">Check your email</div>
+<div style="font-size: 14px; color: #55504A; margin-top: 5px; text-wrap: pretty;">If an account exists for grace@northwind.co.ke, a reset link is on its way. The link is valid for 60 minutes and can be used once.</div>
+<div style="margin-top: 18px; padding: 13px 14px; border-radius: 4px; background: #E4E9F0; box-shadow: 0 0 0 1px #8399B3; display: flex; gap: 10px;">
+<i class="ti ti-info-circle" style="font-size: 16px; color: #425A79; flex: none;"></i>
+<div style="font-size: 13px; color: #425A79; text-wrap: pretty;">The same message appears whether or not the address is registered, so this screen cannot be used to discover who has an account.</div>
+</div>
+<div style="margin-top: 18px; display: grid; gap: 10px;">
+<div style="height: 44px; border: 1px solid #CFC5B2; background: #FBF9F5; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px;"><i class="ti ti-refresh" style="font-size: 16px; color: #55504A;"></i>Send again in 0:44</div>
+<div style="font-size: 13px; color: #6C665D; text-align: center;">Resends are rate limited to 3 an hour.</div>
+</div>
+</div>
+
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #CFC5B2; padding: 28px;">
+<div style="display: flex; align-items: center; gap: 11px;">
+<div style="width: 36px; height: 36px; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1px #CFC5B2;"><image-slot id="au-brand" shape="rounded" radius="6" placeholder=""></image-slot></div>
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #1A6155;">Invitation</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">expires 10 Aug 2026</div>
+</div>
+</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 26px; margin-top: 18px; line-height: 1.2;">Join Acme Industrial</div>
+<div style="font-size: 14px; color: #55504A; margin-top: 5px; text-wrap: pretty;">Amina invited you as an <span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; color: #1F1C18;">agent</span>. Choose a password to accept.</div>
+<div style="margin-top: 18px; display: grid; gap: 14px;">
+<div>
+<div style="font-size: 12px; color: #55504A;">Your name</div>
+<div style="margin-top: 6px; height: 44px; padding: 0 12px; background: #EDE8DE; border: 1px solid #CFC5B2; border-radius: 4px; display: flex; align-items: center; font-size: 15px;">Joseph Mwangi</div>
+</div>
+<div>
+<div style="font-size: 12px; color: #55504A;">Choose a password</div>
+<div style="margin-top: 6px; height: 44px; padding: 0 12px; background: #F7E4DE; border: 1px solid #98301D; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: #6C665D;"><span>•••••••</span><i class="ti ti-alert-triangle" style="font-size: 16px; color: #98301D;"></i></div>
+<div style="font-size: 13px; color: #98301D; margin-top: 6px; text-wrap: pretty;">Needs 12 characters. Yours has 7.</div>
+</div>
+<div style="height: 44px; border: 1px solid #E4DDCF; background: #EDE8DE; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; color: #A79E8F;"><i class="ti ti-check" style="font-size: 16px;"></i>Accept invitation</div>
+<div style="font-size: 13px; color: #6C665D; text-wrap: pretty;">Accepting takes one of Acme's 15 seats.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">2.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Sessions, and taking them away</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 400px; gap: 20px; align-items: start;">
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #CFC5B2; overflow: hidden;">
+<div style="padding: 18px 20px; border-bottom: 1px solid #E4DDCF; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+<div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 19px;">Active sessions</div>
+<div style="font-size: 13px; color: #6C665D; margin-top: 2px;">Yours and, for an owner, every session in the tenant.</div>
+</div>
+<div style="height: 36px; padding: 0 14px; border: 1px solid #98301D; background: #FBF9F5; border-radius: 4px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #98301D; flex: none;"><i class="ti ti-logout" style="font-size: 16px;"></i>Revoke all others</div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 148px 140px 104px 92px; padding: 10px 20px; background: #F7F4EE; border-bottom: 1px solid #B3A995; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: #6C665D;">
+<div>Member</div><div>Device</div><div>Location</div><div style="text-align: right;">Last seen</div><div></div>
+</div>
+<sc-for list="{{ sessions }}" as="s" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 1fr 148px 140px 104px 92px; align-items: center; height: 60px; padding: 0 20px; border-bottom: 1px solid #E4DDCF; background: {{ s.bg }};">
+<div style="display: flex; align-items: center; gap: 11px;">
+<div style="width: 32px; height: 32px; flex: none; border-radius: 999px; overflow: hidden; box-shadow: 0 0 0 1px {{ s.ring }}; background: {{ s.tint }}; display: flex; align-items: center; justify-content: center;">
+<sc-if value="{{ s.hasSlot }}" hint-placeholder-val="{{ false }}">
+<image-slot id="{{ s.slot }}" shape="circle" placeholder=""></image-slot>
+</sc-if>
+<sc-if value="{{ s.initials }}" hint-placeholder-val="{{ true }}">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: {{ s.ink }};">{{ s.initials }}</span>
+</sc-if>
+</div>
+<div>
+<div style="font-size: 14.5px;">{{ s.name }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: {{ s.roleFg }};">{{ s.role }}</div>
+</div>
+</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; color: #55504A;">{{ s.device }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; color: #55504A;">{{ s.place }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #A79E8F; text-align: right;">{{ s.seen }}</div>
+<div style="display: flex; justify-content: flex-end;"><span style="font-size: 13px; color: {{ s.actionFg }};">{{ s.action }}</span></div>
+</div>
+</sc-for>
+<div style="padding: 12px 20px; background: #F4F0E8; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">Revoking writes an audit entry naming the actor and the revoked member.</div>
+</div>
+<div style="display: grid; gap: 16px;">
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #C48371; padding: 20px 22px;">
+<div style="display: flex; align-items: center; gap: 8px; color: #98301D;"><i class="ti ti-hand-stop" style="font-size: 17px;"></i><span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 19px;">Sign-in refused</span></div>
+<div style="margin-top: 14px; display: grid; gap: 10px;">
+<sc-for list="{{ refusals }}" as="r" hint-placeholder-count="3">
+<div style="padding: 11px 13px; border-radius: 4px; background: {{ r.tint }}; box-shadow: 0 0 0 1px {{ r.rule }};">
+<div style="font-size: 14px; color: {{ r.ink }}; text-wrap: pretty;">{{ r.text }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #55504A; margin-top: 4px;">{{ r.code }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #CFC5B2; padding: 20px 22px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">Invitation lifecycle</div>
+<div style="margin-top: 16px; display: grid; gap: 0;">
+<sc-for list="{{ lifecycle }}" as="l" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: 22px 1fr; gap: 11px;">
+<div style="display: flex; flex-direction: column; align-items: center;">
+<div style="width: 11px; height: 11px; border-radius: 6px; background: {{ l.fill }}; box-shadow: 0 0 0 1px {{ l.ring }}; margin-top: 4px;"></div>
+<div style="flex: 1; width: 1px; background: {{ l.line }};"></div>
+</div>
+<div style="padding-bottom: 14px;">
+<div style="font-size: 14px; color: {{ l.fg }};">{{ l.k }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #6C665D; margin-top: 2px;">{{ l.v }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">3.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Role matrix</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">The M0 artefact that code reads</span>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 26px; align-items: start;">
+<div style="border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1px #CFC5B2;">
+<div style="display: grid; grid-template-columns: 1fr 120px 120px 120px 120px; padding: 12px 20px; background: #F7F4EE; border-bottom: 1px solid #B3A995; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: #6C665D;">
+<div>Capability</div>
+<div style="text-align: center;">Owner</div><div style="text-align: center;">Admin</div><div style="text-align: center;">Agent</div><div style="text-align: center;">Support</div>
+</div>
+<sc-for list="{{ roles }}" as="r" hint-placeholder-count="8">
+<div style="display: grid; grid-template-columns: 1fr 120px 120px 120px 120px; align-items: center; padding: 12px 20px; border-bottom: 1px solid #E4DDCF; background: {{ r.bg }};">
+<div style="font-size: 14px;">{{ r.cap }}</div>
+<div style="text-align: center;"><i class="ti {{ r.o }}" style="font-size: 16px; color: {{ r.oFg }};"></i></div>
+<div style="text-align: center;"><i class="ti {{ r.a }}" style="font-size: 16px; color: {{ r.aFg }};"></i></div>
+<div style="text-align: center;"><i class="ti {{ r.g }}" style="font-size: 16px; color: {{ r.gFg }};"></i></div>
+<div style="text-align: center;"><i class="ti {{ r.s }}" style="font-size: 16px; color: {{ r.sFg }};"></i></div>
+</div>
+</sc-for>
+<div style="display: flex; align-items: center; gap: 22px; padding: 12px 20px; background: #F4F0E8;">
+<span style="display: flex; align-items: center; gap: 7px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #55504A;"><i class="ti ti-check" style="font-size: 15px; color: #1A6155;"></i>full</span>
+<span style="display: flex; align-items: center; gap: 7px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #55504A;"><i class="ti ti-eye" style="font-size: 15px; color: #425A79;"></i>read only</span>
+<span style="display: flex; align-items: center; gap: 7px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #55504A;"><i class="ti ti-minus" style="font-size: 15px; color: #A79E8F;"></i>none</span>
+<span style="margin-left: auto; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #6C665D;">4 roles · 8 capabilities · one guard</span>
+</div>
+</div>
+<div>
+<div style="font-size: 15px; color: #55504A; text-wrap: pretty;">Roles are data, checked in one place. Adding a role later is a row and a column, not a pass through the handlers — which is the property that makes this table worth agreeing before any code is written.</div>
+<div style="margin-top: 18px; display: grid; gap: 12px;">
+<sc-for list="{{ roleNotes }}" as="r" hint-placeholder-count="3">
+<div style="padding-left: 14px; border-left: 2px solid {{ r.mark }};">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: {{ r.fg }};">{{ r.k }}</div>
+<div style="font-size: 13.5px; color: #55504A; margin-top: 5px; text-wrap: pretty;">{{ r.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 64px 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">4.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Why it is built this way</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; margin-top: 22px;">
+<sc-for list="{{ notes }}" as="n" hint-placeholder-count="8">
+<div style="padding-left: 16px; border-left: 2px solid {{ n.mark }};">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: {{ n.fg }};">{{ n.k }}</div>
+<div style="font-size: 14px; color: #55504A; margin-top: 7px; text-wrap: pretty;">{{ n.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 18px 72px 18px 128px; border-top: 1px solid #E4DDCF; background: #F7F4EE; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">
+<span>Conduit · design system · sheet 08 of 14</span>
+<span>Andishi · commercial in confidence</span>
+<span>Rev 3.1 · 04 Aug 2026</span>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440}}">
+class Component extends DCLogic {
+  renderVals() {
+    const yes = { i: 'ti-check', c: '#1A6155' };
+    const no = { i: 'ti-minus', c: '#A79E8F' };
+    const read = { i: 'ti-eye', c: '#425A79' };
+    const roles = [
+      ['Read conversations', yes, yes, yes, read],
+      ['Manage team and invitations', yes, yes, no, no],
+      ['Company profile and branding', yes, yes, no, read],
+      ['Credentials, create and rotate', yes, no, no, no],
+      ['Tenant AI rules', yes, yes, read, read],
+      ['Plan and subscription', yes, no, no, read],
+      ['Audit log', yes, read, no, read],
+      ['Revoke sessions', yes, yes, no, no],
+    ].map((r, i) => ({
+      cap: r[0], bg: i % 2 ? '#F8F5F0' : '#FBF9F5',
+      o: r[1].i, oFg: r[1].c, a: r[2].i, aFg: r[2].c,
+      g: r[3].i, gFg: r[3].c, s: r[4].i, sFg: r[4].c,
+    }));
+
+    return {
+      roles,
+      meta: [
+        { k: 'Sheet', v: '08 of 14', fg: '#1F1C18' },
+        { k: 'Requirement', v: '2 · M2 week 4', fg: '#1F1C18' },
+        { k: 'Provider', v: 'Supabase Auth', fg: '#1F1C18' },
+        { k: 'Roles', v: 'owner · admin · agent · support', fg: '#1F1C18' },
+        { k: 'Session', v: '14 days · proposed', fg: '#78570F' },
+        { k: 'Status', v: 'For review', fg: '#78570F' },
+      ],
+      sessions: [
+        { name: 'Grace Wanjiku', role: 'owner · this device', device: 'Chrome · macOS', place: 'Nairobi, KE', seen: 'now', action: 'Current', actionFg: '#A79E8F', slot: 'au-s1', hasSlot: true, initials: '', tint: '#E4E9F0', ink: '#425A79', ring: '#CFC5B2', bg: '#F8F5F0', roleFg: '#6C665D' },
+        { name: 'Grace Wanjiku', role: 'owner', device: 'Safari · iPhone', place: 'Nairobi, KE', seen: '2 hr ago', action: 'Revoke', actionFg: '#98301D', slot: '', hasSlot: false, initials: 'GW', tint: '#E4E9F0', ink: '#425A79', ring: '#CFC5B2', bg: '#FBF9F5', roleFg: '#6C665D' },
+        { name: 'Peter Otieno', role: 'admin', device: 'Firefox · Windows', place: 'Mombasa, KE', seen: '18 min ago', action: 'Revoke', actionFg: '#98301D', slot: '', hasSlot: false, initials: 'PO', tint: '#DFEBE7', ink: '#1A6155', ring: '#CFC5B2', bg: '#FBF9F5', roleFg: '#6C665D' },
+        { name: 'Brian', role: 'platform owner · support mode', device: 'Chrome · macOS', place: 'Nairobi, KE', seen: '1 hr ago', action: 'Revoke', actionFg: '#98301D', slot: '', hasSlot: false, initials: 'BR', tint: '#F4E7DA', ink: '#8A4A1E', ring: '#B98553', bg: '#FBF9F5', roleFg: '#8A4A1E' },
+      ],
+      refusals: [
+        { text: 'That email and password do not match.', code: 'auth.invalid_credentials · 4 attempts left', ink: '#98301D', tint: '#F7E4DE', rule: '#C48371' },
+        { text: 'Too many attempts. Try again in 15 minutes.', code: 'auth.rate_limited · retry_after 900', ink: '#78570F', tint: '#F3EAD3', rule: '#AE9450' },
+        { text: 'Northwind Traders is suspended. Contact your account manager.', code: 'tenant.suspended · the credentials were valid', ink: '#98301D', tint: '#F7E4DE', rule: '#C48371' },
+      ],
+      lifecycle: [
+        { k: 'Invited', v: 'owner or admin · seat reserved', fill: '#1F6F61', ring: '#1F6F61', line: '#CFC5B2', fg: '#1F1C18' },
+        { k: 'Sent', v: 'one-time link · 7 day expiry', fill: '#1F6F61', ring: '#1F6F61', line: '#CFC5B2', fg: '#1F1C18' },
+        { k: 'Accepted', v: 'password set · seat consumed · audit entry', fill: '#A6572A', ring: '#A6572A', line: '#CFC5B2', fg: '#8A4A1E' },
+        { k: 'Expired', v: 'seat released · re-invite required', fill: '#FBF9F5', ring: '#A79E8F', line: '#CFC5B2', fg: '#55504A' },
+        { k: 'Revoked', v: 'owner withdrew it before acceptance', fill: '#FBF9F5', ring: '#C48371', line: 'transparent', fg: '#55504A' },
+      ],
+      roleNotes: [
+        { k: 'Support is in the matrix', v: 'The platform support role is a column here, not an exception hidden in code. Everything it may see is visible to the tenant that hosts it.', mark: '#B98553', fg: '#8A4A1E' },
+        { k: 'Credentials are owner only', v: 'The narrowest row in the table. No admin, no agent and no support session can reach a stored secret.', mark: '#C48371', fg: '#98301D' },
+        { k: 'Read-only is its own state', v: 'The eye glyph distinguishes access from absence, so a role that can look but not touch is legible at a glance rather than inferred.', mark: '#8399B3', fg: '#425A79' },
+      ],
+      notes: [
+        { k: 'One card, one job', v: 'Each unauthenticated screen is a single card on the page surface with the mark, one heading and one primary. No marketing, no second column.', mark: '#B98553', fg: '#8A4A1E' },
+        { k: 'Reset says nothing it should not', v: 'The confirmation is identical for a registered and an unregistered address, and the sheet states why beside it, so the ambiguity reads as a decision.', mark: '#8399B3', fg: '#425A79' },
+        { k: 'The invitation names the role', v: 'A person accepting is told which role they take and that it consumes a seat, because both facts belong to the business that invited them.', mark: '#6EA396', fg: '#1A6155' },
+        { k: 'Validation is a measurement', v: '“Needs 12 characters. Yours has 7.” A rule and a reading, not “invalid password”. The primary stays in place, disabled, while the rule is unmet.', mark: '#AE9450', fg: '#78570F' },
+        { k: 'Support sessions are revocable', v: 'The owner’s support session appears in this list like any other and the tenant can end it. That is the difference between a ceiling and a promise.', mark: '#B98553', fg: '#8A4A1E' },
+        { k: 'Refusals carry their code', v: 'Every refusal shows the human sentence and the typed code beneath. Suspended is stated plainly rather than disguised as a credential failure.', mark: '#C48371', fg: '#98301D' },
+        { k: 'Seats move with invitations', v: 'A seat is reserved on invite and released on expiry, so the count on sheets 05 and 06 can never drift from the number of people who can sign in.', mark: '#6EA396', fg: '#1A6155' },
+        { k: 'Proposed', v: 'Session length, the 12 character minimum and the resend limit are proposed. Rate limits need confirming against Supabase Auth defaults at design lock.', mark: '#AE9450', fg: '#78570F' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

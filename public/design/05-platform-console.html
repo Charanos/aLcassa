@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css" />
+<script src="./image-slot.js"></script>
+<style>
+@font-face { font-family: 'Libertinus Serif'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Serif'; font-style: italic; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-italic.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-sans@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-mono@latest/latin-400-normal.woff2) format('woff2'); }
+body { margin: 0; background: #E7E2D9; }
+a { color: #8A4A1E; text-decoration: none; border-bottom: 1px solid #B98553; }
+a:hover { color: #A6572A; border-bottom-color: #A6572A; }
+</style>
+</helmet>
+
+<div style="position: relative; width: 1440px; margin: 0 auto; background: #FBF9F5; color: #1F1C18; font-family: 'Libertinus Sans', Optima, Candara, sans-serif; font-weight: 400; font-size: 15px; line-height: 1.55; box-shadow: 0 0 0 1px #E4DDCF;">
+
+<div style="position: absolute; top: 0; bottom: 0; left: 76px; width: 1px; background: #EFE9DE;"></div>
+<div style="position: absolute; top: 300px; left: 40px; width: 24px; display: grid; gap: 3px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; letter-spacing: 0.1em; color: #A79E8F;">
+<div style="color: #A6572A;">0</div><div style="color: #A6572A;">5</div>
+<div style="height: 18px; width: 1px; background: #DAD3C7; margin: 4px 0 4px 5px;"></div>
+<div>1</div><div>4</div>
+</div>
+
+<div style="position: relative; padding: 64px 72px 0 128px;">
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 60px;">
+<div style="max-width: 740px;">
+<div style="display: flex; align-items: center; gap: 12px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #8A4A1E;">
+<span style="width: 26px; height: 1px; background: #B98553;"></span>Andishi · platform foundation · phase 1
+</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 76px; line-height: 1; letter-spacing: -0.022em; margin-top: 20px;">Platform console</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 25px; line-height: 1.42; color: #55504A; margin-top: 16px; max-width: 42ch; text-wrap: pretty;">The owner's tenant index. A separate login, a separate nav, and the one screen that answers which businesses need attention today.</div>
+</div>
+<div style="flex: none; width: 320px; padding-top: 8px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">The job of this screen</div>
+<div style="margin-top: 14px; padding-left: 14px; border-left: 2px solid #B98553;">
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-style: italic; font-size: 17px; color: #55504A; text-wrap: pretty;">Brian opens this once a morning. In under ten seconds he should know whether anything needs him, and be one click from it.</div>
+</div>
+<div style="margin-top: 16px; display: grid; gap: 8px;">
+<sc-for list="{{ jobs }}" as="j" hint-placeholder-count="3">
+<div style="display: flex; align-items: baseline; gap: 10px;">
+<i class="ti ti-arrow-right" style="font-size: 13px; color: #A6572A;"></i>
+<span style="font-size: 13.5px; color: #55504A; text-wrap: pretty;">{{ j }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+
+<div style="display: flex; gap: 48px; margin-top: 40px; padding-bottom: 20px;">
+<sc-for list="{{ meta }}" as="m" hint-placeholder-count="6">
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #A79E8F;">{{ m.k }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13.5px; margin-top: 6px; color: {{ m.fg }};">{{ m.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="height: 1px; background: #CFC5B2; margin: 0 72px 0 128px;"></div>
+
+<div style="position: relative; padding: 44px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 22px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">1.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Tenants index</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">1200 × 1:1 · light theme</span>
+</div>
+
+<div style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px -2px rgba(31,28,24,0.10), 0 0 0 1px #CFC5B2;">
+<div style="height: 56px; background: #FBF9F5; border-bottom: 1px solid #B3A995; display: flex; align-items: center; gap: 20px; padding: 0 20px;">
+<div style="display: flex; align-items: center; gap: 9px; flex: none;">
+<div style="width: 24px; height: 24px; border-radius: 5px; background: #A6572A; display: flex; align-items: center; justify-content: center; color: #FBF9F5;"><i class="ti ti-topology-star-3" style="font-size: 15px;"></i></div>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 19px;">Conduit</span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #6C665D; border-left: 1px solid #E4DDCF; padding-left: 9px;">Platform</span>
+</div>
+<div style="flex: 1; max-width: 420px; height: 36px; padding: 0 12px; background: #EDE8DE; border: 1px solid #CFC5B2; border-radius: 4px; display: flex; align-items: center; gap: 8px;">
+<i class="ti ti-switch-horizontal" style="font-size: 16px; color: #6C665D;"></i>
+<span style="font-size: 14px; color: #55504A;">Switch into a tenant</span>
+<span style="margin-left: auto; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11px; color: #A79E8F;">⌘K</span>
+</div>
+<div style="margin-left: auto; display: flex; align-items: center; gap: 16px;">
+<div style="position: relative;"><i class="ti ti-bell" style="font-size: 18px; color: #55504A;"></i><span style="position: absolute; top: -2px; right: -3px; width: 7px; height: 7px; border-radius: 4px; background: #A83722; box-shadow: 0 0 0 1.5px #FBF9F5;"></span></div>
+<div style="display: flex; align-items: center; gap: 9px;">
+<div style="width: 30px; height: 30px; border-radius: 999px; overflow: hidden; box-shadow: 0 0 0 1px #CFC5B2;"><image-slot id="pc-me" shape="circle" placeholder=""></image-slot></div>
+<span style="font-size: 14px;">Brian</span>
+<i class="ti ti-chevron-down" style="font-size: 14px; color: #6C665D;"></i>
+</div>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 220px 1fr; background: #F4F0E8;">
+<div style="border-right: 1px solid #E4DDCF; background: #FBF9F5; padding: 16px 0; min-height: 780px;">
+<sc-for list="{{ nav }}" as="i" hint-placeholder-count="6">
+<div style="height: 40px; padding: 0 20px; display: flex; align-items: center; gap: 10px; background: {{ i.bg }}; border-left: 2px solid {{ i.mark }}; color: {{ i.fg }};">
+<i class="ti {{ i.icon }}" style="font-size: 17px;"></i>
+<span style="font-size: 14px;">{{ i.label }}</span>
+<span style="margin-left: auto; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11px; color: {{ i.countFg }};">{{ i.count }}</span>
+</div>
+</sc-for>
+<div style="margin: 20px 20px 0 20px; padding-top: 16px; border-top: 1px solid #E4DDCF;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">Phase 2</div>
+<div style="margin-top: 10px; display: grid; gap: 9px;">
+<div style="display: flex; align-items: center; gap: 9px; color: #A79E8F; font-size: 14px;"><i class="ti ti-inbox" style="font-size: 16px;"></i>Messaging inbox</div>
+<div style="display: flex; align-items: center; gap: 9px; color: #A79E8F; font-size: 14px;"><i class="ti ti-credit-card" style="font-size: 16px;"></i>Billing and upgrade</div>
+</div>
+<div style="font-size: 12.5px; color: #6C665D; margin-top: 10px; text-wrap: pretty;">Structural placeholders. They route to a stub that names the phase rather than doing nothing.</div>
+</div>
+<div style="margin: 20px 20px 0 20px; padding: 12px 14px; border-radius: 6px; background: #F4F0E8; box-shadow: 0 0 0 1px #E4DDCF;">
+<div style="display: flex; align-items: center; gap: 7px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #1A6155;"><i class="ti ti-shield-check" style="font-size: 13px;"></i>Isolation green</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #55504A; margin-top: 5px;">11 of 11 tables · 38 min ago</div>
+</div>
+</div>
+
+<div style="padding: 24px;">
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;">
+<div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 32px; line-height: 1.15;">Tenants</div>
+<div style="font-size: 15px; color: #55504A; margin-top: 5px;">41 businesses. <span style="color: #78570F;">3 need attention.</span></div>
+</div>
+<div style="display: flex; gap: 10px;">
+<div style="height: 40px; padding: 0 14px; border: 1px solid #CFC5B2; background: #FBF9F5; border-radius: 4px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px;"><i class="ti ti-download" style="font-size: 16px; color: #55504A;"></i>Export</div>
+<div style="height: 40px; padding: 0 16px; border: 1px solid #8A4A1E; background: #A6572A; border-radius: 4px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #FBF9F5;"><i class="ti ti-plus" style="font-size: 16px;"></i>Create tenant</div>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 22px;">
+<sc-for list="{{ metrics }}" as="m" hint-placeholder-count="4">
+<div style="background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #E4DDCF; padding: 16px 18px;">
+<div style="display: flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: #6C665D;"><i class="ti {{ m.icon }}" style="font-size: 14px;"></i>{{ m.label }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 30px; line-height: 1.1; margin-top: 12px; color: {{ m.color }};">{{ m.value }}</div>
+<div style="font-size: 13px; color: #55504A; margin-top: 5px; text-wrap: pretty;">{{ m.sub }}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; margin-top: 24px; flex-wrap: wrap;">
+<div style="height: 40px; flex: 1; min-width: 240px; padding: 0 12px; background: #EDE8DE; border: 1px solid #CFC5B2; border-radius: 4px; display: flex; align-items: center; gap: 8px; color: #6C665D;"><i class="ti ti-search" style="font-size: 16px;"></i><span style="font-size: 14px;">Search tenants by name or slug</span></div>
+<div style="height: 40px; padding: 0 14px; border: 1px solid #B98553; background: #F4E7DA; border-radius: 4px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #8A4A1E;"><i class="ti ti-filter" style="font-size: 16px;"></i>Needs attention<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px;">3</span></div>
+<div style="height: 40px; padding: 0 14px; border: 1px solid #CFC5B2; background: #FBF9F5; border-radius: 4px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px;">Plan<i class="ti ti-chevron-down" style="font-size: 15px; color: #55504A;"></i></div>
+<div style="height: 40px; padding: 0 14px; border: 1px solid #CFC5B2; background: #FBF9F5; border-radius: 4px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px;">Status<i class="ti ti-chevron-down" style="font-size: 15px; color: #55504A;"></i></div>
+</div>
+
+<div style="margin-top: 16px; background: #FBF9F5; border-radius: 6px; box-shadow: 0 0 0 1px #CFC5B2; overflow: hidden;">
+<div style="display: grid; grid-template-columns: 1fr 108px 88px 84px 148px 118px 44px; background: #F7F4EE; border-bottom: 1px solid #B3A995; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: #6C665D;">
+<div style="padding: 10px 18px; display: flex; align-items: center; gap: 6px;">Company<i class="ti ti-arrow-narrow-up" style="font-size: 14px; color: #8A4A1E;"></i></div>
+<div style="padding: 10px 12px;">Plan</div>
+<div style="padding: 10px 12px; text-align: right;">Seats</div>
+<div style="padding: 10px 12px; text-align: right;">Chan.</div>
+<div style="padding: 10px 12px;">Status</div>
+<div style="padding: 10px 12px; text-align: right;">Last active</div>
+<div></div>
+</div>
+<sc-for list="{{ tenants }}" as="t" hint-placeholder-count="8">
+<div style="display: grid; grid-template-columns: 1fr 108px 88px 84px 148px 118px 44px; border-bottom: 1px solid #E4DDCF; align-items: center; height: 56px; background: {{ t.bg }};">
+<div style="padding: 0 18px; display: flex; align-items: center; gap: 12px;">
+<div style="width: 32px; height: 32px; flex: none; border-radius: 5px; overflow: hidden; box-shadow: 0 0 0 1px {{ t.markRule }}; background: {{ t.markTint }}; display: flex; align-items: center; justify-content: center;">
+<sc-if value="{{ t.hasSlot }}" hint-placeholder-val="{{ false }}">
+<image-slot id="{{ t.slot }}" shape="rounded" radius="5" placeholder=""></image-slot>
+</sc-if>
+<sc-if value="{{ t.letter }}" hint-placeholder-val="{{ true }}">
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 16px; color: {{ t.markInk }};">{{ t.letter }}</span>
+</sc-if>
+</div>
+<div>
+<div style="font-size: 15px; color: {{ t.nameFg }};">{{ t.name }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">{{ t.slug }}</div>
+</div>
+</div>
+<div style="padding: 0 12px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: {{ t.nameFg }};">{{ t.plan }}</div>
+<div style="padding: 0 12px; text-align: right; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: {{ t.seatsColor }};">{{ t.seats }}</div>
+<div style="padding: 0 12px; text-align: right; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: {{ t.nameFg }};">{{ t.channels }}</div>
+<div style="padding: 0 12px;">
+<span style="display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border: 1px solid {{ t.rule }}; background: {{ t.tint }}; color: {{ t.ink }}; border-radius: 4px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;"><i class="ti {{ t.icon }}" style="font-size: 14px;"></i>{{ t.status }}</span>
+</div>
+<div style="padding: 0 12px; text-align: right; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">{{ t.seen }}</div>
+<div style="display: flex; align-items: center; justify-content: center; height: 100%;"><i class="ti ti-dots" style="font-size: 18px; color: {{ t.dotFg }};"></i></div>
+</div>
+</sc-for>
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; background: #F4F0E8; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">
+<span>8 of 41 tenants · sorted by company</span>
+<span style="display: flex; align-items: center; gap: 14px;"><i class="ti ti-chevron-left" style="font-size: 16px; color: #A79E8F;"></i>Page 1 of 6<i class="ti ti-chevron-right" style="font-size: 16px; color: #55504A;"></i></span>
+</div>
+</div>
+
+<div style="margin-top: 20px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 4px; background: #E4E9F0; box-shadow: 0 0 0 1px #8399B3;">
+<i class="ti ti-shield-lock" style="font-size: 18px; color: #425A79; flex: none;"></i>
+<div style="font-size: 14px; color: #425A79; flex: 1; text-wrap: pretty;">This index is served with the service role key and every read of it is written to platform_audit_log. Stepping into a tenant's own data uses the switcher instead, on sheet 07.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 44px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">2.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">The same screen, dark</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 300px; gap: 26px; margin-top: 20px; align-items: start;">
+<div style="border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 1px #46413A; background: #141310;">
+<div style="height: 52px; border-bottom: 1px solid #46413A; display: flex; align-items: center; gap: 18px; padding: 0 18px; background: #1D1B17;">
+<div style="width: 22px; height: 22px; border-radius: 5px; background: #D3862F; display: flex; align-items: center; justify-content: center; color: #12110F;"><i class="ti ti-topology-star-3" style="font-size: 14px;"></i></div>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 18px; color: #EDE9E1;">Conduit</span>
+<div style="flex: 1; max-width: 320px; height: 32px; padding: 0 10px; background: #100F0C; border: 1px solid #46413A; border-radius: 4px; display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #8A8377;"><i class="ti ti-switch-horizontal" style="font-size: 15px;"></i>Switch into a tenant<span style="margin-left: auto; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px;">⌘K</span></div>
+<div style="margin-left: auto; width: 26px; height: 26px; border-radius: 999px; background: #2A1D12; box-shadow: 0 0 0 1px #6B4824; display: flex; align-items: center; justify-content: center; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; color: #E09B66;">BR</div>
+</div>
+<div style="padding: 20px;">
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;">
+<div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 26px; color: #EDE9E1;">Tenants</div>
+<div style="font-size: 14px; color: #B0A99E; margin-top: 4px;">41 businesses. <span style="color: #DCB05A;">3 need attention.</span></div>
+</div>
+<div style="height: 36px; padding: 0 14px; border: 1px solid #E09B66; background: #D3862F; border-radius: 4px; display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: #12110F;"><i class="ti ti-plus" style="font-size: 15px;"></i>Create tenant</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px;">
+<sc-for list="{{ metrics }}" as="m" hint-placeholder-count="4">
+<div style="background: #1D1B17; border-radius: 6px; box-shadow: 0 0 0 1px #2E2A25; padding: 13px 15px;">
+<div style="display: flex; align-items: center; gap: 6px; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; color: #8A8377;"><i class="ti {{ m.icon }}" style="font-size: 13px;"></i>{{ m.label }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 23px; line-height: 1.1; margin-top: 9px; color: {{ m.dColor }};">{{ m.value }}</div>
+</div>
+</sc-for>
+</div>
+<div style="margin-top: 18px; background: #1D1B17; border-radius: 6px; box-shadow: 0 0 0 1px #46413A; overflow: hidden;">
+<div style="display: grid; grid-template-columns: 1fr 96px 130px; padding: 9px 16px; background: #141310; border-bottom: 1px solid #46413A; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; color: #8A8377;">
+<div>Company</div><div style="text-align: right;">Seats</div><div>Status</div>
+</div>
+<sc-for list="{{ darkRows }}" as="t" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 1fr 96px 130px; align-items: center; height: 48px; padding: 0 16px; border-bottom: 1px solid #2E2A25;">
+<div style="display: flex; align-items: center; gap: 10px;">
+<div style="width: 26px; height: 26px; flex: none; border-radius: 4px; background: {{ t.dTint }}; box-shadow: 0 0 0 1px {{ t.dRule }}; display: flex; align-items: center; justify-content: center; font-family: 'Libertinus Serif', Georgia, serif; font-size: 13px; color: {{ t.dInk }};">{{ t.letter }}</div>
+<span style="font-size: 14px; color: #EDE9E1;">{{ t.name }}</span>
+</div>
+<div style="text-align: right; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; color: {{ t.seatsFg }};">{{ t.seats }}</div>
+<div>
+<span style="display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border: 1px solid {{ t.rule }}; background: {{ t.tint }}; color: {{ t.ink }}; border-radius: 4px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;"><i class="ti {{ t.icon }}" style="font-size: 12px;"></i>{{ t.status }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+<div>
+<div style="font-size: 15px; color: #55504A; text-wrap: pretty;">Nothing in the dark theme is an inversion. The page drops to near-black, panels rise rather than recede, and every chip tint darkens toward the page while its ink lifts.</div>
+<div style="margin-top: 16px; display: grid; gap: 11px;">
+<sc-for list="{{ darkNotes }}" as="d" hint-placeholder-count="3">
+<div style="padding-left: 14px; border-left: 2px solid #6B4824;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #8A4A1E;">{{ d.k }}</div>
+<div style="font-size: 13.5px; color: #55504A; margin-top: 5px; text-wrap: pretty;">{{ d.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 64px 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">3.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Why it is built this way</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; margin-top: 22px;">
+<sc-for list="{{ notes }}" as="n" hint-placeholder-count="8">
+<div style="padding-left: 16px; border-left: 2px solid {{ n.mark }};">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: {{ n.fg }};">{{ n.k }}</div>
+<div style="font-size: 14px; color: #55504A; margin-top: 7px; text-wrap: pretty;">{{ n.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 18px 72px 18px 128px; border-top: 1px solid #E4DDCF; background: #F7F4EE; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">
+<span>Conduit · design system · sheet 05 of 14</span>
+<span>Andishi · commercial in confidence</span>
+<span>Rev 3.1 · 04 Aug 2026</span>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440}}">
+class Component extends DCLogic {
+  renderVals() {
+    const S = {
+      active: { status: 'Active', icon: 'ti-circle-check', ink: '#1A6155', tint: '#DFEBE7', rule: '#6EA396' },
+      near: { status: 'Near limit', icon: 'ti-clock-hour-3', ink: '#78570F', tint: '#F3EAD3', rule: '#AE9450' },
+      past: { status: 'Past due', icon: 'ti-alert-triangle', ink: '#98301D', tint: '#F7E4DE', rule: '#C48371' },
+      trial: { status: 'Trialing', icon: 'ti-terminal-2', ink: '#425A79', tint: '#E4E9F0', rule: '#8399B3' },
+      arch: { status: 'Archived', icon: 'ti-minus', ink: '#55504A', tint: '#EAE6DE', rule: '#A79E8F' },
+      susp: { status: 'Suspended', icon: 'ti-ban', ink: '#98301D', tint: '#F7E4DE', rule: '#C48371' },
+    };
+    const MARK = [
+      { tint: '#E4E9F0', ink: '#425A79', rule: '#8399B3' },
+      { tint: '#DFEBE7', ink: '#1A6155', rule: '#6EA396' },
+      { tint: '#F3EAD3', ink: '#78570F', rule: '#AE9450' },
+      { tint: '#F4E7DA', ink: '#8A4A1E', rule: '#B98553' },
+      { tint: '#F7E4DE', ink: '#98301D', rule: '#C48371' },
+      { tint: '#EAE6DE', ink: '#55504A', rule: '#A79E8F' },
+    ];
+    const tenants = [
+      ['Acme Industrial', 'acme-industrial', 'Growth', '11 / 15', '2 / 3', 'active', '4 min ago', 'pc-brand-1'],
+      ['Baraka Logistics', 'baraka-log', 'Starter', '5 / 5', '1 / 1', 'trial', '2 days ago', ''],
+      ['Halo Fitness', 'halo-fitness', 'Growth', '15 / 15', '3 / 3', 'near', '3 hr ago', ''],
+      ['Kisumu Dairy Co-operative', 'kisumu-dairy', 'Starter', '3 / 5', '1 / 1', 'active', '1 hr ago', ''],
+      ['Northwind Traders', 'northwind', 'Scale', '24 / 40', '3 / 6', 'active', '22 min ago', 'pc-brand-2'],
+      ['Sable & Finch', 'sable-finch', 'Growth', '8 / 15', '1 / 3', 'arch', '14 days ago', ''],
+      ['Tamarind Hotels', 'tamarind', 'Scale', '31 / 40', '4 / 6', 'past', '9 hr ago', ''],
+      ['Zanzibar Spice Traders', 'zanzibar-spice', 'Starter', '2 / 5', '0 / 1', 'susp', '31 days ago', ''],
+    ].map((r, i) => Object.assign({
+      name: r[0], slug: r[1], plan: r[2], seats: r[3], channels: r[4], seen: r[6],
+      slot: r[7], hasSlot: !!r[7], letter: r[7] ? '' : r[0].charAt(0),
+      markTint: MARK[i % MARK.length].tint, markInk: MARK[i % MARK.length].ink, markRule: MARK[i % MARK.length].rule,
+      seatsColor: r[5] === 'near' ? '#78570F' : (r[5] === 'arch' ? '#6C665D' : '#1F1C18'),
+      nameFg: r[5] === 'arch' || r[5] === 'susp' ? '#6C665D' : '#1F1C18',
+      bg: i === 0 ? '#F7F4EE' : '#FBF9F5',
+      dotFg: i === 0 ? '#55504A' : '#A79E8F',
+    }, S[r[5]]));
+
+    const darkRows = [
+      { name: 'Acme Industrial', letter: 'A', seats: '11 / 15', seatsFg: '#EDE9E1', status: 'Active', icon: 'ti-circle-check', ink: '#6FC3AF', tint: '#13221E', rule: '#335B50', dTint: '#15191F', dInk: '#94ADCE', dRule: '#35455A' },
+      { name: 'Halo Fitness', letter: 'H', seats: '15 / 15', seatsFg: '#DCB05A', status: 'Near limit', icon: 'ti-clock-hour-3', ink: '#DCB05A', tint: '#241C0D', rule: '#5A481D', dTint: '#241C0D', dInk: '#DCB05A', dRule: '#5A481D' },
+      { name: 'Tamarind Hotels', letter: 'T', seats: '31 / 40', seatsFg: '#EDE9E1', status: 'Past due', icon: 'ti-alert-triangle', ink: '#E9887A', tint: '#2A1512', rule: '#663026', dTint: '#2A1512', dInk: '#E9887A', dRule: '#663026' },
+      { name: 'Sable & Finch', letter: 'S', seats: '8 / 15', seatsFg: '#8A8377', status: 'Archived', icon: 'ti-minus', ink: '#B0A99E', tint: '#1F1C18', rule: '#443F38', dTint: '#1F1C18', dInk: '#B0A99E', dRule: '#443F38' },
+    ];
+
+    return {
+      tenants, darkRows,
+      meta: [
+        { k: 'Sheet', v: '05 of 14', fg: '#1F1C18' },
+        { k: 'Route', v: '/platform/tenants', fg: '#1F1C18' },
+        { k: 'Access', v: 'platform_admins only', fg: '#1F1C18' },
+        { k: 'Requirement', v: '4 · M4 week 6', fg: '#1F1C18' },
+        { k: 'Reads', v: 'service role · fully audited', fg: '#1F1C18' },
+        { k: 'Status', v: 'For review', fg: '#78570F' },
+      ],
+      jobs: [
+        'Is anything wrong, and with whom',
+        'Get into a specific tenant quickly',
+        'Provision a new business without leaving the page',
+      ],
+      nav: [
+        ['Tenants', 'ti-buildings', '41', true],
+        ['Plans', 'ti-layout-list', '4', false],
+        ['AI rules', 'ti-file-text', '', false],
+        ['Health', 'ti-activity-heartbeat', '', false],
+        ['Audit log', 'ti-history', '', false],
+        ['Admins', 'ti-users', '2', false],
+      ].map((r) => ({
+        label: r[0], icon: r[1], count: r[2],
+        bg: r[3] ? '#F4E7DA' : 'transparent', mark: r[3] ? '#A6572A' : 'transparent',
+        fg: r[3] ? '#8A4A1E' : '#1F1C18', countFg: r[3] ? '#8A4A1E' : '#A79E8F',
+      })),
+      metrics: [
+        { label: 'Tenants', icon: 'ti-buildings', value: '41', sub: '34 active · 5 trialing · 2 suspended', color: '#1F1C18', dColor: '#EDE9E1' },
+        { label: 'Seats in use', icon: 'ti-users', value: '612 / 840', sub: '73 percent of entitled seats', color: '#1F1C18', dColor: '#EDE9E1' },
+        { label: 'Near a limit', icon: 'ti-clock-hour-3', value: '2', sub: 'Halo Fitness · Northwind Traders', color: '#78570F', dColor: '#DCB05A' },
+        { label: 'Past due', icon: 'ti-alert-triangle', value: '3', sub: 'Access unchanged. Billing is Phase 2.', color: '#98301D', dColor: '#E9887A' },
+      ],
+      darkNotes: [
+        { k: 'Ink lifts, it does not whiten', v: 'Body ink is a warm off-white. Pure white at 15 pixels halates against a near-black page and costs legibility rather than gaining it.' },
+        { k: 'Tints darken', v: 'A status tint moves toward the page rather than away from it, so a row of chips stays quieter than the data it annotates.' },
+        { k: 'Copper brightens', v: 'The primary and the focus ring both step up a shade, because the same copper on near-black would fall under the contrast floor.' },
+      ],
+      notes: [
+        { k: 'The standfirst does the work', v: '“41 businesses. 3 need attention.” The count that implies work is in the sentence, not only in a card, and the phrase that names it is ochre.', mark: '#AE9450', fg: '#78570F' },
+        { k: 'Attention is pre-filtered', v: 'The one applied filter is the one the standfirst just mentioned, so the grid below is already the shortlist rather than a thing to construct.', mark: '#B98553', fg: '#8A4A1E' },
+        { k: 'The switcher lives in the header', v: 'Always reachable, never the page. It mints a scoped session rather than reusing the service role key, and is drawn in full on sheet 07.', mark: '#B98553', fg: '#8A4A1E' },
+        { k: 'Counts only where they change', v: 'Nav carries a number only where it moves and is actionable. AI rules, health and audit have none, because a number there would mean nothing.', mark: '#8399B3', fg: '#425A79' },
+        { k: 'Four counts, no charts', v: 'Phase 1 has no analytics. These four are answers the schema can give exactly, in mono, with the qualifying detail beneath in sans.', mark: '#8399B3', fg: '#425A79' },
+        { k: 'Isolation is on the nav', v: 'The severe risk in the brief is a policy gap, so its state sits under the navigation permanently rather than being something to go and check.', mark: '#6EA396', fg: '#1A6155' },
+        { k: 'Suspended and archived recede', v: 'Both drop their name to secondary ink. A tenant that is inert should not compete with one that is live for the same visual weight.', mark: '#A79E8F', fg: '#55504A' },
+        { k: 'Phase 2 links are visible', v: 'Requirement 5 asks for structural placeholders. They are grouped under a heading that names the phase and are not disabled — they route to a stub that says when.', mark: '#A79E8F', fg: '#55504A' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

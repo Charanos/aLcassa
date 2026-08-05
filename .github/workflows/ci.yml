@@ -1,0 +1,135 @@
+name: CI
+
+# 04 §9. On every pull request: typecheck, lint including the module boundary
+# and service-role import rules, unit tests, THE ISOLATION SUITE, contract tests
+# against the OpenAPI specification, Playwright on the critical paths, and an
+# axe accessibility scan.
+#
+# The policy check runs BEFORE the tests, because a table without a policy
+# should fail in ten seconds rather than after a full suite.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  static:
+    name: Typecheck and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+
+  isolation:
+    name: Policies and isolation
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: conduit_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/conduit_test
+      DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/conduit_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
+      - run: pnpm db:seed
+
+      # 06 §2 rule 1. A tenant-scoped table without a policy fails the build.
+      # This runs before the tests and there is no override path.
+      - name: Policy check
+        run: pnpm check:policies
+
+      # 04 §11 · 11 §5. Blocks merge. No override, no exception path.
+      # This is the gate that lets Brian be told the guarantee holds today.
+      - name: Isolation suite
+        run: pnpm test:isolation
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: static
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: conduit_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/conduit_test
+      DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/conduit_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
+      - run: pnpm db:seed
+      - run: pnpm test
+
+  cache-disabled:
+    name: Test suite, cache disabled
+    runs-on: ubuntu-latest
+    needs: static
+    # 08 §6 · definition of done condition 9.
+    #
+    # With Redis switched off entirely, every correctness property still holds.
+    # Only speed changes. This job is what makes that a measurement rather than
+    # a claim: if anything fails here, something has started treating the cache
+    # as a source of truth and it is a defect.
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: conduit_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/conduit_test
+      DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/conduit_test
+      CACHE_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
+      - run: pnpm db:seed
+      - run: pnpm test

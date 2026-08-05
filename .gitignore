@@ -1,0 +1,38 @@
+node_modules/
+.next/
+out/
+build/
+.vercel/
+.turbo/
+
+.env
+.env.local
+.env.*.local
+!.env.example
+
+*.tsbuildinfo
+next-env.d.ts
+
+coverage/
+playwright-report/
+test-results/
+.playwright/
+
+.DS_Store
+Thumbs.db
+
+# Design-tool scratch
+design-docs/.thumbnail
+
+# ⚠ COMMERCIAL IN CONFIDENCE.
+#
+# The signed brief carries the fee, the payment schedule and the tranche
+# triggers. Those are agreed between Ian and Brian directly and they do not
+# belong in a code repository, which is copied, forked and shared far more
+# casually than a contract is.
+#
+# The scope, timeline, milestones and definition of done ARE all reproduced in
+# project-docs/ and on the review surface, so nothing needed to build or review
+# this project is lost by excluding them.
+design-docs/uploads/
+

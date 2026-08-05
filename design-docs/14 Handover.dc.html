@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css" />
+<style>
+@font-face { font-family: 'Libertinus Serif'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Serif'; font-style: italic; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-italic.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-sans@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-mono@latest/latin-400-normal.woff2) format('woff2'); }
+body { margin: 0; background: #E7E2D9; }
+a { color: #8A4A1E; text-decoration: none; border-bottom: 1px solid #B98553; }
+a:hover { color: #A6572A; border-bottom-color: #A6572A; }
+</style>
+</helmet>
+
+<div style="position: relative; width: 1440px; margin: 0 auto; background: #FBF9F5; color: #1F1C18; font-family: 'Libertinus Sans', Optima, Candara, sans-serif; font-weight: 400; font-size: 15px; line-height: 1.55; box-shadow: 0 0 0 1px #E4DDCF;">
+
+<div style="position: absolute; top: 0; bottom: 0; left: 76px; width: 1px; background: #EFE9DE;"></div>
+<div style="position: absolute; top: 300px; left: 40px; width: 24px; display: grid; gap: 3px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; letter-spacing: 0.1em; color: #A79E8F;">
+<div style="color: #A6572A;">1</div><div style="color: #A6572A;">4</div>
+<div style="height: 18px; width: 1px; background: #DAD3C7; margin: 4px 0 4px 5px;"></div>
+<div>1</div><div>4</div>
+</div>
+
+<div style="position: relative; padding: 64px 72px 0 128px;">
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 60px;">
+<div style="max-width: 740px;">
+<div style="display: flex; align-items: center; gap: 12px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #8A4A1E;">
+<span style="width: 26px; height: 1px; background: #B98553;"></span>Andishi · platform foundation · phase 1
+</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 76px; line-height: 1; letter-spacing: -0.022em; margin-top: 20px;">Handover</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 25px; line-height: 1.42; color: #55504A; margin-top: 16px; max-width: 42ch; text-wrap: pretty;">The index to the other thirteen sheets, the decisions still open, and where each definition-of-done item can be seen on screen.</div>
+</div>
+<div style="flex: none; width: 320px; padding-top: 8px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">At a glance</div>
+<div style="margin-top: 14px; display: grid; gap: 9px;">
+<sc-for list="{{ glance }}" as="g" hint-placeholder-count="4">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid #EFE9DE;">
+<span style="font-size: 13.5px; color: #55504A;">{{ g.k }}</span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; color: {{ g.fg }};">{{ g.v }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+
+<div style="display: flex; gap: 48px; margin-top: 40px; padding-bottom: 20px;">
+<sc-for list="{{ meta }}" as="m" hint-placeholder-count="6">
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #A79E8F;">{{ m.k }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13.5px; margin-top: 6px; color: {{ m.fg }};">{{ m.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="height: 1px; background: #CFC5B2; margin: 0 72px 0 128px;"></div>
+
+<div style="position: relative; padding: 44px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">1.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">The set</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">{{ sheetLabel }}</span>
+</div>
+<div style="border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1px #CFC5B2;">
+<div style="display: grid; grid-template-columns: 54px 210px 1fr 230px 128px; padding: 11px 20px; background: #F7F4EE; border-bottom: 1px solid #B3A995; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: #6C665D;">
+<div>No</div><div>Sheet</div><div>What it settles</div><div>Traces to</div><div>Band</div>
+</div>
+<sc-for list="{{ sheets }}" as="s" hint-placeholder-count="14">
+<div style="display: grid; grid-template-columns: 54px 210px 1fr 230px 128px; align-items: center; padding: 11px 20px; border-bottom: 1px solid #E4DDCF; background: {{ s.bg }};">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12.5px; color: #8A4A1E;">{{ s.n }}</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 18px;">{{ s.title }}</div>
+<div style="font-size: 14px; color: #55504A; text-wrap: pretty;">{{ s.settles }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">{{ s.ref }}</div>
+<div><span style="display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border: 1px solid {{ s.rule }}; background: {{ s.tint }}; color: {{ s.ink }}; border-radius: 4px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;">{{ s.band }}</span></div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">2.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Open decisions</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">{{ openLabel }}</span>
+</div>
+<div style="font-size: 15px; color: #55504A; max-width: 84ch; text-wrap: pretty;">Each one is drawn on its sheet rather than left as a question, so answering it is a choice between things you can see rather than a paragraph you have to imagine.</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 22px;">
+<sc-for list="{{ open }}" as="o" hint-placeholder-count="6">
+<div style="border-radius: 6px; background: #FBF9F5; box-shadow: 0 0 0 1px {{ o.rule }}; overflow: hidden;">
+<div style="padding: 12px 16px; background: {{ o.tint }}; border-bottom: 1px solid {{ o.rule }}; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: {{ o.ink }};">{{ o.when }}</span>
+<i class="ti {{ o.icon }}" style="font-size: 15px; color: {{ o.ink }};"></i>
+</div>
+<div style="padding: 16px;">
+<div style="font-size: 16px; color: {{ o.ink }}; text-wrap: pretty;">{{ o.q }}</div>
+<div style="font-size: 13.5px; color: #55504A; margin-top: 8px; text-wrap: pretty;">{{ o.detail }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #A79E8F; margin-top: 12px; padding-top: 10px; border-top: 1px solid #E4DDCF;">{{ o.sheet }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">3.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Done, and where you can see it</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">12 items from section 05</span>
+</div>
+<div style="font-size: 15px; color: #55504A; max-width: 84ch; text-wrap: pretty;">Two of the twelve have no interface and are verified in CI. They say so rather than being quietly dropped from the mapping.</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 30px; margin-top: 20px;">
+<sc-for list="{{ dod }}" as="d" hint-placeholder-count="12">
+<div style="display: grid; grid-template-columns: 26px 1fr; gap: 11px; padding: 12px 0; border-bottom: 1px solid #E4DDCF;">
+<i class="ti {{ d.icon }}" style="font-size: 16px; color: {{ d.ink }}; padding-top: 3px;"></i>
+<div>
+<div style="font-size: 14px; text-wrap: pretty;">{{ d.what }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #A79E8F; margin-top: 3px;">{{ d.where }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">4.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">The package</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">8 artefacts, plus this set</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+<sc-for list="{{ docs }}" as="d" hint-placeholder-count="8">
+<div style="border-radius: 6px; background: #F4F0E8; box-shadow: 0 0 0 1px #E4DDCF; padding: 18px 20px;">
+<div style="display: flex; align-items: center; gap: 9px;">
+<i class="ti {{ d.icon }}" style="font-size: 18px; color: #8A4A1E;"></i>
+<span style="font-size: 15px;">{{ d.name }}</span>
+</div>
+<div style="font-size: 13.5px; color: #55504A; margin-top: 8px; text-wrap: pretty;">{{ d.what }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; padding: 46px 72px 64px 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 22px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">5.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Design lock</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+</div>
+<div style="display: grid; grid-template-columns: 320px 1fr; gap: 34px; align-items: start;">
+<div>
+<div style="font-size: 15px; color: #55504A; text-wrap: pretty;">Approving this set fixes the interface at M0, ahead of the schema. Later changes are welcome and are quoted as change notes rather than absorbed silently.</div>
+<div style="margin-top: 16px; padding: 14px 16px; border-radius: 6px; background: #E4E9F0; box-shadow: 0 0 0 1px #8399B3;">
+<div style="font-size: 13.5px; color: #425A79; text-wrap: pretty;">Commercial terms are unchanged by this set and remain in section 09 of the brief. Every tenant name, member name, metric and timestamp across these sheets is fictional.</div>
+</div>
+</div>
+<div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 34px;">
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">For the client · signature, name and title</div>
+<div style="height: 66px; border-bottom: 1px solid #B3A995;"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 14px;">
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">Date</div>
+<div style="height: 34px; border-bottom: 1px solid #CFC5B2;"></div>
+</div>
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">Sheets approved</div>
+<div style="height: 34px; border-bottom: 1px solid #CFC5B2;"></div>
+</div>
+</div>
+</div>
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">For Andishi · Ian, chief executive officer</div>
+<div style="height: 66px; border-bottom: 1px solid #B3A995;"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 14px;">
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">Date</div>
+<div style="height: 34px; border-bottom: 1px solid #CFC5B2;"></div>
+</div>
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">Revision</div>
+<div style="height: 34px; border-bottom: 1px solid #CFC5B2; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; padding-top: 9px;">3.1</div>
+</div>
+</div>
+</div>
+</div>
+<div style="margin-top: 26px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">Andishi · software studio · northern bypass, nairobi</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 18px 72px 18px 128px; border-top: 1px solid #E4DDCF; background: #F7F4EE; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">
+<span>Conduit · design system · sheet 14 of 14</span>
+<span>Andishi · commercial in confidence</span>
+<span>Rev 3.1 · 04 Aug 2026</span>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440}}">
+class Component extends DCLogic {
+  renderVals() {
+    const BAND = {
+      system: { band: 'System', ink: '#425A79', tint: '#E4E9F0', rule: '#8399B3' },
+      screen: { band: 'Screen', ink: '#1A6155', tint: '#DFEBE7', rule: '#6EA396' },
+      behaviour: { band: 'Behaviour', ink: '#78570F', tint: '#F3EAD3', rule: '#AE9450' },
+    };
+    const sheets = [
+      ['01', 'Token sheet', 'Colour, surface ramp, space, radius, the one shadow, marks', 'Derived · no brief section', 'system'],
+      ['02', 'Type', 'Fourteen steps, three families, one weight, and the voice', 'Derived · no brief section', 'system'],
+      ['03', 'Controls', 'Button, field, chip, selection, and every state each has', 'Derived', 'system'],
+      ['04', 'Composition', 'Page shell, panel, data grid, banner, dialog', 'Derived', 'system'],
+      ['05', 'Platform console', 'What the owner sees first and what needs attention', 'Requirement 4', 'screen'],
+      ['06', 'Tenant detail', 'Entitlements against usage, and the audit trail', 'Requirements 3, 6', 'screen'],
+      ['07', 'Support mode', 'The switcher, the banner, and the scoped session', 'Brief 03 · switcher', 'screen'],
+      ['08', 'Access', 'Login, reset, invitation, sessions, role matrix', 'Requirement 2', 'screen'],
+      ['09', 'Tenant settings', 'Company profile, and the credential store', 'Requirement 5', 'screen'],
+      ['10', 'AI rules', 'Master singleton, tenant rules, the service door', 'Requirement 8', 'screen'],
+      ['11', 'Platform health', 'Service status, metrics, businesses needing a decision', 'Requirement 10', 'screen'],
+      ['12', 'Refusals', 'One error contract, limits at both doors, empty states', 'Requirement 6', 'behaviour'],
+      ['13', 'Motion and access', 'What may move, focus order, keys, redaction', 'Proposed addition', 'behaviour'],
+      ['14', 'Handover', 'This index, the open decisions, and design lock', 'Requirement 7', 'behaviour'],
+    ].map((r, i) => Object.assign({
+      n: r[0], title: r[1], settles: r[2], ref: r[3], bg: i % 2 ? '#F8F5F0' : '#FBF9F5',
+    }, BAND[r[4]]));
+
+    const block = { ink: '#78570F', tint: '#F3EAD3', rule: '#AE9450', icon: 'ti-alert-triangle' };
+    const soft = { ink: '#425A79', tint: '#E4E9F0', rule: '#8399B3', icon: 'ti-help-circle' };
+    const open = [
+      Object.assign({ q: 'Precedence between master and tenant AI rules', when: 'week 1 · blocks M4a', detail: 'Three options are drawn. Andishi recommends master wins on conflict, the only option where a platform instruction cannot be quietly overridden.', sheet: 'Sheet 10 · section 1' }, block),
+      Object.assign({ q: 'What the support role may see and do', when: 'design lock · blocks M4', detail: 'Drawn as read-only throughout, with write controls visibly disabled and credentials withheld entirely. Confirm or narrow.', sheet: 'Sheets 07 and 08' }, block),
+      Object.assign({ q: 'Plan tiers, with their limits', when: 'week 4 · blocks M3', detail: 'Starter, Growth and Scale drawn with 5, 15 and 40 seats. Entitlements are rows, so changing these costs nothing before M3.', sheet: 'Sheets 05, 06, 09' }, block),
+      Object.assign({ q: 'A conversations ceiling per plan', when: 'week 4 · blocks M3', detail: 'The brief names seats and channels. A conversation count is drawn as a third meter and may not exist. Say if it should not.', sheet: 'Sheet 06 · meters' }, block),
+      Object.assign({ q: 'Accessibility in the definition of done', when: 'design lock', detail: 'Proposed as WCAG 2.2 AA with screen reader passes at the M2 and M4 gates. Not currently a contractual item.', sheet: 'Sheet 13 · section 5' }, soft),
+      Object.assign({ q: 'A recorded reason on each support switch', when: 'design lock', detail: 'Proposed: a short reason chosen from a fixed list, so the platform audit log is answerable to why, not only when.', sheet: 'Sheet 07 · section 1' }, soft),
+    ];
+
+    const seen = { icon: 'ti-eye', ink: '#425A79' };
+    const ci = { icon: 'ti-terminal-2', ink: '#A79E8F' };
+    const dod = [
+      ['Every tenant-scoped table has a policy, and the isolation suite covers each one', 'Sheet 11 · isolation panel', seen],
+      ['A tenant provisioned end to end in under two minutes', 'Sheets 05, 08 · create and invitation', seen],
+      ['Every write produces an audit entry with actor, before and after, IP and request id', 'Sheet 06 · audit log', seen],
+      ['No credential readable in plaintext through any route', 'Sheet 09 · masked and reveal-once', seen],
+      ['p95 under 400 ms at 50 concurrent sessions', 'Sheet 11 · against its budget', seen],
+      ['A rules change visible through the API within 5 seconds, measured', 'Sheet 10 · propagation', seen],
+      ['A credential lacking a scope is rejected before the handler', 'Sheets 09, 12 · activity and codes', seen],
+      ['Both seam tables pass the same isolation suite', 'Sheets 06, 12 · hatched regions', seen],
+      ['With the cache off, correctness holds and only speed changes', 'Sheets 04, 11 · degraded banner', seen],
+      ['Personal data never reaches a log', 'Sheet 13 · redaction', seen],
+      ['A new developer runs it locally from the README in under 30 minutes', 'No interface · runbook and CI', ci],
+      ['Every endpoint matches the specification, by contract test', 'No interface · CI', ci],
+    ].map((r) => ({ what: r[0], where: r[1], icon: r[2].icon, ink: r[2].ink }));
+
+    return {
+      sheets, open, dod,
+      sheetLabel: sheets.length + ' sheets · 1440 wide',
+      openLabel: open.length + ' open · 4 blocking',
+      meta: [
+        { k: 'Sheet', v: '14 of 14', fg: '#1F1C18' },
+        { k: 'Source', v: 'Brief Rev 3.1 · 29 Jul 2026', fg: '#1F1C18' },
+        { k: 'Prepared by', v: 'Dennis Munge · project lead', fg: '#1F1C18' },
+        { k: 'Engagement', v: '9 weeks · 2 senior developers', fg: '#1F1C18' },
+        { k: 'Lock', v: 'M0 · week 1', fg: '#1F1C18' },
+        { k: 'Status', v: 'For review', fg: '#78570F' },
+      ],
+      glance: [
+        { k: 'Sheets', v: '14', fg: '#1F1C18' },
+        { k: 'Open decisions', v: '6 · 4 blocking', fg: '#78570F' },
+        { k: 'Definition of done', v: '12 items mapped', fg: '#1A6155' },
+        { k: 'Handover artefacts', v: '8 · plus this set', fg: '#1F1C18' },
+      ],
+      docs: [
+        { name: 'Architecture overview', what: 'System and data flow, kept current with the code.', icon: 'ti-sitemap' },
+        { name: 'Entity diagram', what: 'Generated from the live schema, regenerated on every migration.', icon: 'ti-schema' },
+        { name: 'Policy reference', what: 'Every table, its Row Level Security policy, and the reasoning.', icon: 'ti-shield-lock' },
+        { name: 'API specification', what: 'OpenAPI 3.1 with examples, backed by contract tests.', icon: 'ti-api' },
+        { name: 'Decision records', what: 'Tenancy, auth, entitlements, secrets, and this interface set.', icon: 'ti-file-text' },
+        { name: 'Runbook', what: 'Setup, migrations, rollback, key rotation, incident triage.', icon: 'ti-book' },
+        { name: 'Adapter guide', what: 'Interface, event shape, retry and idempotency rules for Phase 2.', icon: 'ti-plug-connected' },
+        { name: 'Walkthrough', what: 'Recorded tour, plus a live session with your next developer.', icon: 'ti-video' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

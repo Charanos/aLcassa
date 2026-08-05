@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css" />
+<script src="./image-slot.js"></script>
+<style>
+@font-face { font-family: 'Libertinus Serif'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Serif'; font-style: italic; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-serif@latest/latin-400-italic.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-sans@latest/latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Libertinus Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(https://cdn.jsdelivr.net/fontsource/fonts/libertinus-mono@latest/latin-400-normal.woff2) format('woff2'); }
+body { margin: 0; background: #E7E2D9; }
+a { color: #8A4A1E; text-decoration: none; border-bottom: 1px solid #B98553; }
+a:hover { color: #A6572A; border-bottom-color: #A6572A; }
+</style>
+</helmet>
+
+<div style="position: relative; width: 1440px; margin: 0 auto; background: #FBF9F5; color: #1F1C18; font-family: 'Libertinus Sans', Optima, Candara, sans-serif; font-weight: 400; font-size: 15px; line-height: 1.55; box-shadow: 0 0 0 1px #E4DDCF;">
+
+<div style="position: absolute; top: 0; bottom: 0; left: 76px; width: 1px; background: #EFE9DE;"></div>
+<div style="position: absolute; top: 300px; left: 40px; width: 24px; display: grid; gap: 3px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; letter-spacing: 0.1em; color: #A79E8F;">
+<div style="color: #A6572A;">0</div><div style="color: #A6572A;">4</div>
+<div style="height: 18px; width: 1px; background: #DAD3C7; margin: 4px 0 4px 5px;"></div>
+<div>1</div><div>4</div>
+</div>
+
+<div style="position: relative; padding: 64px 72px 0 128px;">
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 60px;">
+<div style="max-width: 740px;">
+<div style="display: flex; align-items: center; gap: 12px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #8A4A1E;">
+<span style="width: 26px; height: 1px; background: #B98553;"></span>Andishi · platform foundation · phase 1
+</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 76px; line-height: 1; letter-spacing: -0.022em; margin-top: 20px;">Composition</div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 25px; line-height: 1.42; color: #55504A; margin-top: 16px; max-width: 42ch; text-wrap: pretty;">The page shell and the five assemblies every screen is built from. Sheets 05 to 11 arrange these and introduce nothing new.</div>
+</div>
+<div style="flex: none; width: 320px; padding-top: 8px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">Page shell · 1440 reference</div>
+<div style="margin-top: 14px; height: 148px; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1px #E4DDCF; display: grid; grid-template-rows: 22px 1fr; background: #FBF9F5;">
+<div style="background: #F4F0E8; border-bottom: 1px solid #CFC5B2; display: flex; align-items: center; padding: 0 8px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 8px; letter-spacing: 0.1em; color: #A79E8F;">HEADER 56</div>
+<div style="display: grid; grid-template-columns: 58px 1fr;">
+<div style="border-right: 1px solid #E4DDCF; background: #FBF9F5; display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 8px; color: #A79E8F;">NAV 220</div>
+<div style="padding: 8px; display: grid; gap: 5px; align-content: start;">
+<div style="height: 15px; background: #F4E7DA; border-radius: 2px;"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px;"><div style="height: 22px; background: #EDE8DE; border-radius: 2px;"></div><div style="height: 22px; background: #EDE8DE; border-radius: 2px;"></div><div style="height: 22px; background: #EDE8DE; border-radius: 2px;"></div><div style="height: 22px; background: #EDE8DE; border-radius: 2px;"></div></div>
+<div style="height: 52px; background: #EDE8DE; border-radius: 2px;"></div>
+</div>
+</div>
+</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #A79E8F; margin-top: 10px; line-height: 1.7;">header 56 · nav 220 · gutter 24<br />content max 1200 · panel gap 20</div>
+</div>
+</div>
+
+<div style="display: flex; gap: 52px; margin-top: 40px; padding-bottom: 20px;">
+<sc-for list="{{ meta }}" as="m" hint-placeholder-count="6">
+<div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #A79E8F;">{{ m.k }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13.5px; margin-top: 6px; color: {{ m.fg }};">{{ m.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="height: 1px; background: #CFC5B2; margin: 0 72px 0 128px;"></div>
+
+<div style="position: relative; padding: 52px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">1.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Panel</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">Header · body · footer where it saves</span>
+</div>
+<div style="font-size: 15px; color: #55504A; margin-top: 14px; max-width: 84ch; text-wrap: pretty;">The header is a serif title, an optional caption and at most one action. The footer exists only when the panel holds a form, and it carries the save. A panel with no footer never needs saving, which is how a reader tells a settings panel from a display one before reading a word of it.</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 24px; align-items: start;">
+
+<div style="border-radius: 6px; background: #FBF9F5; box-shadow: 0 0 0 1px #CFC5B2; overflow: hidden;">
+<div style="padding: 18px 20px; border-bottom: 1px solid #E4DDCF; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px;">
+<div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 19px;">Plan and entitlements</div>
+<div style="font-size: 13px; color: #6C665D; margin-top: 2px;">Stored as data, not as code.</div>
+</div>
+<div style="height: 34px; padding: 0 12px; border: 1px solid #CFC5B2; border-radius: 4px; display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; flex: none;"><i class="ti ti-history" style="font-size: 15px; color: #55504A;"></i>History</div>
+</div>
+<div style="padding: 20px; display: grid; gap: 13px;">
+<sc-for list="{{ planRows }}" as="r" hint-placeholder-count="3">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid #E4DDCF;">
+<span style="font-size: 14px; color: #55504A;">{{ r.k }}</span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: {{ r.fg }};">{{ r.v }}</span>
+</div>
+</sc-for>
+</div>
+<div style="padding: 15px 20px; border-top: 1px solid #E4DDCF; background: #F4F0E8; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+<div style="height: 36px; padding: 0 12px; display: inline-flex; align-items: center; font-size: 14px; color: #8A4A1E;">Cancel</div>
+<div style="height: 36px; padding: 0 14px; border: 1px solid #8A4A1E; border-radius: 4px; background: #A6572A; color: #FBF9F5; display: inline-flex; align-items: center; gap: 7px; font-size: 14px;"><i class="ti ti-check" style="font-size: 15px;"></i>Save changes</div>
+</div>
+<div style="padding: 9px 20px; background: #F4E7DA; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A4A1E;">Form panel · has a footer</div>
+</div>
+
+<div style="border-radius: 6px; background: #FBF9F5; box-shadow: 0 0 0 1px #CFC5B2; overflow: hidden;">
+<div style="padding: 18px 20px; border-bottom: 1px solid #E4DDCF;">
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 19px;">Record</div>
+<div style="font-size: 13px; color: #6C665D; margin-top: 2px;">Nothing here is editable from this panel.</div>
+</div>
+<div style="padding: 8px 20px 16px 20px;">
+<sc-for list="{{ recordRows }}" as="r" hint-placeholder-count="5">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px solid #E4DDCF;">
+<span style="font-size: 13.5px; color: #55504A;">{{ r.k }}</span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 13px; text-align: right;">{{ r.v }}</span>
+</div>
+</sc-for>
+</div>
+<div style="padding: 9px 20px; background: #E4E9F0; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #425A79;">Display panel · no footer</div>
+</div>
+
+<div style="border-radius: 6px; background: #141310; box-shadow: 0 0 0 1px #46413A; overflow: hidden;">
+<div style="padding: 18px 20px; border-bottom: 1px solid #2E2A25; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px;">
+<div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 19px; color: #EDE9E1;">Plan and entitlements</div>
+<div style="font-size: 13px; color: #8A8377; margin-top: 2px;">Stored as data, not as code.</div>
+</div>
+<div style="height: 34px; padding: 0 12px; border: 1px solid #46413A; border-radius: 4px; display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: #EDE9E1; flex: none;"><i class="ti ti-history" style="font-size: 15px; color: #B0A99E;"></i>History</div>
+</div>
+<div style="padding: 20px; display: grid; gap: 13px;">
+<sc-for list="{{ planRows }}" as="r" hint-placeholder-count="3">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid #2E2A25;">
+<span style="font-size: 14px; color: #B0A99E;">{{ r.k }}</span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: {{ r.dFg }};">{{ r.v }}</span>
+</div>
+</sc-for>
+</div>
+<div style="padding: 15px 20px; border-top: 1px solid #2E2A25; background: #1D1B17; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+<div style="height: 36px; padding: 0 12px; display: inline-flex; align-items: center; font-size: 14px; color: #E09B66;">Cancel</div>
+<div style="height: 36px; padding: 0 14px; border: 1px solid #E09B66; border-radius: 4px; background: #D3862F; color: #12110F; display: inline-flex; align-items: center; gap: 7px; font-size: 14px;"><i class="ti ti-check" style="font-size: 15px;"></i>Save changes</div>
+</div>
+<div style="padding: 9px 20px; background: #2A1D12; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #E09B66;">Same panel · dark theme</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 54px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">2.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Data grid</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">{{ rowLabel }}</span>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; margin-top: 18px;">
+<div style="font-size: 15px; color: #55504A; text-wrap: pretty;">The one table in the system. Rows are separated by hairlines rather than by fill, because zebra striping and a status tint cannot occupy the same row. A brand mark leads each row at 32, with the hashed initial as its fallback.</div>
+<div style="font-size: 15px; color: #55504A; text-wrap: pretty;">Identifiers and counts are mono and range right, so a ceiling is read down a column rather than across a row. Names are sans and range left. The header row is micro caps, sticks on scroll, and shows one sort arrow on one column only.</div>
+<div style="font-size: 15px; color: #55504A; text-wrap: pretty;">The whole row navigates. The overflow glyph is the only other target inside it and is 44 wide, so the two never contend for the same pixels. Selection is opt-in per screen and adds a leading checkbox column rather than changing the row.</div>
+</div>
+
+<div style="margin-top: 24px; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1px #CFC5B2;">
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 20px; background: #F4F0E8; border-bottom: 1px solid #CFC5B2;">
+<div style="height: 36px; flex: 1; max-width: 300px; padding: 0 12px; background: #EDE8DE; border: 1px solid #CFC5B2; border-radius: 4px; display: flex; align-items: center; gap: 8px; color: #6C665D; font-size: 14px;"><i class="ti ti-search" style="font-size: 15px;"></i>Search tenants by name or slug</div>
+<div style="height: 36px; padding: 0 12px; border: 1px solid #B98553; background: #F4E7DA; border-radius: 4px; display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: #8A4A1E;"><i class="ti ti-filter" style="font-size: 15px;"></i>Status<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px;">2</span></div>
+<div style="height: 36px; padding: 0 12px; border: 1px solid #CFC5B2; background: #FBF9F5; border-radius: 4px; display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px;">Plan<i class="ti ti-chevron-down" style="font-size: 14px; color: #55504A;"></i></div>
+<div style="margin-left: auto; height: 36px; padding: 0 14px; border: 1px solid #8A4A1E; background: #A6572A; border-radius: 4px; display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: #FBF9F5;"><i class="ti ti-plus" style="font-size: 15px;"></i>Create tenant</div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 116px 92px 92px 152px 128px 44px; background: #F7F4EE; border-bottom: 1px solid #B3A995; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: #6C665D;">
+<div style="padding: 10px 20px; display: flex; align-items: center; gap: 6px;">Company<i class="ti ti-arrow-narrow-up" style="font-size: 14px; color: #8A4A1E;"></i></div>
+<div style="padding: 10px 14px;">Plan</div>
+<div style="padding: 10px 14px; text-align: right;">Seats</div>
+<div style="padding: 10px 14px; text-align: right;">Chan.</div>
+<div style="padding: 10px 14px;">Status</div>
+<div style="padding: 10px 14px; text-align: right;">Last active</div>
+<div></div>
+</div>
+<sc-for list="{{ tenants }}" as="t" hint-placeholder-count="7">
+<div style="display: grid; grid-template-columns: 1fr 116px 92px 92px 152px 128px 44px; border-bottom: 1px solid #E4DDCF; align-items: center; height: {{ rowH }}; background: {{ t.bg }};">
+<div style="padding: 0 20px; display: flex; align-items: center; gap: 12px;">
+<div style="width: 32px; height: 32px; flex: none; border-radius: 5px; overflow: hidden; box-shadow: 0 0 0 1px {{ t.markRule }}; background: {{ t.markTint }}; display: flex; align-items: center; justify-content: center;">
+<sc-if value="{{ t.hasSlot }}" hint-placeholder-val="{{ false }}">
+<image-slot id="{{ t.slot }}" shape="rounded" radius="5" placeholder=""></image-slot>
+</sc-if>
+<sc-if value="{{ t.letter }}" hint-placeholder-val="{{ true }}">
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 16px; color: {{ t.markInk }};">{{ t.letter }}</span>
+</sc-if>
+</div>
+<div>
+<div style="font-size: 15px;">{{ t.name }}</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">{{ t.slug }}</div>
+</div>
+</div>
+<div style="padding: 0 14px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px;">{{ t.plan }}</div>
+<div style="padding: 0 14px; text-align: right; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: {{ t.seatsColor }};">{{ t.seats }}</div>
+<div style="padding: 0 14px; text-align: right; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px;">{{ t.channels }}</div>
+<div style="padding: 0 14px;">
+<span style="display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border: 1px solid {{ t.rule }}; background: {{ t.tint }}; color: {{ t.ink }}; border-radius: 4px; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;"><i class="ti {{ t.icon }}" style="font-size: 14px;"></i>{{ t.status }}</span>
+</div>
+<div style="padding: 0 14px; text-align: right; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">{{ t.seen }}</div>
+<div style="display: flex; align-items: center; justify-content: center; height: 100%;"><i class="ti ti-dots" style="font-size: 18px; color: {{ t.dotFg }};"></i></div>
+</div>
+</sc-for>
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #F4F0E8; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px; color: #6C665D;">
+<span>7 of 41 tenants · sorted by company</span>
+<span style="display: flex; align-items: center; gap: 14px;"><i class="ti ti-chevron-left" style="font-size: 16px; color: #A79E8F;"></i>Page 1 of 6<i class="ti ti-chevron-right" style="font-size: 16px; color: #55504A;"></i></span>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
+<div style="border-radius: 6px; background: #F4F0E8; box-shadow: 0 0 0 1px #E4DDCF; padding: 20px 22px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">Row states, in order of precedence</div>
+<div style="margin-top: 14px; display: grid; gap: 8px;">
+<sc-for list="{{ rowStates }}" as="r" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 12px; height: 34px; padding: 0 12px; border-radius: 4px; background: {{ r.bg }}; box-shadow: {{ r.ring }};">
+<span style="font-size: 13.5px; color: {{ r.fg }}; flex: 1;">{{ r.k }}</span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #A79E8F;">{{ r.v }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="border-radius: 6px; background: #FBF9F5; box-shadow: 0 0 0 1px #E4DDCF; padding: 20px 22px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">Loading · skeleton, not spinner</div>
+<div style="margin-top: 14px; display: grid; gap: 10px;">
+<sc-for list="{{ skeleton }}" as="s" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 12px;">
+<div style="width: 32px; height: 32px; border-radius: 5px; background: #EDE8DE;"></div>
+<div style="flex: 1;">
+<div style="height: 10px; width: {{ s.w1 }}; background: #EDE8DE; border-radius: 2px;"></div>
+<div style="height: 8px; width: {{ s.w2 }}; background: #F2EDE4; border-radius: 2px; margin-top: 5px;"></div>
+</div>
+<div style="height: 22px; width: 74px; background: #EDE8DE; border-radius: 4px;"></div>
+</div>
+</sc-for>
+</div>
+<div style="font-size: 13px; color: #55504A; margin-top: 14px; text-wrap: pretty;">Shown only while a request is genuinely outstanding, at row height and column widths, so nothing jumps when the data lands.</div>
+</div>
+<div style="border-radius: 6px; background: #FBF9F5; box-shadow: 0 0 0 1px #E4DDCF; padding: 20px 22px;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">Density</div>
+<div style="margin-top: 14px; display: grid; gap: 10px;">
+<sc-for list="{{ densities }}" as="d" hint-placeholder-count="2">
+<div style="border-radius: 4px; box-shadow: 0 0 0 1px #E4DDCF; overflow: hidden;">
+<sc-for list="{{ d.rows }}" as="r" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px; height: {{ d.h }}; padding: 0 12px; border-bottom: 1px solid #EFE9DE; background: #FBF9F5;">
+<div style="width: {{ d.mark }}; height: {{ d.mark }}; border-radius: 4px; background: #EDE8DE; flex: none;"></div>
+<span style="font-size: {{ d.fs }};">{{ r }}</span>
+</div>
+</sc-for>
+</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10.5px; color: #6C665D;">{{ d.label }}</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 54px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">3.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Banner</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">Three, each tied to a system condition</span>
+</div>
+<div style="font-size: 15px; color: #55504A; margin-top: 14px; max-width: 84ch; text-wrap: pretty;">A banner reports a condition, not a message. It sits above the page title, full width, and is never dismissible while the condition it reports is still true.</div>
+<div style="margin-top: 22px; display: grid; gap: 12px;">
+<sc-for list="{{ banners }}" as="b" hint-placeholder-count="3">
+<div style="display: grid; grid-template-columns: 216px 1fr 1fr; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1px #E4DDCF;">
+<div style="padding: 16px 18px; background: #FBF9F5;">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11.5px;">{{ b.token }}</div>
+<div style="font-size: 12.5px; color: #6C665D; margin-top: 3px; text-wrap: pretty;">{{ b.when }}</div>
+</div>
+<div style="padding: 14px 18px; background: #F4F0E8;">
+<div style="border-radius: 4px; box-shadow: 0 0 0 1px {{ b.lRule }}; background: {{ b.lTint }}; padding: 12px 14px; display: flex; align-items: center; gap: 12px;">
+<i class="ti {{ b.icon }}" style="font-size: 18px; color: {{ b.lInk }}; flex: none;"></i>
+<div style="flex: 1;">
+<div style="font-size: 14px; color: {{ b.lInk }};">{{ b.text }}</div>
+<div style="font-size: 13px; color: #55504A; margin-top: 2px; text-wrap: pretty;">{{ b.sub }}</div>
+</div>
+<div style="height: 32px; padding: 0 12px; border: 1px solid {{ b.lRule }}; border-radius: 4px; display: inline-flex; align-items: center; font-size: 13px; color: {{ b.lInk }}; flex: none;">{{ b.action }}</div>
+</div>
+</div>
+<div style="padding: 14px 18px; background: #141310;">
+<div style="border-radius: 4px; box-shadow: 0 0 0 1px {{ b.dRule }}; background: {{ b.dTint }}; padding: 12px 14px; display: flex; align-items: center; gap: 12px;">
+<i class="ti {{ b.icon }}" style="font-size: 18px; color: {{ b.dInk }}; flex: none;"></i>
+<div style="flex: 1;">
+<div style="font-size: 14px; color: {{ b.dInk }};">{{ b.text }}</div>
+<div style="font-size: 13px; color: #B0A99E; margin-top: 2px; text-wrap: pretty;">{{ b.sub }}</div>
+</div>
+<div style="height: 32px; padding: 0 12px; border: 1px solid {{ b.dRule }}; border-radius: 4px; display: inline-flex; align-items: center; font-size: 13px; color: {{ b.dInk }}; flex: none;">{{ b.action }}</div>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; padding: 54px 72px 0 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">4.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Dialog</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #A79E8F;">The only surface with a shadow</span>
+</div>
+<div style="display: grid; grid-template-columns: 300px 1fr 1fr; gap: 24px; margin-top: 22px; align-items: start;">
+<div>
+<div style="font-size: 15px; color: #55504A; text-wrap: pretty;">A destructive dialog states the consequence, names what it affects, and requires the tenant slug typed in full. The confirm button stays disabled until the typed value matches, so the dialog cannot be dismissed by reflex.</div>
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 11px; color: #6C665D; margin-top: 16px; line-height: 1.9; padding-left: 14px; border-left: 2px solid #C48371;">width 480 · radius 8 · pad 24<br />scrim rgba(31,28,24,0.42)<br />focus lands on the field<br />Escape closes, Enter does not confirm</div>
+</div>
+<div style="border-radius: 8px; padding: 26px; background: rgba(31,28,24,0.42);">
+<div style="background: #FBF9F5; border-radius: 8px; box-shadow: 0 12px 32px -8px rgba(31,28,24,0.28), 0 2px 6px -2px rgba(31,28,24,0.16), 0 0 0 1px #CFC5B2; overflow: hidden;">
+<div style="padding: 20px 24px 0 24px;">
+<div style="display: flex; align-items: center; gap: 9px;"><i class="ti ti-ban" style="font-size: 18px; color: #98301D;"></i><span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 21px;">Suspend Tamarind Hotels</span></div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 16px; color: #55504A; margin-top: 10px; text-wrap: pretty;">Suspending revokes every session for this tenant's 31 members and blocks the service door for its credentials. The data is untouched and the tenant can be restored.</div>
+</div>
+<div style="padding: 18px 24px 22px 24px;">
+<div style="font-size: 12px; color: #55504A;">Type the tenant slug to confirm</div>
+<div style="margin-top: 6px; height: 44px; padding: 0 12px; background: #EDE8DE; border: 1px solid #CFC5B2; border-radius: 4px; outline: 2px solid #A6572A; outline-offset: 2px; display: flex; align-items: center; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: #6C665D;">tamarind</div>
+<div style="font-size: 13px; color: #55504A; margin-top: 6px;">Writes to platform_audit_log and to this tenant's own audit log.</div>
+</div>
+<div style="padding: 16px 24px; border-top: 1px solid #E4DDCF; background: #F4F0E8; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+<div style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; font-size: 14px; color: #8A4A1E;">Cancel</div>
+<div style="height: 40px; padding: 0 16px; border: 1px solid #E4DDCF; border-radius: 4px; background: #EDE8DE; color: #A79E8F; display: inline-flex; align-items: center; gap: 8px; font-size: 14px;"><i class="ti ti-ban" style="font-size: 15px;"></i>Suspend tenant</div>
+</div>
+</div>
+</div>
+<div style="border-radius: 8px; padding: 26px; background: rgba(0,0,0,0.62);">
+<div style="background: #1D1B17; border-radius: 8px; box-shadow: 0 16px 40px -8px rgba(0,0,0,0.66), 0 2px 6px -2px rgba(0,0,0,0.5), 0 0 0 1px #46413A; overflow: hidden;">
+<div style="padding: 20px 24px 0 24px;">
+<div style="display: flex; align-items: center; gap: 9px;"><i class="ti ti-ban" style="font-size: 18px; color: #E9887A;"></i><span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 21px; color: #EDE9E1;">Suspend Tamarind Hotels</span></div>
+<div style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 16px; color: #B0A99E; margin-top: 10px; text-wrap: pretty;">Suspending revokes every session for this tenant's 31 members and blocks the service door for its credentials. The data is untouched and the tenant can be restored.</div>
+</div>
+<div style="padding: 18px 24px 22px 24px;">
+<div style="font-size: 12px; color: #B0A99E;">Type the tenant slug to confirm</div>
+<div style="margin-top: 6px; height: 44px; padding: 0 12px; background: #100F0C; border: 1px solid #46413A; border-radius: 4px; outline: 2px solid #E09B66; outline-offset: 2px; display: flex; align-items: center; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 14px; color: #8A8377;">tamarind</div>
+<div style="font-size: 13px; color: #B0A99E; margin-top: 6px;">Writes to platform_audit_log and to this tenant's own audit log.</div>
+</div>
+<div style="padding: 16px 24px; border-top: 1px solid #2E2A25; background: #141310; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+<div style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; font-size: 14px; color: #E09B66;">Cancel</div>
+<div style="height: 40px; padding: 0 16px; border: 1px solid #2E2A25; border-radius: 4px; background: #1D1B17; color: #5F5A53; display: inline-flex; align-items: center; gap: 8px; font-size: 14px;"><i class="ti ti-ban" style="font-size: 15px;"></i>Suspend tenant</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; padding: 54px 72px 64px 128px;">
+<div style="display: flex; align-items: baseline; gap: 16px;">
+<span style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.14em; color: #A6572A;">5.0</span>
+<span style="font-family: 'Libertinus Serif', Georgia, serif; font-size: 30px; letter-spacing: -0.01em;">Held to</span>
+<span style="flex: 1; height: 1px; background: #EFE9DE;"></span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 22px;">
+<sc-for list="{{ notes }}" as="n" hint-placeholder-count="6">
+<div style="padding-left: 16px; border-left: 2px solid {{ n.mark }};">
+<div style="font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: {{ n.fg }};">{{ n.k }}</div>
+<div style="font-size: 14px; color: #55504A; margin-top: 7px; text-wrap: pretty;">{{ n.v }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 18px 72px 18px 128px; border-top: 1px solid #E4DDCF; background: #F7F4EE; font-family: 'Libertinus Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #A79E8F;">
+<span>Conduit · design system · sheet 04 of 14</span>
+<span>Andishi · commercial in confidence</span>
+<span>Rev 3.1 · 04 Aug 2026</span>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;rowHeight&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:56,&quot;min&quot;:44,&quot;max&quot;:72,&quot;step&quot;:4,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Data grid&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const rowH = this.props.rowHeight ?? 56;
+    const S = {
+      active: { status: 'Active', icon: 'ti-circle-check', ink: '#1A6155', tint: '#DFEBE7', rule: '#6EA396' },
+      near: { status: 'Near limit', icon: 'ti-clock-hour-3', ink: '#78570F', tint: '#F3EAD3', rule: '#AE9450' },
+      past: { status: 'Past due', icon: 'ti-alert-triangle', ink: '#98301D', tint: '#F7E4DE', rule: '#C48371' },
+      trial: { status: 'Trialing', icon: 'ti-terminal-2', ink: '#425A79', tint: '#E4E9F0', rule: '#8399B3' },
+      arch: { status: 'Archived', icon: 'ti-minus', ink: '#55504A', tint: '#EAE6DE', rule: '#A79E8F' },
+    };
+    const MARK = [
+      { tint: '#E4E9F0', ink: '#425A79', rule: '#8399B3' },
+      { tint: '#DFEBE7', ink: '#1A6155', rule: '#6EA396' },
+      { tint: '#F3EAD3', ink: '#78570F', rule: '#AE9450' },
+      { tint: '#F4E7DA', ink: '#8A4A1E', rule: '#B98553' },
+      { tint: '#F7E4DE', ink: '#98301D', rule: '#C48371' },
+      { tint: '#EAE6DE', ink: '#55504A', rule: '#A79E8F' },
+    ];
+    const T = [
+      ['Acme Industrial', 'acme-industrial', 'Growth', '11 / 15', '2 / 3', 'active', '4 min ago', 'comp-brand-1'],
+      ['Northwind Traders', 'northwind', 'Scale', '24 / 40', '3 / 6', 'active', '22 min ago', ''],
+      ['Kisumu Dairy Co-operative', 'kisumu-dairy', 'Starter', '3 / 5', '1 / 1', 'active', '1 hr ago', ''],
+      ['Halo Fitness', 'halo-fitness', 'Growth', '15 / 15', '3 / 3', 'near', '3 hr ago', ''],
+      ['Tamarind Hotels', 'tamarind', 'Scale', '31 / 40', '4 / 6', 'past', '9 hr ago', ''],
+      ['Baraka Logistics', 'baraka-log', 'Starter', '5 / 5', '1 / 1', 'trial', '2 days ago', ''],
+      ['Sable & Finch', 'sable-finch', 'Growth', '8 / 15', '1 / 3', 'arch', '14 days ago', ''],
+    ].map((r, i) => Object.assign({
+      name: r[0], slug: r[1], plan: r[2], seats: r[3], channels: r[4], seen: r[6],
+      slot: r[7], hasSlot: !!r[7], letter: r[7] ? '' : r[0].charAt(0),
+      markTint: MARK[i % MARK.length].tint, markInk: MARK[i % MARK.length].ink, markRule: MARK[i % MARK.length].rule,
+      seatsColor: r[5] === 'near' ? '#78570F' : '#1F1C18',
+      bg: i === 0 ? '#F7F4EE' : '#FBF9F5',
+      dotFg: i === 0 ? '#55504A' : '#A79E8F',
+    }, S[r[5]]));
+
+    return {
+      tenants: T, rowH: rowH + 'px',
+      rowLabel: 'Row ' + rowH + ' · header sticky · mark 32',
+      meta: [
+        { k: 'Sheet', v: '04 of 14', fg: '#1F1C18' },
+        { k: 'Title', v: 'Shell, panel, grid, banner, dialog', fg: '#1F1C18' },
+        { k: 'Content', v: '1200 max · nav 220', fg: '#1F1C18' },
+        { k: 'Row height', v: rowH + 'px', fg: '#1F1C18' },
+        { k: 'Parts from', v: 'Sheet 03 only', fg: '#1F1C18' },
+        { k: 'Status', v: 'For review', fg: '#78570F' },
+      ],
+      planRows: [
+        { k: 'Tier', v: 'Growth', fg: '#1F1C18', dFg: '#EDE9E1' },
+        { k: 'Seats', v: '11 / 15', fg: '#1F1C18', dFg: '#EDE9E1' },
+        { k: 'Channels', v: '2 / 3', fg: '#1F1C18', dFg: '#EDE9E1' },
+      ],
+      recordRows: [
+        { k: 'Tenant id', v: 'tnt_8f21c4' }, { k: 'Created', v: '14 Jul 2026' },
+        { k: 'Members', v: '11 · 1 owner' }, { k: 'Credentials', v: '1 · used 4 min ago' },
+        { k: 'Soft deleted', v: 'no' },
+      ],
+      rowStates: [
+        { k: 'Selected', v: 'copper tint', bg: '#F4E7DA', fg: '#8A4A1E', ring: '0 0 0 1px #B98553' },
+        { k: 'Keyboard focus', v: 'copper ring, inset', bg: '#FBF9F5', fg: '#1F1C18', ring: 'inset 0 0 0 2px #A6572A' },
+        { k: 'Hover', v: 'raised fill', bg: '#F4F0E8', fg: '#1F1C18', ring: 'none' },
+        { k: 'Rest', v: 'page fill', bg: '#FBF9F5', fg: '#1F1C18', ring: 'none' },
+        { k: 'Archived', v: 'ink drops to secondary', bg: '#FBF9F5', fg: '#6C665D', ring: 'none' },
+      ],
+      skeleton: [
+        { w1: '62%', w2: '38%' }, { w1: '48%', w2: '30%' }, { w1: '70%', w2: '42%' }, { w1: '54%', w2: '34%' },
+      ],
+      densities: [
+        { label: 'comfortable · 56 · the default', h: '38px', mark: '20px', fs: '13px', rows: ['Acme Industrial', 'Halo Fitness', 'Northwind Traders'] },
+        { label: 'compact · 44 · for long lists', h: '28px', mark: '16px', fs: '12px', rows: ['Acme Industrial', 'Halo Fitness', 'Northwind Traders'] },
+      ],
+      banners: [
+        { token: 'banner.support', when: 'Owner is switched into a tenant', icon: 'ti-pointer', text: 'Viewing Acme Industrial — support mode', sub: 'Read only. Session ends after 30 minutes of inactivity.', action: 'Return to platform',
+          lInk: '#8A4A1E', lTint: '#F4E7DA', lRule: '#B98553', dInk: '#E09B66', dTint: '#2A1D12', dRule: '#6B4824' },
+        { token: 'banner.degraded', when: 'Cache unavailable, system correct but slower', icon: 'ti-clock-hour-3', text: 'Cache is unreachable — responses are slower', sub: 'Every correctness property still holds. Rules read direct from Postgres.', action: 'Status',
+          lInk: '#78570F', lTint: '#F3EAD3', lRule: '#AE9450', dInk: '#DCB05A', dTint: '#241C0D', dRule: '#5A481D' },
+        { token: 'banner.isolation', when: 'A policy check failed in CI or at runtime', icon: 'ti-alert-triangle', text: 'Isolation suite failed on 1 table', sub: 'customer_records · a cross-tenant read returned a row. Deploys are blocked.', action: 'Open run',
+          lInk: '#98301D', lTint: '#F7E4DE', lRule: '#C48371', dInk: '#E9887A', dTint: '#2A1512', dRule: '#663026' },
+      ],
+      notes: [
+        { k: 'Screens are drawn light', v: 'Sheets 05 to 11 are drawn in the light theme with a dark inset of the region that matters. Both themes are fully specified on 01 to 04; repeating every screen twice would double the sheet count without adding a decision.', mark: '#8399B3', fg: '#425A79' },
+        { k: 'A ceiling is ochre, not oxide', v: 'A tenant at 15 of 15 has not failed. It has arrived at the limit its plan describes, and the console’s job there is to offer the tier above it.', mark: '#AE9450', fg: '#78570F' },
+        { k: 'Brand marks are optional', v: 'A tenant that has uploaded nothing gets its initial on a hashed tint. The grid is designed for the fallback first, because most rows will use it.', mark: '#6EA396', fg: '#1A6155' },
+        { k: 'One shadow, one surface', v: 'Only the dialog and the command palette carry elevation. Panels are separated from the page by a tint step and a hairline, never by a shadow.', mark: '#B98553', fg: '#8A4A1E' },
+        { k: 'The support banner cannot be dismissed', v: 'It reports the reader’s own session, so there is no state in which hiding it would be correct. It is drawn in full on sheet 07.', mark: '#B98553', fg: '#8A4A1E' },
+        { k: 'Names are fictional', v: 'No customer list was supplied with the brief. These names exercise long, short and punctuated cases so the grid is tested against real ragging.', mark: '#A79E8F', fg: '#55504A' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
