@@ -32,9 +32,9 @@ Three principles:
 
 ## The typography constraint, which is real
 
-Three families: Libertinus Serif for display and headings, Libertinus Sans for body and UI, Libertinus Mono for data. All from Google Fonts.
+Three families: Libertinus Serif for display and headings, Libertinus Sans for body and UI, Fira Code (weight 500) for data. Libertinus families from Google Fonts; Fira Code from Fontsource.
 
-Under the house rule of medium and normal only, no semibold, no bold, no italic, **every one of these ships exactly one usable weight.** The system therefore has no weight axis at all. Libertinus Serif's other weights are 600 and 700, both excluded. Libertinus Sans's other is 700, excluded. Libertinus Mono has only 400.
+Under the house rule of medium and normal only, no semibold, no bold, no italic, **each typeface uses exactly one weight.** The system therefore has one weight per family, locked. Libertinus Serif uses 400; Libertinus Sans uses 400; Fira Code uses 500. Although Fira Code offers additional weights, only 500 is imported and used.
 
 Hierarchy comes from size, family switch, colour, case, tracking, rules and space. Read `03 §5` before you write a single type rule. Set `font-synthesis: none` globally, or the browser fakes a bold and an oblique and breaks the system silently.
 

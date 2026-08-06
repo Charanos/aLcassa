@@ -440,6 +440,14 @@ never rests on colour, which `03 §3` rule 3 already required. The passing
 three-hue order, where one is needed, is slate → oxide → verdigris. Never copper
 adjacent to ochre.
 
+### A12 · Monospace font changed from Libertinus Mono to Fira Code at weight 500
+
+The original three-family system shipped with Libertinus Serif, Libertinus Sans, and Libertinus Mono, all at weight 400. Fira Code weight 500 was substituted for the data typeface (all `--t-data`, `--t-code`, `--t-chip`, `--t-eyebrow` uses) for improved clarity and character distinction in a console context.
+
+The weight constraint remains: only one weight per family is imported. Libertinus Serif and Sans continue at 400; Fira Code is locked to 500. Although Fira Code offers weights 300–700, only 500 is in the bundle. Fallback chain: Fira Code → Libertinus Mono → system monospace.
+
+`src/app/tokens.css`, `globals.css`, `03 §4`.
+
 ---
 
 ## 4. Open items carried forward

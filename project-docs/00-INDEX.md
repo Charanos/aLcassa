@@ -63,7 +63,7 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 
 ## Stack
 
-Next.js 15 with TypeScript strict · Supabase for Postgres, Auth, Storage and Row Level Security · Drizzle ORM · Upstash Redis, scoped to four uses · Vercel · pgvector · Sentry, Axiom, Better Stack · Libertinus Serif, Libertinus Sans, Libertinus Mono · Tabler Icons
+Next.js 15 with TypeScript strict · Supabase for Postgres, Auth, Storage and Row Level Security · Drizzle ORM · Upstash Redis, scoped to four uses · Vercel · pgvector · Sentry, Axiom, Better Stack · Libertinus Serif, Libertinus Sans, Fira Code · Tabler Icons
 
 ## Before anything is built
 

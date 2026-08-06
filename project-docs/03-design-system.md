@@ -221,23 +221,23 @@ Three families, all Libertinus, all from Google Fonts, all OFL.
 |---|---|---|---|
 | Display and headings | **Libertinus Serif** | 400, 600, 700 + italics | **400** |
 | Body and UI | **Libertinus Sans** | 400, 700 + italic | **400** |
-| Data | **Libertinus Mono** | 400 | **400** |
+| Data | **Fira Code** | 300, 400, 500, 600, 700 | **500** |
 
 ### Two constraints, both real
 
-**Constraint one: there is no weight axis at all.** Under the rule of medium and normal only, no semibold, no bold, no italic, every one of these families offers exactly one usable weight. Libertinus Serif's others are 600 and 700, both excluded. Libertinus Sans's other is 700, excluded. Libertinus Mono has only 400.
+**Constraint one: there is one weight per typeface, locked.** Under the rule of medium and normal only, no semibold, no bold, no italic. Libertinus Serif and Sans each use weight 400; Fira Code uses weight 500. Although Fira Code offers multiple weights, only 500 is imported and used.
 
-So the system has **one weight, full stop.** That is more constrained than any typical design system and it is workable, because a technical drawing has no bold either. Everything below is built for it.
+So the system has **one weight per family, full stop.** That is more constrained than any typical design system and it is workable, because a technical drawing has no bold either. Everything below is built for it.
 
 **Constraint two: Libertinus Math is not a monospace font, so it is not the data face.**
 
 The request named Libertinus Math for the mono role. It is an OpenType *math* typeface: fraktur alphabets, scaled integral signs, redesigned operators, built for LuaTeX and XeTeX. Google Fonts classifies it as display. Its advance widths are not uniform and its figures are not tabular, which means a column of tenant IDs, timestamps, usage counts or key prefixes would sit unevenly. In a console where the primary reading task is scanning columns, that is a functional defect.
 
-**Libertinus Mono** is the monospace member of the same family, forked from Linux Libertine Mono, with the same skeleton and the same texture. It gives the intended look and holds a column.
+**Fira Code** at weight 500 is the current monospace choice, chosen for its clarity in a data context and its consistent tabular figures. Fallback is Libertinus Mono, which was the original choice and remains a solid substitute.
 
 Libertinus Math keeps one legitimate use: **the entitlement expression display** in `§9`, where a plan limit is genuinely rendered as an inequality (`seats ≤ 15`). Its `≤`, `≥`, `∈` and `∞` glyphs are drawn properly and the browser fallback for those characters is ugly. One component, `MathExpr`, loads it. Nothing else does.
 
-If this reasoning is unpersuasive, swapping Mono for Math is one line in the token file and one line in the type scale. The rest of the system is indifferent.
+The mono font is one line in the token file and one line in the type scale. The rest of the system is indifferent.
 
 ### What carries hierarchy instead of weight
 
@@ -678,7 +678,7 @@ Tailwind v4, CSS-first. Tokens declared once in `app/tokens.css`, exposed throug
 
   --font-serif: "Libertinus Serif", Georgia, serif;
   --font-sans: "Libertinus Sans", system-ui, sans-serif;
-  --font-mono: "Libertinus Mono", ui-monospace, monospace;
+  --font-mono: "Fira Code", "Libertinus Mono", ui-monospace, monospace;
 
   --radius-sm: 2px;
   --radius-md: 3px;

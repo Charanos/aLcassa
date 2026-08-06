@@ -244,7 +244,7 @@
 :root {
   --font-serif: 'Libertinus Serif', Georgia, serif; /* to read */
   --font-sans: 'Libertinus Sans', Optima, Candara, sans-serif; /* to operate */
-  --font-mono: 'Libertinus Mono', ui-monospace, monospace; /* to verify */
+  --font-mono: 'Fira Code', 'Libertinus Mono', ui-monospace, monospace; /* to verify */
   --font-math: 'Libertinus Math', var(--font-mono); /* MathExpr only */
 
   /* size · line-height · tracking */
@@ -265,11 +265,11 @@
   --t-micro: 400 11px/1.35 var(--font-sans); /* uppercase table headers */
   --t-micro-tracking: 0.04em;
 
-  --t-data: 400 14px/1.5 var(--font-mono);
-  --t-code: 400 12.5px/1.75 var(--font-mono);
-  --t-chip: 400 11px/1 var(--font-mono); /* uppercase */
+  --t-data: 500 14px/1.5 var(--font-mono);
+  --t-code: 500 12.5px/1.75 var(--font-mono);
+  --t-chip: 500 11px/1 var(--font-mono); /* uppercase */
   --t-chip-tracking: 0.06em;
-  --t-eyebrow: 400 10px/1 var(--font-mono); /* uppercase */
+  --t-eyebrow: 500 10px/1 var(--font-mono); /* uppercase */
   --t-eyebrow-tracking: 0.16em;
 
   /* Measure. Sheet 02: prose 62ch, interface body 52ch, helper line 44ch. */
