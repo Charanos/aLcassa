@@ -1,6 +1,6 @@
 # 03 · Design System · "Conduit"
 
-**Consumer:** Claude Design and Claude Code. This document is the authority on every visual decision. If code disagrees with this file, the code is wrong.
+**Consumer:** Design and Code. This document is the authority on every visual decision. If code disagrees with this file, the code is wrong.
 **Aesthetic:** technical, warm, dense. A drafting document rather than a dashboard.
 
 ---
@@ -13,14 +13,14 @@ Infrastructure that holds has a look. It is the look of a **technical drawing**:
 
 The material vocabulary is **conduit and patina**. Copper carries current between places without being the current. Left in air, it oxidises to verdigris, which is how you tell it has been doing its job for a while. That gives the palette a source that is not another SaaS blue.
 
-| Artefact | Becomes |
-|---|---|
+| Artefact           | Becomes                                                 |
+| ------------------ | ------------------------------------------------------- |
 | The drafting sheet | The page: warm vellum ground, ruled, with a title block |
-| The dimension line | Rules with terminators, used for metrics and limits |
-| Hatch fill | Density and disabled states, never a flat grey |
-| The copper conduit | The interactive accent, and the boundary frame |
-| Verdigris | Health, verification, the settled state |
-| The title block | The console header and the audit stamp |
+| The dimension line | Rules with terminators, used for metrics and limits     |
+| Hatch fill         | Density and disabled states, never a flat grey          |
+| The copper conduit | The interactive accent, and the boundary frame          |
+| Verdigris          | Health, verification, the settled state                 |
+| The title block    | The console header and the audit stamp                  |
 
 Three principles:
 
@@ -39,56 +39,56 @@ The client has not specified a palette and may supply one later. This one is cho
 ```css
 :root {
   /* Ground — warm neutrals, drafting vellum */
-  --sheet:            #FBFAF7;   /* page ground */
-  --sheet-raised:     #FFFFFF;   /* cards, panels, the layer above the page */
-  --sheet-sunk:       #F3F1EC;   /* inputs, wells, code, table headers */
-  --sheet-hatch:      #EDEAE3;   /* disabled fill, hatch base */
-  --sheet-invert:     #16181D;   /* inverted blocks */
+  --sheet: #fbfaf7; /* page ground */
+  --sheet-raised: #ffffff; /* cards, panels, the layer above the page */
+  --sheet-sunk: #f3f1ec; /* inputs, wells, code, table headers */
+  --sheet-hatch: #edeae3; /* disabled fill, hatch base */
+  --sheet-invert: #16181d; /* inverted blocks */
 
   /* Graphite — text and structure */
-  --graphite-900:     #16181D;   /* headings, primary text */
-  --graphite-700:     #33373F;   /* body */
-  --graphite-500:     #5F646E;   /* secondary, captions */
-  --graphite-400:     #8B909A;   /* tertiary, placeholder */
-  --graphite-300:     #B6BAC2;   /* disabled text, chart grid */
+  --graphite-900: #16181d; /* headings, primary text */
+  --graphite-700: #33373f; /* body */
+  --graphite-500: #5f646e; /* secondary, captions */
+  --graphite-400: #8b909a; /* tertiary, placeholder */
+  --graphite-300: #b6bac2; /* disabled text, chart grid */
 
   /* Rules */
-  --rule:             #E2DED6;   /* hairline */
-  --rule-strong:      #CBC6BB;   /* section divider, table header underline */
-  --rule-graphite:    #16181D;   /* emphatic, used sparingly */
+  --rule: #e2ded6; /* hairline */
+  --rule-strong: #cbc6bb; /* section divider, table header underline */
+  --rule-graphite: #16181d; /* emphatic, used sparingly */
 
   /* Copper — the single brand and interactive hue */
-  --copper-700:       #8A3E12;   /* text on light, 6.8:1 */
-  --copper-600:       #A54B17;   /* primary fill */
-  --copper-500:       #C25E22;   /* hover fill */
-  --copper-100:       #F7E9DF;   /* wash, selected row */
-  --copper-050:       #FDF6F1;   /* faintest wash */
+  --copper-700: #8a3e12; /* text on light, 6.8:1 */
+  --copper-600: #a54b17; /* primary fill */
+  --copper-500: #c25e22; /* hover fill */
+  --copper-100: #f7e9df; /* wash, selected row */
+  --copper-050: #fdf6f1; /* faintest wash */
 
   /* Verdigris — healthy, verified, settled */
-  --verdigris-700:    #145F50;
-  --verdigris-500:    #1F8570;
-  --verdigris-100:    #E2F1ED;
+  --verdigris-700: #145f50;
+  --verdigris-500: #1f8570;
+  --verdigris-100: #e2f1ed;
 
   /* Ochre — attention, approaching a limit, pending */
-  --ochre-700:        #7A5406;
-  --ochre-500:        #A8760C;
-  --ochre-100:        #FAF0DC;
+  --ochre-700: #7a5406;
+  --ochre-500: #a8760c;
+  --ochre-100: #faf0dc;
 
   /* Oxide — failure, suspended, over limit, destructive */
-  --oxide-700:        #96241C;
-  --oxide-500:        #BC3227;
-  --oxide-100:        #FBE9E7;
+  --oxide-700: #96241c;
+  --oxide-500: #bc3227;
+  --oxide-100: #fbe9e7;
 
   /* Slate — informational, neutral state, machine */
-  --slate-700:        #2F4A63;
-  --slate-500:        #446B8C;
-  --slate-100:        #E7EEF4;
+  --slate-700: #2f4a63;
+  --slate-500: #446b8c;
+  --slate-100: #e7eef4;
 
   /* Interaction */
-  --focus:            #A54B17;
-  --selection-bg:     #F7E9DF;
-  --selection-fg:     #16181D;
-  --scrim:            rgb(22 24 29 / 0.55);
+  --focus: #a54b17;
+  --selection-bg: #f7e9df;
+  --selection-fg: #16181d;
+  --scrim: rgb(22 24 29 / 0.55);
 }
 ```
 
@@ -97,49 +97,49 @@ The client has not specified a palette and may supply one later. This one is cho
 Not an inversion. The ground goes to a cool graphite, copper is lifted for contrast, and the warm ramp becomes a cool one, because a warm dark reads as muddy.
 
 ```css
-[data-theme="dark"] {
-  --sheet:            #131519;
-  --sheet-raised:     #1A1D23;
-  --sheet-sunk:       #0E1014;
-  --sheet-hatch:      #22262E;
-  --sheet-invert:     #FBFAF7;
+[data-theme='dark'] {
+  --sheet: #131519;
+  --sheet-raised: #1a1d23;
+  --sheet-sunk: #0e1014;
+  --sheet-hatch: #22262e;
+  --sheet-invert: #fbfaf7;
 
-  --graphite-900:     #F2F1ED;
-  --graphite-700:     #D2D4DA;
-  --graphite-500:     #949AA5;
-  --graphite-400:     #6C727D;
-  --graphite-300:     #474D57;
+  --graphite-900: #f2f1ed;
+  --graphite-700: #d2d4da;
+  --graphite-500: #949aa5;
+  --graphite-400: #6c727d;
+  --graphite-300: #474d57;
 
-  --rule:             #262A32;
-  --rule-strong:      #383D47;
-  --rule-graphite:    #F2F1ED;
+  --rule: #262a32;
+  --rule-strong: #383d47;
+  --rule-graphite: #f2f1ed;
 
-  --copper-700:       #E8926A;   /* text on dark, 6.2:1 */
-  --copper-600:       #D97B4E;
-  --copper-500:       #C25E22;
-  --copper-100:       #2E1B10;
-  --copper-050:       #1F1410;
+  --copper-700: #e8926a; /* text on dark, 6.2:1 */
+  --copper-600: #d97b4e;
+  --copper-500: #c25e22;
+  --copper-100: #2e1b10;
+  --copper-050: #1f1410;
 
-  --verdigris-700:    #4FC0A6;
-  --verdigris-500:    #2F9C84;
-  --verdigris-100:    #10251F;
+  --verdigris-700: #4fc0a6;
+  --verdigris-500: #2f9c84;
+  --verdigris-100: #10251f;
 
-  --ochre-700:        #E0B14A;
-  --ochre-500:        #B8890F;
-  --ochre-100:        #241D0C;
+  --ochre-700: #e0b14a;
+  --ochre-500: #b8890f;
+  --ochre-100: #241d0c;
 
-  --oxide-700:        #F08076;
-  --oxide-500:        #C9483C;
-  --oxide-100:        #2A1210;
+  --oxide-700: #f08076;
+  --oxide-500: #c9483c;
+  --oxide-100: #2a1210;
 
-  --slate-700:        #7FA8C9;
-  --slate-500:        #5583A8;
-  --slate-100:        #131E28;
+  --slate-700: #7fa8c9;
+  --slate-500: #5583a8;
+  --slate-100: #131e28;
 
-  --focus:            #E8926A;
-  --selection-bg:     #2E1B10;
-  --selection-fg:     #F2F1ED;
-  --scrim:            rgb(0 0 0 / 0.7);
+  --focus: #e8926a;
+  --selection-bg: #2e1b10;
+  --selection-fg: #f2f1ed;
+  --scrim: rgb(0 0 0 / 0.7);
 }
 ```
 
@@ -164,7 +164,7 @@ Components consume these. Never the ramp directly, never a hex.
 --border-focus: var(--focus);
 
 --action-primary-bg: var(--copper-600);
---action-primary-fg: #FFFFFF;
+--action-primary-fg: #ffffff;
 --action-primary-hover: var(--copper-500);
 ```
 
@@ -176,14 +176,14 @@ Components consume these. Never the ramp directly, never a hex.
 
 Colour is functional here, which makes discipline harder rather than easier. Six hues, each with exactly one meaning.
 
-| Hue | Means | Never used for |
-|---|---|---|
-| **Copper** | Interactive, brand, primary action, the boundary frame | State. Copper never means "good" or "bad" |
-| **Verdigris** | Active, healthy, verified, connected, succeeded | Anything a user must act on |
-| **Ochre** | Pending, approaching a limit, past due, degraded | Errors |
-| **Oxide** | Suspended, failed, over limit, revoked, destructive | Warnings that are not failures |
-| **Slate** | Informational, machine-originated, neutral | Anything with a success or failure valence |
-| **Graphite** | Everything else | Any state |
+| Hue           | Means                                                  | Never used for                             |
+| ------------- | ------------------------------------------------------ | ------------------------------------------ |
+| **Copper**    | Interactive, brand, primary action, the boundary frame | State. Copper never means "good" or "bad"  |
+| **Verdigris** | Active, healthy, verified, connected, succeeded        | Anything a user must act on                |
+| **Ochre**     | Pending, approaching a limit, past due, degraded       | Errors                                     |
+| **Oxide**     | Suspended, failed, over limit, revoked, destructive    | Warnings that are not failures             |
+| **Slate**     | Informational, machine-originated, neutral             | Anything with a success or failure valence |
+| **Graphite**  | Everything else                                        | Any state                                  |
 
 Rules that keep it from decaying:
 
@@ -201,13 +201,13 @@ Brian will have both open at once. Confusing them is a real operational risk, si
 
 The distinction is structural, not decorative:
 
-| | Tenant application | Platform console |
-|---|---|---|
-| Header ground | `--sheet-raised` | `--sheet-invert`, inverted |
-| Header text | `--graphite-900` | `--sheet` |
-| Sidebar | `--sheet` | `--sheet-sunk` |
-| Density default | Comfortable | Compact |
-| Title block | Tenant name | `PLATFORM` in `--t-label`, plus the environment name |
+|                 | Tenant application | Platform console                                     |
+| --------------- | ------------------ | ---------------------------------------------------- |
+| Header ground   | `--sheet-raised`   | `--sheet-invert`, inverted                           |
+| Header text     | `--graphite-900`   | `--sheet`                                            |
+| Sidebar         | `--sheet`          | `--sheet-sunk`                                       |
+| Density default | Comfortable        | Compact                                              |
+| Title block     | Tenant name        | `PLATFORM` in `--t-label`, plus the environment name |
 
 The inverted console header is the single strongest signal and it is present on every platform page at all times. It costs nothing and it is unmissable in peripheral vision.
 
@@ -217,11 +217,11 @@ The inverted console header is the single strongest signal and it is present on 
 
 Three families, all Libertinus, all from Google Fonts, all OFL.
 
-| Role | Family | Weights that exist | Weights used |
-|---|---|---|---|
-| Display and headings | **Libertinus Serif** | 400, 600, 700 + italics | **400** |
-| Body and UI | **Libertinus Sans** | 400, 700 + italic | **400** |
-| Data | **Fira Code** | 300, 400, 500, 600, 700 | **500** |
+| Role                 | Family               | Weights that exist      | Weights used |
+| -------------------- | -------------------- | ----------------------- | ------------ |
+| Display and headings | **Libertinus Serif** | 400, 600, 700 + italics | **400**      |
+| Body and UI          | **Libertinus Sans**  | 400, 700 + italic       | **400**      |
+| Data                 | **Fira Code**        | 300, 400, 500, 600, 700 | **500**      |
 
 ### Two constraints, both real
 
@@ -231,7 +231,7 @@ So the system has **one weight per family, full stop.** That is more constrained
 
 **Constraint two: Libertinus Math is not a monospace font, so it is not the data face.**
 
-The request named Libertinus Math for the mono role. It is an OpenType *math* typeface: fraktur alphabets, scaled integral signs, redesigned operators, built for LuaTeX and XeTeX. Google Fonts classifies it as display. Its advance widths are not uniform and its figures are not tabular, which means a column of tenant IDs, timestamps, usage counts or key prefixes would sit unevenly. In a console where the primary reading task is scanning columns, that is a functional defect.
+The request named Libertinus Math for the mono role. It is an OpenType _math_ typeface: fraktur alphabets, scaled integral signs, redesigned operators, built for LuaTeX and XeTeX. Google Fonts classifies it as display. Its advance widths are not uniform and its figures are not tabular, which means a column of tenant IDs, timestamps, usage counts or key prefixes would sit unevenly. In a console where the primary reading task is scanning columns, that is a functional defect.
 
 **Fira Code** at weight 500 is the current monospace choice, chosen for its clarity in a data context and its consistent tabular figures. Fallback is Libertinus Mono, which was the original choice and remains a solid substitute.
 
@@ -256,22 +256,22 @@ In descending order of strength:
 
 Fluid where it needs to be, fixed where a console needs predictability.
 
-| Token | Family | Size | Line height | Tracking | Use |
-|---|---|---|---|---|---|
-| `--t-display` | Serif 400 | `clamp(2.25rem, 4vw, 3.5rem)` | 1.08 | `-0.01em` | Marketing page only |
-| `--t-h1` | Serif 400 | `1.75rem` | 1.15 | `-0.005em` | Page title |
-| `--t-h2` | Serif 400 | `1.375rem` | 1.25 | `0` | Section |
-| `--t-h3` | Sans 400 | `1.0625rem` | 1.4 | `0` | Card and panel headings |
-| `--t-lede` | Serif 400 | `1.1875rem` | 1.55 | `0` | Standfirst, empty-state explanation |
-| `--t-body` | Sans 400 | `0.9375rem` | 1.6 | `0` | Default |
-| `--t-body-sm` | Sans 400 | `0.875rem` | 1.55 | `0` | Secondary, dense tables |
-| `--t-caption` | Sans 400 | `0.8125rem` | 1.45 | `0.005em` | Helper text, timestamps in prose |
-| `--t-label` | Sans 400 uppercase | `0.6875rem` | 1.2 | `0.1em` | Field labels, table headers, eyebrows, the title block |
-| `--t-data-lg` | Mono 400 | `1.5rem` | 1.25 | `0` | Metric values on the overview and health pages |
-| `--t-data` | Mono 400 | `0.875rem` | 1.5 | `0` | IDs, counts, timestamps, key prefixes |
-| `--t-data-sm` | Mono 400 | `0.8125rem` | 1.45 | `0` | Dense table cells, audit rows |
-| `--t-data-caps` | Mono 400 uppercase | `0.75rem` | 1.4 | `0.07em` | **The mono emphasis token.** Tenant names in the frame, status codes, environment names |
-| `--t-code` | Mono 400 | `0.8125rem` | 1.6 | `0` | Code blocks, JSON, curl examples in docs surfaces |
+| Token           | Family             | Size                          | Line height | Tracking   | Use                                                                                     |
+| --------------- | ------------------ | ----------------------------- | ----------- | ---------- | --------------------------------------------------------------------------------------- |
+| `--t-display`   | Serif 400          | `clamp(2.25rem, 4vw, 3.5rem)` | 1.08        | `-0.01em`  | Marketing page only                                                                     |
+| `--t-h1`        | Serif 400          | `1.75rem`                     | 1.15        | `-0.005em` | Page title                                                                              |
+| `--t-h2`        | Serif 400          | `1.375rem`                    | 1.25        | `0`        | Section                                                                                 |
+| `--t-h3`        | Sans 400           | `1.0625rem`                   | 1.4         | `0`        | Card and panel headings                                                                 |
+| `--t-lede`      | Serif 400          | `1.1875rem`                   | 1.55        | `0`        | Standfirst, empty-state explanation                                                     |
+| `--t-body`      | Sans 400           | `0.9375rem`                   | 1.6         | `0`        | Default                                                                                 |
+| `--t-body-sm`   | Sans 400           | `0.875rem`                    | 1.55        | `0`        | Secondary, dense tables                                                                 |
+| `--t-caption`   | Sans 400           | `0.8125rem`                   | 1.45        | `0.005em`  | Helper text, timestamps in prose                                                        |
+| `--t-label`     | Sans 400 uppercase | `0.6875rem`                   | 1.2         | `0.1em`    | Field labels, table headers, eyebrows, the title block                                  |
+| `--t-data-lg`   | Mono 400           | `1.5rem`                      | 1.25        | `0`        | Metric values on the overview and health pages                                          |
+| `--t-data`      | Mono 400           | `0.875rem`                    | 1.5         | `0`        | IDs, counts, timestamps, key prefixes                                                   |
+| `--t-data-sm`   | Mono 400           | `0.8125rem`                   | 1.45        | `0`        | Dense table cells, audit rows                                                           |
+| `--t-data-caps` | Mono 400 uppercase | `0.75rem`                     | 1.4         | `0.07em`   | **The mono emphasis token.** Tenant names in the frame, status codes, environment names |
+| `--t-code`      | Mono 400           | `0.8125rem`                   | 1.6         | `0`        | Code blocks, JSON, curl examples in docs surfaces                                       |
 
 Body measure caps at 70 characters. Legal and documentation prose caps at 78.
 
@@ -294,8 +294,15 @@ Body measure caps at 70 characters. Legal and documentation prose caps at 78.
 8px base with a 4px half-step for optical correction only.
 
 ```css
---s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
---s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px;
+--s-1: 4px;
+--s-2: 8px;
+--s-3: 12px;
+--s-4: 16px;
+--s-5: 24px;
+--s-6: 32px;
+--s-7: 48px;
+--s-8: 64px;
+--s-9: 96px;
 ```
 
 Rhythm: within a component `--s-3`, between components `--s-4`, between panels `--s-5`, between page sections `--s-7`.
@@ -307,11 +314,11 @@ Breakpoints: `sm 480 · md 768 · lg 1024 · xl 1280 · 2xl 1536`. Containers: `
 Radius, small throughout, because a technical drawing has square corners:
 
 ```css
---r-none: 0;    /* table cells, rules, the title block, hatch panels */
---r-sm: 2px;    /* inputs, chips, badges */
---r-md: 3px;    /* buttons, cards, panels */
---r-lg: 6px;    /* modals, sheets */
---r-full: 999px;/* avatars only */
+--r-none: 0; /* table cells, rules, the title block, hatch panels */
+--r-sm: 2px; /* inputs, chips, badges */
+--r-md: 3px; /* buttons, cards, panels */
+--r-lg: 6px; /* modals, sheets */
+--r-full: 999px; /* avatars only */
 ```
 
 Elevation, one shadow, overlays only:
@@ -335,22 +342,25 @@ Used for: disabled surfaces, suspended tenant rows, unavailable capacity in a li
 The philosophy differs from a consumer product and it is worth stating: **motion confirms, it never entertains.** Brian will see the console header a hundred times a day. Anything that animates on arrival becomes a tax by Wednesday.
 
 ```css
---dur-instant: 80ms;  --dur-fast: 140ms;  --dur-base: 200ms;  --dur-slow: 280ms;
+--dur-instant: 80ms;
+--dur-fast: 140ms;
+--dur-base: 200ms;
+--dur-slow: 280ms;
 --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 ```
 
-| Moment | Motion |
-|---|---|
-| Button press | Scale 0.985, `--dur-instant` |
-| Hover on a row or card | Border and background shift, `--dur-fast`, no movement |
-| Sheet, drawer | Slide from edge, `--dur-base`, `--ease-out` |
-| Modal | Opacity plus 6px rise, `--dur-fast` |
-| Toast | Rise 10px with opacity, `--dur-base` |
-| Sidebar collapse | Width transition, `--dur-base` |
-| Tab and route change | Opacity only, `--dur-fast` |
+| Moment                                   | Motion                                                                                                                                           |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Button press                             | Scale 0.985, `--dur-instant`                                                                                                                     |
+| Hover on a row or card                   | Border and background shift, `--dur-fast`, no movement                                                                                           |
+| Sheet, drawer                            | Slide from edge, `--dur-base`, `--ease-out`                                                                                                      |
+| Modal                                    | Opacity plus 6px rise, `--dur-fast`                                                                                                              |
+| Toast                                    | Rise 10px with opacity, `--dur-base`                                                                                                             |
+| Sidebar collapse                         | Width transition, `--dur-base`                                                                                                                   |
+| Tab and route change                     | Opacity only, `--dur-fast`                                                                                                                       |
 | **Boundary frame entering support mode** | The frame draws from the corners outward, `--dur-slow`. The one deliberate moment in the system, and it is deliberate because it must be noticed |
-| Metric value change | Cross-fade, `--dur-fast`. No counting animation |
+| Metric value change                      | Cross-fade, `--dur-fast`. No counting animation                                                                                                  |
 
 **No scroll-triggered animation anywhere. No parallax. No GSAP.** This is a console, not a landing page. The marketing page at `/` gets a single fade-in on load and nothing else.
 
@@ -393,58 +403,58 @@ Sixty-four components across eight tiers. Build tiers 1 to 3 first; they block e
 
 ### Tier 1 · Primitives
 
-| Component | Variants | States |
-|---|---|---|
-| `Button` | primary, secondary, ghost, destructive, link | default, hover, active, focus, disabled, loading |
-| `IconButton` | ghost, bordered | as above, 44px hit area minimum |
-| `Input` | text, email, password, number | default, focus, error, disabled, readonly |
-| `Textarea` | autosize | as Input, with counter when limited |
-| `Select` | native, combobox | as Input |
-| `Checkbox` | single, group | default, checked, indeterminate, error, disabled |
-| `Radio` | group, card | as above. Card variant for plan selection |
-| `Switch` | | default, checked, disabled, loading. Immediate-effect settings only |
-| `Label` · `HelperText` · `Rule` · `Hatch` | | Structural |
-| `Spinner` | sm, md | Copper stroke, 900ms |
-| `Skeleton` | text, block, row, panel, metric | See `§15` |
+| Component                                 | Variants                                     | States                                                              |
+| ----------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------- |
+| `Button`                                  | primary, secondary, ghost, destructive, link | default, hover, active, focus, disabled, loading                    |
+| `IconButton`                              | ghost, bordered                              | as above, 44px hit area minimum                                     |
+| `Input`                                   | text, email, password, number                | default, focus, error, disabled, readonly                           |
+| `Textarea`                                | autosize                                     | as Input, with counter when limited                                 |
+| `Select`                                  | native, combobox                             | as Input                                                            |
+| `Checkbox`                                | single, group                                | default, checked, indeterminate, error, disabled                    |
+| `Radio`                                   | group, card                                  | as above. Card variant for plan selection                           |
+| `Switch`                                  |                                              | default, checked, disabled, loading. Immediate-effect settings only |
+| `Label` · `HelperText` · `Rule` · `Hatch` |                                              | Structural                                                          |
+| `Spinner`                                 | sm, md                                       | Copper stroke, 900ms                                                |
+| `Skeleton`                                | text, block, row, panel, metric              | See `§15`                                                           |
 
 ### Tier 2 · Structure
 
-| Component | Notes |
-|---|---|
-| `Panel` | 1px rule, `--r-md`, no shadow. Header, body, footer slots |
-| `TitleBlock` | The drafting-sheet header: label, value, revision. Used on the console header, the audit stamp, the credential card |
-| `AppShell` · `Sidebar` · `NavRail` · `NavItem` · `NavGroup` | Chrome for both applications |
-| `PageHeader` | Title, description, actions, breadcrumb slot |
-| `Tabs` | **Route-based, never state-based.** Bookmarkability is non-negotiable |
-| `Table` | Sticky header, hairline rows, no zebra, mono cells, pinned first column on mobile |
-| `DataGrid` | Console grade. See `§12` |
-| `Modal` · `Sheet` · `Drawer` | Focus trapped, `Esc` closes, focus returns |
-| `Accordion` · `Collapsible` | Headings are buttons, height via `grid-template-rows` |
-| `Breadcrumb` | Truncating, final crumb is text |
-| `Toolbar` | Sticky filter and action bar |
-| `SplitPane` | Audit detail, diff views |
-| `EmptyState` | Icon, one-line explanation, one action |
-| `Section` | Enforces vertical rhythm |
+| Component                                                   | Notes                                                                                                               |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `Panel`                                                     | 1px rule, `--r-md`, no shadow. Header, body, footer slots                                                           |
+| `TitleBlock`                                                | The drafting-sheet header: label, value, revision. Used on the console header, the audit stamp, the credential card |
+| `AppShell` · `Sidebar` · `NavRail` · `NavItem` · `NavGroup` | Chrome for both applications                                                                                        |
+| `PageHeader`                                                | Title, description, actions, breadcrumb slot                                                                        |
+| `Tabs`                                                      | **Route-based, never state-based.** Bookmarkability is non-negotiable                                               |
+| `Table`                                                     | Sticky header, hairline rows, no zebra, mono cells, pinned first column on mobile                                   |
+| `DataGrid`                                                  | Console grade. See `§12`                                                                                            |
+| `Modal` · `Sheet` · `Drawer`                                | Focus trapped, `Esc` closes, focus returns                                                                          |
+| `Accordion` · `Collapsible`                                 | Headings are buttons, height via `grid-template-rows`                                                               |
+| `Breadcrumb`                                                | Truncating, final crumb is text                                                                                     |
+| `Toolbar`                                                   | Sticky filter and action bar                                                                                        |
+| `SplitPane`                                                 | Audit detail, diff views                                                                                            |
+| `EmptyState`                                                | Icon, one-line explanation, one action                                                                              |
+| `Section`                                                   | Enforces vertical rhythm                                                                                            |
 
 ### Tier 3 · Feedback and status
 
-| Component | Notes |
-|---|---|
-| `Badge` | The status taxonomy in `§14`. One component, every state |
-| `Chip` | Filter chips, removable |
-| `InlineMessage` | info, success, attention, failure. Icon plus text always |
-| `Banner` | Page-level, dismissible or persistent |
-| `Toast` | Bottom-right, 5s, pausable, max 3 stacked |
-| `ConfirmDialog` | Title, one-sentence consequence, cancel then confirm. Confirm never default-focused |
-| `DestructiveConfirm` | Type-to-confirm. Reserved for suspension, hard delete and credential revocation |
-| `ProgressBar` · `ProgressRing` | Determinate and indeterminate |
-| `LimitBar` | **Usage against an entitlement.** Filled portion, hatched remainder, ochre at 80%, oxide at 100%. See `§13` |
-| `Stat` | Metric with label, value in `--t-data-lg`, optional delta and sparkline |
-| `StatusDot` | Service health. Verdigris, ochre, oxide, graphite for unknown |
-| `Timeline` | Audit trail, version history |
-| `DiffView` | Before and after for AI rules and settings changes. Line-level, mono |
-| `Kbd` | Keyboard hints |
-| `Avatar` · `AvatarGroup` | Initials fallback in mono |
+| Component                      | Notes                                                                                                       |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `Badge`                        | The status taxonomy in `§14`. One component, every state                                                    |
+| `Chip`                         | Filter chips, removable                                                                                     |
+| `InlineMessage`                | info, success, attention, failure. Icon plus text always                                                    |
+| `Banner`                       | Page-level, dismissible or persistent                                                                       |
+| `Toast`                        | Bottom-right, 5s, pausable, max 3 stacked                                                                   |
+| `ConfirmDialog`                | Title, one-sentence consequence, cancel then confirm. Confirm never default-focused                         |
+| `DestructiveConfirm`           | Type-to-confirm. Reserved for suspension, hard delete and credential revocation                             |
+| `ProgressBar` · `ProgressRing` | Determinate and indeterminate                                                                               |
+| `LimitBar`                     | **Usage against an entitlement.** Filled portion, hatched remainder, ochre at 80%, oxide at 100%. See `§13` |
+| `Stat`                         | Metric with label, value in `--t-data-lg`, optional delta and sparkline                                     |
+| `StatusDot`                    | Service health. Verdigris, ochre, oxide, graphite for unknown                                               |
+| `Timeline`                     | Audit trail, version history                                                                                |
+| `DiffView`                     | Before and after for AI rules and settings changes. Line-level, mono                                        |
+| `Kbd`                          | Keyboard hints                                                                                              |
+| `Avatar` · `AvatarGroup`       | Initials fallback in mono                                                                                   |
 
 ### Tier 4 · Overlays, menus, input kit
 
@@ -456,25 +466,25 @@ Sixty-four components across eight tiers. Build tiers 1 to 3 first; they block e
 
 ### Tier 6 · Domain
 
-| Component | Notes |
-|---|---|
-| `BoundaryFrame` | `§8`. The signature |
-| `TenantSwitcher` | Searchable, plan tier and status inline, keyboard first |
-| `SupportModeIndicator` | Countdown, exit, inside the frame |
-| `RoleBadge` | owner, admin, agent, platform admin, support |
-| `PlanCard` | Tier, price, entitlements as a list, current-plan marker |
-| `EntitlementRow` | Name, limit, current usage, `LimitBar` |
-| `MathExpr` | **The only consumer of Libertinus Math.** Renders an entitlement as an inequality |
-| `CredentialCard` | Masked prefix, scopes, created, last used, rotate, revoke. Never a reveal |
+| Component              | Notes                                                                             |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| `BoundaryFrame`        | `§8`. The signature                                                               |
+| `TenantSwitcher`       | Searchable, plan tier and status inline, keyboard first                           |
+| `SupportModeIndicator` | Countdown, exit, inside the frame                                                 |
+| `RoleBadge`            | owner, admin, agent, platform admin, support                                      |
+| `PlanCard`             | Tier, price, entitlements as a list, current-plan marker                          |
+| `EntitlementRow`       | Name, limit, current usage, `LimitBar`                                            |
+| `MathExpr`             | **The only consumer of Libertinus Math.** Renders an entitlement as an inequality |
+| `CredentialCard`       | Masked prefix, scopes, created, last used, rotate, revoke. Never a reveal         |
 | `CredentialRevealOnce` | The single screen where a secret appears. Copy, download, confirm-seen, then gone |
-| `ScopeSelector` | Checkbox tree of scopes with plain-language descriptions |
-| `AiRulesEditor` | Textarea with version history, locked-field indicators, publish action |
-| `LockedFieldNotice` | Where master rules are non-overridable, per `01 D-08` |
-| `InvitationRow` | Email, role, sent, expires, resend, revoke |
-| `AuditRow` | Actor, action, entity, timestamp, expandable before-and-after |
-| `IsolationTestResult` | Pass and fail per table. Used at M1 demo and on the health page |
-| `ServiceStatusRow` | Service, status dot, latency, last checked |
-| `PlaceholderSurface` | The Inbox and Billing surfaces from `02 §5` |
+| `ScopeSelector`        | Checkbox tree of scopes with plain-language descriptions                          |
+| `AiRulesEditor`        | Textarea with version history, locked-field indicators, publish action            |
+| `LockedFieldNotice`    | Where master rules are non-overridable, per `01 D-08`                             |
+| `InvitationRow`        | Email, role, sent, expires, resend, revoke                                        |
+| `AuditRow`             | Actor, action, entity, timestamp, expandable before-and-after                     |
+| `IsolationTestResult`  | Pass and fail per table. Used at M1 demo and on the health page                   |
+| `ServiceStatusRow`     | Service, status dot, latency, last checked                                        |
+| `PlaceholderSurface`   | The Inbox and Billing surfaces from `02 §5`                                       |
 
 ### Tier 7 · Charts
 
@@ -561,55 +571,55 @@ One component, one language, every state mapped. A state not on this table does 
 
 Default treatment: 1px rule, `--sheet-raised` fill, `--graphite-700` text, `--t-label`, `--r-sm`, 20px tall, 8px padding, glyph plus text always.
 
-| Domain | State | Hue |
-|---|---|---|
-| Tenant | Active | Verdigris |
-| Tenant | Provisioning | Slate |
-| Tenant | Trial | Copper |
-| Tenant | Past due | Ochre |
-| Tenant | Suspended | Oxide, and the row takes a hatch fill |
-| Tenant | Deleted | Graphite, muted |
-| Subscription | Active | Verdigris |
-| Subscription | Trialing | Slate |
-| Subscription | Past due | Ochre |
-| Subscription | Cancelled, expired | Graphite |
-| Entitlement | Within limit | No badge. Absence is the signal |
-| Entitlement | Above 80% | Ochre |
-| Entitlement | At or over limit | Oxide |
-| Member | Active | No badge |
-| Member | Invited, pending | Slate |
-| Member | Invitation expired | Ochre |
-| Member | Suspended | Oxide |
-| Role | owner, admin, agent | Graphite. Role is not a state |
-| Role | Support mode | **Copper.** The only role rendered in the brand hue |
-| Credential | Active | Verdigris |
-| Credential | Never used | Slate |
-| Credential | Unused 90 days | Ochre |
-| Credential | Revoked | Oxide |
-| AI rules | Published | Verdigris |
-| AI rules | Draft | Slate |
-| AI rules | Field locked by platform | Copper, with `IconLock` |
-| Service | Operational | Verdigris |
-| Service | Degraded | Ochre |
-| Service | Down | Oxide |
-| Service | Unknown | Graphite |
-| Audit | Platform action | Slate |
-| Audit | Support-mode action | **Copper** |
-| Audit | Destructive action | Oxide |
-| Environment | Staging | Slate, in the boundary frame |
+| Domain       | State                    | Hue                                                 |
+| ------------ | ------------------------ | --------------------------------------------------- |
+| Tenant       | Active                   | Verdigris                                           |
+| Tenant       | Provisioning             | Slate                                               |
+| Tenant       | Trial                    | Copper                                              |
+| Tenant       | Past due                 | Ochre                                               |
+| Tenant       | Suspended                | Oxide, and the row takes a hatch fill               |
+| Tenant       | Deleted                  | Graphite, muted                                     |
+| Subscription | Active                   | Verdigris                                           |
+| Subscription | Trialing                 | Slate                                               |
+| Subscription | Past due                 | Ochre                                               |
+| Subscription | Cancelled, expired       | Graphite                                            |
+| Entitlement  | Within limit             | No badge. Absence is the signal                     |
+| Entitlement  | Above 80%                | Ochre                                               |
+| Entitlement  | At or over limit         | Oxide                                               |
+| Member       | Active                   | No badge                                            |
+| Member       | Invited, pending         | Slate                                               |
+| Member       | Invitation expired       | Ochre                                               |
+| Member       | Suspended                | Oxide                                               |
+| Role         | owner, admin, agent      | Graphite. Role is not a state                       |
+| Role         | Support mode             | **Copper.** The only role rendered in the brand hue |
+| Credential   | Active                   | Verdigris                                           |
+| Credential   | Never used               | Slate                                               |
+| Credential   | Unused 90 days           | Ochre                                               |
+| Credential   | Revoked                  | Oxide                                               |
+| AI rules     | Published                | Verdigris                                           |
+| AI rules     | Draft                    | Slate                                               |
+| AI rules     | Field locked by platform | Copper, with `IconLock`                             |
+| Service      | Operational              | Verdigris                                           |
+| Service      | Degraded                 | Ochre                                               |
+| Service      | Down                     | Oxide                                               |
+| Service      | Unknown                  | Graphite                                            |
+| Audit        | Platform action          | Slate                                               |
+| Audit        | Support-mode action      | **Copper**                                          |
+| Audit        | Destructive action       | Oxide                                               |
+| Environment  | Staging                  | Slate, in the boundary frame                        |
 
 ---
 
 ## 15. Loading
 
-| Wait | Technique |
-|---|---|
-| Under 200ms | Nothing |
-| 200ms to 1s, known shape | Skeleton matching the real structure |
-| 200ms to 1s, no shape | `InlineLoader` with a label |
-| Inside a button | Button loading state, label stays, spinner replaces the icon |
-| Over 1s, measurable | `ProgressBar` |
-| User-initiated mutation | Optimistic update, visible rollback on failure |
+| Wait                     | Technique                                                    |
+| ------------------------ | ------------------------------------------------------------ |
+| Under 200ms              | Nothing                                                      |
+| 200ms to 1s, known shape | Skeleton matching the real structure                         |
+| 200ms to 1s, no shape    | `InlineLoader` with a label                                  |
+| Inside a button          | Button loading state, label stays, spinner replaces the icon |
+| Over 1s, measurable      | `ProgressBar`                                                |
+| User-initiated mutation  | Optimistic update, visible rollback on failure               |
 
 Skeleton rules: mirror the real component's structure, vary text widths 60% to 95%, **opacity pulse between 0.55 and 1 over 1400ms with no shimmer sweep**, static at 0.7 under reduced motion, never nested, never more than one screenful, identical dimensions to the real thing, `aria-busy` on the container.
 
@@ -621,19 +631,19 @@ One Suspense boundary per independently loading region. On the console overview,
 
 In a product whose main surface does not exist yet, these are most of what a user sees. They are designed surfaces.
 
-| Surface | Treatment |
-|---|---|
-| New tenant, nothing configured | The setup checklist from `02 §4`, which is the real first screen |
-| No team members yet | One line, one action, no illustration |
-| No API credentials | Explains what a credential is for in one sentence, then the action |
-| No audit entries | Explains that entries appear as actions are taken. Never "nothing here" |
-| Inbox placeholder | `PlaceholderSurface`: what it will do, when, one notify action. `10 §7` |
-| Billing placeholder | Current plan read-only, how payment works for now, contact route |
-| Entitlement exceeded | The limit, the current usage, the upgrade path. Never a generic denial |
-| Suspended tenant | Reason if provided, contact route. Never a login loop |
-| No membership | Explains the account is not attached to a workspace. Never a bare 403 |
-| Search no results | Echo the query, offer to clear filters |
-| Error boundary | What failed, a reset action, a reference code mapping to the request ID |
+| Surface                        | Treatment                                                               |
+| ------------------------------ | ----------------------------------------------------------------------- |
+| New tenant, nothing configured | The setup checklist from `02 §4`, which is the real first screen        |
+| No team members yet            | One line, one action, no illustration                                   |
+| No API credentials             | Explains what a credential is for in one sentence, then the action      |
+| No audit entries               | Explains that entries appear as actions are taken. Never "nothing here" |
+| Inbox placeholder              | `PlaceholderSurface`: what it will do, when, one notify action. `10 §7` |
+| Billing placeholder            | Current plan read-only, how payment works for now, contact route        |
+| Entitlement exceeded           | The limit, the current usage, the upgrade path. Never a generic denial  |
+| Suspended tenant               | Reason if provided, contact route. Never a login loop                   |
+| No membership                  | Explains the account is not attached to a workspace. Never a bare 403   |
+| Search no results              | Echo the query, offer to clear filters                                  |
+| Error boundary                 | What failed, a reset action, a reference code mapping to the request ID |
 
 Error copy rules: name what happened, name the fix, never apologise for the system, never blame the user, always preserve their work.
 
@@ -662,7 +672,7 @@ Ink only, no theme, `color-scheme: light` forced. Navigation and controls hidden
 Tailwind v4, CSS-first. Tokens declared once in `app/tokens.css`, exposed through `@theme`.
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-sheet: var(--sheet);
@@ -676,9 +686,9 @@ Tailwind v4, CSS-first. Tokens declared once in `app/tokens.css`, exposed throug
   --color-slate-500: var(--slate-500);
   --color-rule: var(--rule);
 
-  --font-serif: "Libertinus Serif", Georgia, serif;
-  --font-sans: "Libertinus Sans", system-ui, sans-serif;
-  --font-mono: "Fira Code", "Libertinus Mono", ui-monospace, monospace;
+  --font-serif: 'Libertinus Serif', Georgia, serif;
+  --font-sans: 'Libertinus Sans', system-ui, sans-serif;
+  --font-mono: 'Fira Code', 'Libertinus Mono', ui-monospace, monospace;
 
   --radius-sm: 2px;
   --radius-md: 3px;
@@ -694,30 +704,30 @@ Theme resolved server side from a cookie so there is no flash. Toggle offers lig
 
 Do not ship these. They are the tells that make an interface read as generated rather than designed.
 
-| Avoid | Instead |
-|---|---|
-| Gradient headers or hero backgrounds | Flat surfaces, typographic contrast |
-| Glassmorphism, blurred panels | Hairline rules and the surface ramp |
-| Purple-to-blue SaaS gradients | Copper on vellum |
-| Drop shadows on cards | 1px rule |
-| Rounded corners above 6px | `--r-md` |
-| Bold weights for emphasis | Family switch, colour, size, case |
-| Emoji as icons or in copy | Tabler, always |
-| A statistics band of large numbers with tiny labels on the marketing page | One honest sentence |
-| Counting-up number animations | Cross-fade |
-| Skeleton shimmer sweeps | Opacity pulse |
-| Toast for every action | Toast for asynchronous outcomes only |
-| Infinite scroll in a console | Cursor pagination |
-| A greyed-out mock inbox behind a "coming soon" overlay | The designed placeholder in `02 §5` |
-| Coloured backgrounds on whole panels to signal state | Badge plus left rule |
-| "Powered by AI" badges | Say what it does |
-| Dismissible support-mode banner | The boundary frame |
+| Avoid                                                                     | Instead                              |
+| ------------------------------------------------------------------------- | ------------------------------------ |
+| Gradient headers or hero backgrounds                                      | Flat surfaces, typographic contrast  |
+| Glassmorphism, blurred panels                                             | Hairline rules and the surface ramp  |
+| Purple-to-blue SaaS gradients                                             | Copper on vellum                     |
+| Drop shadows on cards                                                     | 1px rule                             |
+| Rounded corners above 6px                                                 | `--r-md`                             |
+| Bold weights for emphasis                                                 | Family switch, colour, size, case    |
+| Emoji as icons or in copy                                                 | Tabler, always                       |
+| A statistics band of large numbers with tiny labels on the marketing page | One honest sentence                  |
+| Counting-up number animations                                             | Cross-fade                           |
+| Skeleton shimmer sweeps                                                   | Opacity pulse                        |
+| Toast for every action                                                    | Toast for asynchronous outcomes only |
+| Infinite scroll in a console                                              | Cursor pagination                    |
+| A greyed-out mock inbox behind a "coming soon" overlay                    | The designed placeholder in `02 §5`  |
+| Coloured backgrounds on whole panels to signal state                      | Badge plus left rule                 |
+| "Powered by AI" badges                                                    | Say what it does                     |
+| Dismissible support-mode banner                                           | The boundary frame                   |
 
 ---
 
 ## 21. Handoff artefacts
 
-Claude Design produces, in order, each in light and dark:
+Design produces, in order, each in light and dark:
 
 1. Token sheet with contrast annotations
 2. Type specimen showing all fourteen tokens in context, demonstrating hierarchy without weight

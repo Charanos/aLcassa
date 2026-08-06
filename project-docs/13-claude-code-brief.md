@@ -1,6 +1,6 @@
-# 13 · Claude Code Brief
+# 13 · Code Brief
 
-Paste the block below into Claude Code with `/conduit-docs` in the repository. It builds the design system, the component kit and the two application shells before any domain module.
+Paste the block below into Code with `/conduit-docs` in the repository. It builds the design system, the component kit and the two application shells before any domain module.
 
 Everything between the rules is the prompt.
 

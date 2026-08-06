@@ -104,19 +104,19 @@ The fourth, plan tiers, is due week four and blocks M3 only.
 
 Verbatim from the brief, with what proves it.
 
-| # | Condition | Proof |
-|---|---|---|
-| 1 | Every tenant-scoped table has an RLS policy, and the isolation suite covers each with a cross-tenant read and write attempt that fails as expected | The generated suite, `06 §4`. 10 cases per table, in CI |
-| 2 | A new tenant is provisioned end to end, invitation to first login, in under two minutes with no manual database work | Playwright test with a timer |
-| 3 | Every write action produces an audit entry with actor, tenant, action, entity, before and after, IP and request ID | Audit wrapper test per module, plus a schema check that no domain write path bypasses it |
-| 4 | No API credential is readable in plaintext through any application route, including as the user who created it | Recursive key scan across every response. `07 §12` |
-| 5 | p95 under 400ms on tenant dashboard and settings routes at 50 concurrent sessions | k6 load pass at M6, reported with the number |
-| 6 | A developer with no prior exposure clones and runs it locally in under 30 minutes, README alone | A real person, timed. `12 §5` |
-| 7 | Every endpoint in the OpenAPI specification matches the implementation | Contract tests in CI |
-| 8 | An AI rules change is visible through the API within 5 seconds, measured | Automated propagation test, result quoted at M4a |
-| 9 | With the cache switched off entirely, every correctness property holds | The `CACHE_DISABLED` CI job. `08 §6` |
-| 10 | A credential lacking a required scope is rejected before the handler, tested per scope | Scope matrix test |
-| 11 | Both seam tables pass the same isolation suite as every other table | Included in the generated suite |
+| #   | Condition                                                                                                                                          | Proof                                                                                    |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 1   | Every tenant-scoped table has an RLS policy, and the isolation suite covers each with a cross-tenant read and write attempt that fails as expected | The generated suite, `06 §4`. 10 cases per table, in CI                                  |
+| 2   | A new tenant is provisioned end to end, invitation to first login, in under two minutes with no manual database work                               | Playwright test with a timer                                                             |
+| 3   | Every write action produces an audit entry with actor, tenant, action, entity, before and after, IP and request ID                                 | Audit wrapper test per module, plus a schema check that no domain write path bypasses it |
+| 4   | No API credential is readable in plaintext through any application route, including as the user who created it                                     | Recursive key scan across every response. `07 §12`                                       |
+| 5   | p95 under 400ms on tenant dashboard and settings routes at 50 concurrent sessions                                                                  | k6 load pass at M6, reported with the number                                             |
+| 6   | A developer with no prior exposure clones and runs it locally in under 30 minutes, README alone                                                    | A real person, timed. `12 §5`                                                            |
+| 7   | Every endpoint in the OpenAPI specification matches the implementation                                                                             | Contract tests in CI                                                                     |
+| 8   | An AI rules change is visible through the API within 5 seconds, measured                                                                           | Automated propagation test, result quoted at M4a                                         |
+| 9   | With the cache switched off entirely, every correctness property holds                                                                             | The `CACHE_DISABLED` CI job. `08 §6`                                                     |
+| 10  | A credential lacking a required scope is rejected before the handler, tested per scope                                                             | Scope matrix test                                                                        |
+| 11  | Both seam tables pass the same isolation suite as every other table                                                                                | Included in the generated suite                                                          |
 
 Conditions 6 and 8 are the two that turn a promise into a measurement, and both are reported honestly whether or not the number flatters us.
 
@@ -124,36 +124,36 @@ Conditions 6 and 8 are the two that turn a promise into a measurement, and both 
 
 ## 5. Testing strategy
 
-| Layer | Coverage |
-|---|---|
-| Unit | Entitlement resolution, rules compilation and precedence, credential hashing and verification, role checks, ETag composition. Pure, near-total |
-| **Isolation** | **The generated suite. 10 cases per tenant-scoped table. Blocks merge with no override** |
-| Integration | Every service against a branch database. Transactions, concurrency, the invariants in `05 §10` |
-| Contract | Every endpoint against the OpenAPI specification. Plus the three named tests in `07 §12` |
-| End to end | Playwright: provisioning, invitation acceptance, credential reveal-once, support mode entry and exit, limit enforcement through both doors |
-| Cache-disabled | The full suite with `CACHE_DISABLED=true` |
-| Accessibility | axe on every route, plus a manual keyboard pass per milestone |
-| Load | k6 at M6 against the 400ms and 50-session figures |
-| Log redaction | Seeded customer record values scanned for in generated log output |
+| Layer          | Coverage                                                                                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit           | Entitlement resolution, rules compilation and precedence, credential hashing and verification, role checks, ETag composition. Pure, near-total |
+| **Isolation**  | **The generated suite. 10 cases per tenant-scoped table. Blocks merge with no override**                                                       |
+| Integration    | Every service against a branch database. Transactions, concurrency, the invariants in `05 §10`                                                 |
+| Contract       | Every endpoint against the OpenAPI specification. Plus the three named tests in `07 §12`                                                       |
+| End to end     | Playwright: provisioning, invitation acceptance, credential reveal-once, support mode entry and exit, limit enforcement through both doors     |
+| Cache-disabled | The full suite with `CACHE_DISABLED=true`                                                                                                      |
+| Accessibility  | axe on every route, plus a manual keyboard pass per milestone                                                                                  |
+| Load           | k6 at M6 against the 400ms and 50-session figures                                                                                              |
+| Log redaction  | Seeded customer record values scanned for in generated log output                                                                              |
 
 ---
 
 ## 6. Agent operating guide
 
-From here, the contract for Claude Code and Claude Design.
+From here, the contract for Code and Design.
 
 ### Read before writing
 
-| Task | Read first |
-|---|---|
-| Any UI | `03` entirely, then `10` for strings |
-| Any route | `02 §3` to `§7` |
-| Any database work | `05`, including the invariants |
-| Any endpoint | `07 §1` and `§2` |
-| **Anything touching tenant data** | **`06` entirely. No exceptions** |
-| Entitlements or plans | `08 §2` and `§3` |
-| The console or support mode | `09` |
-| Any copy | `10` |
+| Task                              | Read first                           |
+| --------------------------------- | ------------------------------------ |
+| Any UI                            | `03` entirely, then `10` for strings |
+| Any route                         | `02 §3` to `§7`                      |
+| Any database work                 | `05`, including the invariants       |
+| Any endpoint                      | `07 §1` and `§2`                     |
+| **Anything touching tenant data** | **`06` entirely. No exceptions**     |
+| Entitlements or plans             | `08 §2` and `§3`                     |
+| The console or support mode       | `09`                                 |
+| Any copy                          | `10`                                 |
 
 **Do not infer a token, a route, a table, a policy or a string. If it is not in these documents, ask.**
 
@@ -225,7 +225,7 @@ Types strict and complete. Policies written and passing the check script. Isolat
 
 ---
 
-## 7. Guide for Claude Design
+## 7. Guide for Design
 
 **Brief.** A technical, warm, dense B2B platform interface. A drafting document rather than a dashboard. Copper on vellum, one weight of type, tinted surfaces instead of shadows. Read `03` in full before opening a canvas.
 

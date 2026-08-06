@@ -29,21 +29,21 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 
 ## Reading order
 
-| Doc | Title | Read it when |
-|---|---|---|
-| `01` | Brief and Decision Log | Always first. What was agreed, and the twelve decisions the rest rests on |
-| `02` | Information Architecture | Adding a route or navigation. Two applications, one codebase |
-| `03` | Design System · Conduit | Any visual work. Palette, the one-weight type system, components, the boundary frame |
-| `04` | System Architecture | Structural decisions. Eleven ADRs, sequences, caching, observability |
-| `05` | Data Model | Any database work. Full schema, every RLS policy, invariants |
-| `06` | Tenancy and Isolation | **Anything touching tenant data. No exceptions.** The safety core of this project |
-| `07` | API Contract | Any endpoint. Both doors: session and service |
-| `08` | Subscriptions, Entitlements and AI Rules | Plans, limits, the singleton, the read path, the cache |
-| `09` | Platform Console and Support Mode | The owner's workspace, the organization switcher, the audit obligation |
-| `10` | Copy Deck | Every string. Do not write new copy without checking here |
-| `11` | Build Plan and Agent Guide | Milestone mapping, gates, and the operating contract for coding agents |
-| `12` | Handover Package | Requirement 7, treated as a deliverable with its own acceptance test |
-| `13` | Claude Code Brief | Paste-ready prompt, plus follow-up patterns |
+| Doc  | Title                                    | Read it when                                                                         |
+| ---- | ---------------------------------------- | ------------------------------------------------------------------------------------ |
+| `01` | Brief and Decision Log                   | Always first. What was agreed, and the twelve decisions the rest rests on            |
+| `02` | Information Architecture                 | Adding a route or navigation. Two applications, one codebase                         |
+| `03` | Design System · Conduit                  | Any visual work. Palette, the one-weight type system, components, the boundary frame |
+| `04` | System Architecture                      | Structural decisions. Eleven ADRs, sequences, caching, observability                 |
+| `05` | Data Model                               | Any database work. Full schema, every RLS policy, invariants                         |
+| `06` | Tenancy and Isolation                    | **Anything touching tenant data. No exceptions.** The safety core of this project    |
+| `07` | API Contract                             | Any endpoint. Both doors: session and service                                        |
+| `08` | Subscriptions, Entitlements and AI Rules | Plans, limits, the singleton, the read path, the cache                               |
+| `09` | Platform Console and Support Mode        | The owner's workspace, the organization switcher, the audit obligation               |
+| `10` | Copy Deck                                | Every string. Do not write new copy without checking here                            |
+| `11` | Build Plan and Agent Guide               | Milestone mapping, gates, and the operating contract for coding agents               |
+| `12` | Handover Package                         | Requirement 7, treated as a deliverable with its own acceptance test                 |
+| `13` | Code Brief                               | Paste-ready prompt, plus follow-up patterns                                          |
 
 ---
 
