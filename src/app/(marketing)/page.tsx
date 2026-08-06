@@ -60,7 +60,7 @@ export default async function MarketingPage() {
 
       <main id="main" className="mx-auto px-5 pb-32 md:px-8" style={{ maxWidth: '1280px' }}>
         {/* ── Hero Section (Diagram on Left, Copy Text on Right) ─────── */}
-        <section id="overview" className="grid gap-12 pt-10 md:pt-26 lg:grid-cols-[520px_1fr] lg:items-center lg:gap-14">
+        <section id="overview" className="grid gap-12 pt-6 md:pt-14 lg:grid-cols-[520px_1fr] lg:items-center lg:gap-14">
           {/* Left Column: Living Node Network Diagram */}
           <div className="hidden justify-self-start lg:block">
             <HeroDiagram />

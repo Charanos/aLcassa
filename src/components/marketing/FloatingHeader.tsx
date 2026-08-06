@@ -113,11 +113,11 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
           </nav>
 
           {/* Right Section - Theme Toggle and Hamburger */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <ThemeToggle theme={theme} compact />
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden flex items-center justify-center size-9 rounded-chip border text-[var(--ink-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+              className="flex items-center justify-center size-9 rounded-chip border text-[var(--ink-primary)] hover:bg-[var(--surface-hover)] transition-colors"
               style={{ borderColor: 'var(--rule-soft)' }}
               aria-label="Toggle menu"
             >
@@ -127,19 +127,19 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
         </div>
       </header>
 
-      {/* Spacer for fixed header */}
+      {/* Spacer for fixed header - must be outside to work with fixed positioning */}
       <div className="h-16" />
 
-      {/* Mobile Menu Dropdown */}
+      {/* Menu Dropdown - Desktop: pinned right, Mobile: full width */}
       {menuOpen && (
         <div
-          className="fixed top-16 left-0 right-0 z-30 border-b md:hidden"
+          className="fixed top-16 z-30 border-b w-full md:w-auto md:right-8 md:left-auto"
           style={{
             background: 'var(--surface-raised)',
             borderColor: 'var(--rule-soft)',
           }}
         >
-          <nav className="mx-auto max-w-[1280px] flex flex-col px-5 py-4 gap-2">
+          <nav className="flex flex-col px-5 py-4 gap-2 md:min-w-48">
             {/* Nav Items */}
             {NAV_ITEMS.map((item) => {
               const isActive = activeTab === item.id;
@@ -151,7 +151,7 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
                     scrollToSection(e, item.href);
                     setMenuOpen(false);
                   }}
-                  className={`t-compact px-3 py-2 rounded-chip transition-all duration-150 ${
+                  className={`t-compact px-3 py-2 rounded-chip transition-all duration-150 whitespace-nowrap ${
                     isActive
                       ? 'bg-[var(--copper-solid)] text-[var(--ink-inverse)]'
                       : 'text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)]'
@@ -163,11 +163,11 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
             })}
 
             {/* CTAs in menu */}
-            <div className="flex flex-col gap-2 mt-2 pt-2 border-t" style={{ borderColor: 'var(--rule-soft)' }}>
-              <Button asChild variant="quiet" size="md" className="w-full justify-center">
+            <div className="flex flex-col gap-2 mt-2 pt-2 border-t md:flex-row" style={{ borderColor: 'var(--rule-soft)' }}>
+              <Button asChild variant="quiet" size="md" className="md:flex-1 justify-center">
                 <Link href="/sign-in">Sign in</Link>
               </Button>
-              <Button asChild variant="primary" size="md" className="w-full justify-center">
+              <Button asChild variant="primary" size="md" className="md:flex-1 justify-center">
                 <Link href="/sign-up">Request access</Link>
               </Button>
             </div>
