@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { IconMenu2, IconX } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 import { Button } from '@/components/primitives/Button';
 import { ThemeToggle } from '@/components/primitives/ThemeToggle';
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
 export function FloatingHeader({ theme }: FloatingHeaderProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,69 +61,119 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
   };
 
   return (
-    <header
-      className={`sticky top-0 z-40 w-full border-b transition-colors duration-200 ${
-        scrolled ? 'backdrop-blur-md' : ''
-      }`}
-      style={{
-        background: scrolled ? 'var(--surface-raised)' : 'var(--surface-page)',
-        borderColor: 'var(--rule-soft)',
-      }}
-    >
-      <div
-        className="mx-auto flex h-16 items-center justify-between gap-4 px-5 md:px-8"
-        style={{ maxWidth: '1280px' }}
+    <>
+      <header
+        className="fixed top-0 left-0 right-0 z-40 w-full border-b transition-colors duration-200"
+        style={{
+          background: scrolled ? 'var(--surface-raised)' : 'var(--surface-page)',
+          borderColor: 'var(--rule-soft)',
+        }}
       >
-        {/* Brand Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 rounded-chip focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)]"
+        <div
+          className="mx-auto flex h-16 items-center justify-between gap-4 px-5 md:px-8"
+          style={{ maxWidth: '1280px' }}
         >
-          <Mark size={20} />
-          <div className="flex flex-col">
-            <span className="t-chip text-[var(--ink-primary)]">Conduit</span>
-          </div>
-        </Link>
+          {/* Brand Logo */}
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 rounded-chip focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)]"
+          >
+            <Mark size={20} />
+            <div className="flex flex-col">
+              <span className="t-chip text-[var(--ink-primary)]">Conduit</span>
+            </div>
+          </Link>
 
-        {/* Center Pill Navigation Bar */}
-        <nav
-          aria-label="Page navigation"
-          className="hidden md:flex items-center gap-1 rounded-full border p-1"
+          {/* Center Pill Navigation Bar - Hidden on mobile */}
+          <nav
+            aria-label="Page navigation"
+            className="hidden md:flex items-center gap-1 rounded-full border p-1"
+            style={{
+              background: 'var(--surface-sunken)',
+              borderColor: 'var(--rule-soft)',
+            }}
+          >
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={(e) => scrollToSection(e, item.href)}
+                  className={`t-compact px-3.5 py-1 rounded-full transition-all duration-150 ${
+                    isActive
+                      ? 'bg-[var(--copper-solid)] text-[var(--ink-inverse)]'
+                      : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
+          </nav>
+
+          {/* Right Section - Theme Toggle and Hamburger */}
+          <div className="flex items-center gap-3">
+            <ThemeToggle theme={theme} compact />
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden flex items-center justify-center size-9 rounded-chip border text-[var(--ink-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+              style={{ borderColor: 'var(--rule-soft)' }}
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <IconX size={20} /> : <IconMenu2 size={20} />}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Spacer for fixed header */}
+      <div className="h-16" />
+
+      {/* Mobile Menu Dropdown */}
+      {menuOpen && (
+        <div
+          className="fixed top-16 left-0 right-0 z-30 border-b md:hidden"
           style={{
-            background: 'var(--surface-sunken)',
+            background: 'var(--surface-raised)',
             borderColor: 'var(--rule-soft)',
           }}
         >
-          {NAV_ITEMS.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <a
-                key={item.id}
-                href={item.href}
-                onClick={(e) => scrollToSection(e, item.href)}
-                className={`t-compact px-3.5 py-1 rounded-full transition-all duration-150 ${
-                  isActive
-                    ? 'bg-[var(--copper-solid)] text-[var(--ink-inverse)]'
-                    : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]'
-                }`}
-              >
-                {item.label}
-              </a>
-            );
-          })}
-        </nav>
+          <nav className="mx-auto max-w-[1280px] flex flex-col px-5 py-4 gap-2">
+            {/* Nav Items */}
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={(e) => {
+                    scrollToSection(e, item.href);
+                    setMenuOpen(false);
+                  }}
+                  className={`t-compact px-3 py-2 rounded-chip transition-all duration-150 ${
+                    isActive
+                      ? 'bg-[var(--copper-solid)] text-[var(--ink-inverse)]'
+                      : 'text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)]'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-2">
-          <ThemeToggle theme={theme} compact />
-          <Button asChild variant="quiet" size="md">
-            <Link href="/sign-in">Sign in</Link>
-          </Button>
-          <Button asChild variant="primary" size="md">
-            <Link href="/sign-up">Request access →</Link>
-          </Button>
+            {/* CTAs in menu */}
+            <div className="flex flex-col gap-2 mt-2 pt-2 border-t" style={{ borderColor: 'var(--rule-soft)' }}>
+              <Button asChild variant="quiet" size="md" className="w-full justify-center">
+                <Link href="/sign-in">Sign in</Link>
+              </Button>
+              <Button asChild variant="primary" size="md" className="w-full justify-center">
+                <Link href="/sign-up">Request access</Link>
+              </Button>
+            </div>
+          </nav>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   );
 }
