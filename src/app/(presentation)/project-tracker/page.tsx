@@ -171,7 +171,7 @@ export default async function ProjectTrackerPage() {
       <CommandPalette commands={commands} />
       <TrackerHeader theme={theme} sections={SECTIONS} />
 
-      <main id="main" className="mx-auto px-5 pb-28 md:px-8" style={{ maxWidth: '1280px' }}>
+      <main id="main" className="mx-auto px-5 pb-28 md:px-8 py-12" style={{ maxWidth: '1280px' }}>
         <TrackerDashboardHero
           client={ENGAGEMENT.client}
           projectLead={ENGAGEMENT.projectLead}
