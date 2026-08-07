@@ -149,18 +149,17 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
       {/* Spacer so page content starts cleanly beneath the header */}
       <div className="h-16" />
 
-      {/* Menu Dropdown - Desktop: pinned right, Mobile: full width */}
+      {/* Mobile / Pinned Dropdown Navigation Menu */}
       {menuOpen && (
         <div
-          className="fixed top-16 z-30 w-full md:w-auto md:right-8 md:left-auto md:mt-2 md:rounded-panel shadow-[var(--shadow-overlay)] animate-in fade-in duration-200"
+          className="fixed top-18 right-4 left-4 sm:left-auto sm:w-80 z-50 rounded-panel border shadow-[var(--shadow-overlay)] animate-in fade-in slide-in-from-top-2 duration-200"
           style={{
             background: 'var(--surface-raised)',
-            borderColor: 'var(--rule-soft)',
-            borderWidth: '1px',
+            borderColor: 'var(--rule-strong)',
           }}
         >
-          <nav className="flex flex-col px-5 py-4 gap-2 md:min-w-48">
-            {/* Nav Items */}
+          <nav className="flex flex-col p-4 gap-1.5">
+            {/* Nav Links */}
             {NAV_ITEMS.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -171,7 +170,7 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
                     scrollToSection(e, item.href);
                     setMenuOpen(false);
                   }}
-                  className={`t-compact px-4 py-2.5 rounded-chip transition-colors duration-200 whitespace-nowrap ${
+                  className={`t-compact px-4 py-2.5 rounded-chip transition-colors duration-150 whitespace-nowrap ${
                     isActive
                       ? 'bg-[var(--copper-solid)] text-[var(--ink-inverse)]'
                       : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-sunken)]'
@@ -182,13 +181,13 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
               );
             })}
 
-            {/* CTAs in menu */}
-            <div className="flex flex-col gap-2 mt-2 pt-2 border-t md:flex-row" style={{ borderColor: 'var(--rule-soft)' }}>
-              <Button asChild variant="quiet" size="md" className="md:flex-1 justify-center">
-                <Link href="/sign-in">Sign in</Link>
+            {/* CTAs in 2-Column Responsive Grid */}
+            <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t" style={{ borderColor: 'var(--rule-soft)' }}>
+              <Button asChild variant="secondary" size="md" className="w-full justify-center whitespace-nowrap">
+                <Link href="/sign-in" onClick={() => setMenuOpen(false)}>Sign in</Link>
               </Button>
-              <Button asChild variant="primary" size="md" className="md:flex-1 justify-center">
-                <Link href="/sign-up">Request access</Link>
+              <Button asChild variant="primary" size="md" className="w-full justify-center whitespace-nowrap">
+                <Link href="/sign-up" onClick={() => setMenuOpen(false)}>Request access</Link>
               </Button>
             </div>
           </nav>
