@@ -413,6 +413,25 @@
   }
 }
 
+/*
+ * Hero entry animations.
+ * Subtle, elegant, additive. Used only on the marketing page.
+ */
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hero-reveal {
+  animation: slide-up-fade 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 /* ═══ 3 · UTILITIES ════════════════════════════════════════════════════════ */
 
 @layer utilities {
