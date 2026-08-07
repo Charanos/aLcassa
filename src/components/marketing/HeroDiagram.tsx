@@ -46,11 +46,11 @@ import { Mark } from '@/components/brand/Mark';
  *     are laid out on the same grid as everything else now.
  */
 
-const CHANNELS: Array<{ icon: TablerIcon; label: string; y: number }> = [
-  { icon: IconBrandWhatsapp, label: 'WhatsApp', y: 8 },
-  { icon: IconBrandInstagram, label: 'Instagram', y: 90 },
-  { icon: IconBrandMessenger, label: 'Messenger', y: 172 },
-  { icon: IconMessage, label: 'Web chat', y: 254 },
+const CHANNELS: Array<{ icon: TablerIcon; label: string; y: number; tone: string }> = [
+  { icon: IconBrandWhatsapp, label: 'WhatsApp', y: 8, tone: 'verdigris' },
+  { icon: IconBrandInstagram, label: 'Instagram', y: 90, tone: 'copper' },
+  { icon: IconBrandMessenger, label: 'Messenger', y: 172, tone: 'slate' },
+  { icon: IconMessage, label: 'Web chat', y: 254, tone: 'ochre' },
 ];
 
 const WIDTH = 520;
@@ -66,7 +66,16 @@ const CORE_MID = CORE_Y + CORE_H / 2;
 
 export function HeroDiagram() {
   return (
-    <div className="relative select-none" style={{ width: WIDTH, height: HEIGHT }} aria-hidden>
+    <div 
+      className="relative select-none origin-top lg:origin-top-left scale-[0.6] min-[400px]:scale-[0.7] sm:scale-75 md:scale-90 lg:scale-100 transition-transform duration-500" 
+      style={{ 
+        width: WIDTH, 
+        height: HEIGHT, 
+        marginBottom: 'calc(-1 * (1 - clamp(0.6, 100vw / 520, 1)) * 430px)', // Pull up elements below to avoid whitespace
+        marginLeft: 'calc(-1 * (1 - clamp(0.6, 100vw / 520, 1)) * 520px / 2)', // Center correctly on small screens
+      }} 
+      aria-hidden
+    >
       <svg
         width={WIDTH}
         height={HEIGHT}
@@ -87,7 +96,7 @@ export function HeroDiagram() {
                   left to right, so direction is unambiguous. */}
               <path
                 d={d}
-                stroke="var(--copper-solid)"
+                stroke={`var(--${channel.tone}-solid)`}
                 strokeWidth={1.5}
                 fill="none"
                 strokeLinecap="round"
@@ -102,6 +111,8 @@ export function HeroDiagram() {
         {/* Where the four become one. Static: the convergence is a fact about
             the wiring, not an event that needs announcing on a loop. */}
         <circle cx={CORE_X} cy={CORE_MID} r={4} fill="var(--copper-solid)" />
+        {/* Additional decorative ring to anchor the core */}
+        <circle cx={CORE_X} cy={CORE_MID} r={12} stroke="var(--copper-rule)" strokeWidth={1} fill="none" opacity={0.5} />
       </svg>
 
       {/* ── The four channels ──────────────────────────────────────────── */}
@@ -123,7 +134,7 @@ export function HeroDiagram() {
             className="grid size-9 shrink-0 place-items-center rounded-chip border"
             style={{ background: 'var(--surface-sunken)', borderColor: 'var(--rule-soft)' }}
           >
-            <channel.icon size={18} stroke={1.5} className="text-[var(--copper-ink)]" />
+            <channel.icon size={18} stroke={1.5} style={{ color: `var(--${channel.tone}-ink)` }} />
           </span>
           <span className="min-w-0">
             <span className="t-compact block truncate text-[var(--ink-primary)]">

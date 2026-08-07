@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { IconShieldCheck, IconLock } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 import { PlatformAside, TenantAside } from './AuthAside';
 
@@ -6,40 +7,6 @@ export { PlatformAside, TenantAside };
 
 /**
  * Design sheet 08 · Access. The shell every access screen sits in.
- *
- * ⚠ THIS IS A SERVER COMPONENT AGAIN, DELIBERATELY. The animated panels in the
- * aside need state, so a `'use client'` directive had been added here, at the
- * top of the shell. That directive is contagious downward: it turned the FORM
- * column into a client component too, so every access form lost server
- * rendering as a side effect of a decorative panel beside it. The boundary now
- * lives in `AuthAside.tsx`, where the interactivity actually is.
- *
- * ⚠ THE ASIDE CANNOT AFFECT THE FORM'S LAYOUT, AND THAT IS ENFORCED HERE.
- *
- * The two columns previously shared a grid row whose height was set by
- * whichever column was taller. The aside animates: its audit stream grew from
- * two rows to five, its credential caption swapped between a one-line and a
- * two-line sentence. Each change resized the row, which stretched the form
- * column and shifted the form vertically while somebody was typing into it.
- *
- * Two independent mechanisms now prevent that, because one would be a
- * coincidence rather than a guarantee:
- *
- *   1. The aside is `sticky` at exactly `100dvh` with `align-self: start`, so
- *      it contributes a FIXED height to the row no matter what it contains.
- *      It scrolls internally if its content ever exceeds the viewport.
- *   2. The panels inside it are individually height-locked, in AuthAside.tsx.
- *
- * The form column keeps its own `min-h-dvh` and centres within itself, so its
- * geometry is a function of the form alone.
- *
- * Below `lg` the aside is not rendered at all: on a phone the form is the
- * whole job, and a decorative column would be a screenful to scroll past.
- *
- * The platform variant inverts the aside, the same structural signal the
- * console header uses in 03 §4: which door you are at is legible before you
- * have read a word. There is deliberately no navigational path between the
- * two. 02 §3.
  */
 export function AuthShell({
   eyebrow,
@@ -61,15 +28,23 @@ export function AuthShell({
   const platform = variant === 'platform';
 
   return (
-    <div className="grid min-h-dvh items-start lg:grid-cols-[1fr_minmax(480px,46%)]">
+    <div className="grid min-h-dvh items-start lg:grid-cols-[1fr_minmax(480px,46%)] relative overflow-x-hidden">
       {/* ── The form. First in the DOM so a keyboard or screen reader user
              reaches what they came for without traversing the aside. ─────── */}
       <main
         id="main"
-        className="order-1 flex min-h-dvh flex-col justify-center px-6 py-12 md:px-12 lg:px-16"
+        className="order-1 flex min-h-dvh flex-col justify-center px-6 py-12 md:px-12 lg:px-16 relative overflow-hidden"
         style={{ background: 'var(--surface-page)' }}
       >
-        <div className="mx-auto w-full" style={{ maxWidth: '420px' }}>
+        {/* Ambient Background Artwork Glow for Form Surface */}
+        <div className="pointer-events-none absolute -top-24 -left-24 size-96 rounded-full bg-[radial-gradient(ellipse_at_center,var(--copper-tint)_0%,transparent_70%)] opacity-35 blur-3xl" />
+
+        {/* Watermark Background Artwork Icon (Form Surface) */}
+        <div className="hidden sm:block absolute bottom-10 -left-16 text-[var(--copper-ink)] opacity-[0.05] dark:opacity-[0.07] pointer-events-none transform rotate-12">
+          <IconShieldCheck size={320} stroke={0.75} />
+        </div>
+
+        <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '440px' }}>
           <Link
             href="/"
             className="mb-10 inline-flex items-center gap-2.5 rounded-chip focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)] lg:hidden"
@@ -116,14 +91,13 @@ export function AuthShell({
              scrollable. Nothing it does can reach the column beside it. ──── */}
       <aside
         aria-label="About this platform"
-        className="relative order-2 hidden lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:overflow-y-auto"
+        className="relative order-2 hidden lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:overflow-y-auto overflow-hidden"
         style={{
           background: platform ? 'var(--surface-invert)' : 'var(--surface-sunken)',
           borderLeft: '1px solid var(--rule-soft)',
         }}
       >
-        {/* The drafting-sheet ground: a measured dot grid rather than a
-            gradient. Fixed to the aside, so it does not scroll with content. */}
+        {/* The drafting-sheet ground: a measured dot grid + watermark artwork icon */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
@@ -133,6 +107,13 @@ export function AuthShell({
             opacity: platform ? 0.12 : 0.4,
           }}
         />
+
+        <div className="absolute top-16 -right-16 text-[var(--copper-ink)] opacity-[0.05] dark:opacity-[0.07] pointer-events-none transform rotate-45">
+          <IconLock size={280} stroke={0.75} />
+        </div>
+
+        {/* Ambient Radial Wash for Aside */}
+        <div className="pointer-events-none absolute bottom-0 right-0 size-80 rounded-full bg-[radial-gradient(ellipse_at_center,var(--verdigris-tint)_0%,transparent_70%)] opacity-40 blur-3xl" />
 
         <div className="relative z-10 flex min-h-full flex-col justify-between gap-10 p-10 xl:p-12">
           <div>
@@ -209,7 +190,7 @@ export function AuthShell({
             >
               <span
                 aria-hidden
-                className="size-1.5 rounded-full"
+                className="size-1.5 rounded-full animate-pulse"
                 style={{ background: 'var(--verdigris-solid)' }}
               />
               Isolation active

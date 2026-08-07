@@ -22,12 +22,23 @@ const NAV_ITEMS = [
 
 export function FloatingHeader({ theme }: FloatingHeaderProps) {
   const [activeTab, setActiveTab] = useState('overview');
-  const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
+    let lastScrollY = window.scrollY;
+
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
+      const currentScrollY = window.scrollY;
+      
+      // Hide on scroll down after 80px, show on scroll up
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        setVisible(false);
+      } else {
+        setVisible(true);
+      }
+      
+      lastScrollY = currentScrollY;
 
       const sections = NAV_ITEMS.map((item) => document.getElementById(item.id));
       const scrollPosition = window.scrollY + 120;
@@ -63,9 +74,11 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-40 w-full border-b transition-colors duration-200"
+        className={`fixed top-0 left-0 right-0 z-40 w-full border-b transition-transform duration-300 ${
+          visible ? 'translate-y-0' : '-translate-y-full'
+        }`}
         style={{
-          background: scrolled ? 'var(--surface-raised)' : 'var(--surface-page)',
+          background: 'var(--surface-page)',
           borderColor: 'var(--rule-soft)',
         }}
       >
@@ -100,13 +113,19 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
                   key={item.id}
                   href={item.href}
                   onClick={(e) => scrollToSection(e, item.href)}
-                  className={`t-compact px-3.5 py-1 rounded-full transition-all duration-150 ${
+                  className={`t-compact relative px-4 py-1.5 rounded-full transition-all duration-200 ${
                     isActive
-                      ? 'bg-[var(--copper-solid)] text-[var(--ink-inverse)]'
-                      : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]'
+                      ? 'bg-[var(--copper-solid)] text-[var(--ink-inverse)] shadow-sm'
+                      : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
                   {item.label}
+                  {isActive && (
+                    <span 
+                      className="absolute inset-0 rounded-full border border-black/10 dark:border-white/10 pointer-events-none" 
+                      aria-hidden 
+                    />
+                  )}
                 </a>
               );
             })}
@@ -127,20 +146,20 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
         </div>
       </header>
 
-      {/* Spacer for fixed header - must be outside to work with fixed positioning */}
+      {/* Spacer so page content starts cleanly beneath the header */}
       <div className="h-16" />
 
-      {/* Menu Dropdown - Desktop: pinned right, Mobile: full width */}
+      {/* Mobile / Pinned Dropdown Navigation Menu */}
       {menuOpen && (
         <div
-          className="fixed top-16 z-30 border-b w-full md:w-auto md:right-8 md:left-auto"
+          className="fixed top-18 right-4 left-4 sm:left-auto sm:w-80 z-50 rounded-panel border shadow-[var(--shadow-overlay)] animate-in fade-in slide-in-from-top-2 duration-200"
           style={{
             background: 'var(--surface-raised)',
-            borderColor: 'var(--rule-soft)',
+            borderColor: 'var(--rule-strong)',
           }}
         >
-          <nav className="flex flex-col px-5 py-4 gap-2 md:min-w-48">
-            {/* Nav Items */}
+          <nav className="flex flex-col p-4 gap-1.5">
+            {/* Nav Links */}
             {NAV_ITEMS.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -151,10 +170,10 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
                     scrollToSection(e, item.href);
                     setMenuOpen(false);
                   }}
-                  className={`t-compact px-3 py-2 rounded-chip transition-all duration-150 whitespace-nowrap ${
+                  className={`t-compact px-4 py-2.5 rounded-chip transition-colors duration-150 whitespace-nowrap ${
                     isActive
                       ? 'bg-[var(--copper-solid)] text-[var(--ink-inverse)]'
-                      : 'text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)]'
+                      : 'text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-sunken)]'
                   }`}
                 >
                   {item.label}
@@ -162,13 +181,13 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
               );
             })}
 
-            {/* CTAs in menu */}
-            <div className="flex flex-col gap-2 mt-2 pt-2 border-t md:flex-row" style={{ borderColor: 'var(--rule-soft)' }}>
-              <Button asChild variant="quiet" size="md" className="md:flex-1 justify-center">
-                <Link href="/sign-in">Sign in</Link>
+            {/* CTAs in 2-Column Responsive Grid */}
+            <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t" style={{ borderColor: 'var(--rule-soft)' }}>
+              <Button asChild variant="secondary" size="md" className="w-full justify-center whitespace-nowrap">
+                <Link href="/sign-in" onClick={() => setMenuOpen(false)}>Sign in</Link>
               </Button>
-              <Button asChild variant="primary" size="md" className="md:flex-1 justify-center">
-                <Link href="/sign-up">Request access</Link>
+              <Button asChild variant="primary" size="md" className="w-full justify-center whitespace-nowrap">
+                <Link href="/sign-up" onClick={() => setMenuOpen(false)}>Request access</Link>
               </Button>
             </div>
           </nav>

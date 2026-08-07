@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { IconArrowRight } from '@tabler/icons-react';
 import { AuthShell, TenantAside } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field, PasswordField } from '@/components/primitives/Field';
@@ -22,7 +23,7 @@ export default function SignUpPage() {
           Already have a workspace?{' '}
           <Link
             href="/sign-in"
-            className="text-[var(--copper-ink)] underline decoration-[var(--copper-rule)] underline-offset-2"
+            className="text-[var(--copper-ink)] underline decoration-[var(--copper-rule)] underline-offset-2 hover:opacity-80 transition-opacity"
           >
             Sign in
           </Link>
@@ -52,24 +53,32 @@ export default function SignUpPage() {
           helper="At least 12 characters."
         />
 
-        <Button type="submit" variant="primary" size="lg" className="mt-2 w-full">
-          Create workspace
+        <Button type="submit" variant="primary" size="lg" className="mt-2 w-full gap-2">
+          <span>Create workspace</span>
+          <IconArrowRight size={16} />
         </Button>
 
-        <p className="t-caption text-[var(--ink-tertiary)]">
+        <p className="t-caption text-[var(--ink-tertiary)] mt-1">
           By creating a workspace you agree to the{' '}
-          <Link href="/legal/terms" className="text-[var(--copper-ink)] underline underline-offset-2">
+          <Link href="/legal/terms" className="text-[var(--copper-ink)] underline underline-offset-2 hover:opacity-80">
             terms of service
           </Link>{' '}
           and the{' '}
           <Link
             href="/legal/privacy"
-            className="text-[var(--copper-ink)] underline underline-offset-2"
+            className="text-[var(--copper-ink)] underline underline-offset-2 hover:opacity-80"
           >
             privacy notice
           </Link>
           .
         </p>
+
+        {/* Security Assurance Ticker */}
+        <div className="mt-4 border-t pt-4 flex flex-wrap items-center justify-between gap-2 t-micro text-[var(--ink-tertiary)]" style={{ borderColor: 'var(--rule-soft)' }}>
+          <span className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-[var(--verdigris-solid)]" /> POSTGRES RLS</span>
+          <span className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-[var(--ochre-solid)]" /> ARGON2 HASHED</span>
+          <span className="flex items-center gap-1.5"><span className="size-1 rounded-full bg-[var(--copper-solid)]" /> MULTI-TENANT RBAC</span>
+        </div>
       </form>
     </AuthShell>
   );
