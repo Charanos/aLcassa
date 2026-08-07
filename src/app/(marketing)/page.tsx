@@ -106,7 +106,7 @@ export default async function MarketingPage() {
       {/* ── Fixed Top Header Navigation (No Floating Gap) ───────────── */}
       <FloatingHeader theme={theme} />
 
-      <main id="main" className="relative z-10 mx-auto px-5 pt-20 pb-32 md:px-8" style={{ maxWidth: '1280px' }}>
+      <main id="main" className="relative z-10 mx-auto px-5 pt-6 pb-32 md:px-8" style={{ maxWidth: '1280px' }}>
         {/* ── Hero Section (Diagram on Left, Copy Text on Right) ─────── */}
         <section id="overview" className="relative grid gap-12 pt-12 md:pt-28 lg:grid-cols-[520px_1fr] lg:items-center lg:gap-14">
 
