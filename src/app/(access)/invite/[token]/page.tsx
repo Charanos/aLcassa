@@ -10,21 +10,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/**
- * 02 §3 · 10 §3.
- *
- * The token IS the credential: 32 bytes from a CSPRNG, hashed at rest, single
- * use, seven day expiry. Resolution happens through a security-definer function
- * because the acceptor has no membership yet and therefore cannot resolve a
- * tenant context. 05 §4 · the note in 02_identity.sql.
- *
- * Three refusal states, each with its own copy, because "this link does not
- * work" tells the reader nothing about what to do next:
- *
- *   expired     ask the inviter for a new one
- *   accepted    sign in instead
- *   revoked     ask the inviter whether that was a mistake
- */
 export default async function InvitePage({
   params,
   searchParams,
@@ -35,7 +20,6 @@ export default async function InvitePage({
   const { token } = await params;
   const { state } = await searchParams;
 
-  // TODO(M2): resolve the token server side and render the real names.
   const company = 'Acme Industrial';
   const inviter = 'Grace Wanjiku';
   const role = 'agent';
@@ -68,19 +52,18 @@ export default async function InvitePage({
   return (
     <AuthShell eyebrow="Invitation" title={`Join ${company}`} aside={<TenantAside />}>
       <div
-        className="mb-6 flex items-start gap-3 rounded-panel border p-4"
+        className="mb-6 flex items-start gap-3 rounded-panel border p-4 shadow-sm"
         style={{
           background: 'var(--surface-raised)',
-          borderColor: 'var(--rule-soft)',
-          boxShadow: 'var(--shadow-card)',
+          borderColor: 'var(--border-strong)',
         }}
       >
-        <IconBuilding size={18} stroke={1.5} aria-hidden className="mt-0.5 text-[var(--copper-ink)]" />
+        <IconBuilding size={18} stroke={1.5} aria-hidden className="mt-0.5 text-amber-500 dark:text-amber-400 shrink-0" />
         <div>
-          <p className="t-compact text-[var(--ink-primary)]">
+          <p className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
             {inviter} invited you to join {company} as {role}.
           </p>
-          <p className="t-caption mt-1 text-[var(--ink-tertiary)]">
+          <p className="t-caption mt-1" style={{ color: 'var(--text-secondary)' }}>
             An agent handles customer messages and has read-only access to settings.
           </p>
         </div>
@@ -98,7 +81,7 @@ export default async function InvitePage({
           helper="At least 12 characters."
         />
 
-        <Button type="submit" variant="primary" size="lg" className="mt-2 w-full">
+        <Button type="submit" variant="accent" size="lg" className="mt-2 w-full">
           Accept invitation
         </Button>
       </form>

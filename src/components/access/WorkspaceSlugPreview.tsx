@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Field } from '@/components/primitives/Field';
@@ -26,10 +26,16 @@ export function WorkspaceSlugPreview() {
       />
 
       {/* Live Slug Preview */}
-      <div className="flex items-center justify-between rounded-chip border px-3 py-2 bg-[var(--surface-sunken)] border-[var(--rule-soft)] t-caption">
-        <span className="text-[var(--ink-tertiary)]">Workspace URL:</span>
-        <span className="t-data text-[var(--copper-ink)]">
-          {slug}.conduit.app
+      <div
+        className="flex items-center justify-between rounded-chip border px-3 py-2 t-caption"
+        style={{
+          background: 'var(--surface-sunken)',
+          borderColor: 'var(--border-subtle)',
+        }}
+      >
+        <span style={{ color: 'var(--text-tertiary)' }}>Workspace URL:</span>
+        <span className="t-data font-mono font-medium" style={{ color: 'var(--text-action)' }}>
+          {slug}.alcassa.app
         </span>
       </div>
     </div>

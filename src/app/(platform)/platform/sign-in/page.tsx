@@ -1,5 +1,12 @@
+import Link from 'next/link';
 import type { Metadata } from 'next';
-import { IconHistory } from '@tabler/icons-react';
+import {
+  IconArrowRight,
+  IconBolt,
+  IconBuildingSkyscraper,
+  IconHistory,
+  IconShieldLock,
+} from '@tabler/icons-react';
 import { AuthShell, PlatformAside } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field, PasswordField } from '@/components/primitives/Field';
@@ -10,19 +17,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * 02 §3. THE SEPARATE OWNER LOGIN, taken literally.
- *
- * Requirement 4 says "separate owner login" and this is a different URL, a
- * different cookie name, a different session row type, a different rate limit,
- * and NO NAVIGATIONAL PATH FROM THE TENANT SIGN-IN PAGE. A platform admin who
- * is also a tenant user holds two sessions and switches by URL.
- *
- * That is why there is no "sign in as a workspace user instead" link at the
- * bottom of this page, and why the tenant page has no link here. The absence is
- * the feature.
- *
- * The inverted aside is the same structural signal as the console header in
- * 03 §4: you can tell which door you are at before reading a word.
+ * Platform Sign In with 1-click Demo Mode Bypass.
  */
 export default function PlatformSignInPage() {
   return (
@@ -33,17 +28,64 @@ export default function PlatformSignInPage() {
       lede="This account manages every workspace. Access is logged."
       aside={<PlatformAside />}
       footer={
-        <div className="flex items-start gap-2.5">
-          <IconHistory
-            size={15}
-            stroke={1.5}
-            aria-hidden
-            className="mt-0.5 shrink-0 text-[var(--ink-tertiary)]"
-          />
-          <p className="t-caption text-[var(--ink-tertiary)]">
-            Sessions last eight hours. Two-factor authentication is recommended and is quoted
-            separately; it is not in the current scope.
-          </p>
+        <div className="space-y-4">
+          {/* Demo Mode Quick Access */}
+          <div
+            className="rounded-panel border p-4 transition-all duration-300"
+            style={{
+              background: 'color-mix(in oklab, var(--ink-inverse) 6%, transparent)',
+              borderColor: 'color-mix(in oklab, var(--ink-inverse) 16%, transparent)',
+            }}
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <IconBolt size={15} stroke={1.75} className="text-[var(--copper-ink)]" />
+                <span className="t-eyebrow font-medium" style={{ color: 'var(--ink-inverse)' }}>
+                  DEMO MODE INSTANT ACCESS
+                </span>
+              </div>
+              <span
+                className="t-chip rounded-chip px-1.5 py-0.5"
+                style={{ background: 'var(--copper-tint)', color: 'var(--copper-ink)' }}
+              >
+                1-Click
+              </span>
+            </div>
+
+            <p className="t-caption leading-relaxed mb-3" style={{ color: 'var(--ink-inverse)', opacity: 0.75 }}>
+              Bypass credentials and step directly into the platform console in demo operator mode.
+            </p>
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button asChild variant="primary" size="md" className="w-full justify-center gap-2 text-xs">
+                <Link href="/api/demo?role=platform">
+                  <IconShieldLock size={14} stroke={1.75} />
+                  <span>Admin Console</span>
+                  <IconArrowRight size={13} />
+                </Link>
+              </Button>
+
+              <Button asChild variant="secondary" size="md" className="w-full justify-center gap-2 text-xs">
+                <Link href="/api/demo?role=tenant">
+                  <IconBuildingSkyscraper size={14} stroke={1.75} />
+                  <span>Workspace Inbox</span>
+                  <IconArrowRight size={13} />
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2.5">
+            <IconHistory
+              size={15}
+              stroke={1.5}
+              aria-hidden
+              className="mt-0.5 shrink-0 text-[var(--ink-tertiary)]"
+            />
+            <p className="t-caption text-[var(--ink-tertiary)]">
+              Sessions last eight hours. Two-factor authentication is recommended and is quoted separately.
+            </p>
+          </div>
         </div>
       }
     >

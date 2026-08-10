@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** 10 §3. */
 export default async function VerifyPage({
   searchParams,
 }: {
@@ -23,11 +22,11 @@ export default async function VerifyPage({
       title="Check your email"
       aside={<TenantAside />}
       footer={
-        <p className="t-caption text-[var(--ink-tertiary)]">
+        <p className="t-caption text-center" style={{ color: 'var(--text-tertiary)' }}>
           Wrong address?{' '}
           <Link
             href="/sign-up"
-            className="text-[var(--copper-ink)] underline decoration-[var(--copper-rule)] underline-offset-2"
+            className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80 transition-opacity"
           >
             Start again
           </Link>
@@ -35,18 +34,18 @@ export default async function VerifyPage({
       }
     >
       <div
-        className="rounded-panel border p-5"
+        className="rounded-panel border p-5 shadow-sm"
         style={{
           background: 'var(--surface-raised)',
-          borderColor: 'var(--rule-soft)',
-          boxShadow: 'var(--shadow-card)',
+          borderColor: 'var(--border-strong)',
         }}
       >
-        <IconMail size={20} stroke={1.5} aria-hidden className="text-[var(--copper-ink)]" />
-        <p className="t-body mt-3 text-[var(--ink-secondary)]">
+        <IconMail size={22} stroke={1.5} aria-hidden className="text-amber-500 dark:text-amber-400" />
+        <p className="t-body mt-3" style={{ color: 'var(--text-secondary)' }}>
           We sent a confirmation link to{' '}
-          <span className="t-data text-[var(--ink-primary)]">{email ?? 'your email'}</span>. It
-          expires in 24 hours.
+          <span className="t-data font-mono font-medium" style={{ color: 'var(--text-primary)' }}>
+            {email ?? 'your email'}
+          </span>. It expires in 24 hours.
         </p>
       </div>
 

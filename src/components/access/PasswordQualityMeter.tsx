@@ -17,16 +17,22 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
   const percentage = Math.round((validCount / rules.length) * 100);
 
   return (
-    <div className="mt-3 space-y-2 rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--rule-soft)]">
+    <div
+      className="mt-3 space-y-2 rounded-panel border p-3.5"
+      style={{
+        background: 'var(--surface-sunken)',
+        borderColor: 'var(--border-subtle)',
+      }}
+    >
       <div className="flex items-center justify-between t-caption">
-        <span className="text-[var(--ink-secondary)]">Password strength</span>
+        <span style={{ color: 'var(--text-secondary)' }}>Password strength</span>
         <span
-          className={`t-eyebrow ${
+          className={`t-eyebrow font-medium ${
             validCount === 3
-              ? 'text-[var(--verdigris-ink)]'
+              ? 'text-emerald-600 dark:text-emerald-400'
               : validCount >= 1
-              ? 'text-[var(--ochre-ink)]'
-              : 'text-[var(--ink-tertiary)]'
+              ? 'text-amber-600 dark:text-amber-400'
+              : 'text-[var(--text-tertiary)]'
           }`}
         >
           {validCount === 3 ? 'Strong' : validCount >= 1 ? 'Moderate' : 'Too weak'}
@@ -34,17 +40,20 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
       </div>
 
       {/* Progress Bar */}
-      <div className="h-1.5 w-full rounded-full bg-[var(--rule-soft)] overflow-hidden">
+      <div
+        className="h-1.5 w-full rounded-full overflow-hidden"
+        style={{ background: 'var(--border-subtle)' }}
+      >
         <div
           className="h-full transition-all duration-300"
           style={{
             width: `${percentage}%`,
             background:
               validCount === 3
-                ? 'var(--verdigris-solid)'
+                ? 'var(--success-fg)'
                 : validCount >= 1
-                ? 'var(--ochre-solid)'
-                : 'var(--rule-strong)',
+                ? 'var(--accent-mark)'
+                : 'var(--border-strong)',
           }}
         />
       </div>
@@ -54,11 +63,11 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
         {rules.map((rule, i) => (
           <li key={i} className="flex items-center gap-2 t-caption text-xs">
             {rule.valid ? (
-              <IconCheck size={14} className="text-[var(--verdigris-ink)]" />
+              <IconCheck size={14} className="text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <IconX size={14} className="text-[var(--ink-faint)]" />
+              <IconX size={14} style={{ color: 'var(--text-disabled)' }} />
             )}
-            <span className={rule.valid ? 'text-[var(--ink-primary)]' : 'text-[var(--ink-tertiary)]'}>
+            <span style={{ color: rule.valid ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>
               {rule.label}
             </span>
           </li>

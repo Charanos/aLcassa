@@ -16,11 +16,11 @@ how that rule is kept: a delta is recorded the day it is found, not at handover.
 
 Two authorities were produced for the visual system and they disagree on values:
 
-| | `03-design-system.md` | The design sheets |
-|---|---|---|
-| Issued | 3 August 2026 | 4 August 2026, revision 3.1 |
-| Contrast ratios | asserted | measured, per pair, both themes |
-| Declares itself | "the authority on every visual decision" | "for review" |
+|                 | `03-design-system.md`                    | The design sheets               |
+| --------------- | ---------------------------------------- | ------------------------------- |
+| Issued          | 3 August 2026                            | 4 August 2026, revision 3.1     |
+| Contrast ratios | asserted                                 | measured, per pair, both themes |
+| Declares itself | "the authority on every visual decision" | "for review"                    |
 
 **Decision, taken at foundation: the sheets win on VALUES, document 03 wins on
 RULES and semantics.** The sheets are later, they carry measured ratios against
@@ -33,21 +33,21 @@ semantic alias names, so both documents remain usable against one file.
 
 ### The value differences
 
-| Token | Doc 03 | Sheets, and what shipped | Note |
-|---|---|---|---|
-| Page ground | `#FBFAF7` | `#FBF9F5` | |
-| Panel | `#FFFFFF` | `#F4F0E8` | The sheets raise the panel with a tint rather than dropping it to white, which is the "depth is a tint" law |
-| Copper, primary fill | `#A54B17` | `#A6572A` | |
-| Copper, text on light | `#8A3E12` | `#8A4A1E`, 5.62:1 | |
-| Radius, chips and buttons | 2px | 4px | |
-| Radius, panels | 3px | 6px | |
-| Radius, overlays | 6px | 8px | |
-| Space, smallest step | 4px | 2px | The sheets add a hairline step below the 4px base |
-| Row height, comfortable | 40px | 56px | |
-| Row height, compact | 32px | 44px | The sheets' compact row equals doc 03's touch-target floor, which resolves a conflict doc 03 had with its own §17 |
-| Control heights | not specified | 32 / 36 / 44px | |
-| Motion, longest | 280ms | 200ms | Excluding the 1200ms skeleton pulse |
-| Type scale | 14 tokens, rem, fluid | 14 tokens, px, fixed | Same count, different names. A console needs predictability more than it needs fluidity |
+| Token                     | Doc 03                | Sheets, and what shipped | Note                                                                                                              |
+| ------------------------- | --------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Page ground               | `#FBFAF7`             | `#FBF9F5`                |                                                                                                                   |
+| Panel                     | `#FFFFFF`             | `#F4F0E8`                | The sheets raise the panel with a tint rather than dropping it to white, which is the "depth is a tint" law       |
+| Copper, primary fill      | `#A54B17`             | `#A6572A`                |                                                                                                                   |
+| Copper, text on light     | `#8A3E12`             | `#8A4A1E`, 5.62:1        |                                                                                                                   |
+| Radius, chips and buttons | 2px                   | 4px                      |                                                                                                                   |
+| Radius, panels            | 3px                   | 6px                      |                                                                                                                   |
+| Radius, overlays          | 6px                   | 8px                      |                                                                                                                   |
+| Space, smallest step      | 4px                   | 2px                      | The sheets add a hairline step below the 4px base                                                                 |
+| Row height, comfortable   | 40px                  | 56px                     |                                                                                                                   |
+| Row height, compact       | 32px                  | 44px                     | The sheets' compact row equals doc 03's touch-target floor, which resolves a conflict doc 03 had with its own §17 |
+| Control heights           | not specified         | 32 / 36 / 44px           |                                                                                                                   |
+| Motion, longest           | 280ms                 | 200ms                    | Excluding the 1200ms skeleton pulse                                                                               |
+| Type scale                | 14 tokens, rem, fluid | 14 tokens, px, fixed     | Same count, different names. A console needs predictability more than it needs fluidity                           |
 
 Nothing in the six-hue semantic mapping changed. That is document 03 §3 and it
 is intact.
@@ -450,15 +450,114 @@ The weight constraint remains: only one weight per family is imported. Libertinu
 
 ---
 
+## 3b. The aLcassa identity landing (August 2026)
+
+The client supplied a full identity on 3 August 2026: the name **aLcassa**, a
+bear-C logo, a six-colour palette anchored on blue `#043AE1`, and DM Sans as
+the interface face. It arrived with its own `tokens.css`, `BRAND.md` and a
+rewritten `03-design-system.md`, and it supersedes the previous "Conduit"
+system (copper/verdigris/ochre/oxide/slate/graphite on vellum, Libertinus
+throughout) in full. These entries record where the port diverged from a
+literal reading of those documents.
+
+### B1 · The old token names survive as a compatibility layer
+
+The retired palette is referenced roughly 370 times across 48 component files.
+Deleting those names in one commit would take every surface in the product
+down simultaneously, which maximises blast radius and makes a rebrand
+regression indistinguishable from a refactor regression.
+
+`tokens.css` therefore carries a Tier 0 block mapping every old name onto the
+nearest aLcassa value **by semantic role rather than by hue**: copper (the old
+interaction colour) resolves to blue, verdigris to green, ochre to amber,
+oxide to red, slate and graphite to steps of the ink scale. The whole product
+picked up the new palette in one commit without a single component being
+touched, and surfaces are being rewritten against the real tokens one at a
+time.
+
+Ochre maps to **amber and not to the brand orange** deliberately. Routing every
+retired ochre chip through `#FA5505` would have blown the one-per-screen accent
+budget on every screen in the product at once.
+
+The supplied identity file does the same thing for its own `--gray-*` names,
+so this is the migration pattern the handoff already assumes.
+
+### B2 · The Mark is redrawn as vector rather than shipped as the supplied PNG
+
+The client icon is a 2560px square PNG, which is correct for print and wrong
+for a 20px nav mark: 280KB to render 400 pixels, no `currentColor`, no dark
+variant. It is redrawn on a 24-unit grid so one file serves as favicon, nav
+mark and OG asset and recolours by prop.
+
+**Open question carried from BRAND.md §5:** the supplied icon is `#0059D4`,
+the moodboard palette is `#043AE1`, and they are visibly different. The
+implementation follows the moodboard, because it presents itself as the
+palette specification and measures better (7.58:1 on cream against 6.05:1).
+The component reads `--blue-500`, so if the client confirms the icon file is
+authoritative instead, the correction is one token rather than one asset.
+Tracked upstream as TD-23.
+
+### B3 · `em` no longer switches to the serif
+
+The previous system used a family switch as its only emphasis mechanism,
+because it had one weight and nothing else to reach for. 03 §6 restricts the
+serif to titles, no italic cut is bundled, and the ceiling is now 500 — so
+inline emphasis is a weight step and an ink step instead.
+
+### B4 · A marketing-only display size exists above the documented ramp
+
+03 §6 tops out at `--display-lg` (35px) because it is drawn for a console,
+where a page title sits above a data table. A marketing hero is a different
+reading task — seen once, from further away, with nothing competing — and 35px
+there reads as a section heading rather than as the first thing the page says.
+
+`--display-hero: clamp(56px, 5.6vw, 62px)` is scoped to the marketing surface
+and used by one element on one page.
+
+### B5 · The marketing page spends the accent more than once
+
+03 §4a gives orange a budget of one moment per screen. The landing page
+exceeds a literal per-document reading of that rule and holds to a
+per-viewport one: the accent appears as ~7px section hairlines, one statistic,
+one ticker dot and one ambient wash, and no two are ever in view together at
+desktop height.
+
+The reason is that the aLcassa palette contains exactly one warm colour. With
+blue carrying every eyebrow, hairline, icon and action — which is what a
+literal reading produces — the page renders effectively monotone: on-brand and
+visually flat. The moodboard itself does not work that way; it sets its own
+body text in the quiet blue, reserves the saturated blue for marks, and lets
+the warm accent punctuate.
+
+Colour on that surface is therefore split by job: **blue** only for things that
+do something, **navy and the ink scale** for everything that is read, **orange**
+as small punctuation, **green** for genuine status. If it is blue on the
+marketing page and it cannot be clicked, that is a defect.
+
+### B6 · Categorical hues were removed from three marketing components
+
+The hero schematic gave its four channels four different hues; the capability
+list gave its five features five; the role diagram gave owner/admin/agent
+three. In each case colour was encoding a distinction that does not exist —
+four instances of one category, five capabilities of one product, three points
+on one permission gradient.
+
+Under the new palette this stopped being merely redundant and became wrong,
+because the hues now resolve by role: "Your credentials, write-only" rendered
+in the warning amber, and a web-chat node in the same. Selection state carries
+the colour now, and the role diagram uses three depths of one hue.
+
+---
+
 ## 4. Open items carried forward
 
-| # | Item | Due | Blocks |
-|---|---|---|---|
-| 1 | AI rules precedence, master versus layered | Week 1 | M4a and the schema. See D7 |
-| 2 | Support role matrix, signed | Design lock | M4, and the isolation suite's support cases |
-| 3 | Embedding model Phase 2 will use | Week 1 | The knowledge base seam |
-| 4 | What suspension means | Before M1 | Every modify policy. See A1 |
-| 5 | Plan tiers with limits | Week 4 | M3 |
-| 6 | Product name and brand assets | Design lock | Nothing. The placeholder mark ships |
-| 7 | Owner email unique across the platform? | Design lock | The membership model and `user_profiles` policy |
-| 8 | Credentials per-tenant or per-integration | Design lock | A column now, a migration later |
+| #   | Item                                       | Due         | Blocks                                          |
+| --- | ------------------------------------------ | ----------- | ----------------------------------------------- |
+| 1   | AI rules precedence, master versus layered | Week 1      | M4a and the schema. See D7                      |
+| 2   | Support role matrix, signed                | Design lock | M4, and the isolation suite's support cases     |
+| 3   | Embedding model Phase 2 will use           | Week 1      | The knowledge base seam                         |
+| 4   | What suspension means                      | Before M1   | Every modify policy. See A1                     |
+| 5   | Plan tiers with limits                     | Week 4      | M3                                              |
+| 6   | Product name and brand assets              | Design lock | Nothing. The placeholder mark ships             |
+| 7   | Owner email unique across the platform?    | Design lock | The membership model and `user_profiles` policy |
+| 8   | Credentials per-tenant or per-integration  | Design lock | A column now, a migration later                 |

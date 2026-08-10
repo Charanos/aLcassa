@@ -26,5 +26,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "project-docs", "design-docs"]
+  "exclude": ["node_modules", "project-docs", "design-docs", "conduit-appshell-boilerplate"]
 }

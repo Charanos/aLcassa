@@ -35,4 +35,6 @@ design-docs/.thumbnail
 # project-docs/ and on the review surface, so nothing needed to build or review
 # this project is lost by excluding them.
 design-docs/uploads/
+*.zip
+conduit-appshell-boilerplate/
 

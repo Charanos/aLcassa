@@ -1,14 +1,45 @@
 @import 'tailwindcss';
 
-/* Libertinus, SIL OFL 1.1, self-hosted through Fontsource. Latin subset only,
- * weight 400 only, because 400 is the only weight this system has. The italic
- * faces are deliberately not imported: see the note under §2 below. */
-@import '@fontsource/libertinus-serif/latin-400.css';
-@import '@fontsource/libertinus-sans/latin-400.css';
-@import '@fontsource/libertinus-mono/latin-400.css';
-@import '@fontsource/fira-code/latin-500.css';
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
+
+/* ── aLcassa type stack. Three families, three jobs. BRAND.md §4 · 03 §6. ──
+ *
+ * The ceiling is weight 500 and it is enforced by what is in the bundle as
+ * well as by lint: DM Sans ships 400-700 and JetBrains Mono 100-800, and only
+ * 400 and 500 are imported here. Italics are not imported at all, which is
+ * what makes `font-synthesis: none` below safe rather than punitive.
+ */
+@import '@fontsource/dm-sans/latin-400.css';
+@import '@fontsource/dm-sans/latin-500.css';
+@import '@fontsource/jetbrains-mono/latin-400.css';
+@import '@fontsource/jetbrains-mono/latin-500.css';
 
 @import './tokens.css';
+
+/*
+ * Libertinus Serif Display, SIL OFL 1.1.
+ *
+ * ⚠ SELF-HOSTED BECAUSE IT HAS TO BE, not because it is preferred. Libertinus
+ * is distributed only from its own repository and is on no font CDN, so there
+ * is no `@fontsource` package and no fallback host to fail over to. The file
+ * lives in `public/brand/` and is the Display optical cut at Regular only.
+ *
+ * ONLY the Regular cut is installed. The family also ships Semibold and Bold,
+ * and 03 §6 makes the point that the previous display face guaranteed the 500
+ * ceiling by having nothing heavier in it — that guarantee is gone, so the
+ * ceiling now depends on this bundle staying at one weight. Do not add them.
+ *
+ * `swap` rather than `block`: the brand cream ground makes a blank-then-paint
+ * flash more visible than it would be on white, and a title that arrives late
+ * in the fallback serif is a better first paint than no title at all.
+ */
+@font-face {
+  font-family: 'Libertinus Serif Display';
+  src: url('/brand/LibertinusSerifDisplay-Regular.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ═══ 1 · TAILWIND BRIDGE ══════════════════════════════════════════════════
  * 03 §19. Tokens are declared once in tokens.css and exposed here. Utilities
@@ -20,70 +51,75 @@
  */
 
 @theme inline {
-  --color-page: var(--surface-page);
+  /* ─ Surfaces. Named by role, so `bg-page` cannot drift from
+   *   `background: var(--surface-base)`. ─ */
+  --color-page: var(--surface-base);
   --color-panel: var(--surface-raised);
   --color-field: var(--surface-sunken);
-  --color-invert: var(--surface-invert);
-  --color-hover: var(--surface-hover);
+  --color-inset: var(--surface-inset);
+  --color-invert: var(--ink-900);
+  --color-hover: var(--surface-inset);
 
-  --color-ink: var(--ink-primary);
-  --color-ink-body: var(--ink-secondary);
-  --color-ink-muted: var(--ink-tertiary);
-  --color-ink-faint: var(--ink-faint);
-  --color-ink-inverse: var(--ink-inverse);
+  /* ─ Ink. The largest surface in the product. ─ */
+  --color-ink: var(--text-primary);
+  --color-ink-body: var(--text-secondary);
+  --color-ink-muted: var(--text-tertiary);
+  --color-ink-faint: var(--text-disabled);
+  --color-ink-inverse: var(--text-inverse);
 
   --color-rule-soft: var(--rule-soft);
-  --color-rule: var(--rule-base);
-  --color-rule-strong: var(--rule-strong);
+  --color-rule: var(--border-subtle);
+  --color-rule-strong: var(--border-strong);
 
-  --color-copper-ink: var(--copper-ink);
-  --color-copper: var(--copper-solid);
-  --color-copper-tint: var(--copper-tint);
-  --color-copper-rule: var(--copper-rule);
+  /* ─ Action blue. The primary, and the only colour a link may be. ─ */
+  --color-action: var(--text-action);
+  --color-blue-50: var(--blue-50);
+  --color-blue-100: var(--blue-100);
+  --color-blue-200: var(--blue-200);
+  --color-blue-300: var(--blue-300);
+  --color-blue-400: var(--blue-400);
+  --color-blue-500: var(--blue-500);
+  --color-blue-600: var(--blue-600);
+  --color-blue-700: var(--blue-700);
 
-  --color-verdigris-ink: var(--verdigris-ink);
-  --color-verdigris: var(--verdigris-solid);
-  --color-verdigris-tint: var(--verdigris-tint);
-  --color-verdigris-rule: var(--verdigris-rule);
+  /* ─ The accent. Two names, because the fill and the text value differ and
+   *   that is the rule most likely to be broken. 03 §4a. ─ */
+  --color-accent-mark: var(--accent-mark);
+  --color-accent-mark-text: var(--accent-mark-text);
 
-  --color-ochre-ink: var(--ochre-ink);
-  --color-ochre: var(--ochre-solid);
-  --color-ochre-tint: var(--ochre-tint);
-  --color-ochre-rule: var(--ochre-rule);
+  /* ─ Status. Never the sole carrier of meaning. ─ */
+  --color-success: var(--success-fg);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning-fg);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger-fg);
+  --color-danger-bg: var(--danger-bg);
 
-  --color-oxide-ink: var(--oxide-ink);
-  --color-oxide: var(--oxide-solid);
-  --color-oxide-tint: var(--oxide-tint);
-  --color-oxide-rule: var(--oxide-rule);
+  /* ─ Tenant accent. Reaches four surfaces only; see 03 §4b. ─ */
+  --color-accent: var(--accent-500);
+  --color-accent-soft: var(--accent-100);
 
-  --color-slate-ink: var(--slate-ink);
-  --color-slate: var(--slate-solid);
-  --color-slate-tint: var(--slate-tint);
-  --color-slate-rule: var(--slate-rule);
-
-  --color-graphite-ink: var(--graphite-ink);
-  --color-graphite: var(--graphite-solid);
-  --color-graphite-tint: var(--graphite-tint);
-  --color-graphite-rule: var(--graphite-rule);
-
-  --font-serif: var(--font-serif);
-  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-ui);
   --font-mono: var(--font-mono);
+  /* Retained so `font-serif` in existing markup resolves to the display face
+   * rather than to the browser default. Migration alias. */
+  --font-serif: var(--font-display);
 
-  --radius-chip: var(--r-chip);
-  --radius-panel: var(--r-panel);
-  --radius-overlay: var(--r-overlay);
+  --radius-chip: var(--radius-sm);
+  --radius-panel: var(--radius-md);
+  --radius-overlay: var(--radius-lg);
 
-  --spacing-0: var(--s-0);
-  --spacing-1: var(--s-1);
-  --spacing-2: var(--s-2);
-  --spacing-3: var(--s-3);
-  --spacing-4: var(--s-4);
-  --spacing-5: var(--s-5);
-  --spacing-6: var(--s-6);
-  --spacing-7: var(--s-7);
+  --spacing-0: 2px;
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-6);
+  --spacing-6: var(--space-8);
+  --spacing-7: var(--space-12);
 
-  --shadow-overlay: var(--shadow-overlay);
+  --shadow-overlay: var(--shadow-lg);
 
   --breakpoint-sm: 480px;
   --breakpoint-md: 768px;
@@ -104,11 +140,15 @@
   html {
     /* THE LOAD-BEARING LINE OF THE TYPE SYSTEM.
      *
-     * Every family here ships one weight and no italic. Without this, a browser
-     * asked for 600 synthesises one by smearing the 400, and asked for italic
-     * synthesises an oblique by shearing it. Both look almost right, which is
-     * worse than looking wrong: the system decays silently and nobody can say
-     * when. 03 §5 · 11 §6 rules 12 and 13. */
+     * The bundle carries weights 400 and 500 and no italic at all. Without
+     * this, a browser asked for 600 synthesises one by smearing the 500, and
+     * asked for italic synthesises an oblique by shearing it. Both look almost
+     * right, which is worse than looking wrong: the system decays silently and
+     * nobody can say when.
+     *
+     * 03 §6 caps the system at weight 500. This line is what makes that cap
+     * VISIBLE rather than merely stated — a stray `font-bold` now renders at
+     * 500 instead of quietly faking a 700 that nobody notices in review. */
     font-synthesis: none;
 
     -webkit-text-size-adjust: 100%;
@@ -120,7 +160,7 @@
     /* Kerning, standard ligatures and contextual alternates, on explicitly
      * rather than left to a browser default that differs per engine. Libertinus
      * has a properly built kern table and it is the difference between "Ta" and
-     * "Ta" at display size. */
+     * "Ta" at display size. DM Sans's `calt` handles its own spacing pairs. */
     font-kerning: normal;
     font-feature-settings:
       'kern' 1,
@@ -141,8 +181,8 @@
 
   body {
     margin: 0;
-    background: var(--surface-page);
-    color: var(--ink-primary);
+    background: var(--surface-base);
+    color: var(--text-primary);
     font: var(--t-body);
     /* Tabular figures everywhere, so a column of numbers can be compared down
      * its right edge. Mono is already even. */
@@ -175,13 +215,25 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Optical correction. At display size a serif needs to tighten; at caption
-   * size it needs to open. The scale in tokens.css carries tracking per step,
-   * and this is the piece that cannot live in a `font` shorthand. */
+  /* Optical correction, and the old-style figures a book face wants.
+   *
+   * 03 §6: lining figures in a serif title "look like a spreadsheet heading".
+   * Numbers in DATA are unaffected — those are mono, and `.t-data` sets
+   * tabular-nums explicitly further down. */
+  .display,
   .t-display,
-  .t-title {
+  .t-title,
+  .t-heading {
+    font-family: var(--font-display);
+    font-weight: 500;
+    -webkit-text-stroke: 0.32px currentColor;
     font-optical-sizing: auto;
     font-variant-ligatures: common-ligatures discretionary-ligatures;
+    font-variant-numeric: oldstyle-nums;
+    font-feature-settings:
+      'onum' 1,
+      'liga' 1,
+      'kern' 1;
   }
 
   p,
@@ -198,19 +250,35 @@
     text-wrap: balance;
   }
 
-  /* No weight change, anywhere, for any reason. Emphasis is a family switch or
-   * a step of ink. `strong` and `em` are re-pointed rather than banned, because
-   * they carry meaning to a screen reader that a span does not. */
+  /* Emphasis tops out at 500 and there is nothing above it. `strong` and `em`
+   * are re-pointed rather than banned, because they carry meaning to a screen
+   * reader that a span does not. */
   strong,
   b {
-    font-weight: 400;
-    color: var(--ink-primary);
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
   }
 
+  /*
+   * ⚠ `em` DOES NOT SWITCH TO THE SERIF, and that is a change from the
+   * previous system, which used a family switch as its only emphasis
+   * mechanism because it had a single weight and nothing else to reach for.
+   *
+   * 03 §6 restricts the serif to TITLES: "applying it to a label, button,
+   * table header, navigation item, or any number is a review failure." An
+   * inline `em` inside a paragraph is none of those, but it is also not a
+   * title, and a serif word sitting mid-sentence in a sans paragraph reads as
+   * a rendering bug rather than as emphasis.
+   *
+   * No italic cut is bundled either, so `font-style: italic` would be
+   * synthesised — and `font-synthesis: none` above correctly refuses to. That
+   * leaves the ink step, which is the mechanism the rest of the system uses.
+   */
   em,
   i {
     font-style: normal;
-    font-family: var(--font-serif);
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
   }
 
   code,
@@ -284,29 +352,103 @@
   }
 
   /*
-   * THEME CROSSFADE.
+   * THEME CROSSFADE — PRECISION APPROACH.
    *
-   * The toggle is instant and client-side, which without this reads as a
-   * flicker rather than a change. Only colour properties transition: a
-   * transition on `all` would catch layout and turn a theme change into a
-   * reflow animation.
+   * Naïve approach: `body *` with a CSS transition catches every element on
+   * the page, including GSAP targets mid-animation, SVG paths, pseudo-elements
+   * the browser composites separately, and elements that do not use any
+   * colour token at all. On a dense page that is hundreds of simultaneous
+   * transitions which the compositor has to coordinate, and the result is
+   * exactly the lag and jank the user reports.
    *
-   * The exclusion list matters. Anything mid-animation under GSAP must not
-   * pick up a CSS transition on the same properties, or the two fight and the
-   * result stutters.
+   * This approach instead:
+   *
+   *   1. Puts `color-scheme` on <html> so the browser's compositor flips
+   *      its own scrollbar, form controls and system UI in the same frame,
+   *      without waiting for any JS.
+   *
+   *   2. Scopes transitions only to the elements that ACTUALLY carry semantic
+   *      colour tokens. The "will-change" hint is on [data-reveal] already;
+   *      we do not duplicate it here because colour transitions run on
+   *      background-color which is handled by the main thread, not the GPU
+   *      compositing layer — doubling up wastes memory without buying anything.
+   *
+   *   3. Adds `.theme-switching` which ThemeToggle stamps on <html> for one
+   *      requestAnimationFrame before it sets data-theme. During that single
+   *      frame, all transitions are set to 0ms so the attribute change happens
+   *      with no competing in-flight animation. The class is removed after the
+   *      attribute flip and transitions resume for the return trip.
+   *
+   * The exclusion rule: GSAP-animated elements MUST NOT be inside an element
+   * with a colour transition on the same property at the same time. Because we
+   * suppress transitions during the flip frame itself, this conflict can no
+   * longer occur during the toggle press.
    */
-  :root:not([data-theme-ready='false']) body,
-  :root:not([data-theme-ready='false']) body * {
+
+  /* Step 1 — let the browser compositor know the scheme immediately. */
+  html {
+    color-scheme: light;
+  }
+  html[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  /* Step 2 — targeted crossfade on elements that own colour tokens. */
+  body,
+  header,
+  nav,
+  main,
+  aside,
+  footer,
+  section,
+  article,
+  [class*='surface'],
+  [class*='border'],
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [data-slot],
+  [data-theme-target] {
     transition:
       background-color var(--theme-transition) var(--ease-standard),
       border-color var(--theme-transition) var(--ease-standard),
       color var(--theme-transition) var(--ease-standard),
+      fill var(--theme-transition) var(--ease-standard),
+      stroke var(--theme-transition) var(--ease-standard),
       outline-color var(--theme-transition) var(--ease-standard);
   }
 
+  /* Step 3 — during the flip frame, suppress ALL transitions so there is
+   * zero in-flight animation when data-theme changes. ThemeToggle sets and
+   * removes this class via rAF. */
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition-duration: 0ms !important;
+    transition-delay: 0ms !important;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    :root body,
-    :root body * {
+    body,
+    header,
+    nav,
+    main,
+    aside,
+    footer,
+    section,
+    article,
+    [class*='surface'],
+    [class*='border'],
+    button,
+    a,
+    input,
+    select,
+    textarea,
+    [data-slot],
+    [data-theme-target] {
       transition-duration: 0.01ms !important;
     }
   }
@@ -490,6 +632,90 @@
     text-transform: uppercase;
   }
 
+  /* ── SURFACE RECIPES · 03 §7b ──────────────────────────────────────────
+   * Composed treatments. Components apply these rather than reassembling the
+   * ingredients, so a change to the glass formula lands everywhere at once.
+   *
+   * Budget: at most THREE blurred surfaces composited at once. `backdrop-filter`
+   * forces a new compositing layer, and a table of forty glass rows drops
+   * frames on mid-range hardware. A fourth means one of them becomes solid.
+   * Never on table rows, list items, form fields, buttons, badges, or the
+   * support banner — the banner stays opaque because it is a warning, and
+   * warnings do not get to be subtle.
+   */
+  .surface-glass {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-highlight), var(--shadow-md);
+  }
+
+  .surface-glass-strong {
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-highlight), var(--shadow-lg);
+  }
+
+  /* Cards get the lightest possible reading of glass: a hairline highlight and
+   * a near-opaque tint. Enough to lift off the page, not enough to notice. */
+  .surface-card {
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--glass-highlight), var(--shadow-sm);
+    border-radius: var(--radius-lg);
+  }
+
+  .neu-raised {
+    box-shadow: var(--neu-raised);
+  }
+  .neu-inset {
+    box-shadow: var(--neu-inset);
+  }
+
+  /* ── DISPLAY TYPE ──────────────────────────────────────────────────────
+   * Serif is for titles ONLY. The optical scale exists because Libertinus
+   * x-height is 0.429 against DM Sans at 0.504, so at the same nominal size a
+   * serif title reads noticeably smaller than the sans beside it. */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    -webkit-text-stroke: 0.32px currentColor;
+    letter-spacing: var(--display-tracking);
+    line-height: var(--display-leading);
+  }
+  .display.font-medium,
+  .font-medium.display,
+  .font-medium .display {
+    font-weight: 500;
+    -webkit-text-stroke: 0.38px currentColor;
+  }
+  .display-sm {
+    font-size: var(--display-sm);
+  }
+  .display-md {
+    font-size: var(--display-md);
+  }
+  .display-lg {
+    font-size: var(--display-lg);
+  }
+  /* Marketing surface only. See the note in tokens.css. */
+  .display-hero {
+    font-size: var(--display-hero);
+  }
+
+  /* Every number a user might compare against another number. Tabular figures
+   * align in a column and proportional figures do not. */
+  .numeric {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
   .hatch {
     background-image: var(--hatch-graphite);
   }
@@ -532,6 +758,29 @@
     clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
+  }
+}
+
+/* Glass fallbacks. `backdrop-filter` is broadly supported, but a solid surface
+ * is a perfectly good interface and a blur that fails open is not. Both of
+ * these sit outside `@layer utilities` deliberately: an unlayered rule beats
+ * a layered one regardless of specificity, so the fallback always wins. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .surface-glass,
+  .surface-glass-strong,
+  .surface-card {
+    background: var(--surface-raised);
+  }
+}
+
+/* Devices that cannot afford the compositing cost. */
+@media (prefers-reduced-transparency: reduce) {
+  .surface-glass,
+  .surface-glass-strong,
+  .surface-card {
+    background: var(--surface-raised);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 

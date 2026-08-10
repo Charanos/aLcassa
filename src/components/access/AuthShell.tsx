@@ -1,12 +1,16 @@
 import Link from 'next/link';
 import { IconShieldCheck, IconLock } from '@tabler/icons-react';
-import { Mark } from '@/components/brand/Mark';
+import { Wordmark } from '@/components/brand/Mark';
 import { PlatformAside, TenantAside } from './AuthAside';
 
 export { PlatformAside, TenantAside };
 
 /**
- * Design sheet 08 · Access. The shell every access screen sits in.
+ * Access Shell.
+ *
+ * Core Layout:
+ *   - Form Side (`main`): Left column, naturally scrollable for tall forms/screens.
+ *   - Aside (`aside`): Right column, rigidly sticky to the top of the viewport (`h-screen lg:sticky lg:top-0 lg:self-start`).
  */
 export function AuthShell({
   eyebrow,
@@ -28,29 +32,26 @@ export function AuthShell({
   const platform = variant === 'platform';
 
   return (
-    <div className="grid min-h-dvh items-start lg:grid-cols-[1fr_minmax(480px,46%)] relative overflow-x-hidden">
-      {/* ── The form. First in the DOM so a keyboard or screen reader user
-             reaches what they came for without traversing the aside. ─────── */}
+    <div className="min-h-screen lg:grid lg:grid-cols-[1fr_minmax(440px,42%)] xl:grid-cols-[1fr_minmax(500px,44%)]">
+      {/* ── Left: Form Side ── */}
       <main
         id="main"
-        className="order-1 flex min-h-dvh flex-col justify-center px-6 py-12 md:px-12 lg:px-16 relative overflow-hidden"
-        style={{ background: 'var(--surface-page)' }}
+        className="order-1 flex min-h-screen flex-col justify-center px-6 py-12 sm:px-10 md:px-16 lg:px-16 xl:px-20 relative overflow-hidden"
+        style={{ background: 'var(--surface-base)' }}
       >
-        {/* Ambient Background Artwork Glow for Form Surface */}
-        <div className="pointer-events-none absolute -top-24 -left-24 size-96 rounded-full bg-[radial-gradient(ellipse_at_center,var(--copper-tint)_0%,transparent_70%)] opacity-35 blur-3xl" />
-
-        {/* Watermark Background Artwork Icon (Form Surface) */}
-        <div className="hidden sm:block absolute bottom-10 -left-16 text-[var(--copper-ink)] opacity-[0.05] dark:opacity-[0.07] pointer-events-none transform rotate-12">
-          <IconShieldCheck size={320} stroke={0.75} />
+        {/* Watermark icon behind the form */}
+        <div className="hidden sm:block absolute bottom-10 -left-16 text-slate-500/10 dark:text-slate-300/[0.04] pointer-events-none transform rotate-12">
+          <IconShieldCheck size={340} stroke={0.75} />
         </div>
 
         <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '440px' }}>
+          {/* Brand mark on form column */}
           <Link
             href="/"
-            className="mb-10 inline-flex items-center gap-2.5 rounded-chip focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)] lg:hidden"
+            aria-label="Back to aLcassa homepage"
+            className="mb-8 inline-flex items-center gap-2.5 rounded-chip focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--border-focus)]"
           >
-            <Mark size={22} />
-            <span className="t-chip text-[var(--ink-primary)]">Conduit</span>
+            <Wordmark size={24} />
           </Link>
 
           {eyebrow ? (
@@ -58,145 +59,104 @@ export function AuthShell({
               <span
                 aria-hidden
                 className="block h-px w-6"
-                style={{ background: platform ? 'var(--slate-rule)' : 'var(--copper-rule)' }}
+                style={{ background: 'var(--accent-mark)' }}
               />
               <span
-                className="t-eyebrow"
-                style={{ color: platform ? 'var(--slate-ink)' : 'var(--copper-ink)' }}
+                className="t-eyebrow font-medium tracking-wider"
+                style={{ color: 'var(--text-secondary)' }}
               >
                 {eyebrow}
               </span>
             </div>
           ) : null}
 
-          <h1 className="t-title text-[var(--ink-primary)]">{title}</h1>
+          <h1 className="display display-md" style={{ color: 'var(--text-primary)' }}>
+            {title}
+          </h1>
 
           {lede ? (
-            <p className="t-body mt-3 text-[var(--ink-secondary)]" style={{ maxWidth: '42ch' }}>
+            <p className="t-lede mt-2.5" style={{ color: 'var(--text-secondary)', maxWidth: '42ch' }}>
               {lede}
             </p>
           ) : null}
 
-          <div className="mt-8">{children}</div>
+          <div className="mt-7">{children}</div>
 
           {footer ? (
-            <div className="mt-8 border-t pt-6" style={{ borderColor: 'var(--rule-soft)' }}>
+            <div className="mt-8 border-t pt-6" style={{ borderColor: 'var(--border-subtle)' }}>
               {footer}
             </div>
           ) : null}
         </div>
       </main>
 
-      {/* ── The aside. Height-locked to the viewport, sticky, internally
-             scrollable. Nothing it does can reach the column beside it. ──── */}
+      {/* ── Right: Aside (Sticky 100vh Viewport Locked) ── */}
       <aside
-        aria-label="About this platform"
-        className="relative order-2 hidden lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:overflow-y-auto overflow-hidden"
+        aria-label="Security and Platform Telemetry"
+        className="order-2 hidden lg:flex lg:sticky lg:top-0 lg:h-screen lg:self-start lg:flex-col lg:justify-between p-8 xl:p-12 overflow-hidden relative border-l"
         style={{
-          background: platform ? 'var(--surface-invert)' : 'var(--surface-sunken)',
-          borderLeft: '1px solid var(--rule-soft)',
+          background: 'var(--surface-sunken)',
+          borderColor: 'var(--border-subtle)',
         }}
       >
-        {/* The drafting-sheet ground: a measured dot grid + watermark artwork icon */}
+        {/* Subtle dot grid texture */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-0 opacity-20 dark:opacity-10"
           style={{
-            backgroundImage: 'radial-gradient(circle, var(--rule-base) 1px, transparent 1px)',
-            backgroundSize: '22px 22px',
-            opacity: platform ? 0.12 : 0.4,
+            backgroundImage: 'radial-gradient(circle, var(--border-strong) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
           }}
         />
 
-        <div className="absolute top-16 -right-16 text-[var(--copper-ink)] opacity-[0.05] dark:opacity-[0.07] pointer-events-none transform rotate-45">
-          <IconLock size={280} stroke={0.75} />
+        {/* Lock watermark */}
+        <div className="absolute top-12 -right-12 text-slate-500/10 dark:text-slate-300/[0.04] pointer-events-none transform rotate-45">
+          <IconLock size={260} stroke={0.75} />
         </div>
 
-        {/* Ambient Radial Wash for Aside */}
-        <div className="pointer-events-none absolute bottom-0 right-0 size-80 rounded-full bg-[radial-gradient(ellipse_at_center,var(--verdigris-tint)_0%,transparent_70%)] opacity-40 blur-3xl" />
-
-        <div className="relative z-10 flex min-h-full flex-col justify-between gap-10 p-10 xl:p-12">
-          <div>
-            <div className="flex items-start justify-between gap-4">
-              <Link href="/" className="flex items-center gap-3">
-                <Mark size={26} tone={platform ? 'inverse' : 'copper'} />
-                <span className="grid gap-1">
-                  <span
-                    className="t-panel leading-none"
-                    style={{ color: platform ? 'var(--ink-inverse)' : 'var(--ink-primary)' }}
-                  >
-                    Conduit
-                  </span>
-                  <span
-                    className="t-eyebrow leading-none"
-                    style={{
-                      color: platform ? 'var(--ink-inverse)' : 'var(--ink-tertiary)',
-                      opacity: platform ? 0.55 : 1,
-                    }}
-                  >
-                    {platform ? 'Platform console' : 'Customer support platform'}
-                  </span>
-                </span>
-              </Link>
-
-              <span
-                className="t-eyebrow shrink-0 rounded-chip border px-2.5 py-1"
-                style={{
-                  color: 'var(--copper-ink)',
-                  borderColor: platform
-                    ? 'color-mix(in oklab, var(--ink-inverse) 15%, transparent)'
-                    : 'var(--rule-base)',
-                  background: platform
-                    ? 'color-mix(in oklab, var(--ink-inverse) 6%, transparent)'
-                    : 'var(--surface-raised)',
-                }}
-              >
-                Sheet 08 · Access
-              </span>
-            </div>
-
-            <div className="mt-9">{aside ?? (platform ? <PlatformAside /> : <TenantAside />)}</div>
-          </div>
-
+        {/* Aside Header */}
+        <div className="relative z-10">
           <div
-            className="flex items-center justify-between gap-4 border-t pt-5"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-chip border t-eyebrow font-medium tracking-wider"
             style={{
-              borderColor: platform
-                ? 'color-mix(in oklab, var(--ink-inverse) 12%, transparent)'
-                : 'var(--rule-soft)',
+              background: 'var(--surface-raised)',
+              borderColor: 'var(--border-subtle)',
+              color: 'var(--text-secondary)',
             }}
           >
             <span
-              className="t-eyebrow"
-              style={{
-                color: platform ? 'var(--ink-inverse)' : 'var(--ink-tertiary)',
-                opacity: platform ? 0.5 : 1,
-              }}
-            >
-              Andishi · Nairobi
-            </span>
-
-            <span
-              className="t-chip inline-flex items-center gap-1.5 rounded-chip border px-2.5 py-1"
-              style={{
-                color: 'var(--verdigris-ink)',
-                background: platform
-                  ? 'color-mix(in oklab, var(--ink-inverse) 5%, transparent)'
-                  : 'var(--verdigris-tint)',
-                borderColor: platform
-                  ? 'color-mix(in oklab, var(--ink-inverse) 10%, transparent)'
-                  : 'var(--verdigris-rule)',
-              }}
-            >
-              <span
-                aria-hidden
-                className="size-1.5 rounded-full animate-pulse"
-                style={{ background: 'var(--verdigris-solid)' }}
-              />
-              Isolation active
-            </span>
+              className="size-1.5 rounded-full animate-pulse"
+              style={{ background: 'var(--success-fg)' }}
+            />
+            <span>SECURE ACCESS ENCLAVE</span>
           </div>
         </div>
+
+        {/* Aside Centerpiece */}
+        <div className="relative z-10 my-auto py-4">
+          {aside ?? (platform ? <PlatformAside /> : <TenantAside />)}
+        </div>
+
+        {/* Aside Footer */}
+        <footer
+          className="relative z-10 shrink-0 flex items-center justify-between gap-4 border-t pt-4"
+          style={{ borderColor: 'var(--border-subtle)' }}
+        >
+          <span className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+            aLcassa · Enterprise Security
+          </span>
+
+          <span
+            className="t-chip inline-flex items-center gap-1.5 rounded-chip border px-2.5 py-1 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-medium"
+          >
+            <span
+              aria-hidden
+              className="size-1.5 rounded-full animate-pulse"
+              style={{ background: 'var(--success-fg)' }}
+            />
+            Isolation Verified
+          </span>
+        </footer>
       </aside>
     </div>
   );

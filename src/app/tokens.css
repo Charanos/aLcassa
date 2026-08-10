@@ -1,471 +1,905 @@
-/*
- * CONDUIT · TOKENS
- * ────────────────────────────────────────────────────────────────────────────
- * Values from design-docs sheet 01 (Token sheet, revision 3.1, issued 04 Aug
- * 2026), which carries measured contrast ratios. Semantic alias names from
- * project-docs/03-design-system.md §2, so both documents stay usable against
- * this file. Where the two disagreed on a value, the sheet won; every such
- * difference is recorded in project-docs/15-spec-delta.md.
- *
- * Three laws, from sheet 01:
- *   Depth is a tint, never a shadow. One shadow token, and it belongs to the
- *   dialog and the command palette alone.
- *   Hue is never alone. Every status carries a glyph and a word.
- *   The palette is closed. A seventh hue requires one to be retired.
- *
- * A raw hex in a component file is a defect. A ramp token in a component file
- * is a code smell. Components consume the semantic aliases in §3 only.
- */
+/* ============================================================================
+   aLcassa · TOKENS
+   ────────────────────────────────────────────────────────────────────────────
+   Single source of truth for all design values. Ported verbatim from the
+   client identity handoff (`docs/tokens.css`, `docs/BRAND.md`,
+   `docs/03-design-system.md`), which supersedes the previous "Conduit" token
+   system in full.
 
-/* ═══ 1 · LIGHT THEME ══════════════════════════════════════════════════════ */
+   Structure:
+     Tier 1  primitives   raw scales, no meaning       never used in components
+     Tier 2  semantic     meaning, mode-dependent      the flip point
+     Tier 3  component    per-component overrides      only where needed
+     Tier 0  compat       old token names → new values  MIGRATION ONLY
 
-:root {
-  color-scheme: light;
+   Three laws, from the identity:
+     Blue is primary. Small saturated doses, never a large fill.
+     Navy ink on cream is the largest surface in the product.
+     Orange is the accent, and the accent has a budget of ONE per screen.
 
-  /* ─ Surface. The sheet, and the steps either side of it. ─
-   *
-   * ⚠ THE LIGHT RAMP IS INVERTED RELATIVE TO SHEET 01, DELIBERATELY.
-   *
-   * The sheet raised a panel by going DARKER than the page (#F4F0E8 on
-   * #FBF9F5). That is internally consistent and on this surface it read as
-   * flat: a page of cards all slightly darker than their ground looks like a
-   * page of holes rather than a page of cards, and the eye gets no help finding
-   * the edges.
-   *
-   * A panel now goes LIGHTER than the page, which is what a physical card on a
-   * drafting sheet actually does under a light. The page keeps its warm vellum
-   * ground, so nothing about the character of the palette changes; only the
-   * direction of the step does.
-   *
-   * `sunken` stays below the page, because a field genuinely is a well.
-   * The result is a real three-step ramp instead of two steps in one direction:
-   *
-   *      raised   #FFFEFB   a card, sitting on the sheet
-   *      page     #FBF9F5   the sheet
-   *      sunken   #F1ECE3   a well cut into it
-   *
-   * The dark theme already worked this way and is unchanged.
-   */
-  --surface-page: #fbf9f5; /* never carries a border */
-  --surface-raised: #fdfbf7; /* panels and cards. A soft step above the page */
-  --surface-sunken: #f1ece3; /* fields, table headers, code, wells that receive input */
-  --surface-well: #ffffff; /* a fact block nested inside a card. LIGHTER, not darker */
-  --surface-invert: #1f1c18; /* the platform console header */
-  --surface-hover: #f8f5ef; /* a row under the pointer, inside a raised panel */
+   A raw hex in a component file is a defect. A Tier 1 scale token in a
+   component file is a code smell. Components read Tier 2 and Tier 3 only.
+   ============================================================================ */
 
-  /* ─ Rules. The only structure in the system. ─
-   * Warmed very slightly against the new lighter panel so a card edge still
-   * reads at a glance now that the fill contrast has shifted direction. */
-  --rule-soft: #ece5d8; /* rows within a panel */
-  --rule-base: #d8cfbd; /* a panel edge, a field at rest */
-  --rule-strong: #bcb2a0; /* the one weight allowed to divide a screen */
-
-  /* ─ Ink. Four steps, each measured against surface-page. ─ */
-  --ink-primary: #1f1c18; /* 16.1:1 */
-  --ink-secondary: #55504a; /* 8.42:1 */
-  --ink-tertiary: #635d54; /* 6.42:1 · lifted from #6C665D, see the note below */
-  --ink-faint: #8f8778; /* 3.42:1 · lifted from #A79E8F */
-  --ink-inverse: #fbf9f5; /* on a solid hue or the inverted header */
-
-  /*
-   * ⚠ CONTRAST LIFT on the tertiary and faint steps, both themes.
-   *
-   * Sheet 01 measured a floor of 4.58:1 and every pair cleared AA at its size.
-   * That was true and it was still too tight in practice, because on a reading
-   * surface the tertiary step carries INFORMATION: the source line under a
-   * document card, a milestone week, a file path. 4.5:1 is a floor for a body
-   * of text, not a target for 13px metadata a reader scans rather than reads.
-   *
-   * Tertiary now clears 6:1 in both themes and faint clears 3:1, which keeps
-   * faint usable for the rules and eyebrows it was drawn for. The hue angles
-   * are untouched, so nothing about the palette's character moves.
-   */
-
-  /* ─ Six hues, four variants each: ink · solid · tint · rule. ─
-   * Copper      interaction, focus, the support session
-   * Verdigris   provisioned, within limits, passing
-   * Ochre       a refusal the reader can resolve
-   * Oxide       a refusal they cannot, and every destructive action
-   * Slate       system and machine facts
-   * Graphite    inert. archived, revoked, disabled, out of scope
-   */
-  --copper-ink: #8a4a1e; /* 5.62:1 */
-  --copper-solid: #a6572a;
-  --copper-tint: #f4e7da;
-  --copper-rule: #b98553;
-
-  --verdigris-ink: #1a6155; /* 5.95:1 */
-  --verdigris-solid: #1f6f61;
-  --verdigris-tint: #dfebe7;
-  --verdigris-rule: #6ea396;
-
-  --ochre-ink: #78570f; /* 5.53:1 */
-  --ochre-solid: #8a6614;
-  --ochre-tint: #f3ead3;
-  --ochre-rule: #ae9450;
-
-  --oxide-ink: #98301d; /* 6.16:1 */
-  --oxide-solid: #a83722;
-  --oxide-tint: #f7e4de;
-  --oxide-rule: #c48371;
-
-  --slate-ink: #425a79; /* 5.80:1 */
-  --slate-solid: #4b6588;
-  --slate-tint: #e4e9f0;
-  --slate-rule: #8399b3;
-
-  --graphite-ink: #55504a; /* 6.41:1 */
-  --graphite-solid: #6c665d;
-  --graphite-tint: #eae6de;
-  --graphite-rule: #a79e8f;
-
-  /* ─ Interaction ─ */
-  --focus: var(--copper-solid);
-  --selection-bg: var(--copper-tint);
-  --selection-fg: var(--ink-primary);
-  --scrim: rgb(31 28 24 / 0.5);
-
-  /* ─ Disabled. Sheet 01: nothing is disabled by opacity, so that the
-   *   contrast of a disabled control is a decision rather than a by-product. ─ */
-  --disabled-surface: #ede8de;
-  --disabled-rule: #e4ddcf;
-  --disabled-ink: #a79e8f;
-}
-
-/* ═══ 2 · DARK THEME ═══════════════════════════════════════════════════════
- * Not an inversion. Both themes are generated from the same six hue angles:
- * ink lightens, tints darken toward the page, and every ratio was measured
- * again rather than assumed to have survived the flip.
- */
-
-[data-theme='dark'] {
-  color-scheme: dark;
-
-  --surface-page: #141310;
-  --surface-raised: #1d1b17;
-  --surface-sunken: #100f0c;
-  --surface-well: #24211b; /* lighter than raised, same "closer to the light" rule */
-  --surface-invert: #edE9e1;
-  --surface-hover: #24211c;
-
-  --rule-soft: #2e2a25;
-  --rule-base: #46413a;
-  --rule-strong: #6e675c;
-
-  --ink-primary: #ede9e1; /* 14.2:1 */
-  --ink-secondary: #b8b1a6; /* 8.05:1 · lifted from #B0A99E */
-  --ink-tertiary: #9a9388; /* 6.03:1 · lifted from #8A8377, the old floor */
-  --ink-faint: #6f6960; /* 3.12:1 */
-  --ink-inverse: #12110f;
-
-  --copper-ink: #e09b66; /* 7.05:1 */
-  --copper-solid: #d3862f;
-  --copper-tint: #2a1d12;
-  --copper-rule: #6b4824;
-
-  --verdigris-ink: #6fc3af; /* 7.92:1 */
-  --verdigris-solid: #2e8c7b;
-  --verdigris-tint: #13221e;
-  --verdigris-rule: #335b50;
-
-  --ochre-ink: #dcb05a; /* 8.34:1 */
-  --ochre-solid: #b8862c;
-  --ochre-tint: #241c0d;
-  --ochre-rule: #5a481d;
-
-  --oxide-ink: #e9887a; /* 6.81:1 */
-  --oxide-solid: #d9614a;
-  --oxide-tint: #2a1512;
-  --oxide-rule: #663026;
-
-  --slate-ink: #94adce; /* 7.67:1 */
-  --slate-solid: #5c7ba3;
-  --slate-tint: #15191f;
-  --slate-rule: #35455a;
-
-  --graphite-ink: #b0a99e; /* 7.28:1 */
-  --graphite-solid: #8a8377;
-  --graphite-tint: #1f1c18;
-  --graphite-rule: #443f38;
-
-  --focus: var(--copper-ink);
-  --selection-bg: var(--copper-tint);
-  --selection-fg: var(--ink-primary);
-  --scrim: rgb(0 0 0 / 0.66);
-
-  --disabled-surface: #1d1b17;
-  --disabled-rule: #2e2a25;
-  --disabled-ink: #5f5a53;
-}
-
-/* ═══ 3 · SEMANTIC ALIASES ═════════════════════════════════════════════════
- * 03 §2. The only layer a component is allowed to read. Both themes resolve
- * through these, so a component file never names a theme.
- */
-
-:root,
-[data-theme='dark'] {
-  --text-primary: var(--ink-primary);
-  --text-body: var(--ink-secondary);
-  --text-muted: var(--ink-tertiary);
-  --text-placeholder: var(--ink-tertiary);
-  --text-faint: var(--ink-faint);
-  --text-brand: var(--copper-ink);
-  --text-inverse: var(--ink-inverse);
-
-  --border-soft: var(--rule-soft);
-  --border-default: var(--rule-base);
-  --border-emphasis: var(--rule-strong);
-  --border-focus: var(--focus);
-
-  --action-primary-bg: var(--copper-solid);
-  --action-primary-fg: var(--ink-inverse);
-  --action-primary-border: var(--copper-ink);
-
-  --action-destructive-bg: var(--oxide-solid);
-  --action-destructive-fg: var(--ink-inverse);
-  --action-destructive-border: var(--oxide-ink);
-
-  --action-quiet-fg: var(--copper-ink);
-  --action-quiet-hover-bg: var(--copper-tint);
-}
-
-/* ═══ 4 · TYPE ═════════════════════════════════════════════════════════════
- * Sheet 02. Fourteen steps, three families, ONE WEIGHT.
- *
- * Under the house rule of medium and normal only, every Libertinus family here
- * ships exactly one usable weight, so this system has no weight axis at all.
- * Hierarchy is carried by size, family switch, colour, case, tracking, rules
- * and space. Emphasis inside a paragraph is a family switch or a step of ink,
- * never a weight change. `font-synthesis: none` is set in globals.css: without
- * it the browser fakes a bold and an oblique and breaks the system silently.
+/* ═══ TIER 1 · PRIMITIVES ══════════════════════════════════════════════════
+ * Fixed. Never remapped by theme. Never referenced directly in a component.
  */
 
 :root {
-  --font-serif: 'Libertinus Serif', Georgia, serif; /* to read */
-  --font-sans: 'Libertinus Sans', Optima, Candara, sans-serif; /* to operate */
-  --font-mono: 'Fira Code', 'Libertinus Mono', ui-monospace, monospace; /* to verify */
-  --font-math: 'Libertinus Math', var(--font-mono); /* MathExpr only */
+  /* ─ BRAND ANCHORS, verbatim from the aLcassa identity. ─
+   * Referenced by the scales below; never used directly in a component. */
+  --brand-blue: #043ae1; /* PRIMARY. The dominant identifier */
+  --brand-blue-mid: #145fef;
+  --brand-orange: #fa5505; /* ACCENT. Smallest role in the system */
+  --brand-navy: #17225d; /* Deep tone. Body text in light mode */
+  --brand-cream: #fbfdf4; /* Warm off-white. The page */
+  --brand-black: #000000; /* Secondary logo lockup only */
 
-  /* size · line-height · tracking */
-  --t-display: 400 56px/1.05 var(--font-serif);
-  --t-display-tracking: -0.02em;
-  --t-title: 400 34px/1.15 var(--font-serif);
-  --t-title-tracking: -0.012em;
-  --t-heading: 400 26px/1.2 var(--font-serif);
-  --t-heading-tracking: -0.008em;
-  --t-panel: 400 19px/1.25 var(--font-serif);
-  --t-lede: 400 18px/1.5 var(--font-serif);
+  /* The seventh colour. Not in the swatch row, but the moodboard sets every
+   * word of its own text in it, and nothing in #043AE1. It is the brand blue
+   * with the shout taken out, and it is the reason this system reads as
+   * restrained rather than loud. BRAND.md §3. */
+  --brand-ink: #172a99;
+  --brand-ink-mute: #8b8f99;
 
-  --t-body: 400 15px/1.55 var(--font-sans);
-  --t-compact: 400 14px/1.5 var(--font-sans);
-  --t-caption: 400 13px/1.45 var(--font-sans);
-  --t-label: 400 12px/1.4 var(--font-sans);
-  --t-label-tracking: 0.01em;
-  --t-micro: 400 11px/1.35 var(--font-sans); /* uppercase table headers */
-  --t-micro-tracking: 0.04em;
+  /* ─ INK SCALE ─
+   * The neutral scale, and the single largest surface in the product. These
+   * are not greys: every step carries the brand hue at 267deg, so text reads
+   * as blue-black ink on a warm page rather than black on white.
+   *
+   * Three of the brand's own values land ON this scale rather than beside it:
+   *   ink-400 = #8B8F99  the moodboard's muted text
+   *   ink-700 = #172A99  the moodboard's body text
+   *   ink-800 = #17225D  the brand navy */
+  --ink-0: #ffffff;
+  --ink-25: #fbfdf4; /* brand cream. The default page background */
+  --ink-50: #f3f6fb;
+  --ink-100: #e9edf5;
+  --ink-200: #d8ddea;
+  --ink-300: #bbc1d2;
+  --ink-400: #8b8f99; /* brand. Tertiary text, large only: 3.15 on cream */
+  --ink-500: #64708b; /* secondary text: 4.83 on cream */
+  --ink-600: #3a5192; /* 7.38 */
+  --ink-700: #172a99; /* brand ink: 11.19 */
+  --ink-800: #17225d; /* brand navy. Body text in light mode: 14.37 */
+  --ink-900: #0c173b; /* raised surface, dark mode */
+  --ink-950: #040a20; /* page background, dark mode */
 
-  --t-data: 500 14px/1.5 var(--font-mono);
-  --t-code: 500 12.5px/1.75 var(--font-mono);
-  --t-chip: 500 11px/1 var(--font-mono); /* uppercase */
-  --t-chip-tracking: 0.06em;
-  --t-eyebrow: 500 10px/1 var(--font-mono); /* uppercase */
-  --t-eyebrow-tracking: 0.16em;
+  /* ─ ACTION BLUE ─
+   * The saturated brand blue. This is a SMALL-DOSE colour: primary buttons,
+   * links, focus rings, selected states, active nav. Never a page background,
+   * never a large fill, never body text. */
+  --blue-50: #f1f6ff;
+  --blue-100: #e0eaff;
+  --blue-200: #c0d5ff;
+  --blue-300: #96b9ff; /* action blue for DARK mode: 9.99 on ink-950 */
+  --blue-400: #4980fc;
+  --blue-500: #043ae1; /* brand. 7.58 on cream, 7.78 under white */
+  --blue-600: #0028bc;
+  --blue-700: #001596;
+  --blue-800: #000374;
+  --blue-900: #00054b;
 
-  /* Measure. Sheet 02: prose 62ch, interface body 52ch, helper line 44ch. */
+  /* ─ ACCENT ORANGE ─
+   * The smallest role in the system. One moment per screen. The brand value
+   * sits at 400, not 500, because it is light: it cannot carry text
+   * (3.21 on cream, 3.30 under white). Use 500+ when it does. */
+  --orange-50: #fff1ec;
+  --orange-100: #ffe0d6;
+  --orange-200: #ffc1ad;
+  --orange-300: #ff936f; /* accent for DARK mode */
+  --orange-400: #fa5505; /* brand. Fills, meters, marks. NO text on it */
+  --orange-500: #ce4300; /* the text-safe orange: 4.62 on cream */
+  --orange-600: #a73500;
+  --orange-700: #822700;
+  --orange-800: #5f1a00;
+  --orange-900: #410e00;
+
+  /* Status. Danger sits deliberately apart from the brand orange in hue, so a
+   * warning and a brand accent are never confused at a glance. */
+  --red-500: #c4243a;
+  --red-400: #e05668;
+  --red-100: #fce8eb;
+  --amber-500: #b7791f;
+  --amber-400: #d19a34;
+  --amber-100: #fcf3e3;
+  --green-500: #3f7d53;
+  --green-400: #5a9a6d;
+  --green-100: #e8f3eb;
+
+  /* ─ TYPE SCALE ─ */
+  --text-xs: 11px;
+  --text-sm: 12.5px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 19px;
+  --text-xl: 24px;
+  --text-2xl: 31px;
+
+  /* Display sizes. Scaled up optically so Libertinus serif titles read assertively with commanding presence. */
+  --display-sm: 24px; /* pairs with --text-lg */
+  --display-md: clamp(32px, 3.4vw, 40px); /* section titles: e.g. "Where the messages will come from" */
+  --display-lg: clamp(42px, 4.4vw, 52px); /* large closing & major section titles */
+  --display-hero: clamp(52px, 5.4vw, 62px);
+
+  --leading-tight: 1.22;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+
+  /* Weight ceiling is 500. There is no --weight-bold, deliberately. */
+  --weight-light: 300;
+  --weight-normal: 400;
+  --weight-medium: 500;
+
+  --font-ui: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --font-display: 'Libertinus Serif Display', 'Libertinus Serif', 'Linux Libertine O', Georgia, serif;
+
+  /* Libertinus is a book face, not a high-contrast display face, so it wants
+   * far less negative tracking than a display serif does. Its own ascent plus
+   * descent is 1.140em, so a leading of 1.14 would set lines exactly touching;
+   * 1.18 leaves room for descenders on a wrapped title. */
+  --display-tracking: -0.008em;
+  --display-leading: 1.18;
+
+  /* Libertinus x-height is 0.429 against DM Sans at 0.504, a 15% difference.
+   * At the same nominal size a Libertinus title reads noticeably smaller than
+   * the sans beside it. Display sizes are scaled to compensate. */
+  --display-optical-scale: 1.12;
+
+  /* Measure. Prose 62ch, interface body 52ch, helper line 44ch. */
   --measure-prose: 62ch;
   --measure-body: 52ch;
   --measure-helper: 44ch;
+
+  /* ─ ICONS ─
+   * Tabler at stroke 1.5 rather than its default 2: at our weight ceiling of
+   * 500, stroke-2 icons read heavier than the type beside them. */
+  --icon-stroke: 1.5;
+  --icon-xs: 14px;
+  --icon-sm: 16px;
+  --icon-md: 18px;
+  --icon-lg: 20px;
+  --icon-xl: 24px;
+
+  /* ─ SPACING, 4px base ─ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ─ RADIUS ─ */
+  --radius-sm: 4px; /* inputs, small controls */
+  --radius-md: 7px; /* buttons, cards */
+  --radius-lg: 12px; /* modals, panels */
+  --radius-full: 9999px; /* pills, avatars */
+
+  /* ─ MOTION ─ */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ─ LAYOUT ─ */
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 60px;
+  --topbar-height: 56px;
+  --content-max: 1280px;
 }
 
-/* ═══ 5 · SPACE, RADIUS, ELEVATION ═════════════════════════════════════════ */
+/* ═══ TIER 2 · SEMANTIC, LIGHT (default) ═══════════════════════════════════
+ * This is the layer that flips. Components read from here.
+ */
+
+:root,
+[data-theme='light'] {
+  --surface-base: var(--ink-25); /* the brand cream */
+  --surface-raised: var(--ink-0);
+  --surface-sunken: var(--ink-50);
+  --surface-inset: var(--ink-100);
+  --surface-overlay: rgba(4, 10, 32, 0.45);
+
+  /* Body text is the brand navy. Not black, not grey: the identity itself,
+   * doing the job it does on every page of the moodboard. */
+  --text-primary: var(--ink-800); /* 14.37 on cream */
+  --text-secondary: var(--ink-500); /*  4.83 on cream */
+  --text-tertiary: var(--ink-400); /*  3.15 — large text and labels only */
+  --text-inverse: var(--ink-0);
+  --text-disabled: var(--ink-300);
+  --text-action: var(--blue-500); /* links and interactive text */
+
+  --border-subtle: var(--ink-200);
+  --border-strong: var(--ink-300);
+  --border-focus: var(--blue-500);
+
+  --danger-fg: var(--red-500);
+  --danger-bg: var(--red-100);
+  --warning-fg: var(--amber-500);
+  --warning-bg: var(--amber-100);
+  --success-fg: var(--green-500);
+  --success-bg: var(--green-100);
+
+  /* The accent. Deliberately semantic rather than raw, so the one-per-screen
+   * budget in 03 §4a has a token to point at. */
+  --accent-mark: var(--orange-400); /* fills, marks, meters. NO text */
+  --accent-mark-text: var(--orange-500); /* when the accent carries a label */
+
+  --focus-ring: 0 0 0 2px var(--surface-base), 0 0 0 4px var(--blue-500);
+
+  --shadow-sm: 0 1px 2px rgba(14, 16, 19, 0.05);
+  --shadow-md: 0 2px 8px rgba(14, 16, 19, 0.07);
+  --shadow-lg: 0 8px 28px rgba(14, 16, 19, 0.11);
+
+  /* GLASS — slight, not showy. Layered surfaces only: sticky headers, command
+   * palette, modals, popovers, cards. Never table rows.
+   * Budget: at most three glass surfaces composited at once. 03 §7b. */
+  --glass-bg: color-mix(in oklab, var(--surface-raised) 74%, transparent);
+  --glass-bg-strong: color-mix(in oklab, var(--surface-raised) 88%, transparent);
+  --glass-blur: blur(14px) saturate(1.35);
+  --glass-border: color-mix(in oklab, var(--ink-0) 55%, transparent);
+  --glass-highlight: inset 0 1px 0 color-mix(in oklab, var(--ink-0) 70%, transparent);
+
+  /* NEUMORPHIC — accent only, on small interactive controls that need
+   * affordance: segmented thumbs, switches, meter tracks, active nav pills.
+   * Never a full button. Full neumorphic buttons fail contrast, always. */
+  --neu-raised:
+    0 1px 1px rgba(14, 16, 19, 0.05), 0 2px 4px rgba(14, 16, 19, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --neu-inset:
+    inset 0 1px 2px rgba(14, 16, 19, 0.07), inset 0 -1px 0 rgba(255, 255, 255, 0.6);
+
+  /* Workspace schematic node: Dark Navy in light mode, Crisp White in dark mode */
+  --workspace-card-bg: var(--ink-800);
+  --workspace-card-fg: var(--ink-0);
+  --workspace-card-border: var(--ink-700);
+  --workspace-card-lock: var(--amber-400);
+  --workspace-card-status: var(--success-fg);
+  --workspace-card-shadow: var(--shadow-md), 0 0 24px -6px color-mix(in oklab, var(--blue-500) 25%, transparent);
+
+  /* Inverted feature section: Dark Navy in light mode, Crisp White in dark mode */
+  --invert-card-bg: var(--ink-900);
+  --invert-card-fg: #ffffff;
+  --invert-card-border: var(--ink-700);
+  --invert-card-subtle: #cbd5e1;
+  --invert-card-rule: rgba(255, 255, 255, 0.12);
+  --invert-card-well: rgba(4, 10, 32, 0.65);
+  --invert-card-well-border: rgba(255, 255, 255, 0.12);
+  --invert-card-shadow: var(--shadow-lg), 0 0 32px -8px rgba(4, 58, 225, 0.2);
+
+  color-scheme: light;
+}
+
+/* ═══ TIER 2 · SEMANTIC, DARK ══════════════════════════════════════════════
+ * Roughly twenty lines, because only this tier remaps.
+ */
+
+[data-theme='dark'] {
+  --surface-base: var(--ink-950);
+  --surface-raised: var(--ink-900);
+  --surface-sunken: var(--ink-950);
+  --surface-inset: var(--ink-800);
+  --surface-overlay: rgba(4, 10, 32, 0.68);
+
+  --text-primary: var(--ink-50); /* 18.13 on ink-950 */
+  --text-secondary: var(--ink-300); /* 10.91 */
+  --text-tertiary: var(--ink-400); /*  6.07 */
+  --text-inverse: var(--ink-950);
+  --text-disabled: var(--ink-600);
+  /* The saturated brand blue is unreadable on a dark ground (2.52). Dark mode
+   * uses the light step instead. This is not a compromise, it is what the
+   * colour has to be to stay legible. */
+  --text-action: var(--blue-300); /* 9.99 on ink-950 */
+
+  --border-subtle: var(--ink-800);
+  --border-strong: var(--ink-700);
+  --border-focus: var(--blue-300);
+
+  --danger-fg: var(--red-400);
+  --danger-bg: rgba(196, 69, 58, 0.15);
+  --warning-fg: var(--amber-400);
+  --warning-bg: rgba(183, 121, 31, 0.15);
+  --success-fg: var(--green-400);
+  --success-bg: rgba(63, 125, 83, 0.15);
+
+  --accent-mark: var(--orange-300);
+  --accent-mark-text: var(--orange-300);
+
+  /* Shadows barely register on dark surfaces. Borders carry elevation. */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.55);
+
+  /* Glass inverts its logic in dark mode: the highlight becomes a low-alpha
+   * white edge rather than a bright one, and the tint darkens instead of
+   * lightening. Reusing the light values here produces a milky grey wash. */
+  --glass-bg: color-mix(in oklab, var(--surface-raised) 66%, transparent);
+  --glass-bg-strong: color-mix(in oklab, var(--surface-raised) 86%, transparent);
+  --glass-border: color-mix(in oklab, var(--ink-0) 9%, transparent);
+  --glass-highlight: inset 0 1px 0 color-mix(in oklab, var(--ink-0) 11%, transparent);
+
+  /* Neumorphism in dark mode is a trap: the "light source" shadow has to
+   * become a very low-alpha glow, or every control looks like a smudge. */
+  --neu-raised:
+    0 1px 2px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --neu-inset:
+    inset 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+
+  /* Workspace schematic node: Crisp White in dark mode */
+  --workspace-card-bg: #ffffff;
+  --workspace-card-fg: #0c173b;
+  --workspace-card-border: rgba(255, 255, 255, 0.95);
+  --workspace-card-lock: #d97706;
+  --workspace-card-status: #10b981;
+  --workspace-card-shadow: 0 0 32px -4px rgba(255, 255, 255, 0.25);
+
+  /* Inverted feature section: Crisp White in dark mode */
+  --invert-card-bg: #ffffff;
+  --invert-card-fg: #0c173b;
+  --invert-card-border: rgba(255, 255, 255, 0.95);
+  --invert-card-subtle: #475569;
+  --invert-card-rule: rgba(12, 23, 59, 0.12);
+  --invert-card-well: #f8fafc;
+  --invert-card-well-border: #e2e8f0;
+  --invert-card-shadow: 0 0 40px -4px rgba(255, 255, 255, 0.22);
+
+  color-scheme: dark;
+}
+
+/* ═══ ACCENTS · per organization, from tenant_settings.accent_key ═══════════
+ * A TENANT ACCENT IS A WORKSPACE IDENTITY MARKER, NOT A THEME.
+ *
+ * What it reaches, exhaustive and deliberately short (03 §4b):
+ *   · the organization avatar and its tint
+ *   · the active sidebar item's 2px indicator
+ *   · the org switcher's selected row tint
+ *   · chart series colour where a tenant's own data is plotted
+ *
+ * What it never reaches: primary buttons, links, focus rings, the support
+ * banner, status colours, or any text. Those are aLcassa's, and a product
+ * whose primary action changes colour per customer has no identity of its own.
+ *
+ * Ten curated scales, each contrast-verified against both surface values.
+ * No purple, violet, or indigo. Default is aLcassa Blue, which means the
+ * out-of-the-box product is entirely the brand.
+ */
+
+/* aLcassa Blue — DEFAULT. The brand primary. Every tenant starts here, and the
+ * platform console is locked to it (a tenant accent must never restyle the
+ * owner's chrome, or support mode stops looking like support mode). */
+:root,
+[data-accent='alcassa'] {
+  --accent-50: #f1f6ff;
+  --accent-100: #e0eaff;
+  --accent-200: #c0d5ff;
+  --accent-300: #96b9ff;
+  --accent-400: #4980fc;
+  --accent-500: #043ae1;
+  --accent-600: #0028bc;
+  --accent-700: #001596;
+  --accent-800: #000374;
+  --accent-900: #00054b;
+}
+
+/* Ember — the brand orange. NOTE: the brand value #FA5505 sits at step 400,
+ * not 500, because it is light. Use 500 or darker whenever it carries text. */
+[data-accent='ember'] {
+  --accent-50: #fff1ec;
+  --accent-100: #ffe0d6;
+  --accent-200: #ffc1ad;
+  --accent-300: #ff936f;
+  --accent-400: #fa5505;
+  --accent-500: #ce4300;
+  --accent-600: #a73500;
+  --accent-700: #822700;
+  --accent-800: #5f1a00;
+  --accent-900: #410e00;
+}
+
+/* Navy — the brand deep. Nearly monotone, the quiet institutional option. */
+[data-accent='navy'] {
+  --accent-50: #f0f1f6;
+  --accent-100: #dee0ea;
+  --accent-200: #bcc0d4;
+  --accent-300: #9096b5;
+  --accent-400: #5a628c;
+  --accent-500: #17225d;
+  --accent-600: #131c4d;
+  --accent-700: #0f163d;
+  --accent-800: #0b102e;
+  --accent-900: #070a1f;
+}
+
+/* Moss — deep desaturated green. Calm, reads as stable. */
+[data-accent='moss'] {
+  --accent-50: #eff5f1;
+  --accent-100: #d9e7de;
+  --accent-200: #b3cfbe;
+  --accent-300: #86b097;
+  --accent-400: #629476;
+  --accent-500: #4a7c59;
+  --accent-600: #3c6549;
+  --accent-700: #2f503a;
+  --accent-800: #233c2c;
+  --accent-900: #17281d;
+}
+
+/* Clay — earthy terracotta. Warm and distinctive. */
+[data-accent='clay'] {
+  --accent-50: #faf2ee;
+  --accent-100: #f2dfd5;
+  --accent-200: #e3beaa;
+  --accent-300: #d19a7c;
+  --accent-400: #c17d58;
+  --accent-500: #b4643f;
+  --accent-600: #955134;
+  --accent-700: #764029;
+  --accent-800: #58301f;
+  --accent-900: #3b2014;
+}
+
+/* Verdigris — aged copper. Unusual, memorable, still professional. */
+[data-accent='verdigris'] {
+  --accent-50: #ecf5f4;
+  --accent-100: #d4e8e5;
+  --accent-200: #a8d0cb;
+  --accent-300: #77b4ad;
+  --accent-400: #529b93;
+  --accent-500: #3e8a82;
+  --accent-600: #32706a;
+  --accent-700: #275954;
+  --accent-800: #1d423e;
+  --accent-900: #132c29;
+}
+
+/* Brass — muted gold. Pairs unusually well with the neutral scale. */
+[data-accent='brass'] {
+  --accent-50: #f9f4e9;
+  --accent-100: #f1e6cc;
+  --accent-200: #e1cb9b;
+  --accent-300: #cdac65;
+  --accent-400: #b9944a;
+  --accent-500: #a8813c;
+  --accent-600: #8a6931;
+  --accent-700: #6d5327;
+  --accent-800: #513e1d;
+  --accent-900: #362913;
+}
+
+/* Rust — deep oxidised red-brown. Serious, low-shout. */
+[data-accent='rust'] {
+  --accent-50: #f9efec;
+  --accent-100: #f0dad3;
+  --accent-200: #dfb4a7;
+  --accent-300: #ca8b78;
+  --accent-400: #b26852;
+  --accent-500: #9c4a32;
+  --accent-600: #813c29;
+  --accent-700: #672f21;
+  --accent-800: #4c2318;
+  --accent-900: #331710;
+}
+
+/* Slate — cool blue-grey. Nearly neutral, the understated option. */
+[data-accent='slate'] {
+  --accent-50: #f1f4f6;
+  --accent-100: #e0e6eb;
+  --accent-200: #c0ccd6;
+  --accent-300: #98abbb;
+  --accent-400: #6c8499;
+  --accent-500: #4e6478;
+  --accent-600: #405263;
+  --accent-700: #33414e;
+  --accent-800: #26313b;
+  --accent-900: #192028;
+}
+
+/* Graphite — near-black. For a tenant who wants no colour at all. */
+[data-accent='graphite'] {
+  --accent-50: #f4f5f6;
+  --accent-100: #e6e8ea;
+  --accent-200: #cdd1d5;
+  --accent-300: #a8aeb6;
+  --accent-400: #6e757f;
+  --accent-500: #3d424b;
+  --accent-600: #31363e;
+  --accent-700: #262a31;
+  --accent-800: #1c1f24;
+  --accent-900: #131519;
+}
+
+/* ═══ GRADIENTS ════════════════════════════════════════════════════════════
+ * Derived, never hand-picked, so a new accent needs no new gradient. oklab
+ * mixing keeps the midpoint from going muddy the way srgb does.
+ */
 
 :root {
-  --s-0: 2px; /* hairline offsets only */
-  --s-1: 4px; /* glyph to its label */
-  --s-2: 8px; /* inside a chip */
-  --s-3: 12px; /* between controls */
-  --s-4: 16px; /* panel padding, tight */
-  --s-5: 24px; /* panel padding, standard */
-  --s-6: 32px; /* between panels */
-  --s-7: 48px; /* between sections */
+  /* Large surfaces: empty states, onboarding headers, active switcher row.
+   * Reads as a tint, not a colour. */
+  --accent-gradient-soft: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--accent-500) 12%, var(--surface-base)) 0%,
+    color-mix(in oklab, var(--accent-400) 4%, var(--surface-base)) 100%
+  );
 
-  --r-chip: 4px; /* chips, fields, buttons */
-  --r-panel: 6px; /* panels and cards */
-  --r-overlay: 8px; /* dialog, command palette, brand mark */
-  --r-full: 999px; /* avatars only */
+  /* Small deliberate emphasis only: usage meter fill, upgrade CTA, health
+   * dots. Using this across a large area is restricted in review. */
+  --accent-gradient-bold: linear-gradient(135deg, var(--accent-600) 0%, var(--accent-400) 100%);
 
-  /* The one shadow in the system. Dialog and command palette, nothing else.
-   * A panel is separated from the page by one tint step and one hairline. */
-  --shadow-overlay: 0 1px 2px rgb(31 28 24 / 0.06), 0 16px 40px rgb(31 28 24 / 0.14);
+  /* Edge treatment for cards that need lift without a shadow. */
+  --accent-gradient-edge: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--accent-400) 30%, transparent) 0%,
+    transparent 100%
+  );
+}
 
-  /* Control heights, sheet 03. Every one sits inside a 44px hit region. */
-  --control-sm: 32px; /* in-row */
-  --control-md: 36px; /* toolbar */
-  --control-lg: 44px; /* form, dialog */
+/* ═══ TIER 3 · COMPONENT ═══════════════════════════════════════════════════
+ * Only where a component needs to diverge from the semantic default.
+ */
+
+:root {
+  /* The primary button is aLcassa's action blue, NOT the tenant accent.
+   * A tenant's colour choice must not restyle the product's primary action. */
+  --button-primary-bg: var(--blue-500);
+  --button-primary-bg-hover: var(--blue-600);
+  --button-primary-fg: var(--ink-0);
+
+  --button-secondary-bg: var(--surface-raised);
+  --button-secondary-border: var(--border-strong);
+  --button-secondary-fg: var(--text-primary);
+
+  --button-ghost-bg-hover: var(--surface-inset);
+
+  --button-danger-bg: var(--danger-fg);
+  --button-danger-fg: var(--ink-0);
+
+  --input-bg: var(--surface-raised);
+  --input-border: var(--border-strong);
+  --input-border-focus: var(--blue-500);
+  --input-placeholder: var(--text-tertiary);
+
+  --table-header-bg: var(--surface-sunken);
+  --table-row-hover: var(--surface-inset);
+  --table-border: var(--border-subtle);
+
+  --sidebar-bg: var(--surface-raised);
+  --sidebar-item-active: var(--tenant-tint, var(--blue-50));
+  --sidebar-item-active-mark: var(--tenant-accent, var(--blue-500));
+  --sidebar-item-hover: var(--surface-inset);
+
+  /* Support mode banner. Deliberately outside the accent system: it must look
+   * identical in every organization, because it is a platform-level state.
+   * Uses the brand orange darkened to 500, which clears 4.5:1 with white text
+   * where the raw brand value at 400 would not. */
+  --support-banner-bg: var(--orange-500);
+  --support-banner-fg: var(--ink-0);
+}
+
+/* Dark mode needs the action blue lightened wherever it is a FILL under white
+ * text as well as where it is text. A blue-500 button on ink-950 is legible,
+ * but the focus ring against a dark page is not. */
+[data-theme='dark'] {
+  --input-border-focus: var(--blue-300);
+  --sidebar-item-active: var(--tenant-tint, var(--ink-800));
+  --focus-ring: 0 0 0 2px var(--surface-base), 0 0 0 4px var(--blue-300);
+}
+
+/* ═══ TIER 0 · COMPATIBILITY LAYER ═════════════════════════════════════════
+ *
+ * ⚠ MIGRATION SCAFFOLD. DO NOT WRITE NEW CODE AGAINST THESE NAMES.
+ *
+ * The previous token system ("Conduit": copper, verdigris, ochre, oxide,
+ * slate, graphite on a vellum ground) is referenced ~370 times across ~48
+ * component files. Deleting those names in one commit would take every
+ * surface in the product down at once, which is the worst possible way to
+ * land an identity change: it maximises blast radius and makes it impossible
+ * to tell a rebrand regression from a refactor regression.
+ *
+ * So every old name resolves HERE, onto the nearest aLcassa value, by
+ * SEMANTIC ROLE rather than by hue similarity. The whole product picks up the
+ * new palette immediately; surfaces are then rewritten against the real
+ * tokens one at a time, and this block shrinks until it is empty.
+ *
+ * The supplied identity file does the same thing for `--gray-*`, so this is
+ * the migration pattern the handoff already assumes.
+ *
+ * ROLE MAPPING, and why each one goes where it goes:
+ *
+ *   copper     interaction, focus, the primary action   →  BLUE
+ *              The single most important mapping. Copper was the old
+ *              interaction colour and blue is the new one, so every button,
+ *              link and focus ring lands correctly without being touched.
+ *              It must NOT map to orange: orange has a one-per-screen budget
+ *              and copper appears ~24 files deep.
+ *
+ *   verdigris  provisioned, within limits, passing      →  GREEN  (success)
+ *   ochre      a refusal the reader can resolve         →  AMBER  (warning)
+ *   oxide      a refusal they cannot, and destructive   →  RED    (danger)
+ *   slate      system and machine facts                 →  INK 600/300
+ *   graphite   inert: archived, revoked, disabled       →  INK 500/400
+ *
+ * Ochre maps to AMBER and not to the brand orange deliberately. 03 §4 puts
+ * danger and warning "deliberately apart from the brand orange in hue, so a
+ * warning and a brand accent are never confused at a glance" — routing every
+ * old ochre chip through #FA5505 would blow the accent budget on every screen
+ * in the product simultaneously.
+ */
+
+:root,
+[data-theme='light'] {
+  /* ─ surfaces ─ */
+  --surface-page: var(--surface-base);
+  --surface-well: var(--surface-raised); /* nested block: lighter, not darker */
+  --surface-invert: var(--ink-900);
+  --surface-hover: var(--surface-inset);
+
+  /* ─ rules ─ */
+  --rule-soft: var(--ink-100);
+  --rule-base: var(--border-subtle);
+  --rule-strong: var(--border-strong);
+
+  /* ─ ink steps ─ */
+  --ink-primary: var(--text-primary);
+  --ink-secondary: var(--text-secondary);
+  --ink-tertiary: var(--text-tertiary);
+  --ink-faint: var(--ink-300);
+  --ink-inverse: var(--text-inverse);
+
+  /* ─ copper → blue. Interaction. ─ */
+  --copper-ink: var(--blue-500);
+  --copper-solid: var(--blue-500);
+  --copper-tint: var(--blue-50);
+  --copper-rule: var(--blue-200);
+
+  /* ─ verdigris → green. Passing. ─ */
+  --verdigris-ink: var(--green-500);
+  --verdigris-solid: var(--green-500);
+  --verdigris-tint: var(--green-100);
+  --verdigris-rule: color-mix(in oklab, var(--green-500) 38%, var(--surface-base));
+
+  /* ─ ochre → amber. Resolvable refusal. ─ */
+  --ochre-ink: var(--amber-500);
+  --ochre-solid: var(--amber-500);
+  --ochre-tint: var(--amber-100);
+  --ochre-rule: color-mix(in oklab, var(--amber-500) 38%, var(--surface-base));
+
+  /* ─ oxide → red. Unresolvable refusal, and destructive. ─ */
+  --oxide-ink: var(--red-500);
+  --oxide-solid: var(--red-500);
+  --oxide-tint: var(--red-100);
+  --oxide-rule: color-mix(in oklab, var(--red-500) 38%, var(--surface-base));
+
+  /* ─ slate → ink. System and machine facts. ─ */
+  --slate-ink: var(--ink-600);
+  --slate-solid: var(--ink-600);
+  --slate-tint: var(--ink-50);
+  --slate-rule: var(--ink-300);
+
+  /* ─ graphite → ink. Inert. ─ */
+  --graphite-ink: var(--ink-500);
+  --graphite-solid: var(--ink-500);
+  --graphite-tint: var(--ink-100);
+  --graphite-rule: var(--ink-300);
+
+  /* ─ interaction ─ */
+  --focus: var(--border-focus);
+  --selection-bg: var(--blue-100);
+  --selection-fg: var(--ink-900);
+  --scrim: var(--surface-overlay);
+
+  --disabled-surface: var(--ink-50);
+  --disabled-rule: var(--ink-200);
+  --disabled-ink: var(--text-disabled);
+
+  /* ─ old semantic aliases ─ */
+  --text-body: var(--text-secondary);
+  --text-muted: var(--text-tertiary);
+  --text-placeholder: var(--input-placeholder);
+  --text-faint: var(--ink-300);
+  --text-brand: var(--text-action);
+
+  --border-default: var(--border-subtle);
+  --border-emphasis: var(--border-strong);
+
+  --action-primary-bg: var(--button-primary-bg);
+  --action-primary-fg: var(--button-primary-fg);
+  --action-primary-border: var(--blue-600);
+  --action-destructive-bg: var(--button-danger-bg);
+  --action-destructive-fg: var(--button-danger-fg);
+  --action-destructive-border: var(--red-500);
+  --action-quiet-fg: var(--text-action);
+  --action-quiet-hover-bg: var(--blue-50);
+
+  /* ─ old elevation names → the glass/neu system ─ */
+  --shadow-overlay: var(--shadow-lg);
+  --shadow-card: var(--glass-highlight), var(--shadow-sm);
+  --shadow-card-hover: var(--glass-highlight), var(--shadow-md);
+  --shadow-sunken: var(--neu-inset);
+  --shadow-well: var(--neu-inset);
+}
+
+[data-theme='dark'] {
+  --surface-page: var(--surface-base);
+  --surface-well: var(--surface-inset);
+  --surface-invert: var(--ink-50);
+  --surface-hover: var(--surface-inset);
+
+  --rule-soft: var(--ink-900);
+  --rule-base: var(--border-subtle);
+  --rule-strong: var(--border-strong);
+
+  --ink-primary: var(--text-primary);
+  --ink-secondary: var(--text-secondary);
+  --ink-tertiary: var(--text-tertiary);
+  --ink-faint: var(--ink-600);
+  --ink-inverse: var(--text-inverse);
+
+  /* The saturated blue is 2.52:1 on ink-950. Every compat token that lands as
+   * TEXT has to take the light step, or the whole product loses its links in
+   * dark mode. This is the same rule as --text-action, applied to the alias. */
+  --copper-ink: var(--blue-300);
+  --copper-solid: var(--blue-400);
+  --copper-tint: var(--ink-800);
+  --copper-rule: var(--blue-800);
+
+  --verdigris-ink: var(--green-400);
+  --verdigris-solid: var(--green-400);
+  --verdigris-tint: rgba(63, 125, 83, 0.15);
+  --verdigris-rule: color-mix(in oklab, var(--green-400) 34%, var(--surface-base));
+
+  --ochre-ink: var(--amber-400);
+  --ochre-solid: var(--amber-400);
+  --ochre-tint: rgba(183, 121, 31, 0.15);
+  --ochre-rule: color-mix(in oklab, var(--amber-400) 34%, var(--surface-base));
+
+  --oxide-ink: var(--red-400);
+  --oxide-solid: var(--red-400);
+  --oxide-tint: rgba(196, 69, 58, 0.15);
+  --oxide-rule: color-mix(in oklab, var(--red-400) 34%, var(--surface-base));
+
+  --slate-ink: var(--ink-300);
+  --slate-solid: var(--ink-400);
+  --slate-tint: var(--ink-800);
+  --slate-rule: var(--ink-700);
+
+  --graphite-ink: var(--ink-400);
+  --graphite-solid: var(--ink-400);
+  --graphite-tint: var(--ink-800);
+  --graphite-rule: var(--ink-700);
+
+  --focus: var(--border-focus);
+  --selection-bg: var(--ink-800);
+  --selection-fg: var(--ink-50);
+  --scrim: var(--surface-overlay);
+
+  --disabled-surface: var(--ink-900);
+  --disabled-rule: var(--ink-800);
+  --disabled-ink: var(--text-disabled);
+
+  --text-body: var(--text-secondary);
+  --text-muted: var(--text-tertiary);
+  --text-placeholder: var(--input-placeholder);
+  --text-faint: var(--ink-600);
+  --text-brand: var(--text-action);
+
+  --border-default: var(--border-subtle);
+  --border-emphasis: var(--border-strong);
+
+  --action-primary-bg: var(--blue-500);
+  --action-primary-fg: var(--ink-0);
+  --action-primary-border: var(--blue-400);
+  --action-destructive-bg: var(--red-500);
+  --action-destructive-fg: var(--ink-0);
+  --action-destructive-border: var(--red-400);
+  --action-quiet-fg: var(--text-action);
+  --action-quiet-hover-bg: var(--ink-800);
+
+  --shadow-overlay: var(--shadow-lg);
+  --shadow-card: var(--glass-highlight), var(--shadow-sm);
+  --shadow-card-hover: var(--glass-highlight), var(--shadow-md);
+  --shadow-sunken: var(--neu-inset);
+  --shadow-well: var(--neu-inset);
+}
+
+/* Old geometry and layout names, theme-independent. */
+:root {
+  --s-0: 2px;
+  --s-1: var(--space-1);
+  --s-2: var(--space-2);
+  --s-3: var(--space-3);
+  --s-4: var(--space-4);
+  --s-5: var(--space-6);
+  --s-6: var(--space-8);
+  --s-7: var(--space-12);
+
+  --r-chip: var(--radius-sm);
+  --r-panel: var(--radius-md);
+  --r-overlay: var(--radius-lg);
+  --r-full: var(--radius-full);
+
+  --control-sm: 32px;
+  --control-md: 36px;
+  --control-lg: 44px;
   --hit-target: 44px;
 
-  /* Row heights, sheet 04. Density is a first-class setting, persisted per user. */
-  --row-comfortable: 56px; /* tenant application default */
-  --row-compact: 44px; /* platform console default, for long lists */
+  --row-comfortable: 56px;
+  --row-compact: 44px;
 
-  /* Layout, sheet 04. */
-  --nav-width: 220px;
-  --nav-rail-width: 56px;
-  --content-max: 1200px;
-
-  /* The frame is 3px of copper inset around the entire viewport. Layout insets
-   * to accommodate it rather than overlaying, so nothing is ever hidden
-   * beneath it. 03 §8 · 06 §6. */
+  --nav-width: var(--sidebar-width);
+  --nav-rail-width: var(--sidebar-width-collapsed);
+  --surface-width: var(--content-max);
   --boundary-width: 3px;
-}
 
-/* ═══ 6 · MOTION ═══════════════════════════════════════════════════════════
- * Sheet 13. Motion confirms, it never entertains. Nothing exceeds 200ms except
- * the skeleton pulse, and no token moves anything more than 4px.
- */
+  --font-serif: var(--font-display);
+  --font-sans: var(--font-ui);
+  --font-math: var(--font-display);
 
-:root {
-  --motion-instant: 0ms; /* nav selection, tab change, filter apply */
-  --motion-fade: 120ms; /* panel and popover, opacity only */
-  --motion-overlay: 160ms; /* dialog and palette, opacity plus 4px rise */
-  --motion-banner: 180ms; /* height and opacity, so nothing below jumps */
-  --motion-toast: 200ms;
-  --motion-skeleton: 1200ms; /* pulse between two surface tints, no sweep */
+  --motion-instant: 0ms;
+  --motion-fade: var(--duration-fast);
+  --motion-overlay: var(--duration-base);
+  --motion-banner: var(--duration-base);
+  --motion-toast: var(--duration-slow);
+  --motion-skeleton: 1200ms;
+  --ease-decelerate: var(--ease-out);
 
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-decelerate: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --motion-fade: 0ms;
-    --motion-overlay: 0ms;
-    --motion-banner: 0ms;
-    --motion-toast: 0ms;
-  }
-}
-
-/* ═══ 7 · HATCH ════════════════════════════════════════════════════════════
- * The one texture. It says "this space exists and you cannot use it", which no
- * flat grey communicates as clearly. Used for disabled surfaces, suspended
- * rows, unavailable capacity in a limit bar, and a value withheld from the
- * support role.
- */
-
-:root {
-  --hatch-graphite: repeating-linear-gradient(45deg, var(--graphite-rule) 0 1px, transparent 1px 6px);
-  --hatch-oxide: repeating-linear-gradient(45deg, var(--oxide-rule) 0 1px, transparent 1px 6px);
-  --hatch-slate: repeating-linear-gradient(45deg, var(--slate-rule) 0 1px, transparent 1px 6px);
-}
-
-/* ═══ 8 · THE REVIEW SURFACE ═══════════════════════════════════════════════
- * Tokens used ONLY by the presentation surface at `/`, kept separate so it is
- * obvious which values the product does not touch.
- *
- * ⚠ THE PRESENTATION SURFACE DIVERGES FROM 03 §7 DELIBERATELY, and the
- * divergence is scoped. `/app`, `/platform` and `/product` keep the rule that
- * motion confirms and never entertains, because that is the product Brian is
- * approving and he will see those screens a hundred times a day. This surface
- * is read a handful of times, in a meeting, by someone deciding whether to sign
- * something, and it earns a different budget. Recorded in 15-spec-delta A4.
- *
- * Every duration here is still bounded, and every animation is gated behind
- * prefers-reduced-motion at the source rather than at the stylesheet.
- */
-
-:root {
-  /*
-   * ONE WIDTH, EVERY READING SURFACE.
-   *
-   * The marketing page, the tracker and the document viewer each grew their
-   * own hardcoded maxWidth (1100px, 1240px, 1180px), which is how three pages
-   * that are supposed to feel like one product ended up visibly disagreeing
-   * about how wide a page is. There is exactly one number now, and every one
-   * of those surfaces reads it from here rather than restating it.
-   */
-  --surface-width: 1240px;
-
-  /*
-   * THE CARD LIFT, SOFT RATHER THAN STARK.
-   *
-   * A card on a warm near-white page can only ever be a ~1.04:1 fill step, so
-   * a hard drop shadow does the separating and looks like a sticker. This is
-   * the softer reading: THREE layers, all of them quiet.
-   *
-   *   1. an inset highlight along the top edge, which is the light catching
-   *      the card's near lip;
-   *   2. a wide, almost-white ambient spread up and to the left, which lets
-   *      the card sit IN the page rather than on top of it;
-   *   3. a soft warm shade down and to the right, offset rather than centred,
-   *      so the light has one consistent direction across the whole page.
-   *
-   * It is neumorphic in the sense that matters, a lit surface with a soft
-   * shade, and deliberately not in the sense that fails: the hairline stays,
-   * so a card's edge is never carried by the shadow alone. That is the usual
-   * accessibility failure of the style and there is no reason to inherit it.
-   *
-   * 03 §6 allows one shadow, on overlays. This is a fourth-generation revision
-   * of that rule for the tracker only and it is recorded in 15-spec-delta D9.
-   */
-  --shadow-card:
-    inset 0 1px 0 rgb(255 255 255 / 0.8), -3px -3px 11px rgb(255 255 255 / 0.55),
-    3px 4px 17px rgb(31 28 24 / 0.032), 0 1px 2px rgb(31 28 24 / 0.02);
-
-  --shadow-card-hover:
-    inset 0 1px 0 rgb(255 255 255 / 0.85), -4px -4px 13px rgb(255 255 255 / 0.62),
-    5px 7px 23px rgb(31 28 24 / 0.045), 0 1px 3px rgb(31 28 24 / 0.028);
-
-  /* A field is the same light, inverted: it sits INTO the sheet. */
-  --shadow-sunken: inset 1px 2px 5px rgb(31 28 24 / 0.035), inset -1px -1px 0 rgb(255 255 255 / 0.5);
-
-  /* A nested fact block, the same light again, scaled down. Smaller offsets
-   * and a lighter touch than the card it sits inside, so the eye reads it as
-   * one step closer rather than as a second, competing card. */
-  --shadow-well:
-    inset 0 1px 0 rgb(255 255 255 / 0.85), -2px -2px 7px rgb(255 255 255 / 0.6),
-    2px 3px 9px rgb(31 28 24 / 0.028);
+  --hatch-graphite: repeating-linear-gradient(45deg, var(--ink-300) 0 1px, transparent 1px 6px);
+  --hatch-oxide: repeating-linear-gradient(45deg, var(--red-400) 0 1px, transparent 1px 6px);
+  --hatch-slate: repeating-linear-gradient(45deg, var(--ink-400) 0 1px, transparent 1px 6px);
 
   --scrollbar-width: 10px;
   --scrollbar-track: transparent;
-  --scrollbar-thumb: var(--rule-base);
-  --scrollbar-thumb-hover: var(--copper-rule);
+  --scrollbar-thumb: var(--border-strong);
+  --scrollbar-thumb-hover: var(--blue-400);
 
-  /* Theme crossfade. The toggle is instant and client-side; this is what stops
-   * an instant change from reading as a flicker. */
-  --theme-transition: 280ms;
-
-  /* Reveal choreography. GSAP reads these so the timing lives in the token
-   * file with everything else rather than as numbers scattered in a hook. */
+  --theme-transition: var(--duration-slow);
   --reveal-distance: 18px;
   --reveal-duration: 0.75s;
   --reveal-stagger: 0.055s;
 }
 
-[data-theme='dark'] {
-  --scrollbar-thumb: var(--rule-strong);
-  --scrollbar-thumb-hover: var(--copper-ink);
+/* ── The old 14-step type scale, restated on the aLcassa families. ──────────
+ *
+ * The old system had ONE weight and three Libertinus families. The new one has
+ * three families and a ceiling of 500, so the shape of the scale survives and
+ * only its ingredients change. Serif goes to titles, DM Sans to everything
+ * that is read or operated, JetBrains Mono to everything that is verified.
+ *
+ * 03 §6: "Serif usage is restricted to titles. Applying it to a label, button,
+ * table header, navigation item, or any number is a review failure." So the
+ * lede drops from serif to sans here, which is also what the supplied preview
+ * does with its own standfirst.
+ */
+:root {
+  --t-display: 500 var(--display-lg) / var(--display-leading) var(--font-display);
+  --t-display-tracking: var(--display-tracking);
+  --t-title: 500 var(--display-md) / var(--display-leading) var(--font-display);
+  --t-title-tracking: var(--display-tracking);
+  --t-heading: 500 var(--display-sm) / var(--display-leading) var(--font-display);
+  --t-heading-tracking: var(--display-tracking);
 
-  /*
-   * The same light, restated for a dark ground rather than flipped.
-   *
-   * The highlight drops to a few percent, because on a dark surface a white
-   * lip at 90% reads as a glowing seam. The shade goes the other way and
-   * deepens: on dark, separation comes almost entirely from shadow, since a
-   * lighter fill has much less room to move before it stops looking like the
-   * same material.
-   */
-  --shadow-card:
-    inset 0 1px 0 rgb(255 255 255 / 0.035), -3px -3px 11px rgb(255 255 255 / 0.009),
-    4px 5px 19px rgb(0 0 0 / 0.3), 0 1px 2px rgb(0 0 0 / 0.2);
+  --t-panel: var(--weight-medium) var(--text-lg) / 1.4 var(--font-ui);
+  --t-lede: var(--weight-normal) var(--text-md) / var(--leading-normal) var(--font-ui);
+  --t-body: var(--weight-normal) var(--text-base) / var(--leading-normal) var(--font-ui);
+  --t-compact: var(--weight-normal) var(--text-sm) / 1.5 var(--font-ui);
+  --t-caption: var(--weight-normal) var(--text-sm) / 1.45 var(--font-ui);
+  --t-label: var(--weight-medium) var(--text-xs) / 1.4 var(--font-ui);
+  --t-label-tracking: 0.01em;
+  --t-micro: var(--weight-medium) var(--text-xs) / 1.35 var(--font-mono);
+  --t-micro-tracking: 0.06em;
 
-  --shadow-card-hover:
-    inset 0 1px 0 rgb(255 255 255 / 0.05), -4px -4px 13px rgb(255 255 255 / 0.014),
-    6px 8px 25px rgb(0 0 0 / 0.38), 0 1px 3px rgb(0 0 0 / 0.26);
-
-  --shadow-sunken: inset 1px 2px 5px rgb(0 0 0 / 0.36), inset -1px -1px 0 rgb(255 255 255 / 0.025);
-
-  --shadow-well:
-    inset 0 1px 0 rgb(255 255 255 / 0.045), -2px -2px 7px rgb(255 255 255 / 0.011),
-    3px 4px 11px rgb(0 0 0 / 0.24);
+  --t-data: var(--weight-normal) var(--text-base) / 1.5 var(--font-mono);
+  --t-code: var(--weight-normal) var(--text-sm) / 1.7 var(--font-mono);
+  --t-chip: var(--weight-medium) var(--text-xs) / 1 var(--font-mono);
+  --t-chip-tracking: 0.06em;
+  --t-eyebrow: var(--weight-medium) var(--text-xs) / 1 var(--font-mono);
+  --t-eyebrow-tracking: 0.12em;
 }

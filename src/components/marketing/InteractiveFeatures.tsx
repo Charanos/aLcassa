@@ -18,9 +18,10 @@ interface FeatureItem {
   title: string;
   summary: string;
   badge: string;
-  tone: 'graphite' | 'verdigris' | 'ochre' | 'copper' | 'slate';
   details: string[];
   codeOrVisualType: 'roles' | 'rls' | 'credentials' | 'rules' | 'audit';
+  iconColorClass: string;
+  iconBgClass: string;
 }
 
 const FEATURES: FeatureItem[] = [
@@ -30,13 +31,14 @@ const FEATURES: FeatureItem[] = [
     title: 'Your team, with roles',
     summary: 'Owners, admins and agents with invitations and a real permission model.',
     badge: 'Multi-Tenant RBAC',
-    tone: 'graphite',
     details: [
       'Owner: Full access, including billing, credentials and team roles.',
       'Admin: Manages settings, team and assistant rules. Cannot manage credentials.',
       'Agent: Handles customer messages. Read-only access to settings.',
     ],
     codeOrVisualType: 'roles',
+    iconColorClass: 'text-amber-600 dark:text-amber-400',
+    iconBgClass: 'bg-amber-50 dark:bg-amber-500/15 border-amber-200/60 dark:border-amber-500/30',
   },
   {
     id: 'rls',
@@ -44,13 +46,14 @@ const FEATURES: FeatureItem[] = [
     title: 'Your data, genuinely separated',
     summary: 'Enforced by Postgres Row Level Security on every single table, not application code.',
     badge: 'Postgres RLS',
-    tone: 'verdigris',
     details: [
       'Tenant isolation happens at database query layer.',
       'Application code cannot bypass or forget tenant scope.',
       'Automated isolation regression suite blocks every deployment.',
     ],
     codeOrVisualType: 'rls',
+    iconColorClass: 'text-emerald-600 dark:text-emerald-400',
+    iconBgClass: 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200/60 dark:border-emerald-500/30',
   },
   {
     id: 'credentials',
@@ -58,13 +61,14 @@ const FEATURES: FeatureItem[] = [
     title: 'Your credentials, write-only',
     summary: 'API keys are shown once at creation and never stored in plain text.',
     badge: 'Argon2 Hashed',
-    tone: 'ochre',
     details: [
       'Key shown exactly once upon creation.',
       'Stored as Argon2 hash, impossible to reverse.',
       'Rotation replaces a key without re-revealing previous values.',
     ],
     codeOrVisualType: 'credentials',
+    iconColorClass: 'text-rose-600 dark:text-rose-400',
+    iconBgClass: 'bg-rose-50 dark:bg-rose-500/15 border-rose-200/60 dark:border-rose-500/30',
   },
   {
     id: 'rules',
@@ -72,13 +76,14 @@ const FEATURES: FeatureItem[] = [
     title: 'Assistant rules, machine-readable',
     summary: 'Set how the AI assistant sounds, what it knows, and handover boundaries.',
     badge: '< 5s Propagation',
-    tone: 'copper',
     details: [
       'Structured JSON spec readable by AI agents and engines.',
       'Updates propagate to live API endpoints within 5 seconds.',
       'Master and tenant rule precedence enforced systematically.',
     ],
     codeOrVisualType: 'rules',
+    iconColorClass: 'text-blue-600 dark:text-blue-400',
+    iconBgClass: 'bg-blue-50 dark:bg-blue-500/15 border-blue-200/60 dark:border-blue-500/30',
   },
   {
     id: 'audit',
@@ -86,13 +91,14 @@ const FEATURES: FeatureItem[] = [
     title: 'A record of everything',
     summary: 'Immutable activity log that cannot be edited or deleted by anyone.',
     badge: 'Append-Only',
-    tone: 'slate',
     details: [
       'Every administrative action appended with timestamp and actor.',
       'Support mode logins leave audit record in tenant log.',
       'Zero delete or update permissions on audit entries.',
     ],
     codeOrVisualType: 'audit',
+    iconColorClass: 'text-violet-600 dark:text-violet-400',
+    iconBgClass: 'bg-violet-50 dark:bg-violet-500/15 border-violet-200/60 dark:border-violet-500/30',
   },
 ];
 
@@ -101,9 +107,9 @@ export function InteractiveFeatures() {
   const activeFeature: FeatureItem = FEATURES.find((f) => f.id === activeId) ?? FEATURES[0]!;
 
   return (
-    <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.25fr] lg:items-start border-t pt-8" style={{ borderColor: 'var(--rule-soft)' }}>
+    <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.25fr] lg:items-start border-t pt-8" style={{ borderColor: 'var(--border-subtle)' }}>
       {/* Left Feature Selector List */}
-      <div className="divide-y" style={{ borderColor: 'var(--rule-soft)' }}>
+      <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
         {FEATURES.map((feature) => {
           const isActive = feature.id === activeId;
           const Icon = feature.icon;
@@ -111,44 +117,51 @@ export function InteractiveFeatures() {
             <button
               key={feature.id}
               onClick={() => setActiveId(feature.id)}
-              className={`group w-full flex items-start gap-4 py-4 px-3.5 text-left transition-all duration-200 cursor-pointer relative rounded-panel ${isActive
-                  ? 'bg-[var(--surface-sunken)] border-l-4 shadow-2xs'
-                  : 'hover:bg-[var(--surface-sunken)]/50 border-l-4 border-l-transparent'
-                }`}
+              className={`group w-full flex items-start gap-4 py-4 px-3.5 text-left transition-all duration-200 cursor-pointer relative rounded-panel ${
+                isActive
+                  ? 'bg-[var(--surface-raised)] border-l-4 shadow-sm'
+                  : 'hover:bg-[var(--surface-sunken)]/60 border-l-4 border-l-transparent'
+              }`}
               style={{
-                borderLeftColor: isActive ? `var(--${feature.tone}-solid)` : 'transparent',
+                borderLeftColor: isActive ? 'var(--accent-mark)' : 'transparent',
               }}
             >
               {/* Icon Container */}
               <div
-                className="size-8 shrink-0 rounded-chip flex items-center justify-center border transition-colors mt-0.5"
-                style={{
-                  background: isActive ? `var(--${feature.tone}-tint)` : 'var(--surface-sunken)',
-                  borderColor: isActive ? `var(--${feature.tone}-rule)` : 'var(--rule-soft)',
-                }}
+                className={`size-8 shrink-0 rounded-chip flex items-center justify-center border transition-colors mt-0.5 ${
+                  isActive ? feature.iconBgClass : 'bg-[var(--surface-sunken)] border-[var(--border-subtle)]'
+                }`}
               >
-                <Icon size={16} stroke={1.5} style={{ color: `var(--${feature.tone}-ink)` }} />
+                <Icon
+                  size={16}
+                  stroke={1.75}
+                  className={isActive ? feature.iconColorClass : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'}
+                />
               </div>
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className={`t-panel ${isActive ? 'text-[var(--ink-primary)]' : 'text-[var(--ink-secondary)] group-hover:text-[var(--ink-primary)]'}`}>
+                  <h3
+                    className="t-panel font-medium"
+                    style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)' }}
+                  >
                     {feature.title}
                   </h3>
 
-                  {/* High-Contrast Standout Badge Pill */}
                   <span
-                    className="t-eyebrow px-2.5 py-0.5 rounded-chip border transition-all whitespace-nowrap"
-                    style={{
-                      background: `var(--${feature.tone}-tint)`,
-                      color: `var(--${feature.tone}-ink)`,
-                      borderColor: `var(--${feature.tone}-rule)`,
-                    }}
+                    className={`t-eyebrow px-2.5 py-0.5 rounded-chip border transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'bg-[var(--surface-inset)] text-[var(--text-primary)] border-[var(--border-strong)]'
+                        : 'bg-[var(--surface-sunken)] text-[var(--text-tertiary)] border-[var(--border-subtle)]'
+                    }`}
                   >
                     {feature.badge}
                   </span>
                 </div>
-                <p className="t-compact mt-1 text-[var(--ink-secondary)] leading-normal">
+                <p
+                  className="t-compact mt-1 leading-normal"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   {feature.summary}
                 </p>
               </div>
@@ -159,27 +172,29 @@ export function InteractiveFeatures() {
 
       {/* Right Specification Viewport Enclosure */}
       <div
-        className="rounded-panel border p-6 md:p-8 bg-[var(--surface-raised)] border-[var(--rule-strong)] shadow-sm relative overflow-hidden"
+        className="rounded-panel border p-6 md:p-8 bg-[var(--surface-raised)] border-[var(--border-strong)] shadow-sm relative overflow-hidden"
       >
         {/* Title Block Header */}
-        <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--rule-soft)' }}>
+        <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--border-subtle)' }}>
           <div className="flex items-center gap-2.5">
             <span
-              className="size-2.5 rounded-full animate-pulse"
-              style={{ background: `var(--${activeFeature.tone}-solid)` }}
+              className="size-2 rounded-full animate-pulse"
+              style={{ background: 'var(--success-fg)' }}
             />
-            <span className="t-compact text-[var(--ink-primary)]">
+            <span className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
               {activeFeature.title} Specification
             </span>
           </div>
-          <span className="t-eyebrow text-[var(--ink-tertiary)] font-mono">SEAM #{activeFeature.id.toUpperCase()}</span>
+          <span className="t-eyebrow font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
+            SEAM #{activeFeature.id.toUpperCase()}
+          </span>
         </div>
 
         {/* Feature Detail Checklist */}
         <ul className="mt-6 space-y-3">
           {activeFeature.details.map((detail, idx) => (
-            <li key={idx} className="flex items-start gap-3 t-compact text-[var(--ink-secondary)]">
-              <IconCheck size={16} className="shrink-0 text-[var(--verdigris-ink)] mt-0.5" />
+            <li key={idx} className="flex items-start gap-3 t-compact" style={{ color: 'var(--text-secondary)' }}>
+              <IconCheck size={16} className="shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
               <span>{detail}</span>
             </li>
           ))}
@@ -188,44 +203,44 @@ export function InteractiveFeatures() {
         {/* Technical Terminal & Code Spec Viewport */}
         <div
           className="mt-6 border-t pt-6 relative"
-          style={{ borderColor: 'var(--rule-soft)' }}
+          style={{ borderColor: 'var(--border-subtle)' }}
         >
           {activeFeature.codeOrVisualType === 'roles' && (
             <div className="space-y-3 animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow text-[var(--ink-tertiary)]">
+              <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 <span>MULTI-TENANT PERMISSION TOPOLOGY</span>
-                <span className="text-[var(--verdigris-ink)]">RBAC ENFORCED</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">RBAC ENFORCED</span>
               </div>
 
               {/* Compact Visual Role Topology SVG Diagram */}
-              <div className="rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--rule-soft)] max-w-md mx-auto">
+              <div className="rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--border-subtle)] max-w-md mx-auto">
                 <svg viewBox="0 0 360 110" fill="none" className="w-full h-auto max-h-[140px]">
                   {/* Root Node */}
-                  <rect x="130" y="6" width="100" height="26" rx="4" fill="var(--surface-raised)" stroke="var(--copper-rule)" strokeWidth="1" />
-                  <text x="180" y="23" textAnchor="middle" fill="var(--ink-primary)" className="t-micro" fontSize="9">WORKSPACE</text>
+                  <rect x="130" y="6" width="100" height="26" rx="4" fill="var(--surface-raised)" stroke="var(--border-strong)" strokeWidth="1" />
+                  <text x="180" y="23" textAnchor="middle" fill="var(--text-primary)" className="t-micro font-medium" fontSize="9">WORKSPACE</text>
 
-                  {/* Branch Lines */}
-                  <path d="M 180 32 L 60 60" stroke="var(--verdigris-solid)" strokeWidth="1" strokeDasharray="3 3" />
-                  <path d="M 180 32 L 180 60" stroke="var(--copper-solid)" strokeWidth="1" strokeDasharray="3 3" />
-                  <path d="M 180 32 L 300 60" stroke="var(--slate-solid)" strokeWidth="1" strokeDasharray="3 3" />
+                  {/* Connectors */}
+                  <path d="M 180 32 L 60 60" stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray="3 3" />
+                  <path d="M 180 32 L 180 60" stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray="3 3" />
+                  <path d="M 180 32 L 300 60" stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray="3 3" />
 
                   {/* Leaf Nodes */}
                   <g transform="translate(15, 60)">
-                    <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--verdigris-rule)" strokeWidth="1" />
-                    <text x="45" y="16" textAnchor="middle" fill="var(--verdigris-ink)" className="t-eyebrow" fontSize="9">OWNER</text>
-                    <text x="45" y="28" textAnchor="middle" fill="var(--ink-tertiary)" className="t-micro" fontSize="7">FULL ACCESS</text>
+                    <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--accent-mark)" strokeWidth="1.25" />
+                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow font-bold" fontSize="9">OWNER</text>
+                    <text x="45" y="28" textAnchor="middle" fill="var(--text-tertiary)" className="t-micro" fontSize="7">FULL ACCESS</text>
                   </g>
 
                   <g transform="translate(135, 60)">
-                    <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--copper-rule)" strokeWidth="1" />
-                    <text x="45" y="16" textAnchor="middle" fill="var(--copper-ink)" className="t-eyebrow" fontSize="9">ADMIN</text>
-                    <text x="45" y="28" textAnchor="middle" fill="var(--ink-tertiary)" className="t-micro" fontSize="7">CONFIG MODE</text>
+                    <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--border-strong)" strokeWidth="1" />
+                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow font-semibold" fontSize="9">ADMIN</text>
+                    <text x="45" y="28" textAnchor="middle" fill="var(--text-tertiary)" className="t-micro" fontSize="7">CONFIG MODE</text>
                   </g>
 
                   <g transform="translate(255, 60)">
-                    <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--slate-rule)" strokeWidth="1" />
-                    <text x="45" y="16" textAnchor="middle" fill="var(--slate-ink)" className="t-eyebrow" fontSize="9">AGENT</text>
-                    <text x="45" y="28" textAnchor="middle" fill="var(--ink-tertiary)" className="t-micro" fontSize="7">MESSAGING</text>
+                    <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--border-subtle)" strokeWidth="1" />
+                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow" fontSize="9">AGENT</text>
+                    <text x="45" y="28" textAnchor="middle" fill="var(--text-tertiary)" className="t-micro" fontSize="7">MESSAGING</text>
                   </g>
                 </svg>
               </div>
@@ -234,29 +249,29 @@ export function InteractiveFeatures() {
 
           {activeFeature.codeOrVisualType === 'rls' && (
             <div className="space-y-3 animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow text-[var(--ink-tertiary)]">
+              <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 <span>DATABASE TENANT ISOLATION BARRIER</span>
-                <span className="text-[var(--verdigris-ink)]">ZERO LEAKAGE</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">ZERO LEAKAGE</span>
               </div>
 
               {/* Compact RLS Isolation Wall Diagram */}
-              <div className="rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--rule-soft)] max-w-md mx-auto">
+              <div className="rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--border-subtle)] max-w-md mx-auto">
                 <svg viewBox="0 0 360 90" fill="none" className="w-full h-auto max-h-[120px]">
                   {/* Tenant A Zone */}
-                  <rect x="10" y="8" width="150" height="74" rx="4" fill="var(--surface-raised)" stroke="var(--verdigris-rule)" strokeWidth="1" />
-                  <text x="85" y="26" textAnchor="middle" fill="var(--verdigris-ink)" className="t-eyebrow" fontSize="9">TENANT A ISOLATION</text>
-                  <path d="M 25 45 L 145 45" stroke="var(--verdigris-solid)" strokeWidth="1.5" strokeDasharray="3 3" />
-                  <text x="85" y="62" textAnchor="middle" fill="var(--ink-secondary)" className="t-micro" fontSize="8">AUTHORIZED</text>
+                  <rect x="10" y="8" width="150" height="74" rx="4" fill="var(--surface-raised)" stroke="var(--success-fg)" strokeWidth="1" />
+                  <text x="85" y="26" textAnchor="middle" fill="var(--success-fg)" className="t-eyebrow font-semibold" fontSize="9">TENANT A ISOLATION</text>
+                  <path d="M 25 45 L 145 45" stroke="var(--success-fg)" strokeWidth="1.5" strokeDasharray="3 3" />
+                  <text x="85" y="62" textAnchor="middle" fill="var(--text-secondary)" className="t-micro" fontSize="8">AUTHORIZED</text>
 
                   {/* Hard Isolation Wall */}
-                  <line x1="180" y1="8" x2="180" y2="82" stroke="var(--copper-solid)" strokeWidth="2" strokeDasharray="4 2" />
-                  <text x="180" y="48" textAnchor="middle" fill="var(--copper-ink)" className="t-micro font-mono" fontSize="7" transform="rotate(-90 180 48)">RLS BARRIER</text>
+                  <line x1="180" y1="8" x2="180" y2="82" stroke="var(--accent-mark)" strokeWidth="2" strokeDasharray="4 2" />
+                  <text x="180" y="48" textAnchor="middle" fill="var(--accent-mark-text)" className="t-micro font-mono font-bold" fontSize="7" transform="rotate(-90 180 48)">RLS BARRIER</text>
 
                   {/* Tenant B Blocked Zone */}
-                  <rect x="200" y="8" width="150" height="74" rx="4" fill="var(--surface-raised)" stroke="var(--rule-soft)" strokeWidth="1" />
-                  <text x="275" y="26" textAnchor="middle" fill="var(--ink-tertiary)" className="t-eyebrow" fontSize="9">TENANT B DATA</text>
-                  <path d="M 215 45 L 335 45" stroke="var(--oxide-solid)" strokeWidth="1.5" />
-                  <text x="275" y="62" textAnchor="middle" fill="var(--oxide-ink)" className="t-micro" fontSize="8">BLOCKED</text>
+                  <rect x="200" y="8" width="150" height="74" rx="4" fill="var(--surface-raised)" stroke="var(--danger-fg)" strokeWidth="1" opacity="0.8" />
+                  <text x="275" y="26" textAnchor="middle" fill="var(--danger-fg)" className="t-eyebrow font-semibold" fontSize="9">TENANT B DATA</text>
+                  <path d="M 215 45 L 335 45" stroke="var(--danger-fg)" strokeWidth="1.5" />
+                  <text x="275" y="62" textAnchor="middle" fill="var(--danger-fg)" className="t-micro font-semibold" fontSize="8">BLOCKED</text>
                 </svg>
               </div>
             </div>
@@ -264,26 +279,29 @@ export function InteractiveFeatures() {
 
           {activeFeature.codeOrVisualType === 'credentials' && (
             <div className="space-y-3 animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow text-[var(--ink-tertiary)]">
+              <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 <span>ONE-WAY ARGON2 CRYPTOGRAPHIC ENGINE</span>
-                <span className="text-[var(--ochre-ink)]">NON-RETRIEVABLE</span>
+                <span className="text-amber-600 dark:text-amber-400 font-semibold">NON-RETRIEVABLE</span>
               </div>
 
               {/* Compact One-Way Hash Flow Graphic */}
-              <div className="rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--rule-soft)] max-w-md mx-auto">
+              <div className="rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--border-subtle)] max-w-md mx-auto">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 t-code">
-                  <div className="flex-1 rounded-chip border p-2 bg-[var(--surface-raised)] border-[var(--rule-soft)] text-center">
-                    <span className="t-micro text-[var(--ink-tertiary)] block mb-0.5">PLAIN API KEY</span>
-                    <span className="t-data-sm text-[var(--copper-ink)]">cndt_live_8f3a...</span>
+                  <div className="flex-1 rounded-chip border p-2 bg-[var(--surface-raised)] border-[var(--border-subtle)] text-center">
+                    <span className="t-micro text-[var(--text-tertiary)] block mb-0.5">PLAIN API KEY</span>
+                    <span className="t-data-sm text-[var(--text-action)]">alc_live_8f3a...</span>
                   </div>
 
-                  <div className="shrink-0 text-[var(--ochre-ink)] font-mono t-caption px-1">
-                    → ARGON2 →
+                  <div
+                    className="shrink-0 font-mono t-caption px-1 font-semibold"
+                    style={{ color: 'var(--accent-mark-text)' }}
+                  >
+                    &rarr; ARGON2 &rarr;
                   </div>
 
-                  <div className="flex-1 rounded-chip border p-2 bg-[var(--surface-raised)] border-[var(--rule-soft)] text-center">
-                    <span className="t-micro text-[var(--ink-tertiary)] block mb-0.5">SAVED HASH</span>
-                    <span className="t-data-sm text-[var(--verdigris-ink)]">$argon2id$v=19...</span>
+                  <div className="flex-1 rounded-chip border p-2 bg-[var(--surface-raised)] border-[var(--border-subtle)] text-center">
+                    <span className="t-micro text-[var(--text-tertiary)] block mb-0.5">SAVED HASH</span>
+                    <span className="t-data-sm text-emerald-600 dark:text-emerald-400">$argon2id$v=19...</span>
                   </div>
                 </div>
               </div>
@@ -292,18 +310,18 @@ export function InteractiveFeatures() {
 
           {activeFeature.codeOrVisualType === 'rules' && (
             <div className="animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow text-[var(--ink-tertiary)] mb-3">
+              <div className="flex items-center justify-between t-eyebrow text-[var(--text-tertiary)] mb-3">
                 <span className="flex items-center gap-1.5">
-                  <IconTerminal size={14} className="text-[var(--copper-ink)]" /> GET /api/v1/rules
+                  <IconTerminal size={14} className="text-amber-500" /> GET /api/v1/rules
                 </span>
-                <span className="text-[var(--verdigris-ink)]">&lt; 5s PROPAGATION</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">&lt; 5s PROPAGATION</span>
               </div>
-              <pre className="t-code text-[var(--ink-primary)] whitespace-pre-wrap leading-relaxed overflow-x-auto p-4 bg-[var(--surface-sunken)] rounded-panel border border-[var(--rule-soft)] border-l-4" style={{ borderLeftColor: 'var(--copper-solid)' }}>
+              <pre className="t-code text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed overflow-x-auto p-4 bg-[var(--surface-sunken)] rounded-panel border border-[var(--border-subtle)] border-l-4" style={{ borderLeftColor: 'var(--accent-mark)' }}>
                 {`{
-  "`}<span className="text-[var(--copper-ink)]">tone</span>{`": "`}<span className="text-[var(--verdigris-ink)]">technical_warm</span>{`",
-  "`}<span className="text-[var(--copper-ink)]">escalation_threshold</span>{`": `}<span className="text-[var(--ochre-ink)]">0.85</span>{`,
-  "`}<span className="text-[var(--copper-ink)]">handover_trigger</span>{`": ["`}<span className="text-[var(--verdigris-ink)]">pricing_custom</span>{`", "`}<span className="text-[var(--verdigris-ink)]">billing_dispute</span>{`"],
-  "`}<span className="text-[var(--copper-ink)]">knowledge_base_version</span>{`": "`}<span className="text-[var(--slate-ink)]">v1.4.2</span>{`"
+  "`}<span className="text-amber-600 dark:text-amber-400">tone</span>{`": "`}<span className="text-emerald-600 dark:text-emerald-400">technical_warm</span>{`",
+  "`}<span className="text-amber-600 dark:text-amber-400">escalation_threshold</span>{`": `}<span className="text-rose-500">0.85</span>{`,
+  "`}<span className="text-amber-600 dark:text-amber-400">handover_trigger</span>{`": ["`}<span className="text-emerald-600 dark:text-emerald-400">pricing_custom</span>{`", "`}<span className="text-emerald-600 dark:text-emerald-400">billing_dispute</span>{`"],
+  "`}<span className="text-amber-600 dark:text-amber-400">knowledge_base_version</span>{`": "`}<span className="text-[var(--text-secondary)]">v1.4.2</span>{`"
 }`}
               </pre>
             </div>
@@ -311,30 +329,30 @@ export function InteractiveFeatures() {
 
           {activeFeature.codeOrVisualType === 'audit' && (
             <div className="space-y-3 animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow text-[var(--ink-tertiary)]">
+              <div className="flex items-center justify-between t-eyebrow text-[var(--text-tertiary)]">
                 <span>ACTIVITY LOG STREAM</span>
-                <span className="text-[var(--verdigris-ink)]">IMMUTABLE APPEND-ONLY</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">IMMUTABLE APPEND-ONLY</span>
               </div>
-              <div className="divide-y border rounded-chip bg-[var(--surface-sunken)] overflow-hidden" style={{ borderColor: 'var(--rule-soft)' }}>
+              <div className="divide-y border rounded-chip bg-[var(--surface-sunken)] overflow-hidden" style={{ borderColor: 'var(--border-subtle)' }}>
                 <div className="flex items-center justify-between p-3 t-compact">
                   <div className="flex items-center gap-2.5">
-                    <span className="size-1.5 rounded-full bg-[var(--copper-solid)]" />
+                    <span className="size-1.5 rounded-full bg-[var(--accent-mark)]" />
                     <div>
-                      <span className="text-[var(--ink-primary)]">Support Mode Session</span>
-                      <div className="t-caption text-[var(--ink-tertiary)]">Reason: Ticket #4829 investigation</div>
+                      <span className="text-[var(--text-primary)] font-medium">Support Mode Session</span>
+                      <div className="t-caption text-[var(--text-tertiary)]">Reason: Ticket #4829 investigation</div>
                     </div>
                   </div>
-                  <span className="t-data text-[var(--copper-ink)]">14:22:01</span>
+                  <span className="t-data text-amber-600 dark:text-amber-400 font-mono">14:22:01</span>
                 </div>
                 <div className="flex items-center justify-between p-3 t-compact">
                   <div className="flex items-center gap-2.5">
-                    <span className="size-1.5 rounded-full bg-[var(--verdigris-solid)]" />
+                    <span className="size-1.5 rounded-full bg-emerald-500" />
                     <div>
-                      <span className="text-[var(--ink-primary)]">Assistant Rules Updated</span>
-                      <div className="t-caption text-[var(--ink-tertiary)]">Actor: owner@acme.com</div>
+                      <span className="text-[var(--text-primary)] font-medium">Assistant Rules Updated</span>
+                      <div className="t-caption text-[var(--text-tertiary)]">Actor: owner@acme.com</div>
                     </div>
                   </div>
-                  <span className="t-data text-[var(--ink-tertiary)]">12:05:44</span>
+                  <span className="t-data text-[var(--text-tertiary)] font-mono">12:05:44</span>
                 </div>
               </div>
             </div>
@@ -344,4 +362,3 @@ export function InteractiveFeatures() {
     </div>
   );
 }
-

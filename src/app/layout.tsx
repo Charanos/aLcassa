@@ -8,10 +8,22 @@ import './globals.css';
  * everything under /app, /platform, /api and /invite is disallowed in
  * robots.txt and noindexed per route group.
  */
+/*
+ * ⚠ THE WORDMARK IS `aLcassa`, MIXED CASE, CAPITAL L.
+ *
+ * BRAND.md §1 marks `Alcassa` as the one form the brand guidance prohibits
+ * explicitly, and title-casing is precisely what a `<title>` template invites.
+ * The capitalisation is load-bearing everywhere it is technically possible,
+ * which includes here: a browser tab and a search result are product-facing
+ * copy, not identifiers.
+ *
+ * The lowercase `alcassa` remains correct in code — cookie names, package
+ * names, env prefixes, URLs — and is not a violation of the rule.
+ */
 export const metadata: Metadata = {
-  title: { default: 'Conduit', template: '%s · Conduit' },
+  title: { default: 'aLcassa', template: '%s · aLcassa' },
   description: 'One inbox for every message your customers send.',
-  applicationName: 'Conduit',
+  applicationName: 'aLcassa',
   formatDetection: { telephone: false, address: false, email: false },
 };
 

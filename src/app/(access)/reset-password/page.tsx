@@ -9,12 +9,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/**
- * 02 §3 · 10 §3. Single use, 30 minute expiry, and SUCCESS INVALIDATES EVERY
- * SESSION FOR THAT USER. The note below says so before they submit rather than
- * after, because being signed out of another device is surprising if the first
- * you hear of it is that it happened.
- */
 export default async function ResetPasswordPage({
   searchParams,
 }: {
@@ -47,12 +41,12 @@ export default async function ResetPasswordPage({
         <div
           className="flex gap-2.5 rounded-chip border p-3"
           style={{
-            background: 'var(--slate-tint)',
-            borderColor: 'var(--slate-rule)',
-            color: 'var(--slate-ink)',
+            background: 'var(--surface-sunken)',
+            borderColor: 'var(--border-subtle)',
+            color: 'var(--text-secondary)',
           }}
         >
-          <IconInfoCircle size={15} stroke={1.5} aria-hidden className="mt-px shrink-0" />
+          <IconInfoCircle size={16} stroke={1.5} aria-hidden className="mt-px shrink-0 text-amber-500" />
           <p className="t-caption">Setting a new password signs you out everywhere else.</p>
         </div>
 

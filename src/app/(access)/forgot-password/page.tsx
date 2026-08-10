@@ -14,9 +14,7 @@ export const metadata: Metadata = {
  *
  * ⚠ ALWAYS REPORTS SUCCESS, NEVER CONFIRMS AN ACCOUNT EXISTS. The result copy
  * is "If an account exists for {email}, a reset link is on its way", and the
- * response is a 204 either way. A form that says "no such account" is an
- * account enumeration oracle, and on a B2B platform that leaks your customer
- * list to anyone with a guess.
+ * response is a 204 either way.
  */
 export default function ForgotPasswordPage() {
   return (
@@ -26,11 +24,11 @@ export default function ForgotPasswordPage() {
       lede="Enter your email and we will send a reset link."
       aside={<TenantAside />}
       footer={
-        <p className="t-caption text-[var(--ink-tertiary)]">
+        <p className="t-caption text-center" style={{ color: 'var(--text-tertiary)' }}>
           Remembered it?{' '}
           <Link
             href="/sign-in"
-            className="text-[var(--copper-ink)] underline decoration-[var(--copper-rule)] underline-offset-2"
+            className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80 transition-opacity"
           >
             Sign in
           </Link>

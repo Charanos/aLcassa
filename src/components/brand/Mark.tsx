@@ -1,37 +1,55 @@
 /**
- * 03 §22. THE MARK.
+ * THE aLcassa MARK.
  *
- * There is no brand. Ask at design lock whether one exists (01 §9 question 2);
- * if not, this placeholder ships and looks deliberate rather than unfinished.
+ * The previous file in this path was a placeholder that said, in its own
+ * header, "when a real identity arrives this changes and nothing else does."
+ * The identity arrived on 3 August 2026. This is that change.
  *
- * A 1:1 square outline at 1.5px containing two horizontal rules offset from
- * centre, suggesting a conduit passing through a boundary. Which is what the
- * product is: the layer that carries messages between systems without being
- * the message.
+ * The icon is a rounded `C` with two ears and a centred dot, reading as a
+ * friendly bear. BRAND.md §2 permits it standalone anywhere the wordmark
+ * would fall below legible size: favicon, app icon, avatar, social profile.
  *
- * The wordmark is ABSENT until a name exists, and the mark stands alone. A
- * placeholder wordmark reading "Conduit" would be worse, because Conduit is the
- * codename for the design system and this document set, not a proposed product
- * name.
+ * ⚠ DRAWN AS VECTOR RATHER THAN SHIPPED AS THE SUPPLIED PNG.
  *
- * The mark never sits on an image, never gets a container, never animates.
- * Favicon, app icon and OG image are generated from this one file, so when a
- * real identity arrives this changes and nothing else does.
+ * The client supplied the icon at 2560px square, which is correct for print
+ * and wrong for a 20px nav mark: it is 280KB to render 400 pixels, it cannot
+ * take a currentColor, and it has no dark-mode variant. Redrawing it on a
+ * 24-unit grid gives one file that is a favicon, a nav mark and an OG asset,
+ * and that recolours by prop instead of by asset swap.
+ *
+ * ⚠ ON WHICH BLUE.
+ *
+ * BRAND.md §5 records the open question: the supplied icon file is #0059D4,
+ * the moodboard palette is #043AE1, and they are visibly different. The
+ * resolution recorded there is #043AE1, because the moodboard presents itself
+ * as the palette specification and measures better (7.58:1 on cream against
+ * 6.05:1). This component therefore takes its colour from `--blue-500` like
+ * every other blue in the system, so if the client confirms #0059D4 instead,
+ * the fix is one token and not one asset.
+ *
+ * The mark is NEVER recoloured to a tenant accent. It is aLcassa's mark, not
+ * the tenant's, and a logo that changes colour per customer stops functioning
+ * as a mark. There is deliberately no `accent` tone below.
  */
 
 export type MarkProps = {
   size?: number;
-  tone?: 'copper' | 'inverse' | 'ink';
+  /**
+   * `brand` is the blue lockup and the default.
+   * `inverse` is the white-on-dark cut.
+   * `ink` is the single-colour context where blue is unavailable.
+   */
+  tone?: 'brand' | 'inverse' | 'ink';
   title?: string;
 };
 
 const TONES = {
-  copper: 'var(--copper-solid)',
-  inverse: 'var(--ink-inverse)',
-  ink: 'var(--ink-primary)',
+  brand: 'var(--blue-500)',
+  inverse: 'var(--text-inverse)',
+  ink: 'var(--text-primary)',
 } as const;
 
-export function Mark({ size = 24, tone = 'copper', title }: MarkProps) {
+export function Mark({ size = 24, tone = 'brand', title }: MarkProps) {
   const colour = TONES[tone];
 
   return (
@@ -45,19 +63,64 @@ export function Mark({ size = 24, tone = 'copper', title }: MarkProps) {
       aria-hidden={title ? undefined : true}
       data-slot="mark"
     >
-      {/* the boundary */}
-      <rect
-        x="1.5"
-        y="1.5"
-        width="21"
-        height="21"
-        rx="2"
+      {/* The two ears, set wide and high so the silhouette reads as a bear at
+          16px, which is the size that actually decides whether it works. */}
+      <circle cx="6.6" cy="6.4" r="4.05" fill={colour} />
+      <circle cx="17.4" cy="6.4" r="4.05" fill={colour} />
+
+      {/* The C. An open ring with the aperture to the right, drawn as a stroke
+          so the counter stays true at every size instead of collapsing the way
+          a filled path does when it is scaled down. */}
+      <path
+        d="M17.9 7.4a7.9 7.9 0 1 0 0 9.2"
         stroke={colour}
-        strokeWidth="1.5"
+        strokeWidth="4.6"
+        strokeLinecap="round"
+        fill="none"
       />
-      {/* two conduits passing through it, offset from centre */}
-      <path d="M1.5 9.5H22.5" stroke={colour} strokeWidth="1.5" />
-      <path d="M1.5 15.5H22.5" stroke={colour} strokeWidth="1.5" />
+
+      {/* The centred dot. */}
+      <circle cx="12" cy="12" r="2.35" fill={colour} />
     </svg>
+  );
+}
+
+/**
+ * The primary lockup: icon plus the `aLcassa` wordmark.
+ *
+ * ⚠ THE CAPITALISATION IS LOAD-BEARING AND IT IS SET HERE ONCE.
+ *
+ * BRAND.md §1 names `Alcassa` as the one error the brand guidance prohibits
+ * explicitly, and capitalisation is exactly the sort of thing that erodes
+ * through autocorrect and copy-paste. Rendering the wordmark from this
+ * component rather than as a typed string in each surface means there is one
+ * place for it to be right, and a CI grep for the wrong form has somewhere to
+ * point when it fails.
+ *
+ * The wordmark is set in the interface face rather than the display serif.
+ * 03 §6 restricts the serif to titles, and a wordmark is a mark, not a title.
+ */
+export function Wordmark({
+  size = 22,
+  tone = 'brand',
+  showIcon = true,
+}: {
+  size?: number;
+  tone?: MarkProps['tone'];
+  showIcon?: boolean;
+}) {
+  return (
+    <span className="inline-flex items-center gap-2.5" data-slot="wordmark">
+      {showIcon ? <Mark size={size} tone={tone} /> : null}
+      <span
+        style={{
+          font: `var(--weight-medium) ${size * 0.86}px/1 var(--font-ui)`,
+          letterSpacing: '-0.015em',
+          color: tone === 'inverse' ? 'var(--text-inverse)' : 'var(--text-primary)',
+        }}
+      >
+        aLcassa
+      </span>
+    </span>
   );
 }

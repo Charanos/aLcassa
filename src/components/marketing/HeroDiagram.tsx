@@ -13,55 +13,64 @@ import { Mark } from '@/components/brand/Mark';
 /**
  * The hero schematic: four channels converging into one isolated workspace.
  *
- * 03 §20 forbids a mock inbox behind a "coming soon" overlay. That rule
- * targets the placeholder surfaces, a screen pretending a feature exists. This
- * is a SCHEMATIC, the explanatory drawing a technical document uses to show
- * how something is wired, which is the register the whole system is drawn in.
- *
- * ⚠ THE MOTION MEANS SOMETHING NOW, WHICH IT DID NOT BEFORE.
- *
- * The previous version put `animate-pulse` on the connector paths and
- * `animate-ping` on the convergence point. Both are ambient throbs: they draw
- * the eye without telling it anything, and a reader watching a line fade in
- * and out learns nothing about what the line is for.
- *
- * The paths now carry a DIRECTIONAL DASH FLOW, travelling left to right, from
- * the channels toward the core. That is the one true statement this diagram
- * makes: messages arrive from four places and are carried into one workspace.
- * The animation is the sentence, not decoration on top of it. Each path is
- * offset in time so the four read as independent streams rather than a
- * marching band.
- *
- * ⚠ ALSO CORRECTED HERE, against 03 §5, §6 and §20:
- *
- *   · `font-semibold` / `font-bold` / `font-medium` removed. This system has
- *     ONE WEIGHT and `font-synthesis: none`, so those classes were changing
- *     nothing while implying a hierarchy the type cannot express.
- *   · `rounded-2xl` / `rounded-3xl` / `rounded-xl` replaced with the radius
- *     tokens. 24px corners on a drafting sheet read as a different product.
- *   · Hardcoded `rgba(0,0,0,…)` shadows replaced with `--shadow-card`.
- *   · `text-xs` / `text-[10px]` removed where they were fighting the `font`
- *     shorthand already set by `t-compact` and `t-eyebrow`.
- *   · The two floating cards at the bottom were overlapping each other. They
- *     are laid out on the same grid as everything else now.
+ * Distinct channel identities with high-contrast, theme-adaptive vibrant icon tones:
+ *   - WhatsApp: Emerald Green (#25D366 / --green-400)
+ *   - Instagram: Sunset Rose / Ember (#E1306C / --orange-400)
+ *   - Messenger: Sky / Royal Blue (#0084FF / --blue-400)
+ *   - Web chat: Luminous Amber / Gold (#F59E0B / --amber-400)
+ *   - Your Workspace: Crisp White background in Dark Mode, Deep Navy in Light Mode
  */
-
-const CHANNELS: Array<{ icon: TablerIcon; label: string; y: number; tone: string }> = [
-  { icon: IconBrandWhatsapp, label: 'WhatsApp', y: 8, tone: 'verdigris' },
-  { icon: IconBrandInstagram, label: 'Instagram', y: 90, tone: 'copper' },
-  { icon: IconBrandMessenger, label: 'Messenger', y: 172, tone: 'slate' },
-  { icon: IconMessage, label: 'Web chat', y: 254, tone: 'ochre' },
+const CHANNELS: Array<{ 
+  icon: TablerIcon; 
+  label: string; 
+  y: number; 
+  iconColorClass: string;
+  iconBgClass: string;
+  flowColor: string;
+}> = [
+  { 
+    icon: IconBrandWhatsapp, 
+    label: 'WhatsApp', 
+    y: 8,
+    iconColorClass: 'text-emerald-600 dark:text-emerald-400',
+    iconBgClass: 'bg-emerald-50 border-emerald-200/60 dark:bg-emerald-500/15 dark:border-emerald-500/30',
+    flowColor: 'var(--green-400)',
+  },
+  { 
+    icon: IconBrandInstagram, 
+    label: 'Instagram', 
+    y: 90,
+    iconColorClass: 'text-rose-600 dark:text-rose-400',
+    iconBgClass: 'bg-rose-50 border-rose-200/60 dark:bg-rose-500/15 dark:border-rose-500/30',
+    flowColor: 'var(--orange-400)',
+  },
+  { 
+    icon: IconBrandMessenger, 
+    label: 'Messenger', 
+    y: 172,
+    iconColorClass: 'text-blue-600 dark:text-blue-400',
+    iconBgClass: 'bg-blue-50 border-blue-200/60 dark:bg-blue-500/15 dark:border-blue-500/30',
+    flowColor: 'var(--blue-400)',
+  },
+  { 
+    icon: IconMessage, 
+    label: 'Web chat', 
+    y: 254,
+    iconColorClass: 'text-amber-600 dark:text-amber-400',
+    iconBgClass: 'bg-amber-50 border-amber-200/60 dark:bg-amber-500/15 dark:border-amber-500/30',
+    flowColor: 'var(--amber-400)',
+  },
 ];
 
-const WIDTH = 520;
-const HEIGHT = 430;
-const NODE_W = 168;
-const NODE_H = 60;
+const WIDTH = 490;
+const HEIGHT = 420;
+const NODE_W = 160;
+const NODE_H = 58;
 
-const CORE_X = 296;
-const CORE_Y = 132;
-const CORE_W = 208;
-const CORE_H = 104;
+const CORE_X = 270;
+const CORE_Y = 130;
+const CORE_W = 204;
+const CORE_H = 102;
 const CORE_MID = CORE_Y + CORE_H / 2;
 
 export function HeroDiagram() {
@@ -71,8 +80,8 @@ export function HeroDiagram() {
       style={{ 
         width: WIDTH, 
         height: HEIGHT, 
-        marginBottom: 'calc(-1 * (1 - clamp(0.6, 100vw / 520, 1)) * 430px)', // Pull up elements below to avoid whitespace
-        marginLeft: 'calc(-1 * (1 - clamp(0.6, 100vw / 520, 1)) * 520px / 2)', // Center correctly on small screens
+        marginBottom: 'calc(-1 * (1 - clamp(0.6, 100vw / 490, 1)) * 420px)',
+        marginLeft: 'calc(-1 * (1 - clamp(0.6, 100vw / 490, 1)) * 490px / 2)',
       }} 
       aria-hidden
     >
@@ -85,18 +94,17 @@ export function HeroDiagram() {
       >
         {CHANNELS.map((channel, index) => {
           const startY = channel.y + NODE_H / 2;
-          const d = `M ${NODE_W} ${startY} C ${NODE_W + 64} ${startY}, ${CORE_X - 52} ${CORE_MID}, ${CORE_X} ${CORE_MID}`;
+          const d = `M ${NODE_W} ${startY} C ${NODE_W + 56} ${startY}, ${CORE_X - 44} ${CORE_MID}, ${CORE_X} ${CORE_MID}`;
 
           return (
             <g key={channel.label}>
-              {/* The conduit itself: a still hairline, always present. */}
-              <path d={d} stroke="var(--rule-base)" strokeWidth={1.5} fill="none" />
+              {/* The channel path: subtle architectural hairline */}
+              <path d={d} stroke="var(--border-subtle)" strokeWidth={1.5} fill="none" />
 
-              {/* What travels through it. A short dash sliding along the path,
-                  left to right, so direction is unambiguous. */}
+              {/* Directional packet flow with channel signature accent */}
               <path
                 d={d}
-                stroke={`var(--${channel.tone}-solid)`}
+                stroke={channel.flowColor}
                 strokeWidth={1.5}
                 fill="none"
                 strokeLinecap="round"
@@ -108,99 +116,106 @@ export function HeroDiagram() {
           );
         })}
 
-        {/* Where the four become one. Static: the convergence is a fact about
-            the wiring, not an event that needs announcing on a loop. */}
-        <circle cx={CORE_X} cy={CORE_MID} r={4} fill="var(--copper-solid)" />
-        {/* Additional decorative ring to anchor the core */}
-        <circle cx={CORE_X} cy={CORE_MID} r={12} stroke="var(--copper-rule)" strokeWidth={1} fill="none" opacity={0.5} />
+        {/* Convergence point */}
+        <circle cx={CORE_X} cy={CORE_MID} r={4} fill="var(--accent-mark)" />
+        <circle
+          cx={CORE_X}
+          cy={CORE_MID}
+          r={12}
+          stroke="var(--accent-mark)"
+          strokeWidth={1}
+          fill="none"
+          opacity={0.4}
+        />
       </svg>
 
       {/* ── The four channels ──────────────────────────────────────────── */}
       {CHANNELS.map((channel) => (
         <div
           key={channel.label}
-          className="absolute z-10 flex items-center gap-3 rounded-panel border px-3.5"
+          className="absolute z-10 flex items-center gap-3 rounded-panel border px-3 transition-shadow hover:shadow-md"
           style={{
             left: 0,
             top: channel.y,
             width: NODE_W,
             height: NODE_H,
             background: 'var(--surface-raised)',
-            borderColor: 'var(--rule-soft)',
-            boxShadow: 'var(--shadow-card)',
+            borderColor: 'var(--border-subtle)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <span
-            className="grid size-9 shrink-0 place-items-center rounded-chip border"
-            style={{ background: 'var(--surface-sunken)', borderColor: 'var(--rule-soft)' }}
+            className={`grid size-8 shrink-0 place-items-center rounded-chip border transition-colors ${channel.iconBgClass}`}
           >
-            <channel.icon size={18} stroke={1.5} style={{ color: `var(--${channel.tone}-ink)` }} />
+            <channel.icon size={17} stroke={1.75} className={channel.iconColorClass} />
           </span>
           <span className="min-w-0">
-            <span className="t-compact block truncate text-[var(--ink-primary)]">
+            <span className="t-compact block truncate font-medium text-[13px]" style={{ color: 'var(--text-primary)' }}>
               {channel.label}
             </span>
-            <span className="t-eyebrow block text-[var(--ink-tertiary)]">Coming soon</span>
+            <span className="t-eyebrow block text-[9.5px]" style={{ color: 'var(--text-tertiary)' }}>
+              Coming soon
+            </span>
           </span>
         </div>
       ))}
 
-      {/* ── The core. The one node that is already real. ───────────────── */}
+      {/* ── The core: High-Contrast Inverted Card (Dark Navy on Light Mode, Crisp White on Dark Mode) ── */}
       <div
-        className="absolute z-20 flex flex-col justify-between rounded-panel border p-4"
+        className="absolute z-20 flex flex-col justify-between rounded-panel border p-3.5 shadow-xl transition-all"
         style={{
           left: CORE_X,
           top: CORE_Y,
           width: CORE_W,
           height: CORE_H,
-          background: 'var(--surface-invert)',
-          borderColor: 'var(--copper-rule)',
-          boxShadow: 'var(--shadow-card)',
+          background: 'var(--workspace-card-bg)',
+          color: 'var(--workspace-card-fg)',
+          borderColor: 'var(--workspace-card-border)',
+          boxShadow: 'var(--workspace-card-shadow)',
         }}
       >
         <div className="flex items-start justify-between gap-2">
           <span className="flex items-center gap-2.5">
-            <Mark size={22} tone="inverse" />
-            <span className="t-chip" style={{ color: 'var(--ink-inverse)' }}>
-              Your workspace
+            <Mark size={20} tone="brand" />
+            <span className="t-chip font-bold tracking-wider text-[11px]" style={{ color: 'var(--workspace-card-fg)' }}>
+              YOUR WORKSPACE
             </span>
           </span>
-          <IconLock size={15} stroke={1.5} style={{ color: 'var(--copper-rule)' }} />
+          <IconLock size={15} stroke={2} style={{ color: 'var(--workspace-card-lock)' }} />
         </div>
 
         <div
-          className="flex items-center gap-2 border-t pt-2.5"
-          style={{ borderColor: 'color-mix(in oklab, var(--ink-inverse) 15%, transparent)' }}
+          className="flex items-center gap-2 border-t pt-2"
+          style={{ borderColor: 'color-mix(in oklab, var(--workspace-card-fg) 18%, transparent)' }}
         >
           <span
             aria-hidden
-            className="size-1.5 shrink-0 rounded-full"
-            style={{ background: 'var(--verdigris-solid)' }}
+            className="size-2 shrink-0 rounded-full animate-pulse"
+            style={{ background: 'var(--workspace-card-status)' }}
           />
-          <span className="t-eyebrow" style={{ color: 'var(--ink-inverse)', opacity: 0.75 }}>
-            Live and isolated
+          <span className="t-eyebrow text-[10px] font-semibold tracking-wider" style={{ color: 'var(--workspace-card-fg)', opacity: 0.9 }}>
+            LIVE AND ISOLATED
           </span>
         </div>
       </div>
 
-      {/* ── Two supporting facts. Positioned on an explicit grid so they
-             cannot collide the way the previous three did. ──────────────── */}
+      {/* ── Two supporting facts with Ember and Amber accents ──────────── */}
       <FactCard
         icon={IconActivity}
-        tone="verdigris"
+        iconColorClass="text-rose-500 dark:text-rose-400"
         label="Assistant rules"
         value="Live in under 5 seconds"
-        left={CORE_X + 24}
-        top={16}
+        left={CORE_X + 8}
+        top={14}
       />
 
       <FactCard
         icon={IconKey}
-        tone="copper"
+        iconColorClass="text-amber-500 dark:text-amber-400"
         label="API credentials"
         value="Shown once, never again"
-        left={CORE_X - 36}
-        top={HEIGHT - 92}
+        left={CORE_X - 44}
+        top={HEIGHT - 88}
       />
     </div>
   );
@@ -208,14 +223,14 @@ export function HeroDiagram() {
 
 function FactCard({
   icon: Icon,
-  tone,
+  iconColorClass,
   label,
   value,
   left,
   top,
 }: {
   icon: TablerIcon;
-  tone: 'copper' | 'verdigris';
+  iconColorClass: string;
   label: string;
   value: string;
   left: number;
@@ -223,19 +238,24 @@ function FactCard({
 }) {
   return (
     <div
-      className="absolute z-20 flex items-center gap-2.5 rounded-panel border px-3 py-2"
+      className="absolute z-20 flex items-center gap-2.5 rounded-panel border px-3 py-1.5"
       style={{
         left,
         top,
         background: 'var(--surface-raised)',
-        borderColor: `var(--${tone}-rule)`,
-        boxShadow: 'var(--shadow-card)',
+        borderColor: 'var(--border-subtle)',
+        boxShadow: 'var(--shadow-sm)',
       }}
     >
-      <Icon size={15} stroke={1.5} style={{ color: `var(--${tone}-ink)` }} />
+      <Icon size={15} stroke={1.75} className={iconColorClass} aria-hidden />
       <span>
-        <span className="t-eyebrow block text-[var(--ink-tertiary)]">{label}</span>
-        <span className="t-compact block whitespace-nowrap" style={{ color: `var(--${tone}-ink)` }}>
+        <span className="t-eyebrow block text-[9.5px]" style={{ color: 'var(--text-tertiary)' }}>
+          {label}
+        </span>
+        <span
+          className="t-compact block whitespace-nowrap font-medium text-[12.5px]"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {value}
         </span>
       </span>
