@@ -1,14 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { IconTerminal, IconShield, IconClock, IconCheck, IconSparkles } from '@tabler/icons-react';
+import { IconTerminal, IconShield, IconCheck } from '@tabler/icons-react';
 import { Button } from '@/components/primitives/Button';
 
 export function LiveSpecPlayground() {
   const [selectedTenant, setSelectedTenant] = useState<'tenant_a' | 'tenant_b'>('tenant_a');
   const [ruleTone, setRuleTone] = useState<string>('technical_warm');
   const [isPublishing, setIsPublishing] = useState(false);
-  const [publishSuccess, setPublishSuccess] = useState(false);
 
   const [auditLogs, setAuditLogs] = useState<Array<{ id: string; time: string; event: string; status: string }>>([
     { id: '1', time: '21:34:01', event: 'TENANT_A_RLS_VERIFIED', status: 'PASS' },
@@ -17,10 +16,8 @@ export function LiveSpecPlayground() {
 
   const handlePublishRule = () => {
     setIsPublishing(true);
-    setPublishSuccess(false);
     setTimeout(() => {
       setIsPublishing(false);
-      setPublishSuccess(true);
       const newLog = {
         id: Date.now().toString(),
         time: new Date().toLocaleTimeString('en-US', { hour12: false }),
