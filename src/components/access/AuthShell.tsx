@@ -40,8 +40,8 @@ export function AuthShell({
         style={{ background: 'var(--surface-base)' }}
       >
         {/* Watermark icon behind the form */}
-        <div className="hidden sm:block absolute bottom-10 -left-16 text-slate-500/10 dark:text-slate-300/[0.04] pointer-events-none transform rotate-12">
-          <IconShieldCheck size={340} stroke={0.75} />
+        <div className="hidden sm:block absolute bottom-10 -left-16 text-slate-500/[0.08] dark:text-slate-300/[0.12] pointer-events-none transform rotate-12">
+          <IconShieldCheck size={340} stroke={1} />
         </div>
 
         <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '440px' }}>
@@ -110,8 +110,8 @@ export function AuthShell({
         />
 
         {/* Lock watermark */}
-        <div className="absolute top-12 -right-12 text-slate-500/10 dark:text-slate-300/[0.04] pointer-events-none transform rotate-45">
-          <IconLock size={260} stroke={0.75} />
+        <div className="absolute top-12 -right-12 text-amber-600/[0.08] dark:text-amber-300/[0.12] pointer-events-none transform rotate-45">
+          <IconLock size={260} stroke={1} />
         </div>
 
         {/* Aside Header */}
