@@ -1,28 +1,139 @@
 import type { Metadata } from 'next';
-import { IconFileText } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
-import { EmptyState } from '@/components/primitives/EmptyState';
+import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
+import { RulesEditor } from '@/components/console/RulesEditor';
+import { getMasterRules } from '@/lib/console/data';
 
-export const metadata: Metadata = { title: 'Master rules' };
+export const metadata: Metadata = { title: 'Master AI rules' };
 
 /**
- * Ported onto the console surfaces so this screen shares the shell's page
- * frame, eyebrow and display title. The body lands with its milestone; what
- * matters now is that switching to it does not shift the content edge or
- * change the heading register.
+ * Master AI rules. `AI-Rules.dc.html`.
+ *
+ * ⚠ THE LEDE STATES THE INHERITANCE MODEL IN ONE SENTENCE: "the floor every
+ * workspace inherits. Workspaces may add rules on top; they cannot remove
+ * these."
+ *
+ * That is the entire product decision this screen implements, and the three
+ * groups descend through it — enforced, floor, default. It is also the answer
+ * to the question a customer asks when they discover master rules exist at
+ * all: what can the platform make my assistant do? The page answers it in the
+ * open rather than burying it in a policy document.
+ *
+ * The inheritance panel completes the loop by naming what happens at the other
+ * end: a workspace rule that contradicts a master rule is rejected at save
+ * time, in THEIR console, naming the master rule that blocked it. A silent
+ * override would be the same feature with none of the trust.
  */
-export default function Page() {
+export default async function AiRulesPage() {
+  const model = await getMasterRules();
+
   return (
     <ConsolePage>
-      <ConsoleHeader eyebrow="/platform/ai-rules" title="Master rules" />
-      <p className="t-body mt-3" style={{ color: 'var(--text-secondary)', maxWidth: 'var(--measure-body)' }}>
-        Assistant behaviour every workspace inherits, and the propagation state of the current version.
-      </p>
       <div
-        className="mt-6 rounded-overlay"
-        style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-raised)', boxShadow: 'var(--glass-highlight), var(--shadow-sm)' }}
+        className="flex flex-col gap-4 border-b pb-5 lg:flex-row lg:items-end lg:gap-6"
+        style={{ borderColor: 'var(--border-subtle)' }}
       >
-        <EmptyState icon={IconFileText} title="No master rules published" body="Publishing a version propagates it to every workspace and records the version in each audit log." />
+        <div className="min-w-0 flex-1">
+          <ConsoleHeader eyebrow="/platform/ai-rules" title="Master AI rules" />
+          <p
+            className="t-body mt-2"
+            style={{ color: 'var(--text-secondary)', maxWidth: '70ch' }}
+          >
+            The floor every workspace inherits. Workspaces may add rules on top; they cannot remove
+            these.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div>
+          <RulesEditor model={model} />
+        </div>
+
+        <div className="grid gap-4">
+          <Panel title="Version history" flush>
+            <div className="px-5 pt-1 pb-3.5">
+              {model.versions.map((v, i) => (
+                <div
+                  key={v.label}
+                  className="flex gap-3 py-2.5"
+                  style={{
+                    borderBottom:
+                      i === model.versions.length - 1
+                        ? undefined
+                        : '1px solid var(--border-subtle)',
+                  }}
+                >
+                  {/* A 2px rail rather than a dot: the current version is a
+                      position in a sequence, and a rail reads as one. */}
+                  <span
+                    aria-hidden
+                    className="block w-0.5 shrink-0 rounded-full"
+                    style={{
+                      background: v.current ? 'var(--blue-500)' : 'var(--border-subtle)',
+                    }}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span
+                      className="block"
+                      style={{
+                        font: '400 var(--text-sm)/1.35 var(--font-ui)',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
+                      {v.label}
+                    </span>
+                    <span
+                      className="mt-0.5 block"
+                      style={{
+                        font: '400 11px/1.35 var(--font-mono)',
+                        color: 'var(--text-tertiary)',
+                      }}
+                    >
+                      {v.meta}
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Panel>
+
+          <section
+            className="rounded-overlay p-5"
+            style={{
+              border: '1px solid var(--border-subtle)',
+              background: 'var(--surface-sunken)',
+            }}
+          >
+            <p className="t-eyebrow mb-3" style={{ color: 'var(--text-tertiary)' }}>
+              Inheritance
+            </p>
+            <p className="t-compact" style={{ color: 'var(--text-secondary)' }}>
+              A workspace rule that contradicts a master rule is rejected at save time, in their
+              console, naming the master rule that blocked it.
+            </p>
+            <div
+              className="mt-3.5 grid gap-2.5 border-t pt-3.5"
+              style={{ borderColor: 'var(--border-subtle)' }}
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
+                  Workspace overrides
+                </span>
+                <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
+                  {model.overrides} active
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
+                  Conflicts blocked
+                </span>
+                <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
+                  {model.conflictsBlocked} this month
+                </span>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
     </ConsolePage>
   );

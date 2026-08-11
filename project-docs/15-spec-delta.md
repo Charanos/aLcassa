@@ -774,6 +774,35 @@ Latency percentiles use three weights of one hue, not three colours: p50/p95/p99
 is an ordered series, and three saturated hues would give p50 (almost always
 flat) the same visual weight as p99 (the one that wakes someone up).
 
+### C17 · A locked rule is not an enabled rule
+
+Master AI rules gives locked (safety-floor) toggles a neutral track and a
+padlock rather than the blue used for a genuinely enabled rule, plus
+`aria-disabled` and a `title`. An enabled rule is a choice someone made and can
+unmake; a locked rule is a floor nobody chose and nobody can move. Rendering
+both the same colour would tell an operator they have a choice on the safety
+group that they do not have — the one place that misreading is least
+affordable.
+
+### C18 · Propagation counts real workspaces rather than running indeterminate
+
+"Assistant rules live in under 5 seconds" is a requirement in the brief and
+sits on the marketing hero. The AI-rules save flow is the surface where an
+operator watches that claim happen, so the banner counts workspaces reached
+and shows elapsed time rather than an indeterminate spinner — a progress bar
+that does not correspond to anything would undermine the number the page
+exists to demonstrate.
+
+### C19 · The capability matrix gained a third column the design omitted
+
+`Admins.dc.html` compares owner against platform_admin only, but the roster
+beside it contains a support-role user, so the two-column matrix cannot answer
+the first question an owner asks about the person on row four. A capability
+table that silently excludes one of the roles it is auditing reads as complete
+and is not. The third column — support — was added, along with the two rows
+that matter most: every role, including owner, shows a cross for reading a
+message body or a credential value.
+
 ---
 
 ## 4. Open items carried forward
