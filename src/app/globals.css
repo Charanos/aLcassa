@@ -574,6 +574,72 @@
   animation: slide-up-fade 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/*
+ * Console chrome motion. 03 §7 — motion confirms, it never entertains.
+ *
+ * All three are arrival-only and none exceeds 180ms. There is deliberately no
+ * exit animation: a dropdown that fades out on close is a dropdown that is
+ * still on screen after you have decided to dismiss it, and on a console
+ * surface someone uses a hundred times a day that reads as lag rather than as
+ * polish.
+ */
+
+/* The support banner drops IN from above rather than fading. It is pushing the
+ * whole application down by 44px, and a fade would leave the content sliding
+ * for a reason the eye cannot connect to anything. */
+@keyframes banner-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Popovers, the palette and dialogs. 4px of rise plus a hair of scale, which
+ * is what makes a panel read as arriving from the control that opened it. */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The scrim behind a modal. Opacity only, and linear: a scrim with an easing
+ * curve draws attention to itself, which is the one thing a scrim must not do. */
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * ⚠ REDUCED MOTION IS HANDLED HERE RATHER THAN INHERITED.
+ *
+ * The global `prefers-reduced-motion` block in tokens.css collapses durations
+ * to 0.01ms, which is correct for a transition and WRONG for these three: an
+ * animation that starts at `opacity: 0` and is cut to 0.01ms can leave the
+ * final frame unpainted on some engines, so a user who asked for less motion
+ * gets an invisible dialog instead of a still one. Naming them explicitly
+ * guarantees the resting state is the visible one.
+ */
+@media (prefers-reduced-motion: reduce) {
+  [style*='banner-in'],
+  [style*='panel-in'],
+  [style*='overlay-in'] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 /* ═══ 3 · UTILITIES ════════════════════════════════════════════════════════ */
 
 @layer utilities {

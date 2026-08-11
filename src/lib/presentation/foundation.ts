@@ -154,16 +154,30 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'Design system',
-    what: 'One-weight type system with font synthesis disabled globally',
+    what: 'aLcassa identity adopted: blue primary, navy ink on cream, budgeted orange accent',
+    state: 'built',
+    evidence: 'src/app/tokens.css',
+    milestone: 'M0',
+  },
+  {
+    area: 'Design system',
+    what: 'Compatibility layer mapping the retired palette onto the new one by semantic role',
+    state: 'built',
+    evidence: 'src/app/tokens.css',
+    milestone: 'M0',
+  },
+  {
+    area: 'Design system',
+    what: 'Type system capped at weight 500, font synthesis disabled, three families bundled at one cut each',
     state: 'built',
     evidence: 'src/app/globals.css',
     milestone: 'M0',
   },
   {
     area: 'Design system',
-    what: 'Both application shells, structurally distinguished by the inverted console header',
+    what: 'The chrome tier: console header and sidebar invert against the page in both themes',
     state: 'built',
-    evidence: 'src/components/structure/AppShell.tsx',
+    evidence: 'src/app/tokens.css',
     milestone: 'M4',
   },
   {
@@ -179,6 +193,57 @@ export const FOUNDATION: FoundationItem[] = [
     state: 'scaffolded',
     evidence: 'src/components/',
     milestone: 'M1 – M5',
+  },
+
+  // ── Platform console. Built from the Claude Design set, August 2026. ─────
+  {
+    area: 'Console',
+    what: 'Console shell: inverted chrome, collapsible nav, command palette, workspace switcher',
+    state: 'built',
+    evidence: 'src/components/console/ConsoleShell.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Support mode as a server-issued grant with an absolute expiry, not client state',
+    state: 'built',
+    evidence: 'src/lib/console/session.ts',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Overview: a queue ordered by what each item costs to ignore, not a metric grid',
+    state: 'built',
+    evidence: 'src/app/(platform)/platform/(console)/page.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Workspace list and detail, with entitlement meters and the suspend confirmation',
+    state: 'built',
+    evidence: 'src/components/console/WorkspaceTable.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Revenue, health, plans, audit log and the support-session register',
+    state: 'built',
+    evidence: 'src/app/(platform)/platform/(console)/',
+    milestone: 'M3, M4',
+  },
+  {
+    area: 'Console',
+    what: 'Console read models: shaped as the queries that replace them, seam at one boundary',
+    state: 'scaffolded',
+    evidence: 'src/lib/console/data.ts',
+    milestone: 'M1 – M4',
+  },
+  {
+    area: 'Console',
+    what: 'AI rules, admins, settings, profile and provisioning screens',
+    state: 'planned',
+    evidence: 'src/app/(platform)/platform/(console)/',
+    milestone: 'M4, M4a',
   },
 
   // ── Delivery ────────────────────────────────────────────────────────────

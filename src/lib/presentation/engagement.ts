@@ -23,7 +23,14 @@ export const ENGAGEMENT = {
   phase: 'Phase 1, platform foundation',
   team: '2 senior full stack developers',
   duration: '9 working weeks, plus a 30-day support window',
-  designSystem: 'Conduit',
+  /**
+   * The product name, supplied by the client on 3 August 2026. "Conduit" was
+   * the CODENAME for the design system and this document set, never a proposed
+   * product name — so this field changed rather than being retired.
+   *
+   * Mixed case, capital L. `Alcassa` is prohibited by the brand guidance.
+   */
+  designSystem: 'aLcassa',
 } as const;
 
 /** Section 02 of the brief, mapped one to one against the ten requirements. */
@@ -321,6 +328,20 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-11',
+    title: 'Platform console built against the design set',
+    body: 'The owner console is implemented from the Claude Design project: shell, overview, workspace list and detail, revenue, support-session register, audit log, health and plans. The chrome inverts against the page in both themes, so the boundary between the platform’s own surface and a customer’s data is visible at a glance. Support mode moved from client state to a server-issued grant with an absolute expiry, because a countdown a browser owns resets on refresh and a React boolean must never reach an RLS input. Destructive confirmations state their consequences in people and workspaces rather than asking for confidence.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-08-10',
+    title: 'aLcassa identity adopted across the product',
+    body: 'The client identity supplied on 3 August replaces the Conduit token system in full: blue #043AE1 as the primary, navy ink on cream as the largest surface, orange as a budgeted accent, and DM Sans with Libertinus Serif Display and JetBrains Mono. The retired palette survives as a compatibility layer mapping every old name onto the nearest value by semantic role, so 48 component files picked up the new palette without being touched. Recorded in document 15, section 3b.',
+    milestone: 'M0',
+    kind: 'decision' as const,
+  },
   {
     date: '2026-08-05',
     title: 'Foundation-phase visual pass complete',

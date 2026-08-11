@@ -549,6 +549,233 @@ the colour now, and the role diagram uses three depths of one hue.
 
 ---
 
+## 3c. The platform console shell (Claude Design import)
+
+`Console-Shell.dc.html` and `console-tokens.css` were imported from the Claude
+Design project and implemented as `components/console/`. The design is a
+single-document preview; four of its mechanisms do not survive contact with an
+App Router application, and one of them is a security boundary.
+
+### C1 · The chrome tier, and why `--chrome-action` is not `--blue-500`
+
+`console-tokens.css` adds a tier the product token file did not have: the
+header and sidebar invert against the page ground, navy chrome on cream in
+light mode and light chrome on navy in dark. It extends 03 §1's reasoning
+(the console is locked to the aLcassa accent so a tenant cannot restyle the
+owner's chrome) from hue to value — the chrome is aLcassa's surface, the main
+pane shows tenant data, and the boundary should be visible from across the
+room.
+
+The consequence that is easy to get backwards: on the navy slab the saturated
+brand blue measures **2.52:1**. `--chrome-action` therefore steps to blue-300
+in light mode and back to blue-500 in dark — the inverse of `--text-action`.
+The two are defined separately rather than aliased, and `Mark` gained a
+`chrome` tone for the same reason.
+
+### C2 · Support mode is server state, not component state
+
+The design holds the session in React state and counts down from
+`secondsLeft: 1800`. Three things make that unshippable: a refresh resets the
+clock, so a 30-minute grant becomes unbounded; `app.support_mode` is an RLS
+input read by `app.is_support_session()` in six policies, and a React boolean
+must never reach it; and 09 §4 requires the audit entry to land in the
+**customer's** log, which only the server can write.
+
+The session is now a server-read cookie carrying an opaque id and an absolute
+`expiresAt`, and the banner **derives** its countdown from that instant on
+every tick rather than decrementing. A refresh, a throttled background tab and
+a laptop resumed from sleep all resolve to the true remaining time.
+
+The reason is validated in the server action, not only in the dialog — a
+client-side guard on a field whose entire purpose is to appear in someone
+else's audit log is a suggestion. The minimum length is 8 characters, because
+an emptiness check passes on `"."` and a reason of `"."` satisfies the
+requirement on paper while telling the customer nothing.
+
+**Deliberately incomplete, in the safe direction:** the session row, the audit
+write and the platform-admin check wait on M4. The cookie alone grants nothing
+— `withTenantContext` reads `ctx.supportMode` off the resolved server context,
+never off this cookie — so the banner can render without the database widening
+by a single row.
+
+### C3 · Navigation is routes; the chrome paints at its correct size
+
+The design tracks `screen` in state and swaps `<dc-import>` blocks. Every nav
+item is now a real URL with the active state derived from `usePathname()`, so
+the back button, deep links, middleware auth and per-route metadata all work.
+
+`--nav-w` and the density variables are read from a cookie **server side** and
+emitted as an inline style, rather than written by a client effect as the
+design does. Server-rendered, the effect version guarantees a visible snap:
+the server emits 248px, hydration discovers a collapsed preference, the layout
+jumps. This is the same problem the theme has and takes the same solution.
+
+### C4 · `/platform/sign-in` escaped the console layout
+
+Pre-existing, surfaced by this work: `sign-in` sat under `platform/layout.tsx`
+and therefore rendered a full `AuthShell` **inside** the console chrome —
+nav, workspace switcher and account menu wrapped around a screen for someone
+who is not signed in yet. The console pages moved into a `(console)` route
+group, which changes no URLs and leaves `sign-in` outside the layout.
+
+### C5 · Dropdowns use page tokens, not chrome tokens
+
+They hang off the inverted chrome but are tinted to the page. A popover is a
+floating sheet over the *content*, not an extension of the bar it drops from;
+glass tinted to the chrome reads as the header stretching downward, and its
+rows would need a third colour scheme for their own hover states. 03 §7b names
+the popover as a glass surface, and glass takes the surface beneath it.
+
+Three additions the design file could not carry, because a preview never
+loses focus or navigates: outside-click dismissal, closing every transient
+surface on route change, and an explicit `prefers-reduced-motion` rule for the
+three console keyframes — the global 0.01ms collapse can leave an animation
+that starts at `opacity: 0` with its final frame unpainted, which would give a
+user who asked for less motion an invisible dialog rather than a still one.
+
+### C6 · The console screens are briefings, not dashboards
+
+`Overview.dc.html` rejects the obvious grid of metric tiles, and the
+implementation keeps that. The page opens with a SENTENCE naming the day's
+actual problem, its main column is a queue ordered by **what each item costs to
+ignore** rather than by recency, and the numbers are demoted into the inverted
+band as supporting detail.
+
+Two consequences look like mistakes and are not: the queue outranks the right
+rail on width (1.9fr to 1fr), because health and the audit tail are reference
+while the queue is work; and there is a closing line for the 43 workspaces that
+need nothing, because a queue of four with no denominator reads as a system in
+trouble when 91% of it is fine.
+
+### C7 · One threshold, three surfaces
+
+The 90%-of-limit predicate decides the meter colour in the workspace list, the
+`Needs attention` filter count, and whether Overview raises a workspace into
+the queue. It is defined once (`NEAR_LIMIT`) rather than re-derived per screen.
+Three surfaces disagreeing about what "near the limit" means is the kind of
+drift that makes an operator stop trusting the console.
+
+Usage renders as a number and a 2px hairline, never a bar chart — the design's
+own rule, and the reason the table reads as a document: "forty rows of bar
+charts is a texture, not a reading."
+
+### C8 · Destructive confirmations state consequences in people
+
+The suspend dialog does not ask "are you sure?". It answers a different
+question — what will happen — in three counts drawn from the read model: 247
+staff lose access at their next request, 1,284 open conversations stop
+receiving replies, 4 channels go quiet. Type-to-confirm on the slug is the
+second gate.
+
+The counts live in `getWorkspaceDetail` rather than in the component
+specifically so the console cannot become confidently wrong about how many
+people it is about to lock out.
+
+### C9 · Detail tabs are URL state
+
+The design holds the active tab in component state. As search params they give
+the back button, a linkable billing dispute, a refresh that stays put, and the
+option of per-tab server fetching. Stub tabs carry the design's own sentence
+describing what will live there, which is more useful to a reviewer than a
+spinner and more honest than an empty panel.
+
+Two ports deliberately did not happen: the `Workspaces` "State" tab row, which
+the source labels *"Design review only · not shipped chrome"*, and the design's
+whole-row click target, replaced by a link on the workspace name so the row's
+other controls stay reachable and a keyboard user has something to tab to.
+
+### C10 · A KPI's direction and whether it is good are separate fields
+
+Revenue's read model carries `direction` and `good` rather than one `positive`
+flag. Churn falling and revenue falling are both down arrows and mean opposite
+things. Collapsing them means whoever adds the next KPI has to remember which
+way round it goes for that metric, and will eventually get it wrong on a screen
+where being wrong makes the business look healthy when it is not.
+
+The arrow points where the number moved; the colour says whether that was good.
+
+### C11 · Redaction is a property of the audit record, not a rendering choice
+
+A redacted diff carries the literal string `redacted` in both columns and the
+real values are never selected into the read model. Had it been a display flag,
+the secret would sit in the page's serialised RSC payload for anyone who opens
+devtools, and *"a credential rotation shows that the secret moved, never the
+secret"* would be a CSS effect rather than a security property.
+
+The diff's before/after uses `--danger-fg` and `--success-fg` — the one place
+in the console those hues mean **removed and added** rather than failure and
+success. That is the convention every developer already reads; overriding it
+here would be a purity argument paid for in comprehension.
+
+### C12 · Charts resolve their colours before Recharts sees them
+
+Recharts writes `fill` and `stroke` as SVG **presentation attributes** on some
+render paths, and `var(--blue-500)` in a bare presentation attribute is not
+reliably resolved — black in Safari, silently absent in some Firefox builds.
+Every colour is read from the computed style first and re-read on theme flip
+via a `MutationObserver` on `data-theme`.
+
+The chart palette is a single-hue ramp (blue-500 → blue-400 → ink-300) plus the
+ordered escalation on invoice ageing, never a categorical set. A6 already
+recorded that the old six-hue palette failed a colour-blindness check as chart
+series; the aLcassa palette is narrower still, so identity rests on the axis and
+a direct legend. Plan mix reads correctly in greyscale, which is the real test.
+
+### C13 · `endedBy: customer` is the row the support register exists for
+
+Three ways a session ends: the operator closed it, the 30-minute cap expired,
+or the customer stopped it from their own workspace. Only the third tells an
+operator something they did not already know, so it is the one value on the
+page drawn in the accent. The design's closing line — *"a customer ending a
+session early is a signal worth reading, not a fault"* — is the editorial
+position of the whole screen: an accountability ledger, not a productivity
+report.
+
+### C14 · The plan matrix is the one table that does not become cards
+
+Everywhere else in the console a row is a record, so a card per record is a
+faithful mobile translation. On the plan matrix the **row is the unit of
+comparison** — the point is reading "staff seats" across four plans on one
+line — and four cards would destroy the exact relationship the table exists to
+show. It scrolls horizontally inside its own container instead.
+
+This is a deliberate exception to the rule established in task #10, not a lapse
+from it, and it is the only one in the console.
+
+### C15 · A lowered plan limit defaults to next period, not now
+
+The entitlement guard reads plan values on every request rather than at the
+start of a billing cycle, so lowering a limit takes effect the instant it
+saves — for the two workspaces already above the new number, that means
+ingestion rejecting mid-afternoon for a change nobody told them about.
+
+The confirm dialog therefore makes *Apply next period* the primary action and
+*Apply now* a quieter secondary. It does not prevent the immediate change;
+there are real reasons to need one. It refuses to make it the easy accident.
+
+This is the same discipline as the suspend dialog (C8): the confirmation
+describes consequences and names who is affected, rather than asking for
+confidence.
+
+### C16 · The 30-day uptime strip earns its space over a percentage
+
+A single uptime figure cannot distinguish "99.82% because of one bad
+afternoon" from "99.82% because it wobbles every third day", and those are
+different engineering problems. The strip shows the *shape* of the failures,
+which is what an average removes. It sits beside the number rather than
+replacing it: the figure goes in a report, the strip tells you whether to
+worry.
+
+The status banner is derived from the same data rather than hardcoded. A pill
+that always reads "operational" is worse than no pill — it is the first thing
+an operator checks and the first thing they stop trusting.
+
+Latency percentiles use three weights of one hue, not three colours: p50/p95/p99
+is an ordered series, and three saturated hues would give p50 (almost always
+flat) the same visual weight as p99 (the one that wakes someone up).
+
+---
+
 ## 4. Open items carried forward
 
 | #   | Item                                       | Due         | Blocks                                          |

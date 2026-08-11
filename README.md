@@ -1,4 +1,4 @@
-# Conduit
+# aLcassa
 
 **Multi-tenant customer support platform · Phase 1 foundation**
 Andishi, for Brian. Against project brief revision 3.1, 29 July 2026.
@@ -6,6 +6,14 @@ Andishi, for Brian. Against project brief revision 3.1, 29 July 2026.
 The platform layer beneath a customer support inbox: tenancy with real isolation,
 authentication, subscription structure, an owner-level console, AI rules readable
 by machines, and documentation good enough that a stranger can pick this up cold.
+
+> **On the name.** The client identity landed on 3 August 2026. `Conduit` was the
+> codename for the design system and this document set, never a proposed product
+> name — so it appears in git history and in the repository URL, and nowhere a
+> customer can see. The wordmark is **`aLcassa`**, mixed case with a capital L,
+> in all product-facing copy; `alcassa` lowercase is the correct form in code,
+> identifiers and URLs. `Alcassa` is prohibited by the brand guidance and is
+> checked for in review. See `project-docs/15-spec-delta.md` §3b.
 
 ---
 
@@ -194,10 +202,15 @@ src/
     (marketing)/      the product page and the legal shell
     (access)/         sign-in, sign-up, invite, reset
     (tenant)/app/     the tenant application
-    (platform)/       the platform console
+    (platform)/
+      platform/
+        (console)/    the owner console, inside the shell layout
+        sign-in/      deliberately OUTSIDE it, see below
     api/              v1 session door · service/v1 machine door · platform/v1
   modules/            one service surface per module, exported from index.ts
-  components/         primitives · structure · feedback · overlays · domain
+  components/
+    console/          the platform console: shell, surfaces, charts, dialogs
+    primitives/ structure/ feedback/ domain/
   db/
     schema/           one file per module
     policies/         one file per table, applied by migration
@@ -223,6 +236,29 @@ Read these before anything else:
 | `src/lib/db/context.ts` | The branded type that makes a whole category of mistake unwritable |
 | `src/db/policies/00_context.sql` | Every policy in the database reads from these four functions |
 | `scripts/check-policies.ts` | Forty lines that make an entire class of mistake impossible for nine weeks |
+
+### Two things about the console that look odd and are not
+
+**`sign-in` sits outside the `(console)` route group.** Anything under
+`(console)` inherits the shell — header, sidebar, workspace switcher. A sign-in
+page inheriting that would wrap the whole platform chrome around a screen for
+someone who is not signed in yet. The route group changes no URLs; it exists
+only to draw that line.
+
+**`src/lib/console/data.ts` is a seam, not a mock layer.** Every export is
+shaped exactly as the query that replaces it returns, and each one names that
+query in its comment. Keeping the fixtures at the boundary means no screen has
+ever seen anything but its real prop shape, so none of them can quietly grow a
+dependency on a field the database will not have.
+
+Two things in it are load-bearing rather than convenient:
+
+- **Impact counts** (how many staff a suspension locks out) live in the read
+  model, not the dialog, so the console cannot become confidently wrong about
+  who it is about to break.
+- **Redacted audit values** never enter the model at all. A redacted diff
+  carries the literal string `redacted`; had it been a display flag, the secret
+  would sit in the serialised RSC payload for anyone with devtools.
 
 ---
 
