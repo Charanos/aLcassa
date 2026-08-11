@@ -523,6 +523,58 @@
 }
 
 /*
+ * ⚠ WAS REFERENCED IN FOUR FILES AND DEFINED IN NONE.
+ *
+ * `ActiveSessionCard`, the Overview situation band, the Health banner and
+ * `Surface.tsx`'s live-session accent all set `animation: 'pulse-dot 2s
+ * ease-in-out infinite'` inline. Without this rule the browser silently drops
+ * an animation it cannot resolve, so every "session is live right now"
+ * indicator in the console was rendering as a static dot — the one place a
+ * console genuinely earns a loop, because it is standing in for a fact that
+ * changes without a page reload (a support session counting down, a service
+ * degraded right now), not decorating a fact that already sits still on the
+ * screen. Sheet 13's "nothing moves without carrying information" argument
+ * cuts the other way once you're asking "is this thing still true this
+ * second" — a static dot answers that question wrong by omission.
+ */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*='pulse-dot'] {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/*
+ * `animate-spin` (Tailwind's own utility, used by `Button` and `Spinner`)
+ * emits this keyframe automatically, which is why `RulesEditor`'s hand-styled
+ * propagation spinner — set via `animation: 'spin 700ms linear infinite'`
+ * rather than the utility class — has silently depended on those two other
+ * components keeping their `animate-spin` usage. Declared explicitly so a
+ * spinner cannot go dark because an unrelated button's class list changed.
+ */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*='animation: spin'] {
+    animation: none !important;
+  }
+}
+
+/*
  * The hero schematic's signal flow. A short dash travelling ALONG each
  * connector path, left to right, from a channel toward the workspace core.
  *

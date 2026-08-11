@@ -803,6 +803,80 @@ and is not. The third column — support — was added, along with the two rows
 that matter most: every role, including owner, shows a cross for reading a
 message body or a credential value.
 
+### C20 · Theme is not in the settings model, even though it is in the section
+
+`Settings.dc.html` draws the appearance picker as a section of the platform
+settings page, and the platform settings model does not carry it. The design's
+own lede for that section says why: "your own preference. It does not affect
+what customers see." Every other field on the page is stated to apply to all
+47 workspaces on save; folding a personal display preference into that model
+would misrepresent which parts of the page are shared state and which are just
+this browser's cookie. The picker reads and writes `THEME_COOKIE` directly —
+the same cookie the header toggle uses — rather than inventing a second
+mechanism.
+
+It is also the first place `system` is actually selectable anywhere in the
+product. `ThemeToggle` (the header control everywhere else) only cycles light
+and dark, because a one-click toggle has no room for a third state. Picking
+`system` here writes the preference the server already knows how to resolve
+via the `Sec-CH-Prefers-Color-Scheme` client hint, and uses `matchMedia`
+client-side only for the immediate visual feedback the click needs before the
+next full request — both paths read the same OS signal by two different
+routes, so they cannot disagree.
+
+### C21 · Settings tabs are local state — the opposite call from C9, and for the opposite reason
+
+Workspace Detail's tabs are independent enough to deep-link: a support ticket
+says "check the billing tab" and the link should land there. Settings' five
+tabs are quadrants of ONE form with ONE sticky save footer — the design saves
+every dirty field across every section in a single action. Routing a tab
+switch through the URL risks a remount that would discard an edit in a section
+the operator isn't currently looking at, in exchange for a deep-link benefit
+nobody asks for on a settings page. Local state guarantees the one thing that
+matters: switching tabs never loses work.
+
+The `initialTab` is still read from a search param once, on mount, so the
+header's "Notification settings" link now lands on the Notifications section
+specifically (`/platform/settings?tab=notifications`) rather than on General.
+
+### C22 · Break glass gets a confirmation the design didn't draw
+
+`Settings.dc.html` wires "Lock the platform" directly to its handler, no
+dialog. Locking every platform admin out of every workspace — including the
+owner, mid-support-session — has no per-workspace scope at all, one tier above
+suspend (C8). It gets the same discipline: a dialog that states the
+consequence before it lands. It stops at a plain confirmation rather than
+suspend's type-to-confirm gate because it is reversible by a second admin,
+where a suspension has consequences for a customer that a second click cannot
+undo.
+
+### C23 · Provision is a page, matching the design — a duplicate dialog exists and is noted for review
+
+`Provision.dc.html` is a breadcrumb-navigable page at `/platform/tenants/new`
+with five fields, a plan picker, and a "what happens on submit" manifest
+beside the button. That page is what got built. A second, independent
+provisioning flow — a modal opened from Overview's header — was added in
+parallel by the front-end pass on this codebase; it collects a name and a
+region rather than a slug and an owner email, and its slug preview still reads
+the retired `.conduit.app` domain rather than `alcassa.app`. The two were not
+reconciled here, on explicit instruction to hold that for a joint review
+pass; this entry exists so the duplication is written down rather than
+discovered cold in a diff.
+
+Two smaller calls on the page that was built:
+
+- **The slug-uniqueness check reads real workspace slugs** via the same
+  `getWorkspaces()` call the list and Overview already use, rather than a
+  taken-list invented for this one form.
+- **On success it redirects to `/platform/tenants`, not to the new
+  workspace's own page.** The design's copy says "redirecting to the
+  workspace," which is the right instinct against a real backend and the
+  wrong promise against this one — `getWorkspaceDetail` only resolves the one
+  fixture this console set up, and a link that 404s the instant a workspace
+  is "created" would be worse than the honest alternative. The five-step
+  manifest, the validation, and the working state are built exactly as
+  designed; only the destination changed.
+
 ---
 
 ## 4. Open items carried forward

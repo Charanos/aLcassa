@@ -7,8 +7,8 @@ import {
   IconCircleCheck,
   IconClock,
   IconCoin,
-  IconActivityHeartbeat,
   IconCreditCard,
+  IconActivityHeartbeat,
   IconPlayerPause,
   IconDashboard,
   IconChartPie,
@@ -156,9 +156,33 @@ export default async function ConsoleOverviewPage() {
         <div className="flex flex-col lg:flex-row relative z-10">
           {/* Left Column: The Situation Briefing */}
           <div className="flex-1 p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden" style={{ borderRight: '1px solid var(--invert-card-rule)' }}>
-            {/* Background Icon Artwork - positioned elegantly on the right to not conflict with text */}
-            <div className="absolute -right-24 -bottom-20 opacity-[0.04] text-[var(--invert-card-fg)] pointer-events-none select-none z-0 mix-blend-plus-lighter transform -rotate-12">
-              <IconActivityHeartbeat size={420} stroke={0.5} />
+            {/* Background Architectural Artwork - elegant tenant telemetry & topology motif */}
+            <div 
+              className="absolute -right-20 -bottom-16 pointer-events-none select-none z-0 opacity-[0.05] dark:opacity-[0.08] text-[var(--invert-card-fg)] transform rotate-6 transition-all"
+              aria-hidden="true"
+            >
+              <svg width="440" height="360" viewBox="0 0 440 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Orbital radar rings */}
+                <circle cx="300" cy="220" r="200" stroke="currentColor" strokeWidth="1" strokeDasharray="6 8" opacity="0.4" />
+                <circle cx="300" cy="220" r="140" stroke="currentColor" strokeWidth="1.2" opacity="0.5" />
+                <circle cx="300" cy="220" r="80" stroke="currentColor" strokeWidth="1" strokeDasharray="3 5" opacity="0.7" />
+                <circle cx="300" cy="220" r="24" stroke="currentColor" strokeWidth="1.5" opacity="0.9" />
+                {/* Constellation & Tenancy Network Interconnects */}
+                <path d="M 120 190 L 210 140 L 300 220 L 390 170 L 350 310 L 200 290 Z" stroke="currentColor" strokeWidth="1.25" opacity="0.6" />
+                <path d="M 210 140 L 300 70 L 390 170" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" opacity="0.45" />
+                <path d="M 120 190 L 200 290" stroke="currentColor" strokeWidth="0.75" strokeDasharray="3 3" opacity="0.35" />
+                {/* Node anchors */}
+                <circle cx="120" cy="190" r="5.5" fill="currentColor" opacity="0.75" />
+                <circle cx="210" cy="140" r="7" fill="currentColor" opacity="0.9" />
+                <circle cx="300" cy="220" r="9" fill="currentColor" />
+                <circle cx="300" cy="70" r="4.5" fill="currentColor" opacity="0.6" />
+                <circle cx="390" cy="170" r="6" fill="currentColor" opacity="0.8" />
+                <circle cx="350" cy="310" r="7" fill="currentColor" opacity="0.85" />
+                <circle cx="200" cy="290" r="5" fill="currentColor" opacity="0.7" />
+                {/* Radial crosshair lines */}
+                <line x1="300" y1="10" x2="300" y2="350" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4 6" opacity="0.3" />
+                <line x1="80" y1="220" x2="430" y2="220" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4 6" opacity="0.3" />
+              </svg>
             </div>
 
             <div className="relative z-10">
@@ -166,12 +190,12 @@ export default async function ConsoleOverviewPage() {
               <p className="t-eyebrow mb-3" style={{ color: 'var(--invert-card-fg)', opacity: 0.6, letterSpacing: 'var(--t-eyebrow-tracking)' }}>
                 THE SITUATION
               </p>
-              {/* display display-sm = 24px Libertinus serif — editorial weight, not hero */}
+              {/* display display-md = 32-40px Libertinus serif — editorial commanding weight */}
               <p
-                className="display display-sm"
+                className="display display-md leading-[1.18]"
                 style={{
                   color: 'var(--invert-card-fg)',
-                  maxWidth: '38ch',
+                  maxWidth: '36ch',
                   textWrap: 'pretty',
                 }}
               >

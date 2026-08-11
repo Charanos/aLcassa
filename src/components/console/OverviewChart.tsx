@@ -39,7 +39,7 @@ export function OverviewChart() {
     <div className="relative w-full h-full min-h-[260px] overflow-hidden">
       {/* Subtle interior glow */}
       <div 
-        className="absolute inset-0 pointer-events-none opacity-10 mix-blend-screen"
+        className="absolute inset-0 pointer-events-none opacity-5 dark:opacity-10"
         style={{
           background: 'radial-gradient(circle at 70% 30%, var(--invert-card-fg), transparent 60%)',
         }}
@@ -55,8 +55,8 @@ export function OverviewChart() {
           <div className="numeric" style={{ fontSize: 'var(--text-2xl)', color: 'var(--invert-card-fg)', lineHeight: 1.15 }}>
             3.42M
           </div>
-          <div className="t-caption" style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#34d399' }} />
+          <div className="t-caption" style={{ color: 'var(--success-fg)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'var(--success-fg)' }} />
             +12.4% vs last month
           </div>
         </div>
@@ -67,22 +67,23 @@ export function OverviewChart() {
           <AreaChart data={data}>
             <defs>
               <linearGradient id={`gradient-${chartId}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--invert-card-fg)" stopOpacity={0.25} />
+                <stop offset="5%" stopColor="var(--invert-card-fg)" stopOpacity={0.22} />
                 <stop offset="95%" stopColor="var(--invert-card-fg)" stopOpacity={0.0} />
               </linearGradient>
             </defs>
             <CartesianGrid 
               strokeDasharray="3 3" 
               vertical={false} 
-              stroke="rgba(255,255,255,0.06)" 
+              stroke="var(--invert-card-rule)" 
+              strokeOpacity={0.6}
             />
             <XAxis 
               dataKey="day" 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }}
+              tick={{ fill: 'var(--invert-card-fg)', opacity: 0.5, fontSize: 11, fontWeight: 500 }}
               dy={10}
-              minTickGap={30}
+              minTickGap={28}
             />
             <YAxis 
               hide={true} 
@@ -95,17 +96,17 @@ export function OverviewChart() {
                   if (!data) return null;
                   return (
                     <div 
-                      className="px-3 py-2 rounded-lg backdrop-blur-md border"
+                      className="px-3 py-2 rounded-lg backdrop-blur-md border shadow-lg"
                       style={{ 
-                        background: 'rgba(4, 10, 32, 0.7)', 
-                        borderColor: 'rgba(255,255,255,0.1)',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+                        background: 'var(--invert-card-well)', 
+                        borderColor: 'var(--invert-card-rule)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.25)'
                       }}
                     >
-                      <div className="t-caption text-[rgba(255,255,255,0.5)] mb-1">
+                      <div className="t-caption mb-1" style={{ color: 'var(--invert-card-subtle)' }}>
                         {(data.payload as { day?: string })?.day}
                       </div>
-                      <div className="text-white font-mono font-medium">
+                      <div className="font-mono font-medium" style={{ color: 'var(--invert-card-fg)' }}>
                         {new Intl.NumberFormat('en-US').format((data.value as number) || 0)} reqs
                       </div>
                     </div>

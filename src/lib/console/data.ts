@@ -1012,6 +1012,240 @@ export async function getAdmins(): Promise<AdminsModel> {
   };
 }
 
+/* ── Settings ───────────────────────────────────────────────────────────── */
+
+export type Policy = {
+  key: string;
+  label: string;
+  detail: string;
+  on: boolean;
+  locked?: boolean;
+  value?: string;
+};
+
+export type NotificationRule = {
+  key: string;
+  label: string;
+  detail: string;
+  console: boolean;
+  email: boolean;
+  locked?: boolean;
+};
+
+export type RetentionItem = { label: string; detail: string; value: string };
+
+export type ApiKeyRecord = { id: string; label: string; masked: string; used: string };
+
+export type Webhook = { id: string; url: string; events: string; status: string; healthy: boolean };
+
+export type SettingsModel = {
+  platformName: string;
+  supportEmail: string;
+  currency: string;
+  timezone: string;
+  policies: Policy[];
+  breakGlassActive: boolean;
+  notifications: NotificationRule[];
+  retention: RetentionItem[];
+  exports: string[];
+  apiKeys: ApiKeyRecord[];
+  webhooks: Webhook[];
+};
+
+/**
+ * Platform-wide settings.
+ *
+ * ⚠ THEME IS DELIBERATELY NOT IN THIS MODEL, even though `Settings.dc.html`
+ * draws it as a section of the same page.
+ *
+ * The design's own lede for that section says it plainly: "your own
+ * preference. It does not affect what customers see." Everything else on this
+ * screen is stated to apply to all 47 workspaces on save — conflating a
+ * personal display preference with platform-wide config in one model would
+ * misrepresent which of these is shared state and which is just this
+ * browser's cookie. The theme picker is wired directly to the same
+ * `THEME_COOKIE` the header toggle uses, read server-side by the page exactly
+ * as every other themed surface in the product already does it.
+ *
+ * Replaced by a read over a `platform_settings` singleton row.
+ */
+// eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
+export async function getSettings(): Promise<SettingsModel> {
+  return {
+    platformName: 'aLcassa',
+    supportEmail: 'support@alcassa.app',
+    currency: 'KES · Kenyan shilling',
+    timezone: 'Africa/Nairobi · EAT',
+
+    policies: [
+      { key: 'mfa', label: 'Require two-factor for all platform admins', detail: 'An admin without MFA cannot sign in. Currently one admin would be locked out.', on: true, locked: true },
+      { key: 'reason', label: "Require a reason for every support session", detail: "The reason is written to the customer's own audit log and shown to them.", on: true, locked: true },
+      { key: 'cap', label: 'Support session length', detail: 'Hard expiry with no extension. A longer session must be started fresh, and logged again.', on: true, value: '30 minutes' },
+      { key: 'ip', label: 'Restrict console access by IP range', detail: 'Two ranges allowed. Sign-ins from elsewhere are refused before the password is checked.', on: false, value: '2 ranges' },
+      { key: 'idle', label: 'Sign out after inactivity', detail: 'Applies to the console only; an active support session still expires on its own clock.', on: true, value: '2 hours' },
+    ],
+
+    breakGlassActive: false,
+
+    notifications: [
+      { key: 'payment', label: 'A payment fails', detail: 'First failure, not each retry.', console: true, email: true },
+      { key: 'limit', label: 'A workspace crosses 90% of a limit', detail: 'Once per limit per period.', console: true, email: false },
+      { key: 'trial', label: 'A trial is three days from ending', detail: 'Only for trials with recent sign-in activity.', console: true, email: true },
+      { key: 'session', label: 'Another admin starts a support session', detail: 'Includes the reason they gave.', console: true, email: false },
+      { key: 'incident', label: 'An incident opens at SEV2 or above', detail: 'SEV1 always pages regardless.', console: true, email: true },
+      { key: 'admin', label: 'A platform admin is granted or revoked', detail: 'Cannot be disabled for owners.', console: true, email: true, locked: true },
+    ],
+
+    retention: [
+      { label: 'Platform audit log', detail: 'Append-only. Cannot be shortened below the regulatory floor.', value: '3 years' },
+      { label: 'Support session records', detail: 'Reason, duration, and who ended it.', value: '3 years' },
+      { label: 'Health metrics', detail: 'Latency, throughput, and queue depth samples.', value: '90 days' },
+      { label: 'Suspended workspace data', detail: 'Retained so reactivation is a single action.', value: '12 months' },
+    ],
+
+    exports: ['Audit log · CSV', 'Revenue · CSV', 'Workspace roster · CSV'],
+
+    apiKeys: [
+      { id: 'k_1', label: 'Billing reconciliation worker', masked: 'pk_live_4f2a ···· 91c0', used: 'used 4 min ago' },
+      { id: 'k_2', label: 'Status page publisher', masked: 'pk_live_9b17 ···· 3ade', used: 'used 2 hours ago' },
+      { id: 'k_3', label: 'Internal metrics scraper', masked: 'pk_live_02de ···· 77b4', used: 'never used' },
+    ],
+
+    webhooks: [
+      { id: 'w_1', url: 'https://ops.andishi.co.ke/hooks/alcassa', events: 'tenant.provision · tenant.suspend · payment.failed', status: 'healthy', healthy: true },
+      { id: 'w_2', url: 'https://finance.andishi.co.ke/webhook/billing', events: 'invoice.paid · invoice.failed', status: '3 failures', healthy: false },
+    ],
+  };
+}
+
+/* ── Profile ────────────────────────────────────────────────────────────── */
+
+export type SecurityItem = {
+  key: string;
+  label: string;
+  detail: string;
+  action: string;
+  state: 'good' | 'neutral';
+};
+
+export type DeviceSession = {
+  id: string;
+  device: string;
+  meta: string;
+  when: string;
+  current?: boolean;
+};
+
+export type ProfileModel = {
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  initials: string;
+  role: AdminRole;
+  security: SecurityItem[];
+  sessions: DeviceSession[];
+  facts: Array<{ label: string; value: string }>;
+};
+
+/**
+ * The signed-in operator's own profile.
+ *
+ * ⚠ THIS IS THE SAME PERSON AS `admins[0]` IN `getAdmins()`, on purpose. Both
+ * represent Brian Mwangi, the owner, viewed from two different screens — the
+ * roster and his own settings — and they carry the same name, email and role
+ * so the two screens never quietly disagree about who is signed in.
+ *
+ * Replaced by the resolved session once M2 lands.
+ */
+// eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
+export async function getProfile(): Promise<ProfileModel> {
+  return {
+    name: 'Brian Mwangi',
+    email: 'brian@andishi.co.ke',
+    emailVerified: true,
+    initials: 'BM',
+    role: 'owner',
+
+    security: [
+      {
+        key: 'mfa',
+        label: 'Two-factor authentication',
+        detail: 'Authenticator app, added 14 March 2025. Required for every platform admin.',
+        action: 'Regenerate codes',
+        state: 'good',
+      },
+      {
+        key: 'password',
+        label: 'Password',
+        detail: 'Changed 62 days ago. There is no rotation requirement; length beats churn.',
+        action: 'Change',
+        state: 'neutral',
+      },
+      {
+        key: 'recovery',
+        label: 'Recovery codes',
+        detail: 'Eight of ten remaining. Two were consumed during the July replica failover.',
+        action: 'View',
+        state: 'neutral',
+      },
+    ],
+
+    sessions: [
+      { id: 'sess_1', device: 'MacBook Pro · Chrome 141', meta: 'Nairobi, KE · 196.201.214.88', when: 'This device', current: true },
+      { id: 'sess_2', device: 'iPhone 16 · Safari', meta: 'Nairobi, KE · 41.90.64.12', when: '3 hours ago' },
+      { id: 'sess_3', device: 'Windows · Edge 129', meta: 'Mombasa, KE · 105.163.2.41', when: '6 days ago' },
+    ],
+
+    facts: [
+      { label: 'Admin since', value: '14 Mar 2025' },
+      { label: 'Support sessions', value: '9 this month' },
+      { label: 'Last sign-in', value: 'Today 08:41' },
+      { label: 'Audit entries', value: '412 by you' },
+    ],
+  };
+}
+
+/* ── Provision ──────────────────────────────────────────────────────────── */
+
+export type ProvisionPlanOption = { key: string; name: string; price: string; limit: string };
+
+export type ProvisionModel = {
+  plans: ProvisionPlanOption[];
+  steps: Array<{ n: string; text: string }>;
+};
+
+/**
+ * Provisioning options.
+ *
+ * ⚠ THESE NUMBERS ARE THE SAME NUMBERS AS `getPlans()`, restated in the
+ * shorter form a form field has room for ("46k" rather than "KES 46,000").
+ * They are not re-derived from a shared constant, because the two screens
+ * read the number at different granularities for different audiences — Plans
+ * is the editable source of truth an owner tunes, Provision is a summary a
+ * fast-moving form shows in passing. A change to a plan's price is real work
+ * either way; the duplication is two literals to update, not a computed
+ * value silently drifting. Flagged here so the two are updated together.
+ */
+// eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
+export async function getProvisionOptions(): Promise<ProvisionModel> {
+  return {
+    plans: [
+      { key: 'starter', name: 'Starter', price: 'KES 46k', limit: '25 seats · 50k events' },
+      { key: 'growth', name: 'Growth', price: 'KES 92k', limit: '100 seats · 250k events' },
+      { key: 'scale', name: 'Scale', price: 'KES 184k', limit: '300 seats · 500k events' },
+      { key: 'custom', name: 'Custom', price: 'Negotiated', limit: 'Set overrides after' },
+    ],
+
+    steps: [
+      { n: '1', text: 'Workspace row created with Row Level Security policies bound to its id.' },
+      { n: '2', text: 'Plan entitlements resolved and snapshotted onto the workspace.' },
+      { n: '3', text: 'Owner account invited; no password is ever set by you.' },
+      { n: '4', text: 'Master AI rules propagated to the new workspace.' },
+      { n: '5', text: 'tenant.provision written to the audit log with your name.' },
+    ],
+  };
+}
+
 /**
  * ⚠ THE TIMESTAMP IS FORMATTED ON THE SERVER, IN ONE FIXED ZONE.
  *

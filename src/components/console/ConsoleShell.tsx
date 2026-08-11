@@ -663,7 +663,7 @@ export function ConsoleShell({
                 })}
                 <div className="px-4 py-3" style={{ background: 'var(--surface-sunken)' }}>
                   <Link
-                    href="/platform/settings"
+                    href="/platform/settings?tab=notifications"
                     className="t-caption"
                     style={{ color: 'var(--text-action)' }}
                   >

@@ -233,17 +233,45 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'Console',
+    what: 'Master AI rules: locked-versus-enabled toggles, real-time propagation to 47 workspaces',
+    state: 'built',
+    evidence: 'src/components/console/RulesEditor.tsx',
+    milestone: 'M4a',
+  },
+  {
+    area: 'Console',
+    what: 'Admins: roster, invitations, and a three-column capability matrix ending in two rows of crosses',
+    state: 'built',
+    evidence: 'src/app/(platform)/platform/(console)/admins/page.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Settings: platform identity, access policy, break-glass lock, notifications, retention, developer keys',
+    state: 'built',
+    evidence: 'src/components/console/SettingsPanel.tsx',
+    milestone: 'M4, M5',
+  },
+  {
+    area: 'Console',
+    what: "Profile: the signed-in operator's own identity, security, sessions, and access ceiling",
+    state: 'built',
+    evidence: 'src/components/console/ProfilePanel.tsx',
+    milestone: 'M4, M2',
+  },
+  {
+    area: 'Console',
+    what: 'Provision: five-field workspace creation with a real slug-uniqueness check',
+    state: 'built',
+    evidence: 'src/components/console/ProvisionForm.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
     what: 'Console read models: shaped as the queries that replace them, seam at one boundary',
     state: 'scaffolded',
     evidence: 'src/lib/console/data.ts',
     milestone: 'M1 – M4',
-  },
-  {
-    area: 'Console',
-    what: 'AI rules, admins, settings, profile and provisioning screens',
-    state: 'planned',
-    evidence: 'src/app/(platform)/platform/(console)/',
-    milestone: 'M4, M4a',
   },
 
   // ── Delivery ────────────────────────────────────────────────────────────
