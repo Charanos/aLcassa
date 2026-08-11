@@ -242,6 +242,14 @@
     text-wrap: pretty;
   }
 
+  a,
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    cursor: pointer;
+  }
+
   h1,
   h2,
   h3,
@@ -336,15 +344,15 @@
     background: var(--scrollbar-thumb);
     border-radius: var(--r-chip);
     /* A transparent border with background-clip gives the thumb breathing room
-     * inside its track without a second element. */
-    border: 3px solid transparent;
-    background-clip: content-box;
+     * inside its track without a second element. 14px track - 8px border = 6px thumb */
+    border: 4px solid transparent;
+    background-clip: padding-box; /* padding-box renders the border as transparent margin */
     transition: background-color var(--motion-fade) var(--ease-standard);
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover);
-    background-clip: content-box;
+    background-clip: padding-box;
   }
 
   ::-webkit-scrollbar-corner {

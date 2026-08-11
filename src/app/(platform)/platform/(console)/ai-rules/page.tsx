@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
 import { RulesEditor } from '@/components/console/RulesEditor';
 import { getMasterRules } from '@/lib/console/data';
+import { IconCpu } from '@tabler/icons-react';
 
 export const metadata: Metadata = { title: 'Master AI rules' };
 
@@ -28,6 +29,13 @@ export default async function AiRulesPage() {
 
   return (
     <ConsolePage>
+      {/* Iconography watermarks safely contained */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <div className="absolute top-[25%] -right-10 hidden rotate-[20deg] text-indigo-500/[0.04] dark:text-indigo-300/[0.06] lg:block">
+          <IconCpu size={380} stroke={1} />
+        </div>
+      </div>
+
       <div
         className="flex flex-col gap-4 border-b pb-5 lg:flex-row lg:items-end lg:gap-6"
         style={{ borderColor: 'var(--border-subtle)' }}

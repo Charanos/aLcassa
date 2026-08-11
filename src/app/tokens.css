@@ -63,7 +63,7 @@
   --ink-700: #172a99; /* brand ink: 11.19 */
   --ink-800: #17225d; /* brand navy. Body text in light mode: 14.37 */
   --ink-900: #0c173b; /* raised surface, dark mode */
-  --ink-950: #040a20; /* page background, dark mode */
+  --ink-950: #0b1126; /* page background, dark mode (softened from 040a20) */
 
   /* ─ ACTION BLUE ─
    * The saturated brand blue. This is a SMALL-DOSE colour: primary buttons,
@@ -189,10 +189,10 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* ─ LAYOUT ─ */
-  --sidebar-width: 248px;
-  --sidebar-width-collapsed: 60px;
+  --sidebar-width: 240px;
+  --sidebar-width-collapsed: 58px;
   --topbar-height: 56px;
-  --content-max: 1280px;
+  --content-max: 1380px;
 }
 
 /* ═══ TIER 2 · SEMANTIC, LIGHT (default) ═══════════════════════════════════
@@ -264,15 +264,15 @@
   --workspace-card-status: var(--success-fg);
   --workspace-card-shadow: var(--shadow-md), 0 0 24px -6px color-mix(in oklab, var(--blue-500) 25%, transparent);
 
-  /* Inverted feature section: Dark Navy in light mode, Crisp White in dark mode */
+  /* Inverted feature section: Constant Dark Twilight Slab in light mode */
   --invert-card-bg: var(--ink-900);
   --invert-card-fg: #ffffff;
   --invert-card-border: var(--ink-700);
-  --invert-card-subtle: #cbd5e1;
-  --invert-card-rule: rgba(255, 255, 255, 0.12);
-  --invert-card-well: rgba(4, 10, 32, 0.65);
-  --invert-card-well-border: rgba(255, 255, 255, 0.12);
-  --invert-card-shadow: var(--shadow-lg), 0 0 32px -8px rgba(4, 58, 225, 0.2);
+  --invert-card-subtle: #94a3b8;
+  --invert-card-rule: rgba(255, 255, 255, 0.10);
+  --invert-card-well: rgba(4, 10, 32, 0.45);
+  --invert-card-well-border: rgba(255, 255, 255, 0.08);
+  --invert-card-shadow: var(--shadow-lg), 0 0 32px -8px rgba(4, 58, 225, 0.25);
 
   color-scheme: light;
 }
@@ -341,90 +341,50 @@
   --workspace-card-status: #10b981;
   --workspace-card-shadow: 0 0 32px -4px rgba(255, 255, 255, 0.25);
 
-  /* Inverted feature section: Crisp White in dark mode */
+  /* Inverted feature section: Crisp White in dark mode — true inverted chrome */
   --invert-card-bg: #ffffff;
-  --invert-card-fg: #0c173b;
-  --invert-card-border: rgba(255, 255, 255, 0.95);
-  --invert-card-subtle: #475569;
-  --invert-card-rule: rgba(12, 23, 59, 0.12);
-  --invert-card-well: #f8fafc;
-  --invert-card-well-border: #e2e8f0;
-  --invert-card-shadow: 0 0 40px -4px rgba(255, 255, 255, 0.22);
+  --invert-card-fg: var(--ink-900);
+  --invert-card-border: var(--ink-100);
+  --invert-card-subtle: var(--ink-500);
+  --invert-card-rule: var(--ink-200);
+  --invert-card-well: var(--ink-50);
+  --invert-card-well-border: var(--ink-200);
+  --invert-card-shadow: 0 0 40px -4px rgba(255, 255, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.4);
 
   color-scheme: dark;
 }
 
 /* ═══ THE CHROME TIER ══════════════════════════════════════════════════════
  *
- * The platform console's own addition to the semantic layer, and the one place
- * in the system where a surface deliberately inverts against the page.
- *
- * ⚠ WHY THE CONSOLE CHROME INVERTS, when nothing else does.
- *
- * 03 §1 locks the platform console to the aLcassa accent so a tenant's colour
- * can never restyle the owner's chrome — otherwise stepping into support mode
- * would look like a different product each time. Inversion extends the same
- * argument to VALUE rather than hue: the header and sidebar are platform
- * surfaces, the main pane shows tenant data, and making them opposite ends of
- * the ramp means the boundary between "aLcassa's chrome" and "someone's data"
- * is legible from across the room. It is the same reason a terminal has a
- * title bar.
- *
- * The inversion holds in BOTH directions — navy chrome on a cream page, light
- * chrome on a navy page — so the console reads the same way in either theme
- * rather than only working in one.
- *
- * ⚠ `--chrome-action` IS NOT `--blue-500`. On the navy slab the saturated
- * brand blue measures 2.52:1 and is unreadable, exactly as it is on the dark
- * page ground. The chrome's action colour therefore steps to blue-300 in light
- * mode and back down to blue-500 in dark mode, which is the inverse of what
- * `--text-action` does. Getting this backwards is the single most likely way
- * to make the console illegible, so the two are defined apart rather than
- * aliased.
- *
- * `--nav-w`, `--row-h` and `--row-pad` are written on the shell root from a
- * server-read cookie rather than by a client effect, so the chrome paints at
- * its correct width on the first byte instead of snapping after hydration.
+ * Inverted chrome tokens for the platform console header and navigation sidebar.
+/* ═══ TIER 4 · CONSOLE CHROME (Constant Dark Twilight Slab) ═════════════════
+ * The platform console top bar and navigation sidebar remain consistently
+ * dark in both light and dark mode, creating an authoritative, focused operator
+ * environment. Light sidebars are reserved exclusively for client/tenant spaces.
  */
 
 :root,
-[data-theme='light'] {
-  /* Light page, DARK chrome. */
-  --chrome-bg: #0c173b;
-  --chrome-bg-raised: #131f4d;
-  --chrome-fg: #eef1f8;
-  --chrome-fg-muted: #99a3c2;
-  --chrome-fg-faint: #6b769b;
-  --chrome-rule: rgba(255, 255, 255, 0.09);
-  --chrome-rule-strong: rgba(255, 255, 255, 0.16);
-  --chrome-action: #96b9ff;
-  --chrome-hover: rgba(255, 255, 255, 0.06);
-  --chrome-active-bg: rgba(150, 185, 255, 0.14);
-  --chrome-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.07);
-  --chrome-neu: inset 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
-}
-
+[data-theme='light'],
 [data-theme='dark'] {
-  /* Dark page, LIGHT chrome. */
-  --chrome-bg: #f3f6fb;
-  --chrome-bg-raised: #ffffff;
-  --chrome-fg: #17225d;
-  --chrome-fg-muted: #64708b;
-  --chrome-fg-faint: #8b8f99;
-  --chrome-rule: rgba(12, 23, 59, 0.11);
-  --chrome-rule-strong: rgba(12, 23, 59, 0.2);
-  --chrome-action: #043ae1;
-  --chrome-hover: rgba(12, 23, 59, 0.05);
-  --chrome-active-bg: rgba(4, 58, 225, 0.1);
-  --chrome-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --chrome-neu: inset 0 1px 2px rgba(14, 16, 19, 0.08), inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+  --chrome-bg: #131b3e;
+  --chrome-bg-raised: #1c2754;
+  --chrome-fg: #f0f3fa;
+  --chrome-fg-muted: #9ba9ca;
+  --chrome-fg-faint: #67779c;
+  --chrome-rule: rgba(255, 255, 255, 0.08);
+  --chrome-rule-strong: rgba(255, 255, 255, 0.16);
+  --chrome-action: #7ea8fc;
+  --chrome-hover: rgba(255, 255, 255, 0.06);
+  --chrome-active-bg: rgba(126, 168, 252, 0.14);
+  --chrome-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --chrome-neu: inset 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* Console geometry. Defaults; the shell root overrides them per user. */
 :root {
-  --nav-w: 248px;
-  --row-h: 44px;
-  --row-pad: 10px;
+  --nav-w: 240px;
+  --row-h: 40px;
+  --row-pad: 8px;
 }
 
 /* ═══ ACCENTS · per organization, from tenant_settings.accent_key ═══════════
@@ -928,10 +888,10 @@
   --hatch-oxide: repeating-linear-gradient(45deg, var(--red-400) 0 1px, transparent 1px 6px);
   --hatch-slate: repeating-linear-gradient(45deg, var(--ink-400) 0 1px, transparent 1px 6px);
 
-  --scrollbar-width: 10px;
+  --scrollbar-width: 14px; /* modern macOS style width, with transparent border padding */
   --scrollbar-track: transparent;
   --scrollbar-thumb: var(--border-strong);
-  --scrollbar-thumb-hover: var(--blue-400);
+  --scrollbar-thumb-hover: var(--text-tertiary); /* elegant neutral hover instead of blue */
 
   --theme-transition: var(--duration-slow);
   --reveal-distance: 18px;

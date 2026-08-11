@@ -1,14 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import gsap from 'gsap';
 import {
   IconAlertTriangle,
   IconBell,
   IconChevronDown,
   IconChevronLeft,
-  IconChevronRight,
   IconFileText,
   IconLayoutSidebar,
   IconLogout,
@@ -88,6 +89,23 @@ export type ConsoleShellProps = {
   children: React.ReactNode;
 };
 
+/**
+ * Persists nav-state via a plain Route Handler instead of a Server Action.
+ * Server Actions always trigger an RSC tree re-render after they settle —
+ * this fetch call does not touch React at all, eliminating the post-animation
+ * shell "twinge".
+ */
+function saveNavPref(nav: NavState): void {
+  fetch('/api/console/prefs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nav }),
+  }).catch(() => {
+    // Preference write failures are silent — the cookie will be reset on the
+    // next hard navigation and the UI is already correct.
+  });
+}
+
 const NOTICE_INK: Record<NoticeKind, { bg: string; fg: string }> = {
   danger: { bg: 'var(--danger-bg)', fg: 'var(--danger-fg)' },
   warning: { bg: 'var(--warning-bg)', fg: 'var(--warning-fg)' },
@@ -103,7 +121,7 @@ export function ConsoleShell({
   nav,
   density,
   session,
-  onNavStateChange,
+  onNavStateChange: _onNavStateChange, /* eslint-disable-line @typescript-eslint/no-unused-vars */
   onStartSession,
   onEndSession,
   children,
@@ -118,11 +136,13 @@ export function ConsoleShell({
   const [pendingWorkspace, setPendingWorkspace] = useState<ConsoleWorkspace | null>(null);
   const [currentTheme, setCurrentTheme] = useState(theme);
   const [, startTransition] = useTransition();
+  void startTransition; // retained for future use
 
   const paletteInput = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
 
   const expanded = !collapsed;
+  void expanded; // used structurally via `collapsed` inverse
 
   const closeAll = useCallback(() => {
     setOpenMenu(null);
@@ -132,10 +152,14 @@ export function ConsoleShell({
   const toggleCollapse = useCallback(() => {
     setCollapsed((prev) => {
       const next = !prev;
-      startTransition(() => void onNavStateChange(next ? 'collapsed' : 'expanded'));
+      saveNavPref(next ? 'collapsed' : 'expanded');
       return next;
     });
-  }, [onNavStateChange]);
+  }, []);
+
+  // Track collapse state in a ref so GSAP effects can read current value
+  // without needing to be in their dependency arrays.
+  const collapsedRef = useRef(nav === 'collapsed');
 
   /* ⌘K / ⌘B / Escape. One listener rather than three, so the ordering between
      them is explicit instead of depending on registration order. */
@@ -230,6 +254,154 @@ export function ConsoleShell({
     );
   }, [query, navigation, workspaces]);
 
+  /* ── GSAP Sidebar Navigation Indicator & Motion ──────────────────── */
+  const navContainerRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Record<string, HTMLElement | null>>({});
+  const isInitialNavRender = useRef(true);
+  const indicatorSettleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /**
+   * Snaps the GSAP indicator to the active nav item.
+   * Always reads offsetTop AFTER CSS transitions have settled so measurements
+   * are never taken mid-transition (which caused the floating artefact).
+   */
+  const snapIndicator = useCallback((activeHref: string, immediate = false) => {
+    const activeEl = itemRefs.current[activeHref];
+    const indicator = indicatorRef.current;
+
+    if (!activeEl || !indicator) {
+      if (indicator) gsap.set(indicator, { opacity: 0 });
+      return;
+    }
+
+    const top = activeEl.offsetTop;
+    const height = activeEl.offsetHeight;
+
+    if (immediate || isInitialNavRender.current) {
+      gsap.killTweensOf(indicator);
+      gsap.set(indicator, { top, height, opacity: 1 });
+      isInitialNavRender.current = false;
+    } else {
+      gsap.killTweensOf(indicator);
+      gsap.to(indicator, {
+        top,
+        height,
+        opacity: 1,
+        duration: 0.3,
+        ease: 'power3.out',
+      });
+    }
+  }, []);
+
+  const updateNavIndicator = useCallback((activeHref: string, immediate = false) => {
+    const activeEl = itemRefs.current[activeHref];
+    const indicator = indicatorRef.current;
+
+    snapIndicator(activeHref, immediate);
+
+    // Micro-interaction on the active item's icon & label (nav-change only, not collapse)
+    if (!immediate && !isInitialNavRender.current && activeEl) {
+      const iconSvg = activeEl.querySelector('svg');
+      const labelSpan = activeEl.querySelector('.nav-label');
+      if (iconSvg) {
+        gsap.fromTo(
+          iconSvg,
+          { scale: 0.75, rotate: -8 },
+          { scale: 1, rotate: 0, duration: 0.38, ease: 'back.out(2.4)' }
+        );
+      }
+      if (labelSpan && indicator) {
+        gsap.fromTo(
+          labelSpan,
+          { x: -3, opacity: 0.8 },
+          { x: 0, opacity: 1, duration: 0.25, ease: 'power2.out' }
+        );
+      }
+    }
+  }, [snapIndicator]);
+
+  // When collapsed state changes: hide indicator immediately, then re-snap
+  // precisely after the CSS nav-width transition (260ms) fully settles.
+  useEffect(() => {
+    const indicator = indicatorRef.current;
+    if (!indicator) return;
+
+    collapsedRef.current = collapsed;
+
+    // Immediately hide to prevent mid-transition floating artefact
+    gsap.killTweensOf(indicator);
+    gsap.set(indicator, { opacity: 0 });
+
+    // Clear any pending settle timer
+    if (indicatorSettleTimer.current) clearTimeout(indicatorSettleTimer.current);
+
+    // Re-snap after transition completes: 260ms transition + 20ms buffer
+    indicatorSettleTimer.current = setTimeout(() => {
+      const activeItem = navigation
+        .flatMap((g) => g.items)
+        .find((item) =>
+          item.href === '/platform'
+            ? pathname === '/platform'
+            : pathname.startsWith(item.href)
+        );
+      if (activeItem) snapIndicator(activeItem.href, true);
+    }, 280);
+
+    return () => {
+      if (indicatorSettleTimer.current) clearTimeout(indicatorSettleTimer.current);
+    };
+  }, [collapsed, pathname, navigation, snapIndicator]);
+
+  // Route change: re-snap indicator (no collapse involved)
+  useEffect(() => {
+    const activeItem = navigation
+      .flatMap((g) => g.items)
+      .find((item) =>
+        item.href === '/platform'
+          ? pathname === '/platform'
+          : pathname.startsWith(item.href)
+      );
+    if (activeItem) updateNavIndicator(activeItem.href, isInitialNavRender.current);
+  }, [pathname, navigation, updateNavIndicator]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const activeItem = navigation
+        .flatMap((g) => g.items)
+        .find((item) =>
+          item.href === '/platform'
+            ? pathname === '/platform'
+            : pathname.startsWith(item.href)
+        );
+      if (activeItem) snapIndicator(activeItem.href, true);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [pathname, navigation, snapIndicator]);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    const target = e.currentTarget;
+    gsap.timeline()
+      .to(target, { scale: 0.95, duration: 0.08, ease: 'power1.in' })
+      .to(target, { scale: 1, duration: 0.3, ease: 'back.out(2.2)' });
+    updateNavIndicator(href);
+  };
+
+  const handleNavHover = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    const target = e.currentTarget;
+    const active =
+      href === '/platform' ? pathname === '/platform' : pathname.startsWith(href);
+    if (!active) {
+      gsap.to(target, { x: 3, duration: 0.18, ease: 'power2.out' });
+    }
+  };
+
+  const handleNavLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const target = e.currentTarget;
+    gsap.to(target, { x: 0, duration: 0.22, ease: 'power2.out' });
+  };
+
   return (
     <div
       className="flex h-dvh flex-col overflow-hidden"
@@ -237,9 +409,9 @@ export function ConsoleShell({
         background: 'var(--surface-base)',
         color: 'var(--text-primary)',
         // Server-computed. See note 2 in the header comment.
-        ['--nav-w' as string]: collapsed ? '60px' : '248px',
-        ['--row-h' as string]: density === 'dense' ? '36px' : '44px',
-        ['--row-pad' as string]: density === 'dense' ? '6px' : '10px',
+        ['--nav-w' as string]: collapsed ? '58px' : '240px',
+        ['--row-h' as string]: density === 'dense' ? '36px' : '40px',
+        ['--row-pad' as string]: density === 'dense' ? '6px' : '8px',
       }}
     >
       {session ? <SupportSessionBanner session={session} onEnd={onEndSession} /> : null}
@@ -247,7 +419,7 @@ export function ConsoleShell({
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header
         ref={headerRef}
-        className="relative flex shrink-0 items-center gap-3 pr-3 pl-4"
+        className="relative flex shrink-0 items-center gap-3 px-4 md:px-5"
         style={{
           height: 'var(--topbar-height)',
           background: 'var(--chrome-bg)',
@@ -259,16 +431,14 @@ export function ConsoleShell({
       >
         <Link
           href="/platform"
-          className="inline-flex shrink-0 items-center gap-2.5"
+          className="inline-flex shrink-0 items-center gap-3"
           style={{ color: 'var(--chrome-fg)' }}
         >
-          {/* `tone="chrome"` rather than `brand`: on the navy slab the
-              saturated brand blue is 2.52:1. See the chrome tier note. */}
-          <Mark size={22} tone="chrome" title="aLcassa" />
+          <Mark size={20} tone="chrome" title="aLcassa" />
           <span
             className="hidden sm:inline"
             style={{
-              font: '500 var(--text-lg)/1 var(--font-ui)',
+              font: '500 15px/1 var(--font-ui)',
               letterSpacing: '-0.015em',
               color: 'var(--chrome-fg)',
             }}
@@ -280,7 +450,7 @@ export function ConsoleShell({
         <span
           aria-hidden
           className="hidden shrink-0 md:block"
-          style={{ width: 1, height: 22, background: 'var(--chrome-rule)' }}
+          style={{ width: 1, height: 18, background: 'var(--chrome-rule)' }}
         />
 
         {/* ── Workspace switcher ─────────────────────────────────────── */}
@@ -291,19 +461,19 @@ export function ConsoleShell({
             bordered
           >
             <span
-              className="grid size-5 place-items-center rounded-chip"
+              className="grid size-4 place-items-center rounded-[3px]"
               style={{
                 background: 'var(--chrome-active-bg)',
                 color: 'var(--chrome-action)',
-                font: '500 10px/1 var(--font-mono)',
+                font: '500 9px/1 var(--font-mono)',
               }}
               aria-hidden
             >
               ◎
             </span>
-            <span className="whitespace-nowrap">Switch into workspace</span>
+            <span className="whitespace-nowrap text-[12.5px]">Switch workspace</span>
             <IconChevronDown
-              size={14}
+              size={13}
               stroke={1.5}
               style={{ color: 'var(--chrome-fg-muted)' }}
               aria-hidden
@@ -373,21 +543,21 @@ export function ConsoleShell({
             setPaletteOpen(true);
             setQuery('');
           }}
-          className="flex h-[34px] min-w-0 flex-1 items-center gap-2.5 rounded-panel pr-2 pl-2.5 text-left transition-colors md:max-w-[320px]"
+          className="flex h-8 min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left transition-all hover:bg-[var(--chrome-hover)] hover:border-[var(--chrome-rule-strong)] md:max-w-[280px]"
           style={{
             border: '1px solid var(--chrome-rule)',
             background: 'transparent',
             color: 'var(--chrome-fg-muted)',
-            font: '400 var(--text-sm)/1 var(--font-ui)',
+            font: '400 12.5px/1 var(--font-ui)',
           }}
         >
-          <IconSearch size={16} stroke={1.5} aria-hidden />
-          <span className="flex-1 truncate">Search or jump to</span>
+          <IconSearch size={14} stroke={1.5} aria-hidden />
+          <span className="flex-1 truncate">Search or jump to...</span>
           <kbd
-            className="hidden h-5 items-center rounded-chip px-1.5 sm:inline-flex"
+            className="hidden h-4.5 items-center rounded-[4px] px-1.5 sm:inline-flex"
             style={{
               border: '1px solid var(--chrome-rule-strong)',
-              font: '500 11px/1 var(--font-mono)',
+              font: '500 10px/1 var(--font-mono)',
               color: 'var(--chrome-fg-muted)',
             }}
           >
@@ -395,13 +565,23 @@ export function ConsoleShell({
           </kbd>
         </button>
 
-        <div className="ml-auto flex shrink-0 items-center gap-1">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5">
           {/* ── Notifications ─────────────────────────────────────────── */}
           <div className="relative">
             <ChromeIconButton
               label="Notifications"
               active={openMenu === 'notices'}
-              onClick={() => setOpenMenu((m) => (m === 'notices' ? null : 'notices'))}
+              onClick={(e) => {
+                const icon = e.currentTarget.querySelector('svg');
+                if (icon) {
+                  gsap.timeline()
+                    .to(icon, { rotate: -14, duration: 0.08 })
+                    .to(icon, { rotate: 14, duration: 0.08 })
+                    .to(icon, { rotate: -8, duration: 0.06 })
+                    .to(icon, { rotate: 0, duration: 0.1, ease: 'back.out(2)' });
+                }
+                setOpenMenu((m) => (m === 'notices' ? null : 'notices'));
+              }}
             >
               <IconBell size={18} stroke={1.5} aria-hidden />
               {notices.length > 0 ? (
@@ -485,7 +665,20 @@ export function ConsoleShell({
             ) : null}
           </div>
 
-          <ChromeIconButton label="Toggle colour theme" onClick={toggleTheme}>
+          <ChromeIconButton
+            label="Toggle colour theme"
+            onClick={(e) => {
+              const icon = e.currentTarget.querySelector('svg');
+              if (icon) {
+                gsap.fromTo(
+                  icon,
+                  { rotate: -120, scale: 0.6 },
+                  { rotate: 0, scale: 1, duration: 0.38, ease: 'back.out(2.2)' }
+                );
+              }
+              toggleTheme();
+            }}
+          >
             {currentTheme === 'dark' ? (
               <IconSun size={18} stroke={1.5} aria-hidden />
             ) : (
@@ -495,29 +688,39 @@ export function ConsoleShell({
 
           <span
             aria-hidden
-            className="mx-1.5 hidden sm:block"
-            style={{ width: 1, height: 22, background: 'var(--chrome-rule)' }}
+            className="mx-1 hidden sm:block"
+            style={{ width: 1, height: 18, background: 'var(--chrome-rule)' }}
           />
 
           {/* ── Account ───────────────────────────────────────────────── */}
           <div className="relative">
-            <ChromeButton
+            <button
+              type="button"
               onClick={() => setOpenMenu((m) => (m === 'account' ? null : 'account'))}
-              expanded={openMenu === 'account'}
+              aria-expanded={openMenu === 'account'}
+              className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg py-0 pr-2 pl-1 transition-colors hover:bg-[var(--chrome-hover)]"
+              style={{
+                border: '1px solid transparent',
+                color: 'var(--chrome-fg)',
+              }}
             >
-              <span
-                className="grid size-[26px] shrink-0 place-items-center rounded-full"
-                style={{
-                  background: 'var(--chrome-active-bg)',
-                  color: 'var(--chrome-action)',
-                  font: '500 11px/1 var(--font-mono)',
-                }}
+              <div className="relative size-[24px] shrink-0 overflow-hidden rounded-full border border-[var(--chrome-rule)]">
+                <Image
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop"
+                  alt={account.name}
+                  width={24}
+                  height={24}
+                  className="size-full object-cover"
+                />
+              </div>
+              <span className="hidden text-[12.5px] font-medium lg:inline">{account.name}</span>
+              <IconChevronDown
+                size={12}
+                stroke={1.5}
+                style={{ color: 'var(--chrome-fg-muted)' }}
                 aria-hidden
-              >
-                {account.initials}
-              </span>
-              <span className="hidden lg:inline">{account.name}</span>
-            </ChromeButton>
+              />
+            </button>
 
             {openMenu === 'account' ? (
               <Dropdown className="right-0 w-[254px] p-1.5">
@@ -525,19 +728,21 @@ export function ConsoleShell({
                   className="mb-1.5 flex items-center gap-2.5 border-b px-2.5 pt-2.5 pb-3"
                   style={{ borderColor: 'var(--border-subtle)' }}
                 >
-                  <span
-                    className="grid size-[34px] shrink-0 place-items-center rounded-full"
-                    style={{
-                      background: 'var(--blue-50)',
-                      color: 'var(--blue-500)',
-                      font: '500 12px/1 var(--font-mono)',
-                    }}
-                    aria-hidden
-                  >
-                    {account.initials}
-                  </span>
+                  <div className="relative size-[34px] shrink-0 overflow-hidden rounded-full border border-[var(--border-subtle)]">
+                    <Image
+                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop"
+                      alt={account.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                   <span className="min-w-0 flex-1">
-                    <span className="t-compact block truncate">{account.name}</span>
+                    <span
+                      className="t-compact block truncate font-medium"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      {account.name}
+                    </span>
                     <span
                       className="block truncate"
                       style={{ font: '400 11px/1.4 var(--font-mono)', color: 'var(--text-tertiary)' }}
@@ -565,31 +770,53 @@ export function ConsoleShell({
       <div className="flex min-h-0 flex-1">
         <nav
           aria-label="Platform navigation"
-          className="hidden shrink-0 flex-col md:flex"
+          className="hidden shrink-0 flex-col md:flex select-none"
           style={{
-            width: 'var(--nav-w)',
+            width: collapsed ? '58px' : '240px',
             background: 'var(--chrome-bg)',
             borderRight: '1px solid var(--chrome-rule)',
-            transition: 'width var(--duration-base) var(--ease-standard)',
+            transition: 'width 260ms cubic-bezier(0.2, 0, 0, 1)',
+            willChange: 'width',
+            contain: 'layout style',
             zIndex: 20,
           }}
         >
-          <div className="flex-1 overflow-y-auto px-2.5 pt-4 pb-2">
-            {navigation.map((group) => (
-              <div key={group.label} className="mb-5">
-                {expanded ? (
-                  <p
-                    className="t-eyebrow mb-2 ml-2.5"
-                    style={{ color: 'var(--chrome-fg-faint)' }}
-                  >
-                    {group.label}
-                  </p>
-                ) : null}
+          <div
+            ref={navContainerRef}
+            className="relative flex-1 overflow-x-hidden overflow-y-auto px-2.5 pt-6 pb-4"
+          >
+            {/* GSAP Smooth Sliding Active Pill Indicator */}
+            <div
+              ref={indicatorRef}
+              className="pointer-events-none absolute left-2.5 right-2.5 z-0 rounded-lg"
+              style={{
+                background: 'var(--chrome-active-bg)',
+                boxShadow: 'var(--chrome-highlight)',
+                opacity: 0,
+                willChange: 'top, opacity',
+              }}
+              aria-hidden="true"
+            />
+
+            {navigation.map((group, gIdx) => (
+              <div key={group.label} className={gIdx === 0 ? 'mb-4' : 'mb-4 mt-4'}>
+                <p
+                  className="t-eyebrow mb-2 ml-2 tracking-wider overflow-hidden whitespace-nowrap"
+                  style={{
+                    color: 'var(--chrome-fg-faint)',
+                    fontSize: '10.5px',
+                    opacity: collapsed ? 0 : 1,
+                    maxHeight: collapsed ? '0px' : '20px',
+                    marginBottom: collapsed ? '0px' : '8px',
+                    transform: collapsed ? 'translateY(-6px)' : 'translateY(0)',
+                    transition:
+                      'opacity 180ms ease, max-height 240ms cubic-bezier(0.2,0,0,1), transform 180ms ease, margin-bottom 240ms ease',
+                  }}
+                >
+                  {group.label}
+                </p>
                 <div className="flex flex-col gap-0.5">
                   {group.items.map((item) => {
-                    /* Exact match for the index route, prefix match for the
-                       rest — otherwise `/platform` stays highlighted on every
-                       child page and the nav stops telling you where you are. */
                     const active =
                       item.href === '/platform'
                         ? pathname === '/platform'
@@ -598,31 +825,59 @@ export function ConsoleShell({
                     return (
                       <Link
                         key={item.href}
+                        ref={(el) => {
+                          itemRefs.current[item.href] = el;
+                        }}
                         href={item.href}
                         title={collapsed ? item.label : undefined}
                         aria-current={active ? 'page' : undefined}
-                        className="relative flex h-9 items-center gap-2.5 rounded-panel px-2.5 transition-colors"
+                        onClick={(e) => handleNavClick(e, item.href)}
+                        onMouseEnter={(e) => handleNavHover(e, item.href)}
+                        onMouseLeave={handleNavLeave}
+                        className="group relative z-10 flex h-[36px] cursor-pointer items-center rounded-lg select-none transition-colors hover:text-[var(--chrome-fg)]"
                         style={{
-                          background: active ? 'var(--chrome-active-bg)' : 'transparent',
+                          paddingLeft: collapsed ? '11px' : '10px',
+                          paddingRight: collapsed ? '11px' : '10px',
+                          gap: collapsed ? '0px' : '10px',
                           color: active ? 'var(--chrome-fg)' : 'var(--chrome-fg-muted)',
-                          boxShadow: active ? 'var(--chrome-neu)' : undefined,
-                          font: '400 var(--text-sm)/1 var(--font-ui)',
+                          font: active ? '500 13px/1 var(--font-ui)' : '400 13px/1 var(--font-ui)',
+                          transition:
+                            'padding 240ms cubic-bezier(0.2,0,0,1), gap 240ms cubic-bezier(0.2,0,0,1), color 150ms ease',
                         }}
                       >
+                        <span className="flex size-4 shrink-0 items-center justify-center">
+                          <Icon
+                            size={16}
+                            stroke={active ? 1.8 : 1.5}
+                            className="transition-colors"
+                            style={{ color: active ? 'var(--chrome-action)' : 'currentColor' }}
+                            aria-hidden
+                          />
+                        </span>
                         <span
-                          aria-hidden
-                          className="absolute top-2 bottom-2 left-0 w-0.5 rounded-full"
-                          style={{ background: active ? 'var(--chrome-action)' : 'transparent' }}
-                        />
-                        <Icon size={18} stroke={1.5} className="shrink-0" aria-hidden />
-                        {expanded ? <span className="flex-1 truncate">{item.label}</span> : null}
-                        {expanded && item.badge ? (
+                          className="nav-label min-w-0 flex-1 truncate overflow-hidden whitespace-nowrap"
+                          style={{
+                            opacity: collapsed ? 0 : 1,
+                            maxWidth: collapsed ? '0px' : '160px',
+                            transform: collapsed ? 'translateX(-8px)' : 'translateX(0)',
+                            pointerEvents: collapsed ? 'none' : 'auto',
+                            transition:
+                              'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+                          }}
+                        >
+                          {item.label}
+                        </span>
+                        {item.badge ? (
                           <span
-                            className="grid h-[18px] min-w-5 place-items-center rounded-full px-1.5"
+                            className="grid h-4 min-w-4 place-items-center rounded-full px-1 overflow-hidden"
                             style={{
-                              background: 'var(--chrome-rule-strong)',
-                              color: 'var(--chrome-fg)',
-                              font: '500 11px/1 var(--font-mono)',
+                              opacity: collapsed ? 0 : 1,
+                              transform: collapsed ? 'scale(0.4)' : 'scale(1)',
+                              pointerEvents: collapsed ? 'none' : 'auto',
+                              background: active ? 'var(--chrome-action)' : 'var(--chrome-rule-strong)',
+                              color: active ? 'var(--chrome-bg)' : 'var(--chrome-fg)',
+                              font: '500 10px/1 var(--font-mono)',
+                              transition: 'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
                             }}
                           >
                             {item.badge}
@@ -637,74 +892,104 @@ export function ConsoleShell({
           </div>
 
           <div
-            className="shrink-0 p-2.5"
+            className="shrink-0 p-2"
             style={{ borderTop: '1px solid var(--chrome-rule)' }}
           >
             <div
-              className="flex items-center gap-2.5 rounded-panel p-2"
-              style={{ background: 'var(--chrome-hover)', boxShadow: 'var(--chrome-highlight)' }}
+              className="flex items-center rounded-lg p-1.5 transition-all hover:bg-[var(--chrome-hover)]"
+              style={{
+                background: 'var(--chrome-hover)',
+                boxShadow: 'var(--chrome-highlight)',
+                gap: collapsed ? '0px' : '10px',
+                paddingLeft: collapsed ? '7px' : '8px',
+                paddingRight: collapsed ? '7px' : '8px',
+                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+              }}
             >
+              <div className="relative size-6 shrink-0 overflow-hidden rounded-full border border-[var(--chrome-rule)]">
+                <Image
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop"
+                  alt={account.name}
+                  width={24}
+                  height={24}
+                  className="size-full object-cover"
+                />
+              </div>
               <span
-                className="grid size-[30px] shrink-0 place-items-center rounded-full"
+                className="min-w-0 flex-1 overflow-hidden whitespace-nowrap"
                 style={{
-                  background: 'var(--chrome-active-bg)',
-                  color: 'var(--chrome-action)',
-                  font: '500 11px/1 var(--font-mono)',
+                  opacity: collapsed ? 0 : 1,
+                  maxWidth: collapsed ? '0px' : '140px',
+                  transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
+                  pointerEvents: collapsed ? 'none' : 'auto',
+                  transition:
+                    'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
-                aria-hidden
               >
-                {account.initials}
-              </span>
-              {expanded ? (
-                <span className="min-w-0 flex-1">
-                  <span
-                    className="block truncate"
-                    style={{ font: '400 12.5px/1.3 var(--font-ui)', color: 'var(--chrome-fg)' }}
-                  >
-                    {account.name}
-                  </span>
-                  <span
-                    className="block truncate"
-                    style={{ font: '400 11px/1.4 var(--font-mono)', color: 'var(--chrome-fg-faint)' }}
-                  >
-                    {account.role}
-                  </span>
+                <span
+                  className="block truncate text-[12px] font-medium"
+                  style={{ color: 'var(--chrome-fg)' }}
+                >
+                  {account.name}
                 </span>
-              ) : null}
+                <span
+                  className="block truncate text-[10px] font-mono"
+                  style={{ color: 'var(--chrome-fg-faint)' }}
+                >
+                  {account.role}
+                </span>
+              </span>
             </div>
 
             <button
               type="button"
               onClick={toggleCollapse}
-              className="mt-1.5 flex h-8 w-full items-center gap-2.5 rounded-panel px-2.5 transition-colors"
+              className="mt-1 flex h-7 w-full cursor-pointer items-center rounded-lg text-[11.5px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
               style={{
                 background: 'transparent',
                 color: 'var(--chrome-fg-faint)',
-                font: '400 12.5px/1 var(--font-ui)',
+                paddingLeft: collapsed ? '11px' : '8px',
+                paddingRight: collapsed ? '11px' : '8px',
+                gap: collapsed ? '0px' : '8px',
+                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
               aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
-              {collapsed ? (
-                <IconChevronRight size={16} stroke={1.5} className="shrink-0" aria-hidden />
-              ) : (
-                <IconChevronLeft size={16} stroke={1.5} className="shrink-0" aria-hidden />
-              )}
-              {expanded ? (
-                <>
-                  <span>Collapse</span>
-                  <kbd
-                    className="ml-auto"
-                    style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--chrome-fg-faint)' }}
-                  >
-                    ⌘B
-                  </kbd>
-                </>
-              ) : null}
+              <span className="flex size-4 shrink-0 items-center justify-center">
+                <IconChevronLeft
+                  size={14}
+                  stroke={1.5}
+                  style={{
+                    transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 260ms cubic-bezier(0.2,0,0,1)',
+                  }}
+                  aria-hidden
+                />
+              </span>
+              <span
+                className="flex min-w-0 flex-1 items-center overflow-hidden whitespace-nowrap"
+                style={{
+                  opacity: collapsed ? 0 : 1,
+                  maxWidth: collapsed ? '0px' : '150px',
+                  transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
+                  pointerEvents: collapsed ? 'none' : 'auto',
+                  transition:
+                    'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+                }}
+              >
+                <span>Collapse</span>
+                <kbd
+                  className="ml-auto text-[10px] font-mono"
+                  style={{ color: 'var(--chrome-fg-faint)' }}
+                >
+                  ⌘B
+                </kbd>
+              </span>
             </button>
           </div>
         </nav>
 
-        <main className="min-w-0 flex-1 overflow-y-auto" style={{ background: 'var(--surface-base)' }}>
+        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto" style={{ background: 'var(--surface-base)' }}>
           {children}
         </main>
       </div>
@@ -712,22 +997,33 @@ export function ConsoleShell({
       {/* ── Command palette ────────────────────────────────────────────── */}
       {paletteOpen ? (
         <div
+          ref={(el) => {
+            if (el) gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'power2.out' });
+          }}
           onClick={closeAll}
           className="fixed inset-0 flex justify-center"
           style={{
             zIndex: 80,
             background: 'var(--surface-overlay)',
             paddingTop: '12vh',
-            animation: 'overlay-in var(--duration-fast) linear',
           }}
         >
           <div
+            ref={(el) => {
+              if (el) {
+                gsap.fromTo(
+                  el,
+                  { opacity: 0, y: -24, scale: 0.95 },
+                  { opacity: 1, y: 0, scale: 1, duration: 0.32, ease: 'power3.out' }
+                );
+              }
+            }}
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
             aria-label="Command palette"
             className="surface-glass-strong flex w-[620px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-overlay"
-            style={{ maxHeight: '62vh', animation: 'panel-in var(--duration-base) var(--ease-out)' }}
+            style={{ maxHeight: '62vh' }}
           >
             <div
               className="flex items-center gap-2.5 border-b px-4 py-3.5"
@@ -865,12 +1161,12 @@ function ChromeButton({
       type="button"
       onClick={onClick}
       aria-expanded={expanded}
-      className="inline-flex h-[34px] items-center gap-2.5 rounded-panel py-0 pr-2.5 pl-2 transition-colors"
+      className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg py-0 pr-2.5 pl-2 transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
       style={{
         border: bordered ? '1px solid var(--chrome-rule)' : '1px solid transparent',
         background: expanded ? 'var(--chrome-hover)' : bordered ? 'var(--chrome-hover)' : 'transparent',
         color: 'var(--chrome-fg)',
-        font: '400 var(--text-sm)/1 var(--font-ui)',
+        font: '400 12.5px/1 var(--font-ui)',
       }}
     >
       {children}
@@ -886,7 +1182,7 @@ function ChromeIconButton({
 }: {
   children: React.ReactNode;
   label: string;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
   active?: boolean;
 }) {
   return (
@@ -894,11 +1190,11 @@ function ChromeIconButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="relative grid size-[34px] place-items-center rounded-panel transition-colors"
+      className="relative grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
       style={{
         border: 'none',
         background: active ? 'var(--chrome-hover)' : 'transparent',
-        color: 'var(--chrome-fg-muted)',
+        color: active ? 'var(--chrome-fg)' : 'var(--chrome-fg-muted)',
       }}
     >
       {children}
@@ -916,11 +1212,39 @@ function ChromeIconButton({
  * third colour scheme for their own hover states. 03 §7b names the popover as
  * a glass surface and glass takes the surface beneath it.
  */
+/**
+ * A dropdown panel with custom GSAP entrance and staggered item reveal.
+ */
 function Dropdown({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    gsap.fromTo(
+      ref.current,
+      { opacity: 0, y: -10, scale: 0.95, transformOrigin: 'top right' },
+      { opacity: 1, y: 0, scale: 1, duration: 0.26, ease: 'back.out(2)' }
+    );
+
+    const items = ref.current.querySelectorAll('a, button');
+    if (items.length > 0) {
+      gsap.fromTo(
+        items,
+        { opacity: 0, y: 4 },
+        { opacity: 1, y: 0, stagger: 0.025, duration: 0.2, ease: 'power2.out', delay: 0.04 }
+      );
+    }
+  }, []);
+
   return (
     <div
+      ref={ref}
       className={`surface-glass-strong absolute top-[42px] rounded-overlay ${className}`}
-      style={{ zIndex: OVERLAY_Z, animation: 'panel-in var(--duration-base) var(--ease-out)' }}
+      style={{
+        color: 'var(--text-primary)',
+        zIndex: OVERLAY_Z,
+        boxShadow: 'var(--glass-highlight), var(--shadow-md)',
+      }}
     >
       {children}
     </div>
@@ -941,13 +1265,21 @@ function MenuLink({
   return (
     <Link
       href={href}
+      onMouseEnter={(e) => {
+        const icon = e.currentTarget.querySelector('svg');
+        if (icon) gsap.to(icon, { x: 2, duration: 0.15, ease: 'power1.out' });
+      }}
+      onMouseLeave={(e) => {
+        const icon = e.currentTarget.querySelector('svg');
+        if (icon) gsap.to(icon, { x: 0, duration: 0.2, ease: 'power1.out' });
+      }}
       className="flex h-[34px] w-full items-center gap-3 rounded-panel px-2.5 transition-colors hover:bg-[var(--surface-inset)]"
       style={{
         color: danger ? 'var(--danger-fg)' : 'var(--text-primary)',
         font: '400 var(--text-sm)/1 var(--font-ui)',
       }}
     >
-      <Icon size={15} stroke={1.5} className="shrink-0" aria-hidden />
+      <Icon size={15} stroke={1.5} className="shrink-0 transition-transform" aria-hidden />
       {children}
     </Link>
   );

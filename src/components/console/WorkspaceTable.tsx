@@ -158,11 +158,11 @@ export function WorkspaceTable({
     <>
       {/* ── Filter bar ───────────────────────────────────────────────── */}
       <div
-        className="surface-card mt-4 flex flex-wrap items-center gap-2.5 p-3"
+        className="surface-card mt-6 flex flex-wrap items-center gap-3 p-4"
         style={{ borderRadius: 'var(--radius-lg)' }}
       >
         <label
-          className="flex h-[34px] max-w-[380px] min-w-0 flex-1 basis-[280px] items-center gap-2.5 rounded-chip px-3"
+          className="flex h-9 max-w-[380px] min-w-0 flex-1 basis-[280px] items-center gap-3 rounded-xl px-3.5"
           style={{
             border: '1px solid var(--border-strong)',
             background: 'var(--surface-raised)',
@@ -181,7 +181,7 @@ export function WorkspaceTable({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Name or slug"
+            placeholder="Search by name or slug..."
             aria-label="Search workspaces"
             className="min-w-0 flex-1 border-none bg-transparent outline-none"
             style={{ font: '400 var(--text-sm)/1 var(--font-ui)', color: 'var(--text-primary)' }}
@@ -189,8 +189,8 @@ export function WorkspaceTable({
           <kbd style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>/</kbd>
         </label>
 
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="t-eyebrow mr-0.5" style={{ color: 'var(--text-tertiary)' }}>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="t-eyebrow mr-1 tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
             Status
           </span>
           {STATUSES.map((s) => {
@@ -201,7 +201,7 @@ export function WorkspaceTable({
                 type="button"
                 onClick={() => toggleStatus(s)}
                 aria-pressed={on}
-                className="inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 transition-colors"
+                className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-full px-3 transition-colors"
                 style={{
                   border: `1px solid ${on ? 'var(--blue-500)' : 'var(--border-subtle)'}`,
                   background: on ? 'var(--blue-50)' : 'var(--surface-raised)',
@@ -224,7 +224,7 @@ export function WorkspaceTable({
           type="button"
           onClick={() => setAttention((a) => !a)}
           aria-pressed={attention}
-          className="inline-flex h-7 items-center gap-2 rounded-full py-0 pr-1 pl-2.5 transition-colors"
+          className="inline-flex h-8 cursor-pointer items-center gap-2.5 rounded-full py-0 pr-1.5 pl-3 transition-colors"
           style={{
             border: `1px solid ${attention ? 'var(--blue-500)' : 'var(--border-subtle)'}`,
             background: attention ? 'var(--blue-50)' : 'var(--surface-raised)',
@@ -237,16 +237,16 @@ export function WorkspaceTable({
               money if ignored, which is the only thing on this screen that
               earns the orange. */}
           <span
-            className="numeric grid h-5 min-w-5 place-items-center rounded-full px-1.5"
+            className="numeric grid h-5 min-w-5 place-items-center rounded-full px-1.5 font-medium"
             style={{ background: 'var(--accent-mark)', color: '#ffffff', fontSize: 11 }}
           >
             {attentionCount}
           </span>
         </button>
 
-        <span className="ml-auto flex items-center gap-3.5">
+        <span className="ml-auto flex items-center gap-4">
           <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
-            <span className="numeric" style={{ color: 'var(--text-primary)' }}>
+            <span className="numeric font-medium" style={{ color: 'var(--text-primary)' }}>
               {filtered.length}
             </span>{' '}
             of {total}
@@ -256,7 +256,7 @@ export function WorkspaceTable({
             className="hidden sm:block"
             style={{ width: 1, height: 18, background: 'var(--border-subtle)' }}
           />
-          <label className="hidden items-center gap-1.5 sm:flex">
+          <label className="hidden cursor-pointer items-center gap-2 sm:flex">
             <IconArrowsSort
               size={15}
               stroke={1.5}
@@ -267,7 +267,7 @@ export function WorkspaceTable({
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as Sort)}
-              className="rounded-panel border-none bg-transparent outline-none"
+              className="cursor-pointer rounded-panel border-none bg-transparent outline-none"
               style={{ font: '400 var(--text-sm)/1 var(--font-ui)', color: 'var(--text-secondary)' }}
             >
               <option value="activity">Last activity</option>
@@ -281,7 +281,7 @@ export function WorkspaceTable({
       {/* ── Results ──────────────────────────────────────────────────── */}
       {filtered.length === 0 ? (
         <div
-          className="mt-4 rounded-overlay p-6"
+          className="mt-6 rounded-2xl p-8"
           style={{
             border: '1px solid var(--border-subtle)',
             background: 'var(--surface-raised)',
@@ -300,7 +300,7 @@ export function WorkspaceTable({
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="t-compact inline-flex h-8 items-center gap-1.5 rounded-panel px-3"
+                  className="t-compact inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-3.5"
                   style={{
                     border: '1px solid var(--border-strong)',
                     background: 'var(--surface-raised)',
@@ -318,7 +318,7 @@ export function WorkspaceTable({
         <>
           {/* Desktop: the table. */}
           <div
-            className="mt-4 hidden overflow-hidden rounded-overlay md:block"
+            className="mt-6 hidden overflow-hidden rounded-2xl md:block"
             style={{
               border: '1px solid var(--border-subtle)',
               background: 'var(--surface-raised)',
@@ -343,12 +343,12 @@ export function WorkspaceTable({
                       <th
                         key={h}
                         scope="col"
-                        className="h-9 text-left"
+                        className="h-11 text-left"
                         style={{
-                          padding: i === 0 ? '0 16px' : '0 8px',
+                          padding: i === 0 ? '0 20px' : '0 10px',
                           borderBottom: '1px solid var(--border-subtle)',
                           font: '500 11px/1 var(--font-ui)',
-                          letterSpacing: '0.04em',
+                          letterSpacing: '0.05em',
                           textTransform: 'uppercase',
                           color: 'var(--text-secondary)',
                         }}

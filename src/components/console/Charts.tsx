@@ -123,7 +123,8 @@ function Panel({
     <div
       className="rounded-chip px-3 py-2"
       style={{
-        background: t.surface,
+        background: `color-mix(in srgb, ${t.surface} 85%, transparent)`,
+        backdropFilter: 'blur(12px)',
         border: `1px solid ${t.rule}`,
         boxShadow: 'var(--shadow-md)',
       }}

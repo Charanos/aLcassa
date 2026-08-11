@@ -10,12 +10,15 @@ import {
   IconActivityHeartbeat,
   IconCreditCard,
   IconPlayerPause,
-  IconPlus,
+  IconDashboard,
+  IconChartPie,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage, FactRow, Panel, SectionHeading } from '@/components/console/Surface';
 import { getOverview, greeting, type QueueItem, type QueueSeverity } from '@/lib/console/data';
 import { resolveSupportSession } from '@/lib/console/session';
+import { OverviewChart } from '@/components/console/OverviewChart';
+import { ProvisionWorkspaceButton } from '@/components/console/ProvisionWorkspaceButton';
 
 export const metadata: Metadata = { title: 'Overview' };
 
@@ -96,7 +99,18 @@ export default async function ConsoleOverviewPage() {
 
   return (
     <ConsolePage>
+      {/* Iconography watermarks safely contained */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <div className="absolute top-10 -right-8 hidden rotate-12 text-blue-500/[0.04] dark:text-blue-300/[0.06] lg:block">
+          <IconDashboard size={360} stroke={1} />
+        </div>
+        <div className="absolute top-[45%] -left-12 hidden -rotate-[10deg] text-amber-500/[0.04] dark:text-amber-300/[0.06] lg:block">
+          <IconChartPie size={280} stroke={1} />
+        </div>
+      </div>
+
       <ConsoleHeader
+        breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Overview' }]}
         eyebrow={model.stamp}
         title={`${greeting()}, ${model.operatorFirstName}`}
         actions={
@@ -122,77 +136,74 @@ export default async function ConsoleOverviewPage() {
                 1 session live
               </Link>
             ) : null}
-            <Link
-              href="/platform/tenants/new"
-              className="t-compact inline-flex h-[34px] items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors"
-              style={{ background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
-            >
-              <IconPlus size={15} stroke={1.5} aria-hidden />
-              Provision workspace
-            </Link>
+            <ProvisionWorkspaceButton />
           </>
         }
       />
 
-      {/* ── The situation ────────────────────────────────────────────────
-          The one inverted surface in the content area. It borrows the chrome
-          tier deliberately: this band is the console TALKING, and giving it
-          the same material as the header separates the platform's own voice
-          from the tenant data in every panel below it. */}
+      {/* ── The situation & Chart ───────────────────────────────────────
+          A completely overhauled inverse chrome section that combines the daily
+          briefing with a dynamic Recharts visualization. */}
       <section
-        className="mt-6 overflow-hidden rounded-overlay"
+        className="mt-6 overflow-hidden rounded-2xl transition-all duration-300 shadow-2xl relative"
         style={{
-          background: 'var(--chrome-bg)',
-          color: 'var(--chrome-fg)',
-          boxShadow: 'var(--chrome-highlight), var(--shadow-md)',
+          border: '1px solid var(--invert-card-border)',
+          background: 'var(--invert-card-bg)',
+          color: 'var(--invert-card-fg)',
+          boxShadow: 'var(--invert-card-shadow)',
         }}
       >
-        <div className="flex flex-wrap items-stretch">
-          <div className="min-w-0 flex-1 basis-[340px] px-6 pt-5 pb-6">
-            <p className="t-eyebrow mb-3.5" style={{ color: 'var(--chrome-fg-faint)' }}>
-              The situation
-            </p>
-            <p
-              className="display"
-              style={{
-                fontSize: 'var(--display-sm)',
-                lineHeight: 1.32,
-                color: 'var(--chrome-fg)',
-                maxWidth: '34ch',
-                textWrap: 'pretty',
-              }}
-            >
-              {model.headline.lead}
-              {/* The single accent on this screen. It is the figure the whole
-                  sentence is about, and 03 §4a's budget is spent here rather
-                  than on a status chip. */}
-              <em style={{ fontStyle: 'normal', color: 'var(--accent-mark)' }}>
-                {model.headline.figure}
-              </em>
-              {model.headline.tail}
-            </p>
-            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-col lg:flex-row relative z-10">
+          {/* Left Column: The Situation Briefing */}
+          <div className="flex-1 p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden" style={{ borderRight: '1px solid var(--invert-card-rule)' }}>
+            {/* Background Icon Artwork - positioned elegantly on the right to not conflict with text */}
+            <div className="absolute -right-24 -bottom-20 opacity-[0.04] text-[var(--invert-card-fg)] pointer-events-none select-none z-0 mix-blend-plus-lighter transform -rotate-12">
+              <IconActivityHeartbeat size={420} stroke={0.5} />
+            </div>
+
+            <div className="relative z-10">
+              {/* t-eyebrow is the mono uppercase class from tokens.css */}
+              <p className="t-eyebrow mb-3" style={{ color: 'var(--invert-card-fg)', opacity: 0.6, letterSpacing: 'var(--t-eyebrow-tracking)' }}>
+                THE SITUATION
+              </p>
+              {/* display display-sm = 24px Libertinus serif — editorial weight, not hero */}
+              <p
+                className="display display-sm"
+                style={{
+                  color: 'var(--invert-card-fg)',
+                  maxWidth: '38ch',
+                  textWrap: 'pretty',
+                }}
+              >
+                {model.headline.lead}
+                <em style={{ fontStyle: 'normal', color: 'var(--accent-mark)' }}>
+                  {model.headline.figure}
+                </em>
+                {model.headline.tail}
+              </p>
+            </div>
+            
+            <div className="mt-8 flex flex-wrap items-center gap-3 relative z-10">
               <Link
                 href="/platform/revenue"
-                className="t-compact inline-flex h-8 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap"
+                className="t-compact inline-flex h-8.5 cursor-pointer items-center gap-2 rounded-lg px-3.5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
                 style={{
-                  background: 'var(--chrome-action)',
-                  /* chrome-action is pale blue on the navy band in light mode
-                     and saturated blue on the pale band in dark, so the label
-                     has to flip with it or it vanishes in one of the two. */
-                  color: 'var(--chrome-bg)',
+                  background: 'var(--invert-card-fg)',
+                  color: 'var(--invert-card-bg)',
                   fontWeight: 500,
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
                 }}
               >
                 Open collection queue
-                <IconArrowRight size={14} stroke={1.5} aria-hidden />
+                <IconArrowRight size={14} stroke={2} aria-hidden />
               </Link>
               <Link
                 href="/platform/tenants"
-                className="t-compact inline-flex h-8 items-center rounded-panel px-3.5 whitespace-nowrap transition-colors"
+                className="t-compact inline-flex h-8.5 cursor-pointer items-center rounded-lg px-3.5 whitespace-nowrap transition-colors hover:bg-white/[0.08]"
                 style={{
-                  border: '1px solid var(--chrome-rule-strong)',
-                  color: 'var(--chrome-fg)',
+                  border: '1px solid var(--invert-card-rule)',
+                  color: 'var(--invert-card-fg)',
+                  background: 'var(--invert-card-well)'
                 }}
               >
                 All 47 workspaces
@@ -200,68 +211,65 @@ export default async function ConsoleOverviewPage() {
             </div>
           </div>
 
-          <div
-            className="grid min-w-0 flex-1 basis-[520px]"
-            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}
-          >
-            {model.signals.map((s) => {
-              const Icon = SIGNAL_ICON[s.icon] ?? IconBolt;
-              return (
-                <Link
-                  key={s.id}
-                  href={s.href}
-                  className="block px-4 pt-5 pb-6 transition-colors"
-                  style={{
-                    borderLeft: '1px solid var(--chrome-rule)',
-                    color: 'var(--chrome-fg)',
-                  }}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Icon
-                      size={15}
-                      stroke={1.5}
-                      style={{ color: 'var(--chrome-fg-faint)' }}
-                      aria-hidden
-                    />
-                    <span
-                      className="whitespace-nowrap"
-                      style={{
-                        font: '400 11.5px/1.3 var(--font-ui)',
-                        color: 'var(--chrome-fg-muted)',
-                      }}
-                    >
-                      {s.label}
-                    </span>
-                  </span>
-                  <span
-                    className="numeric mt-3 block"
-                    style={{ fontSize: 'var(--display-sm)', color: 'var(--chrome-fg)' }}
-                  >
-                    {s.value}
-                  </span>
-                  <span
-                    className="mt-2 block"
-                    style={{
-                      font: '400 11.5px/1.45 var(--font-ui)',
-                      color: 'var(--chrome-fg-faint)',
-                      textWrap: 'pretty',
-                    }}
-                  >
-                    {s.note}
-                  </span>
-                </Link>
-              );
-            })}
+          {/* Right Column: Recharts Data Viz */}
+          <div className="flex-1 relative min-h-[260px] lg:min-h-[280px]">
+            <OverviewChart />
           </div>
+        </div>
+
+        {/* Bottom Bar: Signals */}
+        <div 
+          className="flex flex-wrap items-center border-t border-[var(--invert-card-rule)] bg-[var(--invert-card-well)] relative z-10"
+        >
+          {model.signals.map((s, idx) => {
+            const Icon = SIGNAL_ICON[s.icon] ?? IconBolt;
+            return (
+              <Link
+                key={s.id}
+                href={s.href}
+                className="group flex-1 min-w-[160px] p-4 lg:p-5 transition-colors cursor-pointer hover:bg-white/[0.04]"
+                style={{
+                  borderRight: idx < model.signals.length - 1 ? '1px solid var(--invert-card-rule)' : 'none'
+                }}
+              >
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Icon
+                    size={14}
+                    stroke={1.5}
+                    style={{ color: 'var(--invert-card-fg)', opacity: 0.5 }}
+                    aria-hidden
+                  />
+                  {/* t-eyebrow: mono, uppercase, 11px, weight-medium */}
+                  <span
+                    className="t-eyebrow whitespace-nowrap"
+                    style={{ color: 'var(--invert-card-subtle)', letterSpacing: 'var(--t-eyebrow-tracking)' }}
+                  >
+                    {s.label}
+                  </span>
+                </div>
+                {/* numeric: mono tabular figures for alignment */}
+                <div
+                  className="numeric"
+                  style={{ fontSize: 'var(--text-xl)', color: 'var(--invert-card-fg)', lineHeight: 1.2 }}
+                >
+                  {s.value}
+                </div>
+                {/* t-caption: 12.5px sans for supporting detail */}
+                <div className="t-caption mt-1" style={{ color: 'var(--invert-card-subtle)' }}>
+                  {s.note}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
       {/* ── Queue + rail ─────────────────────────────────────────────────── */}
-      <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
+      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
         <section>
           <SectionHeading title="Your queue" note="Ordered by what it costs to ignore" />
 
-          <div className="grid gap-2.5">
+          <div className="grid gap-3">
             {model.queue.map((item) => (
               <QueueCard key={item.id} item={item} />
             ))}
@@ -269,27 +277,27 @@ export default async function ConsoleOverviewPage() {
 
           {/* The denominator. See the header note. */}
           <div
-            className="mt-3.5 flex items-center gap-3 rounded-overlay px-4 py-3"
+            className="mt-5 flex items-center gap-3.5 rounded-2xl px-5 py-4"
             style={{
               border: '1px dashed var(--border-strong)',
               background: 'var(--surface-sunken)',
             }}
           >
             <IconCircleCheck
-              size={17}
+              size={18}
               stroke={1.5}
               className="shrink-0"
               style={{ color: 'var(--success-fg)' }}
               aria-hidden
             />
             <p className="t-compact flex-1" style={{ color: 'var(--text-secondary)' }}>
-              The other <span className="numeric">{model.restingCount}</span> workspaces are inside
+              The other <span className="numeric font-medium">{model.restingCount}</span> workspaces are inside
               every limit, paid up, and active in the last seven days.
             </p>
           </div>
         </section>
 
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {session ? (
             <Panel
               title="Session live"
@@ -406,7 +414,7 @@ function QueueCard({ item }: { item: QueueItem }) {
 
   return (
     <article
-      className="overflow-hidden rounded-overlay"
+      className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-[2px] hover:shadow-lg hover:border-[var(--blue-400)]/30"
       style={{
         border: '1px solid var(--border-subtle)',
         background: 'var(--surface-raised)',
@@ -420,20 +428,20 @@ function QueueCard({ item }: { item: QueueItem }) {
             reading a word. */}
         <span aria-hidden className="w-[3px] shrink-0" style={{ background: s.rail }} />
 
-        <div className="min-w-0 flex-1 px-4 py-4">
-          <div className="flex items-center gap-2.5">
+        <div className="min-w-0 flex-1 p-5 md:p-6">
+          <div className="flex items-center gap-3">
             <span
-              className="grid size-[26px] shrink-0 place-items-center rounded-panel"
+              className="grid size-7 shrink-0 place-items-center rounded-lg"
               style={{ background: s.chipBg, color: s.chipInk }}
               aria-hidden
             >
-              <Icon size={14} stroke={1.5} />
+              <Icon size={15} stroke={1.5} />
             </span>
             <Link
               href={`/platform/tenants/${item.slug}`}
-              className="min-w-0 flex-1 truncate transition-colors"
+              className="min-w-0 flex-1 truncate transition-colors hover:text-[var(--text-action)]"
               style={{
-                font: '500 var(--text-base)/1.35 var(--font-ui)',
+                font: '500 15px/1.35 var(--font-ui)',
                 color: 'var(--text-primary)',
               }}
             >
@@ -442,7 +450,7 @@ function QueueCard({ item }: { item: QueueItem }) {
             {/* The tag repeats the rail's meaning in words. 03 §9: colour is
                 never the sole carrier. */}
             <span
-              className="inline-flex h-[22px] shrink-0 items-center rounded-full px-2.5 whitespace-nowrap"
+              className="inline-flex h-6 shrink-0 items-center rounded-full px-3 whitespace-nowrap"
               style={{
                 background: s.tagBg,
                 color: s.tagInk,
@@ -455,23 +463,23 @@ function QueueCard({ item }: { item: QueueItem }) {
           </div>
 
           <p
-            className="t-compact mt-2.5 ml-9"
+            className="mt-3 ml-10 text-[13.5px] leading-relaxed"
             style={{ color: 'var(--text-secondary)', maxWidth: '74ch', textWrap: 'pretty' }}
           >
             {item.detail}
           </p>
 
-          <div className="mt-3.5 ml-9 flex flex-wrap items-center gap-2.5">
+          <div className="mt-5 ml-10 flex flex-wrap items-center gap-3">
             <Link
               href={item.primaryHref}
-              className="t-compact inline-flex h-[30px] items-center rounded-panel px-3.5 whitespace-nowrap transition-colors"
+              className="t-compact inline-flex h-8 cursor-pointer items-center rounded-lg px-4 whitespace-nowrap transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm"
               style={{ background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
             >
               {item.primaryLabel}
             </Link>
             <Link
               href={`/platform/tenants/${item.slug}`}
-              className="t-compact inline-flex h-[30px] items-center rounded-panel px-3.5 whitespace-nowrap transition-colors"
+              className="t-compact inline-flex h-8 cursor-pointer items-center rounded-lg px-4 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
               style={{
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',
@@ -482,8 +490,8 @@ function QueueCard({ item }: { item: QueueItem }) {
             </Link>
             <span className="flex-1" />
             <span
-              className="whitespace-nowrap"
-              style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+              className="whitespace-nowrap text-xs"
+              style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
             >
               {item.meta}
             </span>

@@ -43,6 +43,16 @@ const nextConfig: NextConfig = {
   headers() {
     return Promise.resolve([{ source: '/:path*', headers: securityHeaders }]);
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

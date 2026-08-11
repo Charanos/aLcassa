@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { IconAlertTriangle, IconClock, IconHistory, IconPlayerPlay } from '@tabler/icons-react';
+import gsap from 'gsap';
 import type { ConsoleWorkspace } from './types';
 
 /**
@@ -35,10 +36,21 @@ export function StartSessionDialog({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
+    if (overlayRef.current) {
+      gsap.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.22, ease: 'power2.out' });
+    }
+    if (dialogRef.current) {
+      gsap.fromTo(
+        dialogRef.current,
+        { opacity: 0, y: 18, scale: 0.94 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.34, ease: 'power3.out' }
+      );
+    }
   }, []);
 
   /* Escape closes. A modal you can only leave by finding the Cancel button is
@@ -62,6 +74,7 @@ export function StartSessionDialog({
 
   return (
     <div
+      ref={overlayRef}
       onClick={onCancel}
       style={{
         position: 'fixed',
@@ -71,7 +84,6 @@ export function StartSessionDialog({
         display: 'grid',
         placeItems: 'center',
         padding: 'var(--space-6)',
-        animation: 'overlay-in var(--duration-fast) linear',
       }}
     >
       <div
@@ -81,7 +93,9 @@ export function StartSessionDialog({
         aria-labelledby="start-session-title"
         onClick={(e) => e.stopPropagation()}
         className="surface-glass-strong w-[560px] max-w-full overflow-hidden rounded-overlay"
-        style={{ animation: 'panel-in var(--duration-base) var(--ease-out)' }}
+        style={{
+          boxShadow: 'var(--glass-highlight), var(--shadow-lg)',
+        }}
       >
         <div className="p-6">
           <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>

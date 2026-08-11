@@ -38,7 +38,7 @@ export type MarkProps = {
    * `brand`   the blue lockup, and the default.
    * `inverse` the white-on-dark cut.
    * `ink`     the single-colour context where blue is unavailable.
-   * `chrome`  the platform console's inverted header and sidebar.
+   * `chrome`  the platform console's header and sidebar chrome.
    */
   tone?: 'brand' | 'inverse' | 'ink' | 'chrome';
   title?: string;
@@ -49,18 +49,8 @@ const TONES = {
   inverse: 'var(--text-inverse)',
   ink: 'var(--text-primary)',
   /*
-   * ⚠ `chrome` IS NOT AN ALIAS OF `brand`, and it exists because the mark
-   * would otherwise be illegible on the console.
-   *
-   * The console chrome inverts against the page, so in light mode the mark
-   * sits on a navy slab where #043AE1 measures 2.52:1. `--chrome-action`
-   * resolves to blue-300 there and back to blue-500 on dark mode's light
-   * chrome — the inverse of what `--text-action` does.
-   *
-   * This is still the brand mark in the brand's own blue. BRAND.md §2's rule
-   * is that the logo is never recoloured to a TENANT's accent; stepping a
-   * value so it stays readable on aLcassa's own surface is the opposite of
-   * that — it is what keeps the mark recognisable.
+   * `chrome` takes its colour from `--chrome-action`, ensuring optimal contrast
+   * across both light and dark themes on the console chrome.
    */
   chrome: 'var(--chrome-action)',
 } as const;

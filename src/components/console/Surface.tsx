@@ -25,13 +25,15 @@ import React from 'react';
 export function ConsolePage({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="mx-auto px-5 pt-6 pb-14 md:px-8"
-      style={{ maxWidth: 1440, color: 'var(--text-primary)' }}
+      className="relative mx-auto w-full max-w-[1380px] overflow-x-clip px-5 pt-8 pb-16 md:px-8 md:pt-10 animate-in fade-in slide-in-from-bottom-3 duration-300 ease-out"
+      style={{ color: 'var(--text-primary)' }}
     >
       {children}
     </div>
   );
 }
+
+import { IconChevronRight } from '@tabler/icons-react';
 
 /**
  * The greeting block at the top of a console screen: a mono eyebrow carrying
@@ -42,24 +44,49 @@ export function ConsolePage({ children }: { children: React.ReactNode }) {
  */
 export function ConsoleHeader({
   eyebrow,
+  breadcrumbs,
   title,
   actions,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
+  breadcrumbs?: Array<{ label: string; href?: string }>;
   title: string;
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-6">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8 mb-7">
       <div className="min-w-0 flex-1">
-        <p className="t-eyebrow mb-2" style={{ color: 'var(--text-tertiary)' }}>
-          {eyebrow}
-        </p>
-        <h1 className="display display-lg" style={{ color: 'var(--text-primary)' }}>
+        {breadcrumbs && breadcrumbs.length > 0 ? (
+          <nav className="flex items-center gap-1.5 mb-2.5 t-caption" style={{ color: 'var(--text-tertiary)' }}>
+            {breadcrumbs.map((bc, i) => (
+              <React.Fragment key={i}>
+                {bc.href ? (
+                  <a href={bc.href} className="hover:text-[var(--text-primary)] transition-colors">
+                    {bc.label}
+                  </a>
+                ) : (
+                  <span style={{ color: 'var(--text-secondary)' }}>{bc.label}</span>
+                )}
+                {i < breadcrumbs.length - 1 && <IconChevronRight size={13} className="opacity-40" />}
+              </React.Fragment>
+            ))}
+          </nav>
+        ) : null}
+        
+        {eyebrow && (
+          <p className="t-eyebrow mb-2 tracking-widest uppercase opacity-75" style={{ color: 'var(--text-tertiary)' }}>
+            {eyebrow}
+          </p>
+        )}
+        {/* greeting h1 uses display-sm: 24px — editorial but not hero-sized */}
+        <h1
+          className="display display-md tracking-tight"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {title}
         </h1>
       </div>
-      {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex shrink-0 items-center gap-3">{actions}</div> : null}
     </div>
   );
 }
@@ -83,11 +110,17 @@ export function SectionHeading({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-3 flex items-center gap-3">
-      <h2 className="display display-md shrink-0" style={{ color: 'var(--text-primary)' }}>
+    <div className="mb-4 flex items-center gap-4">
+      <h2
+        className="display display-sm shrink-0 tracking-tight"
+        style={{ color: 'var(--text-primary)' }}
+      >
         {title}
       </h2>
-      <span aria-hidden className="h-px flex-1" style={{ background: 'var(--border-subtle)' }} />
+      <span
+        aria-hidden
+        className="h-px flex-1 bg-gradient-to-r from-[var(--border-strong)]/60 to-transparent"
+      />
       {note ? (
         <span
           className="t-caption hidden shrink-0 whitespace-nowrap md:inline"
@@ -134,7 +167,7 @@ export function Panel({
 
   return (
     <section
-      className="overflow-hidden rounded-overlay"
+      className="overflow-hidden rounded-2xl transition-all duration-300 hover:border-[var(--blue-400)]/30 hover:shadow-lg"
       style={{
         border: '1px solid var(--border-subtle)',
         background: 'var(--surface-raised)',
@@ -143,7 +176,7 @@ export function Panel({
     >
       {title ? (
         <div
-          className="flex items-center gap-2.5 px-4 py-3"
+          className="flex items-center gap-3 px-5 py-3.5"
           style={{
             borderBottom: '1px solid var(--border-subtle)',
             background: accent ? 'var(--surface-sunken)' : undefined,
@@ -159,13 +192,13 @@ export function Panel({
               }}
             />
           ) : null}
-          <p className="t-eyebrow flex-1" style={{ color: 'var(--text-tertiary)' }}>
+          <p className="t-eyebrow flex-1 tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
             {title}
           </p>
           {action}
         </div>
       ) : null}
-      <div className={flush ? '' : 'p-4'}>{children}</div>
+      <div className={flush ? '' : 'p-5'}>{children}</div>
     </section>
   );
 }
@@ -193,7 +226,7 @@ export function FactRow({
 
   return (
     <div
-      className="flex items-center gap-2.5 py-2.5"
+      className="flex items-center gap-3 py-3"
       style={{ borderBottom: last ? undefined : '1px solid var(--border-subtle)' }}
     >
       {dot ? (
