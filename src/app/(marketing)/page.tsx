@@ -213,23 +213,6 @@ export default async function MarketingPage() {
                     </Link>
                   </Button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="t-caption inline-flex items-center gap-2 rounded-full px-3 py-1 font-mono text-[11px]"
-                    style={{
-                      background: 'var(--surface-raised)',
-                      border: '1px solid var(--border-subtle)',
-                      color: 'var(--text-secondary)',
-                    }}
-                  >
-                    <span
-                      className="size-1.5 rounded-full animate-pulse"
-                      style={{ background: 'var(--accent-mark)' }}
-                      aria-hidden
-                    />
-                    Active {hasPlatformSession ? 'Admin Operator' : 'Tenant'} Session
-                  </span>
-                </div>
               </div>
             ) : (
               <div

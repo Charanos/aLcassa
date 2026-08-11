@@ -40,23 +40,6 @@ export default async function SignInPage({
               borderColor: 'var(--border-strong)',
             }}
           >
-            <div className="flex items-center justify-between gap-2 mb-2.5">
-              <div className="flex items-center gap-2">
-                <IconBolt size={15} stroke={1.75} className="text-amber-500 dark:text-amber-400" />
-                <span className="t-eyebrow font-medium tracking-wider" style={{ color: 'var(--text-secondary)' }}>
-                  DEMO MODE INSTANT ACCESS
-                </span>
-              </div>
-              <span
-                className="t-chip inline-flex items-center gap-1 rounded-chip px-2 py-0.5 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-medium"
-              >
-                1-Click Bypass
-              </span>
-            </div>
-
-            <p className="t-caption leading-relaxed mb-3.5" style={{ color: 'var(--text-secondary)' }}>
-              Skip credentials and jump straight into the full live administrative console or tenant workspace.
-            </p>
 
             <div className="grid gap-2 sm:grid-cols-2">
               <Button asChild variant="primary" size="md" className="w-full justify-center gap-2 text-xs">

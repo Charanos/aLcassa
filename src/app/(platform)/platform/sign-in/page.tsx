@@ -36,26 +36,7 @@ export default function PlatformSignInPage() {
               background: 'color-mix(in oklab, var(--ink-inverse) 6%, transparent)',
               borderColor: 'color-mix(in oklab, var(--ink-inverse) 16%, transparent)',
             }}
-          >
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
-                <IconBolt size={15} stroke={1.75} className="text-[var(--copper-ink)]" />
-                <span className="t-eyebrow font-medium" style={{ color: 'var(--ink-inverse)' }}>
-                  DEMO MODE INSTANT ACCESS
-                </span>
-              </div>
-              <span
-                className="t-chip rounded-chip px-1.5 py-0.5"
-                style={{ background: 'var(--copper-tint)', color: 'var(--copper-ink)' }}
-              >
-                1-Click
-              </span>
-            </div>
-
-            <p className="t-caption leading-relaxed mb-3" style={{ color: 'var(--ink-inverse)', opacity: 0.75 }}>
-              Bypass credentials and step directly into the platform console in demo operator mode.
-            </p>
-
+            >
             <div className="grid gap-2 sm:grid-cols-2">
               <Button asChild variant="primary" size="md" className="w-full justify-center gap-2 text-xs">
                 <Link href="/api/demo?role=platform">

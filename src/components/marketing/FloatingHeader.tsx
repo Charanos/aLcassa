@@ -161,20 +161,6 @@ export function FloatingHeader({ theme, session }: FloatingHeaderProps) {
           </nav>
 
           <div className="flex items-center gap-2">
-            {session?.isAuthenticated ? (
-              <Button
-                asChild
-                variant="primary"
-                size="sm"
-                className="hidden sm:inline-flex items-center gap-1.5 shadow-sm text-xs font-medium"
-              >
-                <Link href={session.dashboardHref}>
-                  <IconShieldLock size={14} stroke={1.5} />
-                  <span>{session.dashboardLabel}</span>
-                  <IconArrowRight size={13} stroke={2} />
-                </Link>
-              </Button>
-            ) : null}
             <ThemeToggle theme={theme} compact />
             <button
               ref={toggleBtnRef}
