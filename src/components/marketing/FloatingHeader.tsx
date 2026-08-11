@@ -2,14 +2,21 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { IconMenu2, IconX, IconCheck } from '@tabler/icons-react';
+import { IconMenu2, IconX, IconCheck, IconArrowRight, IconShieldLock } from '@tabler/icons-react';
 import { Wordmark } from '@/components/brand/Mark';
 import { Button } from '@/components/primitives/Button';
 import { ThemeToggle } from '@/components/primitives/ThemeToggle';
 import type { ResolvedTheme } from '@/lib/theme';
 
+export interface MarketingSessionInfo {
+  isAuthenticated: boolean;
+  dashboardHref: string;
+  dashboardLabel: string;
+}
+
 interface FloatingHeaderProps {
   theme: ResolvedTheme;
+  session?: MarketingSessionInfo;
 }
 
 const NAV_ITEMS = [
@@ -20,7 +27,7 @@ const NAV_ITEMS = [
   { id: 'playground', label: 'Spec Playground', href: '#playground' },
 ];
 
-export function FloatingHeader({ theme }: FloatingHeaderProps) {
+export function FloatingHeader({ theme, session }: FloatingHeaderProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [visible, setVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -154,6 +161,20 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
           </nav>
 
           <div className="flex items-center gap-2">
+            {session?.isAuthenticated ? (
+              <Button
+                asChild
+                variant="primary"
+                size="sm"
+                className="hidden sm:inline-flex items-center gap-1.5 shadow-sm text-xs font-medium"
+              >
+                <Link href={session.dashboardHref}>
+                  <IconShieldLock size={14} stroke={1.5} />
+                  <span>{session.dashboardLabel}</span>
+                  <IconArrowRight size={13} stroke={2} />
+                </Link>
+              </Button>
+            ) : null}
             <ThemeToggle theme={theme} compact />
             <button
               ref={toggleBtnRef}
@@ -215,21 +236,36 @@ export function FloatingHeader({ theme }: FloatingHeaderProps) {
               );
             })}
 
-            <div
-              className="mt-3 grid grid-cols-2 gap-3 border-t pt-3"
-              style={{ borderColor: 'var(--border-subtle)' }}
-            >
-              <Button asChild variant="secondary" size="md" className="w-full justify-center whitespace-nowrap">
-                <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
-                  Sign in
-                </Link>
-              </Button>
-              <Button asChild variant="accent" size="md" className="w-full justify-center whitespace-nowrap">
-                <Link href="/sign-up" onClick={() => setMenuOpen(false)}>
-                  Request access
-                </Link>
-              </Button>
-            </div>
+            {session?.isAuthenticated ? (
+              <div
+                className="mt-3 border-t pt-3"
+                style={{ borderColor: 'var(--border-subtle)' }}
+              >
+                <Button asChild variant="primary" size="md" className="w-full justify-center gap-2">
+                  <Link href={session.dashboardHref} onClick={() => setMenuOpen(false)}>
+                    <IconShieldLock size={15} stroke={1.5} />
+                    <span>Open {session.dashboardLabel}</span>
+                    <IconArrowRight size={14} stroke={2} />
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              <div
+                className="mt-3 grid grid-cols-2 gap-3 border-t pt-3"
+                style={{ borderColor: 'var(--border-subtle)' }}
+              >
+                <Button asChild variant="secondary" size="md" className="w-full justify-center whitespace-nowrap">
+                  <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
+                    Sign in
+                  </Link>
+                </Button>
+                <Button asChild variant="accent" size="md" className="w-full justify-center whitespace-nowrap">
+                  <Link href="/sign-up" onClick={() => setMenuOpen(false)}>
+                    Request access
+                  </Link>
+                </Button>
+              </div>
+            )}
           </nav>
         </div>
       )}

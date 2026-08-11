@@ -7,10 +7,12 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import gsap from 'gsap';
 import {
   IconAlertTriangle,
+  IconArrowUpRight,
   IconBell,
   IconChevronDown,
   IconChevronLeft,
   IconFileText,
+  IconGlobe,
   IconLayoutSidebar,
   IconLogout,
   IconMoon,
@@ -245,6 +247,13 @@ export function ConsoleShell({
         hint: '/platform/profile',
         kind: 'ACCOUNT',
         icon: 'user',
+      },
+      {
+        key: '/',
+        label: 'Marketing site (Landing page)',
+        hint: 'Return to public home',
+        kind: 'ACTION',
+        icon: 'globe',
       },
     ];
     const all = [...screens, ...spaces, ...actions];
@@ -665,6 +674,20 @@ export function ConsoleShell({
             ) : null}
           </div>
 
+          <Link
+            href="/"
+            aria-label="View marketing landing page"
+            title="Marketing landing page"
+            className="relative grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
+            style={{
+              border: 'none',
+              background: 'transparent',
+              color: 'var(--chrome-fg-muted)',
+            }}
+          >
+            <IconGlobe size={18} stroke={1.5} aria-hidden />
+          </Link>
+
           <ChromeIconButton
             label="Toggle colour theme"
             onClick={(e) => {
@@ -751,6 +774,9 @@ export function ConsoleShell({
                     </span>
                   </span>
                 </div>
+                <MenuLink href="/" icon={IconGlobe}>
+                  Marketing site
+                </MenuLink>
                 <MenuLink href="/platform/profile" icon={IconUser}>
                   Your profile
                 </MenuLink>
@@ -895,6 +921,37 @@ export function ConsoleShell({
             className="shrink-0 p-2"
             style={{ borderTop: '1px solid var(--chrome-rule)' }}
           >
+            {/* Quick exit to public marketing site */}
+            <Link
+              href="/"
+              className="flex items-center rounded-lg p-1.5 text-[12px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
+              style={{
+                color: 'var(--chrome-fg-muted)',
+                gap: collapsed ? '0px' : '10px',
+                paddingLeft: collapsed ? '7px' : '8px',
+                paddingRight: collapsed ? '7px' : '8px',
+                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+              }}
+              title={collapsed ? 'Public marketing site' : undefined}
+            >
+              <span className="flex size-6 shrink-0 items-center justify-center">
+                <IconArrowUpRight size={15} stroke={1.5} aria-hidden />
+              </span>
+              <span
+                className="min-w-0 flex-1 overflow-hidden whitespace-nowrap"
+                style={{
+                  opacity: collapsed ? 0 : 1,
+                  maxWidth: collapsed ? '0px' : '140px',
+                  transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
+                  pointerEvents: collapsed ? 'none' : 'auto',
+                  transition:
+                    'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+                }}
+              >
+                Public site
+              </span>
+            </Link>
+
             <div
               className="flex items-center rounded-lg p-1.5 transition-all hover:bg-[var(--chrome-hover)]"
               style={{

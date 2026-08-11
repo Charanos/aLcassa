@@ -1,8 +1,10 @@
 import {
   IconActivityHeartbeat,
+  IconArrowUpRight,
   IconBuildings,
   IconCoin,
   IconFileText,
+  IconGlobe,
   IconHistory,
   IconLayoutDashboard,
   IconLayoutList,
@@ -41,4 +43,6 @@ export const CONSOLE_ICONS: Record<string, TablerIcon> = {
   sliders: IconSettings,
   plus: IconPlus,
   user: IconUser,
+  globe: IconGlobe,
+  external: IconArrowUpRight,
 };

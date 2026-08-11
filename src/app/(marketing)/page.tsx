@@ -1,13 +1,16 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import {
   IconBrandInstagram,
   IconBrandMessenger,
   IconBrandWhatsapp,
   IconBrandWhatsappFilled,
+  IconBuildingSkyscraper,
   IconMessage,
   IconMessageFilled,
   IconServer2,
+  IconShieldLock,
   IconArrowRight,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
@@ -19,6 +22,9 @@ import { InteractiveFeatures } from '@/components/marketing/InteractiveFeatures'
 import { SecuritySection } from '@/components/marketing/SecuritySection';
 import { LiveSpecPlayground } from '@/components/marketing/LiveSpecPlayground';
 import { getThemePreference, resolveTheme } from '@/lib/theme';
+
+const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'conduit_tenant_session';
+const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'conduit_platform_session';
 
 export const metadata: Metadata = {
   title: { absolute: 'One inbox for every message your customers send · aLcassa' },
@@ -101,6 +107,13 @@ const CHANNELS: Array<{
 
 export default async function MarketingPage() {
   const theme = await resolveTheme(await getThemePreference());
+  const cookieStore = await cookies();
+  const hasPlatformSession = cookieStore.has(PLATFORM_COOKIE);
+  const hasTenantSession = cookieStore.has(TENANT_COOKIE);
+  const isAuthenticated = Boolean(hasPlatformSession || hasTenantSession);
+  const dashboardHref = hasPlatformSession ? '/platform' : hasTenantSession ? '/app' : '/platform';
+  const dashboardLabel = hasPlatformSession ? 'Platform Console' : 'Workspace Inbox';
+  const session = { isAuthenticated, dashboardHref, dashboardLabel };
 
   return (
     <div
@@ -122,30 +135,6 @@ export default async function MarketingPage() {
           style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--orange-400) 25%, transparent) 0%, transparent 70%)' }}
         />
 
-        {/* Blueprint grid */}
-        <svg
-          className="absolute inset-0 h-full w-full stroke-[var(--border-subtle)] opacity-40 dark:opacity-25"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern id="fullbleed-grid" width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M 48 0 L 0 0 0 48" fill="none" strokeWidth="0.75" />
-              <circle cx="48" cy="48" r="1.5" fill="var(--accent-mark)" opacity="0.35" />
-            </pattern>
-            <pattern id="crosshatch" width="96" height="96" patternUnits="userSpaceOnUse">
-              <path
-                d="M 0 96 L 96 0 M 0 0 L 96 96"
-                fill="none"
-                stroke="var(--border-subtle)"
-                strokeWidth="0.5"
-                strokeDasharray="3 6"
-                opacity="0.3"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#fullbleed-grid)" />
-          <rect width="100%" height="100%" fill="url(#crosshatch)" opacity="0.25" />
-        </svg>
 
         {/* Iconography watermarks with soft architectural multi-tonal tints */}
         <div className="absolute -top-6 -left-20 hidden -rotate-12 text-slate-500/[0.08] dark:text-slate-300/[0.12] lg:block">
@@ -159,7 +148,7 @@ export default async function MarketingPage() {
         </div>
       </div>
 
-      <FloatingHeader theme={theme} />
+      <FloatingHeader theme={theme} session={session} />
 
       <main
         id="main"
@@ -205,19 +194,58 @@ export default async function MarketingPage() {
               Currently in development.
             </p>
 
-            <div
-              className="animate-hero-reveal mt-8 flex flex-wrap items-center gap-3.5"
-              style={{ animationDelay: '250ms' }}
-            >
-              <Button asChild variant="primary" size="lg">
-                <Link href="/sign-up" className="gap-2 shadow-sm">
-                  Request access <IconArrowRight size={16} stroke={1.5} />
-                </Link>
-              </Button>
-              <Button asChild variant="secondary" size="lg">
-                <Link href="/sign-in">Sign in</Link>
-              </Button>
-            </div>
+            {isAuthenticated ? (
+              <div
+                className="animate-hero-reveal mt-8 flex flex-col gap-3.5"
+                style={{ animationDelay: '250ms' }}
+              >
+                <div className="flex flex-wrap items-center gap-3.5">
+                  <Button asChild variant="primary" size="lg">
+                    <Link href={dashboardHref} className="gap-2 shadow-sm">
+                      <IconShieldLock size={17} stroke={1.5} />
+                      Go to {dashboardLabel} <IconArrowRight size={16} stroke={1.5} />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="secondary" size="lg">
+                    <Link href="/platform/tenants" className="gap-2">
+                      <IconBuildingSkyscraper size={16} stroke={1.5} />
+                      Manage Workspaces
+                    </Link>
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="t-caption inline-flex items-center gap-2 rounded-full px-3 py-1 font-mono text-[11px]"
+                    style={{
+                      background: 'var(--surface-raised)',
+                      border: '1px solid var(--border-subtle)',
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    <span
+                      className="size-1.5 rounded-full animate-pulse"
+                      style={{ background: 'var(--accent-mark)' }}
+                      aria-hidden
+                    />
+                    Active {hasPlatformSession ? 'Admin Operator' : 'Tenant'} Session
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="animate-hero-reveal mt-8 flex flex-wrap items-center gap-3.5"
+                style={{ animationDelay: '250ms' }}
+              >
+                <Button asChild variant="primary" size="lg">
+                  <Link href="/sign-up" className="gap-2 shadow-sm">
+                    Request access <IconArrowRight size={16} stroke={1.5} />
+                  </Link>
+                </Button>
+                <Button asChild variant="secondary" size="lg">
+                  <Link href="/sign-in">Sign in</Link>
+                </Button>
+              </div>
+            )}
 
             {/* Metrics row. Tripartite harmony: Navy (100%) + Ember (< 5s) + Emerald (0) */}
             <div
@@ -439,16 +467,32 @@ export default async function MarketingPage() {
               When channels arrive, there is nothing left to configure.
             </p>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Button asChild variant="accent" size="lg">
-                <Link href="/sign-up" className="gap-2">
-                  Request access <IconArrowRight size={16} stroke={1.5} />
-                </Link>
-              </Button>
-              <Button asChild variant="secondary" size="lg">
-                <Link href="/sign-in">Sign in</Link>
-              </Button>
-            </div>
+            {isAuthenticated ? (
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <Button asChild variant="primary" size="lg">
+                  <Link href={dashboardHref} className="gap-2 shadow-sm">
+                    <IconShieldLock size={17} stroke={1.5} />
+                    Return to {dashboardLabel} <IconArrowRight size={16} stroke={1.5} />
+                  </Link>
+                </Button>
+                <Button asChild variant="secondary" size="lg">
+                  <Link href="/platform/support-sessions">
+                    Support Sessions
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <Button asChild variant="accent" size="lg">
+                  <Link href="/sign-up" className="gap-2">
+                    Request access <IconArrowRight size={16} stroke={1.5} />
+                  </Link>
+                </Button>
+                <Button asChild variant="secondary" size="lg">
+                  <Link href="/sign-in">Sign in</Link>
+                </Button>
+              </div>
+            )}
 
             {/* Spec ticker. Three hues, each meaning something different:
                 green is a passing state, orange is the one accent mark, blue
