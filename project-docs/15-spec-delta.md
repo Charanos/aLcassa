@@ -852,6 +852,11 @@ undo.
 
 ### C23 · Provision is a page, matching the design — a duplicate dialog exists and is noted for review
 
+**Superseded by C28.** The joint review this entry held for happened; the two
+flows were reconciled by keeping the modal and absorbing the page's content
+into it, not the reverse. Left standing rather than deleted so the reasoning
+that led there is still legible.
+
 `Provision.dc.html` is a breadcrumb-navigable page at `/platform/tenants/new`
 with five fields, a plan picker, and a "what happens on submit" manifest
 beside the button. That page is what got built. A second, independent
@@ -876,6 +881,163 @@ Two smaller calls on the page that was built:
   is "created" would be worse than the honest alternative. The five-step
   manifest, the validation, and the working state are built exactly as
   designed; only the destination changed.
+
+### C24 · Sheet 13's `motion.instant` is superseded for console chrome — GSAP stays, reduced motion becomes mandatory instead of absent
+
+Sheet 13 sets `motion.instant = 0ms` for nav selection specifically: "state
+that is already known does not need easing in." The front-end pass on this
+codebase built the opposite bet for the console chrome — the sliding nav
+indicator, the icon bounce, the hover x-slide, the command palette entrance —
+all real GSAP motion, and it reads as considerably more finished than an
+instant snap would. Ripping it out to match the sheet literally would be a
+regression dressed as compliance.
+
+The decision, made explicitly rather than by default: keep all of it, and
+record the amendment here instead of silently diverging from the sheet.
+What does not move is non-negotiable regardless: sheet 13's own conformance
+section requires `prefers-reduced-motion` to lose nothing, and GSAP is
+JS-driven — the CSS media query alone does nothing to a `gsap.to()` call.
+
+**`src/lib/motion.ts`** is the amendment's actual mechanism. `gsapSafe.to` /
+`gsapSafe.fromTo` check `prefersReducedMotion()` and, when it's on, call
+`gsap.set()` to the tween's end state directly (firing `onComplete`
+synchronously) instead of animating — so a reduced-motion reader lands
+exactly where sheet 13 says they should, and everyone else keeps the motion.
+Every GSAP call site in `ConsoleShell.tsx` and `WorkspaceDetailDrawer.tsx`
+routes through it. The nav indicator's tweens are additionally scoped to a
+`gsap.context()` bound to the nav container, reverted on unmount, so a tween
+started right before a route change cannot animate a detached node.
+
+### C25 · The component library gets wired in, and three dead-end mutations get named rather than faked
+
+`ConfirmDialog` / `DestructiveConfirm` (Radix-backed, real focus trap) and
+`@radix-ui/react-switch` existed in the codebase with zero consumers; the
+console hand-rolled six dialogs and three switches instead. All nine are now
+built on the primitives. Two dialogs — `StartSessionDialog` and the command
+palette — needed Radix `Dialog` directly rather than `ConfirmDialog`, since
+neither fits a plain title-and-consequence shape (a required reason field; a
+search input and a results list).
+
+`ConfirmDialog` and `DestructiveConfirm` gained two additions neither had:
+an `error` prop, rendered inline per sheet 12's "failure is inline, never a
+toast," and (`DestructiveConfirm` only) a `details` slot for content richer
+than the one-sentence `consequence` — the suspend dialog's per-person impact
+counts are the reason; flattening them into the sentence would have lost the
+thing the original hand-rolled dialog's own comment called "the best idea in
+the whole design set."
+
+**Three buttons had no handler behind them at all.** `WorkspaceActions`'
+suspend confirm, `WorkspaceDetailDrawer`'s independent copy of the same
+dialog, `BlastRadiusDialog`'s three actions, and `SettingsPanel`'s
+break-glass toggle all called `setOpen(false)` and nothing else —
+`disabled={!armed}` with no `onClick` at all in the suspend case. Each now
+calls a real server action (`suspendWorkspace`, `applyPlanChange`,
+`toggleBreakGlass` in `actions.ts`) that validates everything it can and
+refuses with the specific, named reason it cannot write yet — the tenants
+table, the entitlements table, and `app.support_lock` all wait on migrations
+this pass did not add. This is the same "safe direction to be incomplete
+in" `startSupportSession` already used; the alternative — flip local state
+and call it done — would have made a UI say something happened that did not.
+
+Toasts are wired only into the one mutation with a real success path today:
+support-session start, across all four places it can be triggered.
+Settings/Profile save and Rules publish were deliberately left alone —
+each already shows its own inline "Saved" confirmation, and `Toast.tsx`'s
+own doc comment says why that is correct: a toast is for an outcome that
+finishes after the reader stopped looking, and a save button's result is the
+direct, visible consequence of the click that belongs in the control itself.
+
+### C26 · Loading, error and empty-state infrastructure — and a pre-existing error catalogue this pass almost duplicated
+
+`(console)/error.tsx` and a `loading.tsx` per route did not exist anywhere
+under `/platform`; both do now, the loading states built from the existing
+(previously unused) Skeleton family, shaped to each real page rather than a
+generic spinner.
+
+`EmptyStateSeam` and `EmptyStateWithheld` were added alongside the existing
+`EmptyState` for sheet 12's other two empty tokens — a hatch marks a region
+that is deliberately unfilled or refused, distinct from a plain surface
+that's simply new. `--hatch-slate` / `--hatch-oxide` existed in `globals.css`
+with no consumer. Neither variant has a call site yet: no current screen has
+a genuine "arrives with a later milestone" stub or a withheld-data region
+that isn't already handled by `EmptyState`'s existing first-run/filtered
+treatment or `AuditStream`'s inline per-field redaction. Recorded as built
+and available rather than force-fit onto content that doesn't need it.
+
+**`src/lib/errors/contract.ts` was written, then deleted.** Sheet 12's error
+shape — `{code, message, request_id, details?}` — already existed almost
+verbatim as `src/lib/errors/index.ts`'s `AppError` / `ApiErrorBody`, wired
+into `src/lib/http/pipeline.ts` and the entitlements service, from a much
+earlier "Phase 1" that predates the console entirely. What sheet 12 actually
+adds on top — the ochre/oxide/slate hue per code — did not exist, so
+`src/lib/errors/hue.ts` supplies just that, keyed to the real `ErrorCode`
+type rather than a second, parallel one.
+
+### C27 · Roving tabindex, one hook, four grids
+
+`src/hooks/useRovingGrid.ts` is sheet 13's grid-is-one-tab-stop pattern as a
+single reusable hook rather than four bespoke implementations: `tabIndex={0}`
+on the active row, `-1` on the rest, arrow keys move the roving index, `↵`
+activates, `→` steps into a row's `data-row-actions` zone. Applied to
+`WorkspaceTable`, `AuditStream`, the workspace-detail `BillingTab`'s invoice
+table, and a new `CollectionQueueTable` — pulled out of `revenue/page.tsx`
+into its own client component, since that page is a server component and the
+hook needs client state, and converting the whole page for one table wasn't
+worth it.
+
+`ConsoleShell` gained a skip link, invisible until focused, jumping straight
+to `#main-content` — there was none anywhere in the console before. Sheet 13
+also names the workspace switcher as stop 02, immediately after the skip
+link; that was not enforced by reordering the header's DOM, since doing so
+would have made the logo link keyboard-unreachable, which is a worse
+regression than the ordering nuance it would fix.
+
+### C28 · Provision consolidated into the modal, absorbing the page — supersedes C23
+
+C23 recorded two competing provisioning flows and held the decision for a
+joint review. The review's outcome: the modal wins, and absorbs the page's
+content rather than the other way round, because the modal is reachable from
+anywhere in the console (a header button, ⌘K) while the page needed its own
+navigation to reach.
+
+`ProvisionWorkspaceDialog` is now the full five-field form — legal name, a
+slug with live uniqueness against real workspace slugs, owner email, the real
+plan set, the trial toggle, the five-step manifest — rebuilt on Radix
+`Dialog`, fetching its data via a new `fetchProvisionOptions` server action
+rather than props, since it has no single server-component parent anymore.
+Along the way this fixed what C23 flagged: the retired-domain slug preview,
+the hardcoded `plan: 'pro'` (not a plan this product has), and the US
+East / EU West region picker that contradicted Workspace Detail's fixed
+`eu-central-1` — resolved by dropping the picker entirely rather than
+correcting its options, since residency isn't actually a per-workspace choice
+anywhere else in the console.
+
+`/platform/tenants/new` now redirects to `/platform?provision=1`, which
+`ConsoleShell` reads via `useSearchParams()` and opens the modal on — the
+flow keeps a real, deep-linkable URL without owning a route. `ProvisionForm.tsx`
+is deleted; nothing else referenced it.
+
+### C29 · Health gets sheet 11's leading diagnosis, per-metric budgets, and an isolation panel — and a table-count correction
+
+Health had the 30-day strips and the amber-not-red convention for degraded
+services already right; missing were the four things sheet 11 states as the
+point of the page. Added: a leading diagnosis sentence above the service
+grid (severity stated before the reader has to derive it from the grid);
+a budget beside every service's metric ("a number without a target is
+trivia"); a refusals count next to the throughput panel, explicitly excluded
+from the error rate ("a rejected scope is the guard working, not an error");
+and a cross-tenant isolation suite panel — tables policed, cross-tenant
+attempts and refusals over 30 days, last run.
+
+⚠ **The isolation panel's table count was corrected from the design mockup's
+illustrative "11" to 18**, matching `project-docs/06-tenancy-and-isolation.md`'s
+own figure ("roughly eighteen tenant-scoped tables") for the real,
+schema-introspected suite in `tests/isolation/generated.test.ts`. Sheet 11's
+own text is a placeholder; this console reads its numbers from `data.ts`,
+which is a seam over the real product, not over the design file — carrying
+the design's illustrative number forward would have been a small, specific
+factual error sitting beside the one guarantee (RLS isolation) this whole
+project is about.
 
 ---
 

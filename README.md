@@ -211,6 +211,7 @@ src/
   components/
     console/          the platform console: shell, surfaces, charts, dialogs
     primitives/ structure/ feedback/ domain/
+  hooks/              useRovingGrid — arrow-key grids, one tab stop
   db/
     schema/           one file per module
     policies/         one file per table, applied by migration
@@ -218,6 +219,7 @@ src/
   lib/
     db/               client · serviceClient · withTenantContext · context
     auth/  cache/  audit/  errors/  logger/  http/  result/
+    motion.ts         gsapSafe — GSAP routed through prefers-reduced-motion
 scripts/
   check-policies.ts   runs before tests in CI
 tests/
@@ -237,7 +239,7 @@ Read these before anything else:
 | `src/db/policies/00_context.sql`  | Every policy in the database reads from these four functions                                          |
 | `scripts/check-policies.ts`       | Forty lines that make an entire class of mistake impossible for nine weeks                            |
 
-### Two things about the console that look odd and are not
+### Three things about the console that look odd and are not
 
 **`sign-in` sits outside the `(console)` route group.** Anything under
 `(console)` inherits the shell — header, sidebar, workspace switcher. A sign-in
@@ -259,6 +261,18 @@ Two things in it are load-bearing rather than convenient:
 - **Redacted audit values** never enter the model at all. A redacted diff
   carries the literal string `redacted`; had it been a display flag, the secret
   would sit in the serialised RSC payload for anyone with devtools.
+
+**The console's GSAP motion and `src/lib/errors/` are two different amendments
+to the same design set, not the same amendment.** `src/lib/motion.ts` records
+a deliberate divergence from sheet 13's `motion.instant = 0ms` for the console
+chrome — the sliding nav indicator and its neighbours keep their GSAP motion,
+routed through `gsapSafe` so `prefers-reduced-motion` still loses nothing; see
+[15-spec-delta.md § C24](project-docs/15-spec-delta.md). `src/lib/errors/`
+is the opposite kind of overlap: sheet 12's error shape (`code`, `message`,
+`request_id`, `details`) already existed as `AppError` from a much earlier
+pass, wired into `src/lib/http/`. Only the hue mapping sheet 12 adds on top —
+`src/lib/errors/hue.ts` — was actually new; see § C26 for the contract.ts that
+almost duplicated the whole thing.
 
 ---
 

@@ -273,6 +273,41 @@ export const FOUNDATION: FoundationItem[] = [
     evidence: 'src/lib/console/data.ts',
     milestone: 'M1 – M4',
   },
+  {
+    area: 'Console',
+    what: 'GSAP motion routed through prefers-reduced-motion (gsapSafe); nav indicator scoped to a gsap.context()',
+    state: 'built',
+    evidence: 'src/lib/motion.ts',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Every dialog and switch on Radix primitives; real server actions (not silent no-ops) behind suspend, plan-change, and break-glass',
+    state: 'built',
+    evidence: 'src/components/primitives/ConfirmDialog.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'loading.tsx per console route (Skeleton family) and a route-group error.tsx per sheet 12',
+    state: 'built',
+    evidence: 'src/app/(platform)/platform/(console)/error.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: "Roving tabindex (useRovingGrid) on every data grid; a skip link as the console's first tab stop",
+    state: 'built',
+    evidence: 'src/hooks/useRovingGrid.ts',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Health: leading diagnosis sentence, per-metric budgets, refusals excluded from error rate, cross-tenant isolation panel',
+    state: 'built',
+    evidence: 'src/app/(platform)/platform/(console)/health/page.tsx',
+    milestone: 'M4',
+  },
 
   // ── Delivery ────────────────────────────────────────────────────────────
   {
