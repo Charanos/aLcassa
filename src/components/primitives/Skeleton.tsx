@@ -92,6 +92,22 @@ export function SkeletonMetric() {
   );
 }
 
+/** Mirrors `ConsoleHeader`'s shape: an eyebrow line, a title line, and
+ *  (optionally) an action-sized bone at the trailing edge — so a
+ *  `loading.tsx` never shifts the header's own height when the real one
+ *  swaps in. */
+export function SkeletonHeader({ withAction = false }: { withAction?: boolean }) {
+  return (
+    <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
+      <div className="min-w-0 flex-1">
+        <Bone className="h-3" style={{ width: 128 }} />
+        <Bone className="mt-3 h-7" style={{ width: 256 }} />
+      </div>
+      {withAction ? <Bone className="h-8.5 shrink-0" style={{ width: 132 }} /> : null}
+    </div>
+  );
+}
+
 /**
  * The container. `aria-busy` here, once, rather than on every bone: a screen
  * reader only needs to be told the REGION is busy, not that each rectangle

@@ -1,7 +1,8 @@
 import { ERROR_CODES, ERROR_MESSAGES, ERROR_STATUS, type ErrorCode } from './catalogue';
+import { hueOf, hueTokens, entitlementDetail, type ErrorHue } from './hue';
 
-export { ERROR_CODES, ERROR_MESSAGES, ERROR_STATUS };
-export type { ErrorCode };
+export { ERROR_CODES, ERROR_MESSAGES, ERROR_STATUS, hueOf, hueTokens, entitlementDetail };
+export type { ErrorCode, ErrorHue };
 
 /** 07 §1. One envelope, both doors. */
 export type ApiErrorDetail = { field: string; code: string; message: string };
