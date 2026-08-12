@@ -308,6 +308,34 @@ export const FOUNDATION: FoundationItem[] = [
     evidence: 'src/app/(platform)/platform/(console)/health/page.tsx',
     milestone: 'M4',
   },
+  {
+    area: 'Console',
+    what: 'Meter hues corrected to verdigris-within/ochre-at-ceiling (no red on an entitlement meter); every meter names its source table',
+    state: 'built',
+    evidence: 'src/components/console/WorkspaceTable.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: '"One shadow, one surface" — panel and status-dot glows removed platform-wide; only dialogs and the command palette carry elevation',
+    state: 'built',
+    evidence: 'src/components/console/Surface.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Workspaces standfirst ("N businesses. M need attention.") with the attention filter pre-applied; shared predicate for the page and the table',
+    state: 'built',
+    evidence: 'src/lib/console/attention.ts',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Cross-tenant isolation status permanently under the sidebar nav, reading the same source as the Health panel',
+    state: 'built',
+    evidence: 'src/lib/console/data.ts',
+    milestone: 'M4',
+  },
 
   // ── Delivery ────────────────────────────────────────────────────────────
   {
