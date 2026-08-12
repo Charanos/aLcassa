@@ -16,6 +16,7 @@ import { StartSessionDialog } from './StartSessionDialog';
 import { WorkspaceDetailDrawer } from './WorkspaceDetailDrawer';
 import { useToast } from '@/components/primitives/Toast';
 import { useRovingGrid } from '@/hooks/useRovingGrid';
+import { NEAR_LIMIT, needsAttention } from '@/lib/console/attention';
 import type { ConsoleWorkspace } from './types';
 import type { WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
 
@@ -24,8 +25,6 @@ import type { WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
  * Expanded, production-grade enterprise telemetry table with mobile card destructuring.
  */
 
-const NEAR_LIMIT = 0.9;
-
 const STATUS_INK: Record<WorkspaceStatus, { dot: string; ink: string }> = {
   active: { dot: 'var(--success-fg)', ink: 'var(--text-primary)' },
   trial: { dot: 'var(--blue-400)', ink: 'var(--text-primary)' },
@@ -33,6 +32,21 @@ const STATUS_INK: Record<WorkspaceStatus, { dot: string; ink: string }> = {
   suspended: { dot: 'var(--ink-400)', ink: 'var(--text-secondary)' },
   pending: { dot: 'var(--warning-fg)', ink: 'var(--text-secondary)' },
 };
+
+/**
+ * Sheet 05: "Suspended and archived recede. Both drop their name to secondary
+ * ink. A tenant that is inert should not compete with one that is live for the
+ * same visual weight."
+ *
+ * The chip already receded; the workspace NAME did not, so a suspended row
+ * still pulled the eye as hard as a live one in a list of 47. This is what
+ * that sentence is actually asking for.
+ */
+const INERT: ReadonlySet<WorkspaceStatus> = new Set<WorkspaceStatus>(['suspended']);
+
+function nameInk(status: WorkspaceStatus): string {
+  return INERT.has(status) ? 'var(--text-secondary)' : 'var(--text-primary)';
+}
 
 const STATUSES: WorkspaceStatus[] = ['active', 'trial', 'past due', 'suspended', 'pending'];
 
@@ -44,10 +58,21 @@ function formatCompactNumber(n: number): string {
   return n.toString();
 }
 
+/**
+ * ⚠ A CEILING IS OCHRE, NOT OXIDE. Sheet 04: "A tenant at 15 of 15 has not
+ * failed. It has arrived at the limit its plan describes, and the console's
+ * job there is to offer the tier above it."
+ *
+ * This used to return `--danger-fg` at 100%, which said "something is broken"
+ * about a workspace that is working exactly as its plan describes — and put a
+ * red row in front of an operator whose actual next move is a sales
+ * conversation. Sheet 06 sets the rest of the scale: verdigris within the
+ * limit, ochre at the ceiling. There is no red on an entitlement meter at all;
+ * red is reserved for a failure of correctness.
+ */
 function meterInk(pct: number): string {
-  if (pct >= 1) return 'var(--danger-fg)';
   if (pct >= NEAR_LIMIT) return 'var(--warning-fg)';
-  return 'var(--blue-400)';
+  return 'var(--success-fg)';
 }
 
 /** Initials from the first two words */
@@ -58,15 +83,6 @@ function toWorkspace(r: WorkspaceRow): ConsoleWorkspace {
     .map((w) => w[0]?.toUpperCase() ?? '')
     .join('');
   return { id: r.id, name: r.name, slug: r.slug, plan: r.plan, initials };
-}
-
-function needsAttention(r: WorkspaceRow): boolean {
-  return (
-    r.status === 'past due' ||
-    r.status === 'suspended' ||
-    r.events / r.eventsLimit >= NEAR_LIMIT ||
-    r.seatsUsed / r.seatsLimit >= NEAR_LIMIT
-  );
 }
 
 type SortField = 'activity' | 'name' | 'usage' | 'seats' | 'events' | 'created';
@@ -86,9 +102,24 @@ export function WorkspaceTable({
   }) => Promise<{ ok: true } | { ok: false; error: string }>;
 }) {
   const pushToast = useToast();
+
+  /*
+   * ⚠ THE ATTENTION FILTER STARTS APPLIED WHEN THERE IS SOMETHING TO SEE.
+   *
+   * Sheet 05: "Attention is pre-filtered. The one applied filter is the one
+   * the standfirst just mentioned, so the grid below is already the shortlist
+   * rather than a thing to construct." The page's own opening sentence says
+   * "N need attention"; landing on all 47 rows and asking the operator to
+   * build that shortlist by hand contradicts the sentence they just read.
+   *
+   * It starts OFF when nothing needs attention, because a filter that is
+   * applied and empty reads as a broken list rather than a quiet morning.
+   * The chip renders pressed, the count line reads "3 of 47", and Reset is
+   * beside it — the state is legible and one click from cleared.
+   */
   const [query, setQuery] = useState('');
   const [statuses, setStatuses] = useState<WorkspaceStatus[]>([]);
-  const [attention, setAttention] = useState(false);
+  const [attention, setAttention] = useState(() => rows.some(needsAttention));
   const [sortField, setSortField] = useState<SortField>('activity');
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
   const searchRef = useRef<HTMLInputElement>(null);
@@ -314,16 +345,16 @@ export function WorkspaceTable({
                   background: on ? 'var(--blue-500)' : 'var(--surface-raised)',
                   color: on ? '#ffffff' : 'var(--text-secondary)',
                   font: '500 var(--text-sm)/1 var(--font-ui)',
-                  boxShadow: on ? '0 2px 8px rgba(14, 165, 233, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)' : '0 1px 2px rgba(0,0,0,0.02)',
+                  /* No glow on a selected chip. Sheet 03 gives a chip a tint,
+                     an ink and a hairline — the fill change already reads as
+                     selected, and the halo was a sky-blue that is not even
+                     this product's blue. */
                 }}
               >
                 <span
                   aria-hidden
                   className="size-[7px] rounded-full"
-                  style={{ 
-                    background: on ? '#ffffff' : STATUS_INK[s].dot,
-                    boxShadow: on ? 'none' : `0 0 4px ${STATUS_INK[s].dot}`
-                  }}
+                  style={{ background: on ? '#ffffff' : STATUS_INK[s].dot }}
                 />
                 {s}
               </button>
@@ -341,7 +372,6 @@ export function WorkspaceTable({
             background: attention ? 'var(--accent-mark)' : 'var(--surface-raised)',
             color: attention ? '#ffffff' : 'var(--text-secondary)',
             font: '500 var(--text-sm)/1 var(--font-ui)',
-            boxShadow: attention ? '0 2px 8px rgba(251, 146, 60, 0.3), inset 0 1px 1px rgba(255,255,255,0.2)' : '0 1px 2px rgba(0,0,0,0.02)',
           }}
         >
           Needs attention
@@ -380,11 +410,10 @@ export function WorkspaceTable({
       {/* ── Results ──────────────────────────────────────────────────── */}
       {filtered.length === 0 ? (
         <div
-          className="mt-6 rounded-2xl p-12 transition-all duration-300 hover:shadow-lg"
+          className="mt-6 rounded-2xl p-12"
           style={{
             border: '1px solid var(--border-subtle)',
             background: 'var(--surface-raised)',
-            boxShadow: '4px 6px 20px rgba(0, 0, 0, 0.04), inset 1px 1px 0px rgba(255, 255, 255, 0.05), inset -1px -1px 0px rgba(0, 0, 0, 0.02)',
           }}
         >
           <EmptyState
@@ -422,7 +451,6 @@ export function WorkspaceTable({
             style={{
               border: '1px solid var(--border-subtle)',
               background: 'var(--surface-raised)',
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
             }}
           >
             <table className="w-full border-collapse text-left">
@@ -549,18 +577,13 @@ export function WorkspaceTable({
                               border: '1px solid var(--border-strong)',
                               color: 'var(--text-primary)',
                               font: '600 13px var(--font-ui)',
-                              boxShadow: '0 2px 6px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,0.1)',
                             }}
                             aria-hidden="true"
                           >
                             {initials}
                             <span
                               className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full border-2"
-                              style={{
-                                background: st.dot,
-                                borderColor: 'var(--surface-raised)',
-                                boxShadow: `0 0 4px ${st.dot}`,
-                              }}
+                              style={{ background: st.dot, borderColor: 'var(--surface-raised)' }}
                             />
                           </div>
 
@@ -572,7 +595,7 @@ export function WorkspaceTable({
                               style={{
                                 fontSize: '15px',
                                 lineHeight: 1.3,
-                                color: 'var(--text-primary)',
+                                color: nameInk(r.status),
                                 letterSpacing: '-0.01em',
                                 background: 'none',
                                 border: 'none',
@@ -733,7 +756,6 @@ export function WorkspaceTable({
                   style={{
                     border: '1px solid var(--border-subtle)',
                     background: 'var(--surface-raised)',
-                    boxShadow: '4px 6px 20px rgba(0, 0, 0, 0.04), inset 1px 1px 0px rgba(255, 255, 255, 0.05), inset -1px -1px 0px rgba(0, 0, 0, 0.02)',
                   }}
                 >
                   <div
@@ -764,7 +786,7 @@ export function WorkspaceTable({
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setDrawerRow(r); }}
                           className="block truncate text-left font-medium transition-colors hover:text-[var(--text-action)]"
-                          style={{ fontSize: '16px', lineHeight: 1.35, color: 'var(--text-primary)', letterSpacing: '-0.01em', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                          style={{ fontSize: '16px', lineHeight: 1.35, color: nameInk(r.status), letterSpacing: '-0.01em', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                         >
                           {r.name}
                         </button>
@@ -871,7 +893,6 @@ export function WorkspaceTable({
                         border: p === page ? '1px solid var(--blue-500)' : '1px solid transparent',
                         background: p === page ? 'var(--blue-500)' : 'transparent',
                         color: p === page ? '#ffffff' : 'var(--text-secondary)',
-                        boxShadow: p === page ? '0 2px 8px rgba(14, 165, 233, 0.25)' : 'none',
                       }}
                     >
                       {p}
@@ -978,11 +999,8 @@ function StatusBadge({ status }: { status: WorkspaceStatus }) {
     >
       <span
         aria-hidden
-        className={`size-[7px] shrink-0 rounded-full ${isPastDue ? 'animate-pulse' : ''}`}
-        style={{
-          background: st.dot,
-          boxShadow: `0 0 6px ${st.dot}`,
-        }}
+        className="size-[7px] shrink-0 rounded-full"
+        style={{ background: st.dot }}
       />
       <span
         style={{
@@ -1051,13 +1069,13 @@ function DetailedMeter({
           border: '1px solid var(--border-subtle)',
         }}
       >
+        {/* Flat fill in the meter's own hue. The gradient this replaced ran
+            from blue to the state colour, which made a meter read as two
+            different states at once — and the glow under it was decoration on
+            a panel, which sheet 06 rules out. */}
         <div
           className="h-full rounded-full transition-all duration-500"
-          style={{
-            width: `${clamped * 100}%`,
-            background: `linear-gradient(90deg, var(--blue-400) 0%, ${ink} 100%)`,
-            boxShadow: `0 0 6px ${ink}`,
-          }}
+          style={{ width: `${clamped * 100}%`, background: ink }}
         />
       </div>
 

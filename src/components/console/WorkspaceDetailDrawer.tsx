@@ -23,7 +23,7 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import { fetchWorkspaceDetail, suspendWorkspace } from '@/app/(platform)/platform/(console)/actions';
-import type { WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
+import type { WorkspaceDetail, WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
 import Link from 'next/link';
 import { gsapSafe } from '@/lib/motion';
 import { DestructiveConfirm } from '@/components/primitives/ConfirmDialog';
@@ -31,21 +31,21 @@ import { StartSessionDialog } from './StartSessionDialog';
 import { useToast } from '@/components/primitives/Toast';
 
 /* ─ Types ─────────────────────────────────────────────────────────────────── */
-type Meter = { label: string; icon: string; used: number; limit: number; unit?: string };
-type Invoice = { id: string; issued: string; period: string; amount: string; status: 'paid' | 'failed'; paid: string };
-type WorkspaceDetailData = {
-  id: string; slug: string; name: string; status: WorkspaceStatus; plan: string;
-  monthlyValue: string; since: string; lastActive: string;
-  alert: { title: string; body: string } | null;
-  meters: Meter[];
-  facts: Array<{ label: string; value: string; tone?: 'danger' }>;
-  owner: { name: string; email: string; initials: string };
-  team: { staff: string; admins: string; channels: string };
-  residency: string;
-  billingStats: Array<{ label: string; value: string; note: string; tone?: 'danger' }>;
-  invoices: Invoice[];
-  impact: { staff: number; conversations: number; channels: number };
-};
+
+/**
+ * ⚠ THE REAL TYPE, NOT A COPY OF IT.
+ *
+ * This file used to hand-redeclare `Meter`, `Invoice` and the whole detail
+ * shape locally, structurally matching what `fetchWorkspaceDetail` returns.
+ * That compiles — right up until the server type gains a field, at which point
+ * the copy silently keeps compiling while rendering a workspace without it.
+ * Adding sheet 06's `source` to `Meter` is exactly that: the field landed in
+ * `data.ts` and this component could not see it.
+ *
+ * `WorkspaceDetail` is the type the action actually returns. There is no
+ * second definition of it any more.
+ */
+type WorkspaceDetailData = WorkspaceDetail;
 
 type TabKey = 'overview' | 'telemetry' | 'billing' | 'access';
 
@@ -59,10 +59,11 @@ const STATUS_CONFIG: Record<WorkspaceStatus, { dot: string; label: string; bg: s
 };
 
 const NEAR_LIMIT = 0.9;
+/** Sheet 04 · 06: verdigris within the limit, ochre at the ceiling. A ceiling
+ *  is not a failure, so no entitlement meter in this console renders red. */
 function meterColor(pct: number): string {
-  if (pct >= 1) return 'var(--danger-fg)';
   if (pct >= NEAR_LIMIT) return 'var(--warning-fg)';
-  return 'var(--blue-500)';
+  return 'var(--success-fg)';
 }
 
 function fmtNum(n: number): string {
@@ -246,11 +247,7 @@ export function WorkspaceDetailDrawer({
                   {initials}
                   <span
                     className="absolute -top-1 -right-1 size-3 rounded-full border-2"
-                    style={{
-                      background: st.dot,
-                      borderColor: 'var(--surface-raised)',
-                      boxShadow: `0 0 6px ${st.dot}`,
-                    }}
+                    style={{ background: st.dot, borderColor: 'var(--surface-raised)' }}
                   />
                 </div>
 
@@ -338,24 +335,45 @@ export function WorkspaceDetailDrawer({
               </div>
             </div>
 
-            {/* Header Action Strip */}
+            {/*
+              ⚠ HEADER ACTION STRIP · SUSPEND IS DELIBERATELY FURTHEST FROM
+              SUPPORT SESSION.
+
+              Sheet 06: "Switch in is the primary. On a tenant record the
+              likeliest next action is to look inside it. Suspend sits furthest
+              from it and is secondary, so the destructive action is never
+              under the cursor."
+
+              These two used to sit side by side in the same left-hand group,
+              8px apart — the exact adjacency that sentence rules out, with
+              the destructive one landing where the hand already is after
+              clicking the likely one. Suspend now sits at the opposite edge,
+              past the activity read-out.
+            */}
             <div className="mt-5 flex items-center justify-between gap-3 pt-4 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSessionOpen(true)}
-                  className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-3.5 transition-all duration-150 hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] active:scale-95"
-                  style={{
-                    border: '1px solid var(--border-strong)',
-                    background: 'var(--surface-raised)',
-                    color: 'var(--text-primary)',
-                    font: '500 12px var(--font-ui)',
-                    boxShadow: 'var(--shadow-sm)',
-                  }}
-                >
-                  <IconExternalLink size={14} stroke={1.5} aria-hidden />
-                  Support session
-                </button>
+              <button
+                type="button"
+                onClick={() => setSessionOpen(true)}
+                className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-3.5 transition-all duration-150 hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] active:scale-95"
+                style={{
+                  border: '1px solid var(--border-strong)',
+                  background: 'var(--surface-raised)',
+                  color: 'var(--text-primary)',
+                  font: '500 12px var(--font-ui)',
+                }}
+              >
+                <IconExternalLink size={14} stroke={1.5} aria-hidden />
+                Support session
+              </button>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                  <span
+                    className="size-1.5 rounded-full"
+                    style={{ background: 'var(--success-fg)', animation: 'pulse-dot 2s ease-in-out infinite' }}
+                  />
+                  <span>{row.activity}</span>
+                </div>
 
                 <button
                   type="button"
@@ -366,7 +384,7 @@ export function WorkspaceDetailDrawer({
                   className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-3 transition-all duration-150 active:scale-95"
                   style={{
                     border: '1px solid var(--border-subtle)',
-                    background: row.status === 'suspended' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.06)',
+                    background: 'var(--surface-raised)',
                     color: row.status === 'suspended' ? 'var(--success-fg)' : 'var(--danger-fg)',
                     font: '500 12px var(--font-ui)',
                   }}
@@ -383,14 +401,6 @@ export function WorkspaceDetailDrawer({
                     </>
                   )}
                 </button>
-              </div>
-
-              <div className="flex items-center gap-2 font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                <span
-                  className="size-1.5 rounded-full"
-                  style={{ background: 'var(--success-fg)', animation: 'pulse-dot 2s ease-in-out infinite' }}
-                />
-                <span>{row.activity}</span>
               </div>
             </div>
 
@@ -565,7 +575,7 @@ export function WorkspaceDetailDrawer({
                                 <span
                                   className="rounded px-1.5 py-0.5 font-mono text-[10px] font-medium"
                                   style={{
-                                    background: pct >= NEAR_LIMIT ? 'rgba(239, 68, 68, 0.1)' : 'var(--surface-inset)',
+                                    background: pct >= NEAR_LIMIT ? 'var(--warning-bg)' : 'var(--surface-inset)',
                                     color: pct >= NEAR_LIMIT ? color : 'var(--text-secondary)',
                                   }}
                                 >
@@ -578,20 +588,25 @@ export function WorkspaceDetailDrawer({
                             <div className="h-2 w-full overflow-hidden rounded-full" style={{ background: 'var(--surface-inset)' }}>
                               <div
                                 className="h-full rounded-full transition-all duration-500"
-                                style={{
-                                  width: `${Math.min(100, pct * 100)}%`,
-                                  background: color,
-                                  boxShadow: pct >= NEAR_LIMIT ? `0 0 8px ${color}` : 'none',
-                                }}
+                                style={{ width: `${Math.min(100, pct * 100)}%`, background: color }}
                               />
                             </div>
+
+                            {/* Sheet 06: every number names its source, so a figure
+                                on screen can be traced to a row in the schema. */}
+                            <p className="mt-1.5 font-mono text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
+                              from {m.source}
+                            </p>
                           </div>
                         );
                       })}
                     </div>
 
                     <p className="font-mono text-[11px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
-                      Meters update in near real-time across tenant partitions. Ingestion tracks flip to amber alert at 90% of resolved quota.
+                      Meters resolve against the entitlement snapshot on the workspace, not the
+                      plan blueprint — an override wins. A track turns ochre at 90% of its
+                      resolved ceiling; a ceiling reached is a conversation about the tier above,
+                      not a failure.
                     </p>
                   </div>
                 )}

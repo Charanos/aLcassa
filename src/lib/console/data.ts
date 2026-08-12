@@ -256,6 +256,20 @@ export type Meter = {
   used: number;
   limit: number;
   unit?: string;
+  /**
+   * ⚠ WHICH TABLE ANSWERS THIS NUMBER.
+   *
+   * Sheet 06: "Every number names its source. Each meter footnote says which
+   * table answers it, so a figure on screen can be traced to a row in the
+   * schema without asking anyone."
+   *
+   * This is the difference between a dashboard and an instrument. When an
+   * operator and a customer disagree about a seat count, the argument is
+   * settled by knowing which table to open — and without this the answer is
+   * "ask whoever built it", which is exactly the dependency a handover is
+   * supposed to remove.
+   */
+  source: string;
 };
 
 export type Invoice = {
@@ -398,11 +412,11 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
     lastActive: `Last active ${row.activity}`,
     alert,
     meters: [
-      { label: 'Staff seats', icon: 'seat', used: row.seatsUsed, limit: row.seatsLimit },
-      { label: 'Events this month', icon: 'bolt', used: row.events, limit: row.eventsLimit },
-      { label: 'Conversations', icon: 'mail', used: conversationsUsed, limit: conversationsLimit },
-      { label: 'Storage', icon: 'db', used: storageGb, limit: row.plan === 'Scale' ? 100 : row.plan === 'Growth' ? 50 : 25, unit: ' GB' },
-      { label: 'API credentials', icon: 'key', used: row.plan === 'Scale' ? 3 : 1, limit: row.plan === 'Scale' ? 10 : 5 },
+      { label: 'Staff seats', icon: 'seat', used: row.seatsUsed, limit: row.seatsLimit, source: 'memberships' },
+      { label: 'Events this month', icon: 'bolt', used: row.events, limit: row.eventsLimit, source: 'usage_events' },
+      { label: 'Conversations', icon: 'mail', used: conversationsUsed, limit: conversationsLimit, source: 'conversations' },
+      { label: 'Storage', icon: 'db', used: storageGb, limit: row.plan === 'Scale' ? 100 : row.plan === 'Growth' ? 50 : 25, unit: ' GB', source: 'attachments' },
+      { label: 'API credentials', icon: 'key', used: row.plan === 'Scale' ? 3 : 1, limit: row.plan === 'Scale' ? 10 : 5, source: 'api_credentials' },
     ],
     facts: [
       { label: 'Plan tier', value: row.plan || 'Trial' },
@@ -770,6 +784,43 @@ export type HealthModel = {
   };
 };
 
+export type IsolationStatus = HealthModel['isolation'];
+
+/**
+ * ⚠ ONE ISOLATION FACT, READ IN TWO PLACES.
+ *
+ * Sheet 05 puts isolation state permanently under the navigation ("the severe
+ * risk in the brief is a policy gap, so its state sits under the navigation
+ * rather than being something to go and check"); sheet 11 puts the full panel
+ * on Health. Those are two different components on two different routes
+ * making the same claim about the same guarantee.
+ *
+ * So it is declared once, here, and both read it. A console whose sidebar
+ * says isolation is green while its Health page says otherwise would
+ * undermine the one guarantee this product is sold on — and that is exactly
+ * the kind of drift two hardcoded literals produce six months apart.
+ *
+ * 06 §4: "roughly eighteen tenant-scoped tables" — the suite's real count is
+ * introspected from the schema at run time by `tenantScopedTables()` in
+ * `tests/isolation/harness.ts`, not hardcoded. 18 is
+ * `project-docs/06-tenancy-and-isolation.md`'s own figure, kept in step with
+ * it here rather than restating the design mockup's illustrative "11".
+ */
+const ISOLATION: IsolationStatus = {
+  tablesTotal: 18,
+  tablesPoliced: 18,
+  crossTenantAttempts30d: 0,
+  crossTenantRefused30d: 0,
+  lastRun: '12 Aug, 03:00',
+};
+
+/** The narrow read the console shell needs. Replaced by the isolation suite's
+ *  own last-run record once M1 wires CI results into a table. */
+// eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
+export async function getIsolationStatus(): Promise<IsolationStatus> {
+  return ISOLATION;
+}
+
 /** 30 days of state, with named exceptions. Written as a helper rather than
  *  30 literals so a degraded day is visible in the source as a date. */
 function days(exceptions: Record<number, DayState> = {}): DayState[] {
@@ -844,18 +895,7 @@ export async function getHealth(): Promise<HealthModel> {
       { id: 'i_3', sev: 'SEV1', title: 'Read replica failover', detail: 'Primary lost for 6 minutes. Automatic failover held; writes queued and drained.', when: '11 Jul, 03:22', status: 'resolved' },
     ],
 
-    isolation: {
-      // 06 §4: "roughly eighteen tenant-scoped tables" — the suite's real
-      // count is introspected from the schema at run time by
-      // tenantScopedTables() in tests/isolation/harness.ts, not hardcoded;
-      // 18 is project-docs/06-tenancy-and-isolation.md's own figure, kept in
-      // step with it here rather than restating the design mockup's "11".
-      tablesTotal: 18,
-      tablesPoliced: 18,
-      crossTenantAttempts30d: 0,
-      crossTenantRefused30d: 0,
-      lastRun: '12 Aug, 03:00',
-    },
+    isolation: ISOLATION,
   };
 }
 

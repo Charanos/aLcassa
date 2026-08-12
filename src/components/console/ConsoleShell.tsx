@@ -38,6 +38,7 @@ import type {
   NoticeKind,
 } from './types';
 import type { SupportSession, NavState, Density } from '@/lib/console/session';
+import type { IsolationStatus } from '@/lib/console/data';
 import type { ResolvedTheme } from '@/lib/theme-shared';
 import { THEME_COOKIE, THEME_COOKIE_MAX_AGE } from '@/lib/theme-shared';
 
@@ -85,6 +86,9 @@ export type ConsoleShellProps = {
   nav: NavState;
   density: Density;
   session: SupportSession | null;
+  /** Sheet 05: isolation state sits under the navigation permanently, rather
+   *  than being something the operator has to go and check. */
+  isolation: IsolationStatus;
   onNavStateChange: (nav: NavState) => Promise<void>;
   onStartSession: (input: {
     tenantId: string;
@@ -127,6 +131,7 @@ export function ConsoleShell({
   nav,
   density,
   session,
+  isolation,
   onNavStateChange: _onNavStateChange, /* eslint-disable-line @typescript-eslint/no-unused-vars */
   onStartSession,
   onEndSession,
@@ -140,6 +145,10 @@ export function ConsoleShell({
   // `/platform/tenants/new` redirects to `?provision=1` rather than owning a
   // route, so the flow keeps a deep-linkable URL from any console page
   // without the modal needing its own server component parent.
+  const isolationOk =
+    isolation.tablesPoliced === isolation.tablesTotal &&
+    isolation.crossTenantAttempts30d === isolation.crossTenantRefused30d;
+
   const provisionOpen = searchParams.get('provision') === '1';
   const closeProvision = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -740,7 +749,7 @@ export function ConsoleShell({
             href="/"
             aria-label="View marketing landing page"
             title="Marketing landing page"
-            className="relative grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
+            className="target-44 grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
             style={{
               border: 'none',
               background: 'transparent',
@@ -979,6 +988,69 @@ export function ConsoleShell({
               </div>
             ))}
           </div>
+
+          {/*
+            ⚠ ISOLATION SITS UNDER THE NAVIGATION, PERMANENTLY.
+
+            Sheet 05: "The severe risk in the brief is a policy gap, so its
+            state sits under the navigation permanently rather than being
+            something to go and check." Row Level Security is the only thing
+            standing between one customer's data and another's; a status an
+            operator has to navigate to is a status nobody looks at until
+            after an incident.
+
+            It reads the same `getIsolationStatus()` the Health page's full
+            panel does, so the sidebar and that page cannot disagree. Collapsed,
+            it degrades to the dot alone — still present, still coloured,
+            with the full sentence in `title`.
+          */}
+          <Link
+            href="/platform/health"
+            title={
+              isolationOk
+                ? `Isolation green · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
+                : `Isolation gap · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
+            }
+            className="mx-2 mb-2 flex items-center rounded-lg py-2 transition-colors hover:bg-[var(--chrome-hover)]"
+            style={{
+              gap: collapsed ? '0px' : '9px',
+              paddingLeft: collapsed ? '11px' : '10px',
+              paddingRight: collapsed ? '11px' : '10px',
+              transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+            }}
+          >
+            <span className="flex size-4 shrink-0 items-center justify-center">
+              <span
+                aria-hidden
+                className="size-[7px] rounded-full"
+                style={{ background: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)' }}
+              />
+            </span>
+            <span
+              className="min-w-0 flex-1 overflow-hidden whitespace-nowrap"
+              style={{
+                opacity: collapsed ? 0 : 1,
+                maxWidth: collapsed ? '0px' : '150px',
+                transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
+                pointerEvents: collapsed ? 'none' : 'auto',
+                transition:
+                  'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+              }}
+            >
+              <span
+                className="block truncate text-[11.5px] font-medium"
+                style={{ color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)' }}
+              >
+                {isolationOk ? 'Isolation green' : 'Isolation gap'}
+              </span>
+              <span
+                className="block truncate text-[10px] font-mono"
+                style={{ color: 'var(--chrome-fg-faint)' }}
+              >
+                {isolation.tablesPoliced} of {isolation.tablesTotal} tables · {isolation.lastRun}
+              </span>
+            </span>
+          </Link>
 
           <div
             className="shrink-0 p-2"
@@ -1332,7 +1404,9 @@ function ChromeIconButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="relative grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
+      /* size-8 draws at 32px; `target-44` gives it the 44px hit area sheet 03
+         requires without changing the chrome's density. */
+      className="target-44 grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
       style={{
         border: 'none',
         background: active ? 'var(--chrome-hover)' : 'transparent',

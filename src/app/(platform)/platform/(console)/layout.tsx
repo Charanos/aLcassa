@@ -7,6 +7,7 @@ import type {
   ConsoleWorkspace,
 } from '@/components/console/types';
 import { getConsoleChrome, resolveSupportSession } from '@/lib/console/session';
+import { getIsolationStatus } from '@/lib/console/data';
 import { getThemePreference, resolveTheme } from '@/lib/theme';
 import { endSupportSession, setNavState, startSupportSession } from './actions';
 
@@ -148,10 +149,11 @@ const account: ConsoleAccount = {
 };
 
 export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
-  const [theme, chrome, session] = await Promise.all([
+  const [theme, chrome, session, isolation] = await Promise.all([
     resolveTheme(await getThemePreference()),
     getConsoleChrome(),
     resolveSupportSession(),
+    getIsolationStatus(),
   ]);
 
   return (
@@ -164,6 +166,7 @@ export default async function PlatformLayout({ children }: { children: React.Rea
       nav={chrome.nav}
       density={chrome.density}
       session={session}
+      isolation={isolation}
       onNavStateChange={setNavState}
       onStartSession={startSupportSession}
       onEndSession={endSupportSession}

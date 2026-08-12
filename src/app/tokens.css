@@ -278,7 +278,12 @@
   --invert-card-rule: rgba(255, 255, 255, 0.10);
   --invert-card-well: rgba(4, 10, 32, 0.45);
   --invert-card-well-border: rgba(255, 255, 255, 0.08);
-  --invert-card-shadow: var(--shadow-lg), 0 0 32px -8px rgba(4, 58, 225, 0.25);
+  /* Sheet 04, "one shadow, one surface": only the dialog and the command
+   * palette carry elevation. The inverted slab is already separated from the
+   * page by the largest tint step in the system — a dark panel on cream — so
+   * the coloured glow this used to carry was decoration on top of a
+   * separation that had already happened. */
+  --invert-card-shadow: none;
 
   color-scheme: light;
 }
@@ -360,7 +365,7 @@
   --invert-card-rule: var(--ink-200);
   --invert-card-well: var(--ink-50);
   --invert-card-well-border: var(--ink-200);
-  --invert-card-shadow: 0 0 40px -4px rgba(255, 255, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.4);
+  --invert-card-shadow: none; /* see the light-mode note */
 
   color-scheme: dark;
 }

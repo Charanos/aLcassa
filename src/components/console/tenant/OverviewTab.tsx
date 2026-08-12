@@ -139,7 +139,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
               <button
                 type="button"
                 className="h-8.5 px-3.5 rounded-lg text-xs font-medium text-white transition-all active:scale-95"
-                style={{ background: 'var(--blue-500)', boxShadow: '0 2px 8px rgba(14, 165, 233, 0.25)' }}
+                style={{ background: 'var(--blue-500)' }}
               >
                 Retry Charge
               </button>
@@ -202,7 +202,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                         <span
                           className="rounded px-1.5 py-0.5 font-mono text-[10px] font-medium"
                           style={{
-                            background: pct >= 0.9 ? (pct >= 1 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)') : 'var(--surface-inset)',
+                            background: pct >= 0.9 ? 'var(--warning-bg)' : 'var(--surface-inset)',
                             color: color,
                           }}
                         >
@@ -218,13 +218,14 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                     >
                       <div
                         className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${Math.min(100, pct * 100)}%`,
-                          background: color,
-                          boxShadow: pct >= 0.9 ? `0 0 8px ${color}` : 'none',
-                        }}
+                        style={{ width: `${Math.min(100, pct * 100)}%`, background: color }}
                       />
                     </div>
+
+                    {/* Sheet 06: every number names its source. */}
+                    <p className="mt-1.5 font-mono text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
+                      from {m.source}
+                    </p>
                   </div>
                 );
               })}

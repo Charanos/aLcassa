@@ -20,7 +20,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
 
   const getIconAndColor = (kind: string) => {
     switch (kind) {
-      case 'session': return { Icon: IconUser, bg: 'rgba(14, 165, 233, 0.1)', color: 'var(--blue-500)' };
+      case 'session': return { Icon: IconUser, bg: 'var(--blue-50)', color: 'var(--blue-500)' };
       case 'plan': return { Icon: IconListDetails, bg: 'rgba(16, 185, 129, 0.1)', color: 'var(--success-fg)' };
       case 'rules': return { Icon: IconRobot, bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' };
       case 'tenant': return { Icon: IconBuilding, bg: 'rgba(245, 158, 11, 0.1)', color: 'var(--warning-fg)' };

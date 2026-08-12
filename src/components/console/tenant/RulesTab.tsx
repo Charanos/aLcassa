@@ -155,7 +155,7 @@ export function RulesTab({ rules }: { rules: WorkspaceRule[] }) {
             <button
               type="button"
               className="h-7.5 inline-flex items-center gap-1 px-2.5 rounded-lg text-xs font-medium text-white transition-all active:scale-95"
-              style={{ background: 'var(--blue-500)', boxShadow: '0 2px 6px rgba(14, 165, 233, 0.25)' }}
+              style={{ background: 'var(--blue-500)' }}
             >
               <IconPlus size={13} stroke={1.5} />
               Add Override
@@ -180,7 +180,7 @@ export function RulesTab({ rules }: { rules: WorkspaceRule[] }) {
                     </span>
                     <span
                       className="text-[10px] font-mono px-2 py-0.5 rounded font-medium"
-                      style={{ background: 'rgba(14, 165, 233, 0.1)', color: 'var(--blue-500)', border: '1px solid rgba(14, 165, 233, 0.2)' }}
+                      style={{ background: 'var(--blue-50)', color: 'var(--blue-600)', border: '1px solid var(--blue-200)' }}
                     >
                       {r.state}
                     </span>

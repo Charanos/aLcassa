@@ -64,6 +64,8 @@ export function RulesEditor({ model }: { model: RulesModel }) {
   }, []);
 
   const dirty = Object.keys(overrides).length > 0;
+  /** What publishing would create. Sheet 10 puts this in the button label. */
+  const nextVersion = model.version + 1;
 
   function save() {
     if (phase !== 'idle') return;
@@ -106,15 +108,28 @@ export function RulesEditor({ model }: { model: RulesModel }) {
         >
           v{model.version} · saved {model.savedAt}
         </span>
+        {/*
+          ⚠ THE ACTION NAMES THE ARTEFACT IT CREATES.
+
+          Sheet 10: "Publish names the version. 'Publish v15' rather than
+          'Save'. The action states the artefact it creates, matching the audit
+          entry it will write."
+
+          "Save and propagate" described the mechanism; "Publish v15" describes
+          the thing that will exist afterwards — and it is the string an
+          operator will later search the audit log for, so the button and the
+          log entry now say the same word.
+        */}
         <button
           type="button"
           onClick={save}
-          disabled={saving}
+          disabled={saving || !dirty}
           className="t-compact inline-flex h-[34px] items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors"
           style={{
-            background: done ? 'var(--success-fg)' : 'var(--blue-500)',
-            color: '#ffffff',
+            background: done ? 'var(--success-fg)' : dirty ? 'var(--blue-500)' : 'var(--surface-inset)',
+            color: done || dirty ? '#ffffff' : 'var(--text-disabled)',
             fontWeight: 500,
+            cursor: saving || !dirty ? 'not-allowed' : 'pointer',
           }}
         >
           {done ? (
@@ -122,7 +137,11 @@ export function RulesEditor({ model }: { model: RulesModel }) {
           ) : (
             <IconDeviceFloppy size={15} stroke={1.5} aria-hidden />
           )}
-          {saving ? 'Saving' : done ? 'Saved' : 'Save and propagate'}
+          {saving
+            ? `Publishing v${nextVersion}`
+            : done
+              ? `Published v${nextVersion}`
+              : `Publish v${nextVersion}`}
         </button>
       </div>
 

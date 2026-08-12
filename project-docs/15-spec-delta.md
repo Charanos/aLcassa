@@ -1039,6 +1039,81 @@ the design's illustrative number forward would have been a small, specific
 factual error sitting beside the one guarantee (RLS isolation) this whole
 project is about.
 
+### C30 · The rest of the sheet set applied — four defects, one of them semantic
+
+C29 covered sheet 11 only. Reading 03, 04, 05, 06 and 10 against what was
+built found five things, four of which were wrong rather than merely absent.
+
+**A ceiling was rendering as a failure.** Both meter scales returned
+`--danger-fg` at 100%. Sheet 04: *"A tenant at 15 of 15 has not failed. It
+has arrived at the limit its plan describes, and the console's job there is
+to offer the tier above it."* A red row put a workspace that is working
+exactly as sold in front of an operator whose actual next move is a sales
+conversation. Sheet 06 gives the corrected scale — verdigris within the
+limit, ochre at the ceiling — and no entitlement meter in this console
+renders red now; red is kept for a failure of correctness. The
+blue-to-state gradient went with it, since a meter reading as two states at
+once was the other half of the same confusion.
+
+**"One shadow, one surface" was not being observed.** Sheet 04: *"Only the
+dialog and the command palette carry elevation. Panels are separated from
+the page by a tint step and a hairline, never by a shadow."* Thirty-odd
+`boxShadow` declarations sat on panels, table containers, status dots,
+meters, filter chips and pagination — including coloured glows in
+`rgba(14, 165, 233, …)`, a sky-blue that is not this product's blue at all.
+All removed; `--invert-card-shadow` is now `none` in both themes so the
+inverted ribbons lose their glow everywhere at once. What stays: the
+sanctioned neumorphic INSET on meter tracks, search fields and segmented
+thumbs (tokens.css names those three by name), and elevation on dialogs.
+
+**The standfirst was missing and the shortlist was unbuilt.** Sheet 05:
+*"the count that implies work is in the sentence, not only in a card, and
+the phrase that names it is ochre"* plus *"attention is pre-filtered, so the
+grid below is already the shortlist rather than a thing to construct."*
+Workspaces now opens with "47 businesses. 3 need attention." — the second
+clause ochre, matching the meters and the filter chip that name the same
+condition — and lands with that filter applied. It starts off when nothing
+needs attention, because an applied-and-empty filter reads as a broken list
+rather than a quiet morning.
+
+The predicate moved to `src/lib/console/attention.ts` to make that possible:
+`data.ts` is `server-only`, so a server page and a client table cannot share
+a runtime helper from it, and a console whose opening sentence and whose
+filter disagree about which workspaces need work is worse than one that says
+nothing.
+
+**Isolation was something to go and check.** Sheet 05 puts it under the
+navigation permanently — *"the severe risk in the brief is a policy gap"*.
+It now sits above the sidebar footer on every console route, reading the
+same `getIsolationStatus()` the Health panel does, so the two cannot
+disagree. Collapsed, it degrades to the coloured dot with the full sentence
+in `title`.
+
+**Smaller, same source:** suspended workspaces drop their NAME to secondary
+ink, not just their chip (sheet 05, "a tenant that is inert should not
+compete with one that is live"); Suspend moved to the opposite end of the
+workspace drawer's action strip from Support session (sheet 06, *"the
+destructive action is never under the cursor"* — they were 8px apart); the
+AI-rules button says "Publish v16" rather than "Save and propagate" (sheet
+10, *"the action states the artefact it creates, matching the audit entry it
+will write"*) and the page carries a singleton lock chip; every meter names
+the table that answers it (sheet 06, *"a figure on screen can be traced to a
+row in the schema without asking anyone"*).
+
+⚠ **Adding that last field surfaced a latent bug.** `WorkspaceDetailDrawer`
+hand-redeclared `Meter`, `Invoice` and the whole detail shape locally,
+structurally matching what `fetchWorkspaceDetail` returns. That compiles —
+until the server type gains a field, at which point the copy keeps compiling
+while rendering a workspace without it, which is exactly what happened. The
+local copies are gone; the component uses `WorkspaceDetail` itself.
+
+**`.target-44`** (globals.css) gives a 44px hit area to controls that draw
+smaller, via a centred pseudo-element rather than by growing the box —
+sheet 03 states the target as `max(control height, 44)`, and the console's
+chrome controls draw at 32px by design. Applied to the icon-only chrome
+buttons; deliberately not applied inside grid rows, where overlapping
+targets would steal each other's clicks.
+
 ---
 
 ## 4. Open items carried forward

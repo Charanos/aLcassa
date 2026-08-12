@@ -166,12 +166,23 @@ export function Panel({
           : undefined;
 
   return (
+    /*
+     * ⚠ NO SHADOW. Sheet 04: "One shadow, one surface. Only the dialog and the
+     * command palette carry elevation. Panels are separated from the page by a
+     * tint step and a hairline, never by a shadow."
+     *
+     * This carried `--shadow-sm` plus an inset white highlight, which is the
+     * default look of every dashboard template and the reason a page of eight
+     * panels read as eight floating cards rather than one instrument. The tint
+     * step (`--surface-raised` against `--surface-base`) and the hairline do
+     * the separating; they were already here, doing the work, underneath a
+     * shadow that was competing with them.
+     */
     <section
-      className="overflow-hidden rounded-2xl transition-all duration-300 relative"
+      className="overflow-hidden rounded-2xl relative"
       style={{
         border: '1px solid var(--border-subtle)',
         background: 'var(--surface-raised)',
-        boxShadow: 'var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
       }}
     >
       {title ? (
@@ -239,7 +250,7 @@ export function FactRow({
           <span
             aria-hidden
             className="relative size-1.5 rounded-full"
-            style={{ background: dotInk, boxShadow: `0 0 4px ${dotInk}` }}
+            style={{ background: dotInk }}
           />
         </span>
       ) : null}

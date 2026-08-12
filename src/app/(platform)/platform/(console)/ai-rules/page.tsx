@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
 import { RulesEditor } from '@/components/console/RulesEditor';
 import { getMasterRules } from '@/lib/console/data';
-import { IconCpu } from '@tabler/icons-react';
+import { IconCpu, IconLock } from '@tabler/icons-react';
 
 export const metadata: Metadata = { title: 'Master AI rules' };
 
@@ -42,8 +42,33 @@ export default async function AiRulesPage() {
       >
         <div className="min-w-0 flex-1">
           <ConsoleHeader eyebrow="/platform/ai-rules" title="Master AI rules" />
+
+          {/*
+            ⚠ THE SINGLETON SAYS SO. Sheet 10: "A lock chip beside the title
+            states that this record cannot be duplicated. The constraint lives
+            in the database; the chip is how a reader knows without reading the
+            schema."
+
+            There is exactly one master rule set, enforced by a one-row
+            constraint. Without this an operator has no way to tell whether
+            they are editing "the" rules or "a" set of rules — and the
+            difference decides whether they expect a New button to exist.
+          */}
+          <span
+            className="mt-3 inline-flex h-[26px] items-center gap-1.5 rounded-full px-2.5 whitespace-nowrap"
+            style={{
+              border: '1px solid var(--border-subtle)',
+              background: 'var(--surface-sunken)',
+              color: 'var(--text-secondary)',
+              font: '400 11.5px/1 var(--font-mono)',
+            }}
+          >
+            <IconLock size={12} stroke={1.5} aria-hidden />
+            Singleton · one record, platform-wide
+          </span>
+
           <p
-            className="t-body mt-2"
+            className="t-body mt-2.5"
             style={{ color: 'var(--text-secondary)', maxWidth: '70ch' }}
           >
             The floor every workspace inherits. Workspaces may add rules on top; they cannot remove

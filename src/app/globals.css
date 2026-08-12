@@ -868,6 +868,39 @@
     box-shadow: var(--shadow-sunken);
   }
 
+  /*
+   * ⚠ A 44px HIT TARGET WITHOUT A 44px BOX.
+   *
+   * Sheet 03 states the target as `max(control height, 44) × max(…, 44)` —
+   * so a 32px icon button in the console's dense chrome still owes the
+   * reader a 44px target. Sheet 13 lists 44 × 44 in its conformance section
+   * alongside the contrast floor.
+   *
+   * Growing the buttons to 44px would wreck the density the console is
+   * deliberately built at (a 36px row, a 32px chrome control). This expands
+   * the POINTER AND TOUCH area with a centred pseudo-element instead: the
+   * control still draws at its designed size, and the thing a finger or a
+   * shaky hand has to hit is 44px square. `position: relative` is set here
+   * so a caller cannot forget it and silently get a target anchored to some
+   * ancestor.
+   *
+   * Not applied to controls that already measure 44px or more, and not to
+   * anything inside a scrolling grid row where overlapping targets would
+   * steal each other's clicks.
+   */
+  .target-44 {
+    position: relative;
+  }
+  .target-44::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
   .truncate-cell {
     overflow: hidden;
     text-overflow: ellipsis;

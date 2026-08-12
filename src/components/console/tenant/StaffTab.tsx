@@ -125,7 +125,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
             <button
               type="button"
               className="h-8 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-medium text-white transition-all active:scale-95"
-              style={{ background: 'var(--blue-500)', boxShadow: '0 2px 6px rgba(14, 165, 233, 0.25)' }}
+              style={{ background: 'var(--blue-500)' }}
             >
               <IconUserPlus size={14} stroke={1.5} />
               Invite Member
