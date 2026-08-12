@@ -117,7 +117,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
       </div>
 
       {/* ── Main Content Area: Roster Table & Visualization ───────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_380px] gap-6 items-start">
         {/* Staff Table */}
         <Panel
           title="Workspace Staff Roster"

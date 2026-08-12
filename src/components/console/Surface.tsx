@@ -25,7 +25,7 @@ import React from 'react';
 export function ConsolePage({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="relative mx-auto w-full max-w-[1380px] overflow-x-clip px-5 pt-8 pb-16 md:px-8 md:pt-10 animate-in fade-in slide-in-from-bottom-3 duration-300 ease-out"
+      className="relative mx-auto w-full max-w-[1380px] xl:max-w-[1600px] 2xl:max-w-[1760px] overflow-x-clip px-5 pt-8 pb-16 md:px-8 md:pt-10 animate-in fade-in slide-in-from-bottom-3 duration-300 ease-out"
       style={{ color: 'var(--text-primary)' }}
     >
       {children}

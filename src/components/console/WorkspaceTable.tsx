@@ -261,7 +261,7 @@ export function WorkspaceTable({
         style={{ borderRadius: 'var(--radius-lg)' }}
       >
         <label
-          className="flex h-10 max-w-[400px] min-w-0 flex-1 basis-[280px] items-center gap-3 rounded-xl px-3.5 transition-all duration-200 focus-within:ring-2 focus-within:ring-[var(--blue-500)]"
+          className="flex h-10 max-w-[400px] xl:max-w-[480px] min-w-0 flex-1 basis-[280px] items-center gap-3 rounded-xl px-3.5 transition-all duration-200 focus-within:ring-2 focus-within:ring-[var(--blue-500)]"
           style={{
             border: '1px solid var(--border-strong)',
             background: 'var(--surface-raised)',

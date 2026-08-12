@@ -103,7 +103,7 @@ export function BillingTab({ w }: { w: WorkspaceDetail }) {
       </div>
 
       {/* ── Payment Method & Invoices Section ──────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_400px] gap-6 items-start">
         {/* Invoices List */}
         <Panel
           title="Billing History & Invoices"

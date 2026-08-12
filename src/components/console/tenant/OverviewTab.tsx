@@ -156,7 +156,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
       )}
 
       {/* ── Main 2-Column Content Area ─────────────────────────────────── */}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
         {/* Left Column: Entitlements & Capacity */}
         <div className="flex flex-col gap-6">
           <Panel
