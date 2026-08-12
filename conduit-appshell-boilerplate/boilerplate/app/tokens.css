@@ -1,0 +1,168 @@
+/* 03 §2. Conduit design tokens. Raw hex lives here and nowhere else. */
+
+:root {
+  /* Ground — warm neutrals, drafting vellum */
+  --sheet: #fbfaf7;
+  --sheet-raised: #ffffff;
+  --sheet-sunk: #f3f1ec;
+  --sheet-hatch: #edeae3;
+  --sheet-invert: #16181d;
+
+  /* Graphite — text and structure */
+  --graphite-900: #16181d;
+  --graphite-700: #33373f;
+  --graphite-500: #5f646e;
+  --graphite-400: #8b909a;
+  --graphite-300: #b6bac2;
+
+  /* Rules */
+  --rule: #e2ded6;
+  --rule-strong: #cbc6bb;
+  --rule-graphite: #16181d;
+
+  /* Copper */
+  --copper-700: #8a3e12;
+  --copper-600: #a54b17;
+  --copper-500: #c25e22;
+  --copper-100: #f7e9df;
+  --copper-050: #fdf6f1;
+
+  /* Verdigris */
+  --verdigris-700: #145f50;
+  --verdigris-500: #1f8570;
+  --verdigris-100: #e2f1ed;
+
+  /* Ochre */
+  --ochre-700: #7a5406;
+  --ochre-500: #a8760c;
+  --ochre-100: #faf0dc;
+
+  /* Oxide */
+  --oxide-700: #96241c;
+  --oxide-500: #bc3227;
+  --oxide-100: #fbe9e7;
+
+  /* Slate */
+  --slate-700: #2f4a63;
+  --slate-500: #446b8c;
+  --slate-100: #e7eef4;
+
+  --focus: #a54b17;
+  --selection-bg: #f7e9df;
+  --selection-fg: #16181d;
+  --scrim: rgb(22 24 29 / 0.55);
+
+  /* Space */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+
+  /* Radius */
+  --r-none: 0;
+  --r-sm: 2px;
+  --r-md: 3px;
+  --r-lg: 6px;
+  --r-full: 999px;
+
+  /* Elevation */
+  --shadow-overlay: 0 1px 2px rgb(22 24 29 / 0.05), 0 16px 40px rgb(22 24 29 / 0.12);
+
+  /* Motion */
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-base: 200ms;
+  --dur-slow: 280ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout */
+  --nav-width: 248px;
+  --nav-rail-width: 64px;
+  --row-compact: 32px;
+  --row-comfortable: 40px;
+  --content-max: 1280px;
+  --header-height: 56px;
+}
+
+[data-theme='dark'] {
+  --sheet: #131519;
+  --sheet-raised: #1a1d23;
+  --sheet-sunk: #0e1014;
+  --sheet-hatch: #22262e;
+  --sheet-invert: #fbfaf7;
+
+  --graphite-900: #f2f1ed;
+  --graphite-700: #d2d4da;
+  --graphite-500: #949aa5;
+  --graphite-400: #6c727d;
+  --graphite-300: #474d57;
+
+  --rule: #262a32;
+  --rule-strong: #383d47;
+  --rule-graphite: #f2f1ed;
+
+  --copper-700: #e8926a;
+  --copper-600: #d97b4e;
+  --copper-500: #c25e22;
+  --copper-100: #2e1b10;
+  --copper-050: #1f1410;
+
+  --verdigris-700: #4fc0a6;
+  --verdigris-500: #2f9c84;
+  --verdigris-100: #10251f;
+
+  --ochre-700: #e0b14a;
+  --ochre-500: #b8890f;
+  --ochre-100: #241d0c;
+
+  --oxide-700: #f08076;
+  --oxide-500: #c9483c;
+  --oxide-100: #2a1210;
+
+  --slate-700: #7fa8c9;
+  --slate-500: #5583a8;
+  --slate-100: #131e28;
+
+  --focus: #e8926a;
+  --selection-bg: #2e1b10;
+  --selection-fg: #f2f1ed;
+  --scrim: rgb(0 0 0 / 0.7);
+}
+
+/* Semantic aliases — components consume these, never the ramp directly */
+:root,
+[data-theme='dark'] {
+  --text-primary: var(--graphite-900);
+  --text-body: var(--graphite-700);
+  --text-muted: var(--graphite-500);
+  --text-placeholder: var(--graphite-400);
+  --text-brand: var(--copper-700);
+
+  --surface-page: var(--sheet);
+  --surface-panel: var(--sheet-raised);
+  --surface-field: var(--sheet-sunk);
+  --surface-disabled: var(--sheet-hatch);
+  --surface-hover: var(--sheet-sunk);
+
+  --border-default: var(--rule);
+  --border-emphasis: var(--rule-strong);
+  --border-focus: var(--focus);
+
+  --action-primary-bg: var(--copper-600);
+  --action-primary-fg: #ffffff;
+  --action-primary-hover: var(--copper-500);
+
+  --ink-primary: var(--text-primary);
+  --ink-secondary: var(--text-body);
+  --ink-tertiary: var(--text-muted);
+  --copper-ink: var(--text-brand);
+  --copper-solid: var(--copper-600);
+  --rule-base: var(--border-default);
+  --rule-soft: var(--border-default);
+}

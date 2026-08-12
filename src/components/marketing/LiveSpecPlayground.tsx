@@ -113,7 +113,7 @@ export function LiveSpecPlayground() {
                 color: 'var(--text-secondary)',
               }}
             >
-              <div className="text-[10px] uppercase font-bold tracking-widest text-emerald-600 dark:text-emerald-400 mb-1">
+              <div className="text-[10px] uppercase font-medium tracking-widest text-emerald-600 dark:text-emerald-400 mb-1">
                 Active Tenant Context:
               </div>
               <p className="text-[var(--text-primary)]">
@@ -184,13 +184,13 @@ export function LiveSpecPlayground() {
                 borderColor: 'var(--border-subtle)',
               }}
             >
-              <div className="text-[10px] uppercase font-bold tracking-widest text-[var(--text-tertiary)] mb-2">
+              <div className="text-[10px] uppercase font-medium tracking-widest text-[var(--text-tertiary)] mb-2">
                 Live Propagation Stream
               </div>
               {auditLogs.map((log) => (
                 <div key={log.id} className="flex justify-between items-center text-[var(--text-secondary)]">
                   <span>[{log.time}] {log.event}</span>
-                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{log.status}</span>
+                  <span className="text-emerald-700 dark:text-emerald-400 font-normal">{log.status}</span>
                 </div>
               ))}
             </div>

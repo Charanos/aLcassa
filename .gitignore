@@ -36,5 +36,5 @@ design-docs/.thumbnail
 # this project is lost by excluding them.
 design-docs/uploads/
 *.zip
-conduit-appshell-boilerplate/
+aLcassa-appshell-boilerplate/
 

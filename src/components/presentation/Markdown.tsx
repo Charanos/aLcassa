@@ -2,7 +2,7 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 /**
- * Renders a project document in the Conduit type system.
+ * Renders a project document in the aLcassa type system.
  *
  * WHY react-markdown RATHER THAN A STRING OF HTML: 04 §7 forbids
  * `dangerouslySetInnerHTML` anywhere in Phase 1. A markdown-to-HTML pipeline

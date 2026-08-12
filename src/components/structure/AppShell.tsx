@@ -82,7 +82,7 @@ export function AppShell({
 
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem('conduit:sidebar-collapsed');
+    const stored = localStorage.getItem('aLcassa:sidebar-collapsed');
     if (stored !== null) {
       setCollapsed(stored === 'true');
     }
@@ -91,7 +91,7 @@ export function AppShell({
   const toggleCollapse = useCallback(() => {
     setCollapsed((prev) => {
       const next = !prev;
-      localStorage.setItem('conduit:sidebar-collapsed', String(next));
+      localStorage.setItem('aLcassa:sidebar-collapsed', String(next));
       return next;
     });
   }, []);
@@ -200,7 +200,7 @@ export function AppShell({
 
                           {item.badge ? (
                             <span
-                              className={`t-eyebrow flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-semibold shrink-0 transition-colors ${
+                              className={`t-eyebrow flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-normal shrink-0 transition-colors ${
                                 active
                                   ? 'bg-[var(--surface-page)] text-[var(--ink-primary)]'
                                   : 'bg-[var(--ink-primary)] text-[var(--surface-page)]'

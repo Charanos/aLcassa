@@ -741,7 +741,7 @@ export function WorkspaceDetailDrawer({
             }}
           >
             <span className="font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
-              conduit.tenant · {row.slug}
+              aLcassa.tenant · {row.slug}
             </span>
 
             <div className="flex items-center gap-2">

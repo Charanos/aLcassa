@@ -1,11 +1,11 @@
-# CONDUIT · Documentation Set
+# aLcassa · Documentation Set
 
 **Engagement:** customer support SaaS, Phase 1, platform foundation
 **Client:** Brian
 **Studio:** Andishi, Northern Bypass, Nairobi
 **Project lead:** Dennis Munge · **Commercial:** Ian
 **Against:** Project Brief Rev 3.1, 29 July 2026
-**Design system codename:** Conduit
+**Design system codename:** aLcassa
 
 ---
 
@@ -33,7 +33,7 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 | ---- | ---------------------------------------- | ------------------------------------------------------------------------------------ |
 | `01` | Brief and Decision Log                   | Always first. What was agreed, and the twelve decisions the rest rests on            |
 | `02` | Information Architecture                 | Adding a route or navigation. Two applications, one codebase                         |
-| `03` | Design System · Conduit                  | Any visual work. Palette, the one-weight type system, components, the boundary frame |
+| `03` | Design System · aLcassa                  | Any visual work. Palette, the one-weight type system, components, the boundary frame |
 | `04` | System Architecture                      | Structural decisions. Eleven ADRs, sequences, caching, observability                 |
 | `05` | Data Model                               | Any database work. Full schema, every RLS policy, invariants                         |
 | `06` | Tenancy and Isolation                    | **Anything touching tenant data. No exceptions.** The safety core of this project    |

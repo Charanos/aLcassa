@@ -62,7 +62,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
         >
           <Link href="/project-tracker" className="flex items-center gap-2.5">
             <Mark size={20} />
-            <span className="t-chip text-[var(--ink-primary)]">Conduit</span>
+            <span className="t-chip text-[var(--ink-primary)]">aLcassa</span>
           </Link>
 
           <Link

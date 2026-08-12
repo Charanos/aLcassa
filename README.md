@@ -7,7 +7,7 @@ The platform layer beneath a customer support inbox: tenancy with real isolation
 authentication, subscription structure, an owner-level console, AI rules readable
 by machines, and documentation good enough that a stranger can pick this up cold.
 
-> **On the name.** The client identity landed on 3 August 2026. `Conduit` was the
+> **On the name.** The client identity landed on 3 August 2026. `aLcassa` was the
 > codename for the design system and this document set, never a proposed product
 > name — so it appears in git history and in the repository URL, and nowhere a
 > customer can see. The wordmark is **`aLcassa`**, mixed case with a capital L,
@@ -34,20 +34,20 @@ file, not in the reader. Raise it.
 
 ### 1 · Prerequisites
 
-| Tool | Version | Check |
-|---|---|---|
-| Node | 20.11 or later | `node -v` |
-| pnpm | 9 or later | `pnpm -v`, or `corepack enable` |
-| Docker | any current | `docker -v` |
-| Supabase CLI | any current | `supabase -v` |
+| Tool         | Version        | Check                           |
+| ------------ | -------------- | ------------------------------- |
+| Node         | 20.11 or later | `node -v`                       |
+| pnpm         | 9 or later     | `pnpm -v`, or `corepack enable` |
+| Docker       | any current    | `docker -v`                     |
+| Supabase CLI | any current    | `supabase -v`                   |
 
 `npm` works if you prefer it; the scripts are package-manager agnostic.
 
 ### 2 · Install
 
 ```bash
-git clone https://github.com/Charanos/conduit.git
-cd conduit
+git clone https://github.com/Charanos/aLcassa.git
+cd aLcassa
 pnpm install
 ```
 
@@ -108,33 +108,33 @@ stop and raise it rather than working around it.
 pnpm dev
 ```
 
-| URL | What |
-|---|---|
-| `/` | The review surface: documentation set, design sheets, foundation status |
-| `/product` | The marketing page from `02 §2` |
-| `/app` | Tenant application |
-| `/platform` | Platform console |
-| `/docs/<slug>` | A project document, rendered from `project-docs/` |
-| `/design/<slug>.html` | A design sheet |
+| URL                   | What                                                                    |
+| --------------------- | ----------------------------------------------------------------------- |
+| `/`                   | The review surface: documentation set, design sheets, foundation status |
+| `/product`            | The marketing page from `02 §2`                                         |
+| `/app`                | Tenant application                                                      |
+| `/platform`           | Platform console                                                        |
+| `/docs/<slug>`        | A project document, rendered from `project-docs/`                       |
+| `/design/<slug>.html` | A design sheet                                                          |
 
 ---
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `pnpm dev` | Development server |
-| `pnpm build` | Production build |
-| `pnpm typecheck` | TypeScript, strict, no `any` |
-| `pnpm lint` | Includes the module boundary and service-role import rules |
-| `pnpm check:policies` | **A tenant-scoped table without a policy fails here** |
-| `pnpm test` | Unit, integration and contract tests |
-| `pnpm test:isolation` | The generated isolation suite |
-| `pnpm test:cache-disabled` | The whole suite with the cache off |
-| `pnpm db:generate` | Generate a migration from the schema |
-| `pnpm db:migrate` | Apply migrations |
-| `pnpm db:seed` | Seed plans, tenants and the platform admin |
-| `pnpm verify` | Everything CI runs, locally |
+| Command                    | What it does                                               |
+| -------------------------- | ---------------------------------------------------------- |
+| `pnpm dev`                 | Development server                                         |
+| `pnpm build`               | Production build                                           |
+| `pnpm typecheck`           | TypeScript, strict, no `any`                               |
+| `pnpm lint`                | Includes the module boundary and service-role import rules |
+| `pnpm check:policies`      | **A tenant-scoped table without a policy fails here**      |
+| `pnpm test`                | Unit, integration and contract tests                       |
+| `pnpm test:isolation`      | The generated isolation suite                              |
+| `pnpm test:cache-disabled` | The whole suite with the cache off                         |
+| `pnpm db:generate`         | Generate a migration from the schema                       |
+| `pnpm db:migrate`          | Apply migrations                                           |
+| `pnpm db:seed`             | Seed plans, tenants and the platform admin                 |
+| `pnpm verify`              | Everything CI runs, locally                                |
 
 ---
 
@@ -142,20 +142,20 @@ pnpm dev
 
 Nine documents, in `project-docs/`, also readable at `/docs`.
 
-| Doc | Read it when |
-|---|---|
-| `00-INDEX` | First. The engagement in four lines |
-| `02-information-architecture` | Adding a route or navigation |
-| `03-design-system` | Any visual work |
-| `04-system-architecture` | Structural decisions. Eleven ADRs |
-| `05-data-model` | Any database work. Full schema and every invariant |
-| **`06-tenancy-and-isolation`** | **Anything touching tenant data. No exceptions** |
-| `07-api-contract` | Any endpoint. Both doors |
-| `08-subscriptions-...` | Plans, limits, the singleton, the cache |
-| `09-platform-console-...` | The console, the switcher, support mode |
-| `10-copy-deck` | Any string. Do not write new copy without checking here |
-| `11-build-plan-and-agent-guide` | Milestones, gates, and the operating rules |
-| `15-spec-delta` | Where the code and the documents deliberately differ |
+| Doc                             | Read it when                                            |
+| ------------------------------- | ------------------------------------------------------- |
+| `00-INDEX`                      | First. The engagement in four lines                     |
+| `02-information-architecture`   | Adding a route or navigation                            |
+| `03-design-system`              | Any visual work                                         |
+| `04-system-architecture`        | Structural decisions. Eleven ADRs                       |
+| `05-data-model`                 | Any database work. Full schema and every invariant      |
+| **`06-tenancy-and-isolation`**  | **Anything touching tenant data. No exceptions**        |
+| `07-api-contract`               | Any endpoint. Both doors                                |
+| `08-subscriptions-...`          | Plans, limits, the singleton, the cache                 |
+| `09-platform-console-...`       | The console, the switcher, support mode                 |
+| `10-copy-deck`                  | Any string. Do not write new copy without checking here |
+| `11-build-plan-and-agent-guide` | Milestones, gates, and the operating rules              |
+| `15-spec-delta`                 | Where the code and the documents deliberately differ    |
 
 ---
 
@@ -230,12 +230,12 @@ design-docs/          the fourteen design sheets
 
 Read these before anything else:
 
-| File | Why |
-|---|---|
+| File                              | Why                                                                                                   |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `src/lib/db/withTenantContext.ts` | The single most important function here. The comment explains why one `true` argument is load-bearing |
-| `src/lib/db/context.ts` | The branded type that makes a whole category of mistake unwritable |
-| `src/db/policies/00_context.sql` | Every policy in the database reads from these four functions |
-| `scripts/check-policies.ts` | Forty lines that make an entire class of mistake impossible for nine weeks |
+| `src/lib/db/context.ts`           | The branded type that makes a whole category of mistake unwritable                                    |
+| `src/db/policies/00_context.sql`  | Every policy in the database reads from these four functions                                          |
+| `scripts/check-policies.ts`       | Forty lines that make an entire class of mistake impossible for nine weeks                            |
 
 ### Two things about the console that look odd and are not
 

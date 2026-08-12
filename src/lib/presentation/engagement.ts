@@ -24,7 +24,7 @@ export const ENGAGEMENT = {
   team: '2 senior full stack developers',
   duration: '9 working weeks, plus a 30-day support window',
   /**
-   * The product name, supplied by the client on 3 August 2026. "Conduit" was
+   * The product name, supplied by the client on 3 August 2026. "aLcassa" was
    * the CODENAME for the design system and this document set, never a proposed
    * product name — so this field changed rather than being retired.
    *
@@ -338,7 +338,7 @@ export const UPDATES = [
   {
     date: '2026-08-10',
     title: 'aLcassa identity adopted across the product',
-    body: 'The client identity supplied on 3 August replaces the Conduit token system in full: blue #043AE1 as the primary, navy ink on cream as the largest surface, orange as a budgeted accent, and DM Sans with Libertinus Serif Display and JetBrains Mono. The retired palette survives as a compatibility layer mapping every old name onto the nearest value by semantic role, so 48 component files picked up the new palette without being touched. Recorded in document 15, section 3b.',
+    body: 'The client identity supplied on 3 August replaces the aLcassa token system in full: blue #043AE1 as the primary, navy ink on cream as the largest surface, orange as a budgeted accent, and DM Sans with Libertinus Serif Display and JetBrains Mono. The retired palette survives as a compatibility layer mapping every old name onto the nearest value by semantic role, so 48 component files picked up the new palette without being touched. Recorded in document 15, section 3b.',
     milestone: 'M0',
     kind: 'decision' as const,
   },

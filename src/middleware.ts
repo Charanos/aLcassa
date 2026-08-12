@@ -53,8 +53,8 @@ const CSP_DIRECTIVES = (nonce: string) =>
   ].join('; ');
 
 /** 02 §3. Two doors, two cookie names, no navigational path between them. */
-const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'conduit_tenant_session';
-const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'conduit_platform_session';
+const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'aLcassa_tenant_session';
+const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'aLcassa_platform_session';
 
 export function middleware(request: NextRequest): NextResponse {
   const { pathname, search } = request.nextUrl;

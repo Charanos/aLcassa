@@ -29,7 +29,7 @@ export function TrackerHeader({
           className="flex shrink-0 items-center gap-2.5 rounded-chip focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)]"
         >
           <Mark size={20} />
-          <span className="t-chip text-[var(--ink-primary)]">Conduit</span>
+          <span className="t-chip text-[var(--ink-primary)]">aLcassa</span>
         </Link>
 
         <nav aria-label="Sections" className="hidden min-w-0 flex-1 lg:block">

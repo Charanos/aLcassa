@@ -1,4 +1,4 @@
-# 03 · Design System · "Conduit"
+# 03 · Design System · "aLcassa"
 
 **Consumer:** Design and Code. This document is the authority on every visual decision. If code disagrees with this file, the code is wrong.
 **Aesthetic:** technical, warm, dense. A drafting document rather than a dashboard.
@@ -11,14 +11,14 @@ This product is infrastructure. It is the layer beneath the thing the customer a
 
 Infrastructure that holds has a look. It is the look of a **technical drawing**: measured rules, annotated dimensions, hatch fills, a title block in the corner, a revision number. Precise, warm, made by a person, meant to be worked from rather than admired.
 
-The material vocabulary is **conduit and patina**. Copper carries current between places without being the current. Left in air, it oxidises to verdigris, which is how you tell it has been doing its job for a while. That gives the palette a source that is not another SaaS blue.
+The material vocabulary is **aLcassa and patina**. Copper carries current between places without being the current. Left in air, it oxidises to verdigris, which is how you tell it has been doing its job for a while. That gives the palette a source that is not another SaaS blue.
 
 | Artefact           | Becomes                                                 |
 | ------------------ | ------------------------------------------------------- |
 | The drafting sheet | The page: warm vellum ground, ruled, with a title block |
 | The dimension line | Rules with terminators, used for metrics and limits     |
 | Hatch fill         | Density and disabled states, never a flat grey          |
-| The copper conduit | The interactive accent, and the boundary frame          |
+| The copper aLcassa | The interactive accent, and the boundary frame          |
 | Verdigris          | Health, verification, the settled state                 |
 | The title block    | The console header and the audit stamp                  |
 
@@ -750,7 +750,7 @@ Design produces, in order, each in light and dark:
 
 There is no brand. Ask at design lock whether one exists; if not, this placeholder ships and looks deliberate.
 
-**The mark:** a 1:1 square outline in `--copper-600` at 1.5px, containing two horizontal rules offset from centre, suggesting a conduit passing through a boundary. Drawn once as SVG, `--r-sm`.
+**The mark:** a 1:1 square outline in `--copper-600` at 1.5px, containing two horizontal rules offset from centre, suggesting a aLcassa passing through a boundary. Drawn once as SVG, `--r-sm`.
 
 **The wordmark:** the product name in Libertinus Serif 400 at `--t-h3` size, `--graphite-900`, with `-0.005em` tracking. Until a name exists, the wordmark is absent and the mark stands alone.
 

@@ -22,7 +22,7 @@ import {
  *
  * ⚠ THE PALETTE FINDING THAT SHAPED ALL THREE OF THESE.
  *
- * Running the six-check validator over Conduit's six hues as a categorical
+ * Running the six-check validator over aLcassa's six hues as a categorical
  * palette FAILS, and not marginally: copper against ochre is ΔE 6.8 to NORMAL
  * vision and 1.5 under deuteranopia. They are adjacent warm hues by design,
  * chosen so a row of status chips does not vibrate, and that same restraint
@@ -267,7 +267,7 @@ export function ProgressLine({
   height?: number;
 }) {
   const t = useTokens();
-  const gradientId = 'conduit-progress-fill';
+  const gradientId = 'aLcassa-progress-fill';
 
   return (
     <div style={{ width: '100%', height }}>
@@ -346,7 +346,7 @@ export function ProportionDonut({
 }) {
   const t = useTokens();
   const total = segments.reduce((sum, segment) => sum + segment.value, 0) || 1;
-  const patternId = 'conduit-donut-hatch';
+  const patternId = 'aLcassa-donut-hatch';
 
   return (
     <div className="flex flex-col items-center gap-5 sm:flex-row">

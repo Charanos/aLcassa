@@ -34,7 +34,7 @@ export function TrackerDashboardHero({
       <div className="mt-4 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="t-display text-4xl md:text-5xl font-normal text-[var(--ink-primary)]">
-            Conduit Delivery Tracker
+            aLcassa Delivery Tracker
           </h1>
           <p className="t-lede mt-3 text-[var(--ink-secondary)]" style={{ maxWidth: 'var(--measure-prose)' }}>
             The platform layer beneath a customer support inbox: tenancy with real database isolation,

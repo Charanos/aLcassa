@@ -10,7 +10,7 @@
  * the server module re-exports it. One name, one place, both sides.
  */
 
-export const THEME_COOKIE = 'conduit_theme';
+export const THEME_COOKIE = 'aLcassa_theme';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';

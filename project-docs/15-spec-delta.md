@@ -455,7 +455,7 @@ The weight constraint remains: only one weight per family is imported. Libertinu
 The client supplied a full identity on 3 August 2026: the name **aLcassa**, a
 bear-C logo, a six-colour palette anchored on blue `#043AE1`, and DM Sans as
 the interface face. It arrived with its own `tokens.css`, `BRAND.md` and a
-rewritten `03-design-system.md`, and it supersedes the previous "Conduit"
+rewritten `03-design-system.md`, and it supersedes the previous "aLcassa"
 system (copper/verdigris/ochre/oxide/slate/graphite on vellum, Libertinus
 throughout) in full. These entries record where the port diverged from a
 literal reading of those documents.
@@ -621,7 +621,7 @@ group, which changes no URLs and leaves `sign-in` outside the layout.
 ### C5 · Dropdowns use page tokens, not chrome tokens
 
 They hang off the inverted chrome but are tinted to the page. A popover is a
-floating sheet over the *content*, not an extension of the bar it drops from;
+floating sheet over the _content_, not an extension of the bar it drops from;
 glass tinted to the chrome reads as the header stretching downward, and its
 rows would need a third colour scheme for their own hover states. 03 §7b names
 the popover as a glass surface, and glass takes the surface beneath it.
@@ -680,7 +680,7 @@ describing what will live there, which is more useful to a reviewer than a
 spinner and more honest than an empty panel.
 
 Two ports deliberately did not happen: the `Workspaces` "State" tab row, which
-the source labels *"Design review only · not shipped chrome"*, and the design's
+the source labels _"Design review only · not shipped chrome"_, and the design's
 whole-row click target, replaced by a link on the workspace name so the row's
 other controls stay reachable and a keyboard user has something to tab to.
 
@@ -699,8 +699,8 @@ The arrow points where the number moved; the colour says whether that was good.
 A redacted diff carries the literal string `redacted` in both columns and the
 real values are never selected into the read model. Had it been a display flag,
 the secret would sit in the page's serialised RSC payload for anyone who opens
-devtools, and *"a credential rotation shows that the secret moved, never the
-secret"* would be a CSS effect rather than a security property.
+devtools, and _"a credential rotation shows that the secret moved, never the
+secret"_ would be a CSS effect rather than a security property.
 
 The diff's before/after uses `--danger-fg` and `--success-fg` — the one place
 in the console those hues mean **removed and added** rather than failure and
@@ -726,8 +726,8 @@ a direct legend. Plan mix reads correctly in greyscale, which is the real test.
 Three ways a session ends: the operator closed it, the 30-minute cap expired,
 or the customer stopped it from their own workspace. Only the third tells an
 operator something they did not already know, so it is the one value on the
-page drawn in the accent. The design's closing line — *"a customer ending a
-session early is a signal worth reading, not a fault"* — is the editorial
+page drawn in the accent. The design's closing line — _"a customer ending a
+session early is a signal worth reading, not a fault"_ — is the editorial
 position of the whole screen: an accountability ledger, not a productivity
 report.
 
@@ -749,8 +749,8 @@ start of a billing cycle, so lowering a limit takes effect the instant it
 saves — for the two workspaces already above the new number, that means
 ingestion rejecting mid-afternoon for a change nobody told them about.
 
-The confirm dialog therefore makes *Apply next period* the primary action and
-*Apply now* a quieter secondary. It does not prevent the immediate change;
+The confirm dialog therefore makes _Apply next period_ the primary action and
+_Apply now_ a quieter secondary. It does not prevent the immediate change;
 there are real reasons to need one. It refuses to make it the easy accident.
 
 This is the same discipline as the suspend dialog (C8): the confirmation
@@ -761,7 +761,7 @@ confidence.
 
 A single uptime figure cannot distinguish "99.82% because of one bad
 afternoon" from "99.82% because it wobbles every third day", and those are
-different engineering problems. The strip shows the *shape* of the failures,
+different engineering problems. The strip shows the _shape_ of the failures,
 which is what an average removes. It sits beside the number rather than
 replacing it: the figure goes in a report, the strip tells you whether to
 worry.
@@ -858,7 +858,7 @@ beside the button. That page is what got built. A second, independent
 provisioning flow — a modal opened from Overview's header — was added in
 parallel by the front-end pass on this codebase; it collects a name and a
 region rather than a slug and an owner email, and its slug preview still reads
-the retired `.conduit.app` domain rather than `alcassa.app`. The two were not
+the retired `.aLcassa.app` domain rather than `alcassa.app`. The two were not
 reconciled here, on explicit instruction to hold that for a joint review
 pass; this entry exists so the duplication is written down rather than
 discovered cold in a diff.

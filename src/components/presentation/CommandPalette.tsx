@@ -32,7 +32,7 @@ import { THEME_COOKIE, THEME_COOKIE_MAX_AGE } from '@/lib/theme-shared';
  * event would also work and would be a lie in the transcript of anything
  * listening upstream.
  */
-const PALETTE_EVENT = 'conduit:open-palette';
+const PALETTE_EVENT = 'aLcassa:open-palette';
 
 export type Command = {
   id: string;

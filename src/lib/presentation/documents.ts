@@ -62,7 +62,7 @@ export const PROJECT_DOCS: ProjectDoc[] = [
   {
     slug: '03-design-system',
     n: '03',
-    title: 'Design system · Conduit',
+    title: 'Design system · aLcassa',
     settles: 'Palette, the one-weight type system, sixty-four components, the boundary frame',
     source: 'Derived',
     band: 'system',
@@ -362,7 +362,7 @@ export const OPEN_DECISIONS = [
     blocks: 'Nothing',
     severity: 'proposal',
     detail:
-      'Conduit is the codename for the design system and this document set, not a proposed product name. If no identity exists, the placeholder mark ships and looks deliberate. When a real one arrives, one file changes and nothing else does.',
+      'aLcassa is the codename for the design system and this document set, not a proposed product name. If no identity exists, the placeholder mark ships and looks deliberate. When a real one arrives, one file changes and nothing else does.',
     where: 'Document 03 §22',
   },
 ] as const;

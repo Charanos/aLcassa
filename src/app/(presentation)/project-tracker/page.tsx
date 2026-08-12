@@ -37,9 +37,9 @@ import { DESIGN_SHEETS, OPEN_DECISIONS, PROJECT_DOCS } from '@/lib/presentation/
 import { FOUNDATION, FOUNDATION_SUMMARY, STACK } from '@/lib/presentation/foundation';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Project tracker · Conduit · Phase 1' },
+  title: { absolute: 'Project tracker · aLcassa · Phase 1' },
   description:
-    'Live delivery tracker for the Conduit platform foundation: milestones, gates, compliance, the documentation set and the design set.',
+    'Live delivery tracker for the aLcassa platform foundation: milestones, gates, compliance, the documentation set and the design set.',
   robots: { index: false, follow: false },
 };
 
@@ -551,7 +551,7 @@ export default async function ProjectTrackerPage() {
                 The aesthetic, stated once. This product is infrastructure, and its whole job is
                 holding boundaries: between tenants, between roles, between what a credential may
                 read and what it may not. Infrastructure that holds looks like a technical drawing.
-                The material vocabulary is conduit and patina: copper carries current between places
+                The material vocabulary is aLcassa and patina: copper carries current between places
                 without being the current, and oxidises to verdigris as evidence it has been
                 working. Six hues, one meaning each. One weight of type, because a technical drawing
                 has no bold either. Tinted surfaces instead of shadows.
@@ -585,7 +585,7 @@ export default async function ProjectTrackerPage() {
             <div className="flex items-center gap-3">
               <Mark size={20} />
               <div>
-                <div className="t-chip text-[var(--ink-primary)]">Conduit</div>
+                <div className="t-chip text-[var(--ink-primary)]">aLcassa</div>
                 <div className="t-caption text-[var(--ink-tertiary)]">
                   {ENGAGEMENT.studio} · {ENGAGEMENT.studioLocation}
                 </div>
@@ -600,7 +600,7 @@ export default async function ProjectTrackerPage() {
           </div>
 
           <p className="t-caption mt-6 text-[var(--ink-tertiary)]">
-            Commercial in confidence. Conduit is the codename for the design system and this
+            Commercial in confidence. aLcassa is the codename for the design system and this
             document set, not a proposed product name.
           </p>
         </footer>

@@ -108,7 +108,7 @@ function AccessTelemetryCard() {
               {active.status}
             </span>
           </div>
-          <code className="t-code text-[10px] font-mono text-amber-600 dark:text-amber-400 font-semibold">
+          <code className="t-code text-[10px] font-mono text-amber-600 dark:text-amber-400 font-normal">
             {active.code}
           </code>
         </div>
@@ -124,7 +124,7 @@ function AccessTelemetryCard() {
             ISOLATION
           </span>
           <span
-            className="t-data text-xs font-semibold mt-0.5 block"
+            className="t-data text-xs font-normal mt-0.5 block"
             style={{ color: 'var(--text-primary)' }}
           >
             ROW-LEVEL
@@ -134,7 +134,7 @@ function AccessTelemetryCard() {
           <span className="t-eyebrow block" style={{ color: 'var(--text-tertiary)' }}>
             KEYS
           </span>
-          <span className="t-data text-xs font-semibold text-amber-600 dark:text-amber-400 mt-0.5 block font-mono">
+          <span className="t-data text-xs font-normal text-amber-600 dark:text-amber-400 mt-0.5 block font-mono">
             ARGON2ID
           </span>
         </div>
@@ -142,7 +142,7 @@ function AccessTelemetryCard() {
           <span className="t-eyebrow block" style={{ color: 'var(--text-tertiary)' }}>
             AUDIT
           </span>
-          <span className="t-data text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5 block font-mono">
+          <span className="t-data text-xs font-normal text-emerald-600 dark:text-emerald-400 mt-0.5 block font-mono">
             APPEND-ONLY
           </span>
         </div>
@@ -264,7 +264,7 @@ export function PlatformAside() {
               </span>
             </div>
             <span
-              className="t-data mt-1.5 block font-semibold text-xs"
+              className="t-data mt-1.5 block font-normal text-xs"
               style={{ color: 'var(--text-primary)' }}
             >
               {value}

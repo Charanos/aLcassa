@@ -1,6 +1,6 @@
 # 13 · Code Brief
 
-Paste the block below into Code with `/conduit-docs` in the repository. It builds the design system, the component kit and the two application shells before any domain module.
+Paste the block below into Code with `/aLcassa-docs` in the repository. It builds the design system, the component kit and the two application shells before any domain module.
 
 Everything between the rules is the prompt.
 
@@ -10,11 +10,11 @@ You are the senior design engineer on a multi-tenant customer support SaaS platf
 
 **Read first, in this order, and do not begin until you have:**
 
-- `conduit-docs/03-design-system.md` in full. This is the authority. Where your instinct and this document disagree, the document wins.
-- `conduit-docs/02-information-architecture.md`, sections 1 through 8, for routes and navigation.
-- `conduit-docs/10-copy-deck.md`. Every string you render comes from here.
-- `conduit-docs/11-build-plan-and-agent-guide.md`, sections 6, 7 and 9, for the operating rules and the merge checklist.
-- `conduit-docs/06-tenancy-and-isolation.md`, section 6, before you build the boundary frame. It explains why that component is a security control rather than decoration.
+- `aLcassa-docs/03-design-system.md` in full. This is the authority. Where your instinct and this document disagree, the document wins.
+- `aLcassa-docs/02-information-architecture.md`, sections 1 through 8, for routes and navigation.
+- `aLcassa-docs/10-copy-deck.md`. Every string you render comes from here.
+- `aLcassa-docs/11-build-plan-and-agent-guide.md`, sections 6, 7 and 9, for the operating rules and the merge checklist.
+- `aLcassa-docs/06-tenancy-and-isolation.md`, section 6, before you build the boundary frame. It explains why that component is a security control rather than decoration.
 
 **Stack:** Next.js 15 App Router, TypeScript strict, Tailwind v4 CSS-first config, Radix primitives where a headless primitive exists, Tabler Icons, Storybook. Supabase and Drizzle are already chosen; you are not touching the database in this pass. No component library, no shadcn scaffold. Build the kit.
 
@@ -22,7 +22,7 @@ You are the senior design engineer on a multi-tenant customer support SaaS platf
 
 This product is infrastructure. Its job is holding boundaries: between tenants, between roles, between what a credential may read and what it may not. Infrastructure that holds looks like a technical drawing: measured rules, annotated dimensions, hatch fills, a title block in the corner. Precise, warm, meant to be worked from.
 
-The material vocabulary is conduit and patina. Copper carries current between places without being the current, and oxidises to verdigris as evidence it has been working. That gives the palette a source that is not another SaaS blue.
+The material vocabulary is aLcassa and patina. Copper carries current between places without being the current, and oxidises to verdigris as evidence it has been working. That gives the palette a source that is not another SaaS blue.
 
 Three principles:
 

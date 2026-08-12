@@ -3,7 +3,7 @@
    ────────────────────────────────────────────────────────────────────────────
    Single source of truth for all design values. Ported verbatim from the
    client identity handoff (`docs/tokens.css`, `docs/BRAND.md`,
-   `docs/03-design-system.md`), which supersedes the previous "Conduit" token
+   `docs/03-design-system.md`), which supersedes the previous "aLcassa" token
    system in full.
 
    Structure:
@@ -641,7 +641,7 @@
  *
  * ⚠ MIGRATION SCAFFOLD. DO NOT WRITE NEW CODE AGAINST THESE NAMES.
  *
- * The previous token system ("Conduit": copper, verdigris, ochre, oxide,
+ * The previous token system ("aLcassa": copper, verdigris, ochre, oxide,
  * slate, graphite on a vellum ground) is referenced ~370 times across ~48
  * component files. Deleting those names in one commit would take every
  * surface in the product down at once, which is the worst possible way to

@@ -30,13 +30,13 @@ if (!connectionString) {
 }
 
 declare global {
-  var __conduitSql: ReturnType<typeof postgres> | undefined;
+  var __aLcassaSql: ReturnType<typeof postgres> | undefined;
 }
 
 // One pool across hot reloads in development. In production each serverless
 // instance gets its own, which is what the connection ceiling in 04 §8 counts.
 const sql =
-  globalThis.__conduitSql ??
+  globalThis.__aLcassaSql ??
   postgres(connectionString, {
     prepare: false,
     max: process.env.NODE_ENV === 'production' ? 10 : 4,
@@ -44,7 +44,7 @@ const sql =
     connect_timeout: 10,
   });
 
-if (process.env.NODE_ENV !== 'production') globalThis.__conduitSql = sql;
+if (process.env.NODE_ENV !== 'production') globalThis.__aLcassaSql = sql;
 
 export const db = drizzle(sql, { schema });
 

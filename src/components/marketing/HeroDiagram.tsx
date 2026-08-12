@@ -177,7 +177,7 @@ export function HeroDiagram() {
         <div className="flex items-start justify-between gap-2">
           <span className="flex items-center gap-2.5">
             <Mark size={20} tone="brand" />
-            <span className="t-chip font-bold tracking-wider text-[11px]" style={{ color: 'var(--workspace-card-fg)' }}>
+            <span className="t-chip font-medium tracking-wider text-[11px]" style={{ color: 'var(--workspace-card-fg)' }}>
               YOUR WORKSPACE
             </span>
           </span>
@@ -193,7 +193,7 @@ export function HeroDiagram() {
             className="size-2 shrink-0 rounded-full animate-pulse"
             style={{ background: 'var(--workspace-card-status)' }}
           />
-          <span className="t-eyebrow text-[10px] font-semibold tracking-wider" style={{ color: 'var(--workspace-card-fg)', opacity: 0.9 }}>
+          <span className="t-eyebrow text-[10px] font-normal tracking-wider" style={{ color: 'var(--workspace-card-fg)', opacity: 0.9 }}>
             LIVE AND ISOLATED
           </span>
         </div>

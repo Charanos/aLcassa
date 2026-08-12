@@ -209,7 +209,7 @@ export function InteractiveFeatures() {
             <div className="space-y-3 animate-hero-reveal">
               <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 <span>MULTI-TENANT PERMISSION TOPOLOGY</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">RBAC ENFORCED</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-normal">RBAC ENFORCED</span>
               </div>
 
               {/* Compact Visual Role Topology SVG Diagram */}
@@ -227,13 +227,13 @@ export function InteractiveFeatures() {
                   {/* Leaf Nodes */}
                   <g transform="translate(15, 60)">
                     <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--accent-mark)" strokeWidth="1.25" />
-                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow font-bold" fontSize="9">OWNER</text>
+                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow font-medium" fontSize="9">OWNER</text>
                     <text x="45" y="28" textAnchor="middle" fill="var(--text-tertiary)" className="t-micro" fontSize="7">FULL ACCESS</text>
                   </g>
 
                   <g transform="translate(135, 60)">
                     <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--border-strong)" strokeWidth="1" />
-                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow font-semibold" fontSize="9">ADMIN</text>
+                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow font-normal" fontSize="9">ADMIN</text>
                     <text x="45" y="28" textAnchor="middle" fill="var(--text-tertiary)" className="t-micro" fontSize="7">CONFIG MODE</text>
                   </g>
 
@@ -251,7 +251,7 @@ export function InteractiveFeatures() {
             <div className="space-y-3 animate-hero-reveal">
               <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 <span>DATABASE TENANT ISOLATION BARRIER</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">ZERO LEAKAGE</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-normal">ZERO LEAKAGE</span>
               </div>
 
               {/* Compact RLS Isolation Wall Diagram */}
@@ -259,19 +259,19 @@ export function InteractiveFeatures() {
                 <svg viewBox="0 0 360 90" fill="none" className="w-full h-auto max-h-[120px]">
                   {/* Tenant A Zone */}
                   <rect x="10" y="8" width="150" height="74" rx="4" fill="var(--surface-raised)" stroke="var(--success-fg)" strokeWidth="1" />
-                  <text x="85" y="26" textAnchor="middle" fill="var(--success-fg)" className="t-eyebrow font-semibold" fontSize="9">TENANT A ISOLATION</text>
+                  <text x="85" y="26" textAnchor="middle" fill="var(--success-fg)" className="t-eyebrow font-normal" fontSize="9">TENANT A ISOLATION</text>
                   <path d="M 25 45 L 145 45" stroke="var(--success-fg)" strokeWidth="1.5" strokeDasharray="3 3" />
                   <text x="85" y="62" textAnchor="middle" fill="var(--text-secondary)" className="t-micro" fontSize="8">AUTHORIZED</text>
 
                   {/* Hard Isolation Wall */}
                   <line x1="180" y1="8" x2="180" y2="82" stroke="var(--accent-mark)" strokeWidth="2" strokeDasharray="4 2" />
-                  <text x="180" y="48" textAnchor="middle" fill="var(--accent-mark-text)" className="t-micro font-mono font-bold" fontSize="7" transform="rotate(-90 180 48)">RLS BARRIER</text>
+                  <text x="180" y="48" textAnchor="middle" fill="var(--accent-mark-text)" className="t-micro font-mono font-medium" fontSize="7" transform="rotate(-90 180 48)">RLS BARRIER</text>
 
                   {/* Tenant B Blocked Zone */}
                   <rect x="200" y="8" width="150" height="74" rx="4" fill="var(--surface-raised)" stroke="var(--danger-fg)" strokeWidth="1" opacity="0.8" />
-                  <text x="275" y="26" textAnchor="middle" fill="var(--danger-fg)" className="t-eyebrow font-semibold" fontSize="9">TENANT B DATA</text>
+                  <text x="275" y="26" textAnchor="middle" fill="var(--danger-fg)" className="t-eyebrow font-normal" fontSize="9">TENANT B DATA</text>
                   <path d="M 215 45 L 335 45" stroke="var(--danger-fg)" strokeWidth="1.5" />
-                  <text x="275" y="62" textAnchor="middle" fill="var(--danger-fg)" className="t-micro font-semibold" fontSize="8">BLOCKED</text>
+                  <text x="275" y="62" textAnchor="middle" fill="var(--danger-fg)" className="t-micro font-normal" fontSize="8">BLOCKED</text>
                 </svg>
               </div>
             </div>
@@ -281,7 +281,7 @@ export function InteractiveFeatures() {
             <div className="space-y-3 animate-hero-reveal">
               <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 <span>ONE-WAY ARGON2 CRYPTOGRAPHIC ENGINE</span>
-                <span className="text-amber-600 dark:text-amber-400 font-semibold">NON-RETRIEVABLE</span>
+                <span className="text-amber-600 dark:text-amber-400 font-normal">NON-RETRIEVABLE</span>
               </div>
 
               {/* Compact One-Way Hash Flow Graphic */}
@@ -293,7 +293,7 @@ export function InteractiveFeatures() {
                   </div>
 
                   <div
-                    className="shrink-0 font-mono t-caption px-1 font-semibold"
+                    className="shrink-0 font-mono t-caption px-1 font-normal"
                     style={{ color: 'var(--accent-mark-text)' }}
                   >
                     &rarr; ARGON2 &rarr;
@@ -314,7 +314,7 @@ export function InteractiveFeatures() {
                 <span className="flex items-center gap-1.5">
                   <IconTerminal size={14} className="text-amber-500" /> GET /api/v1/rules
                 </span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">&lt; 5s PROPAGATION</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-normal">&lt; 5s PROPAGATION</span>
               </div>
               <pre className="t-code text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed overflow-x-auto p-4 bg-[var(--surface-sunken)] rounded-panel border border-[var(--border-subtle)] border-l-4" style={{ borderLeftColor: 'var(--accent-mark)' }}>
                 {`{
@@ -331,7 +331,7 @@ export function InteractiveFeatures() {
             <div className="space-y-3 animate-hero-reveal">
               <div className="flex items-center justify-between t-eyebrow text-[var(--text-tertiary)]">
                 <span>ACTIVITY LOG STREAM</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">IMMUTABLE APPEND-ONLY</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-normal">IMMUTABLE APPEND-ONLY</span>
               </div>
               <div className="divide-y border rounded-chip bg-[var(--surface-sunken)] overflow-hidden" style={{ borderColor: 'var(--border-subtle)' }}>
                 <div className="flex items-center justify-between p-3 t-compact">

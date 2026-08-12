@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import gsap from 'gsap';
 
 /**
- * Motion foundation. Conduit sheet 13: "reduced motion loses nothing — every
+ * Motion foundation. aLcassa sheet 13: "reduced motion loses nothing — every
  * token resolves to zero except the skeleton, which becomes a static tint."
  *
  * `prefers-reduced-motion` is a CSS media query and has no effect on GSAP,

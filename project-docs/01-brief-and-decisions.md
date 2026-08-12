@@ -12,18 +12,18 @@ The platform layer beneath a customer support inbox. Tenancy, authentication, su
 
 Ten requirements, taken from the brief and restated in the order they will be built rather than the order they were sent.
 
-| # | Requirement | Milestone |
-|---|---|---|
-| 1 | Multi-tenant architecture, isolated per tenant | M1 |
-| 2 | Auth: login, reset, sessions, roles, invitations | M2 |
-| 3 | Subscription structure, no billing automation | M3 |
-| 8 | Master and tenant AI rules, readable via API | M3, M4a |
-| 4 | Platform console with separate owner login | M4 |
-| 5 | Tenant settings, company profile, secure credentials | M5 |
-| 9 | Knowledge base and customer record seams | M4a |
-| 6 | Logging, errors, audit trail, secrets | Throughout |
-| 10 | Platform health monitoring | M6 |
-| 7 | Documentation for every part | Throughout, gated at M6 |
+| #   | Requirement                                          | Milestone               |
+| --- | ---------------------------------------------------- | ----------------------- |
+| 1   | Multi-tenant architecture, isolated per tenant       | M1                      |
+| 2   | Auth: login, reset, sessions, roles, invitations     | M2                      |
+| 3   | Subscription structure, no billing automation        | M3                      |
+| 8   | Master and tenant AI rules, readable via API         | M3, M4a                 |
+| 4   | Platform console with separate owner login           | M4                      |
+| 5   | Tenant settings, company profile, secure credentials | M5                      |
+| 9   | Knowledge base and customer record seams             | M4a                     |
+| 6   | Logging, errors, audit trail, secrets                | Throughout              |
+| 10  | Platform health monitoring                           | M6                      |
+| 7   | Documentation for every part                         | Throughout, gated at M6 |
 
 ## 2. What is deliberately not being built
 
@@ -47,7 +47,7 @@ Four audiences. Only two of them are humans using an interface every day.
 
 The product has no name in the brief. It is referred to as "a customer support SaaS" throughout.
 
-**Conduit** is the codename for the design system and this document set, not a proposed product name. It describes the thing accurately: the layer that carries messages between systems without being the message. If Brian wants a product name later, only `03 §22` and a handful of strings in `10` change.
+**aLcassa** is the codename for the design system and this document set, not a proposed product name. It describes the thing accurately: the layer that carries messages between systems without being the message. If Brian wants a product name later, only `03 §22` and a handful of strings in `10` change.
 
 Ask him at design lock whether a name and any brand assets exist. If they do not, the interface ships with the placeholder mark in `03 §22` and looks deliberate rather than unfinished.
 
@@ -107,11 +107,11 @@ Every one of those has a database fallback on miss. The definition of done inclu
 
 The brief lists this as blocking for week one and it is. Three candidate models, and they produce different tables:
 
-| Model | Behaviour | Cost |
-|---|---|---|
-| **Master wins** | Platform rules override tenant rules on conflict | Simple, and tenants will be surprised by it |
-| **Tenant wins** | Tenant rules override master on conflict | Simple, and Brian loses the ability to enforce anything |
-| **Layered** | Master is the base, tenant appends, specific fields are marked non-overridable by the platform | More work, and it is the one that survives contact with real customers |
+| Model           | Behaviour                                                                                      | Cost                                                                   |
+| --------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| **Master wins** | Platform rules override tenant rules on conflict                                               | Simple, and tenants will be surprised by it                            |
+| **Tenant wins** | Tenant rules override master on conflict                                                       | Simple, and Brian loses the ability to enforce anything                |
+| **Layered**     | Master is the base, tenant appends, specific fields are marked non-overridable by the platform | More work, and it is the one that survives contact with real customers |
 
 **Recommendation: layered.** Master rules carry a per-field `overridable` boolean. Tenants can change what is permitted and see plainly what is not. It costs perhaps a day more than the naive options and it removes an entire category of future support conversation.
 
@@ -139,21 +139,21 @@ The definition of done tests this from every application route. Rotation replace
 
 Worth stating because the house style leans monochrome. This is a dense operational console where a person needs to distinguish tenant status, plan tier, subscription state, credential health, service status and audit severity at a glance, often in a table. Restricting colour to a rare signal would make it harder to use, not more elegant.
 
-So Conduit uses colour functionally and systematically, with a disciplined palette and a strict semantic mapping. The restraint moves to form: one weight of type, no shadows below the overlay layer, no decoration. `03 §3`.
+So aLcassa uses colour functionally and systematically, with a disciplined palette and a strict semantic mapping. The restraint moves to form: one weight of type, no shadows below the overlay layer, no decoration. `03 §3`.
 
 ---
 
 ## 6. Risks, restated with what we do about them
 
-| Risk | Response |
-|---|---|
-| A policy gap leaks data across tenants | Automated isolation suite in CI covering every table, plus manual policy review at M1 and M6. A new table without a policy fails the build |
-| Phase 2 reveals a wrong foundation assumption | The adapter contract is written and reviewed at M0, before the schema is locked. `04 §9` |
-| Plan changes mid-build | Entitlements are data. A tier change is a row |
-| Phase 2 picks a different embedding model | The vector column records which model produced it. Confirming the model in week 1 avoids the problem entirely |
-| A stale cache serves outdated AI rules | Invalidation is explicit on write. Contract: five seconds normally, 300 seconds worst case, stated in the API docs |
-| Customer personal data reaches a log or an over-broad credential | Redaction covers those fields, scopes prevent an ingestion key from reading them |
-| **Scope drift through helpfulness** | Added by me, and it is the likeliest risk on a fixed-fee engagement. Every request outside sections 02 and the amendment goes through the change note process before any code is written. Nine weeks with two developers has no slack in it |
+| Risk                                                             | Response                                                                                                                                                                                                                                    |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A policy gap leaks data across tenants                           | Automated isolation suite in CI covering every table, plus manual policy review at M1 and M6. A new table without a policy fails the build                                                                                                  |
+| Phase 2 reveals a wrong foundation assumption                    | The adapter contract is written and reviewed at M0, before the schema is locked. `04 §9`                                                                                                                                                    |
+| Plan changes mid-build                                           | Entitlements are data. A tier change is a row                                                                                                                                                                                               |
+| Phase 2 picks a different embedding model                        | The vector column records which model produced it. Confirming the model in week 1 avoids the problem entirely                                                                                                                               |
+| A stale cache serves outdated AI rules                           | Invalidation is explicit on write. Contract: five seconds normally, 300 seconds worst case, stated in the API docs                                                                                                                          |
+| Customer personal data reaches a log or an over-broad credential | Redaction covers those fields, scopes prevent an ingestion key from reading them                                                                                                                                                            |
+| **Scope drift through helpfulness**                              | Added by me, and it is the likeliest risk on a fixed-fee engagement. Every request outside sections 02 and the amendment goes through the change note process before any code is written. Nine weeks with two developers has no slack in it |
 
 ## 7. Definition of done
 
@@ -161,14 +161,14 @@ Verbatim from the brief, because these are the acceptance criteria and paraphras
 
 ## 8. What Brian owes us, and when
 
-| Item | When | Blocks |
-|---|---|---|
-| Written approval of the brief | Before kick-off | Everything |
-| Supabase organisation access | Week 1 | M1 |
-| GitHub organisation access | Week 1 | M1 |
-| Embedding model Phase 2 will use | Week 1 | M4a seam |
-| Precedence between master and tenant AI rules | Week 1 | M4a, and the schema |
-| Confirmed plan tiers with limits | Week 4 | M3 |
+| Item                                          | When            | Blocks              |
+| --------------------------------------------- | --------------- | ------------------- |
+| Written approval of the brief                 | Before kick-off | Everything          |
+| Supabase organisation access                  | Week 1          | M1                  |
+| GitHub organisation access                    | Week 1          | M1                  |
+| Embedding model Phase 2 will use              | Week 1          | M4a seam            |
+| Precedence between master and tenant AI rules | Week 1          | M4a, and the schema |
+| Confirmed plan tiers with limits              | Week 4          | M3                  |
 
 ## 9. Questions to close at design lock
 

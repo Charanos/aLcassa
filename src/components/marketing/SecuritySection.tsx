@@ -132,7 +132,7 @@ export function SecuritySection() {
                 }}
               >
                 <span className="t-compact" style={{ color: 'var(--invert-card-subtle)' }}>Time Remaining:</span>
-                <span className="numeric font-mono text-[14px] font-semibold text-rose-400 dark:text-rose-600 tracking-wider">
+                <span className="numeric font-mono text-[14px] font-normal text-rose-400 dark:text-rose-600 tracking-wider">
                   {formatTime(secondsRemaining)}
                 </span>
               </div>

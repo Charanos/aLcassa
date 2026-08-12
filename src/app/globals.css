@@ -147,7 +147,7 @@
      * nobody can say when.
      *
      * 03 §6 caps the system at weight 500. This line is what makes that cap
-     * VISIBLE rather than merely stated — a stray `font-bold` now renders at
+     * VISIBLE rather than merely stated — a stray `font-medium` now renders at
      * 500 instead of quietly faking a 700 that nobody notices in review. */
     font-synthesis: none;
 
@@ -244,9 +244,9 @@
 
   a,
   button,
-  [role="button"],
-  input[type="submit"],
-  input[type="reset"] {
+  [role='button'],
+  input[type='submit'],
+  input[type='reset'] {
     cursor: pointer;
   }
 

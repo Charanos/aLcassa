@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@theme {
+  --color-sheet: var(--sheet);
+  --color-sheet-raised: var(--sheet-raised);
+  --color-sheet-sunk: var(--sheet-sunk);
+  --color-graphite-900: var(--graphite-900);
+  --color-graphite-700: var(--graphite-700);
+  --color-graphite-500: var(--graphite-500);
+  --color-graphite-400: var(--graphite-400);
+  --color-copper-600: var(--copper-600);
+  --color-verdigris-500: var(--verdigris-500);
+  --color-ochre-500: var(--ochre-500);
+  --color-oxide-500: var(--oxide-500);
+  --color-slate-500: var(--slate-500);
+  --color-rule: var(--rule);
+
+  --font-serif: var(--font-libertinus-serif), Georgia, serif;
+  --font-sans: var(--font-libertinus-sans), system-ui, sans-serif;
+  --font-mono: var(--font-fira-code), 'Libertinus Mono', ui-monospace, monospace;
+
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 6px;
+}
+
+* {
+  font-synthesis: none;
+}
+
+html {
+  color-scheme: light;
+}
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-feature-settings: 'tnum' 1;
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+/* Type scale — 03 §5 */
+.t-h1 { font-family: var(--font-serif); font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.005em; }
+.t-h2 { font-family: var(--font-serif); font-size: 1.375rem; line-height: 1.25; }
+.t-h3 { font-family: var(--font-sans); font-size: 1.0625rem; line-height: 1.4; }
+.t-body { font-family: var(--font-sans); font-size: 0.9375rem; line-height: 1.6; }
+.t-compact { font-family: var(--font-sans); font-size: 0.875rem; line-height: 1.55; }
+.t-caption { font-family: var(--font-sans); font-size: 0.8125rem; line-height: 1.45; letter-spacing: 0.005em; }
+.t-eyebrow,
+.t-label {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.t-data { font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.t-data-sm { font-family: var(--font-mono); font-size: 0.8125rem; line-height: 1.45; font-variant-numeric: tabular-nums; }
+.t-chip { font-family: var(--font-sans); font-size: 0.875rem; line-height: 1.4; }
+.t-data-caps {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.rounded-chip { border-radius: var(--r-sm); }
+
+/* Hatch fill — 03 §6 */
+.hatch-fill {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--graphite-300) 0px,
+    var(--graphite-300) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
