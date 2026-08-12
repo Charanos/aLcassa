@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import gsap from 'gsap';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -27,6 +27,7 @@ import { Mark } from '@/components/brand/Mark';
 import { CONSOLE_ICONS } from './icons';
 import { SupportSessionBanner } from './SupportSessionBanner';
 import { StartSessionDialog } from './StartSessionDialog';
+import { ProvisionWorkspaceDialog } from './ProvisionWorkspaceDialog';
 import { gsapSafe, prefersReducedMotion } from '@/lib/motion';
 import { useToast } from '@/components/primitives/Toast';
 import type {
@@ -133,7 +134,19 @@ export function ConsoleShell({
 }: ConsoleShellProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const pushToast = useToast();
+
+  // `/platform/tenants/new` redirects to `?provision=1` rather than owning a
+  // route, so the flow keeps a deep-linkable URL from any console page
+  // without the modal needing its own server component parent.
+  const provisionOpen = searchParams.get('provision') === '1';
+  const closeProvision = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('provision');
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [searchParams, pathname, router]);
 
   const [collapsed, setCollapsed] = useState(nav === 'collapsed');
   const [openMenu, setOpenMenu] = useState<'switcher' | 'notices' | 'account' | null>(null);
@@ -236,7 +249,7 @@ export function ConsoleShell({
     }));
     const actions = [
       {
-        key: '/platform/tenants/new',
+        key: '/platform?provision=1',
         label: 'Provision a workspace',
         hint: '/platform/tenants/new',
         kind: 'ACTION',
@@ -1222,6 +1235,13 @@ export function ConsoleShell({
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
+      <ProvisionWorkspaceDialog
+        open={provisionOpen}
+        onOpenChange={(next) => {
+          if (!next) closeProvision();
+        }}
+      />
 
       {pendingWorkspace ? (
         <StartSessionDialog

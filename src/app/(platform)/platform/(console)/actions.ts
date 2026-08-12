@@ -10,7 +10,13 @@ import {
   type Density,
   type NavState,
 } from '@/lib/console/session';
-import { getWorkspaceDetail, type WorkspaceDetail } from '@/lib/console/data';
+import {
+  getProvisionOptions,
+  getWorkspaceDetail,
+  getWorkspaces,
+  type ProvisionModel,
+  type WorkspaceDetail,
+} from '@/lib/console/data';
 
 /**
  * Console server actions.
@@ -145,6 +151,21 @@ export async function endSupportSession(): Promise<void> {
  */
 export async function fetchWorkspaceDetail(slug: string): Promise<WorkspaceDetail | null> {
   return getWorkspaceDetail(slug);
+}
+
+/**
+ * Read model for the provision-workspace modal: the plan set and the real
+ * slugs already in use, fetched on open rather than threaded down as props —
+ * the modal is reachable from `?provision=1` on any console page, not only
+ * `/platform/tenants`, so it has no single server-component parent to hand
+ * it these.
+ */
+export async function fetchProvisionOptions(): Promise<{
+  options: ProvisionModel;
+  existingSlugs: string[];
+}> {
+  const [options, workspaces] = await Promise.all([getProvisionOptions(), getWorkspaces()]);
+  return { options, existingSlugs: workspaces.map((w) => w.slug) };
 }
 
 /* ── Workspace suspension ─────────────────────────────────────────────────── */

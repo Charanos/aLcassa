@@ -261,9 +261,9 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'Console',
-    what: 'Provision: five-field workspace creation with a real slug-uniqueness check',
+    what: 'Provision: five-field workspace creation with a real slug-uniqueness check, as a modal deep-linkable via ?provision=1',
     state: 'built',
-    evidence: 'src/components/console/ProvisionForm.tsx',
+    evidence: 'src/components/console/ProvisionWorkspaceDialog.tsx',
     milestone: 'M4',
   },
   {
