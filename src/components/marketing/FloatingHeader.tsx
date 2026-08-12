@@ -122,8 +122,7 @@ export function FloatingHeader({ theme, session }: FloatingHeaderProps) {
         style={{ transitionDuration: 'var(--duration-slow)' }}
       >
         <div
-          className="mx-auto flex h-16 items-center justify-between gap-4 px-5 md:px-8"
-          style={{ maxWidth: 'var(--content-max)' }}
+          className="mx-auto flex h-16 w-full max-w-[1680px] items-center justify-between gap-4 px-5 md:px-8"
         >
           <Link
             href="/"

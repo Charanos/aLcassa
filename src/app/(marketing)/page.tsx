@@ -23,8 +23,8 @@ import { SecuritySection } from '@/components/marketing/SecuritySection';
 import { LiveSpecPlayground } from '@/components/marketing/LiveSpecPlayground';
 import { getThemePreference, resolveTheme } from '@/lib/theme';
 
-const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'conduit_tenant_session';
-const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'conduit_platform_session';
+const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'aLcassa_tenant_session';
+const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'aLcassa_platform_session';
 
 export const metadata: Metadata = {
   title: { absolute: 'One inbox for every message your customers send · aLcassa' },
@@ -152,51 +152,46 @@ export default async function MarketingPage() {
 
       <main
         id="main"
-        className="relative z-10 mx-auto px-5 pt-6 pb-32 md:px-8"
-        style={{ maxWidth: 'var(--content-max)' }}
+        className="relative z-10 mx-auto w-full max-w-[1280px] px-5 pt-6 pb-32 md:px-8"
       >
         {/* ── Hero. Spacious balanced layout: Diagram left, expansive copy right. ── */}
         <section
           id="overview"
-          className="relative grid gap-10 pt-12 md:pt-24 lg:grid-cols-[450px_1fr] xl:grid-cols-[480px_1fr] lg:items-center lg:gap-14"
+          className="relative mx-auto grid w-full max-w-[1240px] gap-8 pt-12 md:pt-20 lg:grid-cols-[490px_minmax(0,1fr)] lg:items-center lg:gap-12 xl:gap-16 justify-center"
         >
           <div
-            className="relative z-10 hidden justify-center justify-self-start lg:flex shrink-0"
+            className="relative z-10 hidden justify-center justify-self-center lg:flex shrink-0"
             style={{ width: '490px', height: '420px' }}
           >
             <HeroDiagram />
           </div>
 
-          <div className="animate-hero-reveal relative z-10 lg:pl-2" style={{ animationDelay: '100ms' }}>
-            <div className="flex items-center gap-3">
-              <span
-                aria-hidden
-                className="block h-px w-8"
-                style={{ background: 'var(--accent-mark)' }}
-              />
-              <p className="t-eyebrow font-medium tracking-widest text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-                Customer support platform
-              </p>
+          <div className="animate-hero-reveal relative z-10 w-full" style={{ animationDelay: '100ms' }}>
+            <div className="inline-flex items-center gap-2.5 rounded-full px-3 py-1 text-[11px] font-mono tracking-widest uppercase" style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: 'var(--accent-mark)' }} />
+                <span className="relative inline-flex size-2 rounded-full" style={{ background: 'var(--accent-mark)' }} />
+              </span>
+              <span style={{ color: 'var(--text-secondary)' }}>Multi-Tenant Architecture</span>
             </div>
 
             <h1 
-              className="display mt-5 text-[38px] sm:text-[46px] md:text-[50px] lg:text-[48px] xl:text-[54px] font-medium leading-[1.12]" 
+              className="display mt-5 text-[40px] sm:text-[48px] md:text-[52px] lg:text-[50px] xl:text-[56px] font-medium leading-[1.08] tracking-tight" 
               style={{ color: 'var(--text-primary)' }}
             >
               One inbox for every message<br className="hidden sm:inline" /> your customers send.
             </h1>
 
             <p
-              className="t-lede mt-5"
-              style={{ color: 'var(--text-secondary)', maxWidth: 'var(--measure-prose)' }}
+              className="t-lede mt-4 text-[16px] sm:text-[17px] md:text-[18px] leading-[1.6]"
+              style={{ color: 'var(--text-secondary)', maxWidth: '52ch' }}
             >
-              WhatsApp, Instagram, Messenger and your website, handled in one place by one team.
-              Currently in development.
+              WhatsApp, Instagram, Messenger and your website, handled in one unified workspace by your team with strict tenant isolation.
             </p>
 
             {isAuthenticated ? (
               <div
-                className="animate-hero-reveal mt-8 flex flex-col gap-3.5"
+                className="animate-hero-reveal mt-7 flex flex-col gap-3.5"
                 style={{ animationDelay: '250ms' }}
               >
                 <div className="flex flex-wrap items-center gap-3.5">
@@ -216,7 +211,7 @@ export default async function MarketingPage() {
               </div>
             ) : (
               <div
-                className="animate-hero-reveal mt-8 flex flex-wrap items-center gap-3.5"
+                className="animate-hero-reveal mt-7 flex flex-wrap items-center gap-3.5"
                 style={{ animationDelay: '250ms' }}
               >
                 <Button asChild variant="primary" size="lg">
@@ -537,8 +532,7 @@ export default async function MarketingPage() {
         </div>
 
         <div
-          className="relative z-10 mx-auto px-5 py-16 md:px-8"
-          style={{ maxWidth: 'var(--content-max)' }}
+          className="relative z-10 mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8"
         >
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-4 lg:col-span-2">
