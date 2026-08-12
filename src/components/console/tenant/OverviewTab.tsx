@@ -94,7 +94,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
         <div className="flex-1 p-5 sm:p-6 sm:pl-8 relative">
           <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Topology & RLS</div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="inline-flex size-2 rounded-full bg-emerald-400" />
+            <span className="inline-flex size-2 rounded-full" style={{ background: 'var(--success-fg)' }} />
             <span className="font-mono text-base sm:text-lg font-medium" style={{ color: 'var(--invert-card-fg)' }}>
               Isolated Schema
             </span>
@@ -318,7 +318,14 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 <IconShieldCheck size={16} stroke={1.5} style={{ color: 'var(--success-fg)' }} aria-hidden />
                 <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>RLS Isolation</span>
               </div>
-              <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              <span
+                className="font-mono text-[10px] px-2 py-0.5 rounded"
+                style={{
+                  background: 'var(--success-bg)',
+                  color: 'var(--success-fg)',
+                  border: '1px solid var(--success-fg)',
+                }}
+              >
                 Active
               </span>
             </div>

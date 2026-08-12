@@ -65,7 +65,7 @@ export default async function AdminsPage() {
     <ConsolePage>
       {/* Iconography watermarks safely contained */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-        <div className="absolute top-[20%] -left-10 hidden -rotate-[15deg] text-emerald-500/[0.03] dark:text-emerald-300/[0.05] lg:block">
+        <div className="absolute top-[20%] -left-10 hidden -rotate-[15deg] lg:block" style={{ color: 'var(--watermark-tint)' }}>
           <IconShieldLock size={360} stroke={1} />
         </div>
       </div>
@@ -87,7 +87,7 @@ export default async function AdminsPage() {
         <button
           type="button"
           className="t-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-          style={{ background: 'var(--accent-500)', color: '#ffffff', fontWeight: 500 }}
+          style={{ background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
         >
           <IconUserPlus size={15} stroke={1.5} aria-hidden />
           Invite admin

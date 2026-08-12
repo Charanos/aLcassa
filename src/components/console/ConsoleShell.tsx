@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import gsap from 'gsap';
+import * as Dialog from '@radix-ui/react-dialog';
 import {
   IconAlertTriangle,
   IconArrowUpRight,
@@ -26,6 +27,8 @@ import { Mark } from '@/components/brand/Mark';
 import { CONSOLE_ICONS } from './icons';
 import { SupportSessionBanner } from './SupportSessionBanner';
 import { StartSessionDialog } from './StartSessionDialog';
+import { gsapSafe, prefersReducedMotion } from '@/lib/motion';
+import { useToast } from '@/components/primitives/Toast';
 import type {
   ConsoleAccount,
   ConsoleNavGroup,
@@ -130,6 +133,7 @@ export function ConsoleShell({
 }: ConsoleShellProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const pushToast = useToast();
 
   const [collapsed, setCollapsed] = useState(nav === 'collapsed');
   const [openMenu, setOpenMenu] = useState<'switcher' | 'notices' | 'account' | null>(null);
@@ -142,6 +146,7 @@ export function ConsoleShell({
 
   const paletteInput = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const navElRef = useRef<HTMLElement>(null);
 
   const expanded = !collapsed;
   void expanded; // used structurally via `collapsed` inverse
@@ -185,10 +190,6 @@ export function ConsoleShell({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [toggleCollapse, closeAll]);
-
-  useEffect(() => {
-    if (paletteOpen) paletteInput.current?.focus();
-  }, [paletteOpen]);
 
   /* A dropdown that only closes on Escape is a dropdown that stays open while
      the operator clicks something else entirely. The design file has no
@@ -270,37 +271,49 @@ export function ConsoleShell({
   const isInitialNavRender = useRef(true);
   const indicatorSettleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  /* Scopes every nav tween to the nav container: `.revert()` on unmount kills
+     anything still running and restores original inline styles, so a tween
+     started right before a route/layout swap can never animate a detached or
+     recycled node. */
+  const navCtx = useRef<gsap.Context | null>(null);
+  useEffect(() => {
+    navCtx.current = gsap.context(() => {}, navContainerRef);
+    return () => navCtx.current?.revert();
+  }, []);
+
   /**
    * Snaps the GSAP indicator to the active nav item.
    * Always reads offsetTop AFTER CSS transitions have settled so measurements
    * are never taken mid-transition (which caused the floating artefact).
    */
   const snapIndicator = useCallback((activeHref: string, immediate = false) => {
-    const activeEl = itemRefs.current[activeHref];
-    const indicator = indicatorRef.current;
+    navCtx.current?.add(() => {
+      const activeEl = itemRefs.current[activeHref];
+      const indicator = indicatorRef.current;
 
-    if (!activeEl || !indicator) {
-      if (indicator) gsap.set(indicator, { opacity: 0 });
-      return;
-    }
+      if (!activeEl || !indicator) {
+        if (indicator) gsap.set(indicator, { opacity: 0 });
+        return;
+      }
 
-    const top = activeEl.offsetTop;
-    const height = activeEl.offsetHeight;
+      const top = activeEl.offsetTop;
+      const height = activeEl.offsetHeight;
 
-    if (immediate || isInitialNavRender.current) {
-      gsap.killTweensOf(indicator);
-      gsap.set(indicator, { top, height, opacity: 1 });
-      isInitialNavRender.current = false;
-    } else {
-      gsap.killTweensOf(indicator);
-      gsap.to(indicator, {
-        top,
-        height,
-        opacity: 1,
-        duration: 0.3,
-        ease: 'power3.out',
-      });
-    }
+      if (immediate || isInitialNavRender.current) {
+        gsap.killTweensOf(indicator);
+        gsap.set(indicator, { top, height, opacity: 1 });
+        isInitialNavRender.current = false;
+      } else {
+        gsap.killTweensOf(indicator);
+        gsapSafe.to(indicator, {
+          top,
+          height,
+          opacity: 1,
+          duration: 0.3,
+          ease: 'power3.out',
+        });
+      }
+    });
   }, []);
 
   const updateNavIndicator = useCallback((activeHref: string, immediate = false) => {
@@ -314,14 +327,14 @@ export function ConsoleShell({
       const iconSvg = activeEl.querySelector('svg');
       const labelSpan = activeEl.querySelector('.nav-label');
       if (iconSvg) {
-        gsap.fromTo(
+        gsapSafe.fromTo(
           iconSvg,
           { scale: 0.75, rotate: -8 },
           { scale: 1, rotate: 0, duration: 0.38, ease: 'back.out(2.4)' }
         );
       }
       if (labelSpan && indicator) {
-        gsap.fromTo(
+        gsapSafe.fromTo(
           labelSpan,
           { x: -3, opacity: 0.8 },
           { x: 0, opacity: 1, duration: 0.25, ease: 'power2.out' }
@@ -331,9 +344,10 @@ export function ConsoleShell({
   }, [snapIndicator]);
 
   // When collapsed state changes: hide indicator immediately, then re-snap
-  // precisely after the CSS nav-width transition (260ms) fully settles.
+  // once the CSS nav-width transition actually finishes.
   useEffect(() => {
     const indicator = indicatorRef.current;
+    const navEl = navElRef.current;
     if (!indicator) return;
 
     collapsedRef.current = collapsed;
@@ -342,11 +356,9 @@ export function ConsoleShell({
     gsap.killTweensOf(indicator);
     gsap.set(indicator, { opacity: 0 });
 
-    // Clear any pending settle timer
     if (indicatorSettleTimer.current) clearTimeout(indicatorSettleTimer.current);
 
-    // Re-snap after transition completes: 260ms transition + 20ms buffer
-    indicatorSettleTimer.current = setTimeout(() => {
+    const resnap = () => {
       const activeItem = navigation
         .flatMap((g) => g.items)
         .find((item) =>
@@ -355,10 +367,34 @@ export function ConsoleShell({
             : pathname.startsWith(item.href)
         );
       if (activeItem) snapIndicator(activeItem.href, true);
-    }, 280);
+    };
+
+    // `transitionend` fires when the width transition actually completes —
+    // measuring on a fixed delay silently desyncs from the indicator the
+    // moment `--duration-base`/the nav's own transition duration changes.
+    // The timeout below is a fallback only, for `prefers-reduced-motion`
+    // (where the CSS transition is skipped and `transitionend` never fires)
+    // and for the rare case the listener is attached after the transition
+    // has already started.
+    let settled = false;
+    const onTransitionEnd = (e: TransitionEvent) => {
+      if (e.target !== navEl || e.propertyName !== 'width') return;
+      settled = true;
+      resnap();
+    };
+
+    if (navEl && !prefersReducedMotion()) {
+      navEl.addEventListener('transitionend', onTransitionEnd);
+      indicatorSettleTimer.current = setTimeout(() => {
+        if (!settled) resnap();
+      }, 400);
+    } else {
+      indicatorSettleTimer.current = setTimeout(resnap, 0);
+    }
 
     return () => {
       if (indicatorSettleTimer.current) clearTimeout(indicatorSettleTimer.current);
+      navEl?.removeEventListener('transitionend', onTransitionEnd);
     };
   }, [collapsed, pathname, navigation, snapIndicator]);
 
@@ -391,9 +427,11 @@ export function ConsoleShell({
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     const target = e.currentTarget;
-    gsap.timeline()
-      .to(target, { scale: 0.95, duration: 0.08, ease: 'power1.in' })
-      .to(target, { scale: 1, duration: 0.3, ease: 'back.out(2.2)' });
+    if (!prefersReducedMotion()) {
+      gsap.timeline()
+        .to(target, { scale: 0.95, duration: 0.08, ease: 'power1.in' })
+        .to(target, { scale: 1, duration: 0.3, ease: 'back.out(2.2)' });
+    }
     updateNavIndicator(href);
   };
 
@@ -402,13 +440,13 @@ export function ConsoleShell({
     const active =
       href === '/platform' ? pathname === '/platform' : pathname.startsWith(href);
     if (!active) {
-      gsap.to(target, { x: 3, duration: 0.18, ease: 'power2.out' });
+      gsapSafe.to(target, { x: 3, duration: 0.18, ease: 'power2.out' });
     }
   };
 
   const handleNavLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const target = e.currentTarget;
-    gsap.to(target, { x: 0, duration: 0.22, ease: 'power2.out' });
+    gsapSafe.to(target, { x: 0, duration: 0.22, ease: 'power2.out' });
   };
 
   return (
@@ -563,7 +601,7 @@ export function ConsoleShell({
           <IconSearch size={14} stroke={1.5} aria-hidden />
           <span className="flex-1 truncate">Search or jump to...</span>
           <kbd
-            className="hidden h-4.5 items-center rounded-[4px] px-1.5 sm:inline-flex"
+            className="hidden h-[18px] items-center rounded-[4px] px-1.5 sm:inline-flex"
             style={{
               border: '1px solid var(--chrome-rule-strong)',
               font: '500 10px/1 var(--font-mono)',
@@ -582,7 +620,7 @@ export function ConsoleShell({
               active={openMenu === 'notices'}
               onClick={(e) => {
                 const icon = e.currentTarget.querySelector('svg');
-                if (icon) {
+                if (icon && !prefersReducedMotion()) {
                   gsap.timeline()
                     .to(icon, { rotate: -14, duration: 0.08 })
                     .to(icon, { rotate: 14, duration: 0.08 })
@@ -693,7 +731,7 @@ export function ConsoleShell({
             onClick={(e) => {
               const icon = e.currentTarget.querySelector('svg');
               if (icon) {
-                gsap.fromTo(
+                gsapSafe.fromTo(
                   icon,
                   { rotate: -120, scale: 0.6 },
                   { rotate: 0, scale: 1, duration: 0.38, ease: 'back.out(2.2)' }
@@ -729,7 +767,7 @@ export function ConsoleShell({
             >
               <div className="relative size-[24px] shrink-0 overflow-hidden rounded-full border border-[var(--chrome-rule)]">
                 <Image
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop"
+                  src="https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGJsYWNrJTIwbWFufGVufDB8fDB8fHww"
                   alt={account.name}
                   width={24}
                   height={24}
@@ -753,7 +791,7 @@ export function ConsoleShell({
                 >
                   <div className="relative size-[34px] shrink-0 overflow-hidden rounded-full border border-[var(--border-subtle)]">
                     <Image
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop"
+                      src="https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGJsYWNrJTIwbWFufGVufDB8fDB8fHww"
                       alt={account.name}
                       fill
                       className="object-cover"
@@ -795,6 +833,7 @@ export function ConsoleShell({
       {/* ── Body ───────────────────────────────────────────────────────── */}
       <div className="flex min-h-0 flex-1">
         <nav
+          ref={navElRef}
           aria-label="Platform navigation"
           className="hidden shrink-0 flex-col md:flex select-none"
           style={{
@@ -965,7 +1004,7 @@ export function ConsoleShell({
             >
               <div className="relative size-6 shrink-0 overflow-hidden rounded-full border border-[var(--chrome-rule)]">
                 <Image
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop"
+                  src="https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGJsYWNrJTIwbWFufGVufDB8fDB8fHww"
                   alt={account.name}
                   width={24}
                   height={24}
@@ -1052,36 +1091,44 @@ export function ConsoleShell({
       </div>
 
       {/* ── Command palette ────────────────────────────────────────────── */}
-      {paletteOpen ? (
-        <div
-          ref={(el) => {
-            if (el) gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'power2.out' });
-          }}
-          onClick={closeAll}
-          className="fixed inset-0 flex justify-center"
-          style={{
-            zIndex: 80,
-            background: 'var(--surface-overlay)',
-            paddingTop: '12vh',
-          }}
-        >
-          <div
+      <Dialog.Root
+        open={paletteOpen}
+        onOpenChange={(next) => {
+          if (next) setPaletteOpen(true);
+          else closeAll();
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay
+            ref={(el) => {
+              if (el) gsapSafe.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'power2.out' });
+            }}
+            className="fixed inset-0 flex justify-center"
+            style={{
+              zIndex: 80,
+              background: 'var(--surface-overlay)',
+              paddingTop: '12vh',
+            }}
+          />
+          <Dialog.Content
             ref={(el) => {
               if (el) {
-                gsap.fromTo(
+                gsapSafe.fromTo(
                   el,
                   { opacity: 0, y: -24, scale: 0.95 },
                   { opacity: 1, y: 0, scale: 1, duration: 0.32, ease: 'power3.out' }
                 );
               }
             }}
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Command palette"
-            className="surface-glass-strong flex w-[620px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-overlay"
+            onOpenAutoFocus={(e) => {
+              e.preventDefault();
+              paletteInput.current?.focus();
+            }}
+            aria-describedby={undefined}
+            className="surface-glass-strong fixed top-[12vh] left-1/2 z-[81] flex w-[620px] max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col overflow-hidden rounded-overlay"
             style={{ maxHeight: '62vh' }}
           >
+            <Dialog.Title className="sr-only">Command palette</Dialog.Title>
             <div
               className="flex items-center gap-2.5 border-b px-4 py-3.5"
               style={{ borderColor: 'var(--border-subtle)' }}
@@ -1172,9 +1219,9 @@ export function ConsoleShell({
                 })
               )}
             </div>
-          </div>
-        </div>
-      ) : null}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       {pendingWorkspace ? (
         <StartSessionDialog
@@ -1186,7 +1233,14 @@ export function ConsoleShell({
               tenantName: pendingWorkspace.name,
               reason,
             });
-            if (result.ok) setPendingWorkspace(null);
+            if (result.ok) {
+              setPendingWorkspace(null);
+              pushToast({
+                title: `Support session started in ${pendingWorkspace.name}`,
+                description: 'Read-only, expires in 30 minutes.',
+                tone: 'success',
+              });
+            }
             return result;
           }}
         />
@@ -1277,7 +1331,7 @@ function Dropdown({ children, className = '' }: { children: React.ReactNode; cla
 
   useEffect(() => {
     if (!ref.current) return;
-    gsap.fromTo(
+    gsapSafe.fromTo(
       ref.current,
       { opacity: 0, y: -10, scale: 0.95, transformOrigin: 'top right' },
       { opacity: 1, y: 0, scale: 1, duration: 0.26, ease: 'back.out(2)' }
@@ -1285,7 +1339,7 @@ function Dropdown({ children, className = '' }: { children: React.ReactNode; cla
 
     const items = ref.current.querySelectorAll('a, button');
     if (items.length > 0) {
-      gsap.fromTo(
+      gsapSafe.fromTo(
         items,
         { opacity: 0, y: 4 },
         { opacity: 1, y: 0, stagger: 0.025, duration: 0.2, ease: 'power2.out', delay: 0.04 }
@@ -1324,11 +1378,11 @@ function MenuLink({
       href={href}
       onMouseEnter={(e) => {
         const icon = e.currentTarget.querySelector('svg');
-        if (icon) gsap.to(icon, { x: 2, duration: 0.15, ease: 'power1.out' });
+        if (icon) gsapSafe.to(icon, { x: 2, duration: 0.15, ease: 'power1.out' });
       }}
       onMouseLeave={(e) => {
         const icon = e.currentTarget.querySelector('svg');
-        if (icon) gsap.to(icon, { x: 0, duration: 0.2, ease: 'power1.out' });
+        if (icon) gsapSafe.to(icon, { x: 0, duration: 0.2, ease: 'power1.out' });
       }}
       className="flex h-[34px] w-full items-center gap-3 rounded-panel px-2.5 transition-colors hover:bg-[var(--surface-inset)]"
       style={{

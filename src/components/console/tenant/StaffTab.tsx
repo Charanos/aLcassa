@@ -105,7 +105,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
         <div className="flex-1 p-5 sm:p-6 sm:pl-8 relative">
           <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>SSO & Directory</div>
           <div className="mt-2 flex items-center gap-2">
-            <span className="inline-flex size-2 rounded-full bg-emerald-400" />
+            <span className="inline-flex size-2 rounded-full" style={{ background: 'var(--success-fg)' }} />
             <span className="font-mono text-sm font-medium" style={{ color: 'var(--invert-card-fg)' }}>
               SAML 2.0 Active
             </span>

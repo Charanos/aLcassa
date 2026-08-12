@@ -1055,7 +1055,7 @@ export type AdminsModel = {
 export async function getAdmins(): Promise<AdminsModel> {
   return {
     admins: [
-      { id: 'ad_1', name: 'Brian Mwangi', email: 'brian@andishi.co.ke', initials: 'BM', role: 'owner', lastSeen: 'Active now', sessions30d: 11, mfa: true, grantedBy: '—', grantedOn: '12 Mar 2025' },
+      { id: 'ad_1', name: 'Brian Masira', email: 'brian@andishi.co.ke', initials: 'BM', role: 'owner', lastSeen: 'Active now', sessions30d: 11, mfa: true, grantedBy: '—', grantedOn: '12 Mar 2025' },
       { id: 'ad_2', name: 'Wanjiku Kariuki', email: 'wanjiku@andishi.co.ke', initials: 'WK', role: 'platform_admin', lastSeen: '2 hours ago', sessions30d: 6, mfa: true, grantedBy: 'brian', grantedOn: '10 Aug 2026' },
       { id: 'ad_3', name: 'Joseph Otieno', email: 'j.otieno@andishi.co.ke', initials: 'JO', role: 'platform_admin', lastSeen: 'Yesterday', sessions30d: 6, mfa: true, grantedBy: 'brian', grantedOn: '02 Feb 2026' },
       { id: 'ad_4', name: 'Amina Hassan', email: 'a.hassan@andishi.co.ke', initials: 'AH', role: 'support', lastSeen: '6 days ago', sessions30d: 0, mfa: false, grantedBy: 'wanjiku', grantedOn: '21 Jun 2026' },
@@ -1217,7 +1217,7 @@ export type ProfileModel = {
  * The signed-in operator's own profile.
  *
  * ⚠ THIS IS THE SAME PERSON AS `admins[0]` IN `getAdmins()`, on purpose. Both
- * represent Brian Mwangi, the owner, viewed from two different screens — the
+ * represent Brian Masira, the owner, viewed from two different screens — the
  * roster and his own settings — and they carry the same name, email and role
  * so the two screens never quietly disagree about who is signed in.
  *
@@ -1226,7 +1226,7 @@ export type ProfileModel = {
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
 export async function getProfile(): Promise<ProfileModel> {
   return {
-    name: 'Brian Mwangi',
+    name: 'Brian Masira',
     email: 'brian@andishi.co.ke',
     emailVerified: true,
     initials: 'BM',

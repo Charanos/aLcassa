@@ -14,6 +14,7 @@ import {
 import { EmptyState } from '@/components/primitives/EmptyState';
 import { StartSessionDialog } from './StartSessionDialog';
 import { WorkspaceDetailDrawer } from './WorkspaceDetailDrawer';
+import { useToast } from '@/components/primitives/Toast';
 import type { ConsoleWorkspace } from './types';
 import type { WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
 
@@ -83,6 +84,7 @@ export function WorkspaceTable({
     reason: string;
   }) => Promise<{ ok: true } | { ok: false; error: string }>;
 }) {
+  const pushToast = useToast();
   const [query, setQuery] = useState('');
   const [statuses, setStatuses] = useState<WorkspaceStatus[]>([]);
   const [attention, setAttention] = useState(false);
@@ -626,7 +628,12 @@ export function WorkspaceTable({
                       <td className="py-4.5 px-3">
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 font-mono text-xs">
-                            {isRecent && <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+                            {isRecent && (
+                              <span
+                                className="size-1.5 rounded-full"
+                                style={{ background: 'var(--success-fg)', animation: 'pulse-dot 2s ease-in-out infinite' }}
+                              />
+                            )}
                             <span
                               style={{
                                 color:
@@ -888,7 +895,14 @@ export function WorkspaceTable({
               tenantName: pending.name,
               reason,
             });
-            if (result.ok) setPending(null);
+            if (result.ok) {
+              setPending(null);
+              pushToast({
+                title: `Support session started in ${pending.name}`,
+                description: 'Read-only, expires in 30 minutes.',
+                tone: 'success',
+              });
+            }
             return result;
           }}
         />

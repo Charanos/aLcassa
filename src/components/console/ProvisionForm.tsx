@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
+import * as Switch from '@radix-ui/react-switch';
 import type { ProvisionModel } from '@/lib/console/data';
 
 /**
@@ -238,12 +239,11 @@ export function ProvisionForm({
             className="mt-5 flex items-start gap-2.5 border-t pt-4"
             style={{ borderColor: 'var(--border-subtle)' }}
           >
-            <button
-              type="button"
-              role="switch"
-              aria-checked={trial}
+            <Switch.Root
+              checked={trial}
               disabled={working || done}
-              onClick={() => setTrial((t) => !t)}
+              aria-label="Start with a 14-day trial"
+              onCheckedChange={() => setTrial((t) => !t)}
               className="relative mt-0.5 h-5 w-[34px] shrink-0 rounded-full transition-colors"
               style={{
                 border: 'none',
@@ -252,12 +252,11 @@ export function ProvisionForm({
                 transitionDuration: 'var(--duration-base)',
               }}
             >
-              <span
-                aria-hidden
+              <Switch.Thumb
                 className="absolute top-0.5 size-4 rounded-full transition-[left]"
                 style={{ left: trial ? 16 : 2, background: '#ffffff', boxShadow: 'var(--shadow-sm)', transitionDuration: 'var(--duration-base)' }}
               />
-            </button>
+            </Switch.Root>
             <span className="flex-1">
               <span className="t-compact block" style={{ color: 'var(--text-primary)' }}>
                 Start with a 14-day trial

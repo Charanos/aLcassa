@@ -188,7 +188,7 @@ export function ProvisionWorkspaceDialog({
 
             {/* Error Message */}
             {error && (
-              <div className="t-compact mt-1 text-red-500 font-medium">
+              <div className="t-compact mt-1 font-medium" style={{ color: 'var(--danger-fg)' }}>
                 {error}
               </div>
             )}

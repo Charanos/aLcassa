@@ -141,7 +141,7 @@ const notices: ConsoleNotice[] = [
 ];
 
 const account: ConsoleAccount = {
-  name: 'Brian Mwangi',
+  name: 'Brian Masira',
   email: 'brian@andishi.co.ke',
   role: 'platform_admin',
   initials: 'BM',

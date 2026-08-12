@@ -92,7 +92,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
         <div className="flex-1 p-5 sm:p-6 sm:px-8 relative">
           <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Ledger Integrity</div>
           <div className="mt-2 flex items-center gap-2">
-            <span className="inline-flex size-2 rounded-full bg-emerald-400" />
+            <span className="inline-flex size-2 rounded-full" style={{ background: 'var(--success-fg)' }} />
             <span className="font-mono text-base font-medium" style={{ color: 'var(--invert-card-fg)' }}>
               Cryptographically Signed
             </span>

@@ -10,6 +10,7 @@ import {
   IconTrendingUp,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
+import * as Switch from '@radix-ui/react-switch';
 import type { RuleGroup, RulesModel } from '@/lib/console/data';
 
 /**
@@ -261,15 +262,12 @@ export function RulesEditor({ model }: { model: RulesModel }) {
                           i === g.rules.length - 1 ? undefined : '1px solid var(--border-subtle)',
                       }}
                     >
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={on}
-                        aria-disabled={locked}
+                      <Switch.Root
+                        checked={on}
+                        disabled={locked}
                         aria-label={r.label}
                         title={locked ? 'Enforced by the platform. This cannot be changed.' : undefined}
-                        onClick={() => {
-                          if (locked) return;
+                        onCheckedChange={() => {
                           setOverrides((p) => {
                             const next = { ...p };
                             /* Toggling back to the saved value clears the
@@ -294,8 +292,7 @@ export function RulesEditor({ model }: { model: RulesModel }) {
                           transitionDuration: 'var(--duration-base)',
                         }}
                       >
-                        <span
-                          aria-hidden
+                        <Switch.Thumb
                           className="absolute top-0.5 size-4 rounded-full transition-[left]"
                           style={{
                             left: on ? 16 : 2,
@@ -304,7 +301,7 @@ export function RulesEditor({ model }: { model: RulesModel }) {
                             transitionDuration: 'var(--duration-base)',
                           }}
                         />
-                      </button>
+                      </Switch.Root>
 
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-1.5">

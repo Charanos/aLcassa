@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import {
   IconAdjustmentsHorizontal,
   IconBell,
@@ -20,6 +20,9 @@ import {
   type ThemePreference,
 } from '@/lib/theme-shared';
 import type { SettingsModel } from '@/lib/console/data';
+import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
+import { toggleBreakGlass } from '@/app/(platform)/platform/(console)/actions';
+import * as Switch from '@radix-ui/react-switch';
 
 /**
  * The platform settings panel. `Settings.dc.html`.
@@ -643,6 +646,21 @@ export function SettingsPanel({
 function BreakGlassPanel({ initialActive }: { initialActive: boolean }) {
   const [active, setActive] = useState(initialActive);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function submit() {
+    setError(null);
+    startTransition(async () => {
+      const result = await toggleBreakGlass({ lock: !active });
+      if (result.ok) {
+        setActive((a) => !a);
+        setConfirmOpen(false);
+      } else {
+        setError(result.error);
+      }
+    });
+  }
 
   return (
     <section
@@ -686,65 +704,26 @@ function BreakGlassPanel({ initialActive }: { initialActive: boolean }) {
         </button>
       </div>
 
-      {confirmOpen ? (
-        <div
-          onClick={() => setConfirmOpen(false)}
-          className="fixed inset-0 grid place-items-center p-6"
-          style={{ zIndex: 90, background: 'var(--surface-overlay)', animation: 'overlay-in var(--duration-fast) linear' }}
-        >
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="break-glass-title"
-            onClick={(e) => e.stopPropagation()}
-            className="surface-glass-strong w-[480px] max-w-full overflow-hidden rounded-overlay"
-            style={{ animation: 'panel-in var(--duration-base) var(--ease-out)' }}
-          >
-            <div className="p-6">
-              <p className="t-eyebrow" style={{ color: active ? 'var(--success-fg)' : 'var(--danger-fg)' }}>
-                {active ? 'Confirm' : 'Destructive'}
-              </p>
-              <h2 id="break-glass-title" className="display display-sm mt-2.5" style={{ color: 'var(--text-primary)' }}>
-                {active ? 'Re-enable support-session access?' : 'Lock every admin out of every workspace?'}
-              </h2>
-              <p className="t-compact mt-3" style={{ color: 'var(--text-secondary)' }}>
-                {active
-                  ? 'Platform admins will be able to open support sessions again, subject to the usual reason and 30-minute cap.'
-                  : "This ends any open support session immediately and blocks new ones, for every admin, including you. It does not affect customer sign-ins."}
-              </p>
-            </div>
-            <div className="flex items-center gap-2.5 border-t px-6 py-3.5" style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}>
-              <span className="t-caption numeric flex-1" style={{ color: 'var(--text-tertiary)' }}>
-                platform.support_lock
-              </span>
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(false)}
-                className="t-compact h-9 rounded-panel px-3.5"
-                style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', color: 'var(--text-primary)' }}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActive((a) => !a);
-                  setConfirmOpen(false);
-                }}
-                className="t-compact h-9 rounded-panel px-4"
-                style={{
-                  border: 'none',
-                  background: active ? 'var(--success-fg)' : 'var(--danger-fg)',
-                  color: '#ffffff',
-                  fontWeight: 500,
-                }}
-              >
-                {active ? 'Re-enable access' : 'Lock the platform'}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={(next) => {
+          if (!pending) {
+            setConfirmOpen(next);
+            if (!next) setError(null);
+          }
+        }}
+        title={active ? 'Re-enable support-session access?' : 'Lock every admin out of every workspace?'}
+        consequence={
+          active
+            ? 'Platform admins will be able to open support sessions again, subject to the usual reason and 30-minute cap.'
+            : "This ends any open support session immediately and blocks new ones, for every admin, including you. It does not affect customer sign-ins."
+        }
+        confirmLabel={active ? 'Re-enable access' : 'Lock the platform'}
+        tone={active ? 'primary' : 'destructive'}
+        loading={pending}
+        error={error}
+        onConfirm={submit}
+      />
     </section>
   );
 }
@@ -868,16 +847,12 @@ function Toggle({
   onToggle: () => void;
 }) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      aria-disabled={locked}
+    <Switch.Root
+      checked={on}
+      disabled={locked}
       aria-label={label}
       title={locked ? 'Enforced by the platform. This cannot be changed.' : undefined}
-      onClick={() => {
-        if (!locked) onToggle();
-      }}
+      onCheckedChange={() => onToggle()}
       className="relative mt-0.5 h-5 w-[34px] shrink-0 rounded-full transition-colors"
       style={{
         border: 'none',
@@ -887,12 +862,16 @@ function Toggle({
         transitionDuration: 'var(--duration-base)',
       }}
     >
-      <span
-        aria-hidden
+      <Switch.Thumb
         className="absolute top-0.5 size-4 rounded-full transition-[left]"
-        style={{ left: on ? 16 : 2, background: '#ffffff', boxShadow: 'var(--shadow-sm)', transitionDuration: 'var(--duration-base)' }}
+        style={{
+          left: on ? 16 : 2,
+          background: '#ffffff',
+          boxShadow: 'var(--shadow-sm)',
+          transitionDuration: 'var(--duration-base)',
+        }}
       />
-    </button>
+    </Switch.Root>
   );
 }
 

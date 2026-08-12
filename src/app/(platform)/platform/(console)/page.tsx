@@ -101,10 +101,10 @@ export default async function ConsoleOverviewPage() {
     <ConsolePage>
       {/* Iconography watermarks safely contained */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-        <div className="absolute top-10 -right-8 hidden rotate-12 text-blue-500/[0.04] dark:text-blue-300/[0.06] lg:block">
+        <div className="absolute top-10 -right-8 hidden rotate-12 lg:block" style={{ color: 'var(--watermark-tint)' }}>
           <IconDashboard size={360} stroke={1} />
         </div>
-        <div className="absolute top-[45%] -left-12 hidden -rotate-[10deg] text-amber-500/[0.04] dark:text-amber-300/[0.06] lg:block">
+        <div className="absolute top-[45%] -left-12 hidden -rotate-[10deg] lg:block" style={{ color: 'var(--watermark-tint)' }}>
           <IconChartPie size={280} stroke={1} />
         </div>
       </div>

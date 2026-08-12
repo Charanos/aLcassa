@@ -79,7 +79,7 @@ export function ActiveSessionCard({
         </span>
         <span className="min-w-0 flex-1">
           <span className="t-body block" style={{ color: 'var(--text-primary)' }}>
-            Brian Mwangi in <strong>{session.tenantName}</strong>
+            Brian Masira in <strong>{session.tenantName}</strong>
           </span>
           <span className="t-compact mt-0.5 block" style={{ color: 'var(--text-secondary)' }}>
             {session.reason}

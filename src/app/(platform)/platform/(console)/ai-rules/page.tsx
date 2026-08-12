@@ -31,7 +31,7 @@ export default async function AiRulesPage() {
     <ConsolePage>
       {/* Iconography watermarks safely contained */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-        <div className="absolute top-[25%] -right-10 hidden rotate-[20deg] text-indigo-500/[0.04] dark:text-indigo-300/[0.06] lg:block">
+        <div className="absolute top-[25%] -right-10 hidden rotate-[20deg] lg:block" style={{ color: 'var(--watermark-tint)' }}>
           <IconCpu size={380} stroke={1} />
         </div>
       </div>

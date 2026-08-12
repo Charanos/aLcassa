@@ -232,6 +232,12 @@
   --accent-mark: var(--orange-400); /* fills, marks, meters. NO text */
   --accent-mark-text: var(--orange-500); /* when the accent carries a label */
 
+  /* Oversized background icon, one per page, pure texture with zero semantic
+   * weight — never a hue picked per page. A single neutral ink at low mix
+   * keeps every watermark this faint and this consistent without a raw
+   * Tailwind palette class (and its un-themed dark: pair) per instance. */
+  --watermark-tint: color-mix(in oklab, var(--text-primary) 4%, transparent);
+
   --focus-ring: 0 0 0 2px var(--surface-base), 0 0 0 4px var(--blue-500);
 
   --shadow-sm: 0 1px 2px rgba(14, 16, 19, 0.05);
@@ -311,6 +317,11 @@
 
   --accent-mark: var(--orange-300);
   --accent-mark-text: var(--orange-300);
+
+  /* A dark ground needs a slightly stronger mix than light mode for the same
+   * mark to read at all — this is the dark half of the 4%/6% split the raw
+   * Tailwind classes used to hardcode per instance. */
+  --watermark-tint: color-mix(in oklab, var(--text-primary) 6%, transparent);
 
   /* Shadows barely register on dark surfaces. Borders carry elevation. */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);

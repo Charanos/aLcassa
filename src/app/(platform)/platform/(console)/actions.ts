@@ -147,3 +147,109 @@ export async function fetchWorkspaceDetail(slug: string): Promise<WorkspaceDetai
   return getWorkspaceDetail(slug);
 }
 
+/* ── Workspace suspension ─────────────────────────────────────────────────── */
+
+export type SuspendWorkspaceResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Suspend (or reactivate) a workspace.
+ *
+ * ⚠ THIS VALIDATES EVERYTHING AND WRITES NOTHING, ON PURPOSE.
+ *
+ * Both dialogs that call this — `WorkspaceActions` and the drawer's inline
+ * confirm — had a "Suspend workspace" button with no handler at all before
+ * this action existed: `disabled={!armed}` and nothing behind it, in two
+ * separate copies. That is worse than refusing, because it looks like it
+ * might have worked.
+ *
+ * The actual write is `UPDATE tenants SET status = ...`, gated behind
+ * `dbAsService` for the same reason `startSupportSession`'s audit insert is:
+ * `src/lib/console/data.ts` is a read-model seam over fixtures, not a live
+ * table, until M4. So this checks what it can check now — the workspace is
+ * real, the slug on record matches the one the operator typed — and refuses
+ * with the specific, named reason rather than reporting success for a write
+ * that did not happen.
+ */
+// Server Actions must be async; there is nothing to await until the write below is real.
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function suspendWorkspace(input: {
+  tenantId: string;
+  slug: string;
+  confirmSlug: string;
+}): Promise<SuspendWorkspaceResult> {
+  const { tenantId, slug, confirmSlug } = input;
+
+  if (!tenantId || !slug) {
+    return { ok: false, error: 'Select a workspace to suspend.' };
+  }
+
+  if (confirmSlug.trim() !== slug) {
+    return { ok: false, error: 'Typed slug does not match. Suspension was not sent.' };
+  }
+
+  return {
+    ok: false,
+    error:
+      'Suspension writes to the tenant record and is not wired until the tenants table lands in M4. The request itself is valid — nothing else is blocking it.',
+  };
+}
+
+/* ── Plan / entitlement changes ───────────────────────────────────────────── */
+
+export type ApplyPlanChangeResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Apply a pending plan entitlement change, immediately or at the next
+ * billing period.
+ *
+ * Same shape as `suspendWorkspace` and the same reason: `getPlans()` in
+ * `src/lib/console/data.ts` is a read-model seam, so there is no entitlement
+ * row to write yet. Every button in `BlastRadiusDialog` called `setOpen(false)`
+ * and nothing else before this existed — three ways to look like the change
+ * saved without it ever having tried to.
+ */
+// Server Actions must be async; there is nothing to await until the write below is real.
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function applyPlanChange(input: {
+  plan: string;
+  field: string;
+  to: string;
+  when: 'now' | 'next_period';
+}): Promise<ApplyPlanChangeResult> {
+  if (!input.plan || !input.field || !input.to) {
+    return { ok: false, error: 'Nothing to apply — the pending change is incomplete.' };
+  }
+
+  return {
+    ok: false,
+    error:
+      'Entitlement changes write to the plan record and are not wired until the entitlements table lands. The request itself is valid — nothing else is blocking it.',
+  };
+}
+
+/* ── Break glass ───────────────────────────────────────────────────────────── */
+
+export type ToggleBreakGlassResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Lock or re-enable support-session access platform-wide.
+ *
+ * The real switch is `app.support_lock`, read by `withTenantContext` next to
+ * `app.support_mode` — a client boolean cannot decide this any more than the
+ * session banner can, per `session.ts`. That check does not exist yet, so
+ * this refuses honestly rather than flipping local state and calling it
+ * locked while every session guard remains none the wiser.
+ */
+// Server Actions must be async; there is nothing to await until the write below is real.
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function toggleBreakGlass(input: {
+  lock: boolean;
+}): Promise<ToggleBreakGlassResult> {
+  return {
+    ok: false,
+    error: input.lock
+      ? 'The platform-wide lock writes to app.support_lock, which withTenantContext does not read yet. Nothing is currently enforcing this — flipping a local flag would be worse than refusing.'
+      : 'Re-enabling reads the same unwired flag. There is nothing active to release yet.',
+  };
+}
+

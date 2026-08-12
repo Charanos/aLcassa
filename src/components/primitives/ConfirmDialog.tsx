@@ -2,6 +2,7 @@
 
 import { useId, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { IconAlertTriangle } from '@tabler/icons-react';
 import { Button } from './Button';
 import { Field } from './Field';
 
@@ -26,6 +27,7 @@ export function ConfirmDialog({
   tone = 'primary',
   onConfirm,
   loading = false,
+  error = null,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -37,6 +39,9 @@ export function ConfirmDialog({
   tone?: 'primary' | 'destructive';
   onConfirm: () => void;
   loading?: boolean;
+  /** A submitted attempt's outcome, once the server has answered. Inline,
+   *  never a toast — sheet 12. */
+  error?: string | null;
 }) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -60,6 +65,17 @@ export function ConfirmDialog({
           <Dialog.Description className="t-compact mt-2 text-[var(--ink-secondary)]">
             {consequence}
           </Dialog.Description>
+
+          {error ? (
+            <p
+              role="alert"
+              className="t-compact mt-3 flex items-start gap-1.5"
+              style={{ color: 'var(--oxide-ink)' }}
+            >
+              <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
+              {error}
+            </p>
+          ) : null}
 
           <div className="mt-6 flex justify-end gap-2.5">
             <Dialog.Close asChild>
@@ -87,6 +103,12 @@ export function DestructiveConfirm({
   onOpenChange,
   title,
   consequence,
+  /** Optional, richer than the one-sentence `consequence` — a breakdown, an
+   *  impact count, a list. Sits between the description and the confirm
+   *  field rather than displacing the sentence, so the "one sentence"
+   *  contract in 03 §9 still holds for what actually sits in
+   *  `Dialog.Description`. */
+  details,
   /** What the reader must type. Usually the tenant name, the credential
    *  name, or the literal word the action performs. */
   confirmValue,
@@ -94,16 +116,25 @@ export function DestructiveConfirm({
   confirmLabel = 'Confirm',
   onConfirm,
   loading = false,
+  /** The outcome of a submitted attempt, once the server has answered.
+   *  Sheet 12: failure is inline, next to the control, never a toast. This
+   *  reuses `Field`'s own reserved error line rather than a second banner. */
+  error = null,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
   consequence: string;
+  details?: React.ReactNode;
   confirmValue: string;
   confirmFieldLabel?: string;
   confirmLabel?: string;
-  onConfirm: () => void;
+  /** Receives what was actually typed — matching `confirmValue` is what
+   *  enables the button, but the server gets to check that for itself too
+   *  rather than trusting the client's `matches` gate alone. */
+  onConfirm: (typed: string) => void;
   loading?: boolean;
+  error?: string | null;
 }) {
   const [typed, setTyped] = useState('');
   const fieldId = useId();
@@ -120,7 +151,7 @@ export function DestructiveConfirm({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--scrim)' }} />
         <Dialog.Content
-          className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[440px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
+          className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
           style={{
             background: 'var(--surface-raised)',
             borderColor: 'var(--oxide-rule)',
@@ -132,6 +163,8 @@ export function DestructiveConfirm({
             {consequence} This cannot be undone.
           </Dialog.Description>
 
+          {details ? <div className="mt-4">{details}</div> : null}
+
           <div className="mt-5">
             <Field
               id={fieldId}
@@ -140,7 +173,9 @@ export function DestructiveConfirm({
               onChange={(event) => setTyped(event.target.value)}
               placeholder={confirmValue}
               autoComplete="off"
+              spellCheck={false}
               helper={`Type "${confirmValue}" exactly to enable the button below.`}
+              error={error ?? undefined}
             />
           </div>
 
@@ -148,7 +183,12 @@ export function DestructiveConfirm({
             <Dialog.Close asChild>
               <Button variant="secondary">Cancel</Button>
             </Dialog.Close>
-            <Button variant="destructive" loading={loading} disabled={!matches} onClick={onConfirm}>
+            <Button
+              variant="destructive"
+              loading={loading}
+              disabled={!matches}
+              onClick={() => onConfirm(typed)}
+            >
               {confirmLabel}
             </Button>
           </div>

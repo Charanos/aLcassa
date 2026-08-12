@@ -28,7 +28,7 @@ export default async function WorkspacesPage() {
     <ConsolePage>
       {/* Iconography watermarks safely contained */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-        <div className="absolute top-[15%] -right-10 hidden rotate-6 text-slate-500/[0.04] dark:text-slate-300/[0.06] lg:block">
+        <div className="absolute top-[15%] -right-10 hidden rotate-6 lg:block" style={{ color: 'var(--watermark-tint)' }}>
           <IconBuildings size={380} stroke={1} />
         </div>
       </div>

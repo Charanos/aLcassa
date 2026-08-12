@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useTransition } from 'react';
-import gsap from 'gsap';
 import {
   IconX,
   IconExternalLink,
@@ -23,9 +22,13 @@ import {
   IconRefresh,
   IconFileText,
 } from '@tabler/icons-react';
-import { fetchWorkspaceDetail } from '@/app/(platform)/platform/(console)/actions';
+import { fetchWorkspaceDetail, suspendWorkspace } from '@/app/(platform)/platform/(console)/actions';
 import type { WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
 import Link from 'next/link';
+import { gsapSafe } from '@/lib/motion';
+import { DestructiveConfirm } from '@/components/primitives/ConfirmDialog';
+import { StartSessionDialog } from './StartSessionDialog';
+import { useToast } from '@/components/primitives/Toast';
 
 /* ─ Types ─────────────────────────────────────────────────────────────────── */
 type Meter = { label: string; icon: string; used: number; limit: number; unit?: string };
@@ -89,6 +92,7 @@ export function WorkspaceDetailDrawer({
   onClose: () => void;
   onStartSession: (input: { tenantId: string; tenantName: string; reason: string }) => Promise<{ ok: true } | { ok: false; error: string }>;
 }) {
+  const pushToast = useToast();
   const overlayRef = useRef<HTMLDivElement>(null);
   const dialogRef  = useRef<HTMLDivElement>(null);
 
@@ -100,8 +104,8 @@ export function WorkspaceDetailDrawer({
   /* Sub-dialog state */
   const [sessionOpen, setSessionOpen] = useState(false);
   const [suspendOpen, setSuspendOpen] = useState(false);
-  const [confirmSlug, setConfirmSlug] = useState('');
-  const armed = confirmSlug.trim() === row.slug;
+  const [suspendError, setSuspendError] = useState<string | null>(null);
+  const [suspendPending, startSuspendTransition] = useTransition();
 
   /* Fetch details via Server Action */
   useEffect(() => {
@@ -123,10 +127,10 @@ export function WorkspaceDetailDrawer({
   /* Entrance animations */
   useEffect(() => {
     if (overlayRef.current) {
-      gsap.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+      gsapSafe.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' });
     }
     if (dialogRef.current) {
-      gsap.fromTo(
+      gsapSafe.fromTo(
         dialogRef.current,
         { x: '100%' },
         { x: '0%', duration: 0.4, ease: 'power3.out', clearProps: 'transform' }
@@ -149,8 +153,8 @@ export function WorkspaceDetailDrawer({
 
   function handleClose() {
     if (dialogRef.current && overlayRef.current) {
-      gsap.to(dialogRef.current, { x: '100%', duration: 0.3, ease: 'power3.in' });
-      gsap.to(overlayRef.current, { opacity: 0, duration: 0.3, ease: 'power2.in', onComplete: onClose });
+      gsapSafe.to(dialogRef.current, { x: '100%', duration: 0.3, ease: 'power3.in' });
+      gsapSafe.to(overlayRef.current, { opacity: 0, duration: 0.3, ease: 'power2.in', onComplete: onClose });
     } else {
       onClose();
     }
@@ -160,6 +164,18 @@ export function WorkspaceDetailDrawer({
     void navigator.clipboard.writeText(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
+  }
+
+  function submitSuspend(typed: string) {
+    setSuspendError(null);
+    startSuspendTransition(async () => {
+      const result = await suspendWorkspace({ tenantId: row.id, slug: row.slug, confirmSlug: typed });
+      if (result.ok) {
+        setSuspendOpen(false);
+      } else {
+        setSuspendError(result.error);
+      }
+    });
   }
 
   const st = STATUS_CONFIG[row.status];
@@ -261,7 +277,7 @@ export function WorkspaceDetailDrawer({
                     >
                       <span>{row.slug}</span>
                       {copiedKey === 'slug' ? (
-                        <IconCheck size={12} stroke={2} className="text-emerald-500" />
+                        <IconCheck size={12} stroke={2} style={{ color: 'var(--success-fg)' }} />
                       ) : (
                         <IconCopy size={11} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} />
                       )}
@@ -278,7 +294,7 @@ export function WorkspaceDetailDrawer({
                     >
                       <span>{row.id}</span>
                       {copiedKey === 'id' ? (
-                        <IconCheck size={12} stroke={2} className="text-emerald-500" />
+                        <IconCheck size={12} stroke={2} style={{ color: 'var(--success-fg)' }} />
                       ) : (
                         <IconCopy size={11} stroke={1.5} />
                       )}
@@ -344,7 +360,7 @@ export function WorkspaceDetailDrawer({
                 <button
                   type="button"
                   onClick={() => {
-                    setConfirmSlug('');
+                    setSuspendError(null);
                     setSuspendOpen(true);
                   }}
                   className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-3 transition-all duration-150 active:scale-95"
@@ -370,7 +386,10 @@ export function WorkspaceDetailDrawer({
               </div>
 
               <div className="flex items-center gap-2 font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span
+                  className="size-1.5 rounded-full"
+                  style={{ background: 'var(--success-fg)', animation: 'pulse-dot 2s ease-in-out infinite' }}
+                />
                 <span>{row.activity}</span>
               </div>
             </div>
@@ -409,7 +428,10 @@ export function WorkspaceDetailDrawer({
           <div className="flex-1 overflow-y-auto p-6 sm:p-7 pt-5" style={{ scrollbarWidth: 'thin' }}>
             {loading ? (
               <div className="flex h-56 flex-col items-center justify-center gap-2">
-                <span className="size-5 rounded-full border-2 border-t-transparent border-blue-500 animate-spin" />
+                <span
+                  className="size-5 rounded-full border-2 animate-spin"
+                  style={{ borderColor: 'var(--blue-500)', borderTopColor: 'transparent' }}
+                />
                 <span className="t-compact font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>Resolving tenant telemetry…</span>
               </div>
             ) : detail ? (
@@ -686,7 +708,14 @@ export function WorkspaceDetailDrawer({
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Data Residency & Encryption</p>
-                          <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                          <span
+                            className="font-mono text-[10px] px-2 py-0.5 rounded"
+                            style={{
+                              background: 'var(--success-bg)',
+                              color: 'var(--success-fg)',
+                              border: '1px solid var(--success-fg)',
+                            }}
+                          >
                             RLS Isolated
                           </span>
                         </div>
@@ -759,8 +788,8 @@ export function WorkspaceDetailDrawer({
 
       {/* ── Sub-Dialog: Start Support Session ──────────────────────────── */}
       {sessionOpen && (
-        <InlineSessionDialog
-          workspaceName={row.name}
+        <StartSessionDialog
+          workspace={{ id: row.id, name: row.name, slug: row.slug, plan: row.plan, initials }}
           onCancel={() => setSessionOpen(false)}
           onConfirm={async (reason) => {
             const result = await onStartSession({
@@ -768,247 +797,56 @@ export function WorkspaceDetailDrawer({
               tenantName: row.name,
               reason,
             });
-            if (result.ok) setSessionOpen(false);
+            if (result.ok) {
+              setSessionOpen(false);
+              pushToast({
+                title: `Support session started in ${row.name}`,
+                description: 'Read-only, expires in 30 minutes.',
+                tone: 'success',
+              });
+            }
             return result;
           }}
         />
       )}
 
       {/* ── Sub-Dialog: Suspend Workspace ──────────────────────────────── */}
-      {suspendOpen && detail && (
-        <InlineSuspendDialog
-          workspaceName={row.name}
-          slug={row.slug}
-          impact={detail.impact}
-          confirm={confirmSlug}
-          setConfirm={setConfirmSlug}
-          armed={armed}
-          onCancel={() => setSuspendOpen(false)}
+      {detail ? (
+        <DestructiveConfirm
+          open={suspendOpen}
+          onOpenChange={(next) => {
+            if (!suspendPending) setSuspendOpen(next);
+          }}
+          title={`Suspend ${row.name}`}
+          consequence="Stated in numbers, because a suspension is felt by people who did not choose it."
+          details={
+            <ul className="grid list-none gap-2.5 border-t p-0 pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
+              {[
+                [detail.impact.staff, 'staff lose access at their next request. Sessions are not waited out.'],
+                [detail.impact.conversations, 'open conversations stop receiving replies. Inbound messages queue but nothing sends.'],
+                [detail.impact.channels, 'connected channels go quiet, including the WhatsApp number their customers reply to.'],
+              ].map(([n, text]) => (
+                <li key={String(text)} className="t-compact flex items-start gap-3" style={{ color: 'var(--ink-primary)' }}>
+                  <span className="font-mono shrink-0 text-right font-medium" style={{ color: 'var(--danger-fg)', minWidth: '4ch' }}>
+                    {Number(n).toLocaleString('en-GB')}
+                  </span>
+                  <span>{text}</span>
+                </li>
+              ))}
+              <li className="t-compact mt-1.5" style={{ color: 'var(--ink-secondary)' }}>
+                Data is retained. Reactivation restores access immediately and is a single action.
+              </li>
+            </ul>
+          }
+          confirmValue={row.slug}
+          confirmFieldLabel={`Type "${row.slug}" to confirm`}
+          confirmLabel="Suspend workspace"
+          loading={suspendPending}
+          error={suspendError}
+          onConfirm={submitSuspend}
         />
-      )}
+      ) : null}
     </>
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   Inline Support Session Dialog (z-95)
-   ══════════════════════════════════════════════════════════════════════════ */
-function InlineSessionDialog({
-  workspaceName,
-  onCancel,
-  onConfirm,
-}: {
-  workspaceName: string;
-  onCancel: () => void;
-  onConfirm: (reason: string) => Promise<{ ok: true } | { ok: false; error: string }>;
-}) {
-  const [reason, setReason] = useState('');
-  const [error, setError]   = useState<string | null>(null);
-  const [pending, start]    = useTransition();
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  function submit() {
-    setError(null);
-    start(async () => {
-      const r = await onConfirm(reason);
-      if (!r.ok) setError(r.error);
-    });
-  }
-
-  return (
-    <div
-      onClick={onCancel}
-      className="fixed inset-0 grid place-items-center p-6"
-      style={{ zIndex: 95, background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)' }}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="drawer-session-title"
-        onClick={(e) => e.stopPropagation()}
-        className="surface-glass-strong w-[520px] max-w-full overflow-hidden rounded-2xl"
-        style={{
-          background: 'var(--surface-raised)',
-          border: '1px solid var(--border-strong)',
-          boxShadow: 'var(--glass-highlight), var(--shadow-lg)',
-        }}
-      >
-        <div className="p-6">
-          <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>AUDITED ACCESS</p>
-          <h2 id="drawer-session-title" className="display display-md mt-2" style={{ color: 'var(--text-primary)', fontSize: '20px' }}>
-            Enter {workspaceName}
-          </h2>
-          <p className="t-body mt-2 text-xs" style={{ color: 'var(--text-secondary)', maxWidth: '52ch' }}>
-            You will access this workspace under exact Row Level Security permissions. Read-only session expires after 30 minutes.
-          </p>
-
-          <label className="mt-5 block">
-            <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
-              Reason for entry <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>· Logged to customer audit log</span>
-            </span>
-            <input
-              ref={inputRef}
-              type="text"
-              value={reason}
-              onChange={(e) => {
-                setReason(e.target.value);
-                if (error) setError(null);
-              }}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !pending) submit(); }}
-              placeholder="e.g. Ticket 4829 · Verifying duplicated thread"
-              className="w-full rounded-lg px-3 py-2 text-xs font-mono outline-none"
-              style={{
-                background: 'var(--surface-base)',
-                border: `1px solid ${error ? 'var(--danger-fg)' : 'var(--border-strong)'}`,
-                color: 'var(--text-primary)',
-              }}
-            />
-          </label>
-
-          {error && (
-            <p role="alert" className="t-compact mt-2 flex items-center gap-1.5 text-xs" style={{ color: 'var(--danger-fg)' }}>
-              <IconAlertTriangle size={14} stroke={1.5} className="shrink-0" aria-hidden />
-              {error}
-            </p>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2.5 border-t px-6 py-3.5" style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}>
-          <span className="font-mono text-[11px] flex-1" style={{ color: 'var(--text-tertiary)' }}>support_session.start</span>
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={pending}
-            className="h-8.5 px-3.5 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-            style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-raised)', color: 'var(--text-primary)' }}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={submit}
-            disabled={pending}
-            className="h-8.5 inline-flex items-center gap-1.5 px-4 rounded-lg text-xs font-medium text-white transition-opacity"
-            style={{ background: 'var(--blue-500)', opacity: pending ? 0.7 : 1 }}
-          >
-            <IconPlayerPlay size={13} stroke={1.5} aria-hidden />
-            {pending ? 'Starting…' : 'Start 30-min session'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════════════════
-   Inline Suspend Dialog (z-95)
-   ══════════════════════════════════════════════════════════════════════════ */
-function InlineSuspendDialog({
-  workspaceName, slug, impact, confirm, setConfirm, armed, onCancel,
-}: {
-  workspaceName: string;
-  slug: string;
-  impact: { staff: number; conversations: number; channels: number };
-  confirm: string;
-  setConfirm: (v: string) => void;
-  armed: boolean;
-  onCancel: () => void;
-}) {
-  return (
-    <div
-      onClick={onCancel}
-      className="fixed inset-0 grid place-items-center p-6"
-      style={{ zIndex: 95, background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)' }}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="drawer-suspend-title"
-        onClick={(e) => e.stopPropagation()}
-        className="surface-glass-strong w-[560px] max-w-full overflow-hidden rounded-2xl"
-        style={{
-          background: 'var(--surface-raised)',
-          border: '1px solid var(--border-strong)',
-          boxShadow: 'var(--glass-highlight), var(--shadow-lg)',
-        }}
-      >
-        <div className="p-6">
-          <p className="t-eyebrow" style={{ color: 'var(--danger-fg)' }}>DESTRUCTIVE ACTION</p>
-          <h2 id="drawer-suspend-title" className="display display-md mt-2" style={{ color: 'var(--text-primary)', fontSize: '20px' }}>
-            Suspend {workspaceName}
-          </h2>
-          <p className="t-body mt-2 text-xs" style={{ color: 'var(--text-secondary)', maxWidth: '54ch' }}>
-            A suspension directly impacts customer operational traffic across active integrations:
-          </p>
-
-          <ul className="mt-4 list-none gap-2.5 border-t p-0 pt-4 grid" style={{ borderColor: 'var(--border-subtle)' }}>
-            {[
-              [impact.staff, 'Staff members lose operator console access immediately.'],
-              [impact.conversations, 'Customer conversation routing will stop replying.'],
-              [impact.channels, 'Connected communication channels will go quiet.'],
-            ].map(([n, text]) => (
-              <li key={String(text)} className="flex items-start gap-3 text-xs" style={{ color: 'var(--text-primary)' }}>
-                <span className="font-mono shrink-0 text-right font-medium" style={{ color: 'var(--danger-fg)', minWidth: '4ch' }}>
-                  {Number(n).toLocaleString('en-GB')}
-                </span>
-                <span>{text}</span>
-              </li>
-            ))}
-          </ul>
-
-          <p className="mt-4 font-mono text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-            Data is preserved. Reactivation restores full message flow immediately.
-          </p>
-
-          <label className="mt-5 block">
-            <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
-              Type <span className="font-mono text-red-500 font-medium">{slug}</span> to confirm
-            </span>
-            <input
-              type="text"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              placeholder={slug}
-              autoComplete="off"
-              spellCheck={false}
-              className="w-full rounded-lg px-3 py-2 text-xs font-mono outline-none"
-              style={{
-                background: 'var(--surface-base)',
-                border: '1px solid var(--border-strong)',
-                color: 'var(--text-primary)',
-              }}
-            />
-          </label>
-        </div>
-
-        <div className="flex items-center gap-2.5 border-t px-6 py-3.5" style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}>
-          <span className="font-mono text-[11px] flex-1" style={{ color: 'var(--text-tertiary)' }}>tenant.suspend</span>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="h-8.5 px-3.5 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-            style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-raised)', color: 'var(--text-primary)' }}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            disabled={!armed}
-            className="h-8.5 px-4 rounded-lg text-xs font-medium text-white transition-opacity"
-            style={{
-              background: armed ? 'var(--danger-fg)' : 'var(--surface-inset)',
-              color: armed ? '#ffffff' : 'var(--text-disabled)',
-              cursor: armed ? 'pointer' : 'not-allowed',
-            }}
-          >
-            Suspend workspace
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
