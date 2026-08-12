@@ -4,6 +4,7 @@ import {
   IconDatabase,
   IconRobot,
   IconServer2,
+  IconShieldCheck,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
@@ -48,6 +49,18 @@ const SEV_INK: Record<Incident['sev'], { bg: string; ink: string }> = {
 export default async function HealthPage() {
   const m = await getHealth();
   const allOk = m.services.every((s) => s.days.every((d) => d === 'ok'));
+  // Degraded is amber, never red — red is reserved for a failure of
+  // correctness (the isolation suite), not a performance wobble.
+  const pillInk = allOk
+    ? 'var(--success-fg)'
+    : m.diagnosis.severity === 'incident'
+      ? 'var(--danger-fg)'
+      : 'var(--warning-fg)';
+  const pillBg = allOk
+    ? 'var(--success-bg)'
+    : m.diagnosis.severity === 'incident'
+      ? 'var(--danger-bg)'
+      : 'var(--warning-bg)';
 
   return (
     <ConsolePage>
@@ -66,30 +79,27 @@ export default async function HealthPage() {
         */}
         <span
           className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full px-3.5"
-          style={{
-            border: `1px solid ${allOk ? 'var(--success-fg)' : 'var(--warning-fg)'}`,
-            background: allOk ? 'var(--success-bg)' : 'var(--warning-bg)',
-          }}
+          style={{ border: `1px solid ${pillInk}`, background: pillBg }}
         >
           <span
             aria-hidden
             className="size-[7px] shrink-0 rounded-full"
-            style={{
-              background: allOk ? 'var(--success-fg)' : 'var(--warning-fg)',
-              animation: 'pulse-dot 2.4s ease-in-out infinite',
-            }}
+            style={{ background: pillInk, animation: 'pulse-dot 2.4s ease-in-out infinite' }}
           />
           <span
             className="whitespace-nowrap"
-            style={{
-              font: '500 var(--text-sm)/1 var(--font-ui)',
-              color: allOk ? 'var(--success-fg)' : 'var(--warning-fg)',
-            }}
+            style={{ font: '500 var(--text-sm)/1 var(--font-ui)', color: pillInk }}
           >
             {allOk ? 'All systems operational' : 'Degraded in the last 30 days'}
           </span>
         </span>
       </div>
+
+      {/* Sheet 11: the leading diagnosis, before any row. Severity is known
+          before the reader has to derive it from the grid beneath it. */}
+      <p className="t-body mt-4" style={{ color: 'var(--text-secondary)', maxWidth: '82ch' }}>
+        {m.diagnosis.sentence}
+      </p>
 
       {/* ── Services ─────────────────────────────────────────────────── */}
       <div
@@ -141,7 +151,7 @@ export default async function HealthPage() {
                 {s.metric}
               </p>
               <p className="t-caption mt-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                {s.note}
+                {s.note} · <span style={{ color: 'var(--text-secondary)' }}>{s.budget}</span>
               </p>
 
               {/* The strip. `title` on each bar gives a pointer user the date;
@@ -173,6 +183,78 @@ export default async function HealthPage() {
         })}
       </div>
 
+      {/* Sheet 11: "the severe risk in the brief is a policy gap; its status
+          belongs beside uptime, not buried in CI." Row Level Security is the
+          only isolation mechanism between tenants in this system — its
+          status sits here, at the top of the page an operator actually
+          checks, not in a CI log nobody reads unless something already broke. */}
+      <div className="mt-3.5">
+        <Panel title="Cross-tenant isolation suite">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+            <div>
+              <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+                Tables policed
+              </p>
+              <p className="numeric mt-1.5 flex items-baseline gap-1.5">
+                <span style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}>
+                  {m.isolation.tablesPoliced}
+                </span>
+                <span style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                  / {m.isolation.tablesTotal}
+                </span>
+                {m.isolation.tablesPoliced === m.isolation.tablesTotal ? (
+                  <IconShieldCheck size={16} stroke={1.5} style={{ color: 'var(--success-fg)' }} aria-hidden />
+                ) : null}
+              </p>
+            </div>
+            <div>
+              <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+                Cross-tenant attempts · 30d
+              </p>
+              <p className="numeric mt-1.5" style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}>
+                {m.isolation.crossTenantAttempts30d}
+              </p>
+            </div>
+            <div>
+              <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+                Refused
+              </p>
+              <p
+                className="numeric mt-1.5"
+                style={{
+                  fontSize: 'var(--display-sm)',
+                  color:
+                    m.isolation.crossTenantRefused30d === m.isolation.crossTenantAttempts30d
+                      ? 'var(--success-fg)'
+                      : 'var(--danger-fg)',
+                }}
+              >
+                {m.isolation.crossTenantRefused30d}
+                <span style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                  {' '}
+                  / {m.isolation.crossTenantAttempts30d}
+                </span>
+              </p>
+            </div>
+            <div>
+              <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+                Last run
+              </p>
+              <p style={{ font: '400 var(--text-sm)/1.4 var(--font-mono)', color: 'var(--text-primary)', marginTop: 6 }}>
+                {m.isolation.lastRun}
+              </p>
+            </div>
+          </div>
+          <p className="t-compact mt-4 border-t pt-3.5" style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}>
+            Every table carrying a tenant_id is policed by an RLS policy that scopes it to the
+            caller&rsquo;s own tenant. This suite runs against the real schema and asserts that a
+            cross-tenant read returns zero rows rather than a permission error — the same
+            not-403 rule the API itself follows, so a probe result and a live API response can
+            never disagree about what &ldquo;not visible&rdquo; means.
+          </p>
+        </Panel>
+      </div>
+
       <div className="mt-5">
         <Panel
           title="Response latency · 24 hours"
@@ -201,6 +283,13 @@ export default async function HealthPage() {
           }
         >
           <ThroughputChart data={m.throughput} />
+          <p className="t-caption mt-3" style={{ color: 'var(--text-tertiary)' }}>
+            <span className="numeric" style={{ color: 'var(--text-secondary)' }}>
+              {m.refusals.count24h}
+            </span>{' '}
+            refusals in the last 24 hours are excluded from the error rate above.{' '}
+            {m.refusals.note}
+          </p>
         </Panel>
 
         <Panel title="Background queues">

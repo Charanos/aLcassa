@@ -322,7 +322,7 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
 
   const ownerInfo = WORKSPACE_OWNERS[slug] ?? {
     name: `${row.name.split(' ')[0]} Admin`,
-    email: `ops@${row.slug}.conduit.app`,
+    email: `ops@${row.slug}.aLcassa.app`,
     initials: row.name.split(' ').slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join(''),
     residency: 'af-south-1 · Nairobi (RLS)',
     channels: 2,
@@ -725,6 +725,9 @@ export type Service = {
   icon: 'api' | 'db' | 'bot' | 'channel';
   metric: string;
   note: string;
+  /** Sheet 11: "a number without a target is trivia." What `metric` is being
+   *  held to — the same shape as `note`, read together as one sentence. */
+  budget: string;
   uptime: string;
   /** 30 days, oldest first. */
   days: DayState[];
@@ -742,11 +745,29 @@ export type Incident = {
 };
 
 export type HealthModel = {
+  /** Sheet 11: the leading sentence, stated before any row — severity known
+   *  before the reader has to work it out from the grid. */
+  diagnosis: { severity: 'ok' | 'degraded' | 'incident'; sentence: string };
   services: Service[];
   latency: Array<{ t: string; p50: number; p95: number; p99: number }>;
   throughput: Array<{ t: string; requests: number; errors: number }>;
+  /** Sheet 11: "a rejected scope is the guard working, not an error." A
+   *  refusal (support-mode boundary, entitlement ceiling, rate limit) is
+   *  counted here and held out of `throughput.errors`, which is reserved
+   *  for genuine failures. */
+  refusals: { count24h: number; note: string };
   queues: Queue[];
   incidents: Incident[];
+  /** Sheet 11: "the severe risk in the brief is a policy gap; its status
+   *  belongs beside uptime, not buried in CI." The one number on this page
+   *  that is not a performance metric. */
+  isolation: {
+    tablesTotal: number;
+    tablesPoliced: number;
+    crossTenantAttempts30d: number;
+    crossTenantRefused30d: number;
+    lastRun: string;
+  };
 };
 
 /** 30 days of state, with named exceptions. Written as a helper rather than
@@ -770,11 +791,17 @@ function days(exceptions: Record<number, DayState> = {}): DayState[] {
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
 export async function getHealth(): Promise<HealthModel> {
   return {
+    diagnosis: {
+      severity: 'degraded',
+      sentence:
+        'AI inference is the only service that missed its budget in the last 30 days — two short degradations and a 6-minute outage on the 8th. Everything else held its target the entire period.',
+    },
+
     services: [
-      { name: 'API', icon: 'api', metric: '142ms', note: 'p95 across all routes', uptime: '99.98%', days: days({ 17: 'degraded' }) },
-      { name: 'Database', icon: 'db', metric: '11ms', note: 'mean query time', uptime: '100%', days: days() },
-      { name: 'AI inference', icon: 'bot', metric: '1.9s', note: 'mean completion', uptime: '99.82%', days: days({ 8: 'down', 9: 'degraded', 22: 'degraded' }) },
-      { name: 'Channel gateway', icon: 'channel', metric: '99.4%', note: 'delivery success', uptime: '99.91%', days: days({ 14: 'degraded' }) },
+      { name: 'API', icon: 'api', metric: '142ms', note: 'p95 across all routes', budget: 'budget 200ms', uptime: '99.98%', days: days({ 17: 'degraded' }) },
+      { name: 'Database', icon: 'db', metric: '11ms', note: 'mean query time', budget: 'budget 25ms', uptime: '100%', days: days() },
+      { name: 'AI inference', icon: 'bot', metric: '1.9s', note: 'mean completion', budget: 'budget 2.5s', uptime: '99.82%', days: days({ 8: 'down', 9: 'degraded', 22: 'degraded' }) },
+      { name: 'Channel gateway', icon: 'channel', metric: '99.4%', note: 'delivery success', budget: 'budget 99%', uptime: '99.91%', days: days({ 14: 'degraded' }) },
     ],
 
     latency: Array.from({ length: 24 }, (_, i) => {
@@ -798,6 +825,11 @@ export async function getHealth(): Promise<HealthModel> {
       };
     }),
 
+    refusals: {
+      count24h: 214,
+      note: 'Entitlement ceilings and rate limits the guard rejected on purpose. Not counted as errors above.',
+    },
+
     queues: [
       { name: 'inbound.ingest', depth: 0, rate: '412/min' },
       { name: 'ai.completion', depth: 3, rate: '88/min' },
@@ -811,6 +843,19 @@ export async function getHealth(): Promise<HealthModel> {
       { id: 'i_2', sev: 'SEV3', title: 'WhatsApp template sync delayed', detail: 'Template approval polling backed off after rate limiting. Two workspaces affected.', when: '27 Jul, 09:40', status: 'resolved' },
       { id: 'i_3', sev: 'SEV1', title: 'Read replica failover', detail: 'Primary lost for 6 minutes. Automatic failover held; writes queued and drained.', when: '11 Jul, 03:22', status: 'resolved' },
     ],
+
+    isolation: {
+      // 06 §4: "roughly eighteen tenant-scoped tables" — the suite's real
+      // count is introspected from the schema at run time by
+      // tenantScopedTables() in tests/isolation/harness.ts, not hardcoded;
+      // 18 is project-docs/06-tenancy-and-isolation.md's own figure, kept in
+      // step with it here rather than restating the design mockup's "11".
+      tablesTotal: 18,
+      tablesPoliced: 18,
+      crossTenantAttempts30d: 0,
+      crossTenantRefused30d: 0,
+      lastRun: '12 Aug, 03:00',
+    },
   };
 }
 
