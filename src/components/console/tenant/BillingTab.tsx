@@ -10,6 +10,7 @@ import {
   IconCreditCard,
 } from '@tabler/icons-react';
 import { Panel } from '@/components/console/Surface';
+import { useRovingGrid } from '@/hooks/useRovingGrid';
 import type { WorkspaceDetail } from '@/lib/console/data';
 
 export function BillingTab({ w }: { w: WorkspaceDetail }) {
@@ -20,6 +21,9 @@ export function BillingTab({ w }: { w: WorkspaceDetail }) {
     if (filter === 'failed') return inv.status === 'failed';
     return true;
   });
+
+  // Sheet 13: the invoice table is one tab stop, not one per row.
+  const grid = useRovingGrid<HTMLTableRowElement>({ count: filteredInvoices.length });
 
   return (
     <div className="flex flex-col gap-6">
@@ -141,10 +145,11 @@ export function BillingTab({ w }: { w: WorkspaceDetail }) {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-                  {filteredInvoices.map((inv) => (
+                  {filteredInvoices.map((inv, i) => (
                     <tr
                       key={inv.id}
-                      className="group transition-colors hover:bg-[var(--surface-sunken)]"
+                      {...grid.getRowProps(i)}
+                      className="group transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
                       style={{ background: inv.status === 'failed' ? 'rgba(239, 68, 68, 0.02)' : 'transparent' }}
                     >
                       <td className="px-5 py-3.5">

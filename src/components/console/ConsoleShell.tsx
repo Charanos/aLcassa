@@ -474,6 +474,17 @@ export function ConsoleShell({
         ['--row-pad' as string]: density === 'dense' ? '6px' : '8px',
       }}
     >
+      {/* Sheet 13: skip link is stop 01 — invisible until it has focus, then
+          sits above everything else so a keyboard reader never has to tab
+          through the header and sidebar to reach the page. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:rounded-lg focus:px-4 focus:py-2.5"
+        style={{ background: 'var(--blue-500)', color: '#ffffff', font: '500 13px/1 var(--font-ui)' }}
+      >
+        Skip to content
+      </a>
+
       {session ? <SupportSessionBanner session={session} onEnd={onEndSession} /> : null}
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
@@ -1098,7 +1109,7 @@ export function ConsoleShell({
           </div>
         </nav>
 
-        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto" style={{ background: 'var(--surface-base)' }}>
+        <main id="main-content" className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto" style={{ background: 'var(--surface-base)' }}>
           {children}
         </main>
       </div>

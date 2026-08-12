@@ -11,6 +11,7 @@ import {
   IconShieldLock,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
+import { useRovingGrid } from '@/hooks/useRovingGrid';
 import type { AuditEntry, AuditKind } from '@/lib/console/data';
 
 /**
@@ -66,6 +67,15 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
       return `${e.action} ${e.target} ${e.actor}`.toLowerCase().includes(q);
     });
   }, [entries, query, kinds]);
+
+  // Sheet 13: the stream is one tab stop, not one per entry.
+  const grid = useRovingGrid<HTMLButtonElement>({
+    count: filtered.length,
+    onActivate: (i) => {
+      const entry = filtered[i];
+      if (entry) setOpen((current) => (current === entry.id ? null : entry.id));
+    },
+  });
 
   return (
     <>
@@ -141,7 +151,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
           boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
         }}
       >
-        {filtered.map((e) => {
+        {filtered.map((e, i) => {
           const meta = KIND_META[e.kind];
           const Icon = meta.icon;
           const isOpen = open === e.id;
@@ -149,9 +159,10 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
             <div key={e.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
               <button
                 type="button"
+                {...grid.getRowProps(i)}
                 onClick={() => setOpen(isOpen ? null : e.id)}
                 aria-expanded={isOpen}
-                className="flex w-full items-center gap-3.5 px-4 py-2.5 text-left transition-colors hover:bg-[var(--surface-sunken)]"
+                className="flex w-full items-center gap-3.5 px-4 py-2.5 text-left transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
                 style={{
                   minHeight: 44,
                   background: isOpen ? 'var(--surface-sunken)' : 'transparent',

@@ -15,6 +15,7 @@ import { EmptyState } from '@/components/primitives/EmptyState';
 import { StartSessionDialog } from './StartSessionDialog';
 import { WorkspaceDetailDrawer } from './WorkspaceDetailDrawer';
 import { useToast } from '@/components/primitives/Toast';
+import { useRovingGrid } from '@/hooks/useRovingGrid';
 import type { ConsoleWorkspace } from './types';
 import type { WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
 
@@ -164,6 +165,13 @@ export function WorkspaceTable({
     const start = (page - 1) * PAGE_SIZE;
     return filtered.slice(start, start + PAGE_SIZE);
   }, [filtered, page]);
+
+  // Sheet 13: the grid is one tab stop. ↑↓ move between rows, ↵ opens the
+  // detail drawer, → steps into the row's own actions.
+  const grid = useRovingGrid<HTMLTableRowElement>({
+    count: paginated.length,
+    onActivate: (i) => setDrawerRow(paginated[i] ?? null),
+  });
 
   const filtersActive = query.trim() !== '' || statuses.length > 0 || attention;
 
@@ -515,7 +523,7 @@ export function WorkspaceTable({
               </thead>
 
               <tbody className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-                {paginated.map((r) => {
+                {paginated.map((r, i) => {
                   const seatPct = r.seatsUsed / r.seatsLimit;
                   const eventPct = r.events / r.eventsLimit;
                   const st = STATUS_INK[r.status];
@@ -527,8 +535,9 @@ export function WorkspaceTable({
                   return (
                     <tr
                       key={r.id}
+                      {...grid.getRowProps(i)}
                       onClick={() => setDrawerRow(r)}
-                      className="group cursor-pointer transition-colors duration-150 hover:bg-[var(--surface-sunken)]/60"
+                      className="group cursor-pointer transition-colors duration-150 hover:bg-[var(--surface-sunken)]/60 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
                     >
                       {/* Workspace & Meta */}
                       <td className="py-4.5 pl-6 pr-4">
@@ -655,7 +664,17 @@ export function WorkspaceTable({
                       </td>
 
                       {/* Actions */}
-                      <td className="py-4.5 pl-3 pr-6 text-right" onClick={e => e.stopPropagation()}>
+                      <td
+                        className="py-4.5 pl-3 pr-6 text-right"
+                        onClick={(e) => e.stopPropagation()}
+                        data-row-actions
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape' || e.key === 'ArrowLeft') {
+                            e.preventDefault();
+                            grid.focusIndex(i);
+                          }
+                        }}
+                      >
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             type="button"

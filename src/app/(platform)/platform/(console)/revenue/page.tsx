@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import {
   IconArrowDown,
@@ -13,6 +12,7 @@ import {
 } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
 import { AgeingChart, MrrChart, PlanMixChart } from '@/components/console/Charts';
+import { CollectionQueueTable } from '@/components/console/CollectionQueueTable';
 import { getRevenue, type Kpi } from '@/lib/console/data';
 
 export const metadata: Metadata = { title: 'Revenue' };
@@ -221,137 +221,7 @@ export default async function RevenuePage() {
             </span>
           }
         >
-          {/* Desktop table */}
-          <div className="hidden sm:block">
-            <table className="w-full table-fixed border-collapse">
-              <colgroup>
-                <col style={{ width: '34%' }} />
-                <col style={{ width: '18%' }} />
-                <col style={{ width: '16%' }} />
-                <col style={{ width: '16%' }} />
-                <col style={{ width: '16%' }} />
-              </colgroup>
-              <thead>
-                <tr style={{ background: 'var(--surface-sunken)' }}>
-                  {['Workspace', 'Invoice', 'Amount', 'Late', 'Attempts'].map((h, i) => (
-                    <th
-                      key={h}
-                      scope="col"
-                      className="h-9"
-                      style={{
-                        padding: i === 0 ? '0 16px' : i === 4 ? '0 16px' : '0 8px',
-                        textAlign: i >= 2 ? 'right' : 'left',
-                        borderBottom: '1px solid var(--border-subtle)',
-                        font: '500 11px/1 var(--font-ui)',
-                        letterSpacing: '0.04em',
-                        textTransform: 'uppercase',
-                        color: 'var(--text-secondary)',
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {m.collections.map((c) => (
-                  <tr
-                    key={c.id}
-                    className="transition-colors hover:bg-[var(--surface-sunken)]"
-                    style={{ height: 44, borderBottom: '1px solid var(--border-subtle)' }}
-                  >
-                    <td className="overflow-hidden" style={{ padding: '0 16px' }}>
-                      <Link
-                        href={`/platform/tenants/${c.slug}`}
-                        className="block truncate transition-colors hover:text-[var(--text-action)]"
-                        style={{
-                          font: '400 var(--text-sm)/1.3 var(--font-ui)',
-                          color: 'var(--text-primary)',
-                        }}
-                      >
-                        {c.name}
-                      </Link>
-                    </td>
-                    <td style={{ padding: '0 8px' }}>
-                      <span
-                        style={{
-                          font: '400 12px/1 var(--font-mono)',
-                          color: 'var(--text-secondary)',
-                        }}
-                      >
-                        {c.invoice}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0 8px', textAlign: 'right' }}>
-                      <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
-                        {c.amount}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0 8px', textAlign: 'right' }}>
-                      <span
-                        style={{
-                          font: '400 var(--text-sm)/1 var(--font-mono)',
-                          color: lateInk(c.days),
-                        }}
-                      >
-                        {c.days} {c.days === 1 ? 'day' : 'days'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0 16px', textAlign: 'right' }}>
-                      <span
-                        style={{
-                          font: '400 var(--text-sm)/1 var(--font-mono)',
-                          color: 'var(--text-tertiary)',
-                        }}
-                      >
-                        {c.attempts}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile cards */}
-          <div className="grid gap-2 p-4 sm:hidden">
-            {m.collections.map((c) => (
-              <Link
-                key={c.id}
-                href={`/platform/tenants/${c.slug}`}
-                className="block rounded-panel p-3"
-                style={{ border: '1px solid var(--border-subtle)' }}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <span
-                    className="min-w-0 flex-1"
-                    style={{
-                      font: '500 var(--text-sm)/1.35 var(--font-ui)',
-                      color: 'var(--text-primary)',
-                    }}
-                  >
-                    {c.name}
-                  </span>
-                  <span
-                    className="shrink-0 whitespace-nowrap"
-                    style={{ font: '400 11px/1 var(--font-mono)', color: lateInk(c.days) }}
-                  >
-                    {c.days}d late
-                  </span>
-                </div>
-                <div className="mt-1.5 flex items-center justify-between gap-3">
-                  <span
-                    style={{ font: '400 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
-                  >
-                    {c.invoice} · {c.attempts}
-                  </span>
-                  <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
-                    {c.amount}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <CollectionQueueTable collections={m.collections} />
 
           <div
             className="px-4 py-3"
@@ -369,14 +239,6 @@ export default async function RevenuePage() {
       </div>
     </ConsolePage>
   );
-}
-
-/** Escalating rather than categorical: the question is "how late", not "which
- *  bucket". Over 60 days is a write-off conversation, not a retry. */
-function lateInk(days: number): string {
-  if (days > 60) return 'var(--danger-fg)';
-  if (days > 5) return 'var(--warning-fg)';
-  return 'var(--text-secondary)';
 }
 
 function Legend({
