@@ -158,30 +158,42 @@ export default async function ConsoleOverviewPage() {
           <div className="flex-1 p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden" style={{ borderRight: '1px solid var(--invert-card-rule)' }}>
             {/* Background Architectural Artwork - elegant tenant telemetry & topology motif */}
             <div 
-              className="absolute -right-20 -bottom-16 pointer-events-none select-none z-0 opacity-[0.05] dark:opacity-[0.08] text-[var(--invert-card-fg)] transform rotate-6 transition-all"
+              className="absolute -right-16 -bottom-20 pointer-events-none select-none z-0 opacity-[0.12] dark:opacity-[0.08] text-[var(--invert-card-fg)] transform rotate-12 transition-all duration-700"
               aria-hidden="true"
             >
-              <svg width="440" height="360" viewBox="0 0 440 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="480" height="400" viewBox="0 0 480 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                 {/* Orbital radar rings */}
-                <circle cx="300" cy="220" r="200" stroke="currentColor" strokeWidth="1" strokeDasharray="6 8" opacity="0.4" />
-                <circle cx="300" cy="220" r="140" stroke="currentColor" strokeWidth="1.2" opacity="0.5" />
-                <circle cx="300" cy="220" r="80" stroke="currentColor" strokeWidth="1" strokeDasharray="3 5" opacity="0.7" />
-                <circle cx="300" cy="220" r="24" stroke="currentColor" strokeWidth="1.5" opacity="0.9" />
+                <circle cx="320" cy="240" r="220" stroke="currentColor" strokeWidth="1" strokeDasharray="4 8" opacity="0.3" />
+                <circle cx="320" cy="240" r="160" stroke="currentColor" strokeWidth="1.2" opacity="0.4" />
+                <circle cx="320" cy="240" r="100" stroke="currentColor" strokeWidth="1" strokeDasharray="3 6" opacity="0.6" />
+                <circle cx="320" cy="240" r="40" stroke="currentColor" strokeWidth="1.5" opacity="0.8" />
+                <circle cx="320" cy="240" r="12" fill="currentColor" opacity="0.9" />
+                
+                {/* Data streaming waves / paths */}
+                <path d="M 100 200 Q 210 150 320 240 T 460 180" stroke="currentColor" strokeWidth="1.5" opacity="0.5" fill="none" />
+                <path d="M 140 280 Q 250 320 320 240 T 420 100" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" opacity="0.4" fill="none" />
+                
                 {/* Constellation & Tenancy Network Interconnects */}
-                <path d="M 120 190 L 210 140 L 300 220 L 390 170 L 350 310 L 200 290 Z" stroke="currentColor" strokeWidth="1.25" opacity="0.6" />
-                <path d="M 210 140 L 300 70 L 390 170" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" opacity="0.45" />
-                <path d="M 120 190 L 200 290" stroke="currentColor" strokeWidth="0.75" strokeDasharray="3 3" opacity="0.35" />
+                <path d="M 140 200 L 230 160 L 320 240 L 410 190 L 360 330 L 220 310 Z" stroke="currentColor" strokeWidth="1.25" opacity="0.5" />
+                <path d="M 230 160 L 320 90 L 410 190" stroke="currentColor" strokeWidth="1" strokeDasharray="3 4" opacity="0.4" />
+                <path d="M 140 200 L 220 310" stroke="currentColor" strokeWidth="0.75" strokeDasharray="2 3" opacity="0.3" />
+                
                 {/* Node anchors */}
-                <circle cx="120" cy="190" r="5.5" fill="currentColor" opacity="0.75" />
-                <circle cx="210" cy="140" r="7" fill="currentColor" opacity="0.9" />
-                <circle cx="300" cy="220" r="9" fill="currentColor" />
-                <circle cx="300" cy="70" r="4.5" fill="currentColor" opacity="0.6" />
-                <circle cx="390" cy="170" r="6" fill="currentColor" opacity="0.8" />
-                <circle cx="350" cy="310" r="7" fill="currentColor" opacity="0.85" />
-                <circle cx="200" cy="290" r="5" fill="currentColor" opacity="0.7" />
+                <circle cx="140" cy="200" r="6" fill="currentColor" opacity="0.75" />
+                <circle cx="230" cy="160" r="8" fill="currentColor" opacity="0.9" />
+                <circle cx="320" cy="90" r="5" fill="currentColor" opacity="0.6" />
+                <circle cx="410" cy="190" r="7" fill="currentColor" opacity="0.8" />
+                <circle cx="360" cy="330" r="7.5" fill="currentColor" opacity="0.85" />
+                <circle cx="220" cy="310" r="5.5" fill="currentColor" opacity="0.7" />
+                
+                {/* Micro-nodes */}
+                <circle cx="275" cy="200" r="3" fill="currentColor" opacity="0.5" />
+                <circle cx="365" cy="215" r="3.5" fill="currentColor" opacity="0.6" />
+                <circle cx="280" cy="285" r="3" fill="currentColor" opacity="0.5" />
+                
                 {/* Radial crosshair lines */}
-                <line x1="300" y1="10" x2="300" y2="350" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4 6" opacity="0.3" />
-                <line x1="80" y1="220" x2="430" y2="220" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4 6" opacity="0.3" />
+                <line x1="320" y1="0" x2="320" y2="400" stroke="currentColor" strokeWidth="0.75" strokeDasharray="3 6" opacity="0.25" />
+                <line x1="0" y1="240" x2="480" y2="240" stroke="currentColor" strokeWidth="0.75" strokeDasharray="3 6" opacity="0.25" />
               </svg>
             </div>
 
@@ -289,7 +301,7 @@ export default async function ConsoleOverviewPage() {
       </section>
 
       {/* ── Queue + rail ─────────────────────────────────────────────────── */}
-      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
+      <div className="mb-8 md:mt-24 grid items-start gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
         <section>
           <SectionHeading title="Your queue" note="Ordered by what it costs to ignore" />
 
@@ -301,21 +313,36 @@ export default async function ConsoleOverviewPage() {
 
           {/* The denominator. See the header note. */}
           <div
-            className="mt-5 flex items-center gap-3.5 rounded-2xl px-5 py-4"
+            className="mt-6 flex items-center gap-3.5 rounded-2xl px-5 py-4 relative overflow-hidden group"
             style={{
-              border: '1px dashed var(--border-strong)',
+              border: '1px solid var(--border-subtle)',
               background: 'var(--surface-sunken)',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
             }}
           >
-            <IconCircleCheck
-              size={18}
-              stroke={1.5}
-              className="shrink-0"
-              style={{ color: 'var(--success-fg)' }}
-              aria-hidden
+            {/* Ambient success glow */}
+            <div 
+              className="absolute left-0 top-0 bottom-0 w-24 pointer-events-none opacity-20 dark:opacity-10 transition-opacity duration-500 group-hover:opacity-30"
+              style={{
+                background: 'linear-gradient(90deg, var(--success-bg) 0%, transparent 100%)'
+              }}
             />
-            <p className="t-compact flex-1" style={{ color: 'var(--text-secondary)' }}>
-              The other <span className="numeric font-medium">{model.restingCount}</span> workspaces are inside
+            <div className="relative flex items-center justify-center shrink-0">
+              {/* Outer pulsing ring */}
+              <div 
+                className="absolute inset-0 rounded-full animate-ping opacity-20"
+                style={{ background: 'var(--success-fg)' }}
+              />
+              <IconCircleCheck
+                size={20}
+                stroke={1.5}
+                className="relative z-10"
+                style={{ color: 'var(--success-fg)' }}
+                aria-hidden
+              />
+            </div>
+            <p className="t-compact flex-1 relative z-10" style={{ color: 'var(--text-secondary)', letterSpacing: '-0.01em' }}>
+              The other <span className="numeric font-medium" style={{ color: 'var(--text-primary)' }}>{model.restingCount}</span> workspaces are inside
               every limit, paid up, and active in the last seven days.
             </p>
           </div>
@@ -387,44 +414,67 @@ export default async function ConsoleOverviewPage() {
               </Link>
             }
           >
-            {model.recent.map((r, i) => (
-              <div
-                key={`${r.time}-${r.action}`}
-                className="grid gap-0.5 px-4 py-2.5"
-                style={{
-                  borderBottom:
-                    i === model.recent.length - 1 ? undefined : '1px solid var(--border-subtle)',
-                }}
-              >
-                <span className="flex items-baseline gap-2">
-                  <span
-                    className="shrink-0"
-                    style={{ font: '400 11px/1.5 var(--font-mono)', color: 'var(--text-tertiary)' }}
+            <div className="py-2">
+              {model.recent.map((r, i) => {
+                const isLast = i === model.recent.length - 1;
+                return (
+                  <div
+                    key={`${r.time}-${r.action}`}
+                    className="relative flex gap-3 px-4 py-2 group"
                   >
-                    {r.time}
-                  </span>
-                  {/* The operation name in mono, verbatim. An operator who
-                      needs to find this again will search the audit log for
-                      this exact string. */}
-                  <span
-                    className="min-w-0 flex-1"
-                    style={{
-                      font: '400 12px/1.45 var(--font-mono)',
-                      color: 'var(--text-primary)',
-                      overflowWrap: 'anywhere',
-                    }}
-                  >
-                    {r.action}
-                  </span>
-                </span>
-                <span
-                  className="t-caption"
-                  style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
-                >
-                  {r.target}
-                </span>
-              </div>
-            ))}
+                    {/* Timeline Axis */}
+                    <div className="relative flex flex-col items-center mt-1.5 shrink-0">
+                      {/* Node Dot */}
+                      <div 
+                        className="w-[7px] h-[7px] rounded-full z-10 transition-colors duration-300 group-hover:bg-[var(--blue-400)]"
+                        style={{ 
+                          background: 'var(--border-strong)',
+                          boxShadow: '0 0 0 2px var(--surface-raised)'
+                        }}
+                      />
+                      {/* Connecting Line */}
+                      {!isLast && (
+                        <div 
+                          className="absolute top-[7px] bottom-[-24px] w-px"
+                          style={{ background: 'var(--border-subtle)' }}
+                        />
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="grid gap-0.5 pb-2">
+                      <span className="flex items-baseline gap-2">
+                        <span
+                          className="shrink-0"
+                          style={{ font: '400 11px/1.5 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                        >
+                          {r.time}
+                        </span>
+                        {/* The operation name in mono, verbatim. An operator who
+                            needs to find this again will search the audit log for
+                            this exact string. */}
+                        <span
+                          className="min-w-0 flex-1 transition-colors duration-200 group-hover:text-[var(--text-primary)]"
+                          style={{
+                            font: '400 12px/1.45 var(--font-mono)',
+                            color: 'var(--text-secondary)',
+                            overflowWrap: 'anywhere',
+                          }}
+                        >
+                          {r.action}
+                        </span>
+                      </span>
+                      <span
+                        className="t-caption"
+                        style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+                      >
+                        {r.target}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </Panel>
         </div>
       </div>
@@ -438,88 +488,99 @@ function QueueCard({ item }: { item: QueueItem }) {
 
   return (
     <article
-      className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-[2px] hover:shadow-lg hover:border-[var(--blue-400)]/30"
+      className="group relative overflow-hidden rounded-2xl transition-all duration-400 hover:-translate-y-[2px]"
       style={{
         border: '1px solid var(--border-subtle)',
         background: 'var(--surface-raised)',
-        boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
+        // Soft subtle neumorphism: soft drop shadow + inner light/dark rim
+        boxShadow: '4px 6px 20px rgba(0, 0, 0, 0.04), inset 1px 1px 0px rgba(255, 255, 255, 0.05), inset -1px -1px 0px rgba(0, 0, 0, 0.02)',
       }}
     >
-      <div className="flex items-stretch">
-        {/* A 3px rail rather than a tinted card. 03 §20 forbids colouring a
-            whole panel to signal state, and with four of these stacked the
-            rail is also what lets severity be read down the left edge without
-            reading a word. */}
-        <span aria-hidden className="w-[3px] shrink-0" style={{ background: s.rail }} />
+      {/* Subtle hover gradient wash based on severity rail color */}
+      <div 
+        className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-10 pointer-events-none"
+        style={{
+          background: `radial-gradient(circle at top right, ${s.rail}, transparent 70%)`
+        }}
+      />
 
-        <div className="min-w-0 flex-1 p-5 md:p-6">
-          <div className="flex items-center gap-3">
-            <span
-              className="grid size-7 shrink-0 place-items-center rounded-lg"
-              style={{ background: s.chipBg, color: s.chipInk }}
-              aria-hidden
-            >
-              <Icon size={15} stroke={1.5} />
-            </span>
-            <Link
-              href={`/platform/tenants/${item.slug}`}
-              className="min-w-0 flex-1 truncate transition-colors hover:text-[var(--text-action)]"
-              style={{
-                font: '500 15px/1.35 var(--font-ui)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              {item.name}
-            </Link>
-            {/* The tag repeats the rail's meaning in words. 03 §9: colour is
-                never the sole carrier. */}
-            <span
-              className="inline-flex h-6 shrink-0 items-center rounded-full px-3 whitespace-nowrap"
-              style={{
-                background: s.tagBg,
-                color: s.tagInk,
-                font: '500 11px/1 var(--font-mono)',
-                letterSpacing: '0.04em',
-              }}
-            >
-              {item.tag}
-            </span>
-          </div>
-
-          <p
-            className="mt-3 ml-10 text-[13.5px] leading-relaxed"
-            style={{ color: 'var(--text-secondary)', maxWidth: '74ch', textWrap: 'pretty' }}
+      <div className="flex flex-col min-w-0 flex-1 p-5 md:p-6 relative z-10">
+        <div className="flex items-center gap-3">
+          <span
+            className="grid size-[34px] shrink-0 place-items-center rounded-xl"
+            style={{ 
+              background: s.chipBg, 
+              color: s.chipInk,
+              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.05)'
+            }}
+            aria-hidden
           >
-            {item.detail}
-          </p>
+            <Icon size={16} stroke={1.75} />
+          </span>
+          <Link
+            href={`/platform/tenants/${item.slug}`}
+            className="min-w-0 flex-1 truncate transition-colors hover:text-[var(--text-action)]"
+            style={{
+              font: '500 16px/1.35 var(--font-ui)',
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.01em'
+            }}
+          >
+            {item.name}
+          </Link>
+          
+          <span
+            className="inline-flex h-6 shrink-0 items-center rounded-full px-3 whitespace-nowrap"
+            style={{
+              background: s.tagBg,
+              color: s.tagInk,
+              font: '500 11px/1 var(--font-mono)',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {item.tag}
+          </span>
+        </div>
 
-          <div className="mt-5 ml-10 flex flex-wrap items-center gap-3">
-            <Link
-              href={item.primaryHref}
-              className="t-compact inline-flex h-8 cursor-pointer items-center rounded-lg px-4 whitespace-nowrap transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm"
-              style={{ background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
-            >
-              {item.primaryLabel}
-            </Link>
-            <Link
-              href={`/platform/tenants/${item.slug}`}
-              className="t-compact inline-flex h-8 cursor-pointer items-center rounded-lg px-4 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
-              style={{
-                border: '1px solid var(--border-strong)',
-                background: 'var(--surface-raised)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              Open workspace
-            </Link>
-            <span className="flex-1" />
-            <span
-              className="whitespace-nowrap text-xs"
-              style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
-            >
-              {item.meta}
-            </span>
-          </div>
+        <p
+          className="mt-4 text-[14px] leading-relaxed opacity-90"
+          style={{ color: 'var(--text-secondary)', maxWidth: '74ch', textWrap: 'pretty' }}
+        >
+          {item.detail}
+        </p>
+
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <Link
+            href={item.primaryHref}
+            className="t-compact inline-flex h-8.5 cursor-pointer items-center justify-center rounded-lg px-4.5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5"
+            style={{ 
+              background: 'var(--blue-500)', 
+              color: '#ffffff', 
+              fontWeight: 500,
+              boxShadow: '0 4px 12px rgba(14, 165, 233, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)'
+            }}
+          >
+            {item.primaryLabel}
+          </Link>
+          <Link
+            href={`/platform/tenants/${item.slug}`}
+            className="t-compact inline-flex h-8.5 cursor-pointer items-center rounded-lg px-4 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
+            style={{
+              border: '1px solid var(--border-strong)',
+              background: 'var(--surface-raised)',
+              color: 'var(--text-primary)',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+            }}
+          >
+            Open workspace
+          </Link>
+          <span className="flex-1" />
+          <span
+            className="whitespace-nowrap opacity-60"
+            style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+          >
+            {item.meta}
+          </span>
         </div>
       </div>
     </article>

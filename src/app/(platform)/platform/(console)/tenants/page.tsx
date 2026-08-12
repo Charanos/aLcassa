@@ -1,8 +1,8 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
-import { IconDownload, IconPlus, IconBuildings } from '@tabler/icons-react';
+import { IconDownload, IconBuildings } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
 import { WorkspaceTable } from '@/components/console/WorkspaceTable';
+import { ProvisionWorkspaceButton } from '@/components/console/ProvisionWorkspaceButton';
 import { getWorkspaces } from '@/lib/console/data';
 import { startSupportSession } from '../actions';
 
@@ -50,14 +50,7 @@ export default async function WorkspacesPage() {
               <IconDownload size={15} stroke={1.5} aria-hidden />
               Export
             </button>
-            <Link
-              href="/platform/tenants/new"
-              className="t-compact inline-flex h-[34px] items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-              style={{ background: 'var(--accent-500)', color: '#ffffff', fontWeight: 500 }}
-            >
-              <IconPlus size={15} stroke={1.5} aria-hidden />
-              Provision workspace
-            </Link>
+            <ProvisionWorkspaceButton />
           </>
         }
       />

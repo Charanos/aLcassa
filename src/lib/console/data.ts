@@ -93,14 +93,6 @@ export async function getOverview(): Promise<OverviewModel> {
 
     signals: [
       {
-        id: 'uncollected',
-        label: 'Uncollected',
-        value: '594k',
-        note: 'Five invoices. One is 94 days old.',
-        href: '/platform/revenue',
-        icon: 'coin',
-      },
-      {
         id: 'recurring',
         label: 'Recurring',
         value: '6.04M',
@@ -308,63 +300,137 @@ export type WorkspaceDetail = {
  * dialog, not hardcoded in the component, or the console will eventually be
  * confidently wrong about how many people it is about to lock out.
  */
-// eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
+const WORKSPACE_OWNERS: Record<string, { name: string; email: string; initials: string; residency?: string; channels?: number; admins?: number }> = {
+  'kilimanjaro-logistics': { name: 'Joseph Mwaura', email: 'j.mwaura@kilimanjaro.co.ke', initials: 'JM', residency: 'eu-central-1 · Frankfurt (RLS)', channels: 4, admins: 6 },
+  'sarova-hospitality':    { name: 'Amina Mwangi', email: 'a.mwangi@sarova-hotels.co.ke', initials: 'AM', residency: 'af-south-1 · Nairobi (RLS)', channels: 6, admins: 4 },
+  'northwind-ea':          { name: 'David Kimani', email: 'd.kimani@northwind-ea.com', initials: 'DK', residency: 'af-south-1 · Nairobi (RLS)', channels: 3, admins: 3 },
+  'peridot-health':        { name: 'Dr. Faith Cherono', email: 'f.cherono@peridotclinics.org', initials: 'FC', residency: 'af-south-1 · Nairobi (RLS)', channels: 2, admins: 2 },
+  'tamarind-bay':          { name: 'Salim Bakari', email: 's.bakari@tamarindbay.com', initials: 'SB', residency: 'af-south-1 · Mombasa (RLS)', channels: 2, admins: 2 },
+  'mombasa-freight':       { name: 'Hassan Omar', email: 'h.omar@mbfreight.co.ke', initials: 'HO', residency: 'af-south-1 · Mombasa (RLS)', channels: 1, admins: 2 },
+  'aurora-dental':         { name: 'Dr. Grace Nduta', email: 'g.nduta@auroradental.co.ke', initials: 'GN', residency: 'af-south-1 · Nairobi (RLS)', channels: 2, admins: 1 },
+  'bluewave-telecom':      { name: 'Patrick Otieno', email: 'p.otieno@bluewave.co.ke', initials: 'PO', residency: 'eu-central-1 · Frankfurt (RLS)', channels: 8, admins: 8 },
+  'highfield-insurance':   { name: 'Catherine Wanjiru', email: 'c.wanjiru@highfield.co.ke', initials: 'CW', residency: 'af-south-1 · Nairobi (RLS)', channels: 4, admins: 3 },
+  'nyali-property':        { name: 'Tariq Al-Amoodi', email: 't.alamoodi@nyaliproperty.com', initials: 'TA', residency: 'af-south-1 · Mombasa (RLS)', channels: 1, admins: 1 },
+  'serengeti-coffee':      { name: 'Emmanuel Kiprop', email: 'e.kiprop@serengeticoffee.co.ke', initials: 'EK', residency: 'af-south-1 · Eldoret (RLS)', channels: 3, admins: 2 },
+  'lakeside-motors':       { name: 'Victor Omondi', email: 'v.omondi@lakesidemotors.co.ke', initials: 'VO', residency: 'af-south-1 · Kisumu (RLS)', channels: 2, admins: 1 },
+};
+
 export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail | null> {
-  if (slug !== 'kilimanjaro-logistics') return null;
+  const workspaces = await getWorkspaces();
+  const row = workspaces.find((w) => w.slug === slug);
+  if (!row) return null;
+
+  const ownerInfo = WORKSPACE_OWNERS[slug] ?? {
+    name: `${row.name.split(' ')[0]} Admin`,
+    email: `ops@${row.slug}.conduit.app`,
+    initials: row.name.split(' ').slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join(''),
+    residency: 'af-south-1 · Nairobi (RLS)',
+    channels: 2,
+    admins: 2,
+  };
+
+  const DEFAULT_PLAN_META = { monthly: 'KES 28,000 / month', num: 28000, ltv: 'KES 364,000', ltvNum: 364000 };
+  const planAmounts: Record<string, { monthly: string; num: number; ltv: string; ltvNum: number }> = {
+    Scale:   { monthly: 'KES 184,000 / month', num: 184000, ltv: 'KES 2,806,000', ltvNum: 2806000 },
+    Growth:  { monthly: 'KES 85,000 / month',  num: 85000,  ltv: 'KES 1,190,000', ltvNum: 1190000 },
+    Starter: DEFAULT_PLAN_META,
+    '—':     { monthly: 'Trial (14 days)',     num: 0,      ltv: 'KES 0',         ltvNum: 0 },
+  };
+
+  const planMeta = planAmounts[row.plan] ?? DEFAULT_PLAN_META;
+  const conversationsUsed = Math.max(1, Math.round(row.seatsUsed * 74.5));
+  const conversationsLimit = Math.max(1000, row.seatsLimit * 130);
+  const storageGb = Number((row.seatsUsed * 0.14 + (row.events / 500000) * 18).toFixed(1));
+
+  let alert: { title: string; body: string } | null = null;
+  if (row.status === 'past due') {
+    alert = {
+      title: 'Payment past due · 6 days outstanding',
+      body: `Invoice INV-2026-0841 for KES ${planMeta.num.toLocaleString('en-GB')} was declined. Two automatic retries failed. Access continues until next period threshold.`,
+    };
+  } else if (row.status === 'suspended') {
+    alert = {
+      title: 'Workspace suspended by platform operator',
+      body: 'Inbound message routing is queued and staff access is paused. RLS tenant data is preserved. One-click reactivation restores full traffic.',
+    };
+  } else if (row.status === 'trial') {
+    alert = {
+      title: 'Active 14-day evaluation trial',
+      body: 'Trial concludes in 5 days. Workload telemetry is running under standard Starter tier rate limits with row-level encryption enabled.',
+    };
+  }
+
+  const invoices: Invoice[] = row.status === 'trial' || row.status === 'pending' ? [] : [
+    {
+      id: `INV-2026-08${row.id.replace('w_', '4')}`,
+      issued: '04 Aug 2026',
+      period: 'Aug 2026',
+      amount: planMeta.num.toLocaleString('en-GB'),
+      status: row.status === 'past due' ? 'failed' : 'paid',
+      paid: row.status === 'past due' ? '—' : '05 Aug',
+    },
+    {
+      id: `INV-2026-07${row.id.replace('w_', '3')}`,
+      issued: '04 Jul 2026',
+      period: 'Jul 2026',
+      amount: planMeta.num.toLocaleString('en-GB'),
+      status: 'paid',
+      paid: '04 Jul',
+    },
+    {
+      id: `INV-2026-06${row.id.replace('w_', '2')}`,
+      issued: '04 Jun 2026',
+      period: 'Jun 2026',
+      amount: planMeta.num.toLocaleString('en-GB'),
+      status: 'paid',
+      paid: '04 Jun',
+    },
+  ];
 
   return {
-    id: 'tnt_8f3a91c04b2e',
-    slug,
-    name: 'Kilimanjaro Logistics Group Ltd',
-    status: 'past due',
-    plan: 'Scale',
-    monthlyValue: 'KES 184,000 / month',
-    since: 'Since 12 Mar 2025',
-    lastActive: 'Last active 4 min ago',
-
-    alert: {
-      title: 'Payment failed six days ago',
-      body: 'Invoice INV-2026-0841 for KES 184,000 was declined on 4 August. Two retries have failed. Access continues until 18 August, then the workspace suspends automatically.',
-    },
-
+    id: `tnt_${row.id}_${row.slug.slice(0, 6)}`,
+    slug: row.slug,
+    name: row.name,
+    status: row.status,
+    plan: row.plan,
+    monthlyValue: planMeta.monthly,
+    since: `Since ${row.created}`,
+    lastActive: `Last active ${row.activity}`,
+    alert,
     meters: [
-      { label: 'Staff seats', icon: 'seat', used: 247, limit: 300 },
-      { label: 'Events this month', icon: 'bolt', used: 412880, limit: 500000 },
-      { label: 'Conversations', icon: 'mail', used: 18402, limit: 40000 },
-      { label: 'Storage', icon: 'db', used: 34.2, limit: 100, unit: ' GB' },
-      { label: 'API credentials', icon: 'key', used: 3, limit: 10 },
+      { label: 'Staff seats', icon: 'seat', used: row.seatsUsed, limit: row.seatsLimit },
+      { label: 'Events this month', icon: 'bolt', used: row.events, limit: row.eventsLimit },
+      { label: 'Conversations', icon: 'mail', used: conversationsUsed, limit: conversationsLimit },
+      { label: 'Storage', icon: 'db', used: storageGb, limit: row.plan === 'Scale' ? 100 : row.plan === 'Growth' ? 50 : 25, unit: ' GB' },
+      { label: 'API credentials', icon: 'key', used: row.plan === 'Scale' ? 3 : 1, limit: row.plan === 'Scale' ? 10 : 5 },
     ],
-
     facts: [
-      { label: 'Plan', value: 'Scale' },
-      { label: 'Billing period', value: 'Monthly' },
-      { label: 'Monthly value', value: 'KES 184,000' },
-      { label: 'Lifetime value', value: 'KES 2,806,000' },
-      { label: 'Next invoice', value: '04 Sep 2026' },
-      { label: 'Payment status', value: 'Failed · 6 days', tone: 'danger' },
+      { label: 'Plan tier', value: row.plan || 'Trial' },
+      { label: 'Billing period', value: 'Monthly (Auto-debit)' },
+      { label: 'Monthly recurring', value: planMeta.monthly.split(' /')[0] ?? planMeta.monthly },
+      { label: 'Estimated LTV', value: planMeta.ltv },
+      { label: 'Next invoice', value: row.status === 'past due' ? 'Overdue (04 Aug)' : '04 Sep 2026', tone: row.status === 'past due' ? 'danger' : undefined },
+      { label: 'Compliance & RLS', value: 'Active · Schema isolated' },
     ],
-
-    owner: { name: 'Joseph Mwaura', email: 'j.mwaura@kilimanjaro.co.ke', initials: 'JM' },
-    team: { staff: '247 of 300', admins: '6', channels: '4 connected' },
-    residency: 'eu-central-1 · isolated by RLS',
-
+    owner: { name: ownerInfo.name, email: ownerInfo.email, initials: ownerInfo.initials },
+    team: {
+      staff: `${row.seatsUsed} of ${row.seatsLimit}`,
+      admins: `${ownerInfo.admins ?? 2}`,
+      channels: `${ownerInfo.channels ?? 3} active`,
+    },
+    residency: ownerInfo.residency ?? 'af-south-1 · Nairobi (RLS)',
     billingStats: [
-      { label: 'Monthly recurring', value: '184,000', note: 'KES · Scale, monthly' },
-      { label: 'Lifetime value', value: '2.81M', note: 'KES across 17 invoices' },
-      { label: 'Outstanding', value: '184,000', note: 'One invoice, 6 days late', tone: 'danger' },
-      { label: 'Collection rate', value: '94%', note: '16 of 17 paid on first attempt' },
+      { label: 'Monthly recurring', value: planMeta.num.toLocaleString('en-GB'), note: `KES · ${row.plan || 'Trial'}` },
+      { label: 'Lifetime value', value: planMeta.ltv.replace('KES ', ''), note: 'KES estimated total' },
+      { label: 'Outstanding', value: row.status === 'past due' ? planMeta.num.toLocaleString('en-GB') : '0', note: row.status === 'past due' ? 'One invoice failed' : 'All accounts settled', tone: row.status === 'past due' ? 'danger' : undefined },
+      { label: 'Collection rate', value: row.status === 'past due' ? '92%' : '100%', note: 'Past 12 billing cycles' },
     ],
-
-    invoices: [
-      { id: 'INV-2026-0841', issued: '04 Aug 2026', period: 'Aug 2026', amount: '184,000', status: 'failed', paid: '—' },
-      { id: 'INV-2026-0772', issued: '04 Jul 2026', period: 'Jul 2026', amount: '184,000', status: 'paid', paid: '05 Jul' },
-      { id: 'INV-2026-0698', issued: '04 Jun 2026', period: 'Jun 2026', amount: '184,000', status: 'paid', paid: '04 Jun' },
-      { id: 'INV-2026-0621', issued: '04 May 2026', period: 'May 2026', amount: '162,000', status: 'paid', paid: '06 May' },
-      { id: 'INV-2026-0544', issued: '04 Apr 2026', period: 'Apr 2026', amount: '162,000', status: 'paid', paid: '04 Apr' },
-      { id: 'INV-2026-0470', issued: '04 Mar 2026', period: 'Mar 2026', amount: '162,000', status: 'paid', paid: '09 Mar' },
-    ],
-
-    impact: { staff: 247, conversations: 1284, channels: 4 },
+    invoices,
+    impact: {
+      staff: Math.max(1, row.seatsUsed),
+      conversations: Math.max(12, conversationsUsed),
+      channels: ownerInfo.channels ?? 3,
+    },
   };
 }
 
@@ -1286,4 +1352,115 @@ export function greeting(now = new Date()): string {
   if (hour < 12) return 'Good morning';
   if (hour < 17) return 'Good afternoon';
   return 'Good evening';
+}
+
+/* ── Workspace Details Sub-tabs Mocks ───────────────────────────────────── */
+
+export type StaffRole = 'admin' | 'staff';
+export type StaffStatus = 'active' | 'invited' | 'suspended';
+
+export type WorkspaceStaff = {
+  id: string;
+  name: string;
+  email: string;
+  role: StaffRole;
+  status: StaffStatus;
+  lastSignIn: string;
+  seats: number;
+};
+
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function getWorkspaceStaff(slug?: string): Promise<WorkspaceStaff[]> {
+  void slug;
+  return [
+    { id: 'usr_1', name: 'Joseph Mwaura', email: 'j.mwaura@kilimanjaro.co.ke', role: 'admin', status: 'active', lastSignIn: '2 hours ago', seats: 1 },
+    { id: 'usr_2', name: 'Alice Wambui', email: 'a.wambui@kilimanjaro.co.ke', role: 'staff', status: 'active', lastSignIn: '1 day ago', seats: 1 },
+    { id: 'usr_3', name: 'David Ochieng', email: 'd.ochieng@kilimanjaro.co.ke', role: 'staff', status: 'invited', lastSignIn: 'Never', seats: 0 },
+    { id: 'usr_4', name: 'Sarah Hassan', email: 's.hassan@kilimanjaro.co.ke', role: 'admin', status: 'active', lastSignIn: '4 mins ago', seats: 1 },
+    { id: 'usr_5', name: 'Michael Mutua', email: 'm.mutua@kilimanjaro.co.ke', role: 'staff', status: 'suspended', lastSignIn: '14 days ago', seats: 1 },
+  ];
+}
+
+export type ChannelType = 'whatsapp' | 'email' | 'web' | 'sms';
+export type ChannelStatus = 'healthy' | 'degraded' | 'disconnected';
+
+export type WorkspaceChannel = {
+  id: string;
+  type: ChannelType;
+  name: string;
+  status: ChannelStatus;
+  lastEvent: string;
+  healthPct: number;
+  messagesToday: number;
+};
+
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function getWorkspaceChannels(slug?: string): Promise<WorkspaceChannel[]> {
+  void slug;
+  return [
+    { id: 'ch_1', type: 'whatsapp', name: 'Main Support Line (+254 700 000000)', status: 'healthy', lastEvent: '2 mins ago', healthPct: 100, messagesToday: 1240 },
+    { id: 'ch_2', type: 'email', name: 'support@kilimanjaro.co.ke', status: 'healthy', lastEvent: '14 mins ago', healthPct: 99.8, messagesToday: 412 },
+    { id: 'ch_3', type: 'web', name: 'In-app Chat Widget', status: 'degraded', lastEvent: '1 hour ago', healthPct: 85.5, messagesToday: 89 },
+    { id: 'ch_4', type: 'sms', name: 'Alerts Shortcode (22345)', status: 'disconnected', lastEvent: '3 days ago', healthPct: 0, messagesToday: 0 },
+  ];
+}
+
+export type RuleState = 'inherited' | 'overridden' | 'custom';
+
+export type WorkspaceRule = {
+  id: string;
+  category: string;
+  name: string;
+  description: string;
+  state: RuleState;
+  masterValue: string;
+  tenantValue: string;
+};
+
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function getWorkspaceRules(slug?: string): Promise<WorkspaceRule[]> {
+  void slug;
+  return [
+    { id: 'r_1', category: 'Escalation', name: 'Confidence Threshold', description: 'Minimum confidence score to avoid human fallback.', state: 'overridden', masterValue: '0.72', tenantValue: '0.68' },
+    { id: 'r_2', category: 'Tone', name: 'Formality Level', description: 'Dial for bot response formality.', state: 'inherited', masterValue: 'Professional', tenantValue: 'Professional' },
+    { id: 'r_3', category: 'Routing', name: 'Off-hours Auto-reply', description: 'Send out of office message outside business hours.', state: 'custom', masterValue: 'Disabled', tenantValue: 'Enabled (EAT)' },
+    { id: 'r_4', category: 'Safety', name: 'PII Redaction', description: 'Redact sensitive info like credit cards before logging.', state: 'inherited', masterValue: 'Strict', tenantValue: 'Strict' },
+  ];
+}
+
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function getWorkspaceActivity(slug?: string): Promise<AuditEntry[]> {
+  void slug;
+  return [
+    {
+      id: 'a_tnt_1', kind: 'session', time: '10 Aug 14:22:07', action: 'support_session.start',
+      target: 'Kilimanjaro Logistics Group Ltd', actor: 'brian', initials: 'BM',
+      requestId: 'req_7f21a9c04', ip: '196.201.214.88', tenantId: 'tnt_kili_123',
+      reason: 'Ticket 4829 · verifying a duplicated WhatsApp thread reported by their support lead.',
+    },
+    {
+      id: 'a_tnt_2', kind: 'plan', time: '01 Aug 09:12:00', action: 'tenant.plan_assign',
+      target: 'Kilimanjaro Logistics Group Ltd · Growth → Scale', actor: 'wanjiku', initials: 'WM',
+      requestId: 'req_8d32b8a12', ip: '196.201.214.88', tenantId: 'tnt_kili_123',
+      diff: [
+        { field: 'plan_id', before: 'growth', after: 'scale' },
+        { field: 'entitlements.events_per_month', before: '250,000', after: '500,000' },
+      ],
+    },
+    {
+      id: 'a_tnt_3', kind: 'tenant', time: '15 Jul 11:30:22', action: 'tenant.settings_update',
+      target: 'Kilimanjaro Logistics Group Ltd', actor: 'system', initials: 'SY',
+      requestId: 'req_9a44c9d33', ip: 'internal', tenantId: 'tnt_kili_123',
+      diff: [
+        { field: 'ai_rules.escalation_threshold', before: '0.72', after: '0.68' },
+      ],
+      reason: 'Customer updated AI settings via dashboard.',
+    },
+    {
+      id: 'a_tnt_4', kind: 'session', time: '10 Jun 16:44:21', action: 'support_session.end',
+      target: 'Kilimanjaro Logistics Group Ltd · ended by customer', actor: 'j.otieno', initials: 'JO',
+      requestId: 'req_7f2104ba8', ip: '41.90.64.12', tenantId: 'tnt_kili_123',
+      reason: 'Ended from the customer side after 12 minutes of a 30-minute window.',
+    }
+  ];
 }

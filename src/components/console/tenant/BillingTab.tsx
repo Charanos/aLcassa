@@ -1,0 +1,237 @@
+'use client';
+
+import React, { useState } from 'react';
+import {
+  IconFileText,
+  IconCheck,
+  IconAlertTriangle,
+  IconDownload,
+  IconRefresh,
+  IconCreditCard,
+} from '@tabler/icons-react';
+import { Panel } from '@/components/console/Surface';
+import type { WorkspaceDetail } from '@/lib/console/data';
+
+export function BillingTab({ w }: { w: WorkspaceDetail }) {
+  const [filter, setFilter] = useState<'all' | 'paid' | 'failed'>('all');
+
+  const filteredInvoices = w.invoices.filter((inv) => {
+    if (filter === 'paid') return inv.status === 'paid';
+    if (filter === 'failed') return inv.status === 'failed';
+    return true;
+  });
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* ── Inverted Command Ribbon for Billing ───────────────────────────── */}
+      <div
+        className="flex flex-col sm:flex-row overflow-hidden rounded-2xl"
+        style={{
+          background: 'var(--invert-card-bg)',
+          color: 'var(--invert-card-fg)',
+          boxShadow: 'var(--invert-card-shadow)',
+          border: '1px solid var(--invert-card-border)',
+        }}
+      >
+        {/* Stat 1: Monthly Recurring */}
+        <div className="flex-1 p-5 sm:p-6 sm:pr-8 relative">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Monthly Recurring</div>
+          <div className="mt-2 flex items-baseline gap-2.5">
+            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+              KES {w.billingStats[0]?.value ?? '0'}
+            </span>
+          </div>
+          <p className="mt-1 text-xs font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+            {w.plan || 'Trial'} tier
+          </p>
+          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
+          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+        </div>
+
+        {/* Stat 2: Lifetime Value */}
+        <div className="flex-1 p-5 sm:p-6 sm:px-8 relative">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Estimated LTV</div>
+          <div className="mt-2 flex items-baseline gap-2.5">
+            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+              KES {w.billingStats[1]?.value ?? '0'}
+            </span>
+          </div>
+          <p className="mt-1 text-xs font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+            Contract value total
+          </p>
+          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
+          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+        </div>
+
+        {/* Stat 3: Outstanding */}
+        <div
+          className="flex-1 p-5 sm:p-6 sm:px-8 relative"
+          style={{
+            background: w.status === 'past due' ? 'radial-gradient(circle at top right, rgba(239, 68, 68, 0.15), transparent 75%)' : 'transparent',
+          }}
+        >
+          <div className="t-eyebrow" style={{ color: w.status === 'past due' ? 'var(--danger-fg)' : 'var(--invert-card-subtle)' }}>
+            Outstanding Balance
+          </div>
+          <div className="mt-2 flex items-baseline gap-2.5">
+            <span
+              className="font-mono text-2xl sm:text-3xl font-medium tracking-tight"
+              style={{ color: w.status === 'past due' ? 'var(--danger-fg)' : 'var(--invert-card-fg)' }}
+            >
+              KES {w.billingStats[2]?.value ?? '0'}
+            </span>
+          </div>
+          <p className="mt-1 text-xs font-mono" style={{ color: w.status === 'past due' ? 'var(--danger-fg)' : 'var(--invert-card-subtle)' }}>
+            {w.status === 'past due' ? '1 overdue invoice' : 'All settled'}
+          </p>
+          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
+          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+        </div>
+
+        {/* Stat 4: Collection Rate */}
+        <div className="flex-1 p-5 sm:p-6 sm:pl-8 relative">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Collection Rate</div>
+          <div className="mt-2 flex items-baseline gap-2.5">
+            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+              {w.billingStats[3]?.value ?? '100%'}
+            </span>
+          </div>
+          <p className="mt-1 text-xs font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+            Past 12 cycles
+          </p>
+        </div>
+      </div>
+
+      {/* ── Payment Method & Invoices Section ──────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
+        {/* Invoices List */}
+        <Panel
+          title="Billing History & Invoices"
+          action={
+            <div className="flex items-center gap-1 bg-[var(--surface-inset)] p-0.5 rounded-lg text-xs">
+              {(['all', 'paid', 'failed'] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFilter(f)}
+                  className="px-2.5 py-1 rounded-md capitalize font-medium transition-all"
+                  style={{
+                    background: filter === f ? 'var(--surface-raised)' : 'transparent',
+                    color: filter === f ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                    boxShadow: filter === f ? 'var(--shadow-sm)' : 'none',
+                  }}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          }
+          flush
+        >
+          {filteredInvoices.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr style={{ background: 'var(--surface-sunken)' }}>
+                    <th className="px-5 py-3 text-[11px] uppercase tracking-wider font-medium" style={{ color: 'var(--text-tertiary)', borderBottom: '1px solid var(--border-subtle)' }}>Invoice ID</th>
+                    <th className="px-5 py-3 text-[11px] uppercase tracking-wider font-medium" style={{ color: 'var(--text-tertiary)', borderBottom: '1px solid var(--border-subtle)' }}>Period</th>
+                    <th className="px-5 py-3 text-[11px] uppercase tracking-wider font-medium text-right" style={{ color: 'var(--text-tertiary)', borderBottom: '1px solid var(--border-subtle)' }}>Amount (KES)</th>
+                    <th className="px-5 py-3 text-[11px] uppercase tracking-wider font-medium" style={{ color: 'var(--text-tertiary)', borderBottom: '1px solid var(--border-subtle)' }}>Status</th>
+                    <th className="px-5 py-3 text-[11px] uppercase tracking-wider font-medium text-right" style={{ color: 'var(--text-tertiary)', borderBottom: '1px solid var(--border-subtle)' }}>Paid Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+                  {filteredInvoices.map((inv) => (
+                    <tr
+                      key={inv.id}
+                      className="group transition-colors hover:bg-[var(--surface-sunken)]"
+                      style={{ background: inv.status === 'failed' ? 'rgba(239, 68, 68, 0.02)' : 'transparent' }}
+                    >
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-1.5 rounded-lg" style={{ background: 'var(--surface-inset)' }}>
+                            <IconFileText size={15} stroke={1.5} style={{ color: 'var(--text-secondary)' }} aria-hidden />
+                          </div>
+                          <span className="font-mono text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+                            {inv.id}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
+                        {inv.period} · Issued {inv.issued}
+                      </td>
+                      <td className="px-5 py-3.5 text-xs font-mono font-medium text-right" style={{ color: 'var(--text-primary)' }}>
+                        {inv.amount}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-mono font-medium uppercase"
+                          style={{
+                            background: inv.status === 'paid' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                            color: inv.status === 'paid' ? 'var(--success-fg)' : 'var(--danger-fg)',
+                            border: `1px solid ${inv.status === 'paid' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+                          }}
+                        >
+                          {inv.status === 'paid' ? <IconCheck size={10} stroke={2.5} /> : <IconAlertTriangle size={10} stroke={2} />}
+                          {inv.status}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-xs font-mono text-right" style={{ color: 'var(--text-tertiary)' }}>
+                        {inv.paid}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-8 text-center font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+              No invoice records matching filter.
+            </div>
+          )}
+        </Panel>
+
+        {/* Payment Instrument & Auto-Debit Specs */}
+        <div className="flex flex-col gap-5">
+          <Panel title="Payment Instrument">
+            <div className="p-4 rounded-xl flex items-start gap-3.5" style={{ background: 'var(--surface-sunken)', border: '1px solid var(--border-subtle)' }}>
+              <div className="p-2 rounded-lg" style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-strong)' }}>
+                <IconCreditCard size={20} stroke={1.5} style={{ color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Standard Chartered KE · Direct Debit</p>
+                <p className="font-mono text-[11px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>Account ending in •••• 4912</p>
+                <p className="text-[11px] mt-2" style={{ color: 'var(--text-secondary)' }}>Next debit auto-scheduled for 04 Sep 2026</p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-2">
+              <button
+                type="button"
+                className="h-8.5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+                style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', color: 'var(--text-primary)' }}
+              >
+                <IconRefresh size={13} stroke={1.5} />
+                Update Payment Method
+              </button>
+              <button
+                type="button"
+                className="h-8.5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+                style={{ border: '1px solid var(--border-subtle)', background: 'transparent', color: 'var(--text-secondary)' }}
+              >
+                <IconDownload size={13} stroke={1.5} />
+                Download Tax Statement (KRA)
+              </button>
+            </div>
+          </Panel>
+
+          <div className="rounded-xl p-4" style={{ background: 'var(--surface-sunken)', border: '1px solid var(--border-subtle)' }}>
+            <p className="text-xs font-mono leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+              All billing amounts in Kenyan Shillings (KES). Direct gateway integration executes reconciliation jobs on the 4th of each month.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

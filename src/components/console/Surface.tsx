@@ -167,11 +167,11 @@ export function Panel({
 
   return (
     <section
-      className="overflow-hidden rounded-2xl transition-all duration-300 hover:border-[var(--blue-400)]/30 hover:shadow-lg"
+      className="overflow-hidden rounded-2xl transition-all duration-300 relative"
       style={{
         border: '1px solid var(--border-subtle)',
         background: 'var(--surface-raised)',
-        boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
+        boxShadow: 'var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
       }}
     >
       {title ? (
@@ -230,14 +230,21 @@ export function FactRow({
       style={{ borderBottom: last ? undefined : '1px solid var(--border-subtle)' }}
     >
       {dot ? (
-        <span
-          aria-hidden
-          className="size-1.5 shrink-0 rounded-full"
-          style={{ background: dotInk }}
-        />
+        <span className="relative flex items-center justify-center size-2 shrink-0">
+          <span
+            aria-hidden
+            className="absolute inset-0 rounded-full animate-ping opacity-40"
+            style={{ background: dotInk, animationDuration: '2s' }}
+          />
+          <span
+            aria-hidden
+            className="relative size-1.5 rounded-full"
+            style={{ background: dotInk, boxShadow: `0 0 4px ${dotInk}` }}
+          />
+        </span>
       ) : null}
       <span
-        className="t-compact min-w-0 flex-1"
+        className="t-compact min-w-0 flex-1 transition-colors duration-200 hover:text-[var(--text-primary)]"
         style={{ color: 'var(--text-secondary)', overflowWrap: 'anywhere' }}
       >
         {label}

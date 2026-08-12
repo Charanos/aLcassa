@@ -10,6 +10,7 @@ import {
   type Density,
   type NavState,
 } from '@/lib/console/session';
+import { getWorkspaceDetail, type WorkspaceDetail } from '@/lib/console/data';
 
 /**
  * Console server actions.
@@ -138,3 +139,11 @@ export async function endSupportSession(): Promise<void> {
   (await cookies()).delete(SUPPORT_SESSION_COOKIE);
   revalidatePath('/platform', 'layout');
 }
+
+/**
+ * Read model for a single workspace detail slide-over.
+ */
+export async function fetchWorkspaceDetail(slug: string): Promise<WorkspaceDetail | null> {
+  return getWorkspaceDetail(slug);
+}
+
