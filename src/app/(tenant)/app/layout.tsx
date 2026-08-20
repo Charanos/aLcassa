@@ -1,5 +1,6 @@
 import {
   IconBuilding,
+  IconCreditCard,
   IconFileText,
   IconHistory,
   IconInbox,
@@ -31,9 +32,17 @@ const navigation: NavGroup[] = [
     label: 'Workspace',
     items: [
       { href: '/app', label: 'Overview', icon: <IconLayoutDashboard size={16} stroke={1.5} /> },
-      // 02 §5 · 01 D-05. A DESIGNED placeholder, in the navigation, not
-      // disabled and not a dead link.
+      // 02 §5 · 01 D-05. DESIGNED placeholders, in the navigation, not
+      // disabled and not a dead link. Grouped with Overview rather than
+      // Settings because both are primary workspace surfaces, not
+      // administration.
       { href: '/app/inbox', label: 'Inbox', icon: <IconInbox size={16} stroke={1.5} /> },
+      {
+        href: '/app/billing',
+        label: 'Billing',
+        icon: <IconCreditCard size={16} stroke={1.5} />,
+        roles: ['owner', 'support'],
+      },
     ],
   },
   {
@@ -61,6 +70,7 @@ const navigation: NavGroup[] = [
         href: '/app/settings/ai-rules',
         label: 'Assistant rules',
         icon: <IconFileText size={16} stroke={1.5} />,
+        roles: ['owner', 'admin', 'support'],
       },
       {
         href: '/app/settings/subscription',
@@ -93,6 +103,13 @@ export default function TenantLayout({ children }: { children: React.ReactNode }
       titleBlock={{ label: 'Workspace', value: tenantName }}
       navigation={navigation}
       role={role}
+      // ⚠ supportMode IS EXPLICIT AND NULL, NOT OMITTED. This is the exact
+      // seam named in the doc comment above: `/v1/me` returns the real object
+      // at M2, and the boundary frame this shell renders reads only from it —
+      // never from anything client-side. Writing `null` here rather than
+      // leaving the prop out is the difference between "this is wired to a
+      // seam" and "this hasn't been thought about yet."
+      supportMode={null}
     >
       {children}
     </AppShell>

@@ -15,6 +15,7 @@ import { IconButton } from '@/components/primitives/IconButton';
 import { TenantSwitcher, type TenantSummary } from './TenantSwitcher';
 import { CommandTrigger } from './CommandTrigger';
 import { AdminProfileCard, type AdminProfile } from './AdminProfileCard';
+import { BoundaryFrame, type SupportModeState } from '@/components/domain/BoundaryFrame';
 
 export type NavItem = {
   href: string;
@@ -41,6 +42,17 @@ export type AppShellProps = {
   adminProfile?: AdminProfile;
   notificationCount?: number;
   onCommandPaletteOpen?: () => void;
+  /**
+   * 03 §8 · 06 §6. Null outside support mode — the frame renders nothing.
+   * Server-driven from `/v1/me`'s `supportMode` object once M2 lands the
+   * identity module; a client boolean is never allowed near this, per
+   * `BoundaryFrame`'s own doc comment.
+   */
+  supportMode?: SupportModeState | null;
+  /** production | staging | preview | development. Drives the frame's slate
+   *  STAGING state outside support mode. */
+  environment?: string;
+  onSupportModeExit?: () => void;
   children: React.ReactNode;
 };
 
@@ -63,10 +75,23 @@ export function AppShell({
   adminProfile = DEFAULT_PROFILE,
   notificationCount = 0,
   onCommandPaletteOpen,
+  supportMode = null,
+  // ⚠ DEFAULTS TO 'production' — i.e. inert — ON PURPOSE. BoundaryFrame's own
+  // spec shows the slate STAGING frame for every environment string except
+  // 'production', which literally includes local development. Deriving this
+  // from `NODE_ENV` would make a permanent 3px border and banner appear
+  // around the entire app the moment this shell renders anywhere but a real
+  // production build — including every developer's own machine, right now,
+  // with no one having asked for it. The mechanism is fully wired; a caller
+  // opts in by passing the real deployment environment once that value
+  // actually exists (`process.env.VERCEL_ENV`, once this is deployed there).
+  environment = 'production',
+  onSupportModeExit,
   children,
 }: AppShellProps) {
   const isPlatform = application === 'platform';
   const pathname = usePathname();
+  const frameActive = Boolean(supportMode?.active) || environment !== 'production';
   
   // Collapse state (desktop)
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
@@ -115,11 +140,18 @@ export function AppShell({
    * opposite to flip to, and the token block that stamp resolved against is
    * gone.
    *
-   * A platform sidebar here would be dark the way the console's is: by
-   * reading the `--chrome-*` tier, which is theme-independent by
-   * construction. See tokens.css, TIER 4. This shell is only mounted with
-   * `application="tenant"` today, where the sidebar is light by design.
+   * ⚠ TWO CHROME TIERS, DELIBERATELY UNMISTAKABLE FROM EACH OTHER. 03 §4:
+   * Brian has both applications open at once, and confusing them is a real
+   * operational risk. The platform console's chrome reads `--chrome-*` — a
+   * constant dark navy slab, tokens.css TIER 4. The tenant application's
+   * chrome reads `--tenant-chrome-*` — literal white, same tier number, the
+   * opposite answer on purpose. Neither is a theme; both survive the removal
+   * of dark mode untouched, and swapping `application` on this shell swaps
+   * which one paints the header and sidebar.
    */
+  const chromeBg = isPlatform ? 'var(--chrome-bg)' : 'var(--tenant-chrome-bg)';
+  const chromeFg = isPlatform ? 'var(--chrome-fg)' : 'var(--tenant-chrome-fg)';
+  const chromeRule = isPlatform ? 'var(--chrome-rule-strong)' : 'var(--tenant-chrome-rule)';
 
   const renderNavGroups = (isMobile: boolean = false) => (
     <div className="flex flex-1 flex-col gap-6 pt-5 px-2.5 pb-4 overflow-y-auto overflow-x-hidden">
@@ -262,16 +294,32 @@ export function AppShell({
       className="min-h-dvh flex flex-col"
       style={{
         ['--row-height' as string]: isPlatform ? 'var(--row-compact)' : 'var(--row-comfortable)',
+        // 03 §8: "It is NOT an overlay. Layout insets to accommodate it, so
+        // nothing is ever hidden beneath it." The frame's own elements are
+        // `position: fixed` and take no space themselves — this is that inset.
+        // Support mode reserves both edges (its title block AND its exit
+        // control); staging reserves only the top, since it has no exit
+        // button to make room for at the bottom.
+        paddingTop: frameActive ? 28 : undefined,
+        paddingBottom: supportMode?.active ? 28 : undefined,
       }}
     >
+      {frameActive ? (
+        <BoundaryFrame
+          supportMode={supportMode ?? null}
+          environment={environment}
+          onExit={onSupportModeExit ?? (() => {})}
+        />
+      ) : null}
+
       {/* TOP HEADER */}
       <header
         data-slot="header"
         className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b px-4 md:px-5 transition-colors"
         style={{
-          background: 'var(--surface-page)',
-          color: 'var(--ink-primary)',
-          borderColor: 'var(--rule-soft)',
+          background: chromeBg,
+          color: chromeFg,
+          borderColor: chromeRule,
         }}
       >
         <button
@@ -330,21 +378,22 @@ export function AppShell({
       </header>
 
       <div className="flex flex-1 relative">
-        {/* DESKTOP SIDEBAR: Production Grade Inverted Sidebar */}
+        {/* DESKTOP SIDEBAR */}
         <nav
           data-slot="sidebar"
           aria-label={isPlatform ? 'Platform navigation' : 'Workspace navigation'}
           className="relative hidden shrink-0 border-r md:flex flex-col transition-[width] duration-200 ease-out select-none"
           style={{
             width: mounted && collapsed ? 'var(--nav-rail-width)' : 'var(--nav-width)',
-            background: 'var(--surface-page)',
-            borderColor: 'var(--rule-soft)',
+            background: chromeBg,
+            borderColor: chromeRule,
           }}
         >
           {/* Elegant Collapse Toggle */}
           <button
             onClick={toggleCollapse}
-            className="absolute top-6 -right-3.5 z-40 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--rule-base)] bg-[var(--surface-page)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:border-[var(--rule-strong)] hover:bg-[var(--surface-hover)] shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] cursor-pointer group"
+            className="absolute top-6 -right-3.5 z-40 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--rule-base)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:border-[var(--rule-strong)] hover:bg-[var(--surface-hover)] shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] cursor-pointer group"
+            style={{ background: chromeBg }}
             title={collapsed ? 'Expand sidebar (Cmd+B)' : 'Collapse sidebar (Cmd+B)'}
             aria-label="Toggle sidebar collapse"
           >
@@ -375,10 +424,10 @@ export function AppShell({
               data-slot="mobile-sidebar"
               aria-label="Mobile navigation"
               className="relative flex w-4/5 max-w-sm flex-col shadow-xl transition-transform"
-              style={{ background: 'var(--surface-page)', borderRight: '1px solid var(--rule-soft)' }}
+              style={{ background: chromeBg, borderRight: `1px solid ${chromeRule}` }}
             >
-              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--rule-soft)' }}>
-                <span className="t-heading text-[var(--ink-primary)]">Menu</span>
+              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: chromeRule }}>
+                <span className="t-heading" style={{ color: chromeFg }}>Menu</span>
                 <IconButton 
                   onClick={() => setMobileOpen(false)} 
                   variant="ghost" 

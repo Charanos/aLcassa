@@ -328,6 +328,29 @@
   --row-pad: 8px;
 }
 
+/* ═══ TIER 4 · TENANT CHROME (white, deliberately) ═══════════════════════════
+ *
+ * The console's chrome is dark on purpose; the tenant application's is white
+ * on the same kind of purpose, and for the reason 03 §4 states directly:
+ * Brian will have both open at once, and confusing them is a real operational
+ * risk — an action taken in the wrong context could be a support-mode write
+ * on a live tenant. The two shells needing to be unmistakable at a glance is
+ * what the whole distinction is for.
+ *
+ * `--surface-raised` (the cream system's "raised panel" tone, `--ink-0` in
+ * light) would have been the token-reuse choice, but it is also what every
+ * card and panel INSIDE the tenant app already sits on — so a header built
+ * from it would blend into its own content rather than reading as a
+ * distinct band. Literal white against the cream page gives the tenant
+ * shell its own unmistakable ground, the same way the console's navy slab
+ * has its own.
+ */
+:root {
+  --tenant-chrome-bg: var(--ink-0);
+  --tenant-chrome-fg: var(--text-primary);
+  --tenant-chrome-rule: var(--border-subtle);
+}
+
 /* ═══ ACCENTS · per organization, from tenant_settings.accent_key ═══════════
  * A TENANT ACCENT IS A WORKSPACE IDENTITY MARKER, NOT A THEME.
  *

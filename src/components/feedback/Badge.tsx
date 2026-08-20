@@ -158,3 +158,12 @@ export const CREDENTIAL_STATUS_TONE: Record<string, BadgeTone> = {
   rotating: 'nearLimit',
   revoked: 'pastDue',
 };
+
+/** 03 §14. Member "Active" carries NO badge — absence is the signal, so
+ *  `'active'` is deliberately absent from this map. Call sites render a badge
+ *  only when a status has an entry here. */
+export const MEMBER_STATUS_TONE: Record<string, BadgeTone> = {
+  invited: 'trialing',
+  invitation_expired: 'nearLimit',
+  suspended: 'pastDue',
+};
