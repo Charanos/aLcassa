@@ -1,24 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import {
   IconAdjustmentsHorizontal,
   IconBell,
   IconCode,
   IconDatabase,
-  IconDeviceDesktop,
   IconDownload,
-  IconMoon,
   IconShieldLock,
-  IconSun,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import {
-  THEME_COOKIE,
-  THEME_COOKIE_MAX_AGE,
-  type ResolvedTheme,
-  type ThemePreference,
-} from '@/lib/theme-shared';
 import type { SettingsModel } from '@/lib/console/data';
 import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
 import { toggleBreakGlass } from '@/app/(platform)/platform/(console)/actions';
@@ -59,11 +50,9 @@ type SaveState = 'idle' | 'saved';
 export function SettingsPanel({
   model,
   initialTab,
-  themePreference,
 }: {
   model: SettingsModel;
   initialTab: TabKey;
-  themePreference: ThemePreference;
 }) {
   const [tab, setTab] = useState<TabKey>(initialTab);
 
@@ -181,7 +170,6 @@ export function SettingsPanel({
               </p>
             </section>
 
-            <ThemeSection initialPreference={themePreference} />
           </>
         ) : null}
 
@@ -724,113 +712,6 @@ function BreakGlassPanel({ initialActive }: { initialActive: boolean }) {
         error={error}
         onConfirm={submit}
       />
-    </section>
-  );
-}
-
-/**
- * The theme picker.
- *
- * ⚠ THIS IS THE FIRST PLACE `system` IS ACTUALLY SELECTABLE IN THE PRODUCT.
- * `ThemeToggle` (the header control everywhere else) only cycles light and
- * dark, because a one-click toggle has no room for a third state. Writing
- * `system` to the cookie here means the SERVER resolves it correctly on the
- * next full render via the `Sec-CH-Prefers-Color-Scheme` client hint already
- * wired in `lib/theme.ts` — but that hint isn't available to a client-side
- * event handler, so `matchMedia` gives the immediate visual feedback the
- * click needs without waiting for a reload. Both paths agree because they
- * read the same OS signal by two different routes.
- */
-function ThemeSection({ initialPreference }: { initialPreference: ThemePreference }) {
-  const [preference, setPreference] = useState<ThemePreference>(initialPreference);
-
-  const applyResolved = useMemo(
-    () => (pref: ThemePreference): ResolvedTheme => {
-      if (pref === 'light' || pref === 'dark') return pref;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    },
-    [],
-  );
-
-  function pick(next: ThemePreference) {
-    setPreference(next);
-    const resolved = applyResolved(next);
-
-    document.documentElement.classList.add('theme-switching');
-    requestAnimationFrame(() => {
-      document.documentElement.dataset.theme = resolved;
-      document.documentElement.dataset.themePreference = next;
-      document.cookie = `${THEME_COOKIE}=${next};path=/;max-age=${THEME_COOKIE_MAX_AGE};samesite=lax`;
-      requestAnimationFrame(() => {
-        document.documentElement.classList.remove('theme-switching');
-      });
-    });
-  }
-
-  /* If 'system' is selected, follow the OS live rather than only at pick time
-     — otherwise flipping the OS theme with this tab open would silently fall
-     out of sync until the next reload. */
-  useEffect(() => {
-    if (preference !== 'system') return;
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = () => {
-      document.documentElement.dataset.theme = mq.matches ? 'dark' : 'light';
-    };
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, [preference]);
-
-  const OPTIONS: Array<{ key: ThemePreference; label: string; icon: TablerIcon }> = [
-    { key: 'light', label: 'Light', icon: IconSun },
-    { key: 'dark', label: 'Dark', icon: IconMoon },
-    { key: 'system', label: 'System', icon: IconDeviceDesktop },
-  ];
-
-  return (
-    <section
-      className="rounded-overlay p-5"
-      style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-raised)', boxShadow: 'var(--glass-highlight), var(--shadow-sm)' }}
-    >
-      <p className="t-eyebrow mb-0.5" style={{ color: 'var(--text-tertiary)' }}>
-        Appearance
-      </p>
-      <p className="t-caption mb-4" style={{ color: 'var(--text-secondary)' }}>
-        Your own preference. It does not affect what customers see.
-      </p>
-      <div className="grid max-w-[480px] grid-cols-3 gap-2.5">
-        {OPTIONS.map((opt) => {
-          const on = preference === opt.key;
-          const Icon = opt.icon;
-          return (
-            <button
-              key={opt.key}
-              type="button"
-              onClick={() => pick(opt.key)}
-              aria-pressed={on}
-              className="rounded-panel p-3 text-left transition-colors"
-              style={{
-                border: `1px solid ${on ? 'var(--blue-500)' : 'var(--border-subtle)'}`,
-                background: on ? 'var(--blue-50)' : 'var(--surface-raised)',
-                boxShadow: on ? 'var(--neu-raised)' : undefined,
-              }}
-            >
-              <span
-                className="grid h-10 place-items-center rounded-chip"
-                style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-sunken)' }}
-                aria-hidden
-              >
-                <Icon size={18} stroke={1.5} style={{ color: on ? 'var(--blue-600)' : 'var(--text-tertiary)' }} />
-              </span>
-              <span
-                className="mt-2.5 block"
-                style={{ font: `${on ? 500 : 400} 12.5px/1 var(--font-ui)`, color: on ? 'var(--blue-600)' : 'var(--text-primary)' }}
-              >
-                {opt.label}
-              </span>
-            </button>
-          );
-        })}
-      </div>
     </section>
   );
 }

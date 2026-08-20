@@ -29,9 +29,9 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
         <span
           className={`t-eyebrow font-medium ${
             validCount === 3
-              ? 'text-emerald-600 dark:text-emerald-400'
+              ? 'text-emerald-600'
               : validCount >= 1
-              ? 'text-amber-600 dark:text-amber-400'
+              ? 'text-amber-600'
               : 'text-[var(--text-tertiary)]'
           }`}
         >
@@ -63,7 +63,7 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
         {rules.map((rule, i) => (
           <li key={i} className="flex items-center gap-2 t-caption text-xs">
             {rule.valid ? (
-              <IconCheck size={14} className="text-emerald-600 dark:text-emerald-400" />
+              <IconCheck size={14} className="text-emerald-600" />
             ) : (
               <IconX size={14} style={{ color: 'var(--text-disabled)' }} />
             )}

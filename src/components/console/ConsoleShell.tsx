@@ -16,10 +16,8 @@ import {
   IconGlobe,
   IconLayoutSidebar,
   IconLogout,
-  IconMoon,
   IconSearch,
   IconSettings,
-  IconSun,
   IconUser,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
@@ -39,8 +37,6 @@ import type {
 } from './types';
 import type { SupportSession, NavState, Density } from '@/lib/console/session';
 import type { IsolationStatus } from '@/lib/console/data';
-import type { ResolvedTheme } from '@/lib/theme-shared';
-import { THEME_COOKIE, THEME_COOKIE_MAX_AGE } from '@/lib/theme-shared';
 
 /**
  * The platform console shell. `Console-Shell.dc.html`, made real.
@@ -82,7 +78,6 @@ export type ConsoleShellProps = {
   workspaces: ConsoleWorkspace[];
   notices: ConsoleNotice[];
   account: ConsoleAccount;
-  theme: ResolvedTheme;
   nav: NavState;
   density: Density;
   session: SupportSession | null;
@@ -127,7 +122,6 @@ export function ConsoleShell({
   workspaces,
   notices,
   account,
-  theme,
   nav,
   density,
   session,
@@ -142,13 +136,13 @@ export function ConsoleShell({
   const searchParams = useSearchParams();
   const pushToast = useToast();
 
-  // `/platform/tenants/new` redirects to `?provision=1` rather than owning a
-  // route, so the flow keeps a deep-linkable URL from any console page
-  // without the modal needing its own server component parent.
   const isolationOk =
     isolation.tablesPoliced === isolation.tablesTotal &&
     isolation.crossTenantAttempts30d === isolation.crossTenantRefused30d;
 
+  // `/platform/tenants/new` redirects to `?provision=1` rather than owning a
+  // route, so the flow keeps a deep-linkable URL from any console page
+  // without the modal needing its own server component parent.
   const provisionOpen = searchParams.get('provision') === '1';
   const closeProvision = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -162,7 +156,6 @@ export function ConsoleShell({
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [pendingWorkspace, setPendingWorkspace] = useState<ConsoleWorkspace | null>(null);
-  const [currentTheme, setCurrentTheme] = useState(theme);
   const [, startTransition] = useTransition();
   void startTransition; // retained for future use
 
@@ -230,13 +223,6 @@ export function ConsoleShell({
   useEffect(() => {
     closeAll();
   }, [pathname, closeAll]);
-
-  function toggleTheme() {
-    const next = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
-    document.cookie = `${THEME_COOKIE}=${next}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
-    setCurrentTheme(next);
-  }
 
   const paletteHits = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -758,27 +744,6 @@ export function ConsoleShell({
           >
             <IconGlobe size={18} stroke={1.5} aria-hidden />
           </Link>
-
-          <ChromeIconButton
-            label="Toggle colour theme"
-            onClick={(e) => {
-              const icon = e.currentTarget.querySelector('svg');
-              if (icon) {
-                gsapSafe.fromTo(
-                  icon,
-                  { rotate: -120, scale: 0.6 },
-                  { rotate: 0, scale: 1, duration: 0.38, ease: 'back.out(2.2)' }
-                );
-              }
-              toggleTheme();
-            }}
-          >
-            {currentTheme === 'dark' ? (
-              <IconSun size={18} stroke={1.5} aria-hidden />
-            ) : (
-              <IconMoon size={18} stroke={1.5} aria-hidden />
-            )}
-          </ChromeIconButton>
 
           <span
             aria-hidden

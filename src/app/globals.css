@@ -1,6 +1,25 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
+/*
+ * ⚠ THIS PRODUCT HAS ONE THEME: LIGHT. THE VARIANT IS NEUTRALISED, NOT REMOVED.
+ *
+ * Deleting this line would NOT disable `dark:` — Tailwind v4's built-in
+ * `dark:` variant falls back to `@media (prefers-color-scheme: dark)`, so
+ * dropping the override would hand every OS-dark reader a half-styled dark
+ * page assembled from whatever `dark:` classes happened to survive. That is
+ * the opposite of removing dark mode.
+ *
+ * So the variant is redefined to a selector that matches nothing. Every
+ * `dark:` class in the codebase has been removed (112 of them); this exists
+ * so that the next one written from muscle memory compiles, does nothing,
+ * and is visible as dead code rather than shipping a surprise.
+ *
+ * Elements that are DARK BY DESIGN — the console chrome slab, the inverted
+ * ribbons, the workspace nodes — never used this variant. They read the
+ * `--chrome-*` and `--invert-card-*` tiers, which are theme-independent by
+ * construction and are unaffected.
+ */
+@custom-variant dark (&:where(.__dark-mode-removed));
 
 /* ── aLcassa type stack. Three families, three jobs. BRAND.md §4 · 03 §6. ──
  *
@@ -205,14 +224,14 @@
    * So: subpixel on light, greyscale on dark. Which is what the two screenshots
    * of this page side by side actually needed.
    */
+  /* Dark ink on a light page wants the browser's native rendering; the
+   * antialiased/grayscale pair that used to sit here was the correction for
+   * light-on-dark, which this product no longer has as a page state. The
+   * console chrome is a dark slab but it is a band, not a page, and forcing
+   * grayscale smoothing for it would thin the type on everything else. */
   :root {
     -webkit-font-smoothing: auto;
     -moz-osx-font-smoothing: auto;
-  }
-
-  [data-theme='dark'] {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   /* Optical correction, and the old-style figures a book face wants.
@@ -360,105 +379,21 @@
   }
 
   /*
-   * THEME CROSSFADE — PRECISION APPROACH.
+   * ⚠ NO THEME-CROSSFADE MACHINERY ANY MORE.
    *
-   * Naïve approach: `body *` with a CSS transition catches every element on
-   * the page, including GSAP targets mid-animation, SVG paths, pseudo-elements
-   * the browser composites separately, and elements that do not use any
-   * colour token at all. On a dense page that is hundreds of simultaneous
-   * transitions which the compositor has to coordinate, and the result is
-   * exactly the lag and jank the user reports.
-   *
-   * This approach instead:
-   *
-   *   1. Puts `color-scheme` on <html> so the browser's compositor flips
-   *      its own scrollbar, form controls and system UI in the same frame,
-   *      without waiting for any JS.
-   *
-   *   2. Scopes transitions only to the elements that ACTUALLY carry semantic
-   *      colour tokens. The "will-change" hint is on [data-reveal] already;
-   *      we do not duplicate it here because colour transitions run on
-   *      background-color which is handled by the main thread, not the GPU
-   *      compositing layer — doubling up wastes memory without buying anything.
-   *
-   *   3. Adds `.theme-switching` which ThemeToggle stamps on <html> for one
-   *      requestAnimationFrame before it sets data-theme. During that single
-   *      frame, all transitions are set to 0ms so the attribute change happens
-   *      with no competing in-flight animation. The class is removed after the
-   *      attribute flip and transitions resume for the return trip.
-   *
-   * The exclusion rule: GSAP-animated elements MUST NOT be inside an element
-   * with a colour transition on the same property at the same time. Because we
-   * suppress transitions during the flip frame itself, this conflict can no
-   * longer occur during the toggle press.
+   * This used to be a precision crossfade — a scoped transition on colour
+   * properties plus a one-frame `.theme-switching` class that suppressed it
+   * during the actual attribute flip, stamped by ThemeToggle. There is no
+   * flip to smooth any more: the product has one theme, ThemeToggle is
+   * deleted, and nothing ever sets `data-theme` at runtime. Removed rather
+   * than left inert, because a universal colour-property transition on
+   * body/header/nav/main/button/a/input/… is not free — it is a transition
+   * the compositor now runs on every hover and focus state across the whole
+   * app for a crossfade that can never fire.
    */
 
-  /* Step 1 — let the browser compositor know the scheme immediately. */
   html {
     color-scheme: light;
-  }
-  html[data-theme='dark'] {
-    color-scheme: dark;
-  }
-
-  /* Step 2 — targeted crossfade on elements that own colour tokens. */
-  body,
-  header,
-  nav,
-  main,
-  aside,
-  footer,
-  section,
-  article,
-  [class*='surface'],
-  [class*='border'],
-  button,
-  a,
-  input,
-  select,
-  textarea,
-  [data-slot],
-  [data-theme-target] {
-    transition:
-      background-color var(--theme-transition) var(--ease-standard),
-      border-color var(--theme-transition) var(--ease-standard),
-      color var(--theme-transition) var(--ease-standard),
-      fill var(--theme-transition) var(--ease-standard),
-      stroke var(--theme-transition) var(--ease-standard),
-      outline-color var(--theme-transition) var(--ease-standard);
-  }
-
-  /* Step 3 — during the flip frame, suppress ALL transitions so there is
-   * zero in-flight animation when data-theme changes. ThemeToggle sets and
-   * removes this class via rAF. */
-  html.theme-switching,
-  html.theme-switching *,
-  html.theme-switching *::before,
-  html.theme-switching *::after {
-    transition-duration: 0ms !important;
-    transition-delay: 0ms !important;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    body,
-    header,
-    nav,
-    main,
-    aside,
-    footer,
-    section,
-    article,
-    [class*='surface'],
-    [class*='border'],
-    button,
-    a,
-    input,
-    select,
-    textarea,
-    [data-slot],
-    [data-theme-target] {
-      transition-duration: 0.01ms !important;
-    }
   }
 
   /*

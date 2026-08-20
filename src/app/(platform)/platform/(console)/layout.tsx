@@ -8,18 +8,18 @@ import type {
 } from '@/components/console/types';
 import { getConsoleChrome, resolveSupportSession } from '@/lib/console/session';
 import { getIsolationStatus } from '@/lib/console/data';
-import { getThemePreference, resolveTheme } from '@/lib/theme';
 import { endSupportSession, setNavState, startSupportSession } from './actions';
 
 /**
  * 02 §6 · 09 §1. The platform console. Brian's workspace, and the one interface
  * in this system built for a person who will live in it.
  *
- * This layout is a SERVER component and stays one. It reads the three things
- * that have to be known before the first byte — theme, chrome geometry, and
- * whether a support session is open — and hands them to the client shell as
- * data. `children` passes straight through, so every console page underneath
- * remains server-rendered despite the shell being interactive.
+ * This layout is a SERVER component and stays one. It reads the things that
+ * have to be known before the first byte — chrome geometry, whether a support
+ * session is open, and the isolation state the sidebar reports — and hands
+ * them to the client shell as data. `children` passes straight through, so
+ * every console page underneath remains server-rendered despite the shell
+ * being interactive.
  */
 
 export const metadata: Metadata = {
@@ -149,8 +149,7 @@ const account: ConsoleAccount = {
 };
 
 export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
-  const [theme, chrome, session, isolation] = await Promise.all([
-    resolveTheme(await getThemePreference()),
+  const [chrome, session, isolation] = await Promise.all([
     getConsoleChrome(),
     resolveSupportSession(),
     getIsolationStatus(),
@@ -162,7 +161,6 @@ export default async function PlatformLayout({ children }: { children: React.Rea
       workspaces={workspaces}
       notices={notices}
       account={account}
-      theme={theme}
       nav={chrome.nav}
       density={chrome.density}
       session={session}

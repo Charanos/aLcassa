@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import { getThemePreference, resolveTheme } from '@/lib/theme';
 import { ToastProvider } from '@/components/primitives/Toast';
 import './globals.css';
 
@@ -33,15 +32,17 @@ export const viewport: Viewport = {
   // 03 §17. 200% zoom with no truncation and no horizontal scroll, which means
   // the user must be allowed to zoom.
   maximumScale: 5,
-  colorScheme: 'light dark',
+  // ⚠ ONE THEME. The product ships light only — see the note in globals.css.
+  // Declaring `light dark` here would tell the browser to render its own
+  // form controls, scrollbars and autofill in dark when the OS is dark, on a
+  // page that is permanently light. That mismatch is the exact flash this
+  // token set was built to avoid.
+  colorScheme: 'light',
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const preference = await getThemePreference();
-  const theme = await resolveTheme(preference);
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme={theme} data-theme-preference={preference}>
+    <html lang="en">
       <body>
         {/* 03 §17. Skip link first, tenant switcher second: stepping into a
             tenant is the commonest keyboard action the owner takes. */}

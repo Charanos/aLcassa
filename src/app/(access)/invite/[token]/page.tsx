@@ -58,7 +58,7 @@ export default async function InvitePage({
           borderColor: 'var(--border-strong)',
         }}
       >
-        <IconBuilding size={18} stroke={1.5} aria-hidden className="mt-0.5 text-amber-500 dark:text-amber-400 shrink-0" />
+        <IconBuilding size={18} stroke={1.5} aria-hidden className="mt-0.5 text-amber-500 shrink-0" />
         <div>
           <p className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
             {inviter} invited you to join {company} as {role}.

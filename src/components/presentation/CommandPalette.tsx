@@ -9,9 +9,7 @@ import {
   IconLayoutGrid,
   IconMoon,
   IconSearch,
-  IconSun,
 } from '@tabler/icons-react';
-import { THEME_COOKIE, THEME_COOKIE_MAX_AGE } from '@/lib/theme-shared';
 
 /**
  * Cmd/Ctrl+K.
@@ -41,7 +39,6 @@ export type Command = {
   group: 'Sections' | 'Documents' | 'Design sheets' | 'Actions';
   href?: string;
   external?: boolean;
-  action?: 'toggle-theme';
 };
 
 export function CommandPalette({ commands }: { commands: Command[] }) {
@@ -90,14 +87,6 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
   const run = useCallback(
     (command: Command | undefined) => {
       if (!command) return;
-
-      if (command.action === 'toggle-theme') {
-        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-        document.documentElement.dataset.theme = next;
-        document.cookie = `${THEME_COOKIE}=${next};path=/;max-age=${THEME_COOKIE_MAX_AGE};samesite=lax`;
-        close();
-        return;
-      }
 
       if (!command.href) return;
 
@@ -238,13 +227,11 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
                     const index = flatIndex;
                     const isActive = index === active;
                     const Icon =
-                      command.action === 'toggle-theme'
-                        ? IconSun
-                        : command.group === 'Documents'
-                          ? IconFileText
-                          : command.group === 'Design sheets'
-                            ? IconLayoutGrid
-                            : IconArrowRight;
+                      command.group === 'Documents'
+                        ? IconFileText
+                        : command.group === 'Design sheets'
+                          ? IconLayoutGrid
+                          : IconArrowRight;
 
                     return (
                       <li key={command.id}>

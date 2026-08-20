@@ -40,7 +40,7 @@ export function AuthShell({
         style={{ background: 'var(--surface-base)' }}
       >
         {/* Watermark icon behind the form */}
-        <div className="hidden sm:block absolute bottom-10 -left-16 text-slate-500/[0.08] dark:text-slate-300/[0.12] pointer-events-none transform rotate-12">
+        <div className="hidden sm:block absolute bottom-10 -left-16 text-slate-500/[0.08] pointer-events-none transform rotate-12">
           <IconShieldCheck size={340} stroke={1} />
         </div>
 
@@ -102,7 +102,7 @@ export function AuthShell({
         {/* Subtle dot grid texture */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-20 dark:opacity-10"
+          className="pointer-events-none absolute inset-0 opacity-20"
           style={{
             backgroundImage: 'radial-gradient(circle, var(--border-strong) 1px, transparent 1px)',
             backgroundSize: '24px 24px',
@@ -110,7 +110,7 @@ export function AuthShell({
         />
 
         {/* Lock watermark */}
-        <div className="absolute top-12 -right-12 text-amber-600/[0.08] dark:text-amber-300/[0.12] pointer-events-none transform rotate-45">
+        <div className="absolute top-12 -right-12 text-amber-600/[0.08] pointer-events-none transform rotate-45">
           <IconLock size={260} stroke={1} />
         </div>
 
@@ -147,7 +147,7 @@ export function AuthShell({
           </span>
 
           <span
-            className="t-chip inline-flex items-center gap-1.5 rounded-chip border px-2.5 py-1 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-medium"
+            className="t-chip inline-flex items-center gap-1.5 rounded-chip border px-2.5 py-1 bg-emerald-500/15 text-emerald-700 border-emerald-500/30 font-medium"
           >
             <span
               aria-hidden

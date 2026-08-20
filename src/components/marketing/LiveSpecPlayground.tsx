@@ -59,12 +59,12 @@ export function LiveSpecPlayground() {
           <div>
             <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--border-subtle)' }}>
               <div className="flex items-center gap-2.5">
-                <IconShield size={18} className="text-emerald-600 dark:text-emerald-400" />
+                <IconShield size={18} className="text-emerald-600" />
                 <h3 className="t-panel font-medium" style={{ color: 'var(--text-primary)' }}>
                   RLS Isolation Simulator
                 </h3>
               </div>
-              <span className="t-eyebrow px-2.5 py-0.5 rounded-chip bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+              <span className="t-eyebrow px-2.5 py-0.5 rounded-chip bg-emerald-500/15 text-emerald-700 border border-emerald-500/30">
                 Postgres RLS
               </span>
             </div>
@@ -79,7 +79,7 @@ export function LiveSpecPlayground() {
                 onClick={() => setSelectedTenant('tenant_a')}
                 className={`flex-1 rounded-chip border p-3 text-left transition-all t-compact cursor-pointer ${
                   selectedTenant === 'tenant_a'
-                    ? 'bg-amber-500/10 border-amber-500/60 dark:bg-amber-500/15 dark:border-amber-400/50'
+                    ? 'bg-amber-500/10 border-amber-500/60'
                     : 'bg-[var(--surface-sunken)] border-[var(--border-subtle)] hover:bg-[var(--surface-sunken)]/80'
                 }`}
               >
@@ -93,7 +93,7 @@ export function LiveSpecPlayground() {
                 onClick={() => setSelectedTenant('tenant_b')}
                 className={`flex-1 rounded-chip border p-3 text-left transition-all t-compact cursor-pointer ${
                   selectedTenant === 'tenant_b'
-                    ? 'bg-amber-500/10 border-amber-500/60 dark:bg-amber-500/15 dark:border-amber-400/50'
+                    ? 'bg-amber-500/10 border-amber-500/60'
                     : 'bg-[var(--surface-sunken)] border-[var(--border-subtle)] hover:bg-[var(--surface-sunken)]/80'
                 }`}
               >
@@ -113,16 +113,16 @@ export function LiveSpecPlayground() {
                 color: 'var(--text-secondary)',
               }}
             >
-              <div className="text-[10px] uppercase font-medium tracking-widest text-emerald-600 dark:text-emerald-400 mb-1">
+              <div className="text-[10px] uppercase font-medium tracking-widest text-emerald-600 mb-1">
                 Active Tenant Context:
               </div>
               <p className="text-[var(--text-primary)]">
                 SET LOCAL app.current_tenant_id = &apos;{selectedTenant === 'tenant_a' ? 'tnt_acme_892' : 'tnt_zenith_104'}&apos;;
               </p>
-              <p className="mt-1 text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-slate-500">
                 SELECT * FROM messages WHERE tenant_id = current_setting(&apos;app.current_tenant_id&apos;);
               </p>
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400">
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-emerald-700">
                 <IconCheck size={14} />
                 <span>Zero cross-tenant leakage guaranteed by database engine</span>
               </div>
@@ -141,12 +141,12 @@ export function LiveSpecPlayground() {
           <div>
             <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--border-subtle)' }}>
               <div className="flex items-center gap-2.5">
-                <IconTerminal size={18} className="text-amber-500 dark:text-amber-400" />
+                <IconTerminal size={18} className="text-amber-500" />
                 <h3 className="t-panel font-medium" style={{ color: 'var(--text-primary)' }}>
                   Rule Propagation Engine
                 </h3>
               </div>
-              <span className="t-eyebrow px-2.5 py-0.5 rounded-chip bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+              <span className="t-eyebrow px-2.5 py-0.5 rounded-chip bg-amber-500/15 text-amber-700 border border-amber-500/30">
                 &lt; 5s Sync
               </span>
             </div>
@@ -190,7 +190,7 @@ export function LiveSpecPlayground() {
               {auditLogs.map((log) => (
                 <div key={log.id} className="flex justify-between items-center text-[var(--text-secondary)]">
                   <span>[{log.time}] {log.event}</span>
-                  <span className="text-emerald-700 dark:text-emerald-400 font-normal">{log.status}</span>
+                  <span className="text-emerald-700 font-normal">{log.status}</span>
                 </div>
               ))}
             </div>

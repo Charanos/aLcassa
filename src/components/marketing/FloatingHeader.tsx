@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { IconMenu2, IconX, IconCheck, IconArrowRight, IconShieldLock } from '@tabler/icons-react';
 import { Wordmark } from '@/components/brand/Mark';
 import { Button } from '@/components/primitives/Button';
-import { ThemeToggle } from '@/components/primitives/ThemeToggle';
-import type { ResolvedTheme } from '@/lib/theme';
 
 export interface MarketingSessionInfo {
   isAuthenticated: boolean;
@@ -15,7 +13,6 @@ export interface MarketingSessionInfo {
 }
 
 interface FloatingHeaderProps {
-  theme: ResolvedTheme;
   session?: MarketingSessionInfo;
 }
 
@@ -27,7 +24,7 @@ const NAV_ITEMS = [
   { id: 'playground', label: 'Spec Playground', href: '#playground' },
 ];
 
-export function FloatingHeader({ theme, session }: FloatingHeaderProps) {
+export function FloatingHeader({ session }: FloatingHeaderProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [visible, setVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -160,7 +157,6 @@ export function FloatingHeader({ theme, session }: FloatingHeaderProps) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle theme={theme} compact />
             <button
               ref={toggleBtnRef}
               onClick={() => setMenuOpen(!menuOpen)}

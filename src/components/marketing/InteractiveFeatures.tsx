@@ -37,8 +37,8 @@ const FEATURES: FeatureItem[] = [
       'Agent: Handles customer messages. Read-only access to settings.',
     ],
     codeOrVisualType: 'roles',
-    iconColorClass: 'text-amber-600 dark:text-amber-400',
-    iconBgClass: 'bg-amber-50 dark:bg-amber-500/15 border-amber-200/60 dark:border-amber-500/30',
+    iconColorClass: 'text-amber-600',
+    iconBgClass: 'bg-amber-50 border-amber-200/60',
   },
   {
     id: 'rls',
@@ -52,8 +52,8 @@ const FEATURES: FeatureItem[] = [
       'Automated isolation regression suite blocks every deployment.',
     ],
     codeOrVisualType: 'rls',
-    iconColorClass: 'text-emerald-600 dark:text-emerald-400',
-    iconBgClass: 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200/60 dark:border-emerald-500/30',
+    iconColorClass: 'text-emerald-600',
+    iconBgClass: 'bg-emerald-50 border-emerald-200/60',
   },
   {
     id: 'credentials',
@@ -67,8 +67,8 @@ const FEATURES: FeatureItem[] = [
       'Rotation replaces a key without re-revealing previous values.',
     ],
     codeOrVisualType: 'credentials',
-    iconColorClass: 'text-rose-600 dark:text-rose-400',
-    iconBgClass: 'bg-rose-50 dark:bg-rose-500/15 border-rose-200/60 dark:border-rose-500/30',
+    iconColorClass: 'text-rose-600',
+    iconBgClass: 'bg-rose-50 border-rose-200/60',
   },
   {
     id: 'rules',
@@ -82,8 +82,8 @@ const FEATURES: FeatureItem[] = [
       'Master and tenant rule precedence enforced systematically.',
     ],
     codeOrVisualType: 'rules',
-    iconColorClass: 'text-blue-600 dark:text-blue-400',
-    iconBgClass: 'bg-blue-50 dark:bg-blue-500/15 border-blue-200/60 dark:border-blue-500/30',
+    iconColorClass: 'text-blue-600',
+    iconBgClass: 'bg-blue-50 border-blue-200/60',
   },
   {
     id: 'audit',
@@ -97,8 +97,8 @@ const FEATURES: FeatureItem[] = [
       'Zero delete or update permissions on audit entries.',
     ],
     codeOrVisualType: 'audit',
-    iconColorClass: 'text-violet-600 dark:text-violet-400',
-    iconBgClass: 'bg-violet-50 dark:bg-violet-500/15 border-violet-200/60 dark:border-violet-500/30',
+    iconColorClass: 'text-violet-600',
+    iconBgClass: 'bg-violet-50 border-violet-200/60',
   },
 ];
 
@@ -194,7 +194,7 @@ export function InteractiveFeatures() {
         <ul className="mt-6 space-y-3">
           {activeFeature.details.map((detail, idx) => (
             <li key={idx} className="flex items-start gap-3 t-compact" style={{ color: 'var(--text-secondary)' }}>
-              <IconCheck size={16} className="shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
+              <IconCheck size={16} className="shrink-0 text-emerald-600 mt-0.5" />
               <span>{detail}</span>
             </li>
           ))}
@@ -209,7 +209,7 @@ export function InteractiveFeatures() {
             <div className="space-y-3 animate-hero-reveal">
               <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 <span>MULTI-TENANT PERMISSION TOPOLOGY</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-normal">RBAC ENFORCED</span>
+                <span className="text-emerald-600 font-normal">RBAC ENFORCED</span>
               </div>
 
               {/* Compact Visual Role Topology SVG Diagram */}
@@ -251,7 +251,7 @@ export function InteractiveFeatures() {
             <div className="space-y-3 animate-hero-reveal">
               <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 <span>DATABASE TENANT ISOLATION BARRIER</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-normal">ZERO LEAKAGE</span>
+                <span className="text-emerald-600 font-normal">ZERO LEAKAGE</span>
               </div>
 
               {/* Compact RLS Isolation Wall Diagram */}
@@ -281,7 +281,7 @@ export function InteractiveFeatures() {
             <div className="space-y-3 animate-hero-reveal">
               <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 <span>ONE-WAY ARGON2 CRYPTOGRAPHIC ENGINE</span>
-                <span className="text-amber-600 dark:text-amber-400 font-normal">NON-RETRIEVABLE</span>
+                <span className="text-amber-600 font-normal">NON-RETRIEVABLE</span>
               </div>
 
               {/* Compact One-Way Hash Flow Graphic */}
@@ -301,7 +301,7 @@ export function InteractiveFeatures() {
 
                   <div className="flex-1 rounded-chip border p-2 bg-[var(--surface-raised)] border-[var(--border-subtle)] text-center">
                     <span className="t-micro text-[var(--text-tertiary)] block mb-0.5">SAVED HASH</span>
-                    <span className="t-data-sm text-emerald-600 dark:text-emerald-400">$argon2id$v=19...</span>
+                    <span className="t-data-sm text-emerald-600">$argon2id$v=19...</span>
                   </div>
                 </div>
               </div>
@@ -314,14 +314,14 @@ export function InteractiveFeatures() {
                 <span className="flex items-center gap-1.5">
                   <IconTerminal size={14} className="text-amber-500" /> GET /api/v1/rules
                 </span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-normal">&lt; 5s PROPAGATION</span>
+                <span className="text-emerald-600 font-normal">&lt; 5s PROPAGATION</span>
               </div>
               <pre className="t-code text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed overflow-x-auto p-4 bg-[var(--surface-sunken)] rounded-panel border border-[var(--border-subtle)] border-l-4" style={{ borderLeftColor: 'var(--accent-mark)' }}>
                 {`{
-  "`}<span className="text-amber-600 dark:text-amber-400">tone</span>{`": "`}<span className="text-emerald-600 dark:text-emerald-400">technical_warm</span>{`",
-  "`}<span className="text-amber-600 dark:text-amber-400">escalation_threshold</span>{`": `}<span className="text-rose-500">0.85</span>{`,
-  "`}<span className="text-amber-600 dark:text-amber-400">handover_trigger</span>{`": ["`}<span className="text-emerald-600 dark:text-emerald-400">pricing_custom</span>{`", "`}<span className="text-emerald-600 dark:text-emerald-400">billing_dispute</span>{`"],
-  "`}<span className="text-amber-600 dark:text-amber-400">knowledge_base_version</span>{`": "`}<span className="text-[var(--text-secondary)]">v1.4.2</span>{`"
+  "`}<span className="text-amber-600">tone</span>{`": "`}<span className="text-emerald-600">technical_warm</span>{`",
+  "`}<span className="text-amber-600">escalation_threshold</span>{`": `}<span className="text-rose-500">0.85</span>{`,
+  "`}<span className="text-amber-600">handover_trigger</span>{`": ["`}<span className="text-emerald-600">pricing_custom</span>{`", "`}<span className="text-emerald-600">billing_dispute</span>{`"],
+  "`}<span className="text-amber-600">knowledge_base_version</span>{`": "`}<span className="text-[var(--text-secondary)]">v1.4.2</span>{`"
 }`}
               </pre>
             </div>
@@ -331,7 +331,7 @@ export function InteractiveFeatures() {
             <div className="space-y-3 animate-hero-reveal">
               <div className="flex items-center justify-between t-eyebrow text-[var(--text-tertiary)]">
                 <span>ACTIVITY LOG STREAM</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-normal">IMMUTABLE APPEND-ONLY</span>
+                <span className="text-emerald-600 font-normal">IMMUTABLE APPEND-ONLY</span>
               </div>
               <div className="divide-y border rounded-chip bg-[var(--surface-sunken)] overflow-hidden" style={{ borderColor: 'var(--border-subtle)' }}>
                 <div className="flex items-center justify-between p-3 t-compact">
@@ -342,7 +342,7 @@ export function InteractiveFeatures() {
                       <div className="t-caption text-[var(--text-tertiary)]">Reason: Ticket #4829 investigation</div>
                     </div>
                   </div>
-                  <span className="t-data text-amber-600 dark:text-amber-400 font-mono">14:22:01</span>
+                  <span className="t-data text-amber-600 font-mono">14:22:01</span>
                 </div>
                 <div className="flex items-center justify-between p-3 t-compact">
                   <div className="flex items-center gap-2.5">

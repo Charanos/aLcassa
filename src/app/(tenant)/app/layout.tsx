@@ -10,7 +10,6 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import { AppShell, type NavGroup } from '@/components/structure/AppShell';
-import { getThemePreference, resolveTheme } from '@/lib/theme';
 
 /**
  * 02 §4 · 02 §8. The tenant application.
@@ -83,11 +82,10 @@ const navigation: NavGroup[] = [
   },
 ];
 
-export default async function TenantLayout({ children }: { children: React.ReactNode }) {
+export default function TenantLayout({ children }: { children: React.ReactNode }) {
   // TODO(M2): replace with `await getMe()` once the identity module lands.
   const tenantName = 'Acme Industrial';
   const role = 'owner';
-  const theme = await resolveTheme(await getThemePreference());
 
   return (
     <AppShell
@@ -95,7 +93,6 @@ export default async function TenantLayout({ children }: { children: React.React
       titleBlock={{ label: 'Workspace', value: tenantName }}
       navigation={navigation}
       role={role}
-      theme={theme}
     >
       {children}
     </AppShell>

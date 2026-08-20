@@ -4,8 +4,6 @@ import type { Metadata } from 'next';
 import { IconArrowLeft, IconArrowRight, IconArrowNarrowLeft } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 import { Markdown } from '@/components/presentation/Markdown';
-import { ThemeToggle } from '@/components/primitives/ThemeToggle';
-import { getThemePreference, resolveTheme } from '@/lib/theme';
 import { clientDocs, findDoc, neighbours, readDoc } from '@/lib/presentation/readDoc';
 
 export const dynamicParams = false;
@@ -46,7 +44,6 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
 
   if (!doc || !source) notFound();
 
-  const theme = await resolveTheme(await getThemePreference());
   const { previous, next } = neighbours(slug);
   const all = clientDocs();
 
@@ -77,7 +74,6 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
             <span className="t-eyebrow hidden text-[var(--ink-faint)] md:block">
               Document {doc.n}
             </span>
-            <ThemeToggle theme={theme} />
           </div>
         </div>
       </header>

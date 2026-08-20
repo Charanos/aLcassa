@@ -39,7 +39,7 @@ export function OverviewChart() {
     <div className="relative w-full h-full min-h-[260px] overflow-hidden">
       {/* Subtle interior glow */}
       <div 
-        className="absolute inset-0 pointer-events-none opacity-5 dark:opacity-10"
+        className="absolute inset-0 pointer-events-none opacity-5"
         style={{
           background: 'radial-gradient(circle at 70% 30%, var(--invert-card-fg), transparent 60%)',
         }}

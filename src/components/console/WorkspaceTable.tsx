@@ -219,7 +219,7 @@ export function WorkspaceTable({
   return (
     <>
       {/* ── Summary KPI Ribbon (Inverted Command Panel) ───────────────── */}
-      {/* Uses --invert-card-* tokens: dark navy slab in light mode, white in dark mode */}
+      {/* Uses --invert-card-* tokens: a dark navy slab against the cream page, always. */}
       <div 
         className="mt-6 flex flex-col sm:flex-row overflow-hidden rounded-2xl"
         style={{

@@ -195,12 +195,12 @@
   --content-max: 1680px;
 }
 
-/* ═══ TIER 2 · SEMANTIC, LIGHT (default) ═══════════════════════════════════
- * This is the layer that flips. Components read from here.
+/* ═══ TIER 2 · SEMANTIC ═════════════════════════════════════════════════════
+ * The layer components read from. One theme — no `[data-theme]` selector is
+ * needed for it to apply; `:root` always matches.
  */
 
-:root,
-[data-theme='light'] {
+:root {
   --surface-base: var(--ink-25); /* the brand cream */
   --surface-raised: var(--ink-0);
   --surface-sunken: var(--ink-50);
@@ -262,7 +262,8 @@
   --neu-inset:
     inset 0 1px 2px rgba(14, 16, 19, 0.07), inset 0 -1px 0 rgba(255, 255, 255, 0.6);
 
-  /* Workspace schematic node: Dark Navy in light mode, Crisp White in dark mode */
+  /* Workspace schematic node: dark navy, always — one of the "dark by design"
+   * elements sheet 04 calls out, not a dark-mode surface. */
   --workspace-card-bg: var(--ink-800);
   --workspace-card-fg: var(--ink-0);
   --workspace-card-border: var(--ink-700);
@@ -270,7 +271,8 @@
   --workspace-card-status: var(--success-fg);
   --workspace-card-shadow: var(--shadow-md), 0 0 24px -6px color-mix(in oklab, var(--blue-500) 25%, transparent);
 
-  /* Inverted feature section: Constant Dark Twilight Slab in light mode */
+  /* Inverted feature section: a constant dark twilight slab, always — the
+   * inversion is against the cream page, not against a theme. */
   --invert-card-bg: var(--ink-900);
   --invert-card-fg: #ffffff;
   --invert-card-border: var(--ink-700);
@@ -288,100 +290,23 @@
   color-scheme: light;
 }
 
-/* ═══ TIER 2 · SEMANTIC, DARK ══════════════════════════════════════════════
- * Roughly twenty lines, because only this tier remaps.
- */
 
-[data-theme='dark'] {
-  --surface-base: var(--ink-950);
-  --surface-raised: var(--ink-900);
-  --surface-sunken: var(--ink-950);
-  --surface-inset: var(--ink-800);
-  --surface-overlay: rgba(4, 10, 32, 0.68);
-
-  --text-primary: var(--ink-50); /* 18.13 on ink-950 */
-  --text-secondary: var(--ink-300); /* 10.91 */
-  --text-tertiary: var(--ink-400); /*  6.07 */
-  --text-inverse: var(--ink-950);
-  --text-disabled: var(--ink-600);
-  /* The saturated brand blue is unreadable on a dark ground (2.52). Dark mode
-   * uses the light step instead. This is not a compromise, it is what the
-   * colour has to be to stay legible. */
-  --text-action: var(--blue-300); /* 9.99 on ink-950 */
-
-  --border-subtle: var(--ink-800);
-  --border-strong: var(--ink-700);
-  --border-focus: var(--blue-300);
-
-  --danger-fg: var(--red-400);
-  --danger-bg: rgba(196, 69, 58, 0.15);
-  --warning-fg: var(--amber-400);
-  --warning-bg: rgba(183, 121, 31, 0.15);
-  --success-fg: var(--green-400);
-  --success-bg: rgba(63, 125, 83, 0.15);
-
-  --accent-mark: var(--orange-300);
-  --accent-mark-text: var(--orange-300);
-
-  /* A dark ground needs a slightly stronger mix than light mode for the same
-   * mark to read at all — this is the dark half of the 4%/6% split the raw
-   * Tailwind classes used to hardcode per instance. */
-  --watermark-tint: color-mix(in oklab, var(--text-primary) 6%, transparent);
-
-  /* Shadows barely register on dark surfaces. Borders carry elevation. */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.55);
-
-  /* Glass inverts its logic in dark mode: the highlight becomes a low-alpha
-   * white edge rather than a bright one, and the tint darkens instead of
-   * lightening. Reusing the light values here produces a milky grey wash. */
-  --glass-bg: color-mix(in oklab, var(--surface-raised) 66%, transparent);
-  --glass-bg-strong: color-mix(in oklab, var(--surface-raised) 86%, transparent);
-  --glass-border: color-mix(in oklab, var(--ink-0) 9%, transparent);
-  --glass-highlight: inset 0 1px 0 color-mix(in oklab, var(--ink-0) 11%, transparent);
-
-  /* Neumorphism in dark mode is a trap: the "light source" shadow has to
-   * become a very low-alpha glow, or every control looks like a smudge. */
-  --neu-raised:
-    0 1px 2px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
-  --neu-inset:
-    inset 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
-
-  /* Workspace schematic node: Crisp White in dark mode */
-  --workspace-card-bg: #ffffff;
-  --workspace-card-fg: #0c173b;
-  --workspace-card-border: rgba(255, 255, 255, 0.95);
-  --workspace-card-lock: #d97706;
-  --workspace-card-status: #10b981;
-  --workspace-card-shadow: 0 0 32px -4px rgba(255, 255, 255, 0.25);
-
-  /* Inverted feature section: Crisp White in dark mode — true inverted chrome */
-  --invert-card-bg: #ffffff;
-  --invert-card-fg: var(--ink-900);
-  --invert-card-border: var(--ink-100);
-  --invert-card-subtle: var(--ink-500);
-  --invert-card-rule: var(--ink-200);
-  --invert-card-well: var(--ink-50);
-  --invert-card-well-border: var(--ink-200);
-  --invert-card-shadow: none; /* see the light-mode note */
-
-  color-scheme: dark;
-}
-
-/* ═══ THE CHROME TIER ══════════════════════════════════════════════════════
+/* ═══ TIER 4 · CONSOLE CHROME (constant dark twilight slab) ════════════════
  *
- * Inverted chrome tokens for the platform console header and navigation sidebar.
-/* ═══ TIER 4 · CONSOLE CHROME (Constant Dark Twilight Slab) ═════════════════
- * The platform console top bar and navigation sidebar remain consistently
- * dark in both light and dark mode, creating an authoritative, focused operator
- * environment. Light sidebars are reserved exclusively for client/tenant spaces.
+ * ⚠ THIS TIER IS DARK ON PURPOSE, AND IT IS NOT "DARK MODE".
+ *
+ * The console's top bar and navigation sidebar are a deep navy slab standing
+ * against the cream page. That is the console's identity — an authoritative,
+ * focused operator environment, with light sidebars reserved for the tenant
+ * application. It has nothing to do with a theme preference, and it survives
+ * the removal of dark mode untouched.
+ *
+ * These tokens are the reason the chrome needs its own scale at all: the
+ * saturated brand blue is unreadable on this ground (2.52:1), so
+ * `--chrome-action` is a lightened step rather than `--blue-500`.
  */
 
-:root,
-[data-theme='light'],
-[data-theme='dark'] {
+:root {
   --chrome-bg: #131b3e;
   --chrome-bg-raised: #1c2754;
   --chrome-fg: #f0f3fa;
@@ -633,14 +558,6 @@
   --support-banner-fg: var(--ink-0);
 }
 
-/* Dark mode needs the action blue lightened wherever it is a FILL under white
- * text as well as where it is text. A blue-500 button on ink-950 is legible,
- * but the focus ring against a dark page is not. */
-[data-theme='dark'] {
-  --input-border-focus: var(--blue-300);
-  --sidebar-item-active: var(--tenant-tint, var(--ink-800));
-  --focus-ring: 0 0 0 2px var(--surface-base), 0 0 0 4px var(--blue-300);
-}
 
 /* ═══ TIER 0 · COMPATIBILITY LAYER ═════════════════════════════════════════
  *
@@ -683,8 +600,7 @@
  * in the product simultaneously.
  */
 
-:root,
-[data-theme='light'] {
+:root {
   /* ─ surfaces ─ */
   --surface-page: var(--surface-base);
   --surface-well: var(--surface-raised); /* nested block: lighter, not darker */
@@ -776,89 +692,6 @@
   --shadow-well: var(--neu-inset);
 }
 
-[data-theme='dark'] {
-  --surface-page: var(--surface-base);
-  --surface-well: var(--surface-inset);
-  --surface-invert: var(--ink-50);
-  --surface-hover: var(--surface-inset);
-
-  --rule-soft: var(--ink-900);
-  --rule-base: var(--border-subtle);
-  --rule-strong: var(--border-strong);
-
-  --ink-primary: var(--text-primary);
-  --ink-secondary: var(--text-secondary);
-  --ink-tertiary: var(--text-tertiary);
-  --ink-faint: var(--ink-600);
-  --ink-inverse: var(--text-inverse);
-
-  /* The saturated blue is 2.52:1 on ink-950. Every compat token that lands as
-   * TEXT has to take the light step, or the whole product loses its links in
-   * dark mode. This is the same rule as --text-action, applied to the alias. */
-  --copper-ink: var(--blue-300);
-  --copper-solid: var(--blue-400);
-  --copper-tint: var(--ink-800);
-  --copper-rule: var(--blue-800);
-
-  --verdigris-ink: var(--green-400);
-  --verdigris-solid: var(--green-400);
-  --verdigris-tint: rgba(63, 125, 83, 0.15);
-  --verdigris-rule: color-mix(in oklab, var(--green-400) 34%, var(--surface-base));
-
-  --ochre-ink: var(--amber-400);
-  --ochre-solid: var(--amber-400);
-  --ochre-tint: rgba(183, 121, 31, 0.15);
-  --ochre-rule: color-mix(in oklab, var(--amber-400) 34%, var(--surface-base));
-
-  --oxide-ink: var(--red-400);
-  --oxide-solid: var(--red-400);
-  --oxide-tint: rgba(196, 69, 58, 0.15);
-  --oxide-rule: color-mix(in oklab, var(--red-400) 34%, var(--surface-base));
-
-  --slate-ink: var(--ink-300);
-  --slate-solid: var(--ink-400);
-  --slate-tint: var(--ink-800);
-  --slate-rule: var(--ink-700);
-
-  --graphite-ink: var(--ink-400);
-  --graphite-solid: var(--ink-400);
-  --graphite-tint: var(--ink-800);
-  --graphite-rule: var(--ink-700);
-
-  --focus: var(--border-focus);
-  --selection-bg: var(--ink-800);
-  --selection-fg: var(--ink-50);
-  --scrim: var(--surface-overlay);
-
-  --disabled-surface: var(--ink-900);
-  --disabled-rule: var(--ink-800);
-  --disabled-ink: var(--text-disabled);
-
-  --text-body: var(--text-secondary);
-  --text-muted: var(--text-tertiary);
-  --text-placeholder: var(--input-placeholder);
-  --text-faint: var(--ink-600);
-  --text-brand: var(--text-action);
-
-  --border-default: var(--border-subtle);
-  --border-emphasis: var(--border-strong);
-
-  --action-primary-bg: var(--blue-500);
-  --action-primary-fg: var(--ink-0);
-  --action-primary-border: var(--blue-400);
-  --action-destructive-bg: var(--red-500);
-  --action-destructive-fg: var(--ink-0);
-  --action-destructive-border: var(--red-400);
-  --action-quiet-fg: var(--text-action);
-  --action-quiet-hover-bg: var(--ink-800);
-
-  --shadow-overlay: var(--shadow-lg);
-  --shadow-card: var(--glass-highlight), var(--shadow-sm);
-  --shadow-card-hover: var(--glass-highlight), var(--shadow-md);
-  --shadow-sunken: var(--neu-inset);
-  --shadow-well: var(--neu-inset);
-}
-
 /* Old geometry and layout names, theme-independent. */
 :root {
   --s-0: 2px;
@@ -909,7 +742,6 @@
   --scrollbar-thumb: var(--border-strong);
   --scrollbar-thumb-hover: var(--text-tertiary); /* elegant neutral hover instead of blue */
 
-  --theme-transition: var(--duration-slow);
   --reveal-distance: 18px;
   --reveal-duration: 0.75s;
   --reveal-stagger: 0.055s;

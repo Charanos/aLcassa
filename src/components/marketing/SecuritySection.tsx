@@ -21,7 +21,7 @@ export function SecuritySection() {
 
   return (
     <section className="mt-20 md:mt-32">
-      {/* Inverted high-contrast section enclosure: Dark Navy in light mode, Crisp White in dark mode */}
+      {/* Inverted high-contrast section enclosure: dark navy against the page, always. */}
       <div
         className="relative overflow-hidden rounded-panel border p-8 md:p-12 transition-all"
         style={{
@@ -35,9 +35,9 @@ export function SecuritySection() {
           <div>
             <div className="flex items-center gap-2.5">
               <span
-                className="size-2 rounded-full animate-pulse bg-amber-500 dark:bg-amber-600"
+                className="size-2 rounded-full animate-pulse bg-amber-500"
               />
-              <p className="t-eyebrow font-medium tracking-wider text-amber-400 dark:text-amber-600">
+              <p className="t-eyebrow font-medium tracking-wider text-amber-400">
                 THE ISOLATION &amp; SECURITY GUARANTEE
               </p>
             </div>
@@ -66,19 +66,19 @@ export function SecuritySection() {
               style={{ borderColor: 'var(--invert-card-rule)' }}
             >
               <div className="flex items-center gap-2.5">
-                <IconKeyOff size={18} className="text-amber-400 dark:text-amber-600 shrink-0" />
+                <IconKeyOff size={18} className="text-amber-400 shrink-0" />
                 <span className="t-compact font-medium" style={{ color: 'var(--invert-card-fg)' }}>
                   Zero Master Keys
                 </span>
               </div>
               <div className="flex items-center gap-2.5">
-                <IconClock size={18} className="text-rose-400 dark:text-rose-600 shrink-0" />
+                <IconClock size={18} className="text-rose-400 shrink-0" />
                 <span className="t-compact font-medium" style={{ color: 'var(--invert-card-fg)' }}>
                   30-Min Strict Expiry
                 </span>
               </div>
               <div className="flex items-center gap-2.5">
-                <IconFileCode size={18} className="text-emerald-400 dark:text-emerald-600 shrink-0" />
+                <IconFileCode size={18} className="text-emerald-400 shrink-0" />
                 <span className="t-compact font-medium" style={{ color: 'var(--invert-card-fg)' }}>
                   Immutable Audit Log
                 </span>
@@ -99,12 +99,12 @@ export function SecuritySection() {
               style={{ borderColor: 'var(--invert-card-rule)' }}
             >
               <div className="flex items-center gap-2.5">
-                <IconShieldCheck size={18} className="text-emerald-500 dark:text-emerald-600" />
+                <IconShieldCheck size={18} className="text-emerald-500" />
                 <span className="t-panel font-medium" style={{ color: 'var(--invert-card-fg)' }}>
                   Support Mode Active
                 </span>
               </div>
-              <span className="t-eyebrow px-2.5 py-0.5 rounded-chip bg-emerald-500/15 text-emerald-300 dark:text-emerald-700 border border-emerald-500/30">
+              <span className="t-eyebrow px-2.5 py-0.5 rounded-chip bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                 SCOPED RLS
               </span>
             </div>
@@ -132,17 +132,17 @@ export function SecuritySection() {
                 }}
               >
                 <span className="t-compact" style={{ color: 'var(--invert-card-subtle)' }}>Time Remaining:</span>
-                <span className="numeric font-mono text-[14px] font-normal text-rose-400 dark:text-rose-600 tracking-wider">
+                <span className="numeric font-mono text-[14px] font-normal text-rose-400 tracking-wider">
                   {formatTime(secondsRemaining)}
                 </span>
               </div>
 
               <div className="space-y-2 pt-1">
-                <div className="flex items-center gap-2 t-caption text-emerald-400 dark:text-emerald-600">
+                <div className="flex items-center gap-2 t-caption text-emerald-400">
                   <IconCheck size={14} className="shrink-0" />
                   <span>Row Level Security (RLS) active on all queries</span>
                 </div>
-                <div className="flex items-center gap-2 t-caption text-emerald-400 dark:text-emerald-600">
+                <div className="flex items-center gap-2 t-caption text-emerald-400">
                   <IconCheck size={14} className="shrink-0" />
                   <span>Audit entry written to tenant activity log</span>
                 </div>

@@ -805,6 +805,10 @@ message body or a credential value.
 
 ### C20 · Theme is not in the settings model, even though it is in the section
 
+**Superseded by C31.** The product ships one theme now; the section, the
+header toggle and the cookie this entry describes are gone. Left standing
+for the reasoning that shaped the settings model while it existed.
+
 `Settings.dc.html` draws the appearance picker as a section of the platform
 settings page, and the platform settings model does not carry it. The design's
 own lede for that section says why: "your own preference. It does not affect
@@ -1113,6 +1117,52 @@ sheet 03 states the target as `max(control height, 44)`, and the console's
 chrome controls draw at 32px by design. Applied to the icon-only chrome
 buttons; deliberately not applied inside grid rows, where overlapping
 targets would steal each other's clicks.
+
+### C31 · Dark mode removed — one theme, light — but nothing "dark by design" moved
+
+Product direction: one theme. Everything built for a light/dark toggle is
+gone — `src/lib/theme.ts`, `src/lib/theme-shared.ts`, `ThemeToggle`, the
+Settings appearance picker (C20), the header toggle, the command palette's
+"toggle the theme" action, `THEME_COOKIE`, the `Sec-CH-Prefers-Color-Scheme`
+client hint and its `Accept-CH`/`Critical-CH` headers, Tier 2's entire dark
+token block, and 112 `dark:` Tailwind variants across 12 files.
+
+⚠ **What did NOT move: anything dark by design rather than by theme.** The
+console chrome (`--chrome-*`, TIER 4), the inverted command ribbons
+(`--invert-card-*`), and the workspace schematic node (`--workspace-card-*`)
+are all dark navy against the cream page in the one theme this product has
+— that was already true in light mode before this pass, and it is still
+true now. These tokens were never redefined by the dark-mode block; deleting
+that block changed nothing about them. The three doc comments that used to
+read "X in light mode, Y in dark mode" were corrected to say what is now
+actually true — a constant, not a flip.
+
+Three things worth naming because they were not simply deletions:
+
+- **`@custom-variant dark` is redefined to a selector that matches nothing,
+  not removed.** Tailwind v4's `dark:` variant falls back to
+  `@media (prefers-color-scheme: dark)` on its own — deleting the override
+  would have handed every OS-dark reader a half-styled page assembled from
+  whatever `dark:` class survived an incomplete sweep, which is the opposite
+  of removing dark mode. All 112 instances were removed from source anyway;
+  the neutralised variant is a guard against the next one written from
+  muscle memory, so it compiles inert instead of silently reactivating.
+- **The theme-crossfade CSS was deleted, not just its trigger.** A universal
+  `transition` on six colour properties across body/header/nav/main/button/
+  a/input/… existed only to smooth a flip that no longer happens; left in
+  place it would have been a transition the compositor still pays for on
+  every ordinary hover and focus state.
+- **Two Recharts token readers lost their `MutationObserver`, not their
+  read.** `useTokens()`/`useToneColors()` in both `Charts.tsx` files still
+  read CSS custom properties into real colour values once on mount — that
+  part is unrelated to theming, it is what makes an SVG presentation
+  attribute resolve `var()` reliably across engines. Only the re-read-on
+  -`data-theme`-flip half of each was removed.
+
+`viewport.colorScheme` is `'light'`, not `'light dark'` — declaring the pair
+on a permanently-light page would tell the browser to paint its own form
+controls and scrollbars dark for an OS-dark reader, the exact mismatch this
+token set exists to prevent.
 
 ---
 

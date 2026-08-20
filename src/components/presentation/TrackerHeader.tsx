@@ -1,18 +1,14 @@
 import Link from 'next/link';
 import { Mark } from '@/components/brand/Mark';
-import { ThemeToggle } from '@/components/primitives/ThemeToggle';
 import { CommandHint } from './CommandPalette';
-import type { ResolvedTheme } from '@/lib/theme';
 
 /**
  * TrackerHeader: Production-grade header for the project delivery tracker.
- * Theme-aware background, flush to top, expandable 1280px width container.
+ * Flush to top, expandable 1280px width container.
  */
 export function TrackerHeader({
-  theme,
   sections,
 }: {
-  theme: ResolvedTheme;
   sections: Array<{ id: string; label: string }>;
 }) {
   return (
@@ -57,7 +53,6 @@ export function TrackerHeader({
         <div className="ml-auto flex shrink-0 items-center gap-2">
           <span className="t-eyebrow hidden text-[var(--ink-faint)] xl:block">Rev 3.1</span>
           <CommandHint />
-          <ThemeToggle theme={theme} />
         </div>
       </div>
 

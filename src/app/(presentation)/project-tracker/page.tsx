@@ -21,7 +21,6 @@ import { FoundationExplorer } from '@/components/presentation/FoundationExplorer
 import { ProgressLine } from '@/components/presentation/Charts';
 import { CommandPalette, type Command } from '@/components/presentation/CommandPalette';
 import { ErrorBoundary } from '@/components/primitives/ErrorBoundary';
-import { getThemePreference, resolveTheme } from '@/lib/theme';
 import {
   CLIENT_INPUTS,
   COMPLIANCE,
@@ -88,9 +87,7 @@ const UPDATE_TONE: Record<string, { tone: Tone; label: string; icon: TablerIcon 
   blocker: { tone: 'ochre', label: 'Blocker', icon: IconAlertTriangle },
 };
 
-export default async function ProjectTrackerPage() {
-  const theme = await resolveTheme(await getThemePreference());
-
+export default function ProjectTrackerPage() {
   const clientDocs = PROJECT_DOCS.filter((doc) => doc.audience === 'client');
   const blocking = OPEN_DECISIONS.filter((d) => d.severity === 'blocking');
 
@@ -122,13 +119,6 @@ export default async function ProjectTrackerPage() {
       href: `/design/${sheet.slug}.html`,
       external: true,
     })),
-    {
-      id: 'action-theme',
-      label: 'Toggle the theme',
-      hint: 'light and dark',
-      group: 'Actions',
-      action: 'toggle-theme',
-    },
     { id: 'action-product', label: 'Open the product surface', group: 'Actions', href: '/' },
   ];
 
@@ -169,7 +159,7 @@ export default async function ProjectTrackerPage() {
     <div style={{ background: 'var(--surface-page)' }}>
       <TrackerMotion />
       <CommandPalette commands={commands} />
-      <TrackerHeader theme={theme} sections={SECTIONS} />
+      <TrackerHeader sections={SECTIONS} />
 
       <main id="main" className="mx-auto px-5 pb-28 md:px-8 py-12" style={{ maxWidth: '1280px' }}>
         <TrackerDashboardHero

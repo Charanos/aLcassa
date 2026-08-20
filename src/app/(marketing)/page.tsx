@@ -21,7 +21,6 @@ import { HeroDiagram } from '@/components/marketing/HeroDiagram';
 import { InteractiveFeatures } from '@/components/marketing/InteractiveFeatures';
 import { SecuritySection } from '@/components/marketing/SecuritySection';
 import { LiveSpecPlayground } from '@/components/marketing/LiveSpecPlayground';
-import { getThemePreference, resolveTheme } from '@/lib/theme';
 
 const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'aLcassa_tenant_session';
 const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'aLcassa_platform_session';
@@ -45,32 +44,32 @@ const CHANNELS: Array<{
     name: 'WhatsApp Business',
     status: 'Coming soon',
     description: 'Direct Cloud API integration with automatic conversation routing.',
-    iconColorClass: 'text-emerald-600 dark:text-emerald-400',
-    iconBgClass: 'bg-emerald-50 border-emerald-200/60 dark:bg-emerald-500/15 dark:border-emerald-500/30',
+    iconColorClass: 'text-emerald-600',
+    iconBgClass: 'bg-emerald-50 border-emerald-200/60',
   },
   {
     icon: IconBrandInstagram,
     name: 'Instagram Direct',
     status: 'Coming soon',
     description: 'Handle customer DMs and story replies right alongside website chat.',
-    iconColorClass: 'text-rose-600 dark:text-rose-400',
-    iconBgClass: 'bg-rose-50 border-rose-200/60 dark:bg-rose-500/15 dark:border-rose-500/30',
+    iconColorClass: 'text-rose-600',
+    iconBgClass: 'bg-rose-50 border-rose-200/60',
   },
   {
     icon: IconBrandMessenger,
     name: 'Facebook Messenger',
     status: 'Coming soon',
     description: 'Page messaging support with rich media and structured responses.',
-    iconColorClass: 'text-blue-600 dark:text-blue-400',
-    iconBgClass: 'bg-blue-50 border-blue-200/60 dark:bg-blue-500/15 dark:border-blue-500/30',
+    iconColorClass: 'text-blue-600',
+    iconBgClass: 'bg-blue-50 border-blue-200/60',
   },
   {
     icon: IconMessage,
     name: 'Website Chat Widget',
     status: 'Coming soon',
     description: 'Embeddable web chat snippet with a real-time WebSocket connection.',
-    iconColorClass: 'text-amber-600 dark:text-amber-400',
-    iconBgClass: 'bg-amber-50 border-amber-200/60 dark:bg-amber-500/15 dark:border-amber-500/30',
+    iconColorClass: 'text-amber-600',
+    iconBgClass: 'bg-amber-50 border-amber-200/60',
   },
 ];
 
@@ -106,7 +105,6 @@ const CHANNELS: Array<{
  */
 
 export default async function MarketingPage() {
-  const theme = await resolveTheme(await getThemePreference());
   const cookieStore = await cookies();
   const hasPlatformSession = cookieStore.has(PLATFORM_COOKIE);
   const hasTenantSession = cookieStore.has(TENANT_COOKIE);
@@ -127,28 +125,28 @@ export default async function MarketingPage() {
       >
         {/* Ambient radial washes: balanced two-temperature lighting (soft slate & warm ember) */}
         <div
-          className="absolute top-8 -left-20 size-[620px] rounded-full opacity-35 blur-3xl dark:opacity-15"
+          className="absolute top-8 -left-20 size-[620px] rounded-full opacity-35 blur-3xl"
           style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--ink-600) 25%, transparent) 0%, transparent 70%)' }}
         />
         <div
-          className="absolute top-8 right-0 size-[680px] rounded-full opacity-30 blur-3xl dark:opacity-15"
+          className="absolute top-8 right-0 size-[680px] rounded-full opacity-30 blur-3xl"
           style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--orange-400) 25%, transparent) 0%, transparent 70%)' }}
         />
 
 
         {/* Iconography watermarks with soft architectural multi-tonal tints */}
-        <div className="absolute -top-6 -left-20 hidden -rotate-12 text-slate-500/[0.08] dark:text-slate-300/[0.12] lg:block">
+        <div className="absolute -top-6 -left-20 hidden -rotate-12 text-slate-500/[0.08] lg:block">
           <IconServer2 size={320} stroke={1} />
         </div>
-        <div className="absolute top-[5%] -right-20 hidden rotate-12 text-amber-600/[0.08] dark:text-amber-300/[0.13] md:block">
+        <div className="absolute top-[5%] -right-20 hidden rotate-12 text-amber-600/[0.08] md:block">
           <IconMessage size={440} stroke={1} />
         </div>
-        <div className="absolute right-[60%] -bottom-20 hidden rotate-[10deg] text-emerald-600/[0.08] dark:text-emerald-300/[0.13] md:block">
+        <div className="absolute right-[60%] -bottom-20 hidden rotate-[10deg] text-emerald-600/[0.08] md:block">
           <IconBrandWhatsapp size={460} stroke={1} />
         </div>
       </div>
 
-      <FloatingHeader theme={theme} session={session} />
+      <FloatingHeader session={session} />
 
       <main
         id="main"
@@ -415,10 +413,10 @@ export default async function MarketingPage() {
           className="relative mt-20 overflow-hidden border-t py-20 md:mt-32"
           style={{ borderColor: 'var(--border-strong)' }}
         >
-          <div className="pointer-events-none absolute top-6 -left-12 hidden -rotate-12 text-emerald-600/[0.08] dark:text-emerald-400/[0.14] lg:block">
+          <div className="pointer-events-none absolute top-6 -left-12 hidden -rotate-12 text-emerald-600/[0.08] lg:block">
             <IconBrandWhatsappFilled size={280} stroke={1} />
           </div>
-          <div className="pointer-events-none absolute top-6 -right-12 hidden rotate-12 text-rose-600/[0.08] dark:text-rose-400/[0.14] lg:block">
+          <div className="pointer-events-none absolute top-6 -right-12 hidden rotate-12 text-rose-600/[0.08] lg:block">
             <IconMessageFilled size={260} stroke={1} />
           </div>
 
@@ -527,7 +525,7 @@ export default async function MarketingPage() {
           </svg>
         </div>
 
-        <div className="pointer-events-none absolute right-8 bottom-2 hidden -rotate-12 text-slate-500/[0.08] dark:text-slate-300/[0.12] lg:block">
+        <div className="pointer-events-none absolute right-8 bottom-2 hidden -rotate-12 text-slate-500/[0.08] lg:block">
           <IconServer2 size={240} stroke={1} />
         </div>
 

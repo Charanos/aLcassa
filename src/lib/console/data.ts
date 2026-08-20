@@ -1206,17 +1206,10 @@ export type SettingsModel = {
 /**
  * Platform-wide settings.
  *
- * ⚠ THEME IS DELIBERATELY NOT IN THIS MODEL, even though `Settings.dc.html`
- * draws it as a section of the same page.
- *
- * The design's own lede for that section says it plainly: "your own
- * preference. It does not affect what customers see." Everything else on this
- * screen is stated to apply to all 47 workspaces on save — conflating a
- * personal display preference with platform-wide config in one model would
- * misrepresent which of these is shared state and which is just this
- * browser's cookie. The theme picker is wired directly to the same
- * `THEME_COOKIE` the header toggle uses, read server-side by the page exactly
- * as every other themed surface in the product already does it.
+ * `Settings.dc.html` draws a theme picker as a section of this page; the
+ * product ships one theme now, so there is no preference left to hold and
+ * the section — and the settings section, header toggle and command-palette
+ * action that used to write it — were removed rather than kept as a no-op.
  *
  * Replaced by a read over a `platform_settings` singleton row.
  */

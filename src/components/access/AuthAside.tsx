@@ -67,13 +67,13 @@ function AccessTelemetryCard() {
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <IconFingerprint size={16} stroke={1.5} className="text-amber-600 dark:text-amber-400" />
+          <IconFingerprint size={16} stroke={1.5} className="text-amber-600" />
           <span className="t-eyebrow font-medium tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
             SESSION ENCLAVE
           </span>
         </div>
         <span
-          className="t-chip inline-flex items-center gap-1.5 rounded-chip px-2 py-0.5 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-medium"
+          className="t-chip inline-flex items-center gap-1.5 rounded-chip px-2 py-0.5 bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 font-medium"
         >
           <span
             className="size-1.5 rounded-full animate-pulse"
@@ -103,12 +103,12 @@ function AccessTelemetryCard() {
           style={{ borderColor: 'var(--border-subtle)' }}
         >
           <div className="flex items-center gap-1.5">
-            <IconCheck size={13} stroke={2.5} className="text-emerald-600 dark:text-emerald-400" />
+            <IconCheck size={13} stroke={2.5} className="text-emerald-600" />
             <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
               {active.status}
             </span>
           </div>
-          <code className="t-code text-[10px] font-mono text-amber-600 dark:text-amber-400 font-normal">
+          <code className="t-code text-[10px] font-mono text-amber-600 font-normal">
             {active.code}
           </code>
         </div>
@@ -134,7 +134,7 @@ function AccessTelemetryCard() {
           <span className="t-eyebrow block" style={{ color: 'var(--text-tertiary)' }}>
             KEYS
           </span>
-          <span className="t-data text-xs font-normal text-amber-600 dark:text-amber-400 mt-0.5 block font-mono">
+          <span className="t-data text-xs font-normal text-amber-600 mt-0.5 block font-mono">
             ARGON2ID
           </span>
         </div>
@@ -142,7 +142,7 @@ function AccessTelemetryCard() {
           <span className="t-eyebrow block" style={{ color: 'var(--text-tertiary)' }}>
             AUDIT
           </span>
-          <span className="t-data text-xs font-normal text-emerald-600 dark:text-emerald-400 mt-0.5 block font-mono">
+          <span className="t-data text-xs font-normal text-emerald-600 mt-0.5 block font-mono">
             APPEND-ONLY
           </span>
         </div>
@@ -158,15 +158,15 @@ const TENANT_SECURITY_SPECS = [
     icon: IconDatabase,
     title: 'Postgres Tenant Partitioning',
     desc: 'Each workspace is completely segregated at the database layer with zero shared memory states.',
-    colorClass: 'text-emerald-600 dark:text-emerald-400',
-    bgClass: 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200/60 dark:border-emerald-500/30',
+    colorClass: 'text-emerald-600',
+    bgClass: 'bg-emerald-50 border-emerald-200/60',
   },
   {
     icon: IconLock,
     title: 'Irreversible Hash Encryption',
     desc: 'Credentials and auth tokens are hashed mathematically and cannot be retrieved even by operators.',
-    colorClass: 'text-amber-600 dark:text-amber-400',
-    bgClass: 'bg-amber-50 dark:bg-amber-500/15 border-amber-200/60 dark:border-amber-500/30',
+    colorClass: 'text-amber-600',
+    bgClass: 'bg-amber-50 border-amber-200/60',
   },
 ] as const;
 
@@ -181,7 +181,7 @@ function SecuritySpecsCard() {
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <IconShieldCheck size={16} stroke={1.5} className="text-emerald-600 dark:text-emerald-400" />
+          <IconShieldCheck size={16} stroke={1.5} className="text-emerald-600" />
           <span className="t-eyebrow font-medium tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
             SECURITY GUARANTEES
           </span>
@@ -288,7 +288,7 @@ export function PlatformAside() {
             </span>
           </div>
           <span
-            className="t-chip rounded-chip px-2 py-0.5 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-medium"
+            className="t-chip rounded-chip px-2 py-0.5 bg-amber-500/15 text-amber-700 border border-amber-500/30 font-medium"
           >
             Audited
           </span>

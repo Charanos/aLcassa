@@ -46,8 +46,9 @@ import {
  * correct reading here: these bars are the subject, not a status.
  */
 
-/** Recharts needs real colour values, so the tokens are read once on mount and
- *  re-read when the theme attribute flips. */
+/** Recharts needs real colour values — see the note above on presentation
+ *  attributes — so the tokens are read out of the computed style once, on
+ *  mount. With one theme they never change again after that read. */
 function useTokens() {
   const [tokens, setTokens] = useState({
     series: '#A6572A',
@@ -59,29 +60,17 @@ function useTokens() {
   });
 
   useEffect(() => {
-    const read = () => {
-      const s = getComputedStyle(document.documentElement);
-      const get = (name: string, fallback: string) =>
-        s.getPropertyValue(name).trim() || fallback;
+    const s = getComputedStyle(document.documentElement);
+    const get = (name: string, fallback: string) => s.getPropertyValue(name).trim() || fallback;
 
-      setTokens({
-        series: get('--copper-solid', '#A6572A'),
-        grid: get('--rule-soft', '#ECE5D8'),
-        axis: get('--ink-tertiary', '#635D54'),
-        ink: get('--ink-primary', '#1F1C18'),
-        surface: get('--surface-raised', '#FFFEFB'),
-        rule: get('--rule-base', '#D8CFBD'),
-      });
-    };
-
-    read();
-
-    // The theme toggle flips a data attribute rather than reloading, so the
-    // chart has to notice. A MutationObserver on that one attribute is cheaper
-    // and more reliable than a custom event both sides have to remember.
-    const observer = new MutationObserver(read);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => observer.disconnect();
+    setTokens({
+      series: get('--copper-solid', '#A6572A'),
+      grid: get('--rule-soft', '#ECE5D8'),
+      axis: get('--ink-tertiary', '#635D54'),
+      ink: get('--ink-primary', '#1F1C18'),
+      surface: get('--surface-raised', '#FFFEFB'),
+      rule: get('--rule-base', '#D8CFBD'),
+    });
   }, []);
 
   return tokens;
@@ -100,8 +89,8 @@ const TONE_FALLBACK: Record<ToneName, string> = {
 };
 
 /**
- * Resolves `--{tone}-ink` to an actual colour string for every tone, re-read
- * on theme flip. A Recharts `Cell` sets `fill` as an SVG attribute rather than
+ * Resolves `--{tone}-ink` to an actual colour string for every tone, read
+ * once on mount. A Recharts `Cell` sets `fill` as an SVG attribute rather than
  * a style in some render paths, and `var()` resolution in a bare SVG
  * presentation attribute is not reliable across engines, so the colour has to
  * be a real value by the time it reaches the chart. `useTokens` above does the
@@ -111,20 +100,13 @@ export function useToneColors(): Record<ToneName, string> {
   const [colors, setColors] = useState<Record<ToneName, string>>(TONE_FALLBACK);
 
   useEffect(() => {
-    const read = () => {
-      const s = getComputedStyle(document.documentElement);
-      const next = { ...TONE_FALLBACK };
-      TONE_NAMES.forEach((tone) => {
-        const value = s.getPropertyValue(`--${tone}-ink`).trim();
-        if (value) next[tone] = value;
-      });
-      setColors(next);
-    };
-
-    read();
-    const observer = new MutationObserver(read);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => observer.disconnect();
+    const s = getComputedStyle(document.documentElement);
+    const next = { ...TONE_FALLBACK };
+    TONE_NAMES.forEach((tone) => {
+      const value = s.getPropertyValue(`--${tone}-ink`).trim();
+      if (value) next[tone] = value;
+    });
+    setColors(next);
   }, []);
 
   return colors;

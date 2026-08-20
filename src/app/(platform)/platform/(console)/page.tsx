@@ -158,7 +158,7 @@ export default async function ConsoleOverviewPage() {
           <div className="flex-1 p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden" style={{ borderRight: '1px solid var(--invert-card-rule)' }}>
             {/* Background Architectural Artwork - elegant tenant telemetry & topology motif */}
             <div 
-              className="absolute -right-16 -bottom-20 pointer-events-none select-none z-0 opacity-[0.12] dark:opacity-[0.08] text-[var(--invert-card-fg)] transform rotate-12 transition-all duration-700"
+              className="absolute -right-16 -bottom-20 pointer-events-none select-none z-0 opacity-[0.12] text-[var(--invert-card-fg)] transform rotate-12 transition-all duration-700"
               aria-hidden="true"
             >
               <svg width="480" height="400" viewBox="0 0 480 400" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -322,7 +322,7 @@ export default async function ConsoleOverviewPage() {
           >
             {/* Ambient success glow */}
             <div 
-              className="absolute left-0 top-0 bottom-0 w-24 pointer-events-none opacity-20 dark:opacity-10 transition-opacity duration-500 group-hover:opacity-30"
+              className="absolute left-0 top-0 bottom-0 w-24 pointer-events-none opacity-20 transition-opacity duration-500 group-hover:opacity-30"
               style={{
                 background: 'linear-gradient(90deg, var(--success-bg) 0%, transparent 100%)'
               }}

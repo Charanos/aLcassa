@@ -11,12 +11,10 @@ import {
   IconBell,
 } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
-import { ThemeToggle } from '@/components/primitives/ThemeToggle';
 import { IconButton } from '@/components/primitives/IconButton';
 import { TenantSwitcher, type TenantSummary } from './TenantSwitcher';
 import { CommandTrigger } from './CommandTrigger';
 import { AdminProfileCard, type AdminProfile } from './AdminProfileCard';
-import type { ResolvedTheme } from '@/lib/theme-shared';
 
 export type NavItem = {
   href: string;
@@ -34,7 +32,6 @@ export type AppShellProps = {
   titleBlock: { label: string; value: string; revision?: string };
   navigation: NavGroup[];
   role: string;
-  theme: ResolvedTheme;
   defaultCollapsed?: boolean;
   headerActions?: React.ReactNode;
   /** Platform console only — powers the tenant switcher in the topbar. */
@@ -59,7 +56,6 @@ export function AppShell({
   titleBlock,
   navigation,
   role,
-  theme,
   defaultCollapsed = false,
   headerActions,
   tenants,
@@ -113,8 +109,17 @@ export function AppShell({
     setMobileOpen(false);
   }, [pathname]);
 
-  // The platform console inverts its sidebar theme relative to the page ground.
-  const sidebarTheme = isPlatform ? (theme === 'dark' ? 'light' : 'dark') : theme;
+  /*
+   * ⚠ NO `data-theme` STAMP ANY MORE. This used to flip the sidebar to the
+   * opposite theme of the page. The product ships one theme, so there is no
+   * opposite to flip to, and the token block that stamp resolved against is
+   * gone.
+   *
+   * A platform sidebar here would be dark the way the console's is: by
+   * reading the `--chrome-*` tier, which is theme-independent by
+   * construction. See tokens.css, TIER 4. This shell is only mounted with
+   * `application="tenant"` today, where the sidebar is light by design.
+   */
 
   const renderNavGroups = (isMobile: boolean = false) => (
     <div className="flex flex-1 flex-col gap-6 pt-5 px-2.5 pb-4 overflow-y-auto overflow-x-hidden">
@@ -321,7 +326,6 @@ export function AppShell({
               )}
             </span>
           </IconButton>
-          <ThemeToggle theme={theme} compact />
         </div>
       </header>
 
@@ -329,7 +333,6 @@ export function AppShell({
         {/* DESKTOP SIDEBAR: Production Grade Inverted Sidebar */}
         <nav
           data-slot="sidebar"
-          data-theme={sidebarTheme}
           aria-label={isPlatform ? 'Platform navigation' : 'Workspace navigation'}
           className="relative hidden shrink-0 border-r md:flex flex-col transition-[width] duration-200 ease-out select-none"
           style={{
@@ -369,7 +372,6 @@ export function AppShell({
               aria-hidden="true"
             />
             <nav
-              data-theme={sidebarTheme}
               data-slot="mobile-sidebar"
               aria-label="Mobile navigation"
               className="relative flex w-4/5 max-w-sm flex-col shadow-xl transition-transform"

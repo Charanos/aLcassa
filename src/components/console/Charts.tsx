@@ -25,10 +25,10 @@ import {
  * render paths, and `var(--blue-500)` in a bare presentation attribute is not
  * reliably resolved across engines — it renders black in Safari and silently
  * nothing in some Firefox builds. So every colour is read out of the computed
- * style first, and re-read on theme flip via a MutationObserver on
- * `data-theme`. This is the same technique the tracker's charts use, and
- * skipping it is the single most common way a themed Recharts surface breaks
- * in exactly one browser.
+ * style once, on mount. This is unrelated to theming: with one theme these
+ * values never change again after that read, which is why there is no
+ * `MutationObserver` here any more — it used to re-read on a `data-theme`
+ * flip that no longer happens.
  *
  * ⚠ THE PALETTE IS ONE HUE PLUS A NEUTRAL, NOT A CATEGORICAL SET.
  *
@@ -89,22 +89,13 @@ function useTokens(): Tokens {
   const [tokens, setTokens] = useState<Tokens>(FALLBACK);
 
   useEffect(() => {
-    const read = () => {
-      const s = getComputedStyle(document.documentElement);
-      const next = { ...FALLBACK };
-      (Object.keys(VARS) as Array<keyof Tokens>).forEach((k) => {
-        const v = s.getPropertyValue(VARS[k]).trim();
-        if (v) next[k] = v;
-      });
-      setTokens(next);
-    };
-    read();
-    const observer = new MutationObserver(read);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
+    const s = getComputedStyle(document.documentElement);
+    const next = { ...FALLBACK };
+    (Object.keys(VARS) as Array<keyof Tokens>).forEach((k) => {
+      const v = s.getPropertyValue(VARS[k]).trim();
+      if (v) next[k] = v;
     });
-    return () => observer.disconnect();
+    setTokens(next);
   }, []);
 
   return tokens;

@@ -10,12 +10,16 @@ const securityHeaders = [
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
-  // Asks the browser to send the OS colour preference with each request, so the
-  // theme resolves on the server and there is no flash and no inline script.
-  // See src/lib/theme.ts for why that matters here. 03 §19 · 04 §7.
-  { key: 'Accept-CH', value: 'Sec-CH-Prefers-Color-Scheme' },
-  { key: 'Critical-CH', value: 'Sec-CH-Prefers-Color-Scheme' },
-  { key: 'Vary', value: 'Sec-CH-Prefers-Color-Scheme, Cookie' },
+  // ⚠ NO `Accept-CH: Sec-CH-Prefers-Color-Scheme` ANY MORE.
+  //
+  // That hint existed so the server could resolve a light/dark preference
+  // before the first byte. The product now ships one theme, so asking every
+  // browser for the OS colour preference on every request would collect a
+  // signal nothing reads — and `Critical-CH` in particular costs a connection
+  // restart on the first visit to pay for it.
+  //
+  // `Vary: Cookie` stays: responses still differ by session.
+  { key: 'Vary', value: 'Cookie' },
 ];
 
 const nextConfig: NextConfig = {

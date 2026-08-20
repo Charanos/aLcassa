@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
 import { SettingsPanel } from '@/components/console/SettingsPanel';
 import { getSettings } from '@/lib/console/data';
-import { getThemePreference } from '@/lib/theme';
 
 export const metadata: Metadata = { title: 'Settings' };
 
@@ -22,11 +21,7 @@ export default async function SettingsPage({
 }: {
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const [model, themePreference, { tab }] = await Promise.all([
-    getSettings(),
-    getThemePreference(),
-    searchParams,
-  ]);
+  const [model, { tab }] = await Promise.all([getSettings(), searchParams]);
 
   const initialTab = TAB_KEYS.includes(tab as (typeof TAB_KEYS)[number])
     ? (tab as (typeof TAB_KEYS)[number])
@@ -46,7 +41,7 @@ export default async function SettingsPage({
       </div>
 
       <div className="mt-5">
-        <SettingsPanel model={model} initialTab={initialTab} themePreference={themePreference} />
+        <SettingsPanel model={model} initialTab={initialTab} />
       </div>
     </ConsolePage>
   );
