@@ -1,7 +1,9 @@
 # 07 · API Contract
 
-**Bases:** `/api/v1` session door · `/api/service/v1` machine door · `/api/platform/v1` console
-**Specification:** OpenAPI 3.1, generated from Zod schemas, verified by contract tests in CI. The specification and the implementation cannot drift, because the tests fail if they do.
+**Bases:** `/api/v1` session door, Next.js · `/api/service/v1` machine door, FastAPI · `/api/platform/v1` console, Next.js
+**Specification:** OpenAPI 3.1, generated from Zod schemas on the Next.js side and from Pydantic on the FastAPI side, verified by contract tests in CI against one merged specification. The specification and the implementation cannot drift, because the tests fail if they do.
+
+**24 Aug 2026, per `01 D-14` and `04` ADR-012.** The service door moved from a Next.js route to a purpose-built FastAPI service. Nothing in this document's shape, authentication scheme, ETag behaviour or response bodies changes as a result: `07 §8` was written as a contract independent of runtime, and the point of ADR-012 is that the contract survives the move unchanged. Where this document previously implied one shared TypeScript function enforces both doors, it now means one specification enforced by a cross-language conformance suite, per `07 §12`.
 
 ---
 
@@ -75,7 +77,8 @@ Stable, because the client and Phase 2 both map these to behaviour.
 | `rules.version_conflict` | Optimistic lock failure, carries both versions |
 | `rules.field_locked` | A tenant attempted to override a platform-locked field |
 | `support.session_expired` | |
-| `support.not_permitted` | |
+| `support.not_permitted` | Cannot enter support mode. Checked at the switch, not once inside one; see `platform_admins.canEnterSupportMode` |
+| `support.write_denied` | Added 24 Aug 2026, per `01 D-13`. A support session attempted one of the three permanent carve-outs: reading a credential secret, extending its own timeout, or acting as the member's own identity row. Distinct from `support.not_permitted` above, which blocks entry rather than an action once inside |
 | `platform.not_admin` | |
 | `validation.failed` | Generic, with `details` populated |
 | `rate_limit.exceeded` | Carries `retryAfter` |
@@ -196,6 +199,8 @@ Publishing invalidates the Redis key before it returns 200. That ordering is wha
 ## 8. The service door
 
 The machine's contract. Phase 2 lives here, so it gets the most careful treatment.
+
+**Hosted by FastAPI, its own service, per ADR-012.** Everything below is the contract that service implements; it is identical to what a Next.js route would have exposed; only where it runs has changed.
 
 ### Authentication
 
@@ -346,10 +351,10 @@ Reviewed and signed at M0, before the schema locks. Getting this wrong is the ri
 
 ## 12. Contract testing
 
-Every endpoint has a contract test asserting its response shape against the OpenAPI specification. The specification is generated from Zod, so a handler and its documentation cannot diverge.
+Every endpoint has a contract test asserting its response shape against the OpenAPI specification. On the Next.js side the specification is generated from Zod; on the FastAPI side, from Pydantic; a single merged OpenAPI document is what CI checks both services against, so a handler in either runtime and its documentation cannot diverge.
 
 Three tests carry more weight than the rest and are named individually in the definition of done:
 
 1. **No secret in any response.** Recursive key scan across every route's response, one documented exception.
 2. **Scope enforcement.** For each scope, a credential lacking it is rejected before the handler.
-3. **Both doors, one guard.** The same entitlement scenario driven through the session door and the service door produces an identical decision. This is the test that closes the brief's open question.
+3. **Both doors, one guard, now cross-language.** The same entitlement scenario driven through the Next.js session door and the FastAPI service door produces an identical decision. Before `01 D-14` this was one function called from both doors in a single runtime; now it is two independent implementations of the same specification, so this test is the thing standing in for that former structural guarantee. It runs in CI on every pull request to either service, not just at the M3 gate, per `04` ADR-005's amendment.

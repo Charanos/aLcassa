@@ -15,14 +15,14 @@ import { pk, tenantRef, timestamps, version } from './_shared';
 import { tenants } from './tenancy';
 
 /**
- * 05 §5 · 08. Entitlements are DATA. Adding a Growth tier with 15 seats and 3
- * channels is inserting a plan and six entitlement rows, with no deployment.
+ * 05 §5 · 08. Entitlements are DATA. Adding a fourth tier between Business and
+ * Custom is inserting a plan and eight entitlement rows, with no deployment.
  * That is what makes "plan changes mid-build" a non-risk on this engagement.
  */
 
 export const plans = pgTable('plans', {
   id: pk(),
-  code: text('code').notNull().unique(), // free | starter | growth | scale
+  code: text('code').notNull().unique(), // pro | business | custom. Confirmed 24 Aug 2026, no free plan.
   name: text('name').notNull(),
   description: text('description'),
   // 07 §1. Money is { amount, currency } in minor units on the wire, and minor
@@ -108,9 +108,9 @@ export const subscriptions = pgTable(
 /**
  * 05 §5. Not in the brief, and it costs one table.
  *
- * Without it, the first time Brian wants to give a customer 20 seats on a
- * 15-seat plan his only options are inventing a bespoke plan or editing the
- * shared plan and affecting everyone. Both are worse. The reason field is
+ * Without it, the first time Brian wants to give a customer 15 seats on a
+ * 10-seat Business plan his only options are inventing a bespoke plan or
+ * editing the shared plan and affecting everyone. Both are worse. The reason field is
  * mandatory and it appears in the tenant's own audit log, because a customer
  * who has been granted extra seats should know it and should know it may expire.
  */

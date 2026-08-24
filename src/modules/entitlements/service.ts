@@ -24,9 +24,16 @@ import type {
  *
  * This is the substantive answer to the open question the brief raised.
  * Authentication and tenant resolution legitimately differ between the session
- * door and the service door. Plan-limit enforcement does not. Both paths call
- * `checkEntitlement` with a ResolvedContext produced by their own resolver, and
- * the decision is identical.
+ * door and the service door. Plan-limit enforcement does not.
+ *
+ * AMENDED 24 Aug 2026, per 01 D-14 and 04 ADR-012's amendment to ADR-005: the
+ * service door is moving to a FastAPI service, so "both paths call
+ * checkEntitlement" is no longer literally true once that lands. This
+ * function remains the specification and the session-door implementation;
+ * FastAPI implements the same specification independently, against the same
+ * `plan_entitlements` and `usage_counters` tables and the same Redis snapshot
+ * shape below. Sameness is proven by the cross-language conformance suite in
+ * 07 §12 rather than by both doors calling this function.
  *
  * The contract test in 07 §12 drives the same scenario through both doors and
  * asserts the same outcome. That test is the evidence, which is why this can be

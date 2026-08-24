@@ -128,7 +128,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 80,
-    note: 'Documentation set, design set and the architectural foundation are drawn and built. Five decisions are open and four of them block the schema lock.',
+    note: 'Documentation set, design set and the architectural foundation are drawn and built. All five of the decisions that were blocking are answered as of 24 Aug 2026, most ahead of schedule. The channel adapter contract and written approval of the brief remain outstanding for this gate to close.',
   },
   {
     id: 'M1',
@@ -197,7 +197,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'blocked' as MilestoneStatus,
     progress: 20,
-    note: 'Both seam tables and the versioned rules schema are built and isolated. The precedence model and the embedding model are both outstanding, and both change tables.',
+    note: 'Both seam tables and the versioned rules schema are built and isolated. The precedence model and the embedding model, both previously outstanding, were confirmed 24 Aug 2026. This milestone now carries the FastAPI service door build (01 D-14), whose staffing and effort still need an answer before work here can proceed as scoped.',
   },
   {
     id: 'M6',
@@ -322,6 +322,20 @@ export const COMPLIANCE = [
  */
 export const UPDATES = [
   {
+    date: '2026-08-24',
+    title: 'M0 closed: five decisions confirmed, one new item raised',
+    body: 'AI rules precedence (layered, master wins on conflict), the support role matrix (read and write, not read-only), the embedding model (OpenAI text-embedding-3-small), what suspension means (read-only, as built), and plan tiers (Pro, Business, Custom) are all confirmed, three weeks ahead of their week-four deadline. The support answer opened one narrower question of its own: whether it extends to customer records, proposed as no. Document 15 and the decision log in document 01 carry the full record.',
+    milestone: 'M0',
+    kind: 'decision' as const,
+  },
+  {
+    date: '2026-08-24',
+    title: 'FastAPI and the service door: a boundary confirmed, a change note opened',
+    body: 'The client raised a conflict between his original specification, FastAPI as the backend with all data access routed through it, and the signed brief, which places FastAPI as a consumer of this platform, not its implementer. Resolution: FastAPI becomes a real Andishi-built service in Phase 1, implementing the service door exactly where the architecture already placed it. The dashboard stays on Next.js. Moving the dashboard behind FastAPI as well remains available as a separately scoped and priced change note. Full detail in document 04, ADR-012.',
+    milestone: 'M3, M4a',
+    kind: 'decision' as const,
+  },
+  {
     date: '2026-08-05',
     title: 'Foundation-phase visual pass complete',
     body: 'Final UI/UX review before the delivery milestones begin. Chart forms revised to fit what each is actually showing: the readiness breakdown is a donut with the total in its centre, milestone progress is a line across the sequence rather than a bar. One page width now shared by the marketing page, the tracker and the document viewer, replacing three pages that had each picked their own. The marketing hero rebuilt with a title-block fact row and a technical schematic in place of a plain two-button block. The access screens carry a properly weighted mark, a trust list and a title-block footer rather than an empty column.',
@@ -367,18 +381,35 @@ export const DEFINITION_OF_DONE = [
 ] as const;
 
 /** Section 07. Three of the four critical-path inputs are the client's, and all
- *  three are due in week one. */
+ *  three are due in week one. Status column added 24 Aug 2026: all but the two
+ *  access-grant items are answered, most of them ahead of schedule. */
 export const CLIENT_INPUTS = [
-  { item: 'Written approval of this brief', when: 'Before kick-off', blocking: 'Everything' },
-  { item: 'Supabase organisation access', when: 'Week 1', blocking: 'M1' },
-  { item: 'GitHub organisation access', when: 'Week 1', blocking: 'M1' },
-  { item: 'Embedding model Phase 2 will use', when: 'Week 1', blocking: 'M4a seam' },
+  {
+    item: 'Written approval of this brief',
+    when: 'Before kick-off',
+    blocking: 'Everything',
+    status: 'Pending',
+  },
+  { item: 'Supabase organisation access', when: 'Week 1', blocking: 'M1', status: 'Pending' },
+  { item: 'GitHub organisation access', when: 'Week 1', blocking: 'M1', status: 'Pending' },
+  {
+    item: 'Embedding model Phase 2 will use',
+    when: 'Week 1',
+    blocking: 'M4a seam',
+    status: 'Answered 24 Aug 2026',
+  },
   {
     item: 'Precedence between master and tenant AI rules',
     when: 'Week 1',
     blocking: 'M4a, and the schema',
+    status: 'Answered 24 Aug 2026',
   },
-  { item: 'Confirmed plan tiers with limits', when: 'Week 4', blocking: 'M3' },
+  {
+    item: 'Confirmed plan tiers with limits',
+    when: 'Week 4',
+    blocking: 'M3',
+    status: 'Answered 24 Aug 2026, ahead of schedule',
+  },
 ] as const;
 
 /** Section 09. Agreed directly between Ian and Brian.

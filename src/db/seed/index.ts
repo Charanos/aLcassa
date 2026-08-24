@@ -25,10 +25,13 @@ if (!connectionString) throw new Error('DATABASE_URL_ADMIN or DATABASE_URL must 
 
 const sql = postgres(connectionString, { prepare: false, max: 1 });
 
+// Plan codes updated 24 Aug 2026 to the confirmed Pro / Business / Custom
+// catalogue. Tenant A stays deliberately at its 1-seat Pro limit; see the
+// SEED_TENANT_A comment in constants.ts.
 const TENANTS = [
-  { id: SEED_TENANT_A, slug: 'acme-industrial', name: 'Acme Industrial', status: 'active', plan: 'free' },
-  { id: SEED_TENANT_B, slug: 'northwind', name: 'Northwind Traders', status: 'active', plan: 'growth' },
-  { id: SEED_TENANT_C, slug: 'tamarind', name: 'Tamarind Hotels', status: 'suspended', plan: 'starter' },
+  { id: SEED_TENANT_A, slug: 'acme-industrial', name: 'Acme Industrial', status: 'active', plan: 'pro' },
+  { id: SEED_TENANT_B, slug: 'northwind', name: 'Northwind Traders', status: 'active', plan: 'business' },
+  { id: SEED_TENANT_C, slug: 'tamarind', name: 'Tamarind Hotels', status: 'suspended', plan: 'pro' },
 ] as const;
 
 const USERS = [
@@ -89,7 +92,7 @@ async function main(): Promise<void> {
       `;
     }
 
-    // ── Members. Tenant A is deliberately AT its 2-seat free-tier limit, so
+    // ── Members. Tenant A is deliberately AT its 1-seat Pro-tier limit, so
     //    the limit-reached path has something to fire against. ──────────────
     for (const user of USERS) {
       await tx`
@@ -126,7 +129,7 @@ async function main(): Promise<void> {
     `;
   });
 
-  console.log('✓ seeded 4 plans, 3 tenants (one suspended), 3 owners, 1 platform admin');
+  console.log('✓ seeded 3 plans, 3 tenants (one suspended), 3 owners, 1 platform admin');
   await sql.end();
 }
 

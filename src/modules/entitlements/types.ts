@@ -1,9 +1,12 @@
 import { z } from 'zod';
 
 /**
- * 08 §2. Six entitlement keys at launch. Three enforce Phase 1 behaviour and
- * three are seams whose guards exist now, which means Phase 2 adds an adapter
- * rather than an enforcement layer.
+ * 08 §2. Eight entitlement keys at launch, confirmed 24 Aug 2026 against
+ * Brian's pricing page (added `conversations_monthly` and `support_sla_hours`
+ * to the original six). Three of the original six enforce Phase 1 behaviour
+ * and three are seams whose guards exist now, which means Phase 2 adds an
+ * adapter rather than an enforcement layer. The two new keys follow the same
+ * seam pattern.
  */
 export const ENTITLEMENT_KEYS = [
   /** Active members plus PENDING INVITATIONS. Counting invitations is not an
@@ -16,6 +19,13 @@ export const ENTITLEMENT_KEYS = [
   'kb_documents', // Phase 2 behaviour, guard present now
   'ai_rules_versions',
   'audit_retention_days',
+  'conversations_monthly', // Phase 2 behaviour, guard present now. No inbox yet to count against.
+  /** NOT a consumable, despite living in this list. `kind: 'limit'` with the
+   *  hour count in `limit`, because `featureEnabled` is a boolean and has
+   *  nowhere to hold a number, per src/db/seed/constants.ts. Nothing calls
+   *  `checkEntitlement('support_sla_hours', ...)`; `EntitlementRow` renders it
+   *  as a plain value rather than a `LimitBar` by checking the key. 08 §2. */
+  'support_sla_hours',
 ] as const;
 
 export type EntitlementKey = (typeof ENTITLEMENT_KEYS)[number];

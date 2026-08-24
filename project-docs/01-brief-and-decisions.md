@@ -55,7 +55,7 @@ Ask him at design lock whether a name and any brand assets exist. If they do not
 
 ## 5. Decision log
 
-Twelve decisions. Where I disagree with an implication of the brief, I have said so and built the alternative.
+Fourteen decisions. Where I disagree with an implication of the brief, I have said so and built the alternative.
 
 ### D-01 · Row Level Security is the isolation mechanism, and the application never becomes a second one
 
@@ -75,9 +75,11 @@ The organization switcher mints a session where `tenant_id` resolves to the targ
 
 Two audit writes per action, a persistent boundary frame, thirty-minute inactivity timeout. `09 §3`.
 
+**Amended, 24 Aug 2026.** The mechanism above is unchanged. What the support role may do inside it is not: Brian has confirmed full read and write, against the read-only default this document recommended. The scoped session, the dual audit write, the boundary frame and the timeout all stand exactly as designed; only the permission ceiling moves. See D-13.
+
 ### D-04 · Entitlements are data, and one guard answers for both doors
 
-Plans, tiers and limits live in tables. A Growth tier with 15 seats and 3 channels is a row.
+Plans, tiers and limits live in tables. A new tier with a custom seat and channel count is a row, not a deployment.
 
 Requests arrive through two doors: a session cookie from a browser, an API key from the service. Authentication and tenant resolution differ between them, legitimately. **Plan-limit enforcement does not.** Both paths call the same `checkEntitlement()` function, and this is written down as an explicit rule at design lock rather than left implicit in a diagram. The brief raises this as an open question; the answer is one guard, and it should be closed at M0. `08 §3`.
 
@@ -113,9 +115,11 @@ The brief lists this as blocking for week one and it is. Three candidate models,
 | **Tenant wins** | Tenant rules override master on conflict | Simple, and Brian loses the ability to enforce anything |
 | **Layered** | Master is the base, tenant appends, specific fields are marked non-overridable by the platform | More work, and it is the one that survives contact with real customers |
 
-**Recommendation: layered.** Master rules carry a per-field `overridable` boolean. Tenants can change what is permitted and see plainly what is not. It costs perhaps a day more than the naive options and it removes an entire category of future support conversation.
+**Confirmed, 24 Aug 2026: layered, with master winning on conflict.** Brian's answer read literally combines two of the rows above ("layered" and "master always overrides"), which is not a contradiction once read as intended: composition is layered, master is the base and the tenant appends, but master wins whenever the two actually collide. Master rules carry a per-field `overridable` boolean rather than the reverse (`lockedFields`), so a field is master-authoritative unless master explicitly opens it. `lockedFields` on the schema already carries this; only its default flips from "open unless locked" to "locked unless opened."
 
-Get Brian's answer before M0 closes. `08 §4`.
+The additive fields are unaffected by which reading applies: `responseGuidelines` concatenates and `prohibitedTopics` unions in every model, because a tenant may add a prohibition and must never remove a platform one. `08 §4`.
+
+One line is worth a confirming reply rather than an assumption, and it is in the message going back to Brian: that "layered" and "master always overrides" are being read together as above, not as two competing instructions.
 
 ### D-09 · Customer records are personal data belonging to someone twice removed
 
@@ -141,6 +145,34 @@ Worth stating because the house style leans monochrome. This is a dense operatio
 
 So Conduit uses colour functionally and systematically, with a disciplined palette and a strict semantic mapping. The restraint moves to form: one weight of type, no shadows below the overlay layer, no decoration. `03 §3`.
 
+### D-13 · Support mode is read-write, with three permanent carve-outs
+
+**24 Aug 2026.** Brian has confirmed support mode is full read and write, not read-only, and that a future AI copilot should carry the same capability. D-03's mechanism does not change: a real scoped session, RLS-bound exactly like a tenant user's, two audit writes per action, the boundary frame, the thirty-minute timeout. What changes is which policies check `not app.is_support_session()`.
+
+Three checks stay in place regardless of this decision, because they are not support-mode questions:
+
+| What | Why it stays blocked |
+|---|---|
+| Credential secret reveal | D-11: never readable by anyone, including Brian, including in support mode |
+| A support session extending its own timeout | Otherwise the thirty-minute ceiling is a suggestion |
+| Acting as the member's own identity row | Support acts *as support*, attributed as such, never masquerading as the person being helped |
+
+One surface is not yet settled by "full access": **customer records**. `09 §4` argues no support access at all, on the grounds that this is the one dataset holding personal data belonging to a tenant's customers rather than the tenant's own business configuration. Whether "full access" was written with that table in mind is worth asking rather than assuming either way.
+
+**The AI copilot line is a separate design problem, not a footnote.** A non-human actor writing inside a tenant's workspace needs its own actor type in the audit log and its own row in the role matrix; it cannot share Brian's `support` role, because "attributed to Brian acting in support mode" stops being true the moment the actor is software. Flagged for Phase 2 design. Nothing is built against it in Phase 1.
+
+### D-14 · FastAPI owns the service door in Phase 1; the dashboard staying on Next.js is a documented boundary, not an oversight
+
+**24 Aug 2026.** Brian states his original specification was FastAPI as the backend, with all data access routing through it, and that the build instead has Next.js talking to Supabase directly.
+
+Both things are true and they are not the same claim. The approved Project Brief Rev 3.1 names the stack as Next.js, Supabase, Drizzle and Vercel, and the document set has, from the first draft, placed FastAPI as a **consumer** of this platform's API: `01 §3 A4` calls it "the machine… the highest-volume caller in the system," `02 §7` maps `/api/service/v1/*` to it by name, and `04 §1`'s container view drew it outside the system boundary. That is a documented design, agreed at brief sign-off, not a drift that happened during the build.
+
+It is a real conflict with what Brian says he asked for, and per `11 §10` the answer is to name it and propose a change, not to either silently comply or silently hold the line.
+
+**Decision:** FastAPI becomes a real, Andishi-built service in Phase 1, owning the service door (`/service/v1/*`) exactly where it already sat in the architecture, which is also where the actual request volume lives once AGNO is live. The tenant and platform dashboards (`/api/v1/*`, `/api/platform/v1/*`) stay on Next.js server-side for Phase 1. Full detail, options considered, and the honest cost in `04 ADR-012`.
+
+**What this does not settle:** whether the dashboard itself moves behind FastAPI later, which is Brian's original request read literally. That is scoped as a change note rather than absorbed into the fixed fee, because it touches the entitlement guard, the RLS session binding, the audit writer and the Drizzle access layer, all of which would need a second, correct implementation in Python rather than a proxy.
+
 ---
 
 ## 6. Risks, restated with what we do about them
@@ -161,22 +193,22 @@ Verbatim from the brief, because these are the acceptance criteria and paraphras
 
 ## 8. What Brian owes us, and when
 
-| Item | When | Blocks |
-|---|---|---|
-| Written approval of the brief | Before kick-off | Everything |
-| Supabase organisation access | Week 1 | M1 |
-| GitHub organisation access | Week 1 | M1 |
-| Embedding model Phase 2 will use | Week 1 | M4a seam |
-| Precedence between master and tenant AI rules | Week 1 | M4a, and the schema |
-| Confirmed plan tiers with limits | Week 4 | M3 |
+| Item | When | Blocks | Status |
+|---|---|---|---|
+| Written approval of the brief | Before kick-off | Everything | Done |
+| Supabase organisation access | Week 1 | M1 | Pending |
+| GitHub organisation access | Week 1 | M1 | Pending |
+| Embedding model Phase 2 will use | Week 1 | M4a seam | **Answered 24 Aug 2026: OpenAI `text-embedding-3-small`. See `05 §8`** |
+| Precedence between master and tenant AI rules | Week 1 | M4a, and the schema | **Answered 24 Aug 2026: layered, master wins on conflict. See D-08** |
+| Confirmed plan tiers with limits | Week 4 | M3 | **Answered 24 Aug 2026, ahead of schedule. See `08 §2`** |
 
 ## 9. Questions to close at design lock
 
 Beyond the six above. Each one changes a table or a policy, so none of them can wait.
 
-1. **What exactly can the support role see and do?** The brief says read-only by default, exact permissions confirmed at design lock. That confirmation is a table, not a sentence. Propose the matrix in `09 §4` and get it signed.
+1. ~~**What exactly can the support role see and do?**~~ **Answered 24 Aug 2026: full read and write, three permanent carve-outs.** See D-13 and the matrix in `09 §4`. One line item inside this answer is still open: whether full access extends to customer records, proposed as no in `09 §4`.
 2. **Is there a product name and any brand assets?** If not, the placeholder mark ships.
 3. **Does a tenant owner's email need to be unique across the platform, or can one person own two tenants?** This changes the membership model and it is much cheaper to answer now.
-4. **What happens to a tenant's data on suspension?** Read-only, fully blocked, or a grace period. Affects the policy, not just the flag.
+4. ~~**What happens to a tenant's data on suspension?**~~ **Answered 24 Aug 2026: read-only.** See `06 §8`.
 5. **Are the API credentials per-tenant or per-integration?** The brief implies per-tenant. Per-integration is better and costs a column now, a migration later.
 6. **Does Brian need more than one platform admin?** `platform_admins` is already a table. If the answer is yes, roles within it need defining now.

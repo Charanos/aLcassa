@@ -78,7 +78,7 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'Data model',
-    what: 'Seed set: four plans, three tenants including one suspended, one platform admin',
+    what: 'Seed set: three plans (Pro, Business, Custom, confirmed 24 Aug 2026), three tenants including one suspended, one platform admin',
     state: 'built',
     evidence: 'src/db/seed/',
     milestone: 'M1',
@@ -87,7 +87,7 @@ export const FOUNDATION: FoundationItem[] = [
   // ── API ─────────────────────────────────────────────────────────────────
   {
     area: 'API',
-    what: 'Six-stage request pipeline, identical for both doors at stages 2, 4 and 6',
+    what: 'Six-stage request pipeline. Stages 2, 4 and 6 share one specification across the session and service doors, proven identical by a cross-language conformance suite now that the service door is a separate FastAPI service (01 D-14)',
     state: 'built',
     evidence: 'src/lib/http/pipeline.ts',
     milestone: 'M3',

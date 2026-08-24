@@ -296,56 +296,25 @@ export const DESIGN_SHEETS: DesignSheet[] = [
 ];
 
 /**
- * Sheet 14, section on open decisions. Four of the six are blocking, and three
- * of those are due in week one. Chase them the day the brief is signed: a
- * schema locked without the rules precedence answer is a schema that gets
- * migrated in week seven.
+ * Sheet 14, section on open decisions.
+ *
+ * 24 Aug 2026: five of the original seven are answered (precedence, support
+ * role matrix, embedding model, plan tiers, suspension). See `01 D-13`,
+ * `01 D-08`, `05 §8`, `08 §2` and `06 §8`. The support role answer opened one
+ * new, narrower question of its own, listed here in place of the one it
+ * closed: whether the support role's now-general write access extends to
+ * customer records, which `09 §4` argues it should not. Two questions remain
+ * as originally drawn, both proposals rather than anything blocking.
  */
 export const OPEN_DECISIONS = [
   {
-    question: 'Precedence between master and tenant AI rules',
-    when: 'Week 1',
-    blocks: 'M4a and the schema',
+    question: 'Does full support-mode access extend to customer records?',
+    when: 'Before M4a',
+    blocks: "The isolation suite's support-mode cases for this table",
     severity: 'blocking',
     detail:
-      'Three models are drawn and they produce different tables. Andishi recommends the layered model: master rules carry a per-field lock, so a tenant can change what is permitted and see plainly what is not. It costs about a day more than the naive options and removes an entire category of future support conversation.',
-    where: 'Sheet 10 · document 08 §4',
-  },
-  {
-    question: 'What the support role may see and do',
-    when: 'Design lock',
-    blocks: 'M4',
-    severity: 'blocking',
-    detail:
-      'Drawn as read-only throughout, with write controls visibly disabled and credentials withheld entirely. The one to argue about is customer records: we propose the support role cannot read them at all, because they are the personal data of your tenants’ customers rather than a tenant’s own configuration. Confirm or narrow; the matrix generates test cases, so it needs a signature rather than a nod.',
+      "Confirmed 24 Aug 2026: support mode is read and write generally, which the original brief's read-only default did not anticipate. That answer did not name customer records specifically, and Andishi's proposal is that this one table stays the exception: it is the personal data of your tenants' customers rather than a tenant's own configuration, and it is the one dataset where a support session's access has real privacy weight. Confirm or extend; the matrix generates test cases, so it needs a signature rather than a nod.",
     where: 'Sheets 07 and 08 · document 09 §4',
-  },
-  {
-    question: 'Embedding model Phase 2 will use',
-    when: 'Week 1',
-    blocks: 'The knowledge base seam',
-    severity: 'blocking',
-    detail:
-      'The vector column records which model produced each embedding, so a later change is survivable rather than a full silent re-index. Confirming the model in week one avoids the problem entirely.',
-    where: 'Document 05 §8',
-  },
-  {
-    question: 'Plan tiers, with their limits',
-    when: 'Week 4',
-    blocks: 'M3',
-    severity: 'blocking',
-    detail:
-      'Free, Starter, Growth and Scale are drawn with 2, 5, 15 and unlimited seats as a proposal. Entitlements are rows rather than code, so changing any of these before M3 costs an insert and no deployment.',
-    where: 'Sheets 05, 06, 09 · document 08 §2',
-  },
-  {
-    question: 'What suspension actually means',
-    when: 'Before M1',
-    blocks: 'The modify policies',
-    severity: 'blocking',
-    detail:
-      'Read-only, fully blocked, or a grace period. We recommend read-only with a clear explanation: a suspended customer who can still see their configuration and their team is a customer who can fix their billing problem. One who is locked out entirely opens a support ticket, and you are the support team.',
-    where: 'Document 06 §8',
   },
   {
     question: 'A recorded reason on each support switch',
@@ -353,7 +322,7 @@ export const OPEN_DECISIONS = [
     blocks: 'Nothing',
     severity: 'proposal',
     detail:
-      'Optional in Phase 1 as drawn. We would argue for making it mandatory: a support session with a stated reason is one that can be explained six months later. It costs one required field.',
+      'Optional in Phase 1 as drawn. We would argue for making it mandatory, more so now that support mode can write: a session that can change data and cannot explain why six months later is a materially worse position than a read-only one in the same spot. It costs one required field.',
     where: 'Sheet 07 · document 09 §3',
   },
   {

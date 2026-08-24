@@ -28,6 +28,8 @@ System and data flow diagrams, kept current with the code rather than written on
 
 Contents: the container view, the request pipeline, the module map with boundaries, the three core sequences (provisioning, support mode entry, the AI rules read), and the environment topology. Essentially `04 §1` through `§4`, maintained.
 
+**24 Aug 2026, per `01 D-14`:** the container view now shows two services, Next.js and FastAPI, not one, per `04` ADR-012. A handover document describing "the application" in the singular would already be wrong on day one; this artefact carries the two-service shape from the first draft rather than retrofitting it later.
+
 **Kept current means:** a diagram lives in the repository as a Mermaid source file, is rendered in the README, and is updated in the same pull request as any change to what it describes. A diagram in a design tool that nobody can edit is a diagram that is wrong within a month.
 
 ### Entity relationship diagram
@@ -50,7 +52,7 @@ The format is one section per table, generated from the policy catalogue for the
 
 OpenAPI 3.1 with request and response examples, backed by contract tests.
 
-Generated from the Zod schemas, so specification and implementation cannot diverge. Served at `/api/docs` behind auth in staging, exported as a file in the handover. Includes both doors and the reserved Phase 2 endpoints returning `501`, so the shape of what is coming is visible.
+Generated from the Zod schemas on the Next.js side and from Pydantic on the FastAPI side, merged into one document, so specification and implementation cannot diverge in either service. Served at `/api/docs` behind auth in staging, exported as a file in the handover. Includes both doors and the reserved Phase 2 endpoints returning `501`, so the shape of what is coming is visible.
 
 Every endpoint carries at least one request and one response example, and every error code in `07 §2` appears against at least one endpoint.
 
@@ -65,15 +67,15 @@ The format that matters: context, options considered with their trade-offs, the 
 Environment setup, migrations, rollback, key rotation, incident triage.
 
 Contents:
-- Local setup from a clean machine, which is the thirty-minute test path
-- Environment variables, every one, with what it is for and where to get it
+- Local setup from a clean machine, which is the thirty-minute test path, **now covering both the Next.js application and the FastAPI service, per `01 D-14`**
+- Environment variables, every one, with what it is for and where to get it, across both services
 - Running and creating migrations, including the branch workflow
-- Rolling back a deployment and rolling back a migration, which are different operations
+- Rolling back a deployment and rolling back a migration, which are different operations, **for each service independently, since they now deploy separately**
 - Rotating the service role key, the Supabase keys, and a tenant credential
 - Suspending and reactivating a tenant, with the audit implications
 - Responding to a suspected isolation failure. **This page is written even though we expect never to use it**
-- Reading the logs: where they are, how to filter by request ID, what is redacted
-- The on-call decision tree for each alert in `04 §8`
+- Reading the logs: where they are, how to filter by request ID, what is redacted, **across both services' log streams**
+- The on-call decision tree for each alert in `04 §8`, including the FastAPI-specific failure modes added there on 24 Aug 2026
 
 ### Channel adapter guide
 
@@ -107,7 +109,7 @@ The thirty-minute test passes or fails here, so it gets its own specification.
 Structure, in order:
 
 1. **One paragraph on what this is.** Not the company, not the vision. What the software does.
-2. **Prerequisites**, with exact versions. Node, pnpm, Docker if needed, the Supabase CLI.
+2. **Prerequisites**, with exact versions. Node, pnpm, Docker if needed, the Supabase CLI, **and, per `01 D-14`, Python and the FastAPI service's own dependency manager**, since a working local instance now means two runtimes rather than one.
 3. **Setup**, as a numbered list of commands that can be copied one at a time. No prose between steps that changes what the command should be.
 4. **Environment variables**, as a table: name, required, where to obtain it, example value. Plus a `.env.example` that is complete and current.
 5. **First run**, including seeding, and what a successful start looks like, with the actual expected terminal output.
@@ -137,6 +139,8 @@ Run in week 9, before sign-off.
 
 **Method.** A developer who has not touched the project, ideally not from Andishi, is given the repository URL and nothing else. They are timed from clone to a verified working local instance. They may read the README. They may not ask questions. Anything they need to ask is a documentation defect.
 
+**Amended 24 Aug 2026, per `01 D-14`.** "A verified working local instance" now means both the Next.js application and the FastAPI service running and talking to the same local database. This is new risk to a thirty-minute, contractual-adjacent gate that this document did not carry before Brian's decision, and it is stated here rather than discovered at M6: two runtimes, two dependency ecosystems and two sets of environment variables is a meaningfully harder thirty minutes than one. It is the reason this document recommends testing the README early and often, per the closing paragraph of this section, rather than treating that as a nice-to-have.
+
 **Recording.** Where they stall, what they had to guess, what they got wrong. Each stall becomes a README fix, and the test is rerun after fixes with a second person if the first run failed.
 
 **Reporting.** The result goes to Brian whether or not it flatters us. A thirty-two minute run reported honestly is worth more than a passed test nobody believes.
@@ -147,6 +151,7 @@ Run in week 9, before sign-off.
 - Seeding that fails silently and leaves an empty database that looks like a working one
 - A Supabase project setup step that is described but not spelled out
 - A version mismatch that produces a confusing error rather than a clear one
+- **Added 24 Aug 2026:** the FastAPI service starting against a stale or divergent local schema because its migration path was not run, or its own dependency install being skipped because the developer stopped after the Node setup looked complete
 
 Test the README on a clean machine at M3 and again at M5, informally, so week 9 is a confirmation rather than a discovery.
 

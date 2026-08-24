@@ -31,6 +31,12 @@ hierarchy, and what may not ship.
 `src/app/tokens.css` therefore carries the sheets' values under document 03's
 semantic alias names, so both documents remain usable against one file.
 
+**Approved 24 Aug 2026.** The sheets' self-declared "for review" status above is
+superseded: Brian has approved the brand palette. No token value changes as a
+result, since `tokens.css` already shipped the sheets' values under this
+document's foundation decision; the approval confirms the choice already made
+rather than changing it.
+
 ### The value differences
 
 | Token | Doc 03 | Sheets, and what shipped | Note |
@@ -232,15 +238,19 @@ scrolls sideways. `src/components/presentation/DataList.tsx`.
 per-field lock. Design sheet 14 records the recommendation as "master wins on
 conflict".
 
-**Resolution.** ⚠ **Unresolved, and blocking.** This is the client's decision and
-it is due in week one, because the two models produce different tables.
+**Resolution. Closed 24 Aug 2026.** The client's answer, read plainly, combines
+both halves of this conflict rather than picking a side: "Layered. Master rules
+always override tenant rules." `01 D-08` records the fuller reasoning for
+reading this as layered composition with master winning on conflict, which
+happens to mean design sheet 14's "master wins on conflict" phrasing and `01
+D-08`'s layered recommendation were never actually in tension once the client's
+own words are read as intending both. The `lockedFields` column ships with its
+default semantics inverted, per `05 §7`: locked unless a field is explicitly
+marked overridable, rather than open unless locked.
 
-The schema ships with `lockedFields` on the master version row, which is the
-layered model's requirement. If the client chooses "master wins", that column is
-simply unused and costs nothing. The reverse is not true: choosing layered after
-the schema locks is a migration in week seven.
-
-The recommendation put to the client is **layered**, on the grounds in `01 D-08`.
+The schema shipped with `lockedFields` on the master version row, which is the
+layered model's requirement, so no migration was needed regardless of which way
+this closed.
 
 **Where:** `src/db/schema/airules.ts`.
 
@@ -299,6 +309,8 @@ policy calls it through `app.can_write_settings()` or `app.can_write_as_owner()`
 ⚠ This encodes the **recommended** answer to `01 §9` question 4. The client
 confirms before M1. If the answer is "blocked" rather than "read-only", one
 function changes and nothing else does.
+
+**Confirmed 24 Aug 2026.** `06 §8`'s open question is closed: read-only, as this predicate already implements. No code change; the recommendation and the shipped behaviour matched from the start.
 
 ### A2 · `force row level security` on every table
 
@@ -448,17 +460,69 @@ The weight constraint remains: only one weight per family is imported. Libertinu
 
 `src/app/tokens.css`, `globals.css`, `03 §4`.
 
+### A13 · The plan catalogue replaced, not amended
+
+The four-tier proposal in `08 §2` (Free, Starter, Growth, Scale) is not in
+either founding document; it was this project's own placeholder, explicitly
+marked as one, pending Brian's week-four confirmation. On 24 Aug 2026 Brian
+confirmed a different shape entirely, Pro / Business / Custom with two new
+entitlement keys, three weeks early. This is not a delta between the two
+founding sets, since neither specified plan tiers; it is recorded here because
+the seed data, the entitlement key table and the design sheets' pricing
+illustrations (`09 Tenant Settings`, wherever a plan name appears as example
+copy) now need to agree on names that did not exist when those sheets were
+drawn. The design sheets are illustrative in this respect and are not corrected
+as part of this pass; a future design refresh should confirm they do not still
+show "Growth" or "Scale" as a live example.
+
+`src/db/seed/constants.ts`, `08 §2`, `01 §8` (plan tiers, the week-4 item Brian answered early).
+
+### A14 · Support mode's read-only default did not survive contact with the client
+
+Both founding documents, and every design sheet touching the boundary frame or
+the organization switcher, describe or illustrate support mode as read-only.
+`01 D-13`, confirmed 24 Aug 2026, makes it read and write. This is the largest
+behavioural change in this update and it touches copy (`10 §6`, `§10`, `§11`),
+the role matrix (`06 §5`, `09 §4`) and the RLS policies that implement it
+(`00_context.sql`'s `can_write_settings()`). The design sheets themselves
+(`04 Composition.dc.html`, `09 Tenant Settings.dc.html`, `10 AI Rules.dc.html`)
+were not edited as part of this pass; any of their captions asserting "read-only
+support role" are now stale illustrative copy, not a live contract, and should
+be corrected in the next design pass rather than treated as still authoritative.
+
+`01 D-13`, `06 §5`, `06 §6`, `09 §4`.
+
+### A15 · FastAPI moves from a consumer to the service door's implementation
+
+Every design sheet that names FastAPI (`09 Tenant Settings.dc.html`'s "Scope
+rules:read used from FastAPI", `10 AI Rules.dc.html`'s "What FastAPI and AGNO
+see") illustrates it as a caller reading through a door Next.js implements. So
+did `04 §1`'s container view and `02 §7`'s namespace table, until this pass.
+`01 D-14` and `04` ADR-012 make FastAPI the implementer of that door instead,
+resolving Brian's objection that his original specification was FastAPI as the
+full backend. The design sheets' illustrations of "FastAPI reads from the
+service door" remain accurate in spirit, since AGNO still calls in from outside
+and the request and response shapes are unchanged; only which runtime answers
+the call is different, and that is not something a design sheet showing request
+and response payloads would need to depict differently. No design sheet edit is
+needed for this delta, unlike A14.
+
+`01 D-14`, `04` ADR-012, `07 §1`, `07 §8`.
+
 ---
 
 ## 4. Open items carried forward
 
-| # | Item | Due | Blocks |
-|---|---|---|---|
-| 1 | AI rules precedence, master versus layered | Week 1 | M4a and the schema. See D7 |
-| 2 | Support role matrix, signed | Design lock | M4, and the isolation suite's support cases |
-| 3 | Embedding model Phase 2 will use | Week 1 | The knowledge base seam |
-| 4 | What suspension means | Before M1 | Every modify policy. See A1 |
-| 5 | Plan tiers with limits | Week 4 | M3 |
-| 6 | Product name and brand assets | Design lock | Nothing. The placeholder mark ships |
-| 7 | Owner email unique across the platform? | Design lock | The membership model and `user_profiles` policy |
-| 8 | Credentials per-tenant or per-integration | Design lock | A column now, a migration later |
+| # | Item | Due | Blocks | Status |
+|---|---|---|---|---|
+| 1 | AI rules precedence, master versus layered | Week 1 | M4a and the schema. See D7 | **Closed 24 Aug 2026** |
+| 2 | Support role matrix, signed | Design lock | M4, and the isolation suite's support cases | **Closed 24 Aug 2026**, signed as read-write. See A14 |
+| 3 | Embedding model Phase 2 will use | Week 1 | The knowledge base seam | **Closed 24 Aug 2026: `text-embedding-3-small`** |
+| 4 | What suspension means | Before M1 | Every modify policy. See A1 | **Closed 24 Aug 2026: read-only, as already implemented** |
+| 5 | Plan tiers with limits | Week 4 | M3 | **Closed 24 Aug 2026, three weeks early. See A13** |
+| 6 | Product name and brand assets | Design lock | Nothing. The placeholder mark ships | Open |
+| 7 | Owner email unique across the platform? | Design lock | The membership model and `user_profiles` policy | Open |
+| 8 | Credentials per-tenant or per-integration | Design lock | A column now, a migration later | Open |
+| 9 | The FastAPI staffing and effort question | Before M4a | M4a, the service-door demonstration | **Open, added 24 Aug 2026.** See `11 §2` |
+| 10 | Whether customer records are included in support mode's full access | Before M4a's isolation cases regenerate | The `customer_records` RLS policy and the isolation suite | **Open, added 24 Aug 2026.** See `09 §4` |
+| 11 | Whether "layered, master always overrides" needs a one-line client confirmation of the reading applied | Nice to have, not blocking | Nothing; the schema already supports either reading | **Open, added 24 Aug 2026.** See `01 D-08` |

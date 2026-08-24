@@ -65,9 +65,10 @@ export const kbChunks = pgTable(
      * WHICH MODEL PRODUCED THIS VECTOR.
      *
      * This column is why a Phase 2 embedding-model change is survivable rather
-     * than a full re-index with no way to tell what is stale. Confirming the
-     * model is still blocking for week one, and this column is why it matters
-     * less if the answer changes later. 01 §8 · 05 §8.
+     * than a full re-index with no way to tell what is stale. CONFIRMED 24 Aug
+     * 2026: OpenAI text-embedding-3-small, which is the 1536-dimension model
+     * `embedding` above was already sized for. No migration was needed; this
+     * column now has a known default value going forward. 01 §8 · 05 §8.
      */
     embeddingModel: text('embedding_model'),
     tokenCount: integer('token_count'),
@@ -76,8 +77,10 @@ export const kbChunks = pgTable(
   (t) => [
     index('kb_chunks_doc_idx').on(t.documentId, t.chunkIndex),
     index('kb_chunks_tenant_idx').on(t.tenantId),
-    // The HNSW index is added in Phase 2, when the dimension is confirmed.
-    // Building it now against a guessed dimension would have to be dropped.
+    // The HNSW index still lands in Phase 2 per the original schedule; the
+    // dimension is no longer a guess as of 24 Aug 2026 (1536,
+    // text-embedding-3-small), so it can be specified whenever it is built
+    // without risk of having to drop and rebuild it against a different one.
   ],
 );
 

@@ -38,17 +38,14 @@ $$ language sql stable;
 -- ────────────────────────────────────────────────────────────────────────────
 -- 06 §8 · SUSPENSION
 --
--- Suspension is a POLICY, not a flag. The recommendation in 06 §8 is read-only
--- with a clear explanation in the interface, because a suspended customer who
--- can still see their configuration and their team is a customer who can fix
+-- Suspension is a POLICY, not a flag. CONFIRMED 24 Aug 2026: read-only, with a
+-- clear explanation in the interface, because a suspended customer who can
+-- still see their configuration and their team is a customer who can fix
 -- their billing problem, whereas one locked out entirely opens a support ticket
 -- and Brian is the support team.
 --
 -- This helper is why that is one place rather than eighteen. Every modify
 -- policy in this database calls it.
---
--- ⚠ 01 §9 question 4. Brian confirms the model before M1. If he chooses
--- "blocked" rather than "read-only", this function changes and nothing else does.
 -- ────────────────────────────────────────────────────────────────────────────
 create or replace function app.tenant_is_writable() returns boolean as $$
   select exists (
@@ -59,11 +56,25 @@ create or replace function app.tenant_is_writable() returns boolean as $$
   );
 $$ language sql stable;
 
--- The standard predicate for a policy that owners and admins may write and
--- support may not. 06 §5 role matrix, 09 §4 support matrix.
+-- ────────────────────────────────────────────────────────────────────────────
+-- 01 D-13 · SUPPORT MODE IS READ AND WRITE, CONFIRMED 24 Aug 2026.
+--
+-- This function previously excluded the support role entirely: only owner and
+-- admin passed, and `not app.is_support_session()` was a second, redundant
+-- guard against the same thing. Brian has confirmed full read and write for
+-- support, so `support` is now an admitted role here, and the redundant guard
+-- is removed along with it, per 06 §5 and 09 §4.
+--
+-- What this function does NOT open, because it is not what it gates:
+--   - the credential secret (04_credentials.sql, `can_write_as_owner()` only)
+--   - a support session extending its own timeout (02_identity.sql,
+--     `sessions_modify`, which does not call this function)
+--   - customer records (06_seams.sql, `customer_records_modify`, which calls
+--     this function but adds its own explicit block on top, pending Brian's
+--     ruling per 09 §4)
+-- ────────────────────────────────────────────────────────────────────────────
 create or replace function app.can_write_settings() returns boolean as $$
-  select app.current_role() in ('owner', 'admin')
-     and not app.is_support_session()
+  select app.current_role() in ('owner', 'admin', 'support')
      and app.tenant_is_writable();
 $$ language sql stable;
 

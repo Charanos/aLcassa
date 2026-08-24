@@ -80,15 +80,17 @@ Selecting a tenant opens a confirmation step, not an immediate switch:
 ```
 Enter support mode for ACME LOGISTICS LTD?
 
-You will see their workspace with a read-only support role.
-This is recorded in their audit log and yours.
+You will be able to view and change their workspace as support.
+Every action is recorded in their audit log and yours.
 
 Reason (optional, appears in both logs) [___________________]
 
                               [ Cancel ]  [ Enter support mode ]
 ```
 
-The reason field is optional in Phase 1 and I would argue for making it mandatory. A support session with a stated reason is a support session that can be explained six months later. Raise it with Brian; it costs a required field.
+**Copy updated 24 Aug 2026.** "Read-only support role" no longer describes the confirmed permission set; see `01 D-13`. The reasoning below is unchanged and now argues more strongly than before.
+
+The reason field is optional in Phase 1 and I would argue for making it mandatory, more so now than when this was read-only: a support session that can change data and cannot explain why six months later is a materially worse position than a read-only one in the same spot. Raise it with Brian; it costs a required field.
 
 On confirm: the session is minted, both audit rows are written, and the browser navigates to that tenant's `/app` with the boundary frame applied.
 
@@ -115,41 +117,44 @@ Explicit exit revokes the session and writes two audit rows. Closing the tab doe
 
 ## 4. The support role matrix
 
-The brief says exact permissions are confirmed at design lock. This is the proposal to be signed at M0. Once signed, it generates the isolation suite's support-mode cases, so it is a table with teeth rather than a description.
+**Signed 24 Aug 2026, per `01 D-13`.** Brian has confirmed full read and write, superseding the read-only-by-default proposal this table originally carried. It still generates the isolation suite's support-mode cases, so it remains a table with teeth rather than a description; the cases themselves need regenerating against the write column below.
 
 | Surface | Read | Write | Notes |
 |---|:---:|:---:|---|
-| Tenant overview | ✓ | | |
-| Company profile | ✓ | | |
-| Team list and roles | ✓ | | |
-| Invitations | ✓ | | Cannot send or revoke |
+| Tenant overview | ✓ | | Nothing to write here; it is a summary view |
+| Company profile | ✓ | ✓ | Opens via `app.can_write_settings()` admitting the `support` role |
+| Team list and roles | ✓ | ✓ | Invite, remove, change role. Same gate as company profile |
+| Invitations | ✓ | ✓ | Can now send and revoke. Previously "cannot send or revoke"; that restriction is lifted |
 | Credentials, metadata | ✓ | | Name, prefix, scopes, last used |
+| Credentials, create / rotate / revoke | | | **Stays owner-only, including in support mode.** Predates this decision: `01 D-11` and ADR-008. Not reopened |
 | Credentials, secret | | | **Never. Not readable by anyone, ever** |
-| AI rules, current | ✓ | | |
-| AI rules, version history | ✓ | | |
-| Subscription and usage | ✓ | | |
-| Tenant audit log | ✓ | | |
-| Knowledge base documents | ✓ | | Phase 2 content. Read for support |
-| **Customer records** | | | **Proposed: no access.** See below |
-| Settings modification | | | |
-| Member removal | | | |
-| Ownership transfer | | | |
+| AI rules, current | ✓ | ✓ | Same gate as company profile |
+| AI rules, version history | ✓ | | Version rows are append-only per I-10; publishing a new one is a write to the current pointer, which is covered above |
+| Subscription and usage | ✓ | | No tenant-facing modify policy exists at all in Phase 1; see `08 §1`. Unaffected by this decision |
+| Tenant audit log | ✓ | | Append-only, no write surface for anyone |
+| Knowledge base documents | ✓ | ✓ | Phase 2 content; Phase 1 ships the seam and its isolation |
+| **Customer records** | | | **Still unresolved.** See below. Currently: no access, read or write, per the existing policy |
+| Member removal | ✓ | ✓ | Folded into "team list and roles" above |
+| Ownership transfer | | | **Stays owner-only.** Not reopened; see `06 §5` note ⁵ |
+| Tenant deletion | | | **Stays owner-only.** Not reopened; see `06 §5` note ⁶ |
 
-### The one to argue about
+### The one still to argue about
 
-**Customer records.** I propose the support role cannot read them at all.
+**Customer records.** The proposal below predates Brian's read-write decision and his answer did not name this table specifically. The policy as shipped (`06_seams.sql`) still blocks the support role from reading it at all, and that block does not automatically fall away when `can_write_settings()` opens for the other tables, because `customer_records_select` is a separate, explicit predicate. It stays exactly as written below until Brian rules on it, and the reply going back to him asks the question directly rather than assuming an answer either way.
 
-They are the personal data of Brian's tenants' customers, two steps removed from him, and they are the one dataset where a support session's read has real privacy weight. Every other surface is a tenant's own business configuration; this one is other people's information.
+They are the personal data of Brian's tenants' customers, two steps removed from him, and they are the one dataset where a support session's read has real privacy weight. Every other surface opened by the read-write decision is a tenant's own business configuration; this one is other people's information, which is a different kind of thing to grant "full access" to.
 
 If a genuine support case requires it, the better answer is a separate, explicitly-consented elevated mode with its own confirmation, its own audit action and its own notification to the tenant. That is a Phase 2 conversation, and it should be quoted.
 
-Building it as read-only-by-default alongside everything else would be easier and it would quietly make every support session a potential privacy event.
+Granting it by default alongside everything else that opened on 24 Aug 2026 would be the easiest path and it would quietly make every support session a potential privacy event, which is the same reasoning that applied before the decision and is not weakened by it.
 
 ### A write-capable support mode
 
-The brief says read-only by default, which implies a write mode might exist. If Brian wants one, my recommendation is: a per-session elevation requiring a stated reason, capped at ten minutes, with a distinct audit action and the boundary frame turning oxide. Not a permanent capability on the role.
+**Built, 24 Aug 2026.** This section previously speculated about what Brian might want if he asked for write access; he has now asked for it directly and without the ten-minute cap or the separate elevation flow proposed below, so that proposal is superseded rather than adopted. Support mode is a permanent capability of the role for the surfaces in the table above, entered exactly as `06 §6` describes, for the full thirty-minute session, with no separate elevation step. The oxide boundary-frame idea is worth keeping for a future, narrower elevation if customer records ever need one; it is not applied to ordinary support mode, which stays copper per `03 §8` and `09 §3` regardless of read or write.
 
-Quote it separately. It is not in the current scope and it should not slip in.
+### A non-human actor in the same seat
+
+**Flagged 24 Aug 2026, not built.** Brian's answer names "future AI Copilots" alongside support as able to take action inside a workspace. That is a distinct principal from Brian acting in support mode: the audit trail's `actorType` is currently `'user' | 'platform_admin' | 'service'` per `src/lib/db/context.ts`, and a copilot acting inside a tenant is none of those cleanly, since `'service'` in this codebase currently means the FastAPI machine path reading AI rules, not an agent writing to tenant data. Giving a copilot the `support` role as written would mean every write it makes is attributed to "Brian acting in support mode" in the tenant's own audit log, which would not be true and would undermine the transparency claim in `§7` below. This needs its own actor type and its own row in the role matrix before any such capability is built, and it is out of Phase 1 scope regardless: nothing in `01 §2`'s exclusions changes to admit it, and it is raised here so it is not silently designed into the support role's plumbing by accident.
 
 ---
 
