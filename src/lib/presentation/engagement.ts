@@ -170,7 +170,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'upcoming' as MilestoneStatus,
     progress: 35,
-    note: 'The shared entitlement guard, the cache layer and the plan schema are built. The surfaces above them are not, and the tiers need confirming in week four.',
+    note: 'The shared entitlement guard, the cache layer and the plan schema are built. The surfaces above them are not. The tiers were confirmed on 24 Aug 2026, three weeks ahead of the week-four date, so this milestone is no longer waiting on them.',
   },
   {
     id: 'M4',
@@ -181,7 +181,7 @@ export const MILESTONES = [
     tranche: 3,
     status: 'upcoming' as MilestoneStatus,
     progress: 15,
-    note: 'The console shell and the boundary frame are built. The support role matrix needs signing before the session work starts.',
+    note: 'The console shell and the boundary frame are built. The support role matrix was signed on 24 Aug 2026, as read and write rather than the read-only default it was drawn as, so the session work can start. The isolation suite\'s support cases are regenerated against it.',
   },
   {
     id: 'M5',
@@ -278,12 +278,12 @@ export const COMPLIANCE = [
   {
     area: 'Support access transparency',
     obligation:
-      'A tenant can see every time the platform looked into their workspace, and who, and why.',
+      'A tenant can see every time the platform entered their workspace, who it was, why, and anything they changed while they were in there.',
     state: 'partial' as ComplianceState,
     evidence:
       'Support mode is a scoped session bound by the same policies, not a bypass. Every action writes to both logs. The tenant can see and revoke the session.',
     outstanding:
-      'The support role matrix needs signing. It generates the isolation suite cases, so it is a table with teeth rather than a description.',
+      'The matrix was signed on 24 Aug 2026 as read and write rather than read-only, and the isolation suite cases are regenerated against it. Still open: whether that access reaches customer records, which is the one surface we propose it should not.',
     reference: '09 §4 · 09 §7',
   },
   {
