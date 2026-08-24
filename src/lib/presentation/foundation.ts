@@ -230,6 +230,11 @@ export const STACK = [
     why: 'Server components by default, one deployment for two applications, and a type error is a failed build rather than a warning.',
   },
   {
+    layer: 'Service door',
+    choice: 'FastAPI, deployed separately',
+    why: 'The machine path reads assistant rules on every generated response, which is message volume rather than dashboard volume, so it gets its own service rather than a route inside the application. Same entitlement decision and the same RLS binding as the session door, proven identical by a conformance suite rather than by sharing a function.',
+  },
+  {
     layer: 'Database',
     choice: 'Supabase Postgres with Row Level Security',
     why: 'Isolation lives in the database rather than the application. One mechanism, exhaustively tested, instead of two places to forget.',
