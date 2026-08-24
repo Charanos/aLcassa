@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { refreshSupabaseSession } from '@/lib/auth/supabase/middleware';
 
 /**
  * 04 §1. Vercel edge: WAF, rate limiting, then session resolve and tenant
@@ -56,7 +57,7 @@ const CSP_DIRECTIVES = (nonce: string) =>
 const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'aLcassa_tenant_session';
 const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'aLcassa_platform_session';
 
-export function middleware(request: NextRequest): NextResponse {
+export async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname, search } = request.nextUrl;
 
   const nonce = crypto.randomUUID().replace(/-/g, '');
@@ -94,6 +95,23 @@ export function middleware(request: NextRequest): NextResponse {
   }
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
+
+  /*
+   * Supabase session refresh.
+   *
+   * ⚠ IT MUTATES THIS RESPONSE RATHER THAN RETURNING ITS OWN, which is the
+   * one adaptation this file forces on the published Supabase snippet. That
+   * snippet builds and returns a fresh `NextResponse`; doing so here would
+   * discard the CSP nonce, the correlation id and the `x-pathname` header
+   * set above — and per the note at the top of this file, losing the nonce
+   * produces a page that returns 200 with correct markup and no working
+   * JavaScript. One response per request, and this adds cookies to it.
+   *
+   * It refreshes only. The redirects above stay where they are, and the
+   * real authorisation still happens in the pipeline, where a transaction
+   * can set tenant context on the same connection as the query (06 §3).
+   */
+  await refreshSupabaseSession(request, response);
 
   response.headers.set('Content-Security-Policy', csp);
   response.headers.set('X-Request-Id', requestId);

@@ -67,6 +67,14 @@ export default tseslint.config(
                 'The service role client may only be imported inside src/modules/platform. Use support mode to read tenant data. See 06 §7.',
             },
             {
+              // The auth-side twin of the above. The Supabase secret key
+              // (formerly service_role) bypasses RLS exactly as the Drizzle
+              // service client does, so it carries the identical restriction.
+              group: ['**/lib/auth/supabase/admin', '@/lib/auth/supabase/admin'],
+              message:
+                'The Supabase admin client bypasses Row Level Security and may only be imported inside src/modules/platform. If the caller has a session, use createSupabaseServerClient() and let the policies apply. See 06 §7.',
+            },
+            {
               group: ['@/modules/*/internal/*', '@/modules/*/repository', '@/modules/*/service'],
               message:
                 'Import a module through its index.ts only. Internals are private. See 04 §3.',
@@ -95,7 +103,13 @@ export default tseslint.config(
 
   // The one place the service role client may be imported. 06 §7.
   {
-    files: ['src/modules/platform/**/*.ts', 'src/lib/db/serviceClient.ts'],
+    files: [
+      'src/modules/platform/**/*.ts',
+      'src/lib/db/serviceClient.ts',
+      // The file may of course import its own dependencies; the guard is on
+      // everyone ELSE importing it.
+      'src/lib/auth/supabase/admin.ts',
+    ],
     rules: { 'no-restricted-imports': 'off' },
   },
 
