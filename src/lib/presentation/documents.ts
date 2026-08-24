@@ -168,6 +168,16 @@ export const PROJECT_DOCS: ProjectDoc[] = [
     band: 'delivery',
     audience: 'client',
   },
+  {
+    slug: '16-channel-adapter-guide',
+    n: '16',
+    title: 'Channel adapter guide',
+    settles:
+      'The Phase 2 messaging seam: the connection table, the internal event shape, the adapter interface, and how a tenant is resolved from an inbound webhook',
+    source: 'Requirement 7',
+    band: 'delivery',
+    audience: 'client',
+  },
 ];
 
 export type DesignSheet = {

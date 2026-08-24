@@ -134,8 +134,8 @@ export const MILESTONES = [
     gate: 'Approve before code',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 80,
-    note: 'Documentation set, design set and the architectural foundation are drawn and built. All five of the decisions that were blocking are answered as of 24 Aug 2026, most ahead of schedule. The channel adapter contract and written approval of the brief remain outstanding for this gate to close.',
+    progress: 95,
+    note: 'Documentation set, design set and the architectural foundation are drawn and built. All five of the decisions that were blocking are answered as of 24 Aug 2026, most ahead of schedule. The channel adapter contract — the last artefact outstanding — is now written as document 16, with the typed interface and the webhook route shell in the repository. What remains is signature rather than work: the contract signed off, and written approval of the brief itself.',
   },
   {
     id: 'M1',

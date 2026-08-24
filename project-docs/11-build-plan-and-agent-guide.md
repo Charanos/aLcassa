@@ -12,7 +12,7 @@ Nine working weeks, two developers, mapped exactly to the brief so a gate here i
 
 ERD, RLS policy map, API contract, role matrix, architecture decision records. **Plus three things the brief lists as blocking and one I am adding:**
 
-- The channel adapter contract and internal event shape, reviewed and signed. `07 §11`
+- ~~The channel adapter contract and internal event shape, reviewed and signed.~~ **Written, 24 Aug 2026: `16 · Channel Adapter Guide`, with the interface at `src/modules/channels/types.ts` and the webhook route shell returning 501. Awaiting signature.** `07 §11`
 - ~~The AI rules precedence model, confirmed.~~ **Done, 24 Aug 2026: layered, master wins on conflict.** `01 D-08`
 - ~~The embedding model Phase 2 will use, confirmed.~~ **Done, 24 Aug 2026: OpenAI `text-embedding-3-small`.** `05 §8`
 - **The support role matrix, signed.** `09 §4`. **Done, 24 Aug 2026, though signed differently than proposed: read and write, not read-only, per `01 D-13`.** The brief deferred this to design lock without naming it as an artefact, and it needed to be a table with a signature because it generates test cases; it still does, and the isolation suite's support-mode cases need regenerating against it.
@@ -23,7 +23,7 @@ ERD, RLS policy map, API contract, role matrix, architecture decision records. *
 - **The brand palette**, approved 24 Aug 2026. No token change; confirms the resolution already recorded in `15 §1`.
 - **The FastAPI boundary**, `01 D-14` and `04` ADR-012, resolving a conflict between what Brian says he specified before Phase 1 and what the signed brief and this document set describe. Not one of the brief's original blocking items; raised by Brian on 24 Aug 2026 and closed the same day with a scoped answer rather than a full re-baseline. See `§1`'s new M3/M4a entry below.
 
-**Gate:** Brian approves before any code. **All items above are now closed**; the channel adapter contract is the only M0 artefact from the original list without a dated confirmation in this update, and it should be chased alongside written approval of the brief itself.
+**Gate:** Brian approves before any code. **Every M0 artefact is now written.** The channel adapter contract was the last one outstanding and is drafted as `16`, with a sign-off block at its end. What remains for this gate to close is signature rather than work: `16 §9` signed, and written approval of the brief itself.
 
 ### M1 · Tenancy core · weeks 2 to 3
 
