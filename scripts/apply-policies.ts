@@ -35,7 +35,11 @@
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { config as loadEnv } from 'dotenv';
 import postgres from 'postgres';
+
+// Standalone script: Next.js is not here to load .env.local for us.
+loadEnv({ path: '.env.local', quiet: true });
 
 const connectionString = process.env.DATABASE_URL_ADMIN ?? process.env.DATABASE_URL;
 

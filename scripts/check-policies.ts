@@ -13,7 +13,11 @@
  *   pnpm check:policies
  */
 
+import { config as loadEnv } from 'dotenv';
 import postgres from 'postgres';
+
+// Standalone script: Next.js is not here to load .env.local for us.
+loadEnv({ path: '.env.local', quiet: true });
 
 const connectionString = process.env.DATABASE_URL_ADMIN ?? process.env.DATABASE_URL;
 
@@ -33,6 +37,31 @@ type Failure = { table: string; problem: string };
  * hole hides. It is currently empty and it should stay that way.
  */
 const DOCUMENTED_EXCEPTIONS = new Map<string, string>();
+
+/**
+ * Tenant-scoped tables that are DELIBERATELY READ-ONLY TO TENANTS, written
+ * only through the platform door.
+ *
+ * ⚠ THIS IS NARROWER THAN `DOCUMENTED_EXCEPTIONS` ON PURPOSE, AND THAT
+ * DISTINCTION IS THE POINT. An entry above skips a table's checks entirely —
+ * RLS-enabled, RLS-forced, has-a-SELECT-policy, all of it. Using that
+ * mechanism here would stop verifying these tables have row level security
+ * at all, which is exactly the hole the comment above warns an exception
+ * list hides. An entry HERE waives one assertion — "has a modify policy" —
+ * and every other check still runs.
+ *
+ * Both entries are stated in `03_subscriptions.sql` as design, not oversight:
+ * "every status transition is a platform action with an audit entry naming
+ * who made it and why", and a tenant "cannot upgrade themselves because
+ * there is no payment gateway behind the button" (08 §1 · §7). Granting an
+ * override is likewise a platform operation with a mandatory reason (08 §8).
+ * Platform writes go through the service role, which bypasses RLS, so a
+ * tenant-facing modify policy would not enable them — it would only open a
+ * path for a tenant to change their own plan.
+ *
+ * Reviewed at M1, 25 Aug 2026. Re-review at M6.
+ */
+const PLATFORM_WRITE_ONLY = new Set(['subscriptions', 'subscription_overrides']);
 
 /**
  * Append-only tables. 05 I-11 asserts these have NO update and NO delete
@@ -135,8 +164,17 @@ async function main(): Promise<void> {
       continue;
     }
 
-    if (modifies.length === 0) {
+    if (modifies.length === 0 && !PLATFORM_WRITE_ONLY.has(table)) {
       failures.push({ table, problem: 'has no modify policy' });
+    }
+
+    // A platform-write-only table must still be readable by the tenant it
+    // belongs to. Silence about writes is not silence about reads.
+    if (PLATFORM_WRITE_ONLY.has(table) && modifies.length > 0) {
+      failures.push({
+        table,
+        problem: `is declared platform-write-only but has modify policy "${modifies[0]?.policyname}". Either the declaration or the policy is wrong.`,
+      });
     }
 
     // ── Assertion 4 · every modify policy carries a WITH CHECK ────────────

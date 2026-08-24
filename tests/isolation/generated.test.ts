@@ -24,7 +24,25 @@ import { SEED_TENANT_A, SEED_TENANT_B, SEED_USER_A } from '../../src/db/seed/con
  * I-02 is the product. If it fails once, nothing else in this codebase matters.
  */
 
-let tables: string[] = [];
+/**
+ * ⚠ TOP-LEVEL AWAIT, AND IT HAS TO BE.
+ *
+ * This was `let tables: string[] = []`, filled in a `beforeAll`. But
+ * `describe.each(tables)` below is evaluated at COLLECTION time, before any
+ * hook runs, so it always received the empty array and fell through to the
+ * `['__none__']` placeholder. The suite reported passes and failures against
+ * a table that does not exist and never touched a real one.
+ *
+ * It typechecked, and it could not have been caught by running it either —
+ * until this week there were no migrations to run it against, so the suite
+ * had never met a live database at all. Discovering both together is not a
+ * coincidence: the first defect hid the second.
+ *
+ * The table list must therefore be resolved before collection. Vitest
+ * supports top-level await in ESM test files, which is what makes the
+ * introspected-rather-than-listed coverage in `05 §11` actually work.
+ */
+const tables: string[] = await tenantScopedTables();
 
 const asA: Actor = {
   tenantId: SEED_TENANT_A,
@@ -60,9 +78,11 @@ const SUPPORT_WRITE_ALLOWED = new Set([
   'usage_counters',
 ]);
 
-beforeAll(async () => {
-  tables = await tenantScopedTables();
-  expect(tables.length, 'no tenant-scoped tables found: is the database migrated and seeded?').toBeGreaterThan(0);
+beforeAll(() => {
+  expect(
+    tables.length,
+    'no tenant-scoped tables found: is the database migrated and seeded?',
+  ).toBeGreaterThan(0);
 });
 
 afterAll(async () => {
@@ -77,7 +97,11 @@ describe('isolation suite', () => {
     expect(tables.length).toBeGreaterThan(0);
   });
 
-  describe.each(tables.length > 0 ? tables : ['__none__'])('table · %s', (table) => {
+  // No `['__none__']` fallback any more. An empty list here means the
+  // database is not migrated, and the `beforeAll` above says so in those
+  // words — which is far more useful than ten failures against a relation
+  // that does not exist.
+  describe.each(tables)('table · %s', (table) => {
     /** Case 1 · As A, select all rows. Only A's rows, count matches exactly. */
     it('1 · selecting all rows returns only tenant A rows', async () => {
       const expected = await rowCount(table, SEED_TENANT_A);
@@ -129,18 +153,30 @@ describe('isolation suite', () => {
 
     /** Case 5 · As A, insert a row with tenant_id = B. Rejected by WITH CHECK. */
     it('5 · inserting a row carrying tenant B is rejected by the with check clause', async () => {
-      const inserted = await asActor(asA, async (tx) => {
-        try {
+      /**
+       * ⚠ THE CATCH IS OUTSIDE THE TRANSACTION, AND IT HAS TO BE.
+       *
+       * It used to sit inside the `asActor` callback. That cannot work:
+       * once any statement errors, Postgres puts the transaction into an
+       * aborted state, so `sql.begin()` fails at COMMIT and rethrows —
+       * past the inner catch, which never got the chance to swallow
+       * anything. The assertion is about whether the row landed, so the
+       * rejection of the whole transaction is the thing to catch.
+       *
+       * Either a policy violation or a not-null violation on another
+       * column. Both mean the row did not land, which is the assertion.
+       */
+      let inserted = -1;
+      try {
+        inserted = await asActor(asA, async (tx) => {
           const result = await tx`
             insert into ${tx(table)} (tenant_id) values (${SEED_TENANT_B}) returning id
           `;
           return result.length;
-        } catch {
-          // Either a policy violation or a not-null violation on another
-          // column. Both mean the row did not land, which is the assertion.
-          return 0;
-        }
-      });
+        });
+      } catch {
+        inserted = 0;
+      }
       expect(inserted).toBe(0);
     });
 
@@ -150,16 +186,18 @@ describe('isolation suite', () => {
       const aRow = await knownRowId(table, SEED_TENANT_A);
       if (!aRow) return;
 
-      const moved = await asActor(asA, async (tx) => {
-        try {
+      // Catch outside the transaction — see case 5.
+      let moved = -1;
+      try {
+        moved = await asActor(asA, async (tx) => {
           const result = await tx`
             update ${tx(table)} set tenant_id = ${SEED_TENANT_B} where id = ${aRow} returning id
           `;
           return result.length;
-        } catch {
-          return 0;
-        }
-      });
+        });
+      } catch {
+        moved = 0;
+      }
       expect(moved).toBe(0);
       expect(await knownRowId(table, SEED_TENANT_A)).not.toBeNull();
     });
@@ -170,16 +208,18 @@ describe('isolation suite', () => {
       const aRow = await knownRowId(table, SEED_TENANT_A);
       if (!aRow) return;
 
-      const affected = await asActor(asAAgent, async (tx) => {
-        try {
+      // Catch outside the transaction — see case 5.
+      let affected = -1;
+      try {
+        affected = await asActor(asAAgent, async (tx) => {
           const result = await tx`
             update ${tx(table)} set updated_at = now() where id = ${aRow} returning id
           `;
           return result.length;
-        } catch {
-          return 0;
-        }
-      });
+        });
+      } catch {
+        affected = 0;
+      }
       // usage_counters admits agents by design (08 §3), so an affected row
       // there is correct rather than a failure.
       if (table === 'usage_counters') expect(affected).toBeGreaterThanOrEqual(0);
@@ -195,16 +235,19 @@ describe('isolation suite', () => {
       });
       expect(visible).toBe(0);
 
-      const written = await withNoContext(async (tx) => {
-        try {
+      // Catch outside the transaction — see the note on case 5 for why an
+      // inner catch cannot work once a statement has aborted it.
+      let written = -1;
+      try {
+        written = await withNoContext(async (tx) => {
           const result = await tx`
             insert into ${tx(table)} (tenant_id) values (${SEED_TENANT_A}) returning id
           `;
           return result.length;
-        } catch {
-          return 0;
-        }
-      });
+        });
+      } catch {
+        written = 0;
+      }
       expect(written).toBe(0);
     });
 
@@ -222,16 +265,18 @@ describe('isolation suite', () => {
       const aRow = await knownRowId(table, SEED_TENANT_A);
       if (!aRow) return;
 
-      const affected = await asActor(asASupport, async (tx) => {
-        try {
+      // Catch outside the transaction — see case 5.
+      let affected = -1;
+      try {
+        affected = await asActor(asASupport, async (tx) => {
           const result = await tx`
             update ${tx(table)} set updated_at = now() where id = ${aRow} returning id
           `;
           return result.length;
-        } catch {
-          return 0;
-        }
-      });
+        });
+      } catch {
+        affected = 0;
+      }
 
       if (SUPPORT_WRITE_ALLOWED.has(table)) {
         expect(affected).toBe(1);

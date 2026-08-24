@@ -1,5 +1,10 @@
+import { config as loadEnv } from 'dotenv';
 import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
+
+// The isolation suite talks to a real database. Vitest does not load
+// .env.local the way Next.js does, so it is loaded here.
+loadEnv({ path: '.env.local', quiet: true });
 
 export default defineConfig({
   resolve: {

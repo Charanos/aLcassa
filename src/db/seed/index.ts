@@ -7,7 +7,11 @@
  * exactly the thing application code may never do. `pnpm db:seed`.
  */
 
+import { config as loadEnv } from 'dotenv';
 import postgres from 'postgres';
+
+// Standalone script: Next.js is not here to load .env.local for us.
+loadEnv({ path: '.env.local', quiet: true });
 import {
   ENTITLEMENT_DISPLAY_NAMES,
   SEED_PLANS,

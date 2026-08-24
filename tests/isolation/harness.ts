@@ -13,14 +13,42 @@ import postgres from 'postgres';
  * guarantee holds TODAY rather than that it held when someone last checked.
  */
 
-const connectionString =
-  process.env.DATABASE_URL_TEST ?? process.env.DATABASE_URL_ADMIN ?? process.env.DATABASE_URL;
+/**
+ * ⚠ TWO CONNECTIONS, AND CONFLATING THEM MAKES THE SUITE PROVE NOTHING.
+ *
+ * This harness needs both halves of a question it is asking: "what does the
+ * database actually contain" and "what can this actor see". They cannot come
+ * down the same connection.
+ *
+ *   `sql`      RLS-BOUND. Everything an actor does. If this role can bypass
+ *              policies, every case passes for the wrong reason.
+ *   `adminSql` BYPASSES RLS. Ground truth only — the row counts and primary
+ *              keys the assertions are compared against, which is what the
+ *              comment on `knownRowId` means by "read with policies
+ *              bypassed".
+ *
+ * Both failure modes are silent and were both hit while wiring this up. Point
+ * `sql` at an admin role and the actors see everything, so isolation cases
+ * fail loudly — recoverable. Point `adminSql` at the RLS-bound role and every
+ * ground-truth read returns zero, so assertions become `0 === 0` and the suite
+ * reports a confident green while testing nothing. The second is the dangerous
+ * one, and it is why these are separate constants with separate names rather
+ * than one variable and a fallback chain.
+ */
+const rlsUrl = process.env.DATABASE_URL_TEST ?? process.env.DATABASE_URL;
+const adminUrl = process.env.DATABASE_URL_ADMIN;
 
-if (!connectionString) {
-  throw new Error('DATABASE_URL_TEST, DATABASE_URL_ADMIN or DATABASE_URL must be set to run the isolation suite.');
+if (!rlsUrl) {
+  throw new Error('DATABASE_URL_TEST or DATABASE_URL must be set to run the isolation suite.');
+}
+if (!adminUrl) {
+  throw new Error(
+    'DATABASE_URL_ADMIN must be set to run the isolation suite: the ground-truth reads must bypass RLS, or every assertion compares zero to zero.',
+  );
 }
 
-export const sql = postgres(connectionString, { prepare: false, max: 4 });
+export const sql = postgres(rlsUrl, { prepare: false, max: 4 });
+const adminSql = postgres(adminUrl, { prepare: false, max: 2 });
 
 export type Actor = {
   tenantId: string;
@@ -68,7 +96,10 @@ export async function withNoContext<T>(run: (tx: postgres.TransactionSql) => Pro
 /** Introspects the tables the suite must cover, so the coverage is not a list
  *  someone maintains by hand. */
 export async function tenantScopedTables(): Promise<string[]> {
-  const rows = await sql<{ table_name: string }[]>`
+  // Catalogue introspection, so it uses the admin connection: the coverage
+  // list must be what the schema contains, not what one role happens to be
+  // able to see.
+  const rows = await adminSql<{ table_name: string }[]>`
     select c.relname as table_name
     from pg_class c
     join pg_namespace n on n.oid = c.relnamespace
@@ -86,19 +117,20 @@ export async function tenantScopedTables(): Promise<string[]> {
 /** A row belonging to a given tenant, read with policies bypassed, so the suite
  *  knows a primary key that genuinely exists and genuinely is not the caller's. */
 export async function knownRowId(table: string, tenantId: string): Promise<string | null> {
-  const rows = await sql<{ id: string }[]>`
-    select id from ${sql(table)} where tenant_id = ${tenantId} limit 1
+  const rows = await adminSql<{ id: string }[]>`
+    select id from ${adminSql(table)} where tenant_id = ${tenantId} limit 1
   `;
   return rows[0]?.id ?? null;
 }
 
+/** Ground truth. MUST bypass RLS — see the note at the top of this file. */
 export async function rowCount(table: string, tenantId: string): Promise<number> {
-  const rows = await sql<{ count: string }[]>`
-    select count(*)::text as count from ${sql(table)} where tenant_id = ${tenantId}
+  const rows = await adminSql<{ count: string }[]>`
+    select count(*)::text as count from ${adminSql(table)} where tenant_id = ${tenantId}
   `;
   return Number(rows[0]?.count ?? 0);
 }
 
 export async function closeHarness(): Promise<void> {
-  await sql.end();
+  await Promise.all([sql.end(), adminSql.end()]);
 }
