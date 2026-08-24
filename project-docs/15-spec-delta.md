@@ -232,15 +232,19 @@ scrolls sideways. `src/components/presentation/DataList.tsx`.
 per-field lock. Design sheet 14 records the recommendation as "master wins on
 conflict".
 
-**Resolution.** ⚠ **Unresolved, and blocking.** This is the client's decision and
-it is due in week one, because the two models produce different tables.
+**Resolution. Closed 24 Aug 2026.** The client's answer, read plainly, combines
+both halves of this conflict rather than picking a side: "Layered. Master rules
+always override tenant rules." `01 D-08` records the fuller reasoning for
+reading this as layered composition with master winning on conflict, which
+happens to mean design sheet 14's "master wins on conflict" phrasing and `01
+D-08`'s layered recommendation were never actually in tension once the client's
+own words are read as intending both. The `lockedFields` column ships with its
+default semantics inverted, per `05 §7`: locked unless a field is explicitly
+marked overridable, rather than open unless locked.
 
-The schema ships with `lockedFields` on the master version row, which is the
-layered model's requirement. If the client chooses "master wins", that column is
-simply unused and costs nothing. The reverse is not true: choosing layered after
-the schema locks is a migration in week seven.
-
-The recommendation put to the client is **layered**, on the grounds in `01 D-08`.
+The schema shipped with `lockedFields` on the master version row, which is the
+layered model's requirement, so no migration was needed regardless of which way
+this closed.
 
 **Where:** `src/db/schema/airules.ts`.
 
@@ -296,9 +300,10 @@ function so it is one place rather than eighteen". That helper is
 `app.tenant_is_writable()` in `src/db/policies/00_context.sql`, and every modify
 policy calls it through `app.can_write_settings()` or `app.can_write_as_owner()`.
 
-⚠ This encodes the **recommended** answer to `01 §9` question 4. The client
-confirms before M1. If the answer is "blocked" rather than "read-only", one
-function changes and nothing else does.
+This encodes the answer to `01 §9` question 4, **confirmed by the client on 24
+Aug 2026 as read-only**, which is what this helper already implemented. No code
+change followed: the recommendation and the shipped behaviour matched from the
+start.
 
 ### A2 · `force row level security` on every table
 
@@ -448,6 +453,105 @@ The weight constraint remains: only one weight per family is imported. Libertinu
 
 `src/app/tokens.css`, `globals.css`, `03 §4`.
 
+### A13 · The plan catalogue replaced, not amended
+
+The four-tier proposal in `08 §2` (Free, Starter, Growth, Scale) is not in
+either founding document; it was this project's own placeholder, explicitly
+marked as one, pending the client's week-four confirmation. On 24 Aug 2026 the
+client confirmed a different shape entirely, Pro / Business / Custom with two
+new entitlement keys (`conversations_monthly`, `support_sla_hours`), three weeks
+early. This is not a delta between the two founding sets, since neither
+specified plan tiers; it is recorded here because the seed data, the entitlement
+key list and the design sheets now need to agree on names that did not exist
+when those sheets were drawn.
+
+**The sheets are not corrected in this pass.** `03 Controls`, `05 Platform
+Console`, `06 Tenant Detail`, `07 Support Mode`, `13 Motion and Access` and `14
+Handover` all still show `Starter` or `Growth` as example plan names. Those are
+illustrative rather than contractual, and they are stale as of this entry. A
+future design pass should reconcile them.
+
+`src/db/seed/constants.ts`, `08 §2`, `01 §8`.
+
+### A14 · Support mode's read-only default did not survive contact with the client
+
+Both founding documents, and the boundary-frame and switcher treatments drawn in
+`07 Support Mode`, describe support mode as read-only. `01 D-13`, confirmed 24
+Aug 2026, makes it read and write with three permanent carve-outs: the
+credential secret stays unreadable by anyone, a support session cannot extend
+its own timeout, and support never acts as the member's own identity row.
+
+This is the largest behavioural change in the M0 pass and it touches copy
+(`10 §6`, `§10`, `§11`), the role matrix (`06 §5`, `09 §4`), the RLS policies
+that implement it (`00_context.sql`'s `can_write_settings()`, which now admits
+the `support` role), and the isolation suite's generated case 9.
+
+**`07 Support Mode.dc.html` is not edited in this pass.** Its captions asserting
+a read-only support role are now stale illustrative copy rather than a live
+contract, and should be corrected in the next design pass.
+
+One item inside this decision is deliberately still open: whether the new write
+access extends to `customer_records`. `09 §4` argues it should not, and both the
+`select` and `modify` policies on that table keep an explicit
+`not app.is_support_session()` block, independent of `can_write_settings()`, so
+the table does not silently open when the general gate does.
+
+`01 D-13`, `06 §5`, `06 §6`, `09 §4`, `src/db/policies/06_seams.sql`.
+
+### A15 · FastAPI moves from a consumer to the service door's implementation
+
+`04 §1`'s container view and `02 §7`'s namespace table both placed FastAPI
+outside the system, as a caller of a service door that Next.js implements.
+`01 D-14` and `04` ADR-012, both dated 24 Aug 2026, make FastAPI the implementer
+of that door instead, resolving the client's objection that his original
+specification was FastAPI as the full backend.
+
+No design sheet in this set mentions FastAPI at all, so unlike A13 and A14 there
+is nothing illustrative to reconcile here. The request and response shapes,
+authentication scheme and ETag semantics in `07 §8` are unchanged by the move;
+only the runtime answering the call is different, which is the point of
+ADR-012 rather than an accident of it.
+
+The dashboard doors (`/api/v1/*`, `/api/platform/v1/*`) stay on Next.js for
+Phase 1. Moving those behind FastAPI as well is scoped as a separately priced
+change note rather than absorbed.
+
+`01 D-14`, `04` ADR-012, `07 §1`, `07 §8`.
+
+### A16 · The console's demo data still prices the retired plan catalogue
+
+The plan catalogue confirmed on 24 Aug 2026 is Pro at KES 3,400 a month,
+Business at KES 17,000, and Custom priced per deal. `src/db/seed/constants.ts`
+carries that catalogue and is correct.
+
+**The console's fixture data does not, and is deliberately left alone in this
+pass.** `src/lib/console/data.ts`, `src/lib/tenant/data.ts`,
+`src/components/console/ProvisionWorkspaceDialog.tsx`,
+`src/components/console/WorkspaceTable.tsx`,
+`src/components/tenant/InviteForm.tsx` and the console layout's workspace
+switcher all still model Trial / Starter / Growth / Scale at KES 46,000 to
+184,000.
+
+Renaming them is not the whole job, which is why this is an open item rather
+than an oversight. The fixtures are an interlocking financial model: plan prices
+feed LTV figures, a twelve-month MRR series running from KES 3.91M to 6.04M, a
+net-revenue-churn percentage, and named dunning invoices at 46,000 and 184,000.
+Substituting the confirmed prices without rebuilding that model would drop
+modelled MRR by roughly twenty times and leave a revenue page whose totals no
+longer follow from its own rows. Substituting them _with_ a rebuilt model means
+inventing a new set of financial figures, which is a decision about what the
+console should demonstrate rather than a porting task.
+
+**There is also a question underneath it worth putting to the client.** The
+confirmed prices describe a product at KES 3,400 to 17,000 a month. The console
+fixtures were drawn for a platform billing KES 46,000 to 184,000 with roughly
+six million in monthly recurring revenue. Those are different businesses, and
+the gap is large enough that it is worth confirming which one the console is
+meant to portray before anyone rebuilds the numbers.
+
+Until that is settled the fixtures stay as drawn, and this entry is the record
+that they are known to be stale rather than believed to be current.
+
 ---
 
 ## 3b. The aLcassa identity landing (August 2026)
@@ -459,6 +563,12 @@ rewritten `03-design-system.md`, and it supersedes the previous "aLcassa"
 system (copper/verdigris/ochre/oxide/slate/graphite on vellum, Libertinus
 throughout) in full. These entries record where the port diverged from a
 literal reading of those documents.
+
+**Approved 24 Aug 2026.** The client confirmed the brand palette alongside the
+five M0 decisions. That approval attaches to the identity described in this
+section, which is the live one, rather than to the superseded system in `§1`.
+No token value changed as a result: this confirms the palette already shipped in
+`src/app/tokens.css` rather than altering it.
 
 ### B1 · The old token names survive as a compatibility layer
 
@@ -1049,9 +1159,9 @@ C29 covered sheet 11 only. Reading 03, 04, 05, 06 and 10 against what was
 built found five things, four of which were wrong rather than merely absent.
 
 **A ceiling was rendering as a failure.** Both meter scales returned
-`--danger-fg` at 100%. Sheet 04: *"A tenant at 15 of 15 has not failed. It
+`--danger-fg` at 100%. Sheet 04: _"A tenant at 15 of 15 has not failed. It
 has arrived at the limit its plan describes, and the console's job there is
-to offer the tier above it."* A red row put a workspace that is working
+to offer the tier above it."_ A red row put a workspace that is working
 exactly as sold in front of an operator whose actual next move is a sales
 conversation. Sheet 06 gives the corrected scale — verdigris within the
 limit, ochre at the ceiling — and no entitlement meter in this console
@@ -1059,9 +1169,9 @@ renders red now; red is kept for a failure of correctness. The
 blue-to-state gradient went with it, since a meter reading as two states at
 once was the other half of the same confusion.
 
-**"One shadow, one surface" was not being observed.** Sheet 04: *"Only the
+**"One shadow, one surface" was not being observed.** Sheet 04: _"Only the
 dialog and the command palette carry elevation. Panels are separated from
-the page by a tint step and a hairline, never by a shadow."* Thirty-odd
+the page by a tint step and a hairline, never by a shadow."_ Thirty-odd
 `boxShadow` declarations sat on panels, table containers, status dots,
 meters, filter chips and pagination — including coloured glows in
 `rgba(14, 165, 233, …)`, a sky-blue that is not this product's blue at all.
@@ -1071,9 +1181,9 @@ sanctioned neumorphic INSET on meter tracks, search fields and segmented
 thumbs (tokens.css names those three by name), and elevation on dialogs.
 
 **The standfirst was missing and the shortlist was unbuilt.** Sheet 05:
-*"the count that implies work is in the sentence, not only in a card, and
-the phrase that names it is ochre"* plus *"attention is pre-filtered, so the
-grid below is already the shortlist rather than a thing to construct."*
+_"the count that implies work is in the sentence, not only in a card, and
+the phrase that names it is ochre"_ plus _"attention is pre-filtered, so the
+grid below is already the shortlist rather than a thing to construct."_
 Workspaces now opens with "47 businesses. 3 need attention." — the second
 clause ochre, matching the meters and the filter chip that name the same
 condition — and lands with that filter applied. It starts off when nothing
@@ -1087,7 +1197,7 @@ filter disagree about which workspaces need work is worse than one that says
 nothing.
 
 **Isolation was something to go and check.** Sheet 05 puts it under the
-navigation permanently — *"the severe risk in the brief is a policy gap"*.
+navigation permanently — _"the severe risk in the brief is a policy gap"_.
 It now sits above the sidebar footer on every console route, reading the
 same `getIsolationStatus()` the Health panel does, so the two cannot
 disagree. Collapsed, it degrades to the coloured dot with the full sentence
@@ -1096,13 +1206,13 @@ in `title`.
 **Smaller, same source:** suspended workspaces drop their NAME to secondary
 ink, not just their chip (sheet 05, "a tenant that is inert should not
 compete with one that is live"); Suspend moved to the opposite end of the
-workspace drawer's action strip from Support session (sheet 06, *"the
-destructive action is never under the cursor"* — they were 8px apart); the
+workspace drawer's action strip from Support session (sheet 06, _"the
+destructive action is never under the cursor"_ — they were 8px apart); the
 AI-rules button says "Publish v16" rather than "Save and propagate" (sheet
-10, *"the action states the artefact it creates, matching the audit entry it
-will write"*) and the page carries a singleton lock chip; every meter names
-the table that answers it (sheet 06, *"a figure on screen can be traced to a
-row in the schema without asking anyone"*).
+10, _"the action states the artefact it creates, matching the audit entry it
+will write"_) and the page carries a singleton lock chip; every meter names
+the table that answers it (sheet 06, _"a figure on screen can be traced to a
+row in the schema without asking anyone"_).
 
 ⚠ **Adding that last field surfaced a latent bug.** `WorkspaceDetailDrawer`
 hand-redeclared `Meter`, `Invoice` and the whole detail shape locally,
@@ -1157,7 +1267,7 @@ Three things worth naming because they were not simply deletions:
   read CSS custom properties into real colour values once on mount — that
   part is unrelated to theming, it is what makes an SVG presentation
   attribute resolve `var()` reliably across engines. Only the re-read-on
-  -`data-theme`-flip half of each was removed.
+  \-`data-theme`-flip half of each was removed.
 
 `viewport.colorScheme` is `'light'`, not `'light dark'` — declaring the pair
 on a permanently-light page would tell the browser to paint its own form
@@ -1168,13 +1278,17 @@ token set exists to prevent.
 
 ## 4. Open items carried forward
 
-| #   | Item                                       | Due         | Blocks                                          |
-| --- | ------------------------------------------ | ----------- | ----------------------------------------------- |
-| 1   | AI rules precedence, master versus layered | Week 1      | M4a and the schema. See D7                      |
-| 2   | Support role matrix, signed                | Design lock | M4, and the isolation suite's support cases     |
-| 3   | Embedding model Phase 2 will use           | Week 1      | The knowledge base seam                         |
-| 4   | What suspension means                      | Before M1   | Every modify policy. See A1                     |
-| 5   | Plan tiers with limits                     | Week 4      | M3                                              |
-| 6   | Product name and brand assets              | Design lock | Nothing. The placeholder mark ships             |
-| 7   | Owner email unique across the platform?    | Design lock | The membership model and `user_profiles` policy |
-| 8   | Credentials per-tenant or per-integration  | Design lock | A column now, a migration later                 |
+| #   | Item                                                           | Due                                       | Blocks                                            | Status                                                   |
+| --- | -------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------- | -------------------------------------------------------- |
+| 1   | AI rules precedence, master versus layered                     | Week 1                                    | M4a and the schema. See D7                        | **Closed 24 Aug 2026.** Layered, master wins on conflict |
+| 2   | Support role matrix, signed                                    | Design lock                               | M4, and the isolation suite's support cases       | **Closed 24 Aug 2026.** Read-write. See A14              |
+| 3   | Embedding model Phase 2 will use                               | Week 1                                    | The knowledge base seam                           | **Closed 24 Aug 2026.** `text-embedding-3-small`         |
+| 4   | What suspension means                                          | Before M1                                 | Every modify policy. See A1                       | **Closed 24 Aug 2026.** Read-only, as already built      |
+| 5   | Plan tiers with limits                                         | Week 4                                    | M3                                                | **Closed 24 Aug 2026**, three weeks early. See A13       |
+| 6   | Product name and brand assets                                  | Design lock                               | Nothing. The placeholder mark ships               | **Closed 3 Aug 2026.** Identity landed. See `§3b`        |
+| 7   | Owner email unique across the platform?                        | Design lock                               | The membership model and `user_profiles` policy   | Open                                                     |
+| 8   | Credentials per-tenant or per-integration                      | Design lock                               | A column now, a migration later                   | Open                                                     |
+| 9   | FastAPI service-door staffing and effort                       | Before M4a                                | M4a, the service-door demonstration               | **Open, added 24 Aug 2026.** See `01 D-14`               |
+| 10  | Does full support access extend to `customer_records`?         | Before M4a                                | That table's RLS policies and its isolation cases | **Open, added 24 Aug 2026.** Proposed no. See `09 §4`    |
+| 11  | Confirm the reading applied to "layered, master always wins"   | Not blocking                              | Nothing; the schema supports either reading       | **Open, added 24 Aug 2026.** See `01 D-08`               |
+| 12  | Console demo data still models the retired four-tier catalogue | Before the console is shown to the client | Nothing in the build; it is fixture data          | **Open, added 24 Aug 2026.** See A16                     |

@@ -363,7 +363,7 @@ export async function getTenantAudit(): Promise<TenantAuditModel> {
       { id: 'a_1', time: '2 hours ago', actor: 'Amina Yusuf', kind: 'member', action: 'invited', target: 'sarah@acmeindustrial.co.ke' },
       { id: 'a_2', time: 'Yesterday, 16:40', actor: 'David Kimani', kind: 'member', action: 'accepted invitation', target: 'David Kimani' },
       { id: 'a_3', time: '2 days ago', actor: 'Amina Yusuf', kind: 'settings', action: 'updated contact details', target: 'Company settings' },
-      { id: 'a_4', time: '3 days ago', actor: 'Andishi support', kind: 'support', action: 'opened a read-only support session', target: 'Acme Industrial' },
+      { id: 'a_4', time: '3 days ago', actor: 'Andishi support', kind: 'support', action: 'opened a support session', target: 'Acme Industrial' },
       { id: 'a_5', time: '5 days ago', actor: 'David Kimani', kind: 'rules', action: 'published v13', target: 'Assistant rules' },
       { id: 'a_6', time: '9 days ago', actor: 'Amina Yusuf', kind: 'credential', action: 'created', target: 'Production — order sync' },
     ],

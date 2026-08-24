@@ -152,7 +152,8 @@ export default function ProjectTrackerPage() {
   const inputColumns: Array<Column<(typeof CLIENT_INPUTS)[number]>> = [
     { key: 'item', header: 'Item', primary: true, cell: (row) => row.item },
     { key: 'when', header: 'When', width: '150px', mono: true, muted: true, cell: (row) => row.when },
-    { key: 'blocks', header: 'Blocks', width: '210px', mono: true, muted: true, cell: (row) => row.blocking },
+    { key: 'blocks', header: 'Blocks', width: '160px', mono: true, muted: true, cell: (row) => row.blocking },
+    { key: 'status', header: 'Status', width: '220px', muted: true, cell: (row) => row.status },
   ];
 
   return (
@@ -346,7 +347,7 @@ export default function ProjectTrackerPage() {
             id="decisions"
             n="5.0"
             title="Open decisions"
-            lede="Seven questions, five of them blocking. Each one changes a table or a policy, so none can wait until it is convenient. A schema locked without the AI rules precedence answer is a schema that gets migrated in week seven."
+            lede="Five of the original seven questions are answered as of 24 August 2026, most of them ahead of schedule. The support role answer opened one narrower question of its own, listed below in its place. Two remain as originally drawn, both proposals rather than anything blocking."
             aside={`${String(blocking.length)} blocking`}
           >
             <InteractiveDecisionMatrix decisions={[...OPEN_DECISIONS]} />

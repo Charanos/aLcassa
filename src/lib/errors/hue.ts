@@ -52,6 +52,10 @@ const HUE: Record<ErrorCode, ErrorHue> = {
 
   [ERROR_CODES.SUPPORT_SESSION_EXPIRED]: 'ochre',
   [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 'oxide',
+  // 01 D-13. One of the three permanent carve-outs was attempted. OXIDE rather
+  // than OCHRE because there is nothing the reader can do about it: the ceiling
+  // is the point, not a limit that a plan change or a retry would lift.
+  [ERROR_CODES.SUPPORT_WRITE_DENIED]: 'oxide',
   [ERROR_CODES.PLATFORM_NOT_ADMIN]: 'oxide',
 
   [ERROR_CODES.VALIDATION_FAILED]: 'ochre',

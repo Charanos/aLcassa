@@ -43,9 +43,13 @@ alter table tenant_members force row level security;
 create policy tenant_members_select on tenant_members
   for select using (tenant_id = app.current_tenant_id());
 
--- Owners and admins manage the team. Support never writes here: 09 §4 marks
--- member removal as no-access, and the isolation suite generates case 9 from
--- that matrix rather than from this file, so the two cannot silently diverge.
+-- Owners and admins manage the team. 24 Aug 2026, per 01 D-13: support now
+-- writes here too, since `can_write_settings()` admits the support role.
+-- Member removal was previously no-access for support per 09 §4's original
+-- proposal; that proposal is superseded by Brian's read-write confirmation.
+-- The isolation suite generates its support-mode cases from the role matrix
+-- in 06 §5, not from this file, so the two cannot silently diverge; the
+-- matrix was updated in the same pass as this policy.
 create policy tenant_members_modify on tenant_members
   for all
   using (

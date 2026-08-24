@@ -37,4 +37,8 @@ design-docs/.thumbnail
 design-docs/uploads/
 *.zip
 aLcassa-appshell-boilerplate/
+# The folder on disk still carries the pre-rename name. The rule above was
+# renamed with everything else and stopped matching it, which would have put the
+# boilerplate in the repository the rule exists to keep out of it.
+conduit-appshell-boilerplate/
 

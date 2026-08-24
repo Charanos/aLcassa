@@ -31,7 +31,7 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 
 | Doc  | Title                                    | Read it when                                                                         |
 | ---- | ---------------------------------------- | ------------------------------------------------------------------------------------ |
-| `01` | Brief and Decision Log                   | Always first. What was agreed, and the twelve decisions the rest rests on            |
+| `01` | Brief and Decision Log                   | Always first. What was agreed, and the fourteen decisions the rest rests on          |
 | `02` | Information Architecture                 | Adding a route or navigation. Two applications, one codebase                         |
 | `03` | Design System · aLcassa                  | Any visual work. Palette, the one-weight type system, components, the boundary frame |
 | `04` | System Architecture                      | Structural decisions. Eleven ADRs, sequences, caching, observability                 |
@@ -44,6 +44,7 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 | `11` | Build Plan and Agent Guide               | Milestone mapping, gates, and the operating contract for coding agents               |
 | `12` | Handover Package                         | Requirement 7, treated as a deliverable with its own acceptance test                 |
 | `13` | Code Brief                               | Paste-ready prompt, plus follow-up patterns                                          |
+| `15` | Specification Delta                      | Where the code and a document disagree, and every decision confirmed after M0 |
 
 ---
 
@@ -63,8 +64,8 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 
 ## Stack
 
-Next.js 15 with TypeScript strict · Supabase for Postgres, Auth, Storage and Row Level Security · Drizzle ORM · Upstash Redis, scoped to four uses · Vercel · pgvector · Sentry, Axiom, Better Stack · Libertinus Serif, Libertinus Sans, Fira Code · Tabler Icons
+Next.js 15 with TypeScript strict, session door and dashboard · **FastAPI, service door, confirmed 24 Aug 2026, see `01 D-14`** · Supabase for Postgres, Auth, Storage and Row Level Security · Drizzle ORM · Upstash Redis, scoped to four uses · Vercel · pgvector · Sentry, Axiom, Better Stack · Libertinus Serif, Libertinus Sans, Fira Code · Tabler Icons
 
 ## Before anything is built
 
-Six items are blocking, listed in `01 §9`. Two of them need answers in week one and change the schema: which embedding model Phase 2 will use, and the precedence rule between master and tenant AI rules. Send them the day the brief is signed.
+**Updated 24 Aug 2026.** Of the six items originally blocking (`01 §9`, `01 §8`), five are answered: the embedding model, the AI rules precedence rule, the support role matrix, the plan tiers, and what suspension means. See `15 §4` for the full status table. One new item joined the list the same day rather than being resolved by it: the staffing and effort question raised by moving the service door to FastAPI, `01 D-14`, due before M4a rather than week one.

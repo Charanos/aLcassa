@@ -47,7 +47,12 @@ export const ERROR_CODES = {
 
   // ─ Support mode and platform ─
   SUPPORT_SESSION_EXPIRED: 'support.session_expired',
-  SUPPORT_NOT_PERMITTED: 'support.not_permitted',
+  SUPPORT_NOT_PERMITTED: 'support.not_permitted', // cannot ENTER support mode. See pipeline.ts.
+  /** 01 D-13, added 24 Aug 2026. A support session attempted one of the three
+   *  permanent carve-outs: reading a credential secret, extending its own
+   *  timeout, or acting as the member's own identity row. Distinct from
+   *  SUPPORT_NOT_PERMITTED above, which blocks entry, not an action once in. */
+  SUPPORT_WRITE_DENIED: 'support.write_denied',
   PLATFORM_NOT_ADMIN: 'platform.not_admin',
 
   // ─ Generic ─
@@ -98,6 +103,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
 
   [ERROR_CODES.SUPPORT_SESSION_EXPIRED]: 401,
   [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 403,
+  [ERROR_CODES.SUPPORT_WRITE_DENIED]: 403,
   [ERROR_CODES.PLATFORM_NOT_ADMIN]: 403,
 
   [ERROR_CODES.VALIDATION_FAILED]: 422,
@@ -120,7 +126,8 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]:
     'Your account is not attached to a workspace. If you were invited, use the link in your invitation email. Otherwise get in touch.',
 
-  [ERROR_CODES.TENANT_SUSPENDED]: 'This workspace is suspended. Get in touch to resolve it.',
+  [ERROR_CODES.TENANT_SUSPENDED]:
+    'This workspace is suspended. You can still see everything here; changes are paused until this is resolved. Get in touch to resolve it.',
   [ERROR_CODES.TENANT_NOT_FOUND]: 'That is not here, or you do not have access to it.',
 
   [ERROR_CODES.MEMBER_LAST_OWNER]:
@@ -149,6 +156,7 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.SUPPORT_SESSION_EXPIRED]:
     'Your support session ended. Switch in again to continue.',
   [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 'This account cannot enter support mode.',
+  [ERROR_CODES.SUPPORT_WRITE_DENIED]: 'Support mode cannot do this here.',
   [ERROR_CODES.PLATFORM_NOT_ADMIN]: 'This account does not manage the platform.',
 
   [ERROR_CODES.VALIDATION_FAILED]: 'Some of what was sent is not valid.',

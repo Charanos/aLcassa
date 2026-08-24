@@ -150,9 +150,12 @@ Type-to-confirm prompt `Type the credential name to confirm`
 
 ## 6. Subscription and limits
 
+**24 Aug 2026:** plans are Pro, Business and Custom, confirmed in `08 §2`. No plan name is hardcoded below; `{planName}` continues to interpolate whichever plan applies, so nothing in this section needed to change for the new tiers themselves. `conversations_monthly` and `support_sla_hours` reuse the limit-bar and at-limit strings below like any other entitlement, except `support_sla_hours`, which is a feature value shown once on the plan card rather than a bar; it needs one string, added below.
+
 Heading `Plan and usage`
 Plan line `You are on {planName}.`
 Period `Your current period ends {date}.`
+Support SLA line (feature, not a limit bar) `Support response within {hours} hours.`
 
 Limit bar labels: `{current} of {limit}` · unlimited renders `{current} of ∞`
 
@@ -168,7 +171,9 @@ Past due
 `Your workspace is past due. You can still see everything, but changes are paused until this is resolved. Get in touch and we will help.`
 
 Suspended
-`This workspace is suspended. {reason} Get in touch to resolve it.`
+`This workspace is suspended. {reason} You can still see everything here; changes are paused until this is resolved. Get in touch to resolve it.`
+
+**Amended 24 Aug 2026.** Suspension's read-only behaviour moved from recommended to confirmed in `06 §8`; this string now says so directly rather than leaving it implied by the separate "Past due" string above, which already stated it.
 
 ---
 
@@ -238,6 +243,8 @@ Support mode entries
 `{platformAdminName} from support opened this workspace` and, where a reason exists, `Reason: {reason}`
 `{platformAdminName} from support closed this workspace`
 
+**24 Aug 2026, per `01 D-13`:** support mode is now read and write, so individual actions taken during a session appear as their own entries, attributed the same way any tenant action is, plus the existing open and close entries above marking the session's boundaries. No new string is needed for an individual action; it reuses whatever entry that action already produces elsewhere in this document, which is what makes "you can see every time we look at your workspace" (`06 §6`) still true when a look can now include a change.
+
 Retention note `Your plan keeps {days} days of activity.`
 
 Export action `Export as CSV`
@@ -262,7 +269,7 @@ Shorter, denser, no reassurance.
 | Override grant | `Grant {name} {limit} {key}. Reason is required and appears in their workspace.` |
 | Master rules publish | `Publish master rules? This affects all {n} workspaces and takes effect within five seconds.` |
 | Switcher prompt | `Enter support mode for {name}?` |
-| Switcher body | `You will see their workspace with a read-only support role. This is recorded in their activity log and yours.` |
+| Switcher body | `You will be able to view and change their workspace as support. Every action is recorded in their activity log and yours.` |
 | Switcher reason | `Reason (optional, appears in both logs)` |
 | Support entered toast | `Support mode. {name}.` |
 | Support expiring | `Support session ends in 2 minutes.` |
@@ -285,7 +292,9 @@ Expired state `SESSION ENDED · SWITCH IN AGAIN`
 Staging variant `STAGING`
 
 Screen reader announcement on entry
-`Support mode active. You are viewing {tenantName} with a read-only support role. The session ends after thirty minutes of inactivity.`
+`Support mode active. You are viewing {tenantName} as support, with the ability to make changes. The session ends after thirty minutes of inactivity.`
+
+**Amended 24 Aug 2026,** matching the switcher body above. The visual frame, its copper colour and its countdown are unchanged; only the permission claim in the announcement changed, per `01 D-13`.
 
 Screen reader announcement on exit
 `Support mode ended. You are back in the platform console.`
@@ -302,6 +311,7 @@ Screen reader announcement on exit
 | Rate limited | `That is a lot of requests in a short time. Wait {seconds} seconds and try again.` |
 | Version conflict | `Someone else changed this while you had it open. Reload to see the current version.` |
 | Permission denied | `Only the {role} can do this.` |
+| Support write denied | `Support mode cannot do this here.` Used for the three permanent carve-outs in `01 D-13`: revealing a credential secret, extending a support session's own timeout, or acting as a member's own account |
 | Not found | `That is not here, or you do not have access to it.` |
 | 500 | `Something broke on our side. We have logged it. Reference {requestId} if you get in touch.` |
 | Offline | `You are offline. Nothing has been lost. We will retry when you reconnect.` |
@@ -315,6 +325,8 @@ Read by developers, so they are shorter and more precise.
 
 Rules endpoint description
 `Returns the compiled assistant rules for the tenant that owns this credential. Master and tenant rules are merged; the provenance object shows the source of each field.`
+
+**24 Aug 2026:** this endpoint is served by FastAPI rather than by a Next.js route, per `01 D-14`. The description, the request and the response below are unchanged; only the sentence a developer might see in service status tooling naming which service answered the request is new, and it is out of scope for this deck since it is operational rather than copy.
 
 Caching guidance
 `Send the ETag from your last response as If-None-Match. A 304 confirms nothing has changed and costs almost nothing. A published change is visible within 5 seconds under normal conditions, and within 300 seconds in the worst case if cache invalidation fails.`

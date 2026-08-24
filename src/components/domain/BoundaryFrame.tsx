@@ -167,10 +167,11 @@ export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFram
 
       {/* 03 §17. A live region, because entering and leaving support mode is
           exactly the kind of context change a screen reader user must be told
-          about rather than discover. Copy from 10 §11. */}
+          about rather than discover. Copy from 10 §11, amended 24 Aug 2026
+          per 01 D-13: support mode is read and write, not read-only. */}
       <div role="status" aria-live="polite" className="visually-hidden">
         {isSupport && supportMode
-          ? `Support mode active. You are viewing ${supportMode.tenantName} with a read-only support role. The session ends after thirty minutes of inactivity.`
+          ? `Support mode active. You are viewing ${supportMode.tenantName} as support, with the ability to make changes. The session ends after thirty minutes of inactivity.`
           : null}
       </div>
     </>

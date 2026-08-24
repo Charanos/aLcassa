@@ -36,6 +36,30 @@ const asA: Actor = {
 const asAAgent: Actor = { ...asA, role: 'agent' };
 const asASupport: Actor = { ...asA, role: 'support', supportMode: true };
 
+/**
+ * 01 D-13, confirmed 24 Aug 2026. Support mode is read and write, not the
+ * read-only default this suite originally tested. Every table gated by
+ * `app.can_write_settings()` in 00_context.sql now admits the support role,
+ * which is every table below except the permanent carve-outs: the credential
+ * secret table, sessions (a support session cannot extend itself),
+ * customer_records (09 §4, still an open question pending Brian's ruling),
+ * and any table with no tenant-facing modify policy at all regardless of
+ * role. `usage_counters` is listed separately from `can_write_settings()`
+ * because it has its own explicit role list, opened for the same reason:
+ * inviting a member (now support-permitted) consumes the `seats` counter.
+ */
+const SUPPORT_WRITE_ALLOWED = new Set([
+  'tenant_settings',
+  'tenant_members',
+  'invitations',
+  'tenant_ai_rules',
+  'tenant_ai_rule_versions',
+  'kb_documents',
+  'kb_chunks',
+  'channel_connections',
+  'usage_counters',
+]);
+
 beforeAll(async () => {
   tables = await tenantScopedTables();
   expect(tables.length, 'no tenant-scoped tables found: is the database migrated and seeded?').toBeGreaterThan(0);
@@ -184,9 +208,17 @@ describe('isolation suite', () => {
       expect(written).toBe(0);
     });
 
-    /** Case 9 · As A in support mode, write to a table the support role may
-     *  not write. Generated from the signed matrix in 09 §4. */
-    it('9 · a support session cannot write', async () => {
+    /** Case 9 · As A in support mode, write to this table. Whether that is
+     *  permitted or rejected is generated from the role matrix in 06 §5 and
+     *  09 §4, confirmed 24 Aug 2026 as read and write with carve-outs rather
+     *  than the read-only default this case originally tested against.
+     *
+     *  Case 2's warning applies here too: RLS filters, it does not always
+     *  error, so an allowed write must be asserted as a REAL WRITE
+     *  (`toBe(1)`), not merely as "did not throw". A weaker assertion would
+     *  pass whether or not the carve-out logic in 00_context.sql and
+     *  06_seams.sql is actually wired correctly. */
+    it('9 · a support session can write only where 01 D-13 opened it', async () => {
       const aRow = await knownRowId(table, SEED_TENANT_A);
       if (!aRow) return;
 
@@ -200,7 +232,12 @@ describe('isolation suite', () => {
           return 0;
         }
       });
-      expect(affected).toBe(0);
+
+      if (SUPPORT_WRITE_ALLOWED.has(table)) {
+        expect(affected).toBe(1);
+      } else {
+        expect(affected).toBe(0);
+      }
     });
 
     /** Case 10 · As A, join through a foreign key to a B-owned parent row.

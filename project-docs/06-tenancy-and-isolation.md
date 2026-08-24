@@ -149,28 +149,33 @@ Reviewed manually, by a human reading every policy, at **M1** and again at **M6*
 
 Three tenant roles plus the support role.
 
+**Amended 24 Aug 2026, per `01 D-13`.** Brian has confirmed support mode is read and write, not the read-only default this table originally specified. The support column below reflects that. Three cells stay blank regardless, marked ⁴⁵⁶, because they are not what "full access to a workspace" was asking to change.
+
 | Capability | owner | admin | agent | support |
 |---|:---:|:---:|:---:|:---:|
 | Sign in, view overview | ✓ | ✓ | ✓ | ✓ |
 | View company profile | ✓ | ✓ | ✓ | ✓ |
-| Edit company profile | ✓ | ✓ | | |
+| Edit company profile | ✓ | ✓ | | ✓ |
 | View team | ✓ | ✓ | ✓ | ✓ |
-| Invite a member | ✓ | ✓ | | |
-| Change a member's role | ✓ | | | |
-| Remove a member | ✓ | ✓¹ | | |
+| Invite a member | ✓ | ✓ | | ✓ |
+| Change a member's role | ✓ | | | ✓ |
+| Remove a member | ✓ | ✓¹ | | ✓ |
 | View credentials, masked | ✓ | | | ✓² |
-| Create or rotate a credential | ✓ | | | |
-| Revoke a credential | ✓ | | | |
+| Create or rotate a credential | ✓ | | | ⁴ |
+| Revoke a credential | ✓ | | | ⁴ |
 | View AI rules | ✓ | ✓ | ✓ | ✓ |
-| Edit AI rules | ✓ | ✓ | | |
+| Edit AI rules | ✓ | ✓ | | ✓ |
 | View subscription and usage | ✓ | ✓³ | | ✓ |
 | View audit log | ✓ | ✓ | | ✓ |
-| Transfer ownership | ✓ | | | |
-| Delete the tenant | ✓ | | | |
+| Transfer ownership | ✓ | | | ⁵ |
+| Delete the tenant | ✓ | | | ⁶ |
 
 ¹ An admin may remove an agent, never another admin or the owner.
 ² Metadata only: name, prefix, scopes, last used. Never the hash, never a reveal.
 ³ Read-only.
+⁴ **Stays owner-only, including in support mode.** This predates the read-write decision: `01 D-11` and ADR-008 already state credential creation, rotation and revocation are owner-only and never in support mode, independent of what support may otherwise do. The reasoning holds regardless of the general permission ceiling: a compromised or overzealous support session minting or rotating a live credential is a materially different risk than it editing a company profile, and the secret itself stays unreadable by anyone per D-11 either way. Not reopened by this decision.
+⁵ **Stays owner-only.** Ownership transfer is an identity operation, not a workspace action; D-13's carve-out for "acting as the member's own identity row" extends naturally to never re-assigning it either. Worth a one-line confirmation with Brian rather than assumed silently, since it was not explicitly named.
+⁶ **Stays owner-only.** Tenant deletion is irreversible-adjacent (D-10: soft delete and suspend, hard delete a separate deliberate operation with its own confirmation and runbook page); a support session performing it would bypass the deliberateness that decision was built to guarantee. Same status as ⁵: a reasonable extension, not an explicit instruction, and worth confirming.
 
 **A tenant always has exactly one owner.** Ownership transfers atomically: the new owner is promoted and the old owner demoted to admin in one transaction. There is no state in which a tenant has zero owners or two, and the last owner cannot be removed or demoted.
 
@@ -218,8 +223,8 @@ async function enterSupportMode(admin: PlatformAdmin, tenantId: string, reason?:
 ### The four properties
 
 1. **Bound by the same policies.** Not a convention. The `support` role appears in the policy predicates in `05 §2`, and the isolation suite includes support-mode cases for every table.
-2. **Read-only by default.** The brief says the exact permissions are confirmed at design lock. `09 §4` proposes the matrix; it needs Brian's signature before M4.
-3. **Doubly audited.** Every action writes to the tenant's own log, attributed to Brian acting in support mode, and to the platform log. The tenant can see, in their own audit view, every time the platform looked into their workspace. That transparency is a selling point rather than a liability, and it should be said in the marketing copy.
+2. **Read and write, confirmed 24 Aug 2026, per `01 D-13`.** Against this document's original read-only recommendation, Brian has asked for full access with full audit logging. The mechanism is `app.can_write_settings()` in `00_context.sql` admitting the `support` role alongside `owner` and `admin`, which opens company profile, team management, invitations, AI rules editing and the seam tables in one place, because they all gate through that one function. Three things this does not touch: the credential secret is still never readable by anyone (`01 D-11`), a support session still cannot extend its own timeout, and a support session still cannot act as the member's own identity row. See `05 role model` above for the complete, cell-by-cell table and `09 §4` for the matrix this generates isolation-suite cases from.
+3. **Doubly audited.** Every action writes to the tenant's own log, attributed to Brian acting in support mode, and to the platform log. The tenant can see, in their own audit view, every time the platform looked into their workspace. That transparency is a selling point rather than a liability, and it should be said in the marketing copy. This matters more now that support can write: an audit trail of what changed, not just that someone looked, is the entire justification for opening write access at all.
 4. **Times out.** Thirty minutes of inactivity, then the session expires and a fresh switch is required. An old context left open in a browser tab is exactly how an accidental cross-tenant action happens.
 
 ### The visual obligation
@@ -265,17 +270,15 @@ With an override permitting the import only under `src/modules/platform/**`. Eve
 
 ## 8. Suspension
 
-`01 §9` question 4 asks what suspension actually means and it needs an answer before M1, because it is a policy rather than a flag.
-
-Three candidate behaviours:
+**Confirmed 24 Aug 2026: read-only.** `01 §9` question 4 asked what suspension actually means, and Brian's answer matches the standing recommendation below. The two rejected alternatives are kept here as a record of what was considered, not as live options.
 
 | Model | Tenant users can | Cost |
 |---|---|---|
 | **Read-only** | Sign in, view everything, change nothing | One predicate on modify policies |
-| **Blocked** | Not sign in at all | Simpler, and it looks like an outage to the customer |
-| **Grace** | Full access for N days, then read-only, then blocked | Most humane, most state |
+| ~~Blocked~~ | ~~Not sign in at all~~ | Rejected: it looks like an outage to the customer |
+| ~~Grace~~ | ~~Full access for N days, then read-only, then blocked~~ | Rejected: most humane, also most state, and not what was chosen |
 
-**Recommendation: read-only, with a clear explanation in the interface.** A suspended customer who can still see their configuration and their team is a customer who can fix their billing problem. One who is locked out entirely opens a support ticket, and Brian is the support team.
+A suspended customer who can still see their configuration and their team is a customer who can fix their billing problem. One who is locked out entirely opens a support ticket, and Brian is the support team.
 
 Implementation is a predicate added to every modify policy:
 

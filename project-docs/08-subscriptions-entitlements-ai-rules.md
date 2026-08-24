@@ -20,7 +20,7 @@ Status transitions happen by platform action, not by payment event. Brian marks 
 
 ## 2. Plans and entitlements
 
-Entitlements are rows. Adding a Growth tier with 15 seats and 3 channels is inserting a plan and six entitlement rows, with no deployment.
+Entitlements are rows. Adding a fourth tier between Business and Custom is inserting a plan and eight entitlement rows, with no deployment.
 
 ### The entitlement keys
 
@@ -34,23 +34,34 @@ Six at launch. Each has a `kind` of `limit` or `feature`.
 | `kb_documents` | limit | Knowledge base documents | Phase 2, guard present now |
 | `ai_rules_versions` | limit | Retained versions per tenant | Publish |
 | `audit_retention_days` | limit | Days of audit history visible | Audit query |
+| `conversations_monthly` | limit | Conversations in the current billing period | Phase 2, guard present now |
+| `support_sla_hours` | limit | Not actually consumed by anything in Phase 1. See below | Never called. No handler invokes `checkEntitlement('support_sla_hours', ...)` |
 
-Three of those enforce Phase 1 behaviour and three are seams. The guards exist for all six, which means Phase 2 adds an adapter and not an enforcement layer.
+**Added 24 Aug 2026,** confirming Brian's pricing page. Three of the original six enforce Phase 1 behaviour and three are seams; the two new keys follow the same seam pattern as `channels` and `kb_documents`, since there is no inbox yet to count a conversation against.
+
+`support_sla_hours` is `kind: 'limit'` with the hour count in `limitValue`, not `kind: 'feature'`, because `plan_entitlements.featureEnabled` is a boolean and has nowhere to hold a number: the schema in `05 §5` offers exactly two value slots, an integer limit and a boolean flag, and an SLA hour count needs the former. What makes it display-only is not its `kind`, it is that nothing calls `checkEntitlement` against this key: there is no usage counter for it, no handler decrements it, and no Phase 1 action could breach an SLA in the first place. The `EntitlementRow` component renders it as a plain value, `Support response within {hours} hours` per `10 §6`, rather than a `LimitBar`, by checking the key rather than the `kind`. If a future entitlement genuinely needs a numeric feature value with enforcement, that is a schema change, not a convention, and should not be shortcut through this key as precedent.
 
 **`seats` counts pending invitations.** Otherwise a tenant on five seats sends fifty invitations and exceeds the limit the moment they are accepted, at which point the only remedy is removing people who have already joined.
 
 ### Plan shape
 
-A starting proposal for Brian's week-four confirmation, marked clearly as a proposal:
+**Confirmed 24 Aug 2026,** ahead of the week-four schedule, from Brian's pricing page. Replaces the four-tier proposal below it in this document's history.
 
-| | Free | Starter | Growth | Scale |
-|---|---|---|---|---|
-| Seats | 2 | 5 | 15 | Unlimited |
-| Channels | 1 | 2 | 5 | Unlimited |
-| API keys | 1 | 3 | 10 | Unlimited |
-| Knowledge base documents | 10 | 100 | 1,000 | Unlimited |
-| AI rules versions retained | 3 | 10 | 50 | Unlimited |
-| Audit retention | 7 days | 30 days | 90 days | 365 days |
+| | Pro | Business | Custom |
+|---|---|---|---|
+| Price | KES 3,400 / month | KES 17,000 / month | Tailored |
+| Seats | 1 | 10 | Unlimited |
+| Conversations, monthly | 1,000 | 6,000 | Unlimited |
+| Support SLA | 24 hours | 8 hours | 2 hours |
+| Channels | 1 | 5 | Unlimited |
+| API keys | 2 | 10 | Unlimited |
+| Knowledge base documents | 100 | 1,000 | Unlimited |
+| AI rules versions retained | 10 | 50 | Unlimited |
+| Audit retention | 30 days | 90 days | 365 days |
+
+**No free plan.** The prior four-tier proposal included one; the pricing page does not, and `§7` below already used `trialing` rather than a free tier as the entry state, so this removes a plan without touching the lifecycle.
+
+Seats and the two headline prices come directly from the pricing page. Channels, API keys, knowledge base documents, AI rules versions and audit retention are **carried over from the equivalent rung of the prior proposal and are not on the pricing page**; they are marked here as still-proposed and worth a one-line confirmation from Brian rather than treated as agreed. `Custom` is priced by Ian directly and its non-seat limits are a starting point for that conversation, not a commitment.
 
 Unlimited is `null` in `limitValue`, rendered as `∞` through `MathExpr` per `03 §9`, never as a full progress bar.
 
@@ -92,6 +103,8 @@ export async function checkEntitlement(
 
 The contract test in `07 §12` drives the same scenario through both doors and asserts the same outcome. That test is the evidence, and it is why this can be presented to Brian as settled rather than as an intention.
 
+**Amended 24 Aug 2026, per `04` ADR-012 and its ADR-005 amendment.** The service door now runs in FastAPI, not in the same Next.js runtime as the session door, so "both paths call `checkEntitlement`" is no longer literally one shared function. It is one specification, implemented once per runtime against the same tables and the same Redis snapshot, with sameness enforced by the cross-language conformance suite rather than by a shared call site. The rule above is unchanged as a requirement; what changed is how it is proven.
+
 ### Resolution order
 
 For a given tenant and key:
@@ -126,7 +139,7 @@ Both are versioned, both are audited, both are readable through the service door
 
 ### Precedence
 
-`01 D-08` recommends the layered model and it needs Brian's confirmation before M0 closes.
+**Confirmed 24 Aug 2026: layered, master wins on conflict.** See `01 D-08` for the full reading of Brian's answer, since it combines two of the candidate models in the table there. What follows was written as the layered recommendation and needs no change beyond the confirmation: `lockedFields` now defaults to locked rather than open, so a field is master-authoritative unless explicitly marked overridable.
 
 ```
 compiled[field] =
@@ -254,7 +267,9 @@ Caching a credential lookup keyed on a hash of the presented key is safe because
 
 Every transition in Phase 1 is a platform action with an audit entry naming who made it and why. No automation, per the scope boundary.
 
-`past_due` applies the read-only suspension behaviour recommended in `06 §8` rather than blocking sign-in, so a customer can see and fix their situation.
+**24 Aug 2026:** `trialing` is confirmed as the sole entry state; there is no free plan for a subscription to sit in indefinitely, matching `§2`'s three-tier catalogue. A trial that is not converted moves to `expired` rather than lingering, per the diagram above.
+
+`past_due` applies the read-only suspension behaviour **confirmed** in `06 §8` rather than blocking sign-in, so a customer can see and fix their situation.
 
 Cancellation at period end is a flag, not an immediate state change. The tenant keeps access until `currentPeriodEnd`, and the interface shows the date.
 

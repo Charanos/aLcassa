@@ -53,13 +53,13 @@ export const masterAiRuleVersions = pgTable(
     status: rulesStatus('status').notNull().default('draft'),
     content: jsonb('content').$type<RulesDocument>().notNull(),
     /**
-     * 01 D-08. The layered precedence model: master rules carry a per-field
-     * lock, so a tenant can change what is permitted and see plainly what is
-     * not. If Brian picks a simpler model, this column is unused and costs
-     * nothing; the schema does not have to be migrated either way.
-     *
-     * ⚠ BLOCKING. The precedence answer is due in week one and it is on the
-     * critical path. 01 §8 · 11 §3.
+     * 01 D-08. CONFIRMED 24 Aug 2026: layered, master wins on conflict.
+     * Master rules carry a per-field lock, so a tenant can change what is
+     * permitted and see plainly what is not. Default semantics are
+     * locked-unless-opened rather than open-unless-locked: a field is
+     * master-authoritative unless explicitly marked overridable. No
+     * migration was needed either way; this column shipped ahead of the
+     * confirmation and its meaning simply firmed up. 01 §8 · 11 §3.
      */
     lockedFields: jsonb('locked_fields').$type<string[]>().notNull().default([]),
     changeNote: text('change_note'),

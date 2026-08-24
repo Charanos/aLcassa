@@ -61,6 +61,16 @@ create policy subscription_overrides_select on subscription_overrides
 --
 -- `with check` is present for the same reason it is present everywhere: without
 -- it, an update could rewrite tenant_id and move a counter across the boundary.
+--
+-- 24 Aug 2026, per 01 D-13: `support` is added to the allowed roles here.
+-- Support can now invite a member (02_identity.sql, invitations_modify, via
+-- can_write_settings()), which consumes the `seats` counter. Without this
+-- change, a support-mode invitation would write successfully and then fail to
+-- increment its counter, producing exactly the silent drift 05 I-13's nightly
+-- reconciliation job exists to catch, rather than something caught at the
+-- point of write. This is not a general permission grant to support over
+-- counters; it exists because the actions that consume them are now
+-- support-permitted, and the counter write must follow the action it counts.
 
 alter table usage_counters enable row level security;
 alter table usage_counters force row level security;
@@ -72,7 +82,6 @@ create policy usage_counters_modify on usage_counters
   for all
   using (
     tenant_id = app.current_tenant_id()
-    and app.current_role() in ('owner', 'admin', 'agent')
-    and not app.is_support_session()
+    and app.current_role() in ('owner', 'admin', 'agent', 'support')
   )
   with check (tenant_id = app.current_tenant_id());

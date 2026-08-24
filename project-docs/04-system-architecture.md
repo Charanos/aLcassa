@@ -1,57 +1,65 @@
 # 04 · System Architecture
 
-**Shape:** one Next.js application on Vercel, one Supabase project, one Upstash Redis instance. No separate services in Phase 1.
+**Shape:** one Next.js application on Vercel, one FastAPI service on its own host, one Supabase project, one Upstash Redis instance. Two services in Phase 1, not one, per `01 D-14` and ADR-012 below.
 
 ---
 
 ## 1. Container view
 
+**Revised 24 Aug 2026, per `01 D-14` and ADR-012.** FastAPI moves from the CLIENTS box into its own service, owning the door it was always contracted for. AGNO becomes its client rather than Next.js's.
+
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
 │  CLIENTS                                                                 │
 │  Browser (tenant users)   ·   Browser (platform owner)                   │
-│  FastAPI + AGNO (machine, Phase 2 consumer, reads AI rules now)          │
-└──────────────────┬───────────────────────────────────────────────────────┘
-                   │ HTTPS
-┌──────────────────▼───────────────────────────────────────────────────────┐
-│  VERCEL EDGE                                                             │
-│  WAF · rate limiting · middleware: session resolve → tenant resolve       │
-└──────────────────┬───────────────────────────────────────────────────────┘
-                   │
-┌──────────────────▼───────────────────────────────────────────────────────┐
-│  NEXT.JS 15 APPLICATION                                                  │
-│                                                                          │
-│  ┌────────────────────────────────────────────────────────────────────┐  │
-│  │ (marketing) · (access) · (tenant)/app · (platform)/platform        │  │
-│  └────────────────────────────────────────────────────────────────────┘  │
-│  ┌────────────────────────────────────────────────────────────────────┐  │
-│  │ API LAYER — one pipeline, both doors                               │  │
-│  │  auth guard → tenant resolver → entitlement guard → handler        │  │
-│  │             → audit writer                                          │  │
-│  └────────────────────────────────────────────────────────────────────┘  │
-│  ┌────────────────────────────────────────────────────────────────────┐  │
-│  │ MODULES                                                            │  │
-│  │  tenancy   identity   membership   subscriptions   entitlements    │  │
-│  │  credentials   airules   audit   platform   support   health       │  │
-│  │  seams(kb, customer-records, channels)                             │  │
-│  └────────────────────────────────────────────────────────────────────┘  │
-│  ┌────────────────────────────────────────────────────────────────────┐  │
-│  │ Shared: db client · rls context · logger · result types · errors   │  │
-│  └────────────────────────────────────────────────────────────────────┘  │
-└────┬──────────────────────────┬──────────────────────────┬───────────────┘
-     │                          │                          │
-     ▼                          ▼                          ▼
+│  AGNO (machine, Phase 2 consumer, reads AI rules through FastAPI)        │
+└─────────┬──────────────────────────────────────────────┬─────────────────┘
+          │ HTTPS, session cookie                         │ HTTPS, API key
+┌─────────▼──────────────────────────────────────────────┐│
+│  VERCEL EDGE                                            ││
+│  WAF · rate limiting · middleware: session → tenant      ││
+└─────────┬────────────────────────────────────────────────┘│
+          │                                                 │
+┌─────────▼───────────────────────────────────┐   ┌─────────▼───────────────┐
+│  NEXT.JS 15 APPLICATION                      │   │  FASTAPI SERVICE        │
+│                                               │   │  (Andishi-built,        │
+│  ┌─────────────────────────────────────────┐ │   │   Phase 1, own host)    │
+│  │ (marketing)·(access)·(tenant)/app·       │ │   │                        │
+│  │ (platform)/platform                      │ │   │  /service/v1/*         │
+│  └─────────────────────────────────────────┘ │   │  auth guard (key)      │
+│  ┌─────────────────────────────────────────┐ │   │  → tenant resolver     │
+│  │ API LAYER — session door, /api/v1/*      │ │   │  → entitlement guard   │
+│  │  auth guard → tenant resolver →          │ │   │  → handler             │
+│  │  entitlement guard → handler →           │ │   │  → audit writer        │
+│  │  audit writer                            │ │   │                        │
+│  └─────────────────────────────────────────┘ │   │  Same five entitlement │
+│  ┌─────────────────────────────────────────┐ │   │  keys, same RLS        │
+│  │ MODULES                                  │ │   │  binding contract as   │
+│  │  tenancy identity membership             │ │   │  the session door,     │
+│  │  subscriptions entitlements credentials  │ │   │  proven identical by   │
+│  │  airules audit platform support health   │ │   │  the conformance suite │
+│  │  seams(kb, customer-records, channels)   │ │   │  in `07 §12`.          │
+│  └─────────────────────────────────────────┘ │   │                        │
+│  ┌─────────────────────────────────────────┐ │   └───────────┬────────────┘
+│  │ Shared: db client·rls context·logger·    │ │               │
+│  │ result types · errors                    │ │               │
+│  └─────────────────────────────────────────┘ │               │
+└────┬──────────────────────┬───────────────────┘               │
+     │                      │                                   │
+     ▼                      ▼                                   ▼
 ┌─────────────────┐   ┌──────────────────┐   ┌──────────────────────────┐
 │ SUPABASE        │   │ UPSTASH REDIS    │   │ OBSERVABILITY            │
-│ Postgres + RLS  │   │ 4 scoped uses    │   │ Sentry · Axiom           │
+│ Postgres + RLS  │◀──┤ 4 scoped uses    │──▶│ Sentry · Axiom           │
 │ Auth · Storage  │   │ never truth      │   │ Better Stack · status    │
-│ Vault · pgvector│   └──────────────────┘   └──────────────────────────┘
-└─────────────────┘
+│ Vault · pgvector│   └──────────────────┘   │ (both services report in)│
+└─────────────────┘                          └──────────────────────────┘
                     ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
                       PHASE 2 SEAM · channel adapter interface
                     │  WhatsApp   Instagram   Messenger   Widget    │
                      ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
 ```
+
+Both services share one Postgres, reached through the same RLS contract (ADR-004 below), and one Redis, scoped to the same four uses (ADR-006). Nothing about the database or cache design changes; what changes is that a second runtime now sits in front of one door of it.
 
 ---
 
@@ -75,6 +83,8 @@ Every request through both doors passes the same five stages, in the same order,
 ```
 
 Stages 1 and 3 legitimately differ by door. **Stages 2, 4 and 6 are identical implementations**, which is the substantive answer to the open question raised in the brief. `01 D-04`.
+
+**Amended 24 Aug 2026, per `01 D-14`.** "Implemented once" held while one runtime served both doors. With FastAPI now owning the service door, stages 2, 4 and 6 are implemented once per runtime rather than shared by function call, and "identical" is enforced by a cross-language conformance suite instead of by construction. See ADR-005 amendment and ADR-012 below, and the test in `07 §12`.
 
 ---
 
@@ -111,7 +121,7 @@ Browser        access route     tenancy      identity     membership    audit
    │                ├─create tenant (status=provisioning)─▶  │            │
    │                ├─create auth user────────────────────▶  │            │
    │                ├─create membership (role=owner)──────────────────▶   │
-   │                ├─create default subscription (free tier)             │
+   │                ├─create default subscription (trialing, no free plan) │
    │                ├─create tenant_settings row                          │
    │                ├─create ai_rules row (empty)                         │
    │                ├─set tenant status=active                            │
@@ -146,8 +156,10 @@ The scoped session is a real session row with a `support_context` payload. RLS r
 
 ### 4.3 · AI rules read, the machine path
 
+**Relabelled 24 Aug 2026.** FastAPI is now the service door itself, not a caller of it. AGNO calls FastAPI; FastAPI calls Redis and Postgres directly, in its own runtime.
+
 ```
-FastAPI/AGNO         service door        redis          postgres
+AGNO            FastAPI (service door)     redis          postgres
      │                    │                │                │
      ├─GET /service/v1/ai-rules            │                │
      │  If-None-Match: "v42-t7"            │                │
@@ -163,6 +175,8 @@ FastAPI/AGNO         service door        redis          postgres
 ```
 
 Cache invalidation is explicit on write, not left to expiry. The 300-second TTL is the worst case if an invalidation is somehow missed, and it is stated in the API documentation as the contract. Normal case is under five seconds and it is measured rather than asserted. `08 §5`.
+
+The publish still happens on the Next.js side, inside the session-door transaction in `08 §5`. It is the read that has moved runtime, not the write.
 
 ---
 
@@ -215,6 +229,8 @@ The important detail: **Drizzle connects as an RLS-bound role, not as the servic
 
 **Status:** accepted. Closes the brief's open question. See `01 D-04` and `08 §3`.
 
+**Amended 24 Aug 2026, per ADR-012.** "One guard" no longer means one function shared across a single Next.js runtime; it means one specification, `checkEntitlement(tenant, key, delta)`, implemented once in Next.js for the session door and once in FastAPI for the service door, against the same `plan_entitlements` and `usage_counters` tables and the same Redis snapshot format. Sameness is no longer structural, it is tested: the M3 gate still drives one scenario through both doors and asserts an identical decision, per `07 §12`, but that test is now a cross-language conformance suite rather than proof by shared code path. This is a weaker guarantee than one function in one runtime, honestly stated, and it is why the conformance suite is a permanent CI job rather than a one-time check.
+
 ### ADR-006 · Upstash Redis, scoped to four uses, never a source of truth
 
 **Status:** accepted
@@ -264,6 +280,32 @@ Three seams. Each gets a table with full RLS, a typed interface, and a documente
 | Channel adapters | `channel_connection` table, the adapter interface, the internal event shape, retry and idempotency rules | Every adapter, every webhook receiver |
 
 The channel adapter contract is written and reviewed **at M0, before the schema is locked**, because that is the cheapest moment to discover a wrong assumption. It is a document in `12`, not code.
+
+### ADR-012 · FastAPI owns the service door in Phase 1
+
+**Status:** accepted, 24 Aug 2026. See `01 D-14`.
+
+**Context.** Brian's original specification, stated before Phase 1 began, was FastAPI as the backend with all data access routed through it. The approved Project Brief Rev 3.1 and every document produced against it instead named Next.js and Supabase as the stack, with FastAPI placed as a consumer of this platform's service door, consistent with `01 §3 A4`'s description of it as "the machine" and `02 §7`'s namespace table. Both positions are real: the brief that was signed says one thing, and Brian's recollection of what he asked for says another. This ADR is the resolution, not an attempt to decide who was right.
+
+**Options.**
+
+| | A · FastAPI stays a consumer | B · FastAPI as edge proxy only | C · FastAPI owns the service door | D · Full data-plane migration |
+|---|---|---|---|---|
+| What moves | Nothing | FastAPI forwards to Next.js, adds no logic | FastAPI implements auth, tenant resolution, entitlement guard and audit for `/service/v1/*` | Every route, including the dashboard, moves behind FastAPI; Next.js becomes presentation only |
+| Matches the signed brief | Yes | Partially | Partially, in spirit | No |
+| Matches what Brian says he asked for | No | Barely | Partially | Yes |
+| Engineering cost | None | Small, and it duplicates a hop for no behaviour | Medium: a second implementation of the RLS binding, the entitlement guard and the audit writer, proven identical by a conformance suite | Large: the whole request pipeline, in a second language, including the session-cookie doors |
+| Risk to the nine-week fixed fee | None | Low | Contained, if scoped to the three existing service-door endpoints | High. This is the re-baseline in option D of the client-facing decision |
+
+**Decision: C.** FastAPI becomes a real, Andishi-built service for Phase 1, implementing exactly the three endpoints already specified in `07 §8`: `GET /service/v1/ai-rules`, `GET /service/v1/tenant`, `GET /service/v1/health`. It authenticates the API key, resolves the tenant from the credential, calls the same entitlement guard specification as the session door, reads and writes the same Redis keys under the same TTLs (`08 §6`), and writes to the same `audit_log` and `platform_audit_log` tables Postgres already defines. The session-door dashboard, `/api/v1/*` and `/api/platform/v1/*`, stays on Next.js.
+
+**Why not A.** It is the cheapest answer and it is the wrong one here: it treats a documented disagreement with the client as if restating the existing design settles it. It does not; it just repeats the position he is objecting to.
+
+**Why not D.** A full data-plane migration inside the current fee and timeline would mean cutting the isolation suite, the auth work, or the documentation set to make room for reimplementing the entire request pipeline in a second language. Given `01 D-01`'s decision that isolation is not to be diluted, and `12`'s treatment of documentation as a contracted deliverable, neither is available to cut. Option D is real and it may be exactly what Brian wants; it is priced separately rather than absorbed silently.
+
+**The honest cost of C, stated plainly.** Two runtimes now share one Postgres and one Redis. The RLS session-binding mechanism in ADR-004 must be reproduced correctly in Python, not merely called; a mistake there is the single worst mistake available in this codebase, per ADR-004's own wording, and it is now possible in two languages instead of one. The thirty-minute onboarding test in `12 §5` now spans two runtimes and two dependency ecosystems, which is new risk to a contractual gate and is called out in `12 §5` rather than discovered at handover. Deployment, environment configuration and CI both roughly double for this one door.
+
+**What C does not resolve.** Whether the dashboard itself should eventually sit behind FastAPI, which is Brian's request read literally, stays open as a scoped and separately priced change note rather than folded into Phase 1's fixed fee.
 
 ---
 
@@ -338,12 +380,14 @@ Any cross-tenant read detected by the isolation suite in CI, which should never 
 
 | Environment | Database | Purpose |
 |---|---|---|
-| Local | Supabase local or a branch | Development, seeded with three tenants |
-| Preview | Supabase branch per PR | Every PR gets a URL and a database |
+| Local | Supabase local or a branch | Development, seeded with three tenants. FastAPI runs alongside Next.js, both pointed at the same local database |
+| Preview | Supabase branch per PR | Every PR gets a URL and a database. The FastAPI service deploys as its own preview per PR |
 | Staging | Dedicated project | Boundary frame shows `STAGING` per `03 §8` |
 | Production | Primary | PITR, restricted access |
 
-CI on every pull request: typecheck, lint including the module boundary and service-role import rules, unit tests, **the isolation suite**, contract tests against the OpenAPI specification, Playwright on the critical paths, and an axe accessibility scan.
+**Added 24 Aug 2026, per ADR-012.** The FastAPI service is a second deployable with its own environment variables (`DATABASE_URL`, the Redis connection, the argon2id parameters) and its own release, versioned independently of the Next.js application. A migration still runs once, against the shared database, before either service's deploy proceeds.
+
+CI on every pull request: typecheck, lint including the module boundary and service-role import rules, unit tests, **the isolation suite**, contract tests against the OpenAPI specification, Playwright on the critical paths, an axe accessibility scan, and **the cross-language conformance suite** driving the same entitlement scenario through both the session door and the FastAPI service door.
 
 **A tenant-scoped table without an RLS policy fails the build.** That check is a script that reads the schema and the policy catalogue and compares them, and it runs before the tests.
 
@@ -358,15 +402,15 @@ From the definition of done plus what it implies.
 | Surface | Budget |
 |---|---|
 | Tenant dashboard and settings, p95, 50 concurrent sessions | **under 400ms** (contractual) |
-| Service door AI rules read, 304 path, p95 | under 60ms |
-| Service door AI rules read, cache hit, p95 | under 120ms |
-| Service door AI rules read, cold, p95 | under 350ms |
+| Service door (FastAPI) AI rules read, 304 path, p95 | under 60ms |
+| Service door (FastAPI) AI rules read, cache hit, p95 | under 120ms |
+| Service door (FastAPI) AI rules read, cold, p95 | under 350ms |
 | Console tenant grid, 500 rows | under 1.2s |
 | Command palette, open to results | under 120ms |
-| AI rules edit to visible through the API | **under 5s** (contractual), measured |
+| AI rules edit (Next.js) to visible through the API (FastAPI) | **under 5s** (contractual), measured |
 | Marketing page LCP | under 2.0s |
 
-The 400ms figure is a contractual gate and the load pass at M6 verifies it. The two five-second and 400ms numbers are the only performance claims Brian is buying; everything else is our own standard.
+The 400ms figure is a contractual gate and the load pass at M6 verifies it. The two five-second and 400ms numbers are the only performance claims Brian is buying; everything else is our own standard. **24 Aug 2026:** the service-door budgets above are unchanged in target now that FastAPI implements them; moving the door to a purpose-built service is expected to help these numbers, not threaten them, since the alternative was the same work done inside a serverless Next.js function.
 
 ---
 
@@ -382,3 +426,6 @@ The 400ms figure is a contractual gate and the load pass at M6 verifies it. The 
 | Support session expires mid-action | The action fails with a specific code, the frame shows expiry, one click re-switches |
 | Migration fails on deploy | Deploy halts, previous version continues serving |
 | Isolation suite fails in CI | Merge blocked. No override, no exception path |
+| FastAPI service unavailable | Service door returns 503. AGNO's fallback behaviour on a 503 is Phase 2's concern, but Phase 1 makes the failure honest rather than a hang: no partial reads, no silent fallback to a cached value past its TTL |
+| The two runtimes disagree on an entitlement decision | Should never happen if the conformance suite is green. If it does in production, treat it as a severity-1 incident, not a rounding difference: it means the two implementations of `checkEntitlement` have drifted |
+| Postgres connection budget shared across two services | Each service's pool is sized down accordingly at deploy time. Monitored under the existing "Database connections above 80%" alert in `04 §8`, now watching both services' combined usage |

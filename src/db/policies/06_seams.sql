@@ -49,16 +49,24 @@ create policy kb_chunks_modify on kb_chunks
 -- 09 §4 proposes that THE SUPPORT ROLE CANNOT READ THESE AT ALL, and this
 -- policy implements that proposal. Every other surface a support session
 -- touches is a tenant's own business configuration; this one is other people's
--- information, and building it read-only-by-default alongside everything else
--- would quietly make every support session a potential privacy event.
+-- information, and building it accessible alongside everything else that
+-- opened on 24 Aug 2026 would quietly make every support session a potential
+-- privacy event.
 --
 -- If a genuine support case needs it, the answer is a separate explicitly
 -- consented elevated mode with its own confirmation, its own audit action and
 -- its own notification to the tenant. That is a Phase 2 conversation and it
 -- should be quoted rather than slipped in.
 --
--- ⚠ This is one of the four items blocking at M0. The support role matrix needs
--- Brian's signature, because it generates the isolation suite's support cases.
+-- ⚠ STILL OPEN, 24 Aug 2026. `01 D-13` confirmed support mode is read and
+-- write generally, but Brian's answer did not name this table specifically,
+-- and 09 §4 argues it should be the one exception. Both `select` and `modify`
+-- below stay explicitly blocked to support regardless of `can_write_settings()`
+-- admitting the support role elsewhere, so this table does not silently open
+-- when the general gate does. The `modify` policy's own explicit block is the
+-- one that matters here: without it, this table would have opened to support
+-- writes the moment `can_write_settings()` did, since it calls that function
+-- too. Do not remove either block without Brian's ruling landing first.
 
 alter table customer_records enable row level security;
 alter table customer_records force row level security;
@@ -75,6 +83,8 @@ create policy customer_records_modify on customer_records
   using (
     tenant_id = app.current_tenant_id()
     and app.can_write_settings()
+    and not app.is_support_session()      -- ← explicit override. can_write_settings()
+                                           --   now admits support; this table does not.
   )
   with check (tenant_id = app.current_tenant_id());
 

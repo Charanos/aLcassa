@@ -156,10 +156,12 @@ export function TrackerDashboardHero({
           </div>
           <div className="mt-3 flex items-baseline justify-between">
             <span className="t-display text-3xl text-[var(--ochre-ink)]">{blockingCount}</span>
-            <span className="t-caption text-[var(--ochre-ink)]">Week 1 Decision Gate</span>
+            <span className="t-caption text-[var(--ochre-ink)]">M4a Decision Gate</span>
           </div>
           <p className="t-caption mt-2 text-[var(--ink-secondary)]">
-            Embedding model & master rule precedence require client signoff.
+            {blockingCount > 0
+              ? 'Whether full support-mode access extends to customer records requires client signoff.'
+              : 'No blocking decisions outstanding.'}
           </p>
         </div>
 

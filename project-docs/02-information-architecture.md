@@ -145,14 +145,14 @@ Full behaviour in `09 §3`. Visual treatment in `03 §8`, where it is the signat
 
 Two doors, deliberately different paths so a misrouted credential fails loudly rather than quietly working.
 
-| Namespace | Auth | Consumer |
-|---|---|---|
-| `/api/v1/*` | Session cookie | The browser, both applications |
-| `/api/service/v1/*` | `Authorization: Bearer` API key with scopes | FastAPI, AGNO, any future integration |
-| `/api/platform/v1/*` | Platform session | Console operations only |
-| `/api/webhooks/*` | Signature verification | Phase 2 seam. Route exists, handlers do not |
+| Namespace | Auth | Consumer | Runtime |
+|---|---|---|---|
+| `/api/v1/*` | Session cookie | The browser, both applications | Next.js |
+| `/api/service/v1/*` | `Authorization: Bearer` API key with scopes | AGNO, any future integration | **FastAPI**, confirmed 24 Aug 2026. See `01 D-14` and `04` ADR-012 |
+| `/api/platform/v1/*` | Platform session | Console operations only | Next.js |
+| `/api/webhooks/*` | Signature verification | Phase 2 seam. Route exists, handlers do not | Next.js |
 
-Full contract in `07`.
+**24 Aug 2026:** `/api/service/v1/*` moved from being a Next.js route consumed by FastAPI to being implemented by FastAPI itself, per Brian's original specification for that door. The path, auth scheme and contract are unchanged; only the runtime column is new. Full contract in `07`.
 
 ---
 

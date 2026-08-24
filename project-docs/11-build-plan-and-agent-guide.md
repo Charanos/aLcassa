@@ -13,11 +13,17 @@ Nine working weeks, two developers, mapped exactly to the brief so a gate here i
 ERD, RLS policy map, API contract, role matrix, architecture decision records. **Plus three things the brief lists as blocking and one I am adding:**
 
 - The channel adapter contract and internal event shape, reviewed and signed. `07 §11`
-- The AI rules precedence model, confirmed. `01 D-08`
-- The embedding model Phase 2 will use, confirmed.
-- **The support role matrix, signed.** `09 §4`. The brief defers this to design lock without naming it as an artefact, and it needs to be a table with a signature because it generates test cases.
+- ~~The AI rules precedence model, confirmed.~~ **Done, 24 Aug 2026: layered, master wins on conflict.** `01 D-08`
+- ~~The embedding model Phase 2 will use, confirmed.~~ **Done, 24 Aug 2026: OpenAI `text-embedding-3-small`.** `05 §8`
+- **The support role matrix, signed.** `09 §4`. **Done, 24 Aug 2026, though signed differently than proposed: read and write, not read-only, per `01 D-13`.** The brief deferred this to design lock without naming it as an artefact, and it needed to be a table with a signature because it generates test cases; it still does, and the isolation suite's support-mode cases need regenerating against it.
 
-**Gate:** Brian approves before any code.
+**Also closed at M0, not originally listed here:**
+
+- **The plan tiers**, `08 §2`, confirmed 24 Aug 2026, three weeks ahead of the week-4 schedule this document originally set for them.
+- **The brand palette**, approved 24 Aug 2026. No token change; confirms the resolution already recorded in `15 §1`.
+- **The FastAPI boundary**, `01 D-14` and `04` ADR-012, resolving a conflict between what Brian says he specified before Phase 1 and what the signed brief and this document set describe. Not one of the brief's original blocking items; raised by Brian on 24 Aug 2026 and closed the same day with a scoped answer rather than a full re-baseline. See `§1`'s new M3/M4a entry below.
+
+**Gate:** Brian approves before any code. **All items above are now closed**; the channel adapter contract is the only M0 artefact from the original list without a dated confirmation in this update, and it should be chased alongside written approval of the brief itself.
 
 ### M1 · Tenancy core · weeks 2 to 3
 
@@ -80,6 +86,8 @@ Week  1    2    3    4    5    6    7    8    9
 
 Dev A owns everything that touches isolation and the database. Dev B owns everything that touches interface and identity. The split is deliberate: isolation is the risk, and one person holding it end to end is more reliable than two people each half-knowing it.
 
+**Flagged 24 Aug 2026, per `01 D-14`.** "Dev A: service door" was written when the service door was a Next.js route inside the one codebase both developers already work in. It is now a second service in a second language. Whether Dev A absorbs FastAPI within the existing nine-week, two-developer allocation, or this is genuinely new scope needing its own estimate, is a staffing question for Dennis and Ian, not a decision made silently by leaving this line unchanged. Raised in the reply to Brian rather than assumed either way.
+
 Documentation is written alongside the code it describes, not in week 9. `12` explains why that is not optional here.
 
 ---
@@ -89,14 +97,16 @@ Documentation is written alongside the code it describes, not in week 9. `12` ex
 ```
 M0 adapter contract ──▶ schema lock ──▶ M1 ──▶ everything else
                             │
-      Brian: embedding model ┤
-      Brian: rules precedence┘
-      Brian: support matrix ─┘
+   Brian: embedding model ✓┤
+   Brian: rules precedence✓┘
+   Brian: support matrix ✓─┘
 ```
 
-**Three of the four critical-path inputs are Brian's, and all three are due in week one.** Chase them the day the brief is signed. A schema locked without the rules precedence answer is a schema that gets migrated in week seven.
+**24 Aug 2026: all three of Brian's original critical-path inputs are answered**, ahead of their week-one deadline relative to this document's issue date. A schema locked without the rules precedence answer would have been a schema migrated in week seven; that risk is now closed.
 
-The fourth, plan tiers, is due week four and blocks M3 only.
+The fourth, plan tiers, was due week four and is also answered, again ahead of schedule.
+
+**A fifth input joined the critical path on 24 Aug 2026 and is not yet closed: the FastAPI staffing and effort question above.** Unlike the original four, it does not block schema lock, but it does block M4a, and M4a is where the service-door demonstration and the five-second gate both live.
 
 ---
 

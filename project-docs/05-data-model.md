@@ -230,7 +230,7 @@ The partial unique index on pending invitations is worth noting: it prevents two
 ```ts
 export const plans = pgTable('plans', {
   id: pk(),
-  code: text('code').notNull().unique(),         // free | starter | growth | scale
+  code: text('code').notNull().unique(),         // pro | business | custom. Confirmed 24 Aug 2026, no free plan
   name: text('name').notNull(),
   description: text('description'),
   priceAmount: bigint('price_amount', { mode: 'number' }).notNull().default(0),  // minor units
@@ -249,6 +249,7 @@ export const planEntitlements = pgTable('plan_entitlements', {
   id: pk(),
   planId: uuid('plan_id').notNull().references(() => plans.id, { onDelete: 'cascade' }),
   key: text('key').notNull(),                    // seats | channels | ai_rules_versions | api_keys
+                                                   // | conversations_monthly | support_sla_hours (added 24 Aug 2026)
   kind: entitlementKind('kind').notNull(),
   limitValue: integer('limit_value'),             // null means unlimited
   featureEnabled: boolean('feature_enabled'),
@@ -424,7 +425,7 @@ export type RulesDocument = {
 
 Version rows are append-only. Publishing moves the `currentVersionId` pointer, so a rollback is a pointer move rather than a data restore, and every historical version stays readable in the audit trail.
 
-`lockedFields` implements the layered precedence model recommended in `01 D-08`. It ships when Brian confirms; if he picks a simpler model, the column is unused and costs nothing.
+`lockedFields` implements the layered precedence model **confirmed** in `01 D-08` on 24 Aug 2026: master wins on conflict. Its default semantics are locked-unless-opened rather than open-unless-locked, so a field is master-authoritative unless explicitly marked overridable.
 
 ---
 
@@ -458,7 +459,8 @@ export const kbChunks = pgTable('kb_chunks', {
   ...timestamps,
 }, (t) => ({
   docIdx: index('kb_chunks_doc_idx').on(t.documentId, t.chunkIndex),
-  // HNSW index added in Phase 2 when the dimension is confirmed
+  // HNSW index: dimension confirmed 24 Aug 2026 (1536, text-embedding-3-small).
+  // Index itself still lands in Phase 2 per the original schedule; nothing here blocks it now.
 }));
 
 // SEAM · customer records. PERSONAL DATA. See 01 D-09 and 06 §9.
@@ -500,7 +502,7 @@ export const channelConnections = pgTable('channel_connections', {
 
 `kbChunks.tenantId` is denormalised rather than joined through the document. That is deliberate: a policy that has to join to check isolation is a policy that is slower and easier to get wrong. Denormalising the tenant reference onto every tenant-scoped table, without exception, is a rule in this codebase.
 
-`embeddingModel` is the column that makes a model change survivable. `01 §8` lists confirming the model as blocking for week one, and this column is why it matters less if the answer changes later.
+`embeddingModel` is the column that makes a model change survivable. `01 §8` listed confirming the model as blocking for week one; **confirmed 24 Aug 2026: OpenAI `text-embedding-3-small`**, which is the 1536-dimension model this column's sibling, `embedding`, was already sized for. The HNSW index deferred above with "added in Phase 2 when the dimension is confirmed" can now be specified against a known dimension; whether it lands in Phase 1 or Phase 2 is a scheduling question for `11`, not a schema one, since the column is unchanged either way.
 
 ---
 
@@ -603,10 +605,10 @@ Invariant I-02 is the product. If it fails once, nothing else in this document m
 
 | Set | Volume | Notes |
 |---|---|---|
-| Plans | 3 or 4 | Free, Starter, Growth, Scale. Limits confirmed by Brian at week 4 |
-| Plan entitlements | ~6 keys per plan | seats, channels, api_keys, kb_documents, ai_rules_versions, customer_records |
+| Plans | 3 | Pro, Business, Custom. Confirmed by Brian 24 Aug 2026, ahead of the week-4 schedule. No free plan |
+| Plan entitlements | 8 keys per plan | seats, channels, api_keys, kb_documents, ai_rules_versions, audit_retention_days, conversations_monthly, support_sla_hours |
 | Platform admin | 1 | Brian |
-| Development tenants | 3 | Deliberately different: one on free at its seat limit, one on growth mid-usage, one suspended. The isolation suite runs against these |
+| Development tenants | 3 | Deliberately different: one on a paid tier at its seat limit, one mid-usage, one suspended. The isolation suite runs against these |
 | Master AI rules | 1 draft | Empty content, so the singleton exists from migration |
 
 The three development tenants matter more than they look. An isolation suite needs at least two tenants with overlapping-looking data to prove anything, and a suspended one to prove the status policy works.
