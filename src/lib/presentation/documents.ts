@@ -150,7 +150,7 @@ export const PROJECT_DOCS: ProjectDoc[] = [
     audience: 'client',
   },
   {
-    slug: '13--code-brief',
+    slug: '13-code-brief',
     n: '13',
     title: 'Implementation brief',
     settles: 'The build order for the design system and the component kit',

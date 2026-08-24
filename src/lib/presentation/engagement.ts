@@ -146,8 +146,8 @@ export const MILESTONES = [
     gate: 'Demo: tenant isolation verified',
     tranche: 2,
     status: 'active' as MilestoneStatus,
-    progress: 55,
-    note: 'Schema, policies, the policy check script, the generated isolation suite and CI are in the repository. Provisioning and the staging environment are not.',
+    progress: 85,
+    note: 'The gate is met, and was demonstrated live on 25 Aug 2026 rather than reported: the isolation suite runs against the real database and passes 152 of 152 across 15 tenant-scoped tables, with the policy check reporting 0 problems. Schema, migrations, the full policy catalogue and tenant provisioning are applied and working. Running the suite against a real database for the first time found three defects that had been making it silently vacuous; all three are fixed and recorded in document 15. Only the staging environment is outstanding.',
   },
   {
     id: 'M2',
@@ -157,8 +157,8 @@ export const MILESTONES = [
     gate: 'Demo: full account lifecycle',
     tranche: null,
     status: 'upcoming' as MilestoneStatus,
-    progress: 10,
-    note: 'The session table, the role model and the branded request context exist. No flows are built.',
+    progress: 20,
+    note: 'The session table, the role model and the branded request context exist. The Supabase client layer landed on 25 Aug 2026 — server, browser, middleware session refresh, and an admin client lint-guarded the same way the service-role database client is — and provisioning already creates the first owner by invitation, so the account lifecycle has its first step. The flows themselves, sign-in through ownership transfer, are next.',
   },
   {
     id: 'M3',
@@ -191,8 +191,8 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'upcoming' as MilestoneStatus,
-    progress: 10,
-    note: 'The credential schema and the projection type that makes returning a hash a compile error are in place.',
+    progress: 25,
+    note: 'The credential schema and the projection type that makes returning a hash a compile error are in place. The tenant application built on 20 Aug 2026 scaffolds this milestone’s surfaces ahead of schedule — company profile, team and invitations, and the credential list and creation form — each wired to a real read seam and refusing its write by name until this milestone lands.',
   },
   {
     id: 'M4a',
@@ -240,7 +240,7 @@ export const COMPLIANCE = [
       'No request, through any door, in any role, including the platform owner, can read or write a row belonging to another tenant.',
     state: 'partial' as ComplianceState,
     evidence:
-      'Policies on every tenant-scoped table with a with-check clause. The policy check script fails the build on a table without one. Ten isolation cases per table run in CI and block merge.',
+      'Demonstrated live on 25 Aug 2026 rather than asserted: 152 of 152 isolation cases across 15 tenant-scoped tables, run against the real database, with the policy check reporting 0 problems. Policies carry a with-check clause and row level security is FORCED, so the table owner does not bypass it either. The application connects as a role that cannot bypass policies at all, which is separate from the role migrations run as.',
     outstanding: 'Manual policy review by a person at M1 and again at M6.',
     reference: '06 · Tenancy and isolation',
   },
@@ -312,7 +312,7 @@ export const COMPLIANCE = [
     obligation: 'WCAG 2.1 AA across every surface, checked at every milestone gate.',
     state: 'partial' as ComplianceState,
     evidence:
-      'Focus rings never removed, 44px targets, every status carrying a glyph and a word as well as a hue, both themes measured, reduced motion honoured throughout.',
+      'Focus rings never removed, 44px targets, every status carrying a glyph and a word as well as a hue, contrast measured across the one remaining mode and both chrome tiers, reduced motion honoured in CSS and in the GSAP wrapper alike.',
     outstanding:
       'An axe pass per route in CI, and a manual keyboard pass per milestone. Sheet 13 proposes raising the target to 2.2 AA, which is not currently a contractual item.',
     reference: '03 §17 · sheet 13',
@@ -329,6 +329,27 @@ export const COMPLIANCE = [
  */
 export const UPDATES = [
   {
+    date: '2026-08-25',
+    title: 'M1 gate met: tenant isolation demonstrated live, 152 of 152',
+    body: 'The isolation suite now runs against a real database and passes every case: 152 assertions across 15 tenant-scoped tables, with the policy check reporting zero problems. Schema, migrations, the full policy catalogue and tenant provisioning are applied and working on the Supabase project. Running the suite against a real database for the first time found three defects that had been making it report green while proving nothing — the most serious being that its ground-truth reads went through the same connection as the code under test, so most assertions were comparing zero to zero. All three are fixed and written up in document 15. This is the gate that releases tranche 2, and it is now demonstrable on screen rather than reported.',
+    milestone: 'M1',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-08-25',
+    title: 'Database live, and one setting corrected before it could do harm',
+    body: 'The Supabase project is connected and the client layer is built: server, browser and middleware session refresh, plus an admin client restricted by the same lint guard that protects the service-role database client. One correction is worth naming because it was silent: the application connection had been pointed at the administrative role, which in Supabase carries the right to bypass Row Level Security. Every policy in the system would have been inert while appearing to work. A least-privilege application role now holds that connection and is verified to see nothing without a tenant context set.',
+    milestone: 'M1, M2',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-08-24',
+    title: 'The channel adapter contract, the last M0 artefact, is written',
+    body: 'Document 16 defines the Phase 2 messaging seam: the connection table, the internal event shape field by field with the personal-data fields marked, the five-method adapter interface, the webhook ordering rules and the retry policy. The typed interface and the webhook route shell are in the repository; the route answers 501 by design. The section that matters most is how a tenant is resolved from an inbound webhook — from the connection record, never from the request body, because a webhook body is attacker-controlled. It carries a sign-off block. Every M0 artefact is now written; what remains for that gate is signature.',
+    milestone: 'M0',
+    kind: 'delivery' as const,
+  },
+  {
     date: '2026-08-24',
     title: 'M0 closed: five decisions confirmed, one new item raised',
     body: 'AI rules precedence (layered, master wins on conflict), the support role matrix (read and write, not read-only), the embedding model (OpenAI text-embedding-3-small), what suspension means (read-only, as built), and plan tiers (Pro, Business, Custom) are all confirmed, three weeks ahead of their week-four deadline. The support answer opened one narrower question of its own: whether it extends to customer records, proposed as no. Document 15 and the decision log in document 01 carry the full record.',
@@ -343,9 +364,30 @@ export const UPDATES = [
     kind: 'decision' as const,
   },
   {
+    date: '2026-08-20',
+    title: 'One mode, by client decision: the dark theme is withdrawn',
+    body: 'The client reviewed the design and asked for a single light mode, with the dark surfaces kept. That is the distinction that made this cheap rather than a repaint: the inverted chrome, the console slab and the dark statement panels were never expressions of a theme, so they stay exactly as they were and are now simply how those surfaces look. What goes is the switch, the stored preference and the second set of token values — roughly a hundred and forty declarations, and a whole class of "which theme was that measured in" question at every future accessibility check. The theme variant is neutralised rather than deleted, because removing it outright would hand control back to the reader’s operating system and reintroduce the dark theme by accident. Recorded in document 15.',
+    milestone: 'M0',
+    kind: 'decision' as const,
+  },
+  {
+    date: '2026-08-20',
+    title: 'Tenant application foundation built',
+    body: 'The customer-facing application now has all fourteen of its routes: overview with the setup checklist, company, team and invitations, API credentials, assistant rules, plan and usage, activity, account and sessions, and the two designed placeholder surfaces. Its header and sidebar are white against the console’s dark chrome, so the two applications are unmistakable from each other at a glance — which is a safeguard rather than a style choice, since the owner has both open at once. Every control that would write is present and refuses by name, stating which milestone wires it, so the shape of the finished product is reviewable now without anything pretending to work.',
+    milestone: 'M2, M5',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-08-12',
+    title: 'Console hardened to production grade against the design sheets',
+    body: 'A seven-part pass over the owner console, driven by a reading of all fourteen design sheets. Dialogs moved onto the accessible primitives already in the repository, so focus trapping, Escape and focus restoration are inherited rather than reimplemented six times. Every grid is now one tab stop with arrow-key movement, rather than fifty-six. Loading and error states exist per route, and the empty states now distinguish a region that is deliberately unfilled from one that is simply new — confusing the two is how a working system comes to look broken. Motion is routed through a wrapper that honours reduced motion in JavaScript as well as in CSS, where the media query alone does nothing. Four defects surfaced and were fixed on the way, including entitlement meters that turned red at their ceiling: a ceiling reached is ochre, not oxide, because the reader can still act on it.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
     date: '2026-08-11',
     title: 'Platform console built against the design set',
-    body: 'The owner console is implemented from the Claude Design project: shell, overview, workspace list and detail, revenue, support-session register, audit log, health and plans. The chrome inverts against the page in both themes, so the boundary between the platform’s own surface and a customer’s data is visible at a glance. Support mode moved from client state to a server-issued grant with an absolute expiry, because a countdown a browser owns resets on refresh and a React boolean must never reach an RLS input. Destructive confirmations state their consequences in people and workspaces rather than asking for confidence.',
+    body: 'The owner console is implemented from the Claude Design project: shell, overview, workspace list and detail, revenue, support-session register, audit log, health and plans. The chrome inverts against the page, so the boundary between the platform’s own surface and a customer’s data is visible at a glance. Support mode moved from client state to a server-issued grant with an absolute expiry, because a countdown a browser owns resets on refresh and a React boolean must never reach an RLS input. Destructive confirmations state their consequences in people and workspaces rather than asking for confidence.',
     milestone: 'M4',
     kind: 'delivery' as const,
   },
@@ -411,8 +453,19 @@ export const CLIENT_INPUTS = [
     blocking: 'Everything',
     status: 'Pending',
   },
-  { item: 'Supabase organisation access', when: 'Week 1', blocking: 'M1', status: 'Pending' },
+  {
+    item: 'Supabase organisation access',
+    when: 'Week 1',
+    blocking: 'M1',
+    status: 'A project is connected and M1 is unblocked. Access on the client organisation still to confirm.',
+  },
   { item: 'GitHub organisation access', when: 'Week 1', blocking: 'M1', status: 'Pending' },
+  {
+    item: 'Channel adapter contract signed',
+    when: 'Design lock',
+    blocking: 'M0 gate, M4a',
+    status: 'Written 24 Aug 2026 as document 16, with a sign-off block. Awaiting signature.',
+  },
   {
     item: 'Embedding model Phase 2 will use',
     when: 'Week 1',

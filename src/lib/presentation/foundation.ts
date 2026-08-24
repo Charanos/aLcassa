@@ -147,7 +147,7 @@ export const FOUNDATION: FoundationItem[] = [
   // ── Design system ───────────────────────────────────────────────────────
   {
     area: 'Design system',
-    what: 'Token layer, both themes, measured contrast, exposed through Tailwind',
+    what: 'Token layer, one mode, measured contrast, exposed through Tailwind. The dark theme was withdrawn on 25 Aug 2026 by the client: the inverted surfaces stay, as composition rather than as a setting',
     state: 'built',
     evidence: 'src/app/tokens.css',
     milestone: 'M0',
@@ -175,7 +175,7 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'Design system',
-    what: 'The chrome tier: console header and sidebar invert against the page in both themes',
+    what: 'The chrome tier: the console inverts against the page in dark navy, the tenant application in white, and neither depends on a theme',
     state: 'built',
     evidence: 'src/app/tokens.css',
     milestone: 'M4',
@@ -365,6 +365,71 @@ export const FOUNDATION: FoundationItem[] = [
     state: 'planned',
     evidence: 'k6',
     milestone: 'M6',
+  },
+
+  // ── Applied to a real database, 25 Aug 2026. ────────────────────────────
+  {
+    area: 'Isolation',
+    what: 'The isolation suite run against a live database: 152 of 152 across 15 tenant-scoped tables',
+    state: 'built',
+    evidence: 'tests/isolation/generated.test.ts',
+    milestone: 'M1',
+  },
+  {
+    area: 'Isolation',
+    what: 'Least-privilege application role that cannot bypass Row Level Security, separate from the migration role',
+    state: 'built',
+    evidence: 'src/lib/db/client.ts',
+    milestone: 'M1',
+  },
+  {
+    area: 'Data model',
+    what: 'Migrations generated and applied: 23 tables, 39 policies, seeded',
+    state: 'built',
+    evidence: 'src/db/migrations/',
+    milestone: 'M1',
+  },
+  {
+    area: 'Data model',
+    what: 'Policies applied with the tables they protect, as one command, so neither can ship without the other',
+    state: 'built',
+    evidence: 'scripts/apply-policies.ts',
+    milestone: 'M1',
+  },
+  {
+    area: 'System',
+    what: 'Tenant provisioning: tenant, settings, owner profile and owner membership in one transaction, audited before it runs',
+    state: 'built',
+    evidence: 'src/modules/platform/internal/provisioning.ts',
+    milestone: 'M1',
+  },
+  {
+    area: 'System',
+    what: 'Supabase auth clients: server, browser and middleware session refresh, with the admin client lint-guarded like the service-role database client',
+    state: 'built',
+    evidence: 'src/lib/auth/supabase/',
+    milestone: 'M2',
+  },
+  {
+    area: 'API',
+    what: 'Channel adapter contract: the five-method interface, the internal event shape and the retry rules, with no adapter above them',
+    state: 'built',
+    evidence: 'src/modules/channels/types.ts',
+    milestone: 'M0, M4a',
+  },
+  {
+    area: 'API',
+    what: 'Webhook route shell answering 501, with the verify-before-parse ordering already in place',
+    state: 'scaffolded',
+    evidence: 'src/app/api/webhooks/[channel]/route.ts',
+    milestone: 'M4a',
+  },
+  {
+    area: 'Console',
+    what: 'Tenant application: all fourteen routes, white chrome against the console’s dark slab, boundary frame wired',
+    state: 'built',
+    evidence: 'src/app/(tenant)/app/',
+    milestone: 'M2, M5',
   },
 ];
 
