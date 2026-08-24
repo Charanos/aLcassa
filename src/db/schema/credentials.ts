@@ -9,7 +9,8 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { pk, softDelete, tenantRef, timestamps } from './_shared';
+import { pk, softDelete, timestamps } from './_shared';
+import { tenantRef } from './tenancy';
 
 /**
  * 05 §6 · 01 D-11 · ADR-008.

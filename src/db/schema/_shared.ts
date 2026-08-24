@@ -1,5 +1,4 @@
 import { integer, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { tenants } from './tenancy';
 
 /**
  * 05 §1. Conventions, in one place so that a new table cannot quietly differ.
@@ -7,23 +6,22 @@ import { tenants } from './tenancy';
  * The rule that matters most: `tenant_id` is ALWAYS THE SECOND COLUMN on a
  * tenant-scoped table, so its absence is visible at a glance when reading a
  * schema file rather than only when the policy check fails.
+ *
+ * ⚠ THIS FILE IMPORTS NOTHING FROM ANOTHER SCHEMA MODULE, AND MUST NOT.
+ *
+ * `tenantRef` used to live here, which meant this file imported `tenants`
+ * from `./tenancy` while `./tenancy` imported `pk` from here — a cycle. It
+ * survived `tsc` and `next build`, both of which tolerate it, and broke
+ * `drizzle-kit generate`, which evaluates modules eagerly: `index.ts`
+ * re-exports `_shared` first, so `tenancy` began evaluating before `pk` was
+ * initialised and threw "Cannot access 'pk' before initialization". That is
+ * why no migration had ever been generated.
+ *
+ * `tenantRef` now lives in `./tenancy` beside the table it references. A leaf
+ * of conventions does not depend on the modules that consume it.
  */
 
 export const pk = () => uuid('id').primaryKey().defaultRandom();
-
-/**
- * `onDelete: 'restrict'` is deliberate and it is not a default.
- *
- * A cascade on the tenant reference would silently remove audit history when a
- * tenant row is deleted, which defeats the entire point of having it. Hard
- * deletion is a separate documented operation that archives before it removes,
- * with its own confirmation, its own audit entry and its own runbook page.
- * 01 D-10 · 05 §1.
- */
-export const tenantRef = () =>
-  uuid('tenant_id')
-    .notNull()
-    .references(() => tenants.id, { onDelete: 'restrict' });
 
 export const timestamps = {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

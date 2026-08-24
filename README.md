@@ -82,6 +82,20 @@ pnpm db:migrate
 pnpm db:seed
 ```
 
+`db:migrate` runs two things as one command: `drizzle-kit migrate` for the
+tables, then `scripts/apply-policies.ts` for the policy catalogue in
+`src/db/policies/`. **That pairing is deliberate and should not be split.**
+Drizzle emits table DDL only — it knows nothing about the policy files — so
+running it alone creates twenty-three tables with row level security on none
+of them. `05 §12` requires schema and policy to arrive together; running them
+as one command is how that is enforced in practice, and `check:policies` in
+the next step is what verifies it.
+
+The policy script drops and recreates every policy inside one transaction,
+because Postgres has no `create policy if not exists`. The files are the
+declared state, so reconciling to them is correct; it is transactional, so
+there is no instant at which a committed database has tables without policies.
+
 The seed creates four plans and **three tenants, deliberately different**: one on
 the free tier at its seat limit, one on growth mid-usage, and one suspended. That
 third one is not decoration. An isolation suite needs at least two tenants with

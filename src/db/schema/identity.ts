@@ -10,7 +10,8 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { pk, softDelete, tenantRef, timestamps } from './_shared';
+import { pk, softDelete, timestamps } from './_shared';
+import { tenantRef } from './tenancy';
 
 /**
  * 05 §4. Supabase owns `auth.users`. ADR-002 states the cost of that choice

@@ -9,7 +9,8 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { pk, tenantRef, timestamps } from './_shared';
+import { pk, timestamps } from './_shared';
+import { tenantRef } from './tenancy';
 
 export const rulesStatus = pgEnum('rules_status', ['draft', 'published', 'archived']);
 

@@ -1,5 +1,6 @@
 import { boolean, index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { pk, tenantRef } from './_shared';
+import { pk } from './_shared';
+import { tenantRef } from './tenancy';
 
 /**
  * 05 §9. Two logs, both APPEND-ONLY, and append-only is enforced by POLICY

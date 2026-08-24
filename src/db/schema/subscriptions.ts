@@ -11,8 +11,8 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { pk, tenantRef, timestamps, version } from './_shared';
-import { tenants } from './tenancy';
+import { pk, timestamps, version } from './_shared';
+import { tenantRef, tenants } from './tenancy';
 
 /**
  * 05 §5 · 08. Entitlements are DATA. Adding a fourth tier between Business and
