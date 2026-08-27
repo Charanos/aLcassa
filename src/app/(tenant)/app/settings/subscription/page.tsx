@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/structure/PageHeader';
 import { Badge, SUBSCRIPTION_STATUS_TONE } from '@/components/feedback/Badge';
 import { LimitBar } from '@/components/domain/LimitBar';
 import { getSubscription } from '@/lib/tenant/data';
+import { getLiveSubscription } from '@/lib/tenant/live';
 
 export const metadata: Metadata = { title: 'Plan and usage' };
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = { title: 'Plan and usage' };
  * saying to get in touch."
  */
 export default async function SubscriptionSettingsPage() {
-  const model = await getSubscription();
+  const model = (await getLiveSubscription()) ?? (await getSubscription());
 
   return (
     <div>

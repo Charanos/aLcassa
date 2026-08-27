@@ -1487,3 +1487,72 @@ cache use and `04` ADR-006 scopes that to four, so the control is expressed as
 the remaining life of the existing link: resending is refused while more than
 six of the seven days remain. That catches the common case, which is an owner
 clicking twice, rather than an attack.
+
+---
+
+## C36 · Subscription administration lives under `modules/platform`, not `modules/subscriptions`
+
+**27 Aug 2026. Structural, decided by the lint rule.**
+
+`assignPlan`, `changeSubscriptionStatus`, `grantOverride` and `previewPlanChange`
+were written in `src/modules/subscriptions/service.ts`. The build refused them:
+the service-role client may be imported only inside `src/modules/platform`, and
+that exemption list has exactly one entry on purpose.
+
+The rule was right rather than inconvenient. Every one of those operations is a
+platform action — `03_subscriptions.sql` deliberately gives `subscriptions` and
+`subscription_overrides` no tenant-facing modify policy, because "a tenant
+cannot upgrade themselves: there is no payment gateway behind the button". So
+there is no tenant context under which the writes are legal, and widening the
+guard to reach them would have inverted the reason it exists.
+
+They now live in `modules/platform/internal/subscriptions.ts` and
+`internal/watchlist.ts`. What stays in `modules/subscriptions` is the part
+carrying no privilege: the state machine, which both doors read, neither can
+bypass, and which needs no database access — so it is unit-tested without one.
+
+---
+
+## C37 · The subscription lifecycle is a table, and all 36 pairs are tested
+
+**27 Aug 2026. Design note.**
+
+Six states permit thirty-six ordered pairs and only nine are legal. Expressed
+as conditionals at each call site, the illegal twenty-seven are enforced by
+whoever remembers.
+
+`transitions.ts` holds the whole machine on one screen, checkable against the
+diagram in `08 §7` without reading a handler. `tests/subscriptions/` enumerates
+every pair rather than spot-checking the nine, because a test that asserts the
+legal moves proves the machine permits what it should and says nothing about
+what it forbids — and the expensive mistake is in the second set:
+`cancelled → active` silently restores a customer who stopped paying.
+`cancelled` is terminal; reviving requires a new subscription, which also keeps
+the cancellation in the record instead of overwriting it.
+
+---
+
+## C38 · The console plan screen was showing a catalogue that no longer exists
+
+**27 Aug 2026. Defect, found while wiring M3.**
+
+`getPlans()` in the console fixture listed **Trial, Starter, Growth and Scale**
+— the four-tier proposal replaced on 24 Aug 2026 (`15 §3` A13) — with rows for
+*events per month*, *storage* and *SSO and SCIM*, none of which are entitlement
+keys in the schema. Every figure was defensible when it was drawn and none was
+true once the plans were confirmed.
+
+The tenant-facing `getSubscription()` fixture had the same problem, naming a
+"Growth" plan, as did the invite form's seat warning.
+
+All three now read the live catalogue, with the designed fixtures kept behind
+the review bypass. This is the cost of a fixture outliving the decision it was
+drawn against, and it is the second time this pass (the first was the invite
+form) — worth watching for in the remaining seam functions, which still serve
+designed data for M4a and M5 surfaces.
+
+**Also corrected:** `getLiveSubscription` reads the same
+`getEntitlementSnapshot` the guard reads. A separate display query would be a
+second source of truth, and its failure mode is the worst kind — a customer
+reading "6 of 10 seats" while the API refuses their seventh invitation, both
+numbers defensible, neither identifiable as the wrong one.

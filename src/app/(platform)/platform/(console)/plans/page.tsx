@@ -14,6 +14,7 @@ import {
 import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
 import { BlastRadiusDialog } from '@/components/console/BlastRadiusDialog';
 import { getPlans, type EntitlementRow } from '@/lib/console/data';
+import { getLivePlans } from '@/lib/console/live';
 
 export const metadata: Metadata = { title: 'Plans' };
 
@@ -54,7 +55,15 @@ const ROW_ICON: Record<EntitlementRow['icon'], TablerIcon> = {
 };
 
 export default async function PlansPage() {
-  const m = await getPlans();
+  /**
+   * Live catalogue first, designed fixture second.
+   *
+   * The fixture listed Trial, Starter, Growth and Scale — the four-tier
+   * proposal replaced on 24 Aug 2026 — against entitlement keys that were
+   * never in the schema. A signed-in operator now sees the real Pro,
+   * Business and Custom; the review bypass still sees the drawn version.
+   */
+  const m = (await getLivePlans()) ?? (await getPlans());
   const assigned = m.plans.reduce((n, p) => n + p.count, 0);
 
   return (

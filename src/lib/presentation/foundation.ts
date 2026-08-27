@@ -183,6 +183,41 @@ export const FOUNDATION: FoundationItem[] = [
     evidence: 'tests/email/templates.test.ts',
     milestone: 'M2',
   },
+  {
+    area: 'System',
+    what: 'The subscription lifecycle as a transition table: nine legal moves, all 36 ordered pairs tested',
+    state: 'built',
+    evidence: 'src/modules/subscriptions/transitions.ts',
+    milestone: 'M3',
+  },
+  {
+    area: 'System',
+    what: 'Plan assignment, status changes and entitlement overrides, each audited before it runs',
+    state: 'built',
+    evidence: 'src/modules/platform/internal/subscriptions.ts',
+    milestone: 'M3',
+  },
+  {
+    area: 'Console',
+    what: 'The watchlist: every workspace within 20% of a limit or past due, in one query, sorted by urgency',
+    state: 'built',
+    evidence: 'src/modules/platform/internal/watchlist.ts',
+    milestone: 'M3',
+  },
+  {
+    area: 'Console',
+    what: 'The plan catalogue and the tenant plan screen reading the real database rather than a fixture of retired tiers',
+    state: 'built',
+    evidence: 'src/lib/console/live.ts',
+    milestone: 'M3',
+  },
+  {
+    area: 'Isolation',
+    what: 'Entitlement resolution proved against the database: overrides win, expiry lapses on its own, and a tenant cannot grant itself anything',
+    state: 'built',
+    evidence: 'tests/isolation/entitlements.test.ts',
+    milestone: 'M3',
+  },
 
   // ── System plumbing ─────────────────────────────────────────────────────
   {

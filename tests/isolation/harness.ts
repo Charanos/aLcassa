@@ -198,6 +198,29 @@ export async function cleanup(
   await adminSql(strings as unknown as never, ...(values as never[]));
 }
 
+/**
+ * A read or write performed AS THE PLATFORM, bypassing RLS.
+ *
+ * ⚠ FOR SETUP THAT A TENANT GENUINELY CANNOT PERFORM, NOT FOR CONVENIENCE.
+ *
+ * Some fixtures are platform actions by design. `subscription_overrides` has
+ * no tenant-facing modify policy at all — 03_subscriptions.sql refuses it on
+ * the grounds that "a tenant cannot upgrade themselves because there is no
+ * payment gateway behind the button" — so a test that granted itself an
+ * override through the RLS-bound connection is not testing the product, it is
+ * discovering that the policy works.
+ *
+ * Using this to arrange a fixture is correct. Using it to make an assertion
+ * pass is not: every case must still OBSERVE through `asActor`, or it proves
+ * nothing about what a tenant can see.
+ */
+export async function adminQuery<T extends readonly unknown[] = Record<string, unknown>[]>(
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+): Promise<T> {
+  return adminSql(strings as unknown as never, ...(values as never[])) as unknown as Promise<T>;
+}
+
 export async function closeHarness(): Promise<void> {
   await Promise.all([sql.end(), adminSql.end()]);
 }

@@ -168,9 +168,9 @@ export const MILESTONES = [
       'Plans, tiers, entitlements, subscription states, limit enforcement. Caching layer and scoped credentials land alongside.',
     gate: 'Demo: limit enforcement',
     tranche: null,
-    status: 'upcoming' as MilestoneStatus,
-    progress: 35,
-    note: 'The shared entitlement guard, the cache layer and the plan schema are built. The surfaces above them are not. The tiers were confirmed on 24 Aug 2026, three weeks ahead of the week-four date, so this milestone is no longer waiting on them.',
+    status: 'active' as MilestoneStatus,
+    progress: 75,
+    note: 'The lifecycle is built and enforced as of 27 Aug 2026. Six subscription states with the nine legal moves between them written as a table rather than as scattered conditions — all 36 ordered pairs are covered by tests, because the expensive mistake is the one that silently reactivates a customer who stopped paying. Plan assignment, status changes and entitlement overrides are platform actions, each audited before it runs. The tenant plan screen and the console plan catalogue both read the real database, which corrected a console screen that had been showing four plans that do not exist against limits that were never in the schema. The watchlist finds every workspace within 20% of a limit, and both current workspaces are correctly on it. What remains is the console controls that drive these operations and the nightly usage reconciliation.',
   },
   {
     id: 'M4',
@@ -329,6 +329,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-27',
+    title: 'M3: plans, limits and the states a subscription moves through',
+    body: 'A subscription can now be moved between its six states, given a different plan, or granted an exception to a limit — each one a platform action recorded before it happens, with a reason that the customer can read on their own screen. Two decisions are worth naming. The legal moves are written as a table rather than as conditions scattered through the code: six states allow thirty-six ordered pairs and only nine of them are correct, and the expensive one to get wrong is reactivating a cancelled subscription, which quietly restores someone who stopped paying. Every one of the thirty-six is now covered by a test. And the customer’s plan screen reads the SAME figures the system consults when deciding whether to permit an action — a second query for display would eventually show someone "6 of 10 seats" while their seventh invitation was refused, with both numbers defensible and no way to tell which was wrong. The console’s plan comparison also came off its fixture, which had been showing four tiers that no longer exist against limits that were never in the schema.',
+    milestone: 'M3',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-08-27',
     title: 'M2 complete: the account lifecycle, including email',

@@ -20,6 +20,22 @@ installPlatformAuditWriter();
 
 export { provisionTenant } from './internal/provisioning';
 
+/**
+ * 08 §7 · 08 §9. Subscription administration. Every one of these is a
+ * service-role call, audited before it runs — see the file for why they are
+ * on this side of the module boundary rather than in `modules/subscriptions`.
+ */
+export {
+  assignPlan,
+  changeSubscriptionStatus,
+  grantOverride,
+  previewPlanChange,
+} from './internal/subscriptions';
+export type { PlanChangePreview, PlatformActor } from './internal/subscriptions';
+
+export { watchlist, ATTENTION_THRESHOLD } from './internal/watchlist';
+export type { WatchlistEntry } from './internal/watchlist';
+
 export { provisionTenantSchema, slugSchema, RESERVED_SLUGS } from './types';
 
 export type { ProvisionTenantInput, ProvisionTenantResult } from './types';

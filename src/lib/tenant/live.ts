@@ -1,11 +1,17 @@
 import 'server-only';
 import { and, desc, eq, isNull } from 'drizzle-orm';
-import { invitations, tenantMembers, userProfiles } from '@/db/schema';
+import { invitations, plans, subscriptions, tenantMembers, userProfiles } from '@/db/schema';
 import { currentSessionOrNull } from '@/lib/auth/resolve';
 import { listActiveSessions } from '@/lib/auth/session';
 import { withTenantContext } from '@/lib/db';
 import { getEntitlementSnapshot } from '@/modules/entitlements';
-import type { AccountModel, AccountSessionsModel, TeamModel } from './data';
+import type {
+  AccountModel,
+  AccountSessionsModel,
+  EntitlementKey as SeamEntitlementKey,
+  SubscriptionModel,
+  TeamModel,
+} from './data';
 
 /**
  * The M2 half of the tenant read model, against the real database.
@@ -137,6 +143,84 @@ export async function getLiveTeam(): Promise<TeamModel | null> {
       seatsLimit: seats?.limit ?? null,
     };
   });
+}
+
+/**
+ * `/app/settings/subscription`, live. 08 §8.
+ *
+ * ⚠ IT READS THE SAME SNAPSHOT THE GUARD READS, AND THAT IS THE POINT.
+ *
+ * The numbers on this screen come from `getEntitlementSnapshot` — the exact
+ * function `checkEntitlement` consults before permitting an action. A second
+ * query that recomputed usage for display would be a second source of truth,
+ * and the failure it produces is the worst kind: a customer looking at "6 of
+ * 10 seats" while the API refuses their seventh invitation, with both numbers
+ * defensible and no way to tell which is wrong.
+ *
+ * The override reason is surfaced deliberately. 05 §5: "a customer who has
+ * been granted extra seats should know it and should know it may expire."
+ */
+export async function getLiveSubscription(): Promise<SubscriptionModel | null> {
+  const ctx = await currentSessionOrNull();
+  if (!ctx) return null;
+
+  const snapshot = await getEntitlementSnapshot(ctx);
+
+  const [subscription] = await withTenantContext(ctx, async (tx) =>
+    tx
+      .select({
+        status: subscriptions.status,
+        currentPeriodEnd: subscriptions.currentPeriodEnd,
+        cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
+        planName: plans.name,
+        planCode: plans.code,
+      })
+      .from(subscriptions)
+      .innerJoin(plans, eq(plans.id, subscriptions.planId))
+      .limit(1),
+  );
+
+  if (!subscription) return null;
+
+  const entitlements = Object.values(snapshot.byKey).filter(
+    (e): e is NonNullable<typeof e> => Boolean(e),
+  );
+
+  return {
+    planName: subscription.planName,
+    // The seam's model predates `paused` and `expired`; both read as
+    // cancelled to it. The badge is the only consumer and it has no tone for
+    // either, so narrowing here is honest rather than lossy — and 08 §7 puts
+    // both on the same side of "this subscription is not currently running".
+    status:
+      subscription.status === 'active' ||
+      subscription.status === 'trialing' ||
+      subscription.status === 'past_due'
+        ? subscription.status
+        : 'cancelled',
+    periodEnd: formatDate(subscription.currentPeriodEnd),
+    entitlements: entitlements.map((e) => ({
+      key: e.key as SeamEntitlementKey,
+      label: e.displayName,
+      kind: e.kind,
+      current: e.current,
+      limit: e.limit,
+      // 08 §2. Retention is a span rather than a tally, so it reads with its
+      // unit; every other key is a count and reads bare.
+      ...(e.key === 'audit_retention_days' ? { unit: ' days' } : {}),
+    })),
+    overrides: entitlements
+      .filter((e) => e.override !== null)
+      .map((e) => ({
+        key: e.key as SeamEntitlementKey,
+        reason: e.override?.reason ?? '',
+        expiresAt: e.override?.expiresAt ? formatDate(new Date(e.override.expiresAt)) : null,
+        // The granting admin's name is a platform identity, and a tenant
+        // reading its own plan page has no business enumerating who works
+        // here. The relationship is with Andishi, not with an individual.
+        grantedBy: 'Andishi support',
+      })),
+  };
 }
 
 /** `/app/account`, live. */
