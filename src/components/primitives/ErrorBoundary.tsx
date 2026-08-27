@@ -45,7 +45,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // Sanctioned exception, see src/app/error.tsx: no browser-side structured
     // logger exists yet.
     // eslint-disable-next-line no-console
-    console.error(`[${this.props.label ?? 'component'}] failed to render`, error, info.componentStack);
+    console.error(
+      `[${this.props.label ?? 'component'}] failed to render`,
+      error,
+      info.componentStack,
+    );
   }
 
   private reset = () => this.setState({ hasError: false });

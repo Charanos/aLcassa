@@ -2,11 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 import { ERROR_CODES, ERROR_MESSAGES, hueTokens, type ErrorCode } from '@/lib/errors';
-import {
-  IconArrowRight,
-  IconBuildingSkyscraper,
-  IconShieldLock,
-} from '@tabler/icons-react';
+import { IconArrowRight, IconBuildingSkyscraper, IconShieldLock } from '@tabler/icons-react';
 import { AuthShell, TenantAside } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field, PasswordField } from '@/components/primitives/Field';
@@ -40,10 +36,11 @@ export default async function SignInPage({
    * crafted `?error=<script>` renders as "Something went wrong" rather than
    * as anything at all.
    */
-  const knownCode =
-    error && error in ERROR_MESSAGES ? (error as ErrorCode) : null;
+  const knownCode = error && error in ERROR_MESSAGES ? (error as ErrorCode) : null;
   const errorMessage = error
-    ? (knownCode ? ERROR_MESSAGES[knownCode] : 'Something went wrong. Try again.')
+    ? knownCode
+      ? ERROR_MESSAGES[knownCode]
+      : 'Something went wrong. Try again.'
     : null;
 
   /**
@@ -72,19 +69,23 @@ export default async function SignInPage({
           */}
           {demoAccessEnabled() ? (
             <div
-              className="rounded-panel border p-4 transition-all duration-300 shadow-sm"
+              className="rounded-panel border p-4 shadow-sm transition-all duration-300"
               style={{
                 background: 'var(--surface-raised)',
                 borderColor: 'var(--border-strong)',
               }}
             >
               <p className="t-caption mb-3" style={{ color: 'var(--text-tertiary)' }}>
-                Review access. No account required, and not available where real
-                data lives.
+                Review access. No account required, and not available where real data lives.
               </p>
 
               <div className="grid gap-2 sm:grid-cols-2">
-                <Button asChild variant="primary" size="md" className="w-full justify-center gap-2 text-xs">
+                <Button
+                  asChild
+                  variant="primary"
+                  size="md"
+                  className="w-full justify-center gap-2 text-xs"
+                >
                   <Link href="/api/demo?role=platform">
                     <IconShieldLock size={14} stroke={1.75} />
                     <span>Admin Dashboard</span>
@@ -92,7 +93,12 @@ export default async function SignInPage({
                   </Link>
                 </Button>
 
-                <Button asChild variant="secondary" size="md" className="w-full justify-center gap-2 text-xs">
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="md"
+                  className="w-full justify-center gap-2 text-xs"
+                >
                   <Link href="/api/demo?role=tenant">
                     <IconBuildingSkyscraper size={14} stroke={1.75} />
                     <span>Workspace Inbox</span>
@@ -107,7 +113,7 @@ export default async function SignInPage({
             No workspace yet?{' '}
             <Link
               href="/sign-up"
-              className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80 transition-opacity"
+              className="text-[var(--text-action)] underline underline-offset-2 transition-opacity hover:opacity-80"
             >
               Create one
             </Link>
@@ -145,8 +151,8 @@ export default async function SignInPage({
               borderColor: 'var(--border-subtle)',
             }}
           >
-            Your password has been changed, and every other session was signed
-            out. Sign in with the new one.
+            Your password has been changed, and every other session was signed out. Sign in with the
+            new one.
           </p>
         ) : null}
 
@@ -164,7 +170,7 @@ export default async function SignInPage({
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/forgot-password"
-            className="t-caption text-[var(--text-action)] underline underline-offset-2 hover:opacity-80 transition-opacity"
+            className="t-caption text-[var(--text-action)] underline underline-offset-2 transition-opacity hover:opacity-80"
           >
             Forgot your password?
           </Link>

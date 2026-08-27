@@ -182,8 +182,8 @@ export async function getLiveSubscription(): Promise<SubscriptionModel | null> {
 
   if (!subscription) return null;
 
-  const entitlements = Object.values(snapshot.byKey).filter(
-    (e): e is NonNullable<typeof e> => Boolean(e),
+  const entitlements = Object.values(snapshot.byKey).filter((e): e is NonNullable<typeof e> =>
+    Boolean(e),
   );
 
   return {
@@ -242,9 +242,7 @@ export async function getLiveAccount(): Promise<AccountModel | null> {
     const [membership] = await tx
       .select({ role: tenantMembers.role, joinedAt: tenantMembers.joinedAt })
       .from(tenantMembers)
-      .where(
-        and(eq(tenantMembers.userId, ctx.actorId), eq(tenantMembers.tenantId, ctx.tenantId)),
-      )
+      .where(and(eq(tenantMembers.userId, ctx.actorId), eq(tenantMembers.tenantId, ctx.tenantId)))
       .limit(1);
 
     const name = profile?.fullName ?? ctx.actorLabel;
@@ -307,21 +305,29 @@ export async function getLiveAccountSessions(): Promise<AccountSessionsModel | n
 function describeAgent(userAgent: string | null): string {
   if (!userAgent) return 'Unknown device';
 
-  const browser =
-    /Edg\//.test(userAgent) ? 'Edge'
-    : /OPR\//.test(userAgent) ? 'Opera'
-    : /Chrome\//.test(userAgent) ? 'Chrome'
-    : /Safari\//.test(userAgent) ? 'Safari'
-    : /Firefox\//.test(userAgent) ? 'Firefox'
-    : 'Unknown browser';
+  const browser = /Edg\//.test(userAgent)
+    ? 'Edge'
+    : /OPR\//.test(userAgent)
+      ? 'Opera'
+      : /Chrome\//.test(userAgent)
+        ? 'Chrome'
+        : /Safari\//.test(userAgent)
+          ? 'Safari'
+          : /Firefox\//.test(userAgent)
+            ? 'Firefox'
+            : 'Unknown browser';
 
-  const platform =
-    /Windows/.test(userAgent) ? 'Windows'
-    : /Android/.test(userAgent) ? 'Android'
-    : /iPhone|iPad/.test(userAgent) ? 'iOS'
-    : /Mac OS X/.test(userAgent) ? 'macOS'
-    : /Linux/.test(userAgent) ? 'Linux'
-    : null;
+  const platform = /Windows/.test(userAgent)
+    ? 'Windows'
+    : /Android/.test(userAgent)
+      ? 'Android'
+      : /iPhone|iPad/.test(userAgent)
+        ? 'iOS'
+        : /Mac OS X/.test(userAgent)
+          ? 'macOS'
+          : /Linux/.test(userAgent)
+            ? 'Linux'
+            : null;
 
   return platform ? `${browser} on ${platform}` : browser;
 }

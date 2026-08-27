@@ -156,7 +156,9 @@ async function readJson(request: NextRequest): Promise<unknown> {
   try {
     return await request.json();
   } catch {
-    throw new AppError(ERROR_CODES.VALIDATION_FAILED, { message: 'The request body is not valid JSON.' });
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message: 'The request body is not valid JSON.',
+    });
   }
 }
 

@@ -94,7 +94,9 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
         window.open(command.href, '_blank', 'noreferrer');
       } else if (command.href.startsWith('#')) {
         close();
-        document.querySelector(command.href)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document
+          .querySelector(command.href)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
       } else {
         router.push(command.href);
@@ -324,7 +326,11 @@ export function CommandHint() {
       onClick={() => window.dispatchEvent(new Event(PALETTE_EVENT))}
       aria-label="Open the command palette"
       className="t-chip hidden items-center gap-2 rounded-chip border px-3 text-[var(--ink-tertiary)] transition-colors duration-[var(--motion-fade)] hover:border-[var(--copper-rule)] hover:text-[var(--copper-ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] md:flex"
-      style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)', minHeight: '38px' }}
+      style={{
+        borderColor: 'var(--rule-base)',
+        background: 'var(--surface-raised)',
+        minHeight: '38px',
+      }}
     >
       <IconSearch size={14} stroke={1.5} aria-hidden />
       <span>{meta} K</span>

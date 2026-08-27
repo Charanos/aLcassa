@@ -55,7 +55,10 @@ export default function RootError({
       {error.digest ? (
         <p className="t-caption mt-4 text-[var(--ink-tertiary)]">
           Reference{' '}
-          <code className="t-data rounded-chip px-1.5 py-0.5" style={{ background: 'var(--surface-sunken)' }}>
+          <code
+            className="t-data rounded-chip px-1.5 py-0.5"
+            style={{ background: 'var(--surface-sunken)' }}
+          >
             {error.digest}
           </code>{' '}
           if you get in touch.

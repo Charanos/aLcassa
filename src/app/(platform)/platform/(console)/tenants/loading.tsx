@@ -1,5 +1,10 @@
 import { ConsolePage } from '@/components/console/Surface';
-import { SkeletonGroup, SkeletonHeader, SkeletonMetric, SkeletonRow } from '@/components/primitives/Skeleton';
+import {
+  SkeletonGroup,
+  SkeletonHeader,
+  SkeletonMetric,
+  SkeletonRow,
+} from '@/components/primitives/Skeleton';
 
 export default function TenantsLoading() {
   return (

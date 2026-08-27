@@ -21,9 +21,7 @@ function required(names: string[], hint: string): string {
     const value = process.env[name];
     if (value && value.trim() !== '') return value;
   }
-  throw new Error(
-    `None of ${names.join(' / ')} is set. ${hint} See README, "Running locally".`,
-  );
+  throw new Error(`None of ${names.join(' / ')} is set. ${hint} See README, "Running locally".`);
 }
 
 /** Safe in the browser. Public by design — RLS is what protects the data. */

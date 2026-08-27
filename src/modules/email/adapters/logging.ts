@@ -44,7 +44,9 @@ export function createLoggingAdapter(): EmailAdapter {
       // template, and it has no business in an aggregated log.
       if (process.env.NODE_ENV !== 'production') {
         // eslint-disable-next-line no-console -- a development convenience, guarded
-        console.info(`\n─── email (not sent) ───\nTo: ${email.to}\nSubject: ${email.subject}\n\n${email.text}\n────────────────────────\n`);
+        console.info(
+          `\n─── email (not sent) ───\nTo: ${email.to}\nSubject: ${email.subject}\n\n${email.text}\n────────────────────────\n`,
+        );
       }
 
       return {

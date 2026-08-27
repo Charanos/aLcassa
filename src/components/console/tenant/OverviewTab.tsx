@@ -37,7 +37,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
     <div className="flex flex-col gap-6">
       {/* ── Inverted Command Ribbon for Overview ─────────────────────────── */}
       <div
-        className="flex flex-col sm:flex-row overflow-hidden rounded-2xl"
+        className="flex flex-col overflow-hidden rounded-2xl sm:flex-row"
         style={{
           background: 'var(--invert-card-bg)',
           color: 'var(--invert-card-fg)',
@@ -46,60 +46,122 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
         }}
       >
         {/* Metric 1: Plan & Run Rate */}
-        <div className="flex-1 p-5 sm:p-6 sm:pr-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Subscription Tier</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:pr-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Subscription Tier
+          </div>
           <div className="mt-2 flex items-baseline gap-2.5">
-            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               {w.plan || 'Trial'}
             </span>
-            <span className="text-xs font-mono font-medium" style={{ color: 'var(--invert-card-subtle)' }}>
+            <span
+              className="font-mono text-xs font-medium"
+              style={{ color: 'var(--invert-card-subtle)' }}
+            >
               {w.monthlyValue.split(' /')[0]}
             </span>
           </div>
-          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
-          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+          <div
+            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
+          <div
+            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
+            style={{
+              background:
+                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
         </div>
 
         {/* Metric 2: Seats Allocation */}
-        <div className="flex-1 p-5 sm:p-6 sm:px-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Staff Seats</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Staff Seats
+          </div>
           <div className="mt-2 flex items-baseline gap-2.5">
-            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               {seatsMeter ? seatsMeter.used : w.team.staff}
             </span>
-            <span className="text-xs font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+            <span className="font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
               / {seatsMeter ? seatsMeter.limit : '—'} limit
             </span>
           </div>
-          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
-          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+          <div
+            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
+          <div
+            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
+            style={{
+              background:
+                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
         </div>
 
         {/* Metric 3: Monthly Ingestion */}
-        <div className="flex-1 p-5 sm:p-6 sm:px-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Events MTD</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Events MTD
+          </div>
           <div className="mt-2 flex items-baseline gap-2.5">
-            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               {eventsMeter ? fmtNum(eventsMeter.used) : '0'}
             </span>
-            <span className="text-xs font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+            <span className="font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
               / {eventsMeter ? fmtNum(eventsMeter.limit) : '—'}
             </span>
           </div>
-          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
-          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+          <div
+            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
+          <div
+            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
+            style={{
+              background:
+                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
         </div>
 
         {/* Metric 4: Health & Isolation */}
-        <div className="flex-1 p-5 sm:p-6 sm:pl-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Topology & RLS</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:pl-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Topology & RLS
+          </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="inline-flex size-2 rounded-full" style={{ background: 'var(--success-fg)' }} />
-            <span className="font-mono text-base sm:text-lg font-medium" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="inline-flex size-2 rounded-full"
+              style={{ background: 'var(--success-fg)' }}
+            />
+            <span
+              className="font-mono text-base font-medium sm:text-lg"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               Isolated Schema
             </span>
           </div>
-          <p className="mt-1 text-[11px] font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
             {w.residency.split(' · ')[0] ?? 'af-south-1'}
           </p>
         </div>
@@ -108,17 +170,19 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
       {/* ── Active Alert Banner (If Applicable) ───────────────────────── */}
       {w.alert && (
         <div
-          className="rounded-xl p-5 flex flex-col sm:flex-row items-start justify-between gap-4"
+          className="flex flex-col items-start justify-between gap-4 rounded-xl p-5 sm:flex-row"
           style={{
             border: `1px solid ${w.status === 'past due' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
-            background: w.status === 'past due' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(245, 158, 11, 0.05)',
+            background:
+              w.status === 'past due' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(245, 158, 11, 0.05)',
           }}
         >
           <div className="flex items-start gap-3.5">
             <span
-              className="grid size-9 shrink-0 place-items-center rounded-lg mt-0.5"
+              className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg"
               style={{
-                background: w.status === 'past due' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                background:
+                  w.status === 'past due' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
                 color: w.status === 'past due' ? 'var(--danger-fg)' : 'var(--warning-fg)',
               }}
               aria-hidden
@@ -129,16 +193,19 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
               <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                 {w.alert.title}
               </p>
-              <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)', maxWidth: '64ch' }}>
+              <p
+                className="mt-1 text-xs"
+                style={{ color: 'var(--text-secondary)', maxWidth: '64ch' }}
+              >
                 {w.alert.body}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0 sm:self-center">
+          <div className="flex shrink-0 items-center gap-2 sm:self-center">
             {w.status === 'past due' && (
               <button
                 type="button"
-                className="h-8.5 px-3.5 rounded-lg text-xs font-medium text-white transition-all active:scale-95"
+                className="h-8.5 rounded-lg px-3.5 text-xs font-medium text-white transition-all active:scale-95"
                 style={{ background: 'var(--blue-500)' }}
               >
                 Retry Charge
@@ -146,8 +213,12 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
             )}
             <Link
               href={`/platform/tenants/${w.slug}?tab=billing`}
-              className="h-8.5 inline-flex items-center gap-1 px-3 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-              style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', color: 'var(--text-primary)' }}
+              className="inline-flex h-8.5 items-center gap-1 rounded-lg px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+              style={{
+                border: '1px solid var(--border-strong)',
+                background: 'var(--surface-raised)',
+                color: 'var(--text-primary)',
+              }}
             >
               View Invoices
             </Link>
@@ -162,7 +233,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
           <Panel
             title={`Entitlements · ${w.plan || 'Trial'}`}
             action={
-              <span className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>
+              <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
                 Resets in 19 days
               </span>
             }
@@ -182,21 +253,38 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 const limitStr = m.unit ? `${m.limit}${m.unit}` : m.limit.toLocaleString('en-GB');
 
                 return (
-                  <div key={m.label} className="py-3.5 first:pt-1 last:pb-1 flex flex-col gap-2">
+                  <div key={m.label} className="flex flex-col gap-2 py-3.5 first:pt-1 last:pb-1">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="p-1 rounded-md" style={{ background: 'var(--surface-inset)' }}>
-                          <Icon size={15} stroke={1.5} style={{ color: 'var(--text-secondary)' }} aria-hidden />
+                        <div
+                          className="rounded-md p-1"
+                          style={{ background: 'var(--surface-inset)' }}
+                        >
+                          <Icon
+                            size={15}
+                            stroke={1.5}
+                            style={{ color: 'var(--text-secondary)' }}
+                            aria-hidden
+                          />
                         </div>
-                        <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+                        <span
+                          className="text-xs font-medium"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
                           {m.label}
                         </span>
                       </div>
                       <div className="flex items-baseline gap-2">
-                        <span className="font-mono text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+                        <span
+                          className="font-mono text-xs font-medium"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
                           {usedStr}
                         </span>
-                        <span className="font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
+                        <span
+                          className="font-mono text-[11px]"
+                          style={{ color: 'var(--text-tertiary)' }}
+                        >
                           / {limitStr}
                         </span>
                         <span
@@ -223,7 +311,10 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                     </div>
 
                     {/* Sheet 06: every number names its source. */}
-                    <p className="mt-1.5 font-mono text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
+                    <p
+                      className="mt-1.5 font-mono text-[10px]"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
                       from {m.source}
                     </p>
                   </div>
@@ -231,8 +322,12 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
               })}
             </div>
 
-            <p className="mt-4 text-xs font-mono leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
-              Overrides on this workspace take precedence over the global plan blueprint. Two are currently set.
+            <p
+              className="mt-4 font-mono text-xs leading-relaxed"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              Overrides on this workspace take precedence over the global plan blueprint. Two are
+              currently set.
             </p>
           </Panel>
         </div>
@@ -243,11 +338,16 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
           <Panel title="Subscription Details">
             <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
               {w.facts.map((f) => (
-                <div key={f.label} className="py-2.5 flex items-center justify-between gap-3 text-xs">
+                <div
+                  key={f.label}
+                  className="flex items-center justify-between gap-3 py-2.5 text-xs"
+                >
                   <span style={{ color: 'var(--text-tertiary)' }}>{f.label}</span>
                   <span
-                    className="font-mono font-medium text-right"
-                    style={{ color: f.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)' }}
+                    className="text-right font-mono font-medium"
+                    style={{
+                      color: f.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
+                    }}
                   >
                     {f.value}
                   </span>
@@ -281,34 +381,61 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 {w.owner.initials}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                <p
+                  className="truncate text-xs font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   {w.owner.name}
                 </p>
-                <p className="text-xs font-mono truncate" style={{ color: 'var(--text-tertiary)' }}>
+                <p className="truncate font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
                   {w.owner.email}
                 </p>
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-3 gap-2 border-t pt-3.5 divide-x" style={{ borderColor: 'var(--border-subtle)' }}>
+            <div
+              className="mt-4 grid grid-cols-3 gap-2 divide-x border-t pt-3.5"
+              style={{ borderColor: 'var(--border-subtle)' }}
+            >
               <div className="px-1">
-                <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>Staff</span>
-                <p className="font-mono text-xs font-medium mt-0.5" style={{ color: 'var(--text-primary)' }}>{w.team.staff.split(' of ')[0]}</p>
+                <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>
+                  Staff
+                </span>
+                <p
+                  className="mt-0.5 font-mono text-xs font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {w.team.staff.split(' of ')[0]}
+                </p>
               </div>
               <div className="px-2">
-                <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>Admins</span>
-                <p className="font-mono text-xs font-medium mt-0.5" style={{ color: 'var(--text-primary)' }}>{w.team.admins}</p>
+                <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>
+                  Admins
+                </span>
+                <p
+                  className="mt-0.5 font-mono text-xs font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {w.team.admins}
+                </p>
               </div>
               <div className="px-2">
-                <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>Channels</span>
-                <p className="font-mono text-xs font-medium mt-0.5" style={{ color: 'var(--text-primary)' }}>{w.team.channels.split(' ')[0]}</p>
+                <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>
+                  Channels
+                </span>
+                <p
+                  className="mt-0.5 font-mono text-xs font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {w.team.channels.split(' ')[0]}
+                </p>
               </div>
             </div>
           </Panel>
 
           {/* Data Isolation & Security Seal */}
           <div
-            className="rounded-xl p-4 flex flex-col gap-2"
+            className="flex flex-col gap-2 rounded-xl p-4"
             style={{
               border: '1px solid var(--border-subtle)',
               background: 'var(--surface-sunken)',
@@ -316,11 +443,18 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <IconShieldCheck size={16} stroke={1.5} style={{ color: 'var(--success-fg)' }} aria-hidden />
-                <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>RLS Isolation</span>
+                <IconShieldCheck
+                  size={16}
+                  stroke={1.5}
+                  style={{ color: 'var(--success-fg)' }}
+                  aria-hidden
+                />
+                <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+                  RLS Isolation
+                </span>
               </div>
               <span
-                className="font-mono text-[10px] px-2 py-0.5 rounded"
+                className="rounded px-2 py-0.5 font-mono text-[10px]"
                 style={{
                   background: 'var(--success-bg)',
                   color: 'var(--success-fg)',
@@ -330,11 +464,15 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 Active
               </span>
             </div>
-            <p className="text-[11px] font-mono mt-1" style={{ color: 'var(--text-secondary)' }}>
+            <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--text-secondary)' }}>
               {w.residency}
             </p>
-            <p className="text-[11px] leading-relaxed mt-1" style={{ color: 'var(--text-tertiary)' }}>
-              Platform operators have zero visibility into conversation bodies or customer secret keys outside an active support session.
+            <p
+              className="mt-1 text-[11px] leading-relaxed"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              Platform operators have zero visibility into conversation bodies or customer secret
+              keys outside an active support session.
             </p>
           </div>
         </div>

@@ -52,10 +52,7 @@ function ipOf(request: NextRequest): string | null {
 export async function currentSession(requestId?: string): Promise<ResolvedContext> {
   const id = requestId ?? crypto.randomUUID();
   const headerList = await headers();
-  return resolveSessionCore(
-    headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
-    id,
-  );
+  return resolveSessionCore(headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null, id);
 }
 
 /**
@@ -204,10 +201,7 @@ async function resolveSessionCore(
 export async function currentPlatformSession(requestId?: string): Promise<ResolvedContext> {
   const id = requestId ?? crypto.randomUUID();
   const headerList = await headers();
-  return resolvePlatformCore(
-    headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
-    id,
-  );
+  return resolvePlatformCore(headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null, id);
 }
 
 /** Null rather than throwing, for a console page that renders a sign-in
@@ -297,7 +291,9 @@ async function resolvePlatformCore(
 export async function membershipsFor(
   userId: string,
   requestId: string,
-): Promise<Array<{ tenantId: string; slug: string; name: string; role: TenantRole; status: string }>> {
+): Promise<
+  Array<{ tenantId: string; slug: string; name: string; role: TenantRole; status: string }>
+> {
   return withActorContext(userId, requestId, async (tx) => {
     const rows = await tx
       .select({

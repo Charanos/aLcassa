@@ -4,7 +4,11 @@ import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService } from '@/lib/db/serviceClient';
 import { createSupabaseAdminClient } from '@/lib/auth/supabase/admin';
 import { tenantMembers, tenantSettings, tenants, userProfiles } from '@/db/schema';
-import { provisionTenantSchema, type ProvisionTenantInput, type ProvisionTenantResult } from '../types';
+import {
+  provisionTenantSchema,
+  type ProvisionTenantInput,
+  type ProvisionTenantResult,
+} from '../types';
 
 /**
  * 02 §3 · 05 §3 · 06 §5 · 11 §6. PROVISION A TENANT.
@@ -73,8 +77,7 @@ export async function provisionTenant(
   });
 
   if (invited.error || !invited.data.user) {
-    const alreadyRegistered =
-      invited.error?.message?.toLowerCase().includes('already') ?? false;
+    const alreadyRegistered = invited.error?.message?.toLowerCase().includes('already') ?? false;
     return {
       ok: false,
       code: alreadyRegistered ? 'owner_exists' : 'provisioning_failed',

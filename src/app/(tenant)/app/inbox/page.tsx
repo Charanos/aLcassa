@@ -28,8 +28,8 @@ export default function InboxPlaceholderPage() {
 
       <div className="mt-5 grid gap-4">
         <p className="t-body text-[var(--ink-secondary)]">
-          This is where every message from WhatsApp, Instagram, Messenger and your website will
-          land in one thread per customer, handled by your team.
+          This is where every message from WhatsApp, Instagram, Messenger and your website will land
+          in one thread per customer, handled by your team.
         </p>
         <p className="t-body text-[var(--ink-secondary)]">
           The platform underneath it is built and running: your workspace, your team, your

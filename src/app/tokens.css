@@ -118,7 +118,11 @@
 
   /* Display sizes. Scaled up optically so Libertinus serif titles read assertively with commanding presence. */
   --display-sm: 24px; /* pairs with --text-lg */
-  --display-md: clamp(32px, 3.4vw, 40px); /* section titles: e.g. "Where the messages will come from" */
+  --display-md: clamp(
+    32px,
+    3.4vw,
+    40px
+  ); /* section titles: e.g. "Where the messages will come from" */
   --display-lg: clamp(42px, 4.4vw, 52px); /* large closing & major section titles */
   --display-hero: clamp(52px, 5.4vw, 62px);
 
@@ -134,7 +138,8 @@
 
   --font-ui: 'DM Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
-  --font-display: 'Libertinus Serif Display', 'Libertinus Serif', 'Linux Libertine O', Georgia, serif;
+  --font-display:
+    'Libertinus Serif Display', 'Libertinus Serif', 'Linux Libertine O', Georgia, serif;
 
   /* Libertinus is a book face, not a high-contrast display face, so it wants
    * far less negative tracking than a display serif does. Its own ascent plus
@@ -259,8 +264,7 @@
   --neu-raised:
     0 1px 1px rgba(14, 16, 19, 0.05), 0 2px 4px rgba(14, 16, 19, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  --neu-inset:
-    inset 0 1px 2px rgba(14, 16, 19, 0.07), inset 0 -1px 0 rgba(255, 255, 255, 0.6);
+  --neu-inset: inset 0 1px 2px rgba(14, 16, 19, 0.07), inset 0 -1px 0 rgba(255, 255, 255, 0.6);
 
   /* Workspace schematic node: dark navy, always — one of the "dark by design"
    * elements sheet 04 calls out, not a dark-mode surface. */
@@ -269,7 +273,8 @@
   --workspace-card-border: var(--ink-700);
   --workspace-card-lock: var(--amber-400);
   --workspace-card-status: var(--success-fg);
-  --workspace-card-shadow: var(--shadow-md), 0 0 24px -6px color-mix(in oklab, var(--blue-500) 25%, transparent);
+  --workspace-card-shadow:
+    var(--shadow-md), 0 0 24px -6px color-mix(in oklab, var(--blue-500) 25%, transparent);
 
   /* Inverted feature section: a constant dark twilight slab, always — the
    * inversion is against the cream page, not against a theme. */
@@ -277,7 +282,7 @@
   --invert-card-fg: #ffffff;
   --invert-card-border: var(--ink-700);
   --invert-card-subtle: #94a3b8;
-  --invert-card-rule: rgba(255, 255, 255, 0.10);
+  --invert-card-rule: rgba(255, 255, 255, 0.1);
   --invert-card-well: rgba(4, 10, 32, 0.45);
   --invert-card-well-border: rgba(255, 255, 255, 0.08);
   /* Sheet 04, "one shadow, one surface": only the dialog and the command
@@ -289,7 +294,6 @@
 
   color-scheme: light;
 }
-
 
 /* ═══ TIER 4 · CONSOLE CHROME (constant dark twilight slab) ════════════════
  *
@@ -580,7 +584,6 @@
   --support-banner-bg: var(--orange-500);
   --support-banner-fg: var(--ink-0);
 }
-
 
 /* ═══ TIER 0 · COMPATIBILITY LAYER ═════════════════════════════════════════
  *

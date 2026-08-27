@@ -40,7 +40,11 @@ export default async function InvitePage({
   // 'pending' is a state the refusal screens must NOT render, so it collapses
   // to undefined and the accept form shows instead.
   const state =
-    invitation && invitation.state !== 'pending' ? invitation.state : (invitation ? undefined : stateParam);
+    invitation && invitation.state !== 'pending'
+      ? invitation.state
+      : invitation
+        ? undefined
+        : stateParam;
 
   const company = invitation?.tenantName ?? 'Acme Industrial';
   const inviter = invitation?.invitedByName ?? 'Grace Wanjiku';
@@ -80,7 +84,12 @@ export default async function InvitePage({
           borderColor: 'var(--border-strong)',
         }}
       >
-        <IconBuilding size={18} stroke={1.5} aria-hidden className="mt-0.5 text-amber-500 shrink-0" />
+        <IconBuilding
+          size={18}
+          stroke={1.5}
+          aria-hidden
+          className="mt-0.5 shrink-0 text-amber-500"
+        />
         <div>
           <p className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
             {inviter} invited you to join {company} as {role}.

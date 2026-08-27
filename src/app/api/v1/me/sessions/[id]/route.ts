@@ -55,9 +55,6 @@ export const DELETE = defineRoute({
       });
     });
 
-    return jsonOk(
-      { revoked: target.id, wasCurrent: target.id === ctx.sessionId },
-      { requestId },
-    );
+    return jsonOk({ revoked: target.id, wasCurrent: target.id === ctx.sessionId }, { requestId });
   },
 });

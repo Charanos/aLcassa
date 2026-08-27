@@ -140,23 +140,23 @@ export function WorkspaceActions({
         consequence="Stated in numbers, because a suspension is felt by people who did not choose it."
         details={
           <>
-          <ul
-            className="grid list-none gap-2.5 border-t p-0 pt-4"
-            style={{ borderColor: 'var(--border-subtle)' }}
-          >
-            <Impact n={impact.staff}>
-              staff lose access at their next request. Sessions are not waited out.
-            </Impact>
-            <Impact n={impact.conversations}>
-              open conversations stop receiving replies. Inbound messages queue but nothing sends.
-            </Impact>
-            <Impact n={impact.channels}>
-              connected channels go quiet, including the WhatsApp number their customers reply to.
-            </Impact>
-            <li className="t-compact mt-1.5" style={{ color: 'var(--text-secondary)' }}>
-              Data is retained. Reactivation restores access immediately and is a single action.
-            </li>
-          </ul>
+            <ul
+              className="grid list-none gap-2.5 border-t p-0 pt-4"
+              style={{ borderColor: 'var(--border-subtle)' }}
+            >
+              <Impact n={impact.staff}>
+                staff lose access at their next request. Sessions are not waited out.
+              </Impact>
+              <Impact n={impact.conversations}>
+                open conversations stop receiving replies. Inbound messages queue but nothing sends.
+              </Impact>
+              <Impact n={impact.channels}>
+                connected channels go quiet, including the WhatsApp number their customers reply to.
+              </Impact>
+              <li className="t-compact mt-1.5" style={{ color: 'var(--text-secondary)' }}>
+                Data is retained. Reactivation restores access immediately and is a single action.
+              </li>
+            </ul>
 
             <div
               className="grid gap-1.5 border-t pt-4"

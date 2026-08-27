@@ -62,7 +62,7 @@ export default async function WorkspaceDetailPage({
   return (
     <ConsolePage>
       {/* Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 mb-3">
+      <nav aria-label="Breadcrumb" className="mb-3 flex items-center gap-2">
         <Link
           href="/platform/tenants"
           className="t-compact whitespace-nowrap transition-colors hover:text-[var(--text-primary)]"
@@ -84,10 +84,13 @@ export default async function WorkspaceDetailPage({
       </nav>
 
       {/* Header Title & Actions */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6 justify-between">
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start lg:gap-6">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="display display-md tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            <h1
+              className="display display-md tracking-tight"
+              style={{ color: 'var(--text-primary)' }}
+            >
               {w.name}
             </h1>
             <span

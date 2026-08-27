@@ -19,7 +19,7 @@ export function Stat({ label, value, delta, sparkline }: StatProps) {
     if (delta.direction === 'down') colorClass = 'text-[var(--oxide-ink)]';
 
     return (
-      <span className={`t-compact font-medium ml-2 ${colorClass}`}>
+      <span className={`t-compact ml-2 font-medium ${colorClass}`}>
         {delta.direction === 'up' && '↑ '}
         {delta.direction === 'down' && '↓ '}
         {delta.value}
@@ -28,28 +28,26 @@ export function Stat({ label, value, delta, sparkline }: StatProps) {
   };
 
   return (
-    <div className="rounded-panel border border-[var(--rule-base)] bg-[var(--surface-raised)] p-5 flex flex-col justify-between">
-      <h3 className="t-micro uppercase text-[var(--ink-tertiary)] tracking-wider">
-        {label}
-      </h3>
-      
+    <div className="flex flex-col justify-between rounded-panel border border-[var(--rule-base)] bg-[var(--surface-raised)] p-5">
+      <h3 className="t-micro tracking-wider text-[var(--ink-tertiary)] uppercase">{label}</h3>
+
       <div className="mt-3 flex items-baseline justify-between">
         <div className="flex items-baseline">
-          <span className="t-data text-[var(--ink-primary)] text-2xl font-variant-numeric:tabular-nums">
+          <span className="t-data font-variant-numeric:tabular-nums text-2xl text-[var(--ink-primary)]">
             {value}
           </span>
           {renderDelta()}
         </div>
-        
+
         {sparkline && sparkline.length > 0 && (
-          <div className="w-16 h-8 flex items-end gap-[1px]">
+          <div className="flex h-8 w-16 items-end gap-[1px]">
             {sparkline.map((val, idx) => {
               const max = Math.max(...sparkline) || 1;
               const heightPct = Math.max(10, (val / max) * 100);
               return (
-                <div 
-                  key={idx} 
-                  className="w-full bg-[var(--copper-solid)] opacity-50 rounded-t-sm"
+                <div
+                  key={idx}
+                  className="w-full rounded-t-sm bg-[var(--copper-solid)] opacity-50"
                   style={{ height: `${heightPct}%` }}
                 />
               );

@@ -93,15 +93,20 @@ export async function updateCompany(input: {
   locale: string;
 }): Promise<ActionResult> {
   if (!input.name.trim()) return { ok: false, error: 'Company name is required.' };
-  if (!/.+@.+\..+/.test(input.contactEmail)) return { ok: false, error: 'Enter a valid contact email.' };
+  if (!/.+@.+\..+/.test(input.contactEmail))
+    return { ok: false, error: 'Enter a valid contact email.' };
 
   return {
     ok: false,
-    error: 'Company settings write to tenant_settings, which is not wired until the tenant mutation module lands. The request itself is valid — nothing else is blocking it.',
+    error:
+      'Company settings write to tenant_settings, which is not wired until the tenant mutation module lands. The request itself is valid — nothing else is blocking it.',
   };
 }
 
-export async function sendInvitation(input: { email: string; role: string }): Promise<ActionResult> {
+export async function sendInvitation(input: {
+  email: string;
+  role: string;
+}): Promise<ActionResult> {
   if (!/.+@.+\..+/.test(input.email)) return { ok: false, error: 'Enter a valid email address.' };
   // 06 §5. `owner` is absent deliberately: a workspace has exactly one, and
   // handing it over is a transfer rather than an invitation.
@@ -158,31 +163,44 @@ export async function removeMember(id: string): Promise<ActionResult> {
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
-export async function createCredential(input: { name: string; scopes: string[] }): Promise<ActionResult> {
-  if (!input.name.trim()) return { ok: false, error: 'Name the credential so it is recognisable in the list later.' };
+export async function createCredential(input: {
+  name: string;
+  scopes: string[];
+}): Promise<ActionResult> {
+  if (!input.name.trim())
+    return { ok: false, error: 'Name the credential so it is recognisable in the list later.' };
   if (input.scopes.length === 0) return { ok: false, error: 'Select at least one scope.' };
 
   return {
     ok: false,
-    error: 'A credential cannot be minted without the api_credentials table — this is the one screen that should never fabricate a secret, so it refuses rather than showing one that is not real.',
+    error:
+      'A credential cannot be minted without the api_credentials table — this is the one screen that should never fabricate a secret, so it refuses rather than showing one that is not real.',
   };
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function revokeCredential(id: string): Promise<ActionResult> {
   if (!id) return { ok: false, error: 'Select a credential to revoke.' };
-  return { ok: false, error: 'Revoking a credential is not wired until the api_credentials table lands.' };
+  return {
+    ok: false,
+    error: 'Revoking a credential is not wired until the api_credentials table lands.',
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function publishAiRules(input: { changeNote: string }): Promise<ActionResult> {
   if (!input.changeNote.trim()) {
-    return { ok: false, error: 'A change note is required — it is what makes the version history readable six months later.' };
+    return {
+      ok: false,
+      error:
+        'A change note is required — it is what makes the version history readable six months later.',
+    };
   }
 
   return {
     ok: false,
-    error: 'Publishing writes an append-only version row to tenant_ai_rules, which is not wired until M4a. The change note and the edited fields are valid — nothing else is blocking it.',
+    error:
+      'Publishing writes an append-only version row to tenant_ai_rules, which is not wired until M4a. The change note and the edited fields are valid — nothing else is blocking it.',
   };
 }
 

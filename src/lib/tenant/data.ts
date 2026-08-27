@@ -65,11 +65,41 @@ export async function getOverview(): Promise<OverviewModel> {
     seats: { used: 12, limit: 15 },
     channels: { used: 3, limit: 5 },
     checklist: [
-      { key: 'email', label: 'Confirm your email', doneLabel: 'Email confirmed', done: true, href: '/app/account' },
-      { key: 'company', label: 'Add your company details', doneLabel: 'Company details added', done: true, href: '/app/settings/company' },
-      { key: 'team', label: 'Invite your team', doneLabel: 'Team invited', done: true, href: '/app/settings/team' },
-      { key: 'credential', label: 'Create an API credential', doneLabel: 'Credential created', done: false, href: '/app/settings/credentials/new' },
-      { key: 'rules', label: 'Set your assistant rules', doneLabel: 'Rules published', done: false, href: '/app/settings/ai-rules' },
+      {
+        key: 'email',
+        label: 'Confirm your email',
+        doneLabel: 'Email confirmed',
+        done: true,
+        href: '/app/account',
+      },
+      {
+        key: 'company',
+        label: 'Add your company details',
+        doneLabel: 'Company details added',
+        done: true,
+        href: '/app/settings/company',
+      },
+      {
+        key: 'team',
+        label: 'Invite your team',
+        doneLabel: 'Team invited',
+        done: true,
+        href: '/app/settings/team',
+      },
+      {
+        key: 'credential',
+        label: 'Create an API credential',
+        doneLabel: 'Credential created',
+        done: false,
+        href: '/app/settings/credentials/new',
+      },
+      {
+        key: 'rules',
+        label: 'Set your assistant rules',
+        doneLabel: 'Rules published',
+        done: false,
+        href: '/app/settings/ai-rules',
+      },
     ],
     recentActivity: [
       { time: '2 hours ago', actor: 'Amina Yusuf', action: 'invited David Kimani to the team' },
@@ -146,14 +176,60 @@ export type TeamModel = {
 export async function getTeam(): Promise<TeamModel> {
   return {
     members: [
-      { id: 'm_1', name: 'Amina Yusuf', email: 'amina@acmeindustrial.co.ke', role: 'owner', status: 'active', initials: 'AY', joinedAt: '14 Jul 2026' },
-      { id: 'm_2', name: 'David Kimani', email: 'david@acmeindustrial.co.ke', role: 'admin', status: 'active', initials: 'DK', joinedAt: '02 Aug 2026' },
-      { id: 'm_3', name: 'Grace Wanjiru', email: 'grace@acmeindustrial.co.ke', role: 'agent', status: 'active', initials: 'GW', joinedAt: '05 Aug 2026' },
-      { id: 'm_4', name: 'Peter Otieno', email: 'peter@acmeindustrial.co.ke', role: 'agent', status: 'suspended', initials: 'PO', joinedAt: '20 Jul 2026' },
+      {
+        id: 'm_1',
+        name: 'Amina Yusuf',
+        email: 'amina@acmeindustrial.co.ke',
+        role: 'owner',
+        status: 'active',
+        initials: 'AY',
+        joinedAt: '14 Jul 2026',
+      },
+      {
+        id: 'm_2',
+        name: 'David Kimani',
+        email: 'david@acmeindustrial.co.ke',
+        role: 'admin',
+        status: 'active',
+        initials: 'DK',
+        joinedAt: '02 Aug 2026',
+      },
+      {
+        id: 'm_3',
+        name: 'Grace Wanjiru',
+        email: 'grace@acmeindustrial.co.ke',
+        role: 'agent',
+        status: 'active',
+        initials: 'GW',
+        joinedAt: '05 Aug 2026',
+      },
+      {
+        id: 'm_4',
+        name: 'Peter Otieno',
+        email: 'peter@acmeindustrial.co.ke',
+        role: 'agent',
+        status: 'suspended',
+        initials: 'PO',
+        joinedAt: '20 Jul 2026',
+      },
     ],
     invitations: [
-      { id: 'i_1', email: 'sarah@acmeindustrial.co.ke', role: 'agent', sentAt: '3 days ago', expiresAt: '4 days from now', status: 'pending' },
-      { id: 'i_2', email: 'james@acmeindustrial.co.ke', role: 'agent', sentAt: '11 days ago', expiresAt: '4 days ago', status: 'expired' },
+      {
+        id: 'i_1',
+        email: 'sarah@acmeindustrial.co.ke',
+        role: 'agent',
+        sentAt: '3 days ago',
+        expiresAt: '4 days from now',
+        status: 'pending',
+      },
+      {
+        id: 'i_2',
+        email: 'james@acmeindustrial.co.ke',
+        role: 'agent',
+        sentAt: '11 days ago',
+        expiresAt: '4 days ago',
+        status: 'expired',
+      },
     ],
     seatsUsed: 6,
     seatsLimit: 15,
@@ -192,9 +268,36 @@ export type CredentialsModel = {
 export async function getCredentials(): Promise<CredentialsModel> {
   return {
     credentials: [
-      { id: 'c_1', name: 'Production — order sync', prefix: 'csk_live_8f21c4', scopes: ['messages:read', 'messages:write'], status: 'active', lastUsed: '4 minutes ago', createdAt: '14 Jul 2026', createdBy: 'Amina Yusuf' },
-      { id: 'c_2', name: 'Staging — integration tests', prefix: 'csk_test_2b9e71', scopes: ['messages:read'], status: 'active', lastUsed: '94 days ago', createdAt: '20 Jul 2026', createdBy: 'David Kimani' },
-      { id: 'c_3', name: 'Legacy CRM bridge', prefix: 'csk_live_a03d5e', scopes: ['messages:read', 'contacts:read'], status: 'revoked', lastUsed: '210 days ago', createdAt: '02 Mar 2026', createdBy: 'Amina Yusuf' },
+      {
+        id: 'c_1',
+        name: 'Production — order sync',
+        prefix: 'csk_live_8f21c4',
+        scopes: ['messages:read', 'messages:write'],
+        status: 'active',
+        lastUsed: '4 minutes ago',
+        createdAt: '14 Jul 2026',
+        createdBy: 'Amina Yusuf',
+      },
+      {
+        id: 'c_2',
+        name: 'Staging — integration tests',
+        prefix: 'csk_test_2b9e71',
+        scopes: ['messages:read'],
+        status: 'active',
+        lastUsed: '94 days ago',
+        createdAt: '20 Jul 2026',
+        createdBy: 'David Kimani',
+      },
+      {
+        id: 'c_3',
+        name: 'Legacy CRM bridge',
+        prefix: 'csk_live_a03d5e',
+        scopes: ['messages:read', 'contacts:read'],
+        status: 'revoked',
+        lastUsed: '210 days ago',
+        createdAt: '02 Mar 2026',
+        createdBy: 'Amina Yusuf',
+      },
     ],
     keysUsed: 2,
     keysLimit: 10,
@@ -221,7 +324,12 @@ export type RuleField = {
   provenance: 'master (locked)' | 'tenant' | 'master (default)' | 'master + tenant (combined)';
 };
 
-export type RulesVersion = { version: number; publishedAt: string; publishedBy: string; changeNote: string };
+export type RulesVersion = {
+  version: number;
+  publishedAt: string;
+  publishedBy: string;
+  changeNote: string;
+};
 
 export type TenantRulesModel = {
   fields: RuleField[];
@@ -274,9 +382,24 @@ export async function getTenantAiRules(): Promise<TenantRulesModel> {
     ],
     currentVersion: 14,
     versions: [
-      { version: 14, publishedAt: '11 Aug 2026, 09:12', publishedBy: 'Amina Yusuf', changeNote: 'Tightened order-number confirmation wording after a mismatch.' },
-      { version: 13, publishedAt: '02 Aug 2026, 14:30', publishedBy: 'David Kimani', changeNote: 'Added warmer tone guidance for repeat customers.' },
-      { version: 12, publishedAt: '20 Jul 2026, 11:05', publishedBy: 'Amina Yusuf', changeNote: 'Initial rules published at workspace setup.' },
+      {
+        version: 14,
+        publishedAt: '11 Aug 2026, 09:12',
+        publishedBy: 'Amina Yusuf',
+        changeNote: 'Tightened order-number confirmation wording after a mismatch.',
+      },
+      {
+        version: 13,
+        publishedAt: '02 Aug 2026, 14:30',
+        publishedBy: 'David Kimani',
+        changeNote: 'Added warmer tone guidance for repeat customers.',
+      },
+      {
+        version: 12,
+        publishedAt: '20 Jul 2026, 11:05',
+        publishedBy: 'Amina Yusuf',
+        changeNote: 'Initial rules published at workspace setup.',
+      },
     ],
     versionsRetained: 3,
     versionsLimit: 50,
@@ -285,7 +408,8 @@ export async function getTenantAiRules(): Promise<TenantRulesModel> {
 
 /* ── Subscription and entitlements ───────────────────────────────────── */
 
-export type EntitlementKey = 'seats' | 'channels' | 'api_keys' | 'kb_documents' | 'ai_rules_versions' | 'audit_retention_days';
+export type EntitlementKey =
+  'seats' | 'channels' | 'api_keys' | 'kb_documents' | 'ai_rules_versions' | 'audit_retention_days';
 
 export type Entitlement = {
   key: EntitlementKey;
@@ -298,7 +422,12 @@ export type Entitlement = {
   unit?: string;
 };
 
-export type EntitlementOverride = { key: EntitlementKey; reason: string; expiresAt: string | null; grantedBy: string };
+export type EntitlementOverride = {
+  key: EntitlementKey;
+  reason: string;
+  expiresAt: string | null;
+  grantedBy: string;
+};
 
 export type SubscriptionModel = {
   planName: string;
@@ -324,12 +453,36 @@ export async function getSubscription(): Promise<SubscriptionModel> {
       { key: 'seats', label: 'Staff seats', kind: 'limit', current: 12, limit: 15 },
       { key: 'channels', label: 'Channel connections', kind: 'limit', current: 3, limit: 5 },
       { key: 'api_keys', label: 'API credentials', kind: 'limit', current: 2, limit: 10 },
-      { key: 'kb_documents', label: 'Knowledge base documents', kind: 'limit', current: 0, limit: 1000 },
-      { key: 'ai_rules_versions', label: 'Assistant rule versions retained', kind: 'limit', current: 3, limit: 50 },
-      { key: 'audit_retention_days', label: 'Activity log retention', kind: 'limit', current: 90, limit: null, unit: ' days' },
+      {
+        key: 'kb_documents',
+        label: 'Knowledge base documents',
+        kind: 'limit',
+        current: 0,
+        limit: 1000,
+      },
+      {
+        key: 'ai_rules_versions',
+        label: 'Assistant rule versions retained',
+        kind: 'limit',
+        current: 3,
+        limit: 50,
+      },
+      {
+        key: 'audit_retention_days',
+        label: 'Activity log retention',
+        kind: 'limit',
+        current: 90,
+        limit: null,
+        unit: ' days',
+      },
     ],
     overrides: [
-      { key: 'seats', reason: 'Temporary headcount for Q3 product launch', expiresAt: '30 Sep 2026', grantedBy: 'Andishi support' },
+      {
+        key: 'seats',
+        reason: 'Temporary headcount for Q3 product launch',
+        expiresAt: '30 Sep 2026',
+        grantedBy: 'Andishi support',
+      },
     ],
   };
 }
@@ -360,12 +513,54 @@ export type TenantAuditModel = { entries: TenantAuditEntry[]; retentionDays: num
 export async function getTenantAudit(): Promise<TenantAuditModel> {
   return {
     entries: [
-      { id: 'a_1', time: '2 hours ago', actor: 'Amina Yusuf', kind: 'member', action: 'invited', target: 'sarah@acmeindustrial.co.ke' },
-      { id: 'a_2', time: 'Yesterday, 16:40', actor: 'David Kimani', kind: 'member', action: 'accepted invitation', target: 'David Kimani' },
-      { id: 'a_3', time: '2 days ago', actor: 'Amina Yusuf', kind: 'settings', action: 'updated contact details', target: 'Company settings' },
-      { id: 'a_4', time: '3 days ago', actor: 'Andishi support', kind: 'support', action: 'opened a support session', target: 'Acme Industrial' },
-      { id: 'a_5', time: '5 days ago', actor: 'David Kimani', kind: 'rules', action: 'published v13', target: 'Assistant rules' },
-      { id: 'a_6', time: '9 days ago', actor: 'Amina Yusuf', kind: 'credential', action: 'created', target: 'Production — order sync' },
+      {
+        id: 'a_1',
+        time: '2 hours ago',
+        actor: 'Amina Yusuf',
+        kind: 'member',
+        action: 'invited',
+        target: 'sarah@acmeindustrial.co.ke',
+      },
+      {
+        id: 'a_2',
+        time: 'Yesterday, 16:40',
+        actor: 'David Kimani',
+        kind: 'member',
+        action: 'accepted invitation',
+        target: 'David Kimani',
+      },
+      {
+        id: 'a_3',
+        time: '2 days ago',
+        actor: 'Amina Yusuf',
+        kind: 'settings',
+        action: 'updated contact details',
+        target: 'Company settings',
+      },
+      {
+        id: 'a_4',
+        time: '3 days ago',
+        actor: 'Andishi support',
+        kind: 'support',
+        action: 'opened a support session',
+        target: 'Acme Industrial',
+      },
+      {
+        id: 'a_5',
+        time: '5 days ago',
+        actor: 'David Kimani',
+        kind: 'rules',
+        action: 'published v13',
+        target: 'Assistant rules',
+      },
+      {
+        id: 'a_6',
+        time: '9 days ago',
+        actor: 'Amina Yusuf',
+        kind: 'credential',
+        action: 'created',
+        target: 'Production — order sync',
+      },
     ],
     retentionDays: 90,
   };
@@ -417,9 +612,27 @@ export async function getAccount(): Promise<AccountModel> {
 export async function getAccountSessions(): Promise<AccountSessionsModel> {
   return {
     sessions: [
-      { id: 's_1', device: 'Chrome on macOS', location: 'Nairobi, Kenya', lastActive: 'Active now', current: true },
-      { id: 's_2', device: 'Safari on iPhone', location: 'Nairobi, Kenya', lastActive: '3 hours ago', current: false },
-      { id: 's_3', device: 'Chrome on Windows', location: 'Mombasa, Kenya', lastActive: '6 days ago', current: false },
+      {
+        id: 's_1',
+        device: 'Chrome on macOS',
+        location: 'Nairobi, Kenya',
+        lastActive: 'Active now',
+        current: true,
+      },
+      {
+        id: 's_2',
+        device: 'Safari on iPhone',
+        location: 'Nairobi, Kenya',
+        lastActive: '3 hours ago',
+        current: false,
+      },
+      {
+        id: 's_3',
+        device: 'Chrome on Windows',
+        location: 'Mombasa, Kenya',
+        lastActive: '6 days ago',
+        current: false,
+      },
     ],
   };
 }

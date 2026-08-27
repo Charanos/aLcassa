@@ -34,7 +34,14 @@ export function SegmentedControl<T extends string>({
   label: string;
   value: T;
   onChange: (value: T) => void;
-  options: Array<{ value: T; label: string; count?: number; tone?: string; tint?: string; rule?: string }>;
+  options: Array<{
+    value: T;
+    label: string;
+    count?: number;
+    tone?: string;
+    tint?: string;
+    rule?: string;
+  }>;
 }) {
   const groupRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +53,8 @@ export function SegmentedControl<T extends string>({
     const index = options.findIndex((option) => option.value === value);
     let next = index;
 
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % options.length;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+      next = (index + 1) % options.length;
     if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
       next = (index - 1 + options.length) % options.length;
     if (event.key === 'Home') next = 0;
@@ -160,7 +168,10 @@ export function Checkbox({
       </span>
 
       {count !== undefined ? (
-        <span className="t-data tabular-nums text-[var(--ink-tertiary)]" style={{ fontSize: '12px' }}>
+        <span
+          className="t-data text-[var(--ink-tertiary)] tabular-nums"
+          style={{ fontSize: '12px' }}
+        >
           {count}
         </span>
       ) : null}

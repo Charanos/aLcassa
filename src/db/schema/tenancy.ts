@@ -36,10 +36,7 @@ export const tenants = pgTable(
     ...timestamps,
     ...softDelete,
   },
-  (t) => [
-    index('tenants_status_idx').on(t.status),
-    uniqueIndex('tenants_slug_idx').on(t.slug),
-  ],
+  (t) => [index('tenants_status_idx').on(t.status), uniqueIndex('tenants_slug_idx').on(t.slug)],
 );
 
 /**

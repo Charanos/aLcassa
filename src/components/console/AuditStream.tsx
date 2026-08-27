@@ -41,14 +41,24 @@ import type { AuditEntry, AuditKind } from '@/lib/console/data';
 
 const KIND_META: Record<AuditKind, { label: string; icon: TablerIcon; bg: string; ink: string }> = {
   tenant: { label: 'Workspace', icon: IconBuildings, bg: 'var(--blue-50)', ink: 'var(--blue-500)' },
-  plan: { label: 'Plans', icon: IconLayoutList, bg: 'var(--surface-inset)', ink: 'var(--text-secondary)' },
+  plan: {
+    label: 'Plans',
+    icon: IconLayoutList,
+    bg: 'var(--surface-inset)',
+    ink: 'var(--text-secondary)',
+  },
   session: {
     label: 'Sessions',
     icon: IconExternalLink,
     bg: 'var(--orange-100)',
     ink: 'var(--accent-mark-text)',
   },
-  rules: { label: 'AI rules', icon: IconFileText, bg: 'var(--surface-inset)', ink: 'var(--text-secondary)' },
+  rules: {
+    label: 'AI rules',
+    icon: IconFileText,
+    bg: 'var(--surface-inset)',
+    ink: 'var(--text-secondary)',
+  },
   admin: { label: 'Admins', icon: IconShieldLock, bg: 'var(--danger-bg)', ink: 'var(--danger-fg)' },
 };
 
@@ -135,7 +145,10 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
           );
         })}
 
-        <span className="t-compact ml-auto whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
+        <span
+          className="t-compact ml-auto whitespace-nowrap"
+          style={{ color: 'var(--text-secondary)' }}
+        >
           <span className="numeric" style={{ color: 'var(--text-primary)' }}>
             {filtered.length}
           </span>{' '}
@@ -345,10 +358,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
         })}
 
         {filtered.length === 0 ? (
-          <p
-            className="t-compact px-4 py-10 text-center"
-            style={{ color: 'var(--text-tertiary)' }}
-          >
+          <p className="t-compact px-4 py-10 text-center" style={{ color: 'var(--text-tertiary)' }}>
             No entry matches those filters. The log is append-only, so nothing has been removed —
             only hidden by the current search.
           </p>

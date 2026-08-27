@@ -82,7 +82,11 @@ export function AiRulesEditor({
         </label>
 
         {error ? (
-          <p role="alert" className="t-compact flex items-start gap-1.5" style={{ color: 'var(--oxide-ink)' }}>
+          <p
+            role="alert"
+            className="t-compact flex items-start gap-1.5"
+            style={{ color: 'var(--oxide-ink)' }}
+          >
             <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
             {error}
           </p>
@@ -101,7 +105,10 @@ export function AiRulesEditor({
       </form>
 
       <aside className="grid gap-4">
-        <div className="rounded-panel border p-4" style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}>
+        <div
+          className="rounded-panel border p-4"
+          style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+        >
           <div className="flex items-center justify-between">
             <h2 className="t-label text-[var(--ink-tertiary)]">Version history</h2>
             <span className="t-caption text-[var(--ink-tertiary)]">
@@ -111,7 +118,11 @@ export function AiRulesEditor({
           </div>
           <ol className="mt-3 grid gap-3">
             {versions.map((v) => (
-              <li key={v.version} className="border-t pt-3 first:border-t-0 first:pt-0" style={{ borderColor: 'var(--rule-soft)' }}>
+              <li
+                key={v.version}
+                className="border-t pt-3 first:border-t-0 first:pt-0"
+                style={{ borderColor: 'var(--rule-soft)' }}
+              >
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="t-data text-[var(--ink-primary)]">v{v.version}</span>
                   <span className="t-caption text-[var(--ink-tertiary)]">{v.publishedAt}</span>
@@ -149,7 +160,13 @@ function RuleFieldEditor({
           className="mt-1.5 flex items-start gap-2.5 rounded-panel border p-3.5"
           style={{ borderColor: 'var(--copper-rule)', background: 'var(--copper-tint)' }}
         >
-          <IconLock size={15} stroke={1.5} className="mt-0.5 shrink-0" style={{ color: 'var(--copper-ink)' }} aria-hidden />
+          <IconLock
+            size={15}
+            stroke={1.5}
+            className="mt-0.5 shrink-0"
+            style={{ color: 'var(--copper-ink)' }}
+            aria-hidden
+          />
           <p className="t-body" style={{ color: 'var(--ink-primary)' }}>
             {field.masterValue}
           </p>

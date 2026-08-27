@@ -9,7 +9,15 @@ import {
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
-import { Fact, Panel, SheetSection, StatTile, StatusChip, Well, type Tone } from '@/components/presentation/Sheet';
+import {
+  Fact,
+  Panel,
+  SheetSection,
+  StatTile,
+  StatusChip,
+  Well,
+  type Tone,
+} from '@/components/presentation/Sheet';
 import { DataList, type Column } from '@/components/presentation/DataList';
 import { DocCard } from '@/components/presentation/DocCard';
 import { TrackerHeader } from '@/components/presentation/TrackerHeader';
@@ -144,15 +152,42 @@ export default function ProjectTrackerPage() {
       hideOnCard: true,
       cell: (row) => String(row.n).padStart(2, '0'),
     },
-    { key: 'requirement', header: 'Your requirement', width: '24%', primary: true, cell: (row) => row.requirement },
+    {
+      key: 'requirement',
+      header: 'Your requirement',
+      width: '24%',
+      primary: true,
+      cell: (row) => row.requirement,
+    },
     { key: 'delivery', header: 'What we deliver', muted: true, cell: (row) => row.delivery },
-    { key: 'milestone', header: 'Milestone', width: '116px', mono: true, muted: true, cell: (row) => row.milestone },
+    {
+      key: 'milestone',
+      header: 'Milestone',
+      width: '116px',
+      mono: true,
+      muted: true,
+      cell: (row) => row.milestone,
+    },
   ];
 
   const inputColumns: Array<Column<(typeof CLIENT_INPUTS)[number]>> = [
     { key: 'item', header: 'Item', primary: true, cell: (row) => row.item },
-    { key: 'when', header: 'When', width: '150px', mono: true, muted: true, cell: (row) => row.when },
-    { key: 'blocks', header: 'Blocks', width: '160px', mono: true, muted: true, cell: (row) => row.blocking },
+    {
+      key: 'when',
+      header: 'When',
+      width: '150px',
+      mono: true,
+      muted: true,
+      cell: (row) => row.when,
+    },
+    {
+      key: 'blocks',
+      header: 'Blocks',
+      width: '160px',
+      mono: true,
+      muted: true,
+      cell: (row) => row.blocking,
+    },
     { key: 'status', header: 'Status', width: '220px', muted: true, cell: (row) => row.status },
   ];
 
@@ -162,7 +197,7 @@ export default function ProjectTrackerPage() {
       <CommandPalette commands={commands} />
       <TrackerHeader sections={SECTIONS} />
 
-      <main id="main" className="mx-auto px-5 pb-28 md:px-8 py-12" style={{ maxWidth: '1280px' }}>
+      <main id="main" className="mx-auto px-5 py-12 pb-28 md:px-8" style={{ maxWidth: '1280px' }}>
         <TrackerDashboardHero
           client={ENGAGEMENT.client}
           projectLead={ENGAGEMENT.projectLead}
@@ -474,7 +509,7 @@ export default function ProjectTrackerPage() {
                     boxShadow: 'var(--shadow-card)',
                   }}
                 >
-                  <span className="t-data shrink-0 tabular-nums text-[var(--copper-ink)]">
+                  <span className="t-data shrink-0 text-[var(--copper-ink)] tabular-nums">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <span className="t-compact text-[var(--ink-secondary)]">{condition}</span>

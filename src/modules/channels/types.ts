@@ -136,7 +136,10 @@ export type ChannelAdapter = {
 
   /** Begin or complete the provider handshake. Returns the external account
    *  reference to store on the connection row. */
-  connect(input: { tenantId: string; config: Record<string, unknown> }): Promise<
+  connect(input: {
+    tenantId: string;
+    config: Record<string, unknown>;
+  }): Promise<
     { ok: true; externalAccountRef: string } | { ok: false; code: string; message: string }
   >;
 

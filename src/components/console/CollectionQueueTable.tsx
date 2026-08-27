@@ -88,7 +88,9 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                   </Link>
                 </td>
                 <td style={{ padding: '0 8px' }}>
-                  <span style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-secondary)' }}>
+                  <span
+                    style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-secondary)' }}
+                  >
                     {c.invoice}
                   </span>
                 </td>
@@ -98,12 +100,22 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                   </span>
                 </td>
                 <td style={{ padding: '0 8px', textAlign: 'right' }}>
-                  <span style={{ font: '400 var(--text-sm)/1 var(--font-mono)', color: lateInk(c.days) }}>
+                  <span
+                    style={{
+                      font: '400 var(--text-sm)/1 var(--font-mono)',
+                      color: lateInk(c.days),
+                    }}
+                  >
                     {c.days} {c.days === 1 ? 'day' : 'days'}
                   </span>
                 </td>
                 <td style={{ padding: '0 16px', textAlign: 'right' }}>
-                  <span style={{ font: '400 var(--text-sm)/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                  <span
+                    style={{
+                      font: '400 var(--text-sm)/1 var(--font-mono)',
+                      color: 'var(--text-tertiary)',
+                    }}
+                  >
                     {c.attempts}
                   </span>
                 </td>
@@ -125,7 +137,10 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
             <div className="flex items-start justify-between gap-3">
               <span
                 className="min-w-0 flex-1"
-                style={{ font: '500 var(--text-sm)/1.35 var(--font-ui)', color: 'var(--text-primary)' }}
+                style={{
+                  font: '500 var(--text-sm)/1.35 var(--font-ui)',
+                  color: 'var(--text-primary)',
+                }}
               >
                 {c.name}
               </span>

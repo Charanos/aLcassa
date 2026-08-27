@@ -32,7 +32,7 @@ export function CommandTrigger({ onOpen }: { onOpen?: () => void }) {
       type="button"
       onClick={onOpen}
       aria-label="Open command palette"
-      className="group flex h-9 items-center gap-2 rounded-chip border pl-2.5 pr-2 text-[var(--ink-tertiary)] transition-colors duration-150 ease-out cursor-pointer hover:text-[var(--ink-primary)] hover:border-[var(--rule-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+      className="group flex h-9 cursor-pointer items-center gap-2 rounded-chip border pr-2 pl-2.5 text-[var(--ink-tertiary)] transition-colors duration-150 ease-out hover:border-[var(--rule-strong)] hover:text-[var(--ink-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
       style={{ background: 'var(--surface-sunken)', borderColor: 'var(--rule-base)' }}
     >
       <IconSearch size={14} stroke={1.75} />

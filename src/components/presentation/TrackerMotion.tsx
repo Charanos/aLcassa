@@ -329,9 +329,7 @@ export function TrackerMotion() {
     );
 
     // Fonts land after first paint and change every measurement on the page.
-    void document.fonts?.ready
-      .then(() => ScrollTrigger.refresh())
-      .catch(() => undefined);
+    void document.fonts?.ready.then(() => ScrollTrigger.refresh()).catch(() => undefined);
 
     return () => {
       window.clearTimeout(watchdog);

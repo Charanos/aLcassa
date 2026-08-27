@@ -44,11 +44,22 @@ export function LimitBar({ label, current, limit, unit = '' }: LimitBarProps) {
   const atLimit = pct >= 1;
   const nearLimit = pct >= THRESHOLD;
 
-  const fillColor = atLimit ? 'var(--oxide-ink)' : nearLimit ? 'var(--ochre-ink)' : 'var(--copper-solid)';
-  const numeralColor = atLimit ? 'var(--oxide-ink)' : nearLimit ? 'var(--ochre-ink)' : 'var(--ink-primary)';
+  const fillColor = atLimit
+    ? 'var(--oxide-ink)'
+    : nearLimit
+      ? 'var(--ochre-ink)'
+      : 'var(--copper-solid)';
+  const numeralColor = atLimit
+    ? 'var(--oxide-ink)'
+    : nearLimit
+      ? 'var(--ochre-ink)'
+      : 'var(--ink-primary)';
 
   return (
-    <div data-slot="limit-bar" data-state={atLimit ? 'at-limit' : nearLimit ? 'near-limit' : 'within-limit'}>
+    <div
+      data-slot="limit-bar"
+      data-state={atLimit ? 'at-limit' : nearLimit ? 'near-limit' : 'within-limit'}
+    >
       <div className="flex items-baseline justify-between gap-3">
         <span className="t-data text-[var(--ink-secondary)]">{label}</span>
         <span className="t-data" style={{ color: numeralColor }}>

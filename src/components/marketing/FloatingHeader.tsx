@@ -69,14 +69,14 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Hide on scroll down after 80px, show on scroll up
       if (currentScrollY > lastScrollY && currentScrollY > 80) {
         setVisible(false);
       } else {
         setVisible(true);
       }
-      
+
       lastScrollY = currentScrollY;
 
       const sections = NAV_ITEMS.map((item) => document.getElementById(item.id));
@@ -84,7 +84,11 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i];
-        if (section && typeof section.offsetTop === 'number' && section.offsetTop <= scrollPosition) {
+        if (
+          section &&
+          typeof section.offsetTop === 'number' &&
+          section.offsetTop <= scrollPosition
+        ) {
           const navItem = NAV_ITEMS[i];
           if (navItem) {
             setActiveTab(navItem.id);
@@ -118,9 +122,7 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
         }`}
         style={{ transitionDuration: 'var(--duration-slow)' }}
       >
-        <div
-          className="mx-auto flex h-16 w-full max-w-[1680px] items-center justify-between gap-4 px-5 md:px-8"
-        >
+        <div className="mx-auto flex h-16 w-full max-w-[1680px] items-center justify-between gap-4 px-5 md:px-8">
           <Link
             href="/"
             aria-label="aLcassa home"
@@ -160,7 +162,7 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
             <button
               ref={toggleBtnRef}
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex size-9 items-center justify-center rounded-chip border transition-colors cursor-pointer"
+              className="flex size-9 cursor-pointer items-center justify-center rounded-chip border transition-colors"
               style={{
                 borderColor: 'var(--border-subtle)',
                 color: 'var(--text-primary)',
@@ -182,7 +184,7 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
       {menuOpen && (
         <div
           ref={menuRef}
-          className="surface-glass-strong animate-in fade-in slide-in-from-top-2 fixed top-18 right-4 left-4 z-50 rounded-overlay sm:left-auto sm:w-80 shadow-2xl border border-[var(--border-subtle)]"
+          className="surface-glass-strong animate-in fade-in slide-in-from-top-2 fixed top-18 right-4 left-4 z-50 rounded-overlay border border-[var(--border-subtle)] shadow-2xl sm:left-auto sm:w-80"
           style={{ animationDuration: 'var(--duration-base)' }}
         >
           <nav className="flex flex-col gap-1.5 p-4">
@@ -197,8 +199,10 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
                     setMenuOpen(false);
                   }}
                   aria-current={isActive ? 'true' : undefined}
-                  className={`t-compact group flex items-center justify-between rounded-chip px-4 py-2.5 whitespace-nowrap transition-all duration-150 cursor-pointer ${
-                    isActive ? 'bg-[var(--surface-inset)] font-medium' : 'hover:bg-[var(--surface-inset)]/60'
+                  className={`t-compact group flex cursor-pointer items-center justify-between rounded-chip px-4 py-2.5 whitespace-nowrap transition-all duration-150 ${
+                    isActive
+                      ? 'bg-[var(--surface-inset)] font-medium'
+                      : 'hover:bg-[var(--surface-inset)]/60'
                   }`}
                   style={{
                     color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
@@ -209,7 +213,7 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
                     <IconCheck
                       size={16}
                       stroke={2}
-                      className="text-[var(--text-action)] shrink-0 ml-2"
+                      className="ml-2 shrink-0 text-[var(--text-action)]"
                       aria-hidden="true"
                     />
                   )}
@@ -218,10 +222,7 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
             })}
 
             {session?.isAuthenticated ? (
-              <div
-                className="mt-3 border-t pt-3"
-                style={{ borderColor: 'var(--border-subtle)' }}
-              >
+              <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--border-subtle)' }}>
                 <Button asChild variant="primary" size="md" className="w-full justify-center gap-2">
                   <Link href={session.dashboardHref} onClick={() => setMenuOpen(false)}>
                     <IconShieldLock size={15} stroke={1.5} />
@@ -235,12 +236,22 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
                 className="mt-3 grid grid-cols-2 gap-3 border-t pt-3"
                 style={{ borderColor: 'var(--border-subtle)' }}
               >
-                <Button asChild variant="secondary" size="md" className="w-full justify-center whitespace-nowrap">
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="md"
+                  className="w-full justify-center whitespace-nowrap"
+                >
                   <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
                     Sign in
                   </Link>
                 </Button>
-                <Button asChild variant="accent" size="md" className="w-full justify-center whitespace-nowrap">
+                <Button
+                  asChild
+                  variant="accent"
+                  size="md"
+                  className="w-full justify-center whitespace-nowrap"
+                >
                   <Link href="/sign-up" onClick={() => setMenuOpen(false)}>
                     Request access
                   </Link>

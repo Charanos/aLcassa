@@ -13,15 +13,15 @@ export const metadata: Metadata = { title: 'Team' };
  *  08 §2: seats count active members PLUS pending invitations, so the limit
  *  bar reads the same total the invite form's own guard will check. */
 export default async function TeamSettingsPage() {
-/**
- * ⚠ LIVE FIRST, FIXTURE SECOND, AND THE ORDER IS THE WHOLE POINT.
- *
- * `getLive*` answers null when there is no real session — which is what the
- * review deployment's demo cookie produces. A signed-in person therefore sees
- * their own workspace; a reviewer clicking the demo button sees the designed
- * data. Neither is ever shown the other's, and no screen has to decide which
- * mode it is in.
- */
+  /**
+   * ⚠ LIVE FIRST, FIXTURE SECOND, AND THE ORDER IS THE WHOLE POINT.
+   *
+   * `getLive*` answers null when there is no real session — which is what the
+   * review deployment's demo cookie produces. A signed-in person therefore sees
+   * their own workspace; a reviewer clicking the demo button sees the designed
+   * data. Neither is ever shown the other's, and no screen has to decide which
+   * mode it is in.
+   */
   const model = (await getLiveTeam()) ?? (await getTeam());
   const pendingCount = model.invitations.filter((i) => i.status === 'pending').length;
 

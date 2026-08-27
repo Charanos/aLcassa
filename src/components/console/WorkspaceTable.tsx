@@ -124,8 +124,8 @@ export function WorkspaceTable({
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const [pending,    setPending]    = useState<ConsoleWorkspace | null>(null);
-  const [drawerRow,  setDrawerRow]  = useState<WorkspaceRow | null>(null);
+  const [pending, setPending] = useState<ConsoleWorkspace | null>(null);
+  const [drawerRow, setDrawerRow] = useState<WorkspaceRow | null>(null);
 
   const attentionCount = useMemo(() => rows.filter(needsAttention).length, [rows]);
 
@@ -170,7 +170,11 @@ export function WorkspaceTable({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const out = rows.filter((r) => {
-      if (q && !(r.name.toLowerCase().includes(q) || r.slug.includes(q) || r.id.toLowerCase().includes(q))) return false;
+      if (
+        q &&
+        !(r.name.toLowerCase().includes(q) || r.slug.includes(q) || r.id.toLowerCase().includes(q))
+      )
+        return false;
       if (statuses.length && !statuses.includes(r.status)) return false;
       if (attention && !needsAttention(r)) return false;
       return true;
@@ -179,7 +183,8 @@ export function WorkspaceTable({
     return [...out].sort((a, b) => {
       let cmp = 0;
       if (sortField === 'name') cmp = a.name.localeCompare(b.name);
-      else if (sortField === 'usage' || sortField === 'events') cmp = a.events / a.eventsLimit - b.events / b.eventsLimit;
+      else if (sortField === 'usage' || sortField === 'events')
+        cmp = a.events / a.eventsLimit - b.events / b.eventsLimit;
       else if (sortField === 'seats') cmp = a.seatsUsed / a.seatsLimit - b.seatsUsed / b.seatsLimit;
       else if (sortField === 'created') cmp = a.created.localeCompare(b.created);
       else cmp = a.activity.localeCompare(b.activity);
@@ -220,8 +225,8 @@ export function WorkspaceTable({
     <>
       {/* ── Summary KPI Ribbon (Inverted Command Panel) ───────────────── */}
       {/* Uses --invert-card-* tokens: a dark navy slab against the cream page, always. */}
-      <div 
-        className="mt-6 flex flex-col sm:flex-row overflow-hidden rounded-2xl"
+      <div
+        className="mt-6 flex flex-col overflow-hidden rounded-2xl sm:flex-row"
         style={{
           background: 'var(--invert-card-bg)',
           color: 'var(--invert-card-fg)',
@@ -229,65 +234,135 @@ export function WorkspaceTable({
         }}
       >
         {/* Metric 1 */}
-        <div className="flex-1 p-5 sm:p-6 sm:pr-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Total Workspaces</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:pr-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Total Workspaces
+          </div>
           <div className="mt-2.5 flex items-baseline gap-2.5">
-            <span className="font-mono text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-3xl font-medium tracking-tight"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               {stats.totalWorkspaces}
             </span>
-            <span className="text-[13px] font-mono font-medium" style={{ color: 'var(--success-fg)' }}>
+            <span
+              className="font-mono text-[13px] font-medium"
+              style={{ color: 'var(--success-fg)' }}
+            >
               {stats.activeCount} active
             </span>
           </div>
-          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
-          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+          <div
+            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
+          <div
+            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
+            style={{
+              background:
+                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
         </div>
 
         {/* Metric 2 */}
-        <div className="flex-1 p-5 sm:p-6 sm:px-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Seats Allocated</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Seats Allocated
+          </div>
           <div className="mt-2.5 flex items-baseline gap-2.5">
-            <span className="font-mono text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-3xl font-medium tracking-tight"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               {group(stats.totalSeats)}
             </span>
-            <span className="text-[13px] font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+            <span className="font-mono text-[13px]" style={{ color: 'var(--invert-card-subtle)' }}>
               / {group(stats.totalSeatsLimit)}
             </span>
           </div>
-          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
-          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+          <div
+            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
+          <div
+            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
+            style={{
+              background:
+                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
         </div>
 
         {/* Metric 3 */}
-        <div className="flex-1 p-5 sm:p-6 sm:px-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Monthly Events</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Monthly Events
+          </div>
           <div className="mt-2.5 flex items-baseline gap-2.5">
-            <span className="font-mono text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-3xl font-medium tracking-tight"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               {formatCompactNumber(stats.totalEvents)}
             </span>
-            <span className="text-[13px] font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+            <span className="font-mono text-[13px]" style={{ color: 'var(--invert-card-subtle)' }}>
               ingested
             </span>
           </div>
-          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
-          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+          <div
+            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
+          <div
+            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
+            style={{
+              background:
+                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
         </div>
 
         {/* Metric 4 */}
-        <div 
-          className="flex-1 p-5 sm:p-6 sm:pl-8 relative transition-colors duration-500"
+        <div
+          className="relative flex-1 p-5 transition-colors duration-500 sm:p-6 sm:pl-8"
           style={{
-            background: attentionCount > 0 ? 'radial-gradient(circle at top right, rgba(250, 85, 5, 0.08), transparent 75%)' : 'transparent',
+            background:
+              attentionCount > 0
+                ? 'radial-gradient(circle at top right, rgba(250, 85, 5, 0.08), transparent 75%)'
+                : 'transparent',
           }}
         >
-          <div className="t-eyebrow" style={{ color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-subtle)' }}>
+          <div
+            className="t-eyebrow"
+            style={{
+              color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-subtle)',
+            }}
+          >
             Needs Attention
           </div>
           <div className="mt-2.5 flex items-baseline gap-2.5">
-            <span className="font-mono text-3xl font-medium tracking-tight" style={{ color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-3xl font-medium tracking-tight"
+              style={{ color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-fg)' }}
+            >
               {attentionCount}
             </span>
-            <span className="text-[13px] font-mono" style={{ color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-subtle)' }}>
+            <span
+              className="font-mono text-[13px]"
+              style={{
+                color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-subtle)',
+              }}
+            >
               {attentionCount === 1 ? 'workspace' : 'workspaces'}
             </span>
           </div>
@@ -300,7 +375,7 @@ export function WorkspaceTable({
         style={{ borderRadius: 'var(--radius-lg)' }}
       >
         <label
-          className="flex h-10 max-w-[400px] xl:max-w-[480px] min-w-0 flex-1 basis-[280px] items-center gap-3 rounded-xl px-3.5 transition-all duration-200 focus-within:ring-2 focus-within:ring-[var(--blue-500)]"
+          className="flex h-10 max-w-[400px] min-w-0 flex-1 basis-[280px] items-center gap-3 rounded-xl px-3.5 transition-all duration-200 focus-within:ring-2 focus-within:ring-[var(--blue-500)] xl:max-w-[480px]"
           style={{
             border: '1px solid var(--border-strong)',
             background: 'var(--surface-raised)',
@@ -324,7 +399,9 @@ export function WorkspaceTable({
             className="min-w-0 flex-1 border-none bg-transparent outline-none"
             style={{ font: '400 var(--text-sm)/1 var(--font-ui)', color: 'var(--text-primary)' }}
           />
-          <kbd style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>/</kbd>
+          <kbd style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
+            /
+          </kbd>
         </label>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -377,10 +454,10 @@ export function WorkspaceTable({
           Needs attention
           <span
             className="numeric grid h-5 min-w-5 place-items-center rounded-full px-1.5 font-medium shadow-sm transition-colors"
-            style={{ 
-              background: attention ? '#ffffff' : 'var(--accent-mark)', 
-              color: attention ? 'var(--accent-mark)' : '#ffffff', 
-              fontSize: 11 
+            style={{
+              background: attention ? '#ffffff' : 'var(--accent-mark)',
+              color: attention ? 'var(--accent-mark)' : '#ffffff',
+              fontSize: 11,
             }}
           >
             {attentionCount}
@@ -464,44 +541,64 @@ export function WorkspaceTable({
                 >
                   <th
                     scope="col"
-                    className="cursor-pointer select-none py-3.5 pl-6 pr-4"
+                    className="cursor-pointer py-3.5 pr-4 pl-6 select-none"
                     onClick={() => toggleSort('name')}
                   >
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                      <span
+                        className="text-[11px] font-medium tracking-wider uppercase"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
                         Workspace
                       </span>
                       {sortField === 'name' ? (
-                        sortDir === 'asc' ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />
+                        sortDir === 'asc' ? (
+                          <IconChevronUp size={14} />
+                        ) : (
+                          <IconChevronDown size={14} />
+                        )
                       ) : (
                         <IconArrowsSort size={13} className="opacity-40" />
                       )}
                     </div>
                   </th>
 
-                  <th scope="col" className="py-3.5 px-3">
-                    <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                  <th scope="col" className="px-3 py-3.5">
+                    <span
+                      className="text-[11px] font-medium tracking-wider uppercase"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
                       Plan
                     </span>
                   </th>
 
-                  <th scope="col" className="py-3.5 px-3">
-                    <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                  <th scope="col" className="px-3 py-3.5">
+                    <span
+                      className="text-[11px] font-medium tracking-wider uppercase"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
                       Status
                     </span>
                   </th>
 
                   <th
                     scope="col"
-                    className="cursor-pointer select-none py-3.5 px-3"
+                    className="cursor-pointer px-3 py-3.5 select-none"
                     onClick={() => toggleSort('seats')}
                   >
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                      <span
+                        className="text-[11px] font-medium tracking-wider uppercase"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
                         Seats
                       </span>
                       {sortField === 'seats' ? (
-                        sortDir === 'asc' ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />
+                        sortDir === 'asc' ? (
+                          <IconChevronUp size={14} />
+                        ) : (
+                          <IconChevronDown size={14} />
+                        )
                       ) : (
                         <IconArrowsSort size={13} className="opacity-40" />
                       )}
@@ -510,15 +607,22 @@ export function WorkspaceTable({
 
                   <th
                     scope="col"
-                    className="cursor-pointer select-none py-3.5 px-3"
+                    className="cursor-pointer px-3 py-3.5 select-none"
                     onClick={() => toggleSort('events')}
                   >
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                      <span
+                        className="text-[11px] font-medium tracking-wider uppercase"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
                         Events / Month
                       </span>
                       {sortField === 'events' ? (
-                        sortDir === 'asc' ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />
+                        sortDir === 'asc' ? (
+                          <IconChevronUp size={14} />
+                        ) : (
+                          <IconChevronDown size={14} />
+                        )
                       ) : (
                         <IconArrowsSort size={13} className="opacity-40" />
                       )}
@@ -527,23 +631,33 @@ export function WorkspaceTable({
 
                   <th
                     scope="col"
-                    className="cursor-pointer select-none py-3.5 px-3"
+                    className="cursor-pointer px-3 py-3.5 select-none"
                     onClick={() => toggleSort('activity')}
                   >
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                      <span
+                        className="text-[11px] font-medium tracking-wider uppercase"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
                         Activity
                       </span>
                       {sortField === 'activity' ? (
-                        sortDir === 'asc' ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />
+                        sortDir === 'asc' ? (
+                          <IconChevronUp size={14} />
+                        ) : (
+                          <IconChevronDown size={14} />
+                        )
                       ) : (
                         <IconArrowsSort size={13} className="opacity-40" />
                       )}
                     </div>
                   </th>
 
-                  <th scope="col" className="py-3.5 pl-3 pr-6 text-right">
-                    <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                  <th scope="col" className="py-3.5 pr-6 pl-3 text-right">
+                    <span
+                      className="text-[11px] font-medium tracking-wider uppercase"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
                       Actions
                     </span>
                   </th>
@@ -568,12 +682,13 @@ export function WorkspaceTable({
                       className="group cursor-pointer transition-colors duration-150 hover:bg-[var(--surface-sunken)]/60 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
                     >
                       {/* Workspace & Meta */}
-                      <td className="py-4.5 pl-6 pr-4">
+                      <td className="py-4.5 pr-4 pl-6">
                         <div className="flex items-center gap-3.5">
                           <div
                             className="relative flex size-10.5 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105"
                             style={{
-                              background: 'linear-gradient(135deg, var(--surface-inset), var(--surface-sunken))',
+                              background:
+                                'linear-gradient(135deg, var(--surface-inset), var(--surface-sunken))',
                               border: '1px solid var(--border-strong)',
                               color: 'var(--text-primary)',
                               font: '600 13px var(--font-ui)',
@@ -590,7 +705,10 @@ export function WorkspaceTable({
                           <div className="min-w-0">
                             <button
                               type="button"
-                              onClick={(e) => { e.stopPropagation(); setDrawerRow(r); }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDrawerRow(r);
+                              }}
                               className="block truncate text-left font-medium transition-colors hover:text-[var(--text-action)]"
                               style={{
                                 fontSize: '15px',
@@ -625,17 +743,17 @@ export function WorkspaceTable({
                       </td>
 
                       {/* Plan */}
-                      <td className="py-4.5 px-3">
+                      <td className="px-3 py-4.5">
                         <PlanBadge plan={r.plan} />
                       </td>
 
                       {/* Status */}
-                      <td className="py-4.5 px-3">
+                      <td className="px-3 py-4.5">
                         <StatusBadge status={r.status} />
                       </td>
 
                       {/* Seats Meter */}
-                      <td className="py-4.5 px-3">
+                      <td className="px-3 py-4.5">
                         <DetailedMeter
                           value={`${r.seatsUsed}`}
                           maxFormatted={`${r.seatsLimit}`}
@@ -646,7 +764,7 @@ export function WorkspaceTable({
                       </td>
 
                       {/* Events Meter */}
-                      <td className="py-4.5 px-3">
+                      <td className="px-3 py-4.5">
                         <DetailedMeter
                           value={group(r.events)}
                           maxFormatted={formatCompactNumber(r.eventsLimit)}
@@ -657,13 +775,16 @@ export function WorkspaceTable({
                       </td>
 
                       {/* Activity & Timeline */}
-                      <td className="py-4.5 px-3">
+                      <td className="px-3 py-4.5">
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 font-mono text-xs">
                             {isRecent && (
                               <span
                                 className="size-1.5 rounded-full"
-                                style={{ background: 'var(--success-fg)', animation: 'pulse-dot 2s ease-in-out infinite' }}
+                                style={{
+                                  background: 'var(--success-fg)',
+                                  animation: 'pulse-dot 2s ease-in-out infinite',
+                                }}
                               />
                             )}
                             <span
@@ -688,7 +809,7 @@ export function WorkspaceTable({
 
                       {/* Actions */}
                       <td
-                        className="py-4.5 pl-3 pr-6 text-right"
+                        className="py-4.5 pr-6 pl-3 text-right"
                         onClick={(e) => e.stopPropagation()}
                         data-row-actions
                         onKeyDown={(e) => {
@@ -759,7 +880,7 @@ export function WorkspaceTable({
                   }}
                 >
                   <div
-                    className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-[0.08] pointer-events-none"
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-[0.08]"
                     style={{
                       background: `radial-gradient(circle at top right, ${st.dot}, transparent 70%)`,
                     }}
@@ -784,9 +905,21 @@ export function WorkspaceTable({
                       <div className="min-w-0 flex-1">
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); setDrawerRow(r); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDrawerRow(r);
+                          }}
                           className="block truncate text-left font-medium transition-colors hover:text-[var(--text-action)]"
-                          style={{ fontSize: '16px', lineHeight: 1.35, color: nameInk(r.status), letterSpacing: '-0.01em', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                          style={{
+                            fontSize: '16px',
+                            lineHeight: 1.35,
+                            color: nameInk(r.status),
+                            letterSpacing: '-0.01em',
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            cursor: 'pointer',
+                          }}
                         >
                           {r.name}
                         </button>
@@ -803,12 +936,15 @@ export function WorkspaceTable({
 
                     <div className="mt-4 flex items-center gap-2">
                       <PlanBadge plan={r.plan} />
-                      <span className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>
+                      <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
                         Created {r.created}
                       </span>
                     </div>
 
-                    <dl className="mt-5 grid grid-cols-2 gap-4 rounded-xl p-3.5" style={{ background: 'var(--surface-sunken)' }}>
+                    <dl
+                      className="mt-5 grid grid-cols-2 gap-4 rounded-xl p-3.5"
+                      style={{ background: 'var(--surface-sunken)' }}
+                    >
                       <div>
                         <dt className="t-eyebrow mb-1" style={{ color: 'var(--text-tertiary)' }}>
                           Seats
@@ -837,14 +973,20 @@ export function WorkspaceTable({
                       </div>
                     </dl>
 
-                    <div className="mt-4 flex items-center justify-between font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                    <div
+                      className="mt-4 flex items-center justify-between font-mono text-xs"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
                       <span>Active: {r.activity}</span>
                     </div>
                   </div>
 
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); setPending(toWorkspace(r)); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPending(toWorkspace(r));
+                    }}
                     className="relative z-10 flex h-11 w-full items-center justify-center gap-2 font-medium transition-colors hover:bg-[var(--surface-inset)] active:bg-[var(--surface-sunken)]"
                     style={{
                       borderTop: '1px solid var(--border-subtle)',
@@ -865,7 +1007,8 @@ export function WorkspaceTable({
           {totalPages > 1 && (
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4 px-2">
               <span className="t-compact" style={{ color: 'var(--text-tertiary)' }}>
-                Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} workspaces
+                Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)}{' '}
+                of {filtered.length} workspaces
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -918,11 +1061,10 @@ export function WorkspaceTable({
         </>
       )}
 
-      <p
-        className="t-compact mt-8"
-        style={{ color: 'var(--text-tertiary)', maxWidth: '82ch' }}
-      >
-        Usage renders as a number and an exact telemetry track. The meter turns amber at 90% of the resolved limit, which is the same threshold that raises a workspace into <em>Needs attention</em> and into the Overview queue.
+      <p className="t-compact mt-8" style={{ color: 'var(--text-tertiary)', maxWidth: '82ch' }}>
+        Usage renders as a number and an exact telemetry track. The meter turns amber at 90% of the
+        resolved limit, which is the same threshold that raises a workspace into{' '}
+        <em>Needs attention</em> and into the Overview queue.
       </p>
 
       {pending ? (
@@ -971,7 +1113,7 @@ function PlanBadge({ plan }: { plan: string }) {
   }
 
   return (
-    <span 
+    <span
       className="inline-flex items-center rounded-md px-2 py-0.5"
       style={{
         font: '500 11px/1.2 var(--font-ui)',
@@ -994,7 +1136,9 @@ function StatusBadge({ status }: { status: WorkspaceStatus }) {
       className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 transition-all duration-200"
       style={{
         border: `1px solid ${isPastDue ? 'var(--danger-fg)' : 'var(--border-subtle)'}`,
-        background: isPastDue ? 'var(--danger-bg, rgba(239, 68, 68, 0.08))' : 'var(--surface-sunken)',
+        background: isPastDue
+          ? 'var(--danger-bg, rgba(239, 68, 68, 0.08))'
+          : 'var(--surface-sunken)',
       }}
     >
       <span
@@ -1037,16 +1181,21 @@ function DetailedMeter({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-sm font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+        <span
+          className="font-mono text-sm font-medium tracking-tight"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {value}{' '}
           <span className="text-xs font-normal" style={{ color: 'var(--text-tertiary)' }}>
             / {maxFormatted}
           </span>
         </span>
         <span
-          className="numeric rounded px-1.5 py-0.5 text-[10px] font-mono font-medium"
+          className="numeric rounded px-1.5 py-0.5 font-mono text-[10px] font-medium"
           style={{
-            background: isHigh ? 'var(--warning-bg, rgba(245, 158, 11, 0.12))' : 'var(--surface-sunken)',
+            background: isHigh
+              ? 'var(--warning-bg, rgba(245, 158, 11, 0.12))'
+              : 'var(--surface-sunken)',
             color: isHigh ? ink : 'var(--text-secondary)',
             border: `1px solid ${isHigh ? ink : 'var(--border-subtle)'}`,
           }}
@@ -1080,11 +1229,10 @@ function DetailedMeter({
       </div>
 
       {subtext && (
-        <span className="text-[11px] font-mono" style={{ color: 'var(--text-tertiary)' }}>
+        <span className="font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
           {subtext}
         </span>
       )}
     </div>
   );
 }
-

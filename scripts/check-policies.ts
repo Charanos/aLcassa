@@ -87,7 +87,9 @@ async function main(): Promise<void> {
     order by c.relname
   `;
 
-  const rlsEnabled = await sql<{ table_name: string; relrowsecurity: boolean; relforcerowsecurity: boolean }[]>`
+  const rlsEnabled = await sql<
+    { table_name: string; relrowsecurity: boolean; relforcerowsecurity: boolean }[]
+  >`
     select c.relname as table_name, c.relrowsecurity, c.relforcerowsecurity
     from pg_class c
     join pg_namespace n on n.oid = c.relnamespace
@@ -95,7 +97,13 @@ async function main(): Promise<void> {
   `;
 
   const policies = await sql<
-    { table_name: string; policyname: string; cmd: string; qual: string | null; with_check: string | null }[]
+    {
+      table_name: string;
+      policyname: string;
+      cmd: string;
+      qual: string | null;
+      with_check: string | null;
+    }[]
   >`
     select tablename as table_name, policyname, cmd, qual, with_check
     from pg_policies
@@ -197,8 +205,7 @@ async function main(): Promise<void> {
     // A policy that never mentions app.current_tenant_id() is not isolating
     // anything, however plausible its predicate looks.
     const referencesContext = tablePolicies.some(
-      (p) =>
-        p.qual?.includes('current_tenant_id') || p.with_check?.includes('current_tenant_id'),
+      (p) => p.qual?.includes('current_tenant_id') || p.with_check?.includes('current_tenant_id'),
     );
     if (!referencesContext) {
       failures.push({
@@ -217,12 +224,16 @@ async function main(): Promise<void> {
     return;
   }
 
-  console.error(`\n✗ POLICY CHECK FAILED · ${failures.length} problem(s) across ${checked} tables\n`);
+  console.error(
+    `\n✗ POLICY CHECK FAILED · ${failures.length} problem(s) across ${checked} tables\n`,
+  );
   for (const failure of failures) {
     console.error(`  ${failure.table}`);
     console.error(`    ${failure.problem}\n`);
   }
-  console.error('Read 06 §2 before fixing any of these. A table without a policy fails the build.\n');
+  console.error(
+    'Read 06 §2 before fixing any of these. A table without a policy fails the build.\n',
+  );
 
   await sql.end();
   process.exit(1);

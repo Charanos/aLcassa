@@ -84,7 +84,9 @@ export async function asActor<T>(
  * boundary mistake, or a `set_config` that forgot its transaction-local flag
  * and is now leaking into whichever request checks the connection out next.
  */
-export async function withNoContext<T>(run: (tx: postgres.TransactionSql) => Promise<T>): Promise<T> {
+export async function withNoContext<T>(
+  run: (tx: postgres.TransactionSql) => Promise<T>,
+): Promise<T> {
   return sql.begin(async (tx) => {
     await tx`select set_config('app.tenant_id', '', true)`;
     await tx`select set_config('app.role', 'none', true)`;
@@ -191,10 +193,7 @@ export async function adminCount(table: string): Promise<number> {
  *
  * So teardown goes through the admin connection, deliberately and only here.
  */
-export async function cleanup(
-  strings: TemplateStringsArray,
-  ...values: unknown[]
-): Promise<void> {
+export async function cleanup(strings: TemplateStringsArray, ...values: unknown[]): Promise<void> {
   await adminSql(strings as unknown as never, ...(values as never[]));
 }
 

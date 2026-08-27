@@ -66,7 +66,8 @@ function CredentialRow({ credential }: { credential: Credential }) {
           </div>
           <p className="t-data mt-1 text-[var(--ink-tertiary)]">{credential.prefix}…</p>
           <p className="t-caption mt-1 text-[var(--ink-tertiary)]">
-            {credential.scopes.join(' · ')} — created {credential.createdAt} by {credential.createdBy}
+            {credential.scopes.join(' · ')} — created {credential.createdAt} by{' '}
+            {credential.createdBy}
           </p>
         </div>
         {credential.status !== 'revoked' ? (
@@ -76,7 +77,11 @@ function CredentialRow({ credential }: { credential: Credential }) {
         ) : null}
       </div>
       {error ? (
-        <p role="alert" className="t-caption mt-1.5 flex items-center gap-1.5" style={{ color: 'var(--oxide-ink)' }}>
+        <p
+          role="alert"
+          className="t-caption mt-1.5 flex items-center gap-1.5"
+          style={{ color: 'var(--oxide-ink)' }}
+        >
           <IconAlertTriangle size={13} stroke={1.5} className="shrink-0" aria-hidden />
           {error}
         </p>

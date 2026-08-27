@@ -77,14 +77,9 @@ const ALLOWED: Record<SubscriptionStatus, SubscriptionStatus[]> = {
   expired: ['active', 'cancelled'],
 };
 
-export type TransitionCheck =
-  | { allowed: true }
-  | { allowed: false; reason: string };
+export type TransitionCheck = { allowed: true } | { allowed: false; reason: string };
 
-export function canTransition(
-  from: SubscriptionStatus,
-  to: SubscriptionStatus,
-): TransitionCheck {
+export function canTransition(from: SubscriptionStatus, to: SubscriptionStatus): TransitionCheck {
   if (from === to) {
     return { allowed: false, reason: `This subscription is already ${label(from)}.` };
   }

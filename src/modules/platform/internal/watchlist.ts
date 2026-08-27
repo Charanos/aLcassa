@@ -54,7 +54,13 @@ export type WatchlistEntry = {
     ratio: number;
   } | null;
   /** Every limit at or above the threshold, so a row can be expanded. */
-  pressured: Array<{ key: string; displayName: string; current: number; limit: number; ratio: number }>;
+  pressured: Array<{
+    key: string;
+    displayName: string;
+    current: number;
+    limit: number;
+    ratio: number;
+  }>;
   /** 08 §7. Past due is on the list regardless of usage: it is a commercial
    *  signal on its own, and the reason the list is not called "usage". */
   pastDue: boolean;
@@ -90,7 +96,9 @@ export async function watchlist(actor: PlatformActor): Promise<WatchlistEntry[]>
           planCode: plans.code,
           key: planEntitlements.key,
           displayName: planEntitlements.displayName,
-          limitValue: sql<number | null>`coalesce(${subscriptionOverrides.limitValue}, ${planEntitlements.limitValue})`,
+          limitValue: sql<
+            number | null
+          >`coalesce(${subscriptionOverrides.limitValue}, ${planEntitlements.limitValue})`,
           currentValue: sql<number>`coalesce(${usageCounters.currentValue}, 0)`,
         })
         .from(tenants)

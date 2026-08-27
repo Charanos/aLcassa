@@ -63,13 +63,20 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
         />
 
         {error ? (
-          <p role="alert" className="t-compact flex items-start gap-1.5" style={{ color: 'var(--oxide-ink)' }}>
+          <p
+            role="alert"
+            className="t-compact flex items-start gap-1.5"
+            style={{ color: 'var(--oxide-ink)' }}
+          >
             <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
             {error}
           </p>
         ) : null}
 
-        <div className="flex items-center gap-3 border-t pt-5" style={{ borderColor: 'var(--rule-soft)' }}>
+        <div
+          className="flex items-center gap-3 border-t pt-5"
+          style={{ borderColor: 'var(--rule-soft)' }}
+        >
           <Button type="submit" variant="primary" loading={pending} disabled={!dirty || pending}>
             Save changes
           </Button>
@@ -87,7 +94,9 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
           Sent to {profile.email}. Signs you out of every other session on completion.
         </p>
         <Button asChild variant="secondary" className="mt-3">
-          <Link href={`/forgot-password?email=${encodeURIComponent(profile.email)}`}>Send reset link</Link>
+          <Link href={`/forgot-password?email=${encodeURIComponent(profile.email)}`}>
+            Send reset link
+          </Link>
         </Button>
       </section>
 

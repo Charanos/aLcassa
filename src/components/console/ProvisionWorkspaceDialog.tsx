@@ -133,21 +133,27 @@ export function ProvisionWorkspaceDialog({
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !working && onOpenChange(next)}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--surface-overlay)' }} />
+        <Dialog.Overlay
+          className="fixed inset-0 z-[150]"
+          style={{ background: 'var(--surface-overlay)' }}
+        />
         <Dialog.Content
           ref={(el) => {
             if (el) {
               gsapSafe.fromTo(
                 el,
                 { opacity: 0, y: 18, scale: 0.97 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: 'power3.out' }
+                { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: 'power3.out' },
               );
             }
           }}
           className="surface-glass-strong fixed top-1/2 left-1/2 z-[150] flex max-h-[88vh] w-[92vw] max-w-[900px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-overlay"
           style={{ boxShadow: 'var(--glass-highlight), var(--shadow-lg)' }}
         >
-          <div className="flex items-center justify-between gap-4 border-b px-6 py-4.5" style={{ borderColor: 'var(--border-subtle)' }}>
+          <div
+            className="flex items-center justify-between gap-4 border-b px-6 py-4.5"
+            style={{ borderColor: 'var(--border-subtle)' }}
+          >
             <div>
               <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 New tenant
@@ -171,9 +177,12 @@ export function ProvisionWorkspaceDialog({
             </Dialog.Close>
           </div>
 
-          <Dialog.Description className="t-body px-6 pt-4" style={{ color: 'var(--text-secondary)' }}>
-            Four fields. The owner receives an invitation and sets their own password; you never
-            see it.
+          <Dialog.Description
+            className="t-body px-6 pt-4"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Four fields. The owner receives an invitation and sets their own password; you never see
+            it.
           </Dialog.Description>
 
           <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6">
@@ -187,7 +196,10 @@ export function ProvisionWorkspaceDialog({
                 <SkeletonPanel lines={3} />
               </div>
             ) : (
-              <form onSubmit={submit} className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+              <form
+                onSubmit={submit}
+                className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]"
+              >
                 <div className="grid gap-5">
                   {/* ── Identity ─────────────────────────────────────────── */}
                   <section
@@ -203,7 +215,10 @@ export function ProvisionWorkspaceDialog({
                     </p>
 
                     <label className="block">
-                      <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
+                      <span
+                        className="t-label mb-1.5 block"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         Legal name
                       </span>
                       <input
@@ -223,12 +238,19 @@ export function ProvisionWorkspaceDialog({
                     </label>
 
                     <label className="mt-4 block">
-                      <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
+                      <span
+                        className="t-label mb-1.5 block"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         Slug
                       </span>
                       <span
                         className="flex h-[38px] items-center overflow-hidden rounded-chip"
-                        style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', boxShadow: 'var(--neu-inset)' }}
+                        style={{
+                          border: '1px solid var(--border-strong)',
+                          background: 'var(--surface-raised)',
+                          boxShadow: 'var(--neu-inset)',
+                        }}
                       >
                         <span
                           className="flex h-full shrink-0 items-center px-2.5 whitespace-nowrap"
@@ -251,7 +273,10 @@ export function ProvisionWorkspaceDialog({
                           placeholder="tamarind-bay"
                           disabled={working || done}
                           className="h-full min-w-0 flex-1 border-none bg-transparent px-2.5 outline-none"
-                          style={{ font: '400 var(--text-base)/1 var(--font-mono)', color: 'var(--text-primary)' }}
+                          style={{
+                            font: '400 var(--text-base)/1 var(--font-mono)',
+                            color: 'var(--text-primary)',
+                          }}
                         />
                         {slug ? (
                           <span
@@ -273,7 +298,10 @@ export function ProvisionWorkspaceDialog({
                     </label>
 
                     <label className="mt-4 block">
-                      <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
+                      <span
+                        className="t-label mb-1.5 block"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         Owner email
                       </span>
                       <input
@@ -291,8 +319,12 @@ export function ProvisionWorkspaceDialog({
                           color: 'var(--text-primary)',
                         }}
                       />
-                      <span className="t-caption mt-1.5 block" style={{ color: 'var(--text-tertiary)' }}>
-                        They receive an invitation valid for seven days and choose their own password.
+                      <span
+                        className="t-caption mt-1.5 block"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
+                        They receive an invitation valid for seven days and choose their own
+                        password.
                       </span>
                     </label>
                   </section>
@@ -328,14 +360,29 @@ export function ProvisionWorkspaceDialog({
                           >
                             <span
                               className="block"
-                              style={{ font: `${on ? 500 : 400} 13px/1.3 var(--font-ui)`, color: on ? 'var(--blue-600)' : 'var(--text-primary)' }}
+                              style={{
+                                font: `${on ? 500 : 400} 13px/1.3 var(--font-ui)`,
+                                color: on ? 'var(--blue-600)' : 'var(--text-primary)',
+                              }}
                             >
                               {p.name}
                             </span>
-                            <span className="mt-1.5 block" style={{ font: '400 12px/1.3 var(--font-mono)', color: 'var(--text-secondary)' }}>
+                            <span
+                              className="mt-1.5 block"
+                              style={{
+                                font: '400 12px/1.3 var(--font-mono)',
+                                color: 'var(--text-secondary)',
+                              }}
+                            >
                               {p.price}
                             </span>
-                            <span className="mt-2 block" style={{ font: '400 11.5px/1.4 var(--font-ui)', color: 'var(--text-tertiary)' }}>
+                            <span
+                              className="mt-2 block"
+                              style={{
+                                font: '400 11.5px/1.4 var(--font-ui)',
+                                color: 'var(--text-tertiary)',
+                              }}
+                            >
                               {p.limit}
                             </span>
                           </button>
@@ -362,16 +409,24 @@ export function ProvisionWorkspaceDialog({
                       >
                         <Switch.Thumb
                           className="absolute top-0.5 size-4 rounded-full transition-[left]"
-                          style={{ left: trial ? 16 : 2, background: '#ffffff', boxShadow: 'var(--shadow-sm)', transitionDuration: 'var(--duration-base)' }}
+                          style={{
+                            left: trial ? 16 : 2,
+                            background: '#ffffff',
+                            boxShadow: 'var(--shadow-sm)',
+                            transitionDuration: 'var(--duration-base)',
+                          }}
                         />
                       </Switch.Root>
                       <span className="flex-1">
                         <span className="t-compact block" style={{ color: 'var(--text-primary)' }}>
                           Start with a 14-day trial
                         </span>
-                        <span className="t-caption mt-0.5 block" style={{ color: 'var(--text-tertiary)' }}>
-                          No invoice is raised until the trial ends. The workspace appears under Trial
-                          on Overview.
+                        <span
+                          className="t-caption mt-0.5 block"
+                          style={{ color: 'var(--text-tertiary)' }}
+                        >
+                          No invoice is raised until the trial ends. The workspace appears under
+                          Trial on Overview.
                         </span>
                       </span>
                     </label>
@@ -382,7 +437,10 @@ export function ProvisionWorkspaceDialog({
                 <div className="grid gap-4">
                   <section
                     className="rounded-overlay p-5"
-                    style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-sunken)' }}
+                    style={{
+                      border: '1px solid var(--border-subtle)',
+                      background: 'var(--surface-sunken)',
+                    }}
                   >
                     <p className="t-eyebrow mb-3.5" style={{ color: 'var(--text-tertiary)' }}>
                       What happens on submit
@@ -392,12 +450,20 @@ export function ProvisionWorkspaceDialog({
                         <div key={s.n} className="flex items-start gap-2.5">
                           <span
                             className="grid size-5 shrink-0 place-items-center rounded-full"
-                            style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-raised)', font: '500 10.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                            style={{
+                              border: '1px solid var(--border-subtle)',
+                              background: 'var(--surface-raised)',
+                              font: '500 10.5px/1 var(--font-mono)',
+                              color: 'var(--text-tertiary)',
+                            }}
                             aria-hidden
                           >
                             {s.n}
                           </span>
-                          <span className="t-caption flex-1" style={{ color: 'var(--text-secondary)' }}>
+                          <span
+                            className="t-caption flex-1"
+                            style={{ color: 'var(--text-secondary)' }}
+                          >
                             {s.text}
                           </span>
                         </div>
@@ -417,13 +483,21 @@ export function ProvisionWorkspaceDialog({
                     className="flex h-10 w-full items-center justify-center gap-2.5 rounded-panel"
                     style={{
                       border: 'none',
-                      background: done ? 'var(--success-fg)' : ready && !working ? 'var(--blue-500)' : 'var(--surface-inset)',
+                      background: done
+                        ? 'var(--success-fg)'
+                        : ready && !working
+                          ? 'var(--blue-500)'
+                          : 'var(--surface-inset)',
                       color: done || (ready && !working) ? '#ffffff' : 'var(--text-disabled)',
                       font: '500 13.5px/1 var(--font-ui)',
                       cursor: ready && !working && !done ? 'pointer' : 'not-allowed',
                     }}
                   >
-                    {done ? <IconCheck size={16} stroke={1.5} aria-hidden /> : <IconPlus size={16} stroke={1.5} aria-hidden />}
+                    {done ? (
+                      <IconCheck size={16} stroke={1.5} aria-hidden />
+                    ) : (
+                      <IconPlus size={16} stroke={1.5} aria-hidden />
+                    )}
                     {working ? 'Provisioning' : done ? 'Workspace created' : 'Provision workspace'}
                   </button>
                   <p className="t-caption text-center" style={{ color: 'var(--text-tertiary)' }}>

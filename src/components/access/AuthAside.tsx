@@ -59,24 +59,25 @@ function AccessTelemetryCard() {
 
   return (
     <div
-      className="rounded-panel border p-5 transition-all duration-300 shadow-sm"
+      className="rounded-panel border p-5 shadow-sm transition-all duration-300"
       style={{
         background: 'var(--surface-raised)',
         borderColor: 'var(--border-strong)',
       }}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <IconFingerprint size={16} stroke={1.5} className="text-amber-600" />
-          <span className="t-eyebrow font-medium tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
+          <span
+            className="t-eyebrow font-medium tracking-wider"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
             SESSION ENCLAVE
           </span>
         </div>
-        <span
-          className="t-chip inline-flex items-center gap-1.5 rounded-chip px-2 py-0.5 bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 font-medium"
-        >
+        <span className="t-chip inline-flex items-center gap-1.5 rounded-chip border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 font-medium text-emerald-700">
           <span
-            className="size-1.5 rounded-full animate-pulse"
+            className="size-1.5 animate-pulse rounded-full"
             style={{ background: 'var(--success-fg)' }}
           />
           Protected
@@ -108,7 +109,7 @@ function AccessTelemetryCard() {
               {active.status}
             </span>
           </div>
-          <code className="t-code text-[10px] font-mono text-amber-600 font-normal">
+          <code className="t-code font-mono text-[10px] font-normal text-amber-600">
             {active.code}
           </code>
         </div>
@@ -124,7 +125,7 @@ function AccessTelemetryCard() {
             ISOLATION
           </span>
           <span
-            className="t-data text-xs font-normal mt-0.5 block"
+            className="t-data mt-0.5 block text-xs font-normal"
             style={{ color: 'var(--text-primary)' }}
           >
             ROW-LEVEL
@@ -134,7 +135,7 @@ function AccessTelemetryCard() {
           <span className="t-eyebrow block" style={{ color: 'var(--text-tertiary)' }}>
             KEYS
           </span>
-          <span className="t-data text-xs font-normal text-amber-600 mt-0.5 block font-mono">
+          <span className="t-data mt-0.5 block font-mono text-xs font-normal text-amber-600">
             ARGON2ID
           </span>
         </div>
@@ -142,7 +143,7 @@ function AccessTelemetryCard() {
           <span className="t-eyebrow block" style={{ color: 'var(--text-tertiary)' }}>
             AUDIT
           </span>
-          <span className="t-data text-xs font-normal text-emerald-600 mt-0.5 block font-mono">
+          <span className="t-data mt-0.5 block font-mono text-xs font-normal text-emerald-600">
             APPEND-ONLY
           </span>
         </div>
@@ -179,10 +180,13 @@ function SecuritySpecsCard() {
         borderColor: 'var(--border-strong)',
       }}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <IconShieldCheck size={16} stroke={1.5} className="text-emerald-600" />
-          <span className="t-eyebrow font-medium tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
+          <span
+            className="t-eyebrow font-medium tracking-wider"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
             SECURITY GUARANTEES
           </span>
         </div>
@@ -212,7 +216,10 @@ function SecuritySpecsCard() {
                 <p className="t-label font-medium" style={{ color: 'var(--text-primary)' }}>
                   {spec.title}
                 </p>
-                <p className="t-caption mt-0.5 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                <p
+                  className="t-caption mt-0.5 leading-relaxed"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   {spec.desc}
                 </p>
               </div>
@@ -264,7 +271,7 @@ export function PlatformAside() {
               </span>
             </div>
             <span
-              className="t-data mt-1.5 block font-normal text-xs"
+              className="t-data mt-1.5 block text-xs font-normal"
               style={{ color: 'var(--text-primary)' }}
             >
               {value}
@@ -287,9 +294,7 @@ export function PlatformAside() {
               Support Sessions Logged
             </span>
           </div>
-          <span
-            className="t-chip rounded-chip px-2 py-0.5 bg-amber-500/15 text-amber-700 border border-amber-500/30 font-medium"
-          >
+          <span className="t-chip rounded-chip border border-amber-500/30 bg-amber-500/15 px-2 py-0.5 font-medium text-amber-700">
             Audited
           </span>
         </div>

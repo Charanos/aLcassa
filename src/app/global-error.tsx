@@ -11,7 +11,12 @@
  * A last-resort screen that itself depends on the thing that might have
  * failed to load is not a last resort.
  */
-export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function GlobalError({
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   return (
     <html lang="en">
       <body

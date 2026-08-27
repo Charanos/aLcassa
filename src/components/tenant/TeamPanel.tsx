@@ -15,7 +15,13 @@ import type { Invitation, Member } from '@/lib/tenant/data';
  * only earns a badge when it is not the default: "Active" is absence, per
  * the same rule the credential and subscription lists follow.
  */
-export function TeamPanel({ members, invitations }: { members: Member[]; invitations: Invitation[] }) {
+export function TeamPanel({
+  members,
+  invitations,
+}: {
+  members: Member[];
+  invitations: Invitation[];
+}) {
   return (
     <div className="grid gap-8">
       <section>
@@ -67,7 +73,7 @@ function MemberRow({ member }: { member: Member }) {
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
             <span className="t-body font-medium text-[var(--ink-primary)]">{member.name}</span>
-            <span className="t-caption uppercase tracking-wide text-[var(--ink-tertiary)]">
+            <span className="t-caption tracking-wide text-[var(--ink-tertiary)] uppercase">
               {member.role}
             </span>
             {tone ? <Badge tone={tone}>{member.status.replace('_', ' ')}</Badge> : null}
@@ -81,7 +87,11 @@ function MemberRow({ member }: { member: Member }) {
         ) : null}
       </div>
       {error ? (
-        <p role="alert" className="t-caption mt-1.5 flex items-center gap-1.5" style={{ color: 'var(--oxide-ink)' }}>
+        <p
+          role="alert"
+          className="t-caption mt-1.5 flex items-center gap-1.5"
+          style={{ color: 'var(--oxide-ink)' }}
+        >
           <IconAlertTriangle size={13} stroke={1.5} className="shrink-0" aria-hidden />
           {error}
         </p>
@@ -109,7 +119,7 @@ function InvitationRow({ invitation }: { invitation: Invitation }) {
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
             <span className="t-body text-[var(--ink-primary)]">{invitation.email}</span>
-            <span className="t-caption uppercase tracking-wide text-[var(--ink-tertiary)]">
+            <span className="t-caption tracking-wide text-[var(--ink-tertiary)] uppercase">
               {invitation.role}
             </span>
             <Badge tone={tone}>
@@ -118,7 +128,9 @@ function InvitationRow({ invitation }: { invitation: Invitation }) {
           </span>
           <span className="t-caption block text-[var(--ink-tertiary)]">
             Sent {invitation.sentAt} ·{' '}
-            {invitation.status === 'expired' ? `Expired ${invitation.expiresAt}` : `Expires ${invitation.expiresAt}`}
+            {invitation.status === 'expired'
+              ? `Expired ${invitation.expiresAt}`
+              : `Expires ${invitation.expiresAt}`}
           </span>
         </span>
         <Button variant="quiet" size="sm" onClick={submit} loading={pending} disabled={pending}>
@@ -126,7 +138,11 @@ function InvitationRow({ invitation }: { invitation: Invitation }) {
         </Button>
       </div>
       {error ? (
-        <p role="alert" className="t-caption mt-1.5 flex items-center gap-1.5" style={{ color: 'var(--oxide-ink)' }}>
+        <p
+          role="alert"
+          className="t-caption mt-1.5 flex items-center gap-1.5"
+          style={{ color: 'var(--oxide-ink)' }}
+        >
           <IconAlertTriangle size={13} stroke={1.5} className="shrink-0" aria-hidden />
           {error}
         </p>

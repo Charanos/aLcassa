@@ -106,7 +106,10 @@ export async function getLivePlans(): Promise<PlansModel | null> {
 
     // One row per entitlement key, one column per plan, in the order the
     // plans are shown — so a cell's position is its plan without a lookup.
-    const byKey = new Map<string, { displayName: string; order: number; byPlan: Map<string, number | null> }>();
+    const byKey = new Map<
+      string,
+      { displayName: string; order: number; byPlan: Map<string, number | null> }
+    >();
 
     for (const row of entitlementRows) {
       const entry = byKey.get(row.key) ?? {

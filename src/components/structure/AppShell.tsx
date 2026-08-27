@@ -3,13 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
-import {
-  IconMenu2,
-  IconX,
-  IconChevronLeft,
-  IconChevronRight,
-  IconBell,
-} from '@tabler/icons-react';
+import { IconMenu2, IconX, IconChevronLeft, IconChevronRight, IconBell } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 import { IconButton } from '@/components/primitives/IconButton';
 import { TenantSwitcher, type TenantSummary } from './TenantSwitcher';
@@ -92,12 +86,12 @@ export function AppShell({
   const isPlatform = application === 'platform';
   const pathname = usePathname();
   const frameActive = Boolean(supportMode?.active) || environment !== 'production';
-  
+
   // Collapse state (desktop)
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [mounted, setMounted] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  
+
   // Mobile sheet state
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -154,18 +148,16 @@ export function AppShell({
   const chromeRule = isPlatform ? 'var(--chrome-rule-strong)' : 'var(--tenant-chrome-rule)';
 
   const renderNavGroups = (isMobile: boolean = false) => (
-    <div className="flex flex-1 flex-col gap-6 pt-5 px-2.5 pb-4 overflow-y-auto overflow-x-hidden">
+    <div className="flex flex-1 flex-col gap-6 overflow-x-hidden overflow-y-auto px-2.5 pt-5 pb-4">
       {navigation.map((group, groupIndex) => {
-        const visible = group.items.filter(
-          (item) => !item.roles || item.roles.includes(role),
-        );
+        const visible = group.items.filter((item) => !item.roles || item.roles.includes(role));
         if (visible.length === 0) return null;
 
         return (
           <div key={group.label} data-slot="nav-group" className="flex flex-col">
             {/* Group Label / Separator */}
-            {(!collapsed || isMobile) ? (
-              <h2 className="t-eyebrow px-2.5 text-[var(--ink-tertiary)] mb-1.5 opacity-50 uppercase tracking-widest text-[10px] select-none">
+            {!collapsed || isMobile ? (
+              <h2 className="t-eyebrow mb-1.5 px-2.5 text-[10px] tracking-widest text-[var(--ink-tertiary)] uppercase opacity-50 select-none">
                 {group.label}
               </h2>
             ) : (
@@ -178,10 +170,10 @@ export function AppShell({
               {visible.map((item) => {
                 const active = pathname === item.href;
                 const isHovered = hoveredItem === item.href;
-                
+
                 return (
-                  <li 
-                    key={item.href} 
+                  <li
+                    key={item.href}
                     className="relative"
                     onMouseEnter={() => setHoveredItem(item.href)}
                     onMouseLeave={() => setHoveredItem(null)}
@@ -191,37 +183,32 @@ export function AppShell({
                       aria-current={active ? 'page' : undefined}
                       data-slot="nav-item"
                       data-active={active}
-                      className={`
-                        group relative flex items-center rounded-lg text-left transition-all duration-200 ease-out
-                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] focus-visible:ring-offset-1
-                        ${
-                          active
-                            ? 'bg-[var(--ink-primary)] text-[var(--surface-page)] font-medium shadow-sm'
-                            : 'bg-transparent text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:bg-[var(--surface-hover)]'
-                        }
-                        ${
-                          collapsed && !isMobile
-                            ? 'h-10 w-10 justify-center mx-auto p-0'
-                            : 'h-10 gap-3 px-3'
-                        }
-                      `}
+                      className={`group relative flex items-center rounded-lg text-left transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-[var(--focus)] focus-visible:ring-offset-1 focus-visible:outline-none ${
+                        active
+                          ? 'bg-[var(--ink-primary)] font-medium text-[var(--surface-page)] shadow-sm'
+                          : 'bg-transparent text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink-primary)]'
+                      } ${
+                        collapsed && !isMobile
+                          ? 'mx-auto h-10 w-10 justify-center p-0'
+                          : 'h-10 gap-3 px-3'
+                      } `}
                     >
                       {/* Icon */}
                       <span
                         aria-hidden
-                        className={`relative flex items-center justify-center transition-colors duration-200 shrink-0 ${
+                        className={`relative flex shrink-0 items-center justify-center transition-colors duration-200 ${
                           active
                             ? 'text-[var(--surface-page)]'
                             : 'text-[var(--ink-tertiary)] group-hover:text-[var(--ink-primary)]'
                         }`}
                       >
                         {item.icon}
-                        
+
                         {/* Micro badge in collapsed mode */}
                         {collapsed && !isMobile && item.badge ? (
                           <span
                             aria-hidden
-                            className={`absolute -right-1 -top-1 size-2.5 rounded-full ring-2 ring-[var(--surface-page)] ${
+                            className={`absolute -top-1 -right-1 size-2.5 rounded-full ring-2 ring-[var(--surface-page)] ${
                               active ? 'bg-[var(--surface-page)]' : 'bg-[var(--ink-primary)]'
                             }`}
                           />
@@ -231,13 +218,13 @@ export function AppShell({
                       {/* Expanded label & details */}
                       {(!collapsed || isMobile) && (
                         <>
-                          <span className="t-compact flex-1 tracking-wide truncate">
+                          <span className="t-compact flex-1 truncate tracking-wide">
                             {item.label}
                           </span>
 
                           {item.badge ? (
                             <span
-                              className={`t-eyebrow flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-normal shrink-0 transition-colors ${
+                              className={`t-eyebrow flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-normal transition-colors ${
                                 active
                                   ? 'bg-[var(--surface-page)] text-[var(--ink-primary)]'
                                   : 'bg-[var(--ink-primary)] text-[var(--surface-page)]'
@@ -254,7 +241,7 @@ export function AppShell({
                     {collapsed && !isMobile && isHovered && (
                       <div
                         role="tooltip"
-                        className="pointer-events-none absolute left-[calc(100%+10px)] top-1/2 z-50 -translate-y-1/2 flex items-center gap-2 rounded-md border px-2.5 py-1.5 whitespace-nowrap shadow-md"
+                        className="pointer-events-none absolute top-1/2 left-[calc(100%+10px)] z-50 flex -translate-y-1/2 items-center gap-2 rounded-md border px-2.5 py-1.5 whitespace-nowrap shadow-md"
                         style={{
                           background: 'var(--surface-panel)',
                           borderColor: 'var(--rule-base)',
@@ -263,14 +250,12 @@ export function AppShell({
                       >
                         <span className="t-compact font-medium">{item.label}</span>
                         {item.badge ? (
-                          <span
-                            className="t-eyebrow rounded-sm px-1.5 py-0.5 font-mono text-[10px] bg-[var(--ink-primary)] text-[var(--surface-page)]"
-                          >
+                          <span className="t-eyebrow rounded-sm bg-[var(--ink-primary)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--surface-page)]">
                             {item.badge}
                           </span>
                         ) : null}
                         {item.shortcut ? (
-                          <kbd className="t-eyebrow ml-1 opacity-50 font-mono text-[9px]">
+                          <kbd className="t-eyebrow ml-1 font-mono text-[9px] opacity-50">
                             {item.shortcut}
                           </kbd>
                         ) : null}
@@ -291,7 +276,7 @@ export function AppShell({
       data-slot="app-shell"
       data-application={application}
       data-density={isPlatform ? 'compact' : 'comfortable'}
-      className="min-h-dvh flex flex-col"
+      className="flex min-h-dvh flex-col"
       style={{
         ['--row-height' as string]: isPlatform ? 'var(--row-compact)' : 'var(--row-comfortable)',
         // 03 §8: "It is NOT an overlay. Layout insets to accommodate it, so
@@ -315,7 +300,7 @@ export function AppShell({
       {/* TOP HEADER */}
       <header
         data-slot="header"
-        className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b px-4 md:px-5 transition-colors"
+        className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b px-4 transition-colors md:px-5"
         style={{
           background: chromeBg,
           color: chromeFg,
@@ -323,7 +308,7 @@ export function AppShell({
         }}
       >
         <button
-          className="md:hidden flex items-center justify-center -ml-1.5 p-2 rounded-chip hover:bg-[var(--surface-hover)] transition-colors text-[var(--ink-secondary)] cursor-pointer"
+          className="-ml-1.5 flex cursor-pointer items-center justify-center rounded-chip p-2 text-[var(--ink-secondary)] transition-colors hover:bg-[var(--surface-hover)] md:hidden"
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation menu"
         >
@@ -331,9 +316,12 @@ export function AppShell({
         </button>
 
         {/* TitleBlock */}
-        <Link href={isPlatform ? '/platform' : '/app'} className="flex items-center gap-3 shrink-0 focus-visible:outline-2 focus-visible:outline-[var(--focus)]">
+        <Link
+          href={isPlatform ? '/platform' : '/app'}
+          className="flex shrink-0 items-center gap-3 focus-visible:outline-2 focus-visible:outline-[var(--focus)]"
+        >
           <Mark size={20} tone="brand" />
-          <span data-slot="title-block" className="hidden sm:flex items-baseline gap-2">
+          <span data-slot="title-block" className="hidden items-baseline gap-2 sm:flex">
             <span className="t-eyebrow opacity-70">{titleBlock.label}</span>
             <span className="t-chip text-[var(--ink-primary)]">{titleBlock.value}</span>
             {titleBlock.revision ? (
@@ -343,7 +331,7 @@ export function AppShell({
         </Link>
 
         {/* Separator */}
-        <div className="mx-1 h-5 w-px shrink-0 opacity-20 bg-[var(--rule-strong)]" />
+        <div className="mx-1 h-5 w-px shrink-0 bg-[var(--rule-strong)] opacity-20" />
 
         {/* Tenant Switcher (platform only) */}
         {isPlatform && tenants && tenants.length > 0 && (
@@ -353,14 +341,16 @@ export function AppShell({
         )}
 
         {/* Command Trigger */}
-        <div className="hidden md:block flex-1 max-w-xs ml-1">
+        <div className="ml-1 hidden max-w-xs flex-1 md:block">
           <CommandTrigger onOpen={onCommandPaletteOpen} />
         </div>
 
         <div className="ml-auto flex items-center gap-2">
           {headerActions}
           <IconButton
-            aria-label={notificationCount > 0 ? `${notificationCount} unread notifications` : 'Notifications'}
+            aria-label={
+              notificationCount > 0 ? `${notificationCount} unread notifications` : 'Notifications'
+            }
             title="Notifications"
           >
             <span className="relative">
@@ -368,7 +358,7 @@ export function AppShell({
               {notificationCount > 0 && (
                 <span
                   aria-hidden
-                  className="absolute -right-1 -top-1 size-1.5 rounded-full"
+                  className="absolute -top-1 -right-1 size-1.5 rounded-full"
                   style={{ background: 'var(--ochre-solid)' }}
                 />
               )}
@@ -377,12 +367,12 @@ export function AppShell({
         </div>
       </header>
 
-      <div className="flex flex-1 relative">
+      <div className="relative flex flex-1">
         {/* DESKTOP SIDEBAR */}
         <nav
           data-slot="sidebar"
           aria-label={isPlatform ? 'Platform navigation' : 'Workspace navigation'}
-          className="relative hidden shrink-0 border-r md:flex flex-col transition-[width] duration-200 ease-out select-none"
+          className="relative hidden shrink-0 flex-col border-r transition-[width] duration-200 ease-out select-none md:flex"
           style={{
             width: mounted && collapsed ? 'var(--nav-rail-width)' : 'var(--nav-width)',
             background: chromeBg,
@@ -392,15 +382,23 @@ export function AppShell({
           {/* Elegant Collapse Toggle */}
           <button
             onClick={toggleCollapse}
-            className="absolute top-6 -right-3.5 z-40 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--rule-base)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:border-[var(--rule-strong)] hover:bg-[var(--surface-hover)] shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] cursor-pointer group"
+            className="group absolute top-6 -right-3.5 z-40 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-[var(--rule-base)] text-[var(--ink-secondary)] shadow-sm transition-all duration-200 hover:border-[var(--rule-strong)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink-primary)] focus-visible:ring-2 focus-visible:ring-[var(--focus)] focus-visible:outline-none"
             style={{ background: chromeBg }}
             title={collapsed ? 'Expand sidebar (Cmd+B)' : 'Collapse sidebar (Cmd+B)'}
             aria-label="Toggle sidebar collapse"
           >
             {collapsed ? (
-              <IconChevronRight size={14} stroke={2} className="group-hover:translate-x-0.5 transition-transform" />
+              <IconChevronRight
+                size={14}
+                stroke={2}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
             ) : (
-              <IconChevronLeft size={14} stroke={2} className="group-hover:-translate-x-0.5 transition-transform" />
+              <IconChevronLeft
+                size={14}
+                stroke={2}
+                className="transition-transform group-hover:-translate-x-0.5"
+              />
             )}
           </button>
 
@@ -413,9 +411,9 @@ export function AppShell({
 
         {/* MOBILE SLIDE-OVER */}
         {mobileOpen && (
-          <div className="md:hidden fixed inset-0 z-50 flex">
-            <div 
-              className="fixed inset-0 transition-opacity" 
+          <div className="fixed inset-0 z-50 flex md:hidden">
+            <div
+              className="fixed inset-0 transition-opacity"
               style={{ background: 'var(--scrim)' }}
               onClick={() => setMobileOpen(false)}
               aria-hidden="true"
@@ -426,18 +424,23 @@ export function AppShell({
               className="relative flex w-4/5 max-w-sm flex-col shadow-xl transition-transform"
               style={{ background: chromeBg, borderRight: `1px solid ${chromeRule}` }}
             >
-              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: chromeRule }}>
-                <span className="t-heading" style={{ color: chromeFg }}>Menu</span>
-                <IconButton 
-                  onClick={() => setMobileOpen(false)} 
-                  variant="ghost" 
+              <div
+                className="flex items-center justify-between border-b p-4"
+                style={{ borderColor: chromeRule }}
+              >
+                <span className="t-heading" style={{ color: chromeFg }}>
+                  Menu
+                </span>
+                <IconButton
+                  onClick={() => setMobileOpen(false)}
+                  variant="ghost"
                   aria-label="Close menu"
                 >
                   <IconX size={20} />
                 </IconButton>
               </div>
               {isPlatform && tenants && tenants.length > 0 && (
-                <div className="p-3 border-b" style={{ borderColor: 'var(--rule-soft)' }}>
+                <div className="border-b p-3" style={{ borderColor: 'var(--rule-soft)' }}>
                   <TenantSwitcher tenants={tenants} onSelect={onTenantSelect} />
                 </div>
               )}

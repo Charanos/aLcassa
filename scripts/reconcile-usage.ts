@@ -282,14 +282,14 @@ async function main(): Promise<void> {
   `;
 
   if (!admin) {
-    console.error(
-      `\n--actor ${ACTOR} is not an active platform admin. Nothing was corrected.\n`,
-    );
+    console.error(`\n--actor ${ACTOR} is not an active platform admin. Nothing was corrected.\n`);
     await sql.end();
     process.exit(1);
   }
 
-  console.log(`\nRepairing ${drift.length} counter(s) as ${admin.display_name}. Reason: ${REASON}\n`);
+  console.log(
+    `\nRepairing ${drift.length} counter(s) as ${admin.display_name}. Reason: ${REASON}\n`,
+  );
 
   await sql.begin(async (tx) => {
     for (const row of drift) {

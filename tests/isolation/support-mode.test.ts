@@ -242,7 +242,9 @@ describe('support mode · the session row', () => {
   it('carries the operator and the reason, so the frame can name both', async () => {
     const sessionId = await openSupportSession(SEED_TENANT_A, 'Investigating a failed webhook');
 
-    const [row] = await adminQuery<{ support_context: { reason?: string; platformAdminId?: string } }[]>`
+    const [row] = await adminQuery<
+      { support_context: { reason?: string; platformAdminId?: string } }[]
+    >`
       select support_context from sessions where id = ${sessionId}
     `;
 

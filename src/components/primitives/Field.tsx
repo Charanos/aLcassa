@@ -49,7 +49,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
           aria-invalid={invalid || undefined}
           /* Errors are associated rather than merely adjacent, so a screen
            * reader announces the reason with the field. 03 §17. */
-          aria-describedby={helper ?? error ? helperId : undefined}
+          aria-describedby={(helper ?? error) ? helperId : undefined}
           className={[
             'field-sunken',
             't-body w-full rounded-chip border px-3 text-[var(--ink-primary)] transition-[border-color,background-color] duration-[var(--motion-fade)]',

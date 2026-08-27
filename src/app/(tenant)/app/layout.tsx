@@ -99,7 +99,9 @@ const navigation: NavGroup[] = [
   },
   {
     label: 'Account',
-    items: [{ href: '/app/account', label: 'Your account', icon: <IconUser size={16} stroke={1.5} /> }],
+    items: [
+      { href: '/app/account', label: 'Your account', icon: <IconUser size={16} stroke={1.5} /> },
+    ],
   },
 ];
 

@@ -36,17 +36,16 @@ function isChannel(value: string): value is Channel {
   return (CHANNELS as readonly string[]).includes(value);
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ channel: string }> },
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ channel: string }> }) {
   const { channel } = await params;
 
   // 1 · Unknown channel. 404 rather than 400: an unrecognised path should not
   // confirm which channels this platform does support.
   if (!isChannel(channel)) {
     return NextResponse.json(
-      { error: { code: 'not_found', message: 'That is not here.', requestId: crypto.randomUUID() } },
+      {
+        error: { code: 'not_found', message: 'That is not here.', requestId: crypto.randomUUID() },
+      },
       { status: 404 },
     );
   }
@@ -75,15 +74,14 @@ export async function POST(
  * so Phase 2 does not rediscover it; the challenge echo itself is per-adapter
  * and is not implemented.
  */
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ channel: string }> },
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ channel: string }> }) {
   const { channel } = await params;
 
   if (!isChannel(channel)) {
     return NextResponse.json(
-      { error: { code: 'not_found', message: 'That is not here.', requestId: crypto.randomUUID() } },
+      {
+        error: { code: 'not_found', message: 'That is not here.', requestId: crypto.randomUUID() },
+      },
       { status: 404 },
     );
   }

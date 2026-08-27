@@ -49,7 +49,9 @@ type ActionResult<T = undefined> =
  * of them. What differs is the audience — this one is Brian, so the generic
  * message says to check the platform log rather than to get in touch.
  */
-async function attempt<T>(operation: (actor: PlatformActor) => Promise<T>): Promise<ActionResult<T>> {
+async function attempt<T>(
+  operation: (actor: PlatformActor) => Promise<T>,
+): Promise<ActionResult<T>> {
   try {
     const ctx = await currentPlatformSession();
     const data = await operation({

@@ -29,8 +29,14 @@ export default async function WorkspacesPage() {
   return (
     <ConsolePage>
       {/* Iconography watermarks safely contained */}
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-        <div className="absolute top-[15%] -right-10 hidden rotate-6 lg:block" style={{ color: 'var(--watermark-tint)' }}>
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="absolute top-[15%] -right-10 hidden rotate-6 lg:block"
+          style={{ color: 'var(--watermark-tint)' }}
+        >
           <IconBuildings size={380} stroke={1} />
         </div>
       </div>
@@ -76,8 +82,8 @@ export default async function WorkspacesPage() {
         {rows.length === 1 ? 'business' : 'businesses'}.{' '}
         {attention > 0 ? (
           <span style={{ color: 'var(--accent-mark-text)', fontWeight: 500 }}>
-            <span className="numeric">{attention}</span>{' '}
-            {attention === 1 ? 'needs' : 'need'} attention.
+            <span className="numeric">{attention}</span> {attention === 1 ? 'needs' : 'need'}{' '}
+            attention.
           </span>
         ) : (
           <span>Nothing needs attention.</span>

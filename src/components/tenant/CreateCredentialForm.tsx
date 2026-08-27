@@ -24,7 +24,9 @@ export function CreateCredentialForm() {
   const [pending, startTransition] = useTransition();
 
   function toggleScope(scope: string) {
-    setScopes((prev) => (prev.includes(scope) ? prev.filter((s) => s !== scope) : [...prev, scope]));
+    setScopes((prev) =>
+      prev.includes(scope) ? prev.filter((s) => s !== scope) : [...prev, scope],
+    );
   }
 
   function submit(e: React.FormEvent) {
@@ -73,17 +75,28 @@ export function CreateCredentialForm() {
       </fieldset>
 
       {error ? (
-        <p role="alert" className="t-compact flex items-start gap-1.5" style={{ color: 'var(--oxide-ink)' }}>
+        <p
+          role="alert"
+          className="t-compact flex items-start gap-1.5"
+          style={{ color: 'var(--oxide-ink)' }}
+        >
           <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
           {error}
         </p>
       ) : null}
 
-      <div className="flex items-center gap-3 border-t pt-5" style={{ borderColor: 'var(--rule-soft)' }}>
+      <div
+        className="flex items-center gap-3 border-t pt-5"
+        style={{ borderColor: 'var(--rule-soft)' }}
+      >
         <Button type="submit" variant="primary" loading={pending} disabled={!ready || pending}>
           Create credential
         </Button>
-        <Button variant="quiet" onClick={() => router.push('/app/settings/credentials')} disabled={pending}>
+        <Button
+          variant="quiet"
+          onClick={() => router.push('/app/settings/credentials')}
+          disabled={pending}
+        >
           Cancel
         </Button>
       </div>

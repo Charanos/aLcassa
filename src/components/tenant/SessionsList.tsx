@@ -13,7 +13,11 @@ export function SessionsList({ sessions }: { sessions: AccountSession[] }) {
 
   return (
     <div className="grid gap-6">
-      <ul className="overflow-hidden rounded-panel border" style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }} role="list">
+      <ul
+        className="overflow-hidden rounded-panel border"
+        style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+        role="list"
+      >
         {sessions.map((session) => (
           <SessionRow key={session.id} session={session} />
         ))}
@@ -37,7 +41,10 @@ function SessionRow({ session }: { session: AccountSession }) {
   }
 
   return (
-    <li className="border-t px-4 py-3.5 first:border-t-0" style={{ borderColor: 'var(--rule-soft)' }}>
+    <li
+      className="border-t px-4 py-3.5 first:border-t-0"
+      style={{ borderColor: 'var(--rule-soft)' }}
+    >
       <div className="flex items-center gap-3.5">
         <span
           className="grid size-8 shrink-0 place-items-center rounded-panel"
@@ -62,7 +69,11 @@ function SessionRow({ session }: { session: AccountSession }) {
         ) : null}
       </div>
       {error ? (
-        <p role="alert" className="t-caption mt-1.5 flex items-center gap-1.5" style={{ color: 'var(--oxide-ink)' }}>
+        <p
+          role="alert"
+          className="t-caption mt-1.5 flex items-center gap-1.5"
+          style={{ color: 'var(--oxide-ink)' }}
+        >
           <IconAlertTriangle size={13} stroke={1.5} className="shrink-0" aria-hidden />
           {error}
         </p>
@@ -89,7 +100,11 @@ function RevokeAllRow({ count }: { count: number }) {
         Revoke {count} other sessions
       </Button>
       {error ? (
-        <p role="alert" className="t-compact mt-2 flex items-center gap-1.5" style={{ color: 'var(--oxide-ink)' }}>
+        <p
+          role="alert"
+          className="t-compact mt-2 flex items-center gap-1.5"
+          style={{ color: 'var(--oxide-ink)' }}
+        >
           <IconAlertTriangle size={14} stroke={1.5} className="shrink-0" aria-hidden />
           {error}
         </p>

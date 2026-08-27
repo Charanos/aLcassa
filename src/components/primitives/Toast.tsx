@@ -125,7 +125,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 boxShadow: 'var(--shadow-overlay)',
               }}
             >
-              <Icon size={17} stroke={1.5} aria-hidden className="mt-0.5 shrink-0" style={{ color: tone.ink }} />
+              <Icon
+                size={17}
+                stroke={1.5}
+                aria-hidden
+                className="mt-0.5 shrink-0"
+                style={{ color: tone.ink }}
+              />
 
               <div className="min-w-0 flex-1">
                 <p className="t-compact text-[var(--ink-primary)]">{toast.title}</p>

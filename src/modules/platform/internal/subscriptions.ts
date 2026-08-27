@@ -108,7 +108,11 @@ export async function assignPlan(
       }
 
       const [existing] = await tx
-        .select({ id: subscriptions.id, status: subscriptions.status, planId: subscriptions.planId })
+        .select({
+          id: subscriptions.id,
+          status: subscriptions.status,
+          planId: subscriptions.planId,
+        })
         .from(subscriptions)
         .where(eq(subscriptions.tenantId, input.tenantId))
         .limit(1);

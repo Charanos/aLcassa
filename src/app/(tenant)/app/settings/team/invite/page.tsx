@@ -19,7 +19,9 @@ export default async function InviteTeamMemberPage() {
   const me = ctx ? await loadMe(ctx) : null;
   const pendingCount = model.invitations.filter((i) => i.status === 'pending').length;
   const seatsRemaining =
-    model.seatsLimit === null ? null : Math.max(0, model.seatsLimit - model.members.length - pendingCount);
+    model.seatsLimit === null
+      ? null
+      : Math.max(0, model.seatsLimit - model.members.length - pendingCount);
 
   return (
     <div>

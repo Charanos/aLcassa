@@ -17,7 +17,10 @@ export default async function AiRulesSettingsPage() {
       <PageHeader
         title="Assistant rules"
         description="What your assistant knows and how it behaves, layered on top of the platform floor every workspace inherits."
-        breadcrumbs={[{ label: 'Settings', href: '/app/settings/company' }, { label: 'Assistant rules' }]}
+        breadcrumbs={[
+          { label: 'Settings', href: '/app/settings/company' },
+          { label: 'Assistant rules' },
+        ]}
       />
       <AiRulesEditor
         fields={model.fields}

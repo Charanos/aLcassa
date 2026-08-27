@@ -30,8 +30,14 @@ export default async function AiRulesPage() {
   return (
     <ConsolePage>
       {/* Iconography watermarks safely contained */}
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-        <div className="absolute top-[25%] -right-10 hidden rotate-[20deg] lg:block" style={{ color: 'var(--watermark-tint)' }}>
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="absolute top-[25%] -right-10 hidden rotate-[20deg] lg:block"
+          style={{ color: 'var(--watermark-tint)' }}
+        >
           <IconCpu size={380} stroke={1} />
         </div>
       </div>
@@ -67,10 +73,7 @@ export default async function AiRulesPage() {
             Singleton · one record, platform-wide
           </span>
 
-          <p
-            className="t-body mt-2.5"
-            style={{ color: 'var(--text-secondary)', maxWidth: '70ch' }}
-          >
+          <p className="t-body mt-2.5" style={{ color: 'var(--text-secondary)', maxWidth: '70ch' }}>
             The floor every workspace inherits. Workspaces may add rules on top; they cannot remove
             these.
           </p>

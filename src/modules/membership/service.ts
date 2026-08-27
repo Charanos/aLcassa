@@ -64,7 +64,10 @@ function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
-export async function inviteMember(ctx: ResolvedContext, input: InviteInput): Promise<InviteResult> {
+export async function inviteMember(
+  ctx: ResolvedContext,
+  input: InviteInput,
+): Promise<InviteResult> {
   /**
    * 07 §5. "Inviting counts against `seats` at invitation time, not at
    * acceptance. Otherwise a tenant on a 5-seat plan can send fifty

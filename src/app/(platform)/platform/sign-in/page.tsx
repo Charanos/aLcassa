@@ -36,31 +36,41 @@ export default function PlatformSignInPage() {
             tenant one. See lib/auth/demoAccess.
           */}
           {demoAccessEnabled() ? (
-          <div
-            className="rounded-panel border p-4 transition-all duration-300"
-            style={{
-              background: 'color-mix(in oklab, var(--ink-inverse) 6%, transparent)',
-              borderColor: 'color-mix(in oklab, var(--ink-inverse) 16%, transparent)',
-            }}
+            <div
+              className="rounded-panel border p-4 transition-all duration-300"
+              style={{
+                background: 'color-mix(in oklab, var(--ink-inverse) 6%, transparent)',
+                borderColor: 'color-mix(in oklab, var(--ink-inverse) 16%, transparent)',
+              }}
             >
-            <div className="grid gap-2 sm:grid-cols-2">
-              <Button asChild variant="primary" size="md" className="w-full justify-center gap-2 text-xs">
-                <Link href="/api/demo?role=platform">
-                  <IconShieldLock size={14} stroke={1.75} />
-                  <span>Admin Console</span>
-                  <IconArrowRight size={13} />
-                </Link>
-              </Button>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Button
+                  asChild
+                  variant="primary"
+                  size="md"
+                  className="w-full justify-center gap-2 text-xs"
+                >
+                  <Link href="/api/demo?role=platform">
+                    <IconShieldLock size={14} stroke={1.75} />
+                    <span>Admin Console</span>
+                    <IconArrowRight size={13} />
+                  </Link>
+                </Button>
 
-              <Button asChild variant="secondary" size="md" className="w-full justify-center gap-2 text-xs">
-                <Link href="/api/demo?role=tenant">
-                  <IconBuildingSkyscraper size={14} stroke={1.75} />
-                  <span>Workspace Inbox</span>
-                  <IconArrowRight size={13} />
-                </Link>
-              </Button>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="md"
+                  className="w-full justify-center gap-2 text-xs"
+                >
+                  <Link href="/api/demo?role=tenant">
+                    <IconBuildingSkyscraper size={14} stroke={1.75} />
+                    <span>Workspace Inbox</span>
+                    <IconArrowRight size={13} />
+                  </Link>
+                </Button>
+              </div>
             </div>
-          </div>
           ) : null}
 
           <div className="flex items-start gap-2.5">
@@ -71,7 +81,8 @@ export default function PlatformSignInPage() {
               className="mt-0.5 shrink-0 text-[var(--ink-tertiary)]"
             />
             <p className="t-caption text-[var(--ink-tertiary)]">
-              Sessions last eight hours. Two-factor authentication is recommended and is quoted separately.
+              Sessions last eight hours. Two-factor authentication is recommended and is quoted
+              separately.
             </p>
           </div>
         </div>

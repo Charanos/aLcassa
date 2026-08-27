@@ -107,7 +107,10 @@ export function InteractiveFeatures() {
   const activeFeature: FeatureItem = FEATURES.find((f) => f.id === activeId) ?? FEATURES[0]!;
 
   return (
-    <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.25fr] lg:items-start border-t pt-8" style={{ borderColor: 'var(--border-subtle)' }}>
+    <div
+      className="mt-10 grid gap-8 border-t pt-8 lg:grid-cols-[1fr_1.25fr] lg:items-start"
+      style={{ borderColor: 'var(--border-subtle)' }}
+    >
       {/* Left Feature Selector List */}
       <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
         {FEATURES.map((feature) => {
@@ -117,10 +120,10 @@ export function InteractiveFeatures() {
             <button
               key={feature.id}
               onClick={() => setActiveId(feature.id)}
-              className={`group w-full flex items-start gap-4 py-4 px-3.5 text-left transition-all duration-200 cursor-pointer relative rounded-panel ${
+              className={`group relative flex w-full cursor-pointer items-start gap-4 rounded-panel px-3.5 py-4 text-left transition-all duration-200 ${
                 isActive
-                  ? 'bg-[var(--surface-raised)] border-l-4 shadow-sm'
-                  : 'hover:bg-[var(--surface-sunken)]/60 border-l-4 border-l-transparent'
+                  ? 'border-l-4 bg-[var(--surface-raised)] shadow-sm'
+                  : 'border-l-4 border-l-transparent hover:bg-[var(--surface-sunken)]/60'
               }`}
               style={{
                 borderLeftColor: isActive ? 'var(--accent-mark)' : 'transparent',
@@ -128,14 +131,20 @@ export function InteractiveFeatures() {
             >
               {/* Icon Container */}
               <div
-                className={`size-8 shrink-0 rounded-chip flex items-center justify-center border transition-colors mt-0.5 ${
-                  isActive ? feature.iconBgClass : 'bg-[var(--surface-sunken)] border-[var(--border-subtle)]'
+                className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-chip border transition-colors ${
+                  isActive
+                    ? feature.iconBgClass
+                    : 'border-[var(--border-subtle)] bg-[var(--surface-sunken)]'
                 }`}
               >
                 <Icon
                   size={16}
                   stroke={1.75}
-                  className={isActive ? feature.iconColorClass : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'}
+                  className={
+                    isActive
+                      ? feature.iconColorClass
+                      : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'
+                  }
                 />
               </div>
 
@@ -149,10 +158,10 @@ export function InteractiveFeatures() {
                   </h3>
 
                   <span
-                    className={`t-eyebrow px-2.5 py-0.5 rounded-chip border transition-all whitespace-nowrap ${
+                    className={`t-eyebrow rounded-chip border px-2.5 py-0.5 whitespace-nowrap transition-all ${
                       isActive
-                        ? 'bg-[var(--surface-inset)] text-[var(--text-primary)] border-[var(--border-strong)]'
-                        : 'bg-[var(--surface-sunken)] text-[var(--text-tertiary)] border-[var(--border-subtle)]'
+                        ? 'border-[var(--border-strong)] bg-[var(--surface-inset)] text-[var(--text-primary)]'
+                        : 'border-[var(--border-subtle)] bg-[var(--surface-sunken)] text-[var(--text-tertiary)]'
                     }`}
                   >
                     {feature.badge}
@@ -171,21 +180,25 @@ export function InteractiveFeatures() {
       </div>
 
       {/* Right Specification Viewport Enclosure */}
-      <div
-        className="rounded-panel border p-6 md:p-8 bg-[var(--surface-raised)] border-[var(--border-strong)] shadow-sm relative overflow-hidden"
-      >
+      <div className="relative overflow-hidden rounded-panel border border-[var(--border-strong)] bg-[var(--surface-raised)] p-6 shadow-sm md:p-8">
         {/* Title Block Header */}
-        <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--border-subtle)' }}>
+        <div
+          className="flex items-center justify-between border-b pb-4"
+          style={{ borderColor: 'var(--border-subtle)' }}
+        >
           <div className="flex items-center gap-2.5">
             <span
-              className="size-2 rounded-full animate-pulse"
+              className="size-2 animate-pulse rounded-full"
               style={{ background: 'var(--success-fg)' }}
             />
             <span className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
               {activeFeature.title} Specification
             </span>
           </div>
-          <span className="t-eyebrow font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
+          <span
+            className="t-eyebrow font-mono text-[11px]"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
             SEAM #{activeFeature.id.toUpperCase()}
           </span>
         </div>
@@ -193,8 +206,12 @@ export function InteractiveFeatures() {
         {/* Feature Detail Checklist */}
         <ul className="mt-6 space-y-3">
           {activeFeature.details.map((detail, idx) => (
-            <li key={idx} className="flex items-start gap-3 t-compact" style={{ color: 'var(--text-secondary)' }}>
-              <IconCheck size={16} className="shrink-0 text-emerald-600 mt-0.5" />
+            <li
+              key={idx}
+              className="t-compact flex items-start gap-3"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              <IconCheck size={16} className="mt-0.5 shrink-0 text-emerald-600" />
               <span>{detail}</span>
             </li>
           ))}
@@ -202,45 +219,156 @@ export function InteractiveFeatures() {
 
         {/* Technical Terminal & Code Spec Viewport */}
         <div
-          className="mt-6 border-t pt-6 relative"
+          className="relative mt-6 border-t pt-6"
           style={{ borderColor: 'var(--border-subtle)' }}
         >
           {activeFeature.codeOrVisualType === 'roles' && (
-            <div className="space-y-3 animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+            <div className="animate-hero-reveal space-y-3">
+              <div
+                className="t-eyebrow flex items-center justify-between"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
                 <span>MULTI-TENANT PERMISSION TOPOLOGY</span>
-                <span className="text-emerald-600 font-normal">RBAC ENFORCED</span>
+                <span className="font-normal text-emerald-600">RBAC ENFORCED</span>
               </div>
 
               {/* Compact Visual Role Topology SVG Diagram */}
-              <div className="rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--border-subtle)] max-w-md mx-auto">
-                <svg viewBox="0 0 360 110" fill="none" className="w-full h-auto max-h-[140px]">
+              <div className="mx-auto max-w-md rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-3">
+                <svg viewBox="0 0 360 110" fill="none" className="h-auto max-h-[140px] w-full">
                   {/* Root Node */}
-                  <rect x="130" y="6" width="100" height="26" rx="4" fill="var(--surface-raised)" stroke="var(--border-strong)" strokeWidth="1" />
-                  <text x="180" y="23" textAnchor="middle" fill="var(--text-primary)" className="t-micro font-medium" fontSize="9">WORKSPACE</text>
+                  <rect
+                    x="130"
+                    y="6"
+                    width="100"
+                    height="26"
+                    rx="4"
+                    fill="var(--surface-raised)"
+                    stroke="var(--border-strong)"
+                    strokeWidth="1"
+                  />
+                  <text
+                    x="180"
+                    y="23"
+                    textAnchor="middle"
+                    fill="var(--text-primary)"
+                    className="t-micro font-medium"
+                    fontSize="9"
+                  >
+                    WORKSPACE
+                  </text>
 
                   {/* Connectors */}
-                  <path d="M 180 32 L 60 60" stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray="3 3" />
-                  <path d="M 180 32 L 180 60" stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray="3 3" />
-                  <path d="M 180 32 L 300 60" stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray="3 3" />
+                  <path
+                    d="M 180 32 L 60 60"
+                    stroke="var(--border-subtle)"
+                    strokeWidth="1"
+                    strokeDasharray="3 3"
+                  />
+                  <path
+                    d="M 180 32 L 180 60"
+                    stroke="var(--border-subtle)"
+                    strokeWidth="1"
+                    strokeDasharray="3 3"
+                  />
+                  <path
+                    d="M 180 32 L 300 60"
+                    stroke="var(--border-subtle)"
+                    strokeWidth="1"
+                    strokeDasharray="3 3"
+                  />
 
                   {/* Leaf Nodes */}
                   <g transform="translate(15, 60)">
-                    <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--accent-mark)" strokeWidth="1.25" />
-                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow font-medium" fontSize="9">OWNER</text>
-                    <text x="45" y="28" textAnchor="middle" fill="var(--text-tertiary)" className="t-micro" fontSize="7">FULL ACCESS</text>
+                    <rect
+                      width="90"
+                      height="36"
+                      rx="4"
+                      fill="var(--surface-raised)"
+                      stroke="var(--accent-mark)"
+                      strokeWidth="1.25"
+                    />
+                    <text
+                      x="45"
+                      y="16"
+                      textAnchor="middle"
+                      fill="var(--text-primary)"
+                      className="t-eyebrow font-medium"
+                      fontSize="9"
+                    >
+                      OWNER
+                    </text>
+                    <text
+                      x="45"
+                      y="28"
+                      textAnchor="middle"
+                      fill="var(--text-tertiary)"
+                      className="t-micro"
+                      fontSize="7"
+                    >
+                      FULL ACCESS
+                    </text>
                   </g>
 
                   <g transform="translate(135, 60)">
-                    <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--border-strong)" strokeWidth="1" />
-                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow font-normal" fontSize="9">ADMIN</text>
-                    <text x="45" y="28" textAnchor="middle" fill="var(--text-tertiary)" className="t-micro" fontSize="7">CONFIG MODE</text>
+                    <rect
+                      width="90"
+                      height="36"
+                      rx="4"
+                      fill="var(--surface-raised)"
+                      stroke="var(--border-strong)"
+                      strokeWidth="1"
+                    />
+                    <text
+                      x="45"
+                      y="16"
+                      textAnchor="middle"
+                      fill="var(--text-primary)"
+                      className="t-eyebrow font-normal"
+                      fontSize="9"
+                    >
+                      ADMIN
+                    </text>
+                    <text
+                      x="45"
+                      y="28"
+                      textAnchor="middle"
+                      fill="var(--text-tertiary)"
+                      className="t-micro"
+                      fontSize="7"
+                    >
+                      CONFIG MODE
+                    </text>
                   </g>
 
                   <g transform="translate(255, 60)">
-                    <rect width="90" height="36" rx="4" fill="var(--surface-raised)" stroke="var(--border-subtle)" strokeWidth="1" />
-                    <text x="45" y="16" textAnchor="middle" fill="var(--text-primary)" className="t-eyebrow" fontSize="9">AGENT</text>
-                    <text x="45" y="28" textAnchor="middle" fill="var(--text-tertiary)" className="t-micro" fontSize="7">MESSAGING</text>
+                    <rect
+                      width="90"
+                      height="36"
+                      rx="4"
+                      fill="var(--surface-raised)"
+                      stroke="var(--border-subtle)"
+                      strokeWidth="1"
+                    />
+                    <text
+                      x="45"
+                      y="16"
+                      textAnchor="middle"
+                      fill="var(--text-primary)"
+                      className="t-eyebrow"
+                      fontSize="9"
+                    >
+                      AGENT
+                    </text>
+                    <text
+                      x="45"
+                      y="28"
+                      textAnchor="middle"
+                      fill="var(--text-tertiary)"
+                      className="t-micro"
+                      fontSize="7"
+                    >
+                      MESSAGING
+                    </text>
                   </g>
                 </svg>
               </div>
@@ -248,59 +376,147 @@ export function InteractiveFeatures() {
           )}
 
           {activeFeature.codeOrVisualType === 'rls' && (
-            <div className="space-y-3 animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+            <div className="animate-hero-reveal space-y-3">
+              <div
+                className="t-eyebrow flex items-center justify-between"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
                 <span>DATABASE TENANT ISOLATION BARRIER</span>
-                <span className="text-emerald-600 font-normal">ZERO LEAKAGE</span>
+                <span className="font-normal text-emerald-600">ZERO LEAKAGE</span>
               </div>
 
               {/* Compact RLS Isolation Wall Diagram */}
-              <div className="rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--border-subtle)] max-w-md mx-auto">
-                <svg viewBox="0 0 360 90" fill="none" className="w-full h-auto max-h-[120px]">
+              <div className="mx-auto max-w-md rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-3">
+                <svg viewBox="0 0 360 90" fill="none" className="h-auto max-h-[120px] w-full">
                   {/* Tenant A Zone */}
-                  <rect x="10" y="8" width="150" height="74" rx="4" fill="var(--surface-raised)" stroke="var(--success-fg)" strokeWidth="1" />
-                  <text x="85" y="26" textAnchor="middle" fill="var(--success-fg)" className="t-eyebrow font-normal" fontSize="9">TENANT A ISOLATION</text>
-                  <path d="M 25 45 L 145 45" stroke="var(--success-fg)" strokeWidth="1.5" strokeDasharray="3 3" />
-                  <text x="85" y="62" textAnchor="middle" fill="var(--text-secondary)" className="t-micro" fontSize="8">AUTHORIZED</text>
+                  <rect
+                    x="10"
+                    y="8"
+                    width="150"
+                    height="74"
+                    rx="4"
+                    fill="var(--surface-raised)"
+                    stroke="var(--success-fg)"
+                    strokeWidth="1"
+                  />
+                  <text
+                    x="85"
+                    y="26"
+                    textAnchor="middle"
+                    fill="var(--success-fg)"
+                    className="t-eyebrow font-normal"
+                    fontSize="9"
+                  >
+                    TENANT A ISOLATION
+                  </text>
+                  <path
+                    d="M 25 45 L 145 45"
+                    stroke="var(--success-fg)"
+                    strokeWidth="1.5"
+                    strokeDasharray="3 3"
+                  />
+                  <text
+                    x="85"
+                    y="62"
+                    textAnchor="middle"
+                    fill="var(--text-secondary)"
+                    className="t-micro"
+                    fontSize="8"
+                  >
+                    AUTHORIZED
+                  </text>
 
                   {/* Hard Isolation Wall */}
-                  <line x1="180" y1="8" x2="180" y2="82" stroke="var(--accent-mark)" strokeWidth="2" strokeDasharray="4 2" />
-                  <text x="180" y="48" textAnchor="middle" fill="var(--accent-mark-text)" className="t-micro font-mono font-medium" fontSize="7" transform="rotate(-90 180 48)">RLS BARRIER</text>
+                  <line
+                    x1="180"
+                    y1="8"
+                    x2="180"
+                    y2="82"
+                    stroke="var(--accent-mark)"
+                    strokeWidth="2"
+                    strokeDasharray="4 2"
+                  />
+                  <text
+                    x="180"
+                    y="48"
+                    textAnchor="middle"
+                    fill="var(--accent-mark-text)"
+                    className="t-micro font-mono font-medium"
+                    fontSize="7"
+                    transform="rotate(-90 180 48)"
+                  >
+                    RLS BARRIER
+                  </text>
 
                   {/* Tenant B Blocked Zone */}
-                  <rect x="200" y="8" width="150" height="74" rx="4" fill="var(--surface-raised)" stroke="var(--danger-fg)" strokeWidth="1" opacity="0.8" />
-                  <text x="275" y="26" textAnchor="middle" fill="var(--danger-fg)" className="t-eyebrow font-normal" fontSize="9">TENANT B DATA</text>
+                  <rect
+                    x="200"
+                    y="8"
+                    width="150"
+                    height="74"
+                    rx="4"
+                    fill="var(--surface-raised)"
+                    stroke="var(--danger-fg)"
+                    strokeWidth="1"
+                    opacity="0.8"
+                  />
+                  <text
+                    x="275"
+                    y="26"
+                    textAnchor="middle"
+                    fill="var(--danger-fg)"
+                    className="t-eyebrow font-normal"
+                    fontSize="9"
+                  >
+                    TENANT B DATA
+                  </text>
                   <path d="M 215 45 L 335 45" stroke="var(--danger-fg)" strokeWidth="1.5" />
-                  <text x="275" y="62" textAnchor="middle" fill="var(--danger-fg)" className="t-micro font-normal" fontSize="8">BLOCKED</text>
+                  <text
+                    x="275"
+                    y="62"
+                    textAnchor="middle"
+                    fill="var(--danger-fg)"
+                    className="t-micro font-normal"
+                    fontSize="8"
+                  >
+                    BLOCKED
+                  </text>
                 </svg>
               </div>
             </div>
           )}
 
           {activeFeature.codeOrVisualType === 'credentials' && (
-            <div className="space-y-3 animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+            <div className="animate-hero-reveal space-y-3">
+              <div
+                className="t-eyebrow flex items-center justify-between"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
                 <span>ONE-WAY ARGON2 CRYPTOGRAPHIC ENGINE</span>
-                <span className="text-amber-600 font-normal">NON-RETRIEVABLE</span>
+                <span className="font-normal text-amber-600">NON-RETRIEVABLE</span>
               </div>
 
               {/* Compact One-Way Hash Flow Graphic */}
-              <div className="rounded-panel border p-3 bg-[var(--surface-sunken)] border-[var(--border-subtle)] max-w-md mx-auto">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 t-code">
-                  <div className="flex-1 rounded-chip border p-2 bg-[var(--surface-raised)] border-[var(--border-subtle)] text-center">
-                    <span className="t-micro text-[var(--text-tertiary)] block mb-0.5">PLAIN API KEY</span>
+              <div className="mx-auto max-w-md rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-3">
+                <div className="t-code flex flex-col items-center justify-between gap-2 sm:flex-row">
+                  <div className="flex-1 rounded-chip border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-2 text-center">
+                    <span className="t-micro mb-0.5 block text-[var(--text-tertiary)]">
+                      PLAIN API KEY
+                    </span>
                     <span className="t-data-sm text-[var(--text-action)]">alc_live_8f3a...</span>
                   </div>
 
                   <div
-                    className="shrink-0 font-mono t-caption px-1 font-normal"
+                    className="t-caption shrink-0 px-1 font-mono font-normal"
                     style={{ color: 'var(--accent-mark-text)' }}
                   >
                     &rarr; ARGON2 &rarr;
                   </div>
 
-                  <div className="flex-1 rounded-chip border p-2 bg-[var(--surface-raised)] border-[var(--border-subtle)] text-center">
-                    <span className="t-micro text-[var(--text-tertiary)] block mb-0.5">SAVED HASH</span>
+                  <div className="flex-1 rounded-chip border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-2 text-center">
+                    <span className="t-micro mb-0.5 block text-[var(--text-tertiary)]">
+                      SAVED HASH
+                    </span>
                     <span className="t-data-sm text-emerald-600">$argon2id$v=19...</span>
                   </div>
                 </div>
@@ -310,49 +526,81 @@ export function InteractiveFeatures() {
 
           {activeFeature.codeOrVisualType === 'rules' && (
             <div className="animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow text-[var(--text-tertiary)] mb-3">
+              <div className="t-eyebrow mb-3 flex items-center justify-between text-[var(--text-tertiary)]">
                 <span className="flex items-center gap-1.5">
                   <IconTerminal size={14} className="text-amber-500" /> GET /api/v1/rules
                 </span>
-                <span className="text-emerald-600 font-normal">&lt; 5s PROPAGATION</span>
+                <span className="font-normal text-emerald-600">&lt; 5s PROPAGATION</span>
               </div>
-              <pre className="t-code text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed overflow-x-auto p-4 bg-[var(--surface-sunken)] rounded-panel border border-[var(--border-subtle)] border-l-4" style={{ borderLeftColor: 'var(--accent-mark)' }}>
+              <pre
+                className="t-code overflow-x-auto rounded-panel border border-l-4 border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-4 leading-relaxed whitespace-pre-wrap text-[var(--text-primary)]"
+                style={{ borderLeftColor: 'var(--accent-mark)' }}
+              >
                 {`{
-  "`}<span className="text-amber-600">tone</span>{`": "`}<span className="text-emerald-600">technical_warm</span>{`",
-  "`}<span className="text-amber-600">escalation_threshold</span>{`": `}<span className="text-rose-500">0.85</span>{`,
-  "`}<span className="text-amber-600">handover_trigger</span>{`": ["`}<span className="text-emerald-600">pricing_custom</span>{`", "`}<span className="text-emerald-600">billing_dispute</span>{`"],
-  "`}<span className="text-amber-600">knowledge_base_version</span>{`": "`}<span className="text-[var(--text-secondary)]">v1.4.2</span>{`"
+  "`}
+                <span className="text-amber-600">tone</span>
+                {`": "`}
+                <span className="text-emerald-600">technical_warm</span>
+                {`",
+  "`}
+                <span className="text-amber-600">escalation_threshold</span>
+                {`": `}
+                <span className="text-rose-500">0.85</span>
+                {`,
+  "`}
+                <span className="text-amber-600">handover_trigger</span>
+                {`": ["`}
+                <span className="text-emerald-600">pricing_custom</span>
+                {`", "`}
+                <span className="text-emerald-600">billing_dispute</span>
+                {`"],
+  "`}
+                <span className="text-amber-600">knowledge_base_version</span>
+                {`": "`}
+                <span className="text-[var(--text-secondary)]">v1.4.2</span>
+                {`"
 }`}
               </pre>
             </div>
           )}
 
           {activeFeature.codeOrVisualType === 'audit' && (
-            <div className="space-y-3 animate-hero-reveal">
-              <div className="flex items-center justify-between t-eyebrow text-[var(--text-tertiary)]">
+            <div className="animate-hero-reveal space-y-3">
+              <div className="t-eyebrow flex items-center justify-between text-[var(--text-tertiary)]">
                 <span>ACTIVITY LOG STREAM</span>
-                <span className="text-emerald-600 font-normal">IMMUTABLE APPEND-ONLY</span>
+                <span className="font-normal text-emerald-600">IMMUTABLE APPEND-ONLY</span>
               </div>
-              <div className="divide-y border rounded-chip bg-[var(--surface-sunken)] overflow-hidden" style={{ borderColor: 'var(--border-subtle)' }}>
-                <div className="flex items-center justify-between p-3 t-compact">
+              <div
+                className="divide-y overflow-hidden rounded-chip border bg-[var(--surface-sunken)]"
+                style={{ borderColor: 'var(--border-subtle)' }}
+              >
+                <div className="t-compact flex items-center justify-between p-3">
                   <div className="flex items-center gap-2.5">
                     <span className="size-1.5 rounded-full bg-[var(--accent-mark)]" />
                     <div>
-                      <span className="text-[var(--text-primary)] font-medium">Support Mode Session</span>
-                      <div className="t-caption text-[var(--text-tertiary)]">Reason: Ticket #4829 investigation</div>
+                      <span className="font-medium text-[var(--text-primary)]">
+                        Support Mode Session
+                      </span>
+                      <div className="t-caption text-[var(--text-tertiary)]">
+                        Reason: Ticket #4829 investigation
+                      </div>
                     </div>
                   </div>
-                  <span className="t-data text-amber-600 font-mono">14:22:01</span>
+                  <span className="t-data font-mono text-amber-600">14:22:01</span>
                 </div>
-                <div className="flex items-center justify-between p-3 t-compact">
+                <div className="t-compact flex items-center justify-between p-3">
                   <div className="flex items-center gap-2.5">
                     <span className="size-1.5 rounded-full bg-emerald-500" />
                     <div>
-                      <span className="text-[var(--text-primary)] font-medium">Assistant Rules Updated</span>
-                      <div className="t-caption text-[var(--text-tertiary)]">Actor: owner@acme.com</div>
+                      <span className="font-medium text-[var(--text-primary)]">
+                        Assistant Rules Updated
+                      </span>
+                      <div className="t-caption text-[var(--text-tertiary)]">
+                        Actor: owner@acme.com
+                      </div>
                     </div>
                   </div>
-                  <span className="t-data text-[var(--text-tertiary)] font-mono">12:05:44</span>
+                  <span className="t-data font-mono text-[var(--text-tertiary)]">12:05:44</span>
                 </div>
               </div>
             </div>

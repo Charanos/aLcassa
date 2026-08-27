@@ -60,7 +60,10 @@ export function StartSessionDialog({
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--surface-overlay)' }} />
+        <Dialog.Overlay
+          className="fixed inset-0 z-[150]"
+          style={{ background: 'var(--surface-overlay)' }}
+        />
         <Dialog.Content
           ref={(el) => {
             dialogRef.current = el;
@@ -68,7 +71,7 @@ export function StartSessionDialog({
               gsapSafe.fromTo(
                 el,
                 { opacity: 0, y: 18, scale: 0.94 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.34, ease: 'power3.out' }
+                { opacity: 1, y: 0, scale: 1, duration: 0.34, ease: 'power3.out' },
               );
             }
           }}
@@ -89,7 +92,10 @@ export function StartSessionDialog({
               </h2>
             </Dialog.Title>
             <Dialog.Description asChild>
-              <p className="t-body mt-3" style={{ color: 'var(--text-secondary)', maxWidth: '56ch' }}>
+              <p
+                className="t-body mt-3"
+                style={{ color: 'var(--text-secondary)', maxWidth: '56ch' }}
+              >
                 You will see this workspace under the same Row Level Security rules its own staff
                 work under. Not a master key.
               </p>
@@ -201,13 +207,7 @@ export function StartSessionDialog({
   );
 }
 
-function Fact({
-  icon: Icon,
-  children,
-}: {
-  icon: typeof IconClock;
-  children: React.ReactNode;
-}) {
+function Fact({ icon: Icon, children }: { icon: typeof IconClock; children: React.ReactNode }) {
   return (
     <li className="t-compact flex items-start gap-2.5" style={{ color: 'var(--text-primary)' }}>
       <Icon

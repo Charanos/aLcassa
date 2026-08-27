@@ -86,7 +86,7 @@ export function TenantSwitcher({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="group flex h-9 items-center gap-2.5 rounded-chip border pl-2 pr-2.5 transition-colors duration-150 ease-out cursor-pointer hover:border-[var(--rule-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+        className="group flex h-9 cursor-pointer items-center gap-2.5 rounded-chip border pr-2.5 pl-2 transition-colors duration-150 ease-out hover:border-[var(--rule-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
         style={{
           background: 'var(--surface-sunken)',
           borderColor: open ? 'var(--rule-strong)' : 'var(--rule-base)',
@@ -100,8 +100,10 @@ export function TenantSwitcher({
           <IconBuilding size={12} stroke={2} />
         </span>
         <span className="flex flex-col items-start leading-none">
-          <span className="t-eyebrow opacity-50 mb-0.5 text-[var(--ink-tertiary)] text-[9px]">Workspace</span>
-          <span className="t-compact font-medium text-[var(--ink-primary)] max-w-36 truncate">
+          <span className="t-eyebrow mb-0.5 text-[9px] text-[var(--ink-tertiary)] opacity-50">
+            Workspace
+          </span>
+          <span className="t-compact max-w-36 truncate font-medium text-[var(--ink-primary)]">
             {filtered[0]?.name ?? 'Select workspace'}
           </span>
         </span>
@@ -116,7 +118,7 @@ export function TenantSwitcher({
         <div
           data-slot="tenant-switcher-panel"
           role="listbox"
-          className="absolute left-0 top-[calc(100%+6px)] z-50 w-80 overflow-hidden rounded-md border"
+          className="absolute top-[calc(100%+6px)] left-0 z-50 w-80 overflow-hidden rounded-md border"
           style={{
             background: 'var(--surface-raised)',
             borderColor: 'var(--rule-base)',
@@ -127,16 +129,19 @@ export function TenantSwitcher({
             className="flex items-center gap-2 border-b px-3"
             style={{ borderColor: 'var(--rule-base)', height: 'var(--row-comfortable)' }}
           >
-            <IconSearch size={14} stroke={1.75} className="text-[var(--ink-tertiary)] shrink-0" />
+            <IconSearch size={14} stroke={1.75} className="shrink-0 text-[var(--ink-tertiary)]" />
             <input
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Find a workspace…"
-              className="t-compact w-full bg-transparent text-[var(--ink-primary)] placeholder:text-[var(--ink-tertiary)] outline-none"
+              className="t-compact w-full bg-transparent text-[var(--ink-primary)] outline-none placeholder:text-[var(--ink-tertiary)]"
             />
-            <kbd className="t-eyebrow shrink-0 rounded-sm border px-1.5 py-0.5 text-[var(--ink-tertiary)]" style={{ borderColor: 'var(--rule-base)' }}>
+            <kbd
+              className="t-eyebrow shrink-0 rounded-sm border px-1.5 py-0.5 text-[var(--ink-tertiary)]"
+              style={{ borderColor: 'var(--rule-base)' }}
+            >
               esc
             </kbd>
           </div>
@@ -158,7 +163,7 @@ export function TenantSwitcher({
                     onSelect?.(tenant);
                     setOpen(false);
                   }}
-                  className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100 cursor-pointer"
+                  className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100"
                   style={{
                     background: i === highlight ? 'var(--surface-hover)' : 'transparent',
                   }}
@@ -168,9 +173,19 @@ export function TenantSwitcher({
                     className="size-1.5 shrink-0 rounded-full"
                     style={{ background: STATUS_DOT[tenant.status] }}
                   />
-                  <span className="t-compact flex-1 truncate text-[var(--ink-primary)]">{tenant.name}</span>
-                  <span className="t-eyebrow shrink-0 opacity-50 text-[var(--ink-tertiary)]">{tenant.plan}</span>
-                  {i === highlight && <IconCircleCheck size={14} stroke={1.75} className="shrink-0 text-[var(--copper-ink)]" />}
+                  <span className="t-compact flex-1 truncate text-[var(--ink-primary)]">
+                    {tenant.name}
+                  </span>
+                  <span className="t-eyebrow shrink-0 text-[var(--ink-tertiary)] opacity-50">
+                    {tenant.plan}
+                  </span>
+                  {i === highlight && (
+                    <IconCircleCheck
+                      size={14}
+                      stroke={1.75}
+                      className="shrink-0 text-[var(--copper-ink)]"
+                    />
+                  )}
                 </button>
               </li>
             ))}

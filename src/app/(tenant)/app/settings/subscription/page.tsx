@@ -22,7 +22,10 @@ export default async function SubscriptionSettingsPage() {
       <PageHeader
         title="Plan and usage"
         description="What your plan includes and how much of it you are using."
-        breadcrumbs={[{ label: 'Settings', href: '/app/settings/company' }, { label: 'Plan and usage' }]}
+        breadcrumbs={[
+          { label: 'Settings', href: '/app/settings/company' },
+          { label: 'Plan and usage' },
+        ]}
       />
 
       <section
@@ -47,10 +50,16 @@ export default async function SubscriptionSettingsPage() {
             <p
               key={o.key}
               className="t-compact rounded-chip border px-3.5 py-2.5"
-              style={{ borderColor: 'var(--copper-rule)', background: 'var(--copper-tint)', color: 'var(--ink-primary)' }}
+              style={{
+                borderColor: 'var(--copper-rule)',
+                background: 'var(--copper-tint)',
+                color: 'var(--ink-primary)',
+              }}
             >
-              <span className="font-medium">Override active on {o.key.replace('_', ' ')}:</span> {o.reason}
-              {o.expiresAt ? ` — expires ${o.expiresAt}` : ' — no expiry set'}. Granted by {o.grantedBy}.
+              <span className="font-medium">Override active on {o.key.replace('_', ' ')}:</span>{' '}
+              {o.reason}
+              {o.expiresAt ? ` — expires ${o.expiresAt}` : ' — no expiry set'}. Granted by{' '}
+              {o.grantedBy}.
             </p>
           ))}
         </section>

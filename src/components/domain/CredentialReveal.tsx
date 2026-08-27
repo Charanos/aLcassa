@@ -62,14 +62,23 @@ export function CredentialReveal({
       <div className="p-5">
         <p className="t-label text-[var(--ink-tertiary)]">{name}</p>
         <p
-          className="t-code mt-2 break-all rounded-chip border p-3"
-          style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)', color: 'var(--ink-primary)' }}
+          className="t-code mt-2 rounded-chip border p-3 break-all"
+          style={{
+            borderColor: 'var(--rule-base)',
+            background: 'var(--surface-raised)',
+            color: 'var(--ink-primary)',
+          }}
         >
           {secret}
         </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-2.5">
-          <Button variant="secondary" size="sm" onClick={copy} icon={copied ? <IconCheck /> : <IconCopy />}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={copy}
+            icon={copied ? <IconCheck /> : <IconCopy />}
+          >
             {copied ? 'Copied' : 'Copy'}
           </Button>
           <Button variant="secondary" size="sm" onClick={download} icon={<IconDownload />}>
@@ -80,14 +89,22 @@ export function CredentialReveal({
         <p
           role="alert"
           className="t-compact mt-4 flex items-start gap-2 rounded-chip border px-3.5 py-2.5"
-          style={{ borderColor: 'var(--ochre-rule)', background: 'var(--ochre-tint)', color: 'var(--ochre-ink)' }}
+          style={{
+            borderColor: 'var(--ochre-rule)',
+            background: 'var(--ochre-tint)',
+            color: 'var(--ochre-ink)',
+          }}
         >
           <IconAlertTriangle size={15} stroke={1.5} className="mt-px shrink-0" aria-hidden />
-          This is the only time this key will be shown. It is not retrievable after you leave this page.
+          This is the only time this key will be shown. It is not retrievable after you leave this
+          page.
         </p>
       </div>
 
-      <div className="flex items-center justify-end border-t px-5 py-3.5" style={{ borderColor: 'var(--rule-base)' }}>
+      <div
+        className="flex items-center justify-end border-t px-5 py-3.5"
+        style={{ borderColor: 'var(--rule-base)' }}
+      >
         <Button variant="primary" disabled={!acknowledged} onClick={onConfirm}>
           I have saved this
         </Button>

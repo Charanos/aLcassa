@@ -25,7 +25,7 @@ import React from 'react';
 export function ConsolePage({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="relative mx-auto w-full max-w-[1380px] xl:max-w-[1600px] 2xl:max-w-[1760px] overflow-x-clip px-5 pt-8 pb-16 md:px-8 md:pt-10 animate-in fade-in slide-in-from-bottom-3 duration-300 ease-out"
+      className="animate-in fade-in slide-in-from-bottom-3 relative mx-auto w-full max-w-[1380px] overflow-x-clip px-5 pt-8 pb-16 duration-300 ease-out md:px-8 md:pt-10 xl:max-w-[1600px] 2xl:max-w-[1760px]"
       style={{ color: 'var(--text-primary)' }}
     >
       {children}
@@ -54,35 +54,40 @@ export function ConsoleHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8 mb-7">
+    <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
       <div className="min-w-0 flex-1">
         {breadcrumbs && breadcrumbs.length > 0 ? (
-          <nav className="flex items-center gap-1.5 mb-2.5 t-caption" style={{ color: 'var(--text-tertiary)' }}>
+          <nav
+            className="t-caption mb-2.5 flex items-center gap-1.5"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
             {breadcrumbs.map((bc, i) => (
               <React.Fragment key={i}>
                 {bc.href ? (
-                  <a href={bc.href} className="hover:text-[var(--text-primary)] transition-colors">
+                  <a href={bc.href} className="transition-colors hover:text-[var(--text-primary)]">
                     {bc.label}
                   </a>
                 ) : (
                   <span style={{ color: 'var(--text-secondary)' }}>{bc.label}</span>
                 )}
-                {i < breadcrumbs.length - 1 && <IconChevronRight size={13} className="opacity-40" />}
+                {i < breadcrumbs.length - 1 && (
+                  <IconChevronRight size={13} className="opacity-40" />
+                )}
               </React.Fragment>
             ))}
           </nav>
         ) : null}
-        
+
         {eyebrow && (
-          <p className="t-eyebrow mb-2 tracking-widest uppercase opacity-75" style={{ color: 'var(--text-tertiary)' }}>
+          <p
+            className="t-eyebrow mb-2 tracking-widest uppercase opacity-75"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
             {eyebrow}
           </p>
         )}
         {/* greeting h1 uses display-sm: 24px — editorial but not hero-sized */}
-        <h1
-          className="display display-md tracking-tight"
-          style={{ color: 'var(--text-primary)' }}
-        >
+        <h1 className="display display-md tracking-tight" style={{ color: 'var(--text-primary)' }}>
           {title}
         </h1>
       </div>
@@ -179,7 +184,7 @@ export function Panel({
      * shadow that was competing with them.
      */
     <section
-      className="overflow-hidden rounded-2xl relative"
+      className="relative overflow-hidden rounded-2xl"
       style={{
         border: '1px solid var(--border-subtle)',
         background: 'var(--surface-raised)',
@@ -241,10 +246,10 @@ export function FactRow({
       style={{ borderBottom: last ? undefined : '1px solid var(--border-subtle)' }}
     >
       {dot ? (
-        <span className="relative flex items-center justify-center size-2 shrink-0">
+        <span className="relative flex size-2 shrink-0 items-center justify-center">
           <span
             aria-hidden
-            className="absolute inset-0 rounded-full animate-ping opacity-40"
+            className="absolute inset-0 animate-ping rounded-full opacity-40"
             style={{ background: dotInk, animationDuration: '2s' }}
           />
           <span

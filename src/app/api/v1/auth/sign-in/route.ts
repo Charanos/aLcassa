@@ -118,7 +118,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         request,
         requestId,
         destination,
-        cookie: { name: cookieNameFor('platform'), value: session.id, expiresAt: session.expiresAt },
+        cookie: {
+          name: cookieNameFor('platform'),
+          value: session.id,
+          expiresAt: session.expiresAt,
+        },
         payload: { userId, door: 'platform' as const, destination },
       });
     }

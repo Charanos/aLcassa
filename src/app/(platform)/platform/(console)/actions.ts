@@ -371,9 +371,7 @@ export type ToggleBreakGlassResult = { ok: true } | { ok: false; error: string }
  */
 // Server Actions must be async; there is nothing to await until the write below is real.
 // eslint-disable-next-line @typescript-eslint/require-await
-export async function toggleBreakGlass(input: {
-  lock: boolean;
-}): Promise<ToggleBreakGlassResult> {
+export async function toggleBreakGlass(input: { lock: boolean }): Promise<ToggleBreakGlassResult> {
   return {
     ok: false,
     error: input.lock
@@ -381,4 +379,3 @@ export async function toggleBreakGlass(input: {
       : 'Re-enabling reads the same unwired flag. There is nothing active to release yet.',
   };
 }
-

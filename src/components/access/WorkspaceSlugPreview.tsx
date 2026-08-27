@@ -6,11 +6,12 @@ import { Field } from '@/components/primitives/Field';
 export function WorkspaceSlugPreview() {
   const [companyName, setCompanyName] = useState('');
 
-  const slug = companyName
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'acme';
+  const slug =
+    companyName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'acme';
 
   return (
     <div className="space-y-2">
@@ -27,7 +28,7 @@ export function WorkspaceSlugPreview() {
 
       {/* Live Slug Preview */}
       <div
-        className="flex items-center justify-between rounded-chip border px-3 py-2 t-caption"
+        className="t-caption flex items-center justify-between rounded-chip border px-3 py-2"
         style={{
           background: 'var(--surface-sunken)',
           borderColor: 'var(--border-subtle)',

@@ -36,9 +36,7 @@ export function jsonNoContent(requestId: string): NextResponse {
  * resource" from being a rule anybody has to remember. 07 §1.
  */
 export function jsonError(error: unknown, requestId: string): NextResponse {
-  const appError = isAppError(error)
-    ? error
-    : new AppError(ERROR_CODES.INTERNAL, { cause: error });
+  const appError = isAppError(error) ? error : new AppError(ERROR_CODES.INTERNAL, { cause: error });
 
   const headers: Record<string, string> = { 'X-Request-Id': requestId };
 

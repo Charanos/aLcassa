@@ -13,7 +13,7 @@ import {
 
 /**
  * Creative Data Viz for the Overview Dashboard.
- * 
+ *
  * Instead of a generic 4-stat grid, we use this continuous AreaChart to tell
  * a story about platform activity (e.g., event volume vs revenue throughput)
  * over the last 30 days. It uses inverse chrome for a striking, premium appearance.
@@ -36,33 +36,63 @@ export function OverviewChart() {
   }, []);
 
   return (
-    <div className="relative w-full h-full min-h-[260px] overflow-hidden">
+    <div className="relative h-full min-h-[260px] w-full overflow-hidden">
       {/* Subtle interior glow */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-5"
+      <div
+        className="pointer-events-none absolute inset-0 opacity-5"
         style={{
           background: 'radial-gradient(circle at 70% 30%, var(--invert-card-fg), transparent 60%)',
         }}
       />
-      
+
       {/* t-eyebrow: mono, uppercase, 11px — the standard label class */}
       <div className="absolute top-5 left-5 z-10">
-        <p className="t-eyebrow mb-2" style={{ color: 'var(--invert-card-fg)', opacity: 0.55, letterSpacing: 'var(--t-eyebrow-tracking)' }}>
+        <p
+          className="t-eyebrow mb-2"
+          style={{
+            color: 'var(--invert-card-fg)',
+            opacity: 0.55,
+            letterSpacing: 'var(--t-eyebrow-tracking)',
+          }}
+        >
           PLATFORM THROUGHPUT
         </p>
         <div className="flex items-baseline gap-3">
           {/* numeric: mono tabular figures */}
-          <div className="numeric" style={{ fontSize: 'var(--text-2xl)', color: 'var(--invert-card-fg)', lineHeight: 1.15 }}>
+          <div
+            className="numeric"
+            style={{
+              fontSize: 'var(--text-2xl)',
+              color: 'var(--invert-card-fg)',
+              lineHeight: 1.15,
+            }}
+          >
             3.42M
           </div>
-          <div className="t-caption" style={{ color: 'var(--success-fg)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'var(--success-fg)' }} />
+          <div
+            className="t-caption"
+            style={{
+              color: 'var(--success-fg)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            <span
+              style={{
+                display: 'inline-block',
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: 'var(--success-fg)',
+              }}
+            />
             +12.4% vs last month
           </div>
         </div>
       </div>
 
-      <div className="absolute inset-0 pt-20 pb-2 px-3">
+      <div className="absolute inset-0 px-3 pt-20 pb-2">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <defs>
@@ -71,42 +101,45 @@ export function OverviewChart() {
                 <stop offset="95%" stopColor="var(--invert-card-fg)" stopOpacity={0.0} />
               </linearGradient>
             </defs>
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              vertical={false} 
-              stroke="var(--invert-card-rule)" 
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="var(--invert-card-rule)"
               strokeOpacity={0.6}
             />
-            <XAxis 
-              dataKey="day" 
-              axisLine={false} 
-              tickLine={false} 
+            <XAxis
+              dataKey="day"
+              axisLine={false}
+              tickLine={false}
               tick={{ fill: 'var(--invert-card-fg)', opacity: 0.5, fontSize: 11, fontWeight: 500 }}
               dy={10}
               minTickGap={28}
             />
-            <YAxis 
-              hide={true} 
-              domain={['dataMin - 10000', 'dataMax + 20000']} 
-            />
-            <Tooltip 
+            <YAxis hide={true} domain={['dataMin - 10000', 'dataMax + 20000']} />
+            <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const data = payload[0];
                   if (!data) return null;
                   return (
-                    <div 
-                      className="px-3 py-2 rounded-lg backdrop-blur-md border shadow-lg"
-                      style={{ 
-                        background: 'var(--invert-card-well)', 
+                    <div
+                      className="rounded-lg border px-3 py-2 shadow-lg backdrop-blur-md"
+                      style={{
+                        background: 'var(--invert-card-well)',
                         borderColor: 'var(--invert-card-rule)',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.25)'
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
                       }}
                     >
-                      <div className="t-caption mb-1" style={{ color: 'var(--invert-card-subtle)' }}>
+                      <div
+                        className="t-caption mb-1"
+                        style={{ color: 'var(--invert-card-subtle)' }}
+                      >
                         {(data.payload as { day?: string })?.day}
                       </div>
-                      <div className="font-mono font-medium" style={{ color: 'var(--invert-card-fg)' }}>
+                      <div
+                        className="font-mono font-medium"
+                        style={{ color: 'var(--invert-card-fg)' }}
+                      >
                         {new Intl.NumberFormat('en-US').format((data.value as number) || 0)} reqs
                       </div>
                     </div>
@@ -115,18 +148,18 @@ export function OverviewChart() {
                 return null;
               }}
             />
-            <Area 
-              type="monotone" 
-              dataKey="volume" 
-              stroke="var(--invert-card-fg)" 
+            <Area
+              type="monotone"
+              dataKey="volume"
+              stroke="var(--invert-card-fg)"
               strokeWidth={2}
-              fillOpacity={1} 
+              fillOpacity={1}
               fill={`url(#gradient-${chartId})`}
-              activeDot={{ 
-                r: 5, 
-                fill: 'var(--invert-card-bg)', 
+              activeDot={{
+                r: 5,
+                fill: 'var(--invert-card-bg)',
                 stroke: 'var(--invert-card-fg)',
-                strokeWidth: 2
+                strokeWidth: 2,
               }}
             />
           </AreaChart>

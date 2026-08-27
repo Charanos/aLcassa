@@ -50,7 +50,11 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
           >
             <span
               className="grid size-14 shrink-0 place-items-center rounded-full"
-              style={{ background: 'var(--blue-50)', color: 'var(--blue-500)', font: '500 19px/1 var(--font-mono)' }}
+              style={{
+                background: 'var(--blue-50)',
+                color: 'var(--blue-500)',
+                font: '500 19px/1 var(--font-mono)',
+              }}
               aria-hidden
             >
               {model.initials}
@@ -91,11 +95,17 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
             </span>
             <span
               className="flex h-[38px] items-center gap-2.5 rounded-chip px-3"
-              style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-sunken)' }}
+              style={{
+                border: '1px solid var(--border-subtle)',
+                background: 'var(--surface-sunken)',
+              }}
             >
               <span
                 className="min-w-0 flex-1 truncate"
-                style={{ font: '400 var(--text-base)/1 var(--font-mono)', color: 'var(--text-secondary)' }}
+                style={{
+                  font: '400 var(--text-base)/1 var(--font-mono)',
+                  color: 'var(--text-secondary)',
+                }}
               >
                 {model.email}
               </span>
@@ -120,7 +130,14 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
           >
             <span
               className="t-caption flex-1"
-              style={{ color: saveState === 'saved' ? 'var(--success-fg)' : dirty ? 'var(--warning-fg)' : 'var(--text-tertiary)' }}
+              style={{
+                color:
+                  saveState === 'saved'
+                    ? 'var(--success-fg)'
+                    : dirty
+                      ? 'var(--warning-fg)'
+                      : 'var(--text-tertiary)',
+              }}
             >
               {saveState === 'saved' ? 'Saved.' : dirty ? 'Unsaved changes' : 'No changes'}
             </span>
@@ -131,7 +148,12 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
               className="t-compact h-[34px] rounded-panel px-4 whitespace-nowrap"
               style={{
                 border: 'none',
-                background: saveState === 'saved' ? 'var(--success-fg)' : dirty ? 'var(--blue-500)' : 'var(--surface-inset)',
+                background:
+                  saveState === 'saved'
+                    ? 'var(--success-fg)'
+                    : dirty
+                      ? 'var(--blue-500)'
+                      : 'var(--surface-inset)',
                 color: saveState === 'saved' || dirty ? '#ffffff' : 'var(--text-disabled)',
                 fontWeight: 500,
                 cursor: dirty ? 'pointer' : 'not-allowed',
@@ -155,8 +177,7 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
             Security
           </p>
           <p className="t-caption mb-5" style={{ color: 'var(--text-secondary)' }}>
-            You can see every workspace on the platform. These controls are the reason that is
-            safe.
+            You can see every workspace on the platform. These controls are the reason that is safe.
           </p>
           <div className="grid gap-3">
             {model.security.map((s) => (
@@ -170,23 +191,38 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
               >
                 <span
                   className="grid size-[30px] shrink-0 place-items-center rounded-panel"
-                  style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-raised)', color: s.state === 'good' ? 'var(--success-fg)' : 'var(--text-secondary)' }}
+                  style={{
+                    border: '1px solid var(--border-subtle)',
+                    background: 'var(--surface-raised)',
+                    color: s.state === 'good' ? 'var(--success-fg)' : 'var(--text-secondary)',
+                  }}
                   aria-hidden
                 >
-                  {s.key === 'mfa' ? <IconLock size={15} stroke={1.5} /> : <IconKey size={15} stroke={1.5} />}
+                  {s.key === 'mfa' ? (
+                    <IconLock size={15} stroke={1.5} />
+                  ) : (
+                    <IconKey size={15} stroke={1.5} />
+                  )}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="t-compact block" style={{ color: 'var(--text-primary)' }}>
                     {s.label}
                   </span>
-                  <span className="t-caption mt-0.5 block" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
+                  <span
+                    className="t-caption mt-0.5 block"
+                    style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
+                  >
                     {s.detail}
                   </span>
                 </span>
                 <button
                   type="button"
                   className="t-caption h-[30px] shrink-0 rounded-panel px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
-                  style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', color: 'var(--text-primary)' }}
+                  style={{
+                    border: '1px solid var(--border-strong)',
+                    background: 'var(--surface-raised)',
+                    color: 'var(--text-primary)',
+                  }}
                 >
                   {s.action}
                 </button>
@@ -214,7 +250,11 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
             <button
               type="button"
               className="t-caption h-7 shrink-0 rounded-panel px-2.5 whitespace-nowrap transition-colors"
-              style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', color: 'var(--danger-fg)' }}
+              style={{
+                border: '1px solid var(--border-strong)',
+                background: 'var(--surface-raised)',
+                color: 'var(--danger-fg)',
+              }}
             >
               Sign out everywhere
             </button>
@@ -224,25 +264,38 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
               key={s.id}
               className="flex items-center gap-3.5 px-5 py-3.5"
               style={{
-                borderBottom: i === model.sessions.length - 1 ? undefined : '1px solid var(--border-subtle)',
+                borderBottom:
+                  i === model.sessions.length - 1 ? undefined : '1px solid var(--border-subtle)',
               }}
             >
               <span
                 aria-hidden
                 className="size-[7px] shrink-0 rounded-full"
-                style={{ background: s.current ? 'var(--success-fg)' : i === 1 ? 'var(--ink-400)' : 'var(--ink-300)' }}
+                style={{
+                  background: s.current
+                    ? 'var(--success-fg)'
+                    : i === 1
+                      ? 'var(--ink-400)'
+                      : 'var(--ink-300)',
+                }}
               />
               <span className="min-w-0 flex-1">
                 <span className="t-compact block" style={{ color: 'var(--text-primary)' }}>
                   {s.device}
                 </span>
-                <span className="mt-0.5 block" style={{ font: '400 11.5px/1.4 var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                <span
+                  className="mt-0.5 block"
+                  style={{ font: '400 11.5px/1.4 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                >
                   {s.meta}
                 </span>
               </span>
               <span
                 className="shrink-0 whitespace-nowrap"
-                style={{ font: '400 12px/1 var(--font-ui)', color: s.current ? 'var(--success-fg)' : 'var(--text-secondary)' }}
+                style={{
+                  font: '400 12px/1 var(--font-ui)',
+                  color: s.current ? 'var(--success-fg)' : 'var(--text-secondary)',
+                }}
               >
                 {s.when}
               </span>
@@ -266,7 +319,11 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
           </p>
           <span
             className="inline-flex h-[26px] items-center gap-1.5 rounded-full px-2.5"
-            style={{ background: 'var(--blue-50)', color: 'var(--blue-600)', font: '500 11.5px/1 var(--font-mono)' }}
+            style={{
+              background: 'var(--blue-50)',
+              color: 'var(--blue-600)',
+              font: '500 11.5px/1 var(--font-mono)',
+            }}
           >
             <IconCrown size={13} stroke={1.5} aria-hidden />
             {model.role.replace('_', ' ')}

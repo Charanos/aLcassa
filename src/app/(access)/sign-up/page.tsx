@@ -23,7 +23,7 @@ export default function SignUpPage() {
           Already have a workspace?{' '}
           <Link
             href="/sign-in"
-            className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80 transition-opacity"
+            className="text-[var(--text-action)] underline underline-offset-2 transition-opacity hover:opacity-80"
           >
             Sign in
           </Link>
@@ -60,7 +60,10 @@ export default function SignUpPage() {
 
         <p className="t-caption mt-1" style={{ color: 'var(--text-tertiary)' }}>
           By creating a workspace you agree to the{' '}
-          <Link href="/legal/terms" className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80">
+          <Link
+            href="/legal/terms"
+            className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80"
+          >
             terms of service
           </Link>{' '}
           and the{' '}
@@ -75,17 +78,20 @@ export default function SignUpPage() {
 
         {/* Security Assurance Ticker */}
         <div
-          className="mt-4 border-t pt-4 flex flex-wrap items-center justify-between gap-2 t-micro"
+          className="t-micro mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-4"
           style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}
         >
           <span className="flex items-center gap-1.5">
-            <span className="size-1 rounded-full" style={{ background: 'var(--success-fg)' }} /> POSTGRES RLS
+            <span className="size-1 rounded-full" style={{ background: 'var(--success-fg)' }} />{' '}
+            POSTGRES RLS
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-1 rounded-full" style={{ background: 'var(--accent-mark)' }} /> ARGON2 HASHED
+            <span className="size-1 rounded-full" style={{ background: 'var(--accent-mark)' }} />{' '}
+            ARGON2 HASHED
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-1 rounded-full" style={{ background: 'var(--blue-500)' }} /> MULTI-TENANT RBAC
+            <span className="size-1 rounded-full" style={{ background: 'var(--blue-500)' }} />{' '}
+            MULTI-TENANT RBAC
           </span>
         </div>
       </form>

@@ -12,12 +12,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
     if (items.length <= 4) return items;
 
     // Truncate middle items if more than 4
-    return [
-      items[0]!,
-      { label: '…' },
-      items[items.length - 2]!,
-      items[items.length - 1]!,
-    ];
+    return [items[0]!, { label: '…' }, items[items.length - 2]!, items[items.length - 1]!];
   };
 
   const displayItems = renderItems();
@@ -44,14 +39,14 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                 ) : (
                   <Link
                     href={item.href}
-                    className="t-compact text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)] transition-colors"
+                    className="t-compact text-[var(--ink-tertiary)] transition-colors hover:text-[var(--copper-ink)]"
                   >
                     {item.label}
                   </Link>
                 )}
               </li>
               {!isLast && (
-                <li aria-hidden="true" className="text-[var(--ink-faint)] t-compact select-none">
+                <li aria-hidden="true" className="t-compact text-[var(--ink-faint)] select-none">
                   /
                 </li>
               )}

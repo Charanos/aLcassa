@@ -299,8 +299,7 @@ export const COMPLIANCE = [
   },
   {
     area: 'Retention and erasure',
-    obligation:
-      'Customer records can be retained for a stated period and erased on request.',
+    obligation: 'Customer records can be retained for a stated period and erased on request.',
     state: 'open' as ComplianceState,
     evidence:
       'A soft-delete column is present on the customer records table from the first migration.',
@@ -521,7 +520,8 @@ export const CLIENT_INPUTS = [
     item: 'Supabase organisation access',
     when: 'Week 1',
     blocking: 'M1',
-    status: 'A project is connected and M1 is unblocked. Access on the client organisation still to confirm.',
+    status:
+      'A project is connected and M1 is unblocked. Access on the client organisation still to confirm.',
   },
   { item: 'GitHub organisation access', when: 'Week 1', blocking: 'M1', status: 'Pending' },
   {
@@ -569,7 +569,12 @@ export const COMMERCIAL = {
       share: '25%',
       amount: 'KES 16,250',
     },
-    { n: 4, trigger: 'M6 sign-off: full definition of done met', share: '20%', amount: 'KES 13,000' },
+    {
+      n: 4,
+      trigger: 'M6 sign-off: full definition of done met',
+      share: '20%',
+      amount: 'KES 13,000',
+    },
   ],
 } as const;
 

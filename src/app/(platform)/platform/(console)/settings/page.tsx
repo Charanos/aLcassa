@@ -29,10 +29,7 @@ export default async function SettingsPage({
 
   return (
     <ConsolePage>
-      <div
-        className="border-b pb-5"
-        style={{ borderColor: 'var(--border-subtle)' }}
-      >
+      <div className="border-b pb-5" style={{ borderColor: 'var(--border-subtle)' }}>
         <ConsoleHeader eyebrow="/platform/settings" title="Settings" />
         <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', maxWidth: '68ch' }}>
           Platform-wide defaults. Everything here applies to all 47 workspaces unless a workspace

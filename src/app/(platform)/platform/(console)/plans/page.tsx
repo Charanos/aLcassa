@@ -74,10 +74,7 @@ export default async function PlansPage() {
       >
         <div className="min-w-0 flex-1">
           <ConsoleHeader eyebrow="/platform/plans" title="Plans" />
-          <p
-            className="t-body mt-2"
-            style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}
-          >
+          <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}>
             Entitlements are data, not code. Editing a limit here changes what every workspace on
             that plan can do, on save.
           </p>
@@ -173,11 +170,7 @@ export default async function PlansPage() {
                   const Icon = ROW_ICON[row.icon];
                   return (
                     <tr key={row.label} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                      <th
-                        scope="row"
-                        className="px-4 text-left font-normal"
-                        style={{ height: 44 }}
-                      >
+                      <th scope="row" className="px-4 text-left font-normal" style={{ height: 44 }}>
                         <span className="flex items-center gap-2.5">
                           <Icon
                             size={16}
@@ -309,8 +302,8 @@ export default async function PlansPage() {
               Blast radius
             </p>
             <p className="t-compact" style={{ color: 'var(--text-secondary)' }}>
-              Every plan edit states how many workspaces it touches before it commits, and names
-              the ones that would be pushed over a limit by the change.
+              Every plan edit states how many workspaces it touches before it commits, and names the
+              ones that would be pushed over a limit by the change.
             </p>
             <div
               className="mt-3.5 grid gap-2.5 border-t pt-3.5"
@@ -318,7 +311,10 @@ export default async function PlansPage() {
             >
               {(
                 [
-                  ['Plans in use', `${m.plans.filter((p) => p.count > 0).length} of ${m.plans.length}`],
+                  [
+                    'Plans in use',
+                    `${m.plans.filter((p) => p.count > 0).length} of ${m.plans.length}`,
+                  ],
                   ['Custom overrides', `${m.overrides} workspaces`],
                   ['Unassigned', `${m.unassigned} on trial`],
                 ] as const

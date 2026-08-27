@@ -114,11 +114,14 @@ export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
                     data-progress-bar
                     data-value={milestone.progress}
                     className="block h-full rounded-chip"
-                    style={{ width: `${milestone.progress}%`, background: `var(--${status.tone}-ink)` }}
+                    style={{
+                      width: `${milestone.progress}%`,
+                      background: `var(--${status.tone}-ink)`,
+                    }}
                   />
                 </div>
                 <span
-                  className="t-data shrink-0 tabular-nums text-[var(--ink-secondary)]"
+                  className="t-data shrink-0 text-[var(--ink-secondary)] tabular-nums"
                   style={{ fontSize: '12px' }}
                 >
                   {milestone.progress}%

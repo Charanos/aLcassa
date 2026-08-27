@@ -126,7 +126,7 @@ export function ConsoleShell({
   density,
   session,
   isolation,
-  onNavStateChange: _onNavStateChange, /* eslint-disable-line @typescript-eslint/no-unused-vars */
+  onNavStateChange: _onNavStateChange /* eslint-disable-line @typescript-eslint/no-unused-vars */,
   onStartSession,
   onEndSession,
   children,
@@ -267,9 +267,7 @@ export function ConsoleShell({
     ];
     const all = [...screens, ...spaces, ...actions];
     if (!q) return all;
-    return all.filter(
-      (h) => h.label.toLowerCase().includes(q) || h.hint.toLowerCase().includes(q),
-    );
+    return all.filter((h) => h.label.toLowerCase().includes(q) || h.hint.toLowerCase().includes(q));
   }, [query, navigation, workspaces]);
 
   /* ── GSAP Sidebar Navigation Indicator & Motion ──────────────────── */
@@ -324,32 +322,35 @@ export function ConsoleShell({
     });
   }, []);
 
-  const updateNavIndicator = useCallback((activeHref: string, immediate = false) => {
-    const activeEl = itemRefs.current[activeHref];
-    const indicator = indicatorRef.current;
+  const updateNavIndicator = useCallback(
+    (activeHref: string, immediate = false) => {
+      const activeEl = itemRefs.current[activeHref];
+      const indicator = indicatorRef.current;
 
-    snapIndicator(activeHref, immediate);
+      snapIndicator(activeHref, immediate);
 
-    // Micro-interaction on the active item's icon & label (nav-change only, not collapse)
-    if (!immediate && !isInitialNavRender.current && activeEl) {
-      const iconSvg = activeEl.querySelector('svg');
-      const labelSpan = activeEl.querySelector('.nav-label');
-      if (iconSvg) {
-        gsapSafe.fromTo(
-          iconSvg,
-          { scale: 0.75, rotate: -8 },
-          { scale: 1, rotate: 0, duration: 0.38, ease: 'back.out(2.4)' }
-        );
+      // Micro-interaction on the active item's icon & label (nav-change only, not collapse)
+      if (!immediate && !isInitialNavRender.current && activeEl) {
+        const iconSvg = activeEl.querySelector('svg');
+        const labelSpan = activeEl.querySelector('.nav-label');
+        if (iconSvg) {
+          gsapSafe.fromTo(
+            iconSvg,
+            { scale: 0.75, rotate: -8 },
+            { scale: 1, rotate: 0, duration: 0.38, ease: 'back.out(2.4)' },
+          );
+        }
+        if (labelSpan && indicator) {
+          gsapSafe.fromTo(
+            labelSpan,
+            { x: -3, opacity: 0.8 },
+            { x: 0, opacity: 1, duration: 0.25, ease: 'power2.out' },
+          );
+        }
       }
-      if (labelSpan && indicator) {
-        gsapSafe.fromTo(
-          labelSpan,
-          { x: -3, opacity: 0.8 },
-          { x: 0, opacity: 1, duration: 0.25, ease: 'power2.out' }
-        );
-      }
-    }
-  }, [snapIndicator]);
+    },
+    [snapIndicator],
+  );
 
   // When collapsed state changes: hide indicator immediately, then re-snap
   // once the CSS nav-width transition actually finishes.
@@ -370,9 +371,7 @@ export function ConsoleShell({
       const activeItem = navigation
         .flatMap((g) => g.items)
         .find((item) =>
-          item.href === '/platform'
-            ? pathname === '/platform'
-            : pathname.startsWith(item.href)
+          item.href === '/platform' ? pathname === '/platform' : pathname.startsWith(item.href),
         );
       if (activeItem) snapIndicator(activeItem.href, true);
     };
@@ -411,9 +410,7 @@ export function ConsoleShell({
     const activeItem = navigation
       .flatMap((g) => g.items)
       .find((item) =>
-        item.href === '/platform'
-          ? pathname === '/platform'
-          : pathname.startsWith(item.href)
+        item.href === '/platform' ? pathname === '/platform' : pathname.startsWith(item.href),
       );
     if (activeItem) updateNavIndicator(activeItem.href, isInitialNavRender.current);
   }, [pathname, navigation, updateNavIndicator]);
@@ -423,9 +420,7 @@ export function ConsoleShell({
       const activeItem = navigation
         .flatMap((g) => g.items)
         .find((item) =>
-          item.href === '/platform'
-            ? pathname === '/platform'
-            : pathname.startsWith(item.href)
+          item.href === '/platform' ? pathname === '/platform' : pathname.startsWith(item.href),
         );
       if (activeItem) snapIndicator(activeItem.href, true);
     };
@@ -436,7 +431,8 @@ export function ConsoleShell({
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     const target = e.currentTarget;
     if (!prefersReducedMotion()) {
-      gsap.timeline()
+      gsap
+        .timeline()
         .to(target, { scale: 0.95, duration: 0.08, ease: 'power1.in' })
         .to(target, { scale: 1, duration: 0.3, ease: 'back.out(2.2)' });
     }
@@ -445,8 +441,7 @@ export function ConsoleShell({
 
   const handleNavHover = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     const target = e.currentTarget;
-    const active =
-      href === '/platform' ? pathname === '/platform' : pathname.startsWith(href);
+    const active = href === '/platform' ? pathname === '/platform' : pathname.startsWith(href);
     if (!active) {
       gsapSafe.to(target, { x: 3, duration: 0.18, ease: 'power2.out' });
     }
@@ -475,7 +470,11 @@ export function ConsoleShell({
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:rounded-lg focus:px-4 focus:py-2.5"
-        style={{ background: 'var(--blue-500)', color: '#ffffff', font: '500 13px/1 var(--font-ui)' }}
+        style={{
+          background: 'var(--blue-500)',
+          color: '#ffffff',
+          font: '500 13px/1 var(--font-ui)',
+        }}
       >
         Skip to content
       </a>
@@ -537,7 +536,7 @@ export function ConsoleShell({
             >
               ◎
             </span>
-            <span className="whitespace-nowrap text-[12.5px]">Switch workspace</span>
+            <span className="text-[12.5px] whitespace-nowrap">Switch workspace</span>
             <IconChevronDown
               size={13}
               stroke={1.5}
@@ -548,10 +547,7 @@ export function ConsoleShell({
 
           {openMenu === 'switcher' ? (
             <Dropdown className="left-0 w-[380px] p-1.5">
-              <p
-                className="t-eyebrow px-2.5 pt-2 pb-1.5"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
+              <p className="t-eyebrow px-2.5 pt-2 pb-1.5" style={{ color: 'var(--text-tertiary)' }}>
                 Recent workspaces
               </p>
               {workspaces.map((w) => (
@@ -580,7 +576,10 @@ export function ConsoleShell({
                     <span className="t-compact block truncate">{w.name}</span>
                     <span
                       className="block truncate"
-                      style={{ font: '400 11px/1.4 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                      style={{
+                        font: '400 11px/1.4 var(--font-mono)',
+                        color: 'var(--text-tertiary)',
+                      }}
                     >
                       {w.slug}
                     </span>
@@ -609,7 +608,7 @@ export function ConsoleShell({
             setPaletteOpen(true);
             setQuery('');
           }}
-          className="flex h-8 min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left transition-all hover:bg-[var(--chrome-hover)] hover:border-[var(--chrome-rule-strong)] md:max-w-[280px]"
+          className="flex h-8 min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left transition-all hover:border-[var(--chrome-rule-strong)] hover:bg-[var(--chrome-hover)] md:max-w-[280px]"
           style={{
             border: '1px solid var(--chrome-rule)',
             background: 'transparent',
@@ -640,7 +639,8 @@ export function ConsoleShell({
               onClick={(e) => {
                 const icon = e.currentTarget.querySelector('svg');
                 if (icon && !prefersReducedMotion()) {
-                  gsap.timeline()
+                  gsap
+                    .timeline()
                     .to(icon, { rotate: -14, duration: 0.08 })
                     .to(icon, { rotate: 14, duration: 0.08 })
                     .to(icon, { rotate: -8, duration: 0.06 })
@@ -711,7 +711,10 @@ export function ConsoleShell({
                       </span>
                       <span
                         className="shrink-0"
-                        style={{ font: '400 11px/1.5 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                        style={{
+                          font: '400 11px/1.5 var(--font-mono)',
+                          color: 'var(--text-tertiary)',
+                        }}
                       >
                         {n.time}
                       </span>
@@ -804,7 +807,10 @@ export function ConsoleShell({
                     </span>
                     <span
                       className="block truncate"
-                      style={{ font: '400 11px/1.4 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                      style={{
+                        font: '400 11px/1.4 var(--font-mono)',
+                        color: 'var(--text-tertiary)',
+                      }}
                     >
                       {account.email}
                     </span>
@@ -841,7 +847,7 @@ export function ConsoleShell({
         <nav
           ref={navElRef}
           aria-label="Platform navigation"
-          className="hidden shrink-0 flex-col md:flex select-none"
+          className="hidden shrink-0 flex-col select-none md:flex"
           style={{
             width: collapsed ? '58px' : '240px',
             background: 'var(--chrome-bg)',
@@ -859,7 +865,7 @@ export function ConsoleShell({
             {/* GSAP Smooth Sliding Active Pill Indicator */}
             <div
               ref={indicatorRef}
-              className="pointer-events-none absolute left-2.5 right-2.5 z-0 rounded-lg"
+              className="pointer-events-none absolute right-2.5 left-2.5 z-0 rounded-lg"
               style={{
                 background: 'var(--chrome-active-bg)',
                 boxShadow: 'var(--chrome-highlight)',
@@ -870,9 +876,9 @@ export function ConsoleShell({
             />
 
             {navigation.map((group, gIdx) => (
-              <div key={group.label} className={gIdx === 0 ? 'mb-4' : 'mb-4 mt-4'}>
+              <div key={group.label} className={gIdx === 0 ? 'mb-4' : 'mt-4 mb-4'}>
                 <p
-                  className="t-eyebrow mb-2 ml-2 tracking-wider overflow-hidden whitespace-nowrap"
+                  className="t-eyebrow mb-2 ml-2 overflow-hidden tracking-wider whitespace-nowrap"
                   style={{
                     color: 'var(--chrome-fg-faint)',
                     fontSize: '10.5px',
@@ -905,7 +911,7 @@ export function ConsoleShell({
                         onClick={(e) => handleNavClick(e, item.href)}
                         onMouseEnter={(e) => handleNavHover(e, item.href)}
                         onMouseLeave={handleNavLeave}
-                        className="group relative z-10 flex h-[36px] cursor-pointer items-center rounded-lg select-none transition-colors hover:text-[var(--chrome-fg)]"
+                        className="group relative z-10 flex h-[36px] cursor-pointer items-center rounded-lg transition-colors select-none hover:text-[var(--chrome-fg)]"
                         style={{
                           paddingLeft: collapsed ? '11px' : '10px',
                           paddingRight: collapsed ? '11px' : '10px',
@@ -940,15 +946,18 @@ export function ConsoleShell({
                         </span>
                         {item.badge ? (
                           <span
-                            className="grid h-4 min-w-4 place-items-center rounded-full px-1 overflow-hidden"
+                            className="grid h-4 min-w-4 place-items-center overflow-hidden rounded-full px-1"
                             style={{
                               opacity: collapsed ? 0 : 1,
                               transform: collapsed ? 'scale(0.4)' : 'scale(1)',
                               pointerEvents: collapsed ? 'none' : 'auto',
-                              background: active ? 'var(--chrome-action)' : 'var(--chrome-rule-strong)',
+                              background: active
+                                ? 'var(--chrome-action)'
+                                : 'var(--chrome-rule-strong)',
                               color: active ? 'var(--chrome-bg)' : 'var(--chrome-fg)',
                               font: '500 10px/1 var(--font-mono)',
-                              transition: 'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
+                              transition:
+                                'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
                             }}
                           >
                             {item.badge}
@@ -989,7 +998,8 @@ export function ConsoleShell({
               gap: collapsed ? '0px' : '9px',
               paddingLeft: collapsed ? '11px' : '10px',
               paddingRight: collapsed ? '11px' : '10px',
-              transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+              transition:
+                'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
             }}
           >
             <span className="flex size-4 shrink-0 items-center justify-center">
@@ -1017,7 +1027,7 @@ export function ConsoleShell({
                 {isolationOk ? 'Isolation green' : 'Isolation gap'}
               </span>
               <span
-                className="block truncate text-[10px] font-mono"
+                className="block truncate font-mono text-[10px]"
                 style={{ color: 'var(--chrome-fg-faint)' }}
               >
                 {isolation.tablesPoliced} of {isolation.tablesTotal} tables · {isolation.lastRun}
@@ -1025,10 +1035,7 @@ export function ConsoleShell({
             </span>
           </Link>
 
-          <div
-            className="shrink-0 p-2"
-            style={{ borderTop: '1px solid var(--chrome-rule)' }}
-          >
+          <div className="shrink-0 p-2" style={{ borderTop: '1px solid var(--chrome-rule)' }}>
             {/* Quick exit to public marketing site */}
             <Link
               href="/"
@@ -1038,7 +1045,8 @@ export function ConsoleShell({
                 gap: collapsed ? '0px' : '10px',
                 paddingLeft: collapsed ? '7px' : '8px',
                 paddingRight: collapsed ? '7px' : '8px',
-                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                transition:
+                  'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
               title={collapsed ? 'Public marketing site' : undefined}
             >
@@ -1068,7 +1076,8 @@ export function ConsoleShell({
                 gap: collapsed ? '0px' : '10px',
                 paddingLeft: collapsed ? '7px' : '8px',
                 paddingRight: collapsed ? '7px' : '8px',
-                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                transition:
+                  'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
             >
               <div className="relative size-6 shrink-0 overflow-hidden rounded-full border border-[var(--chrome-rule)]">
@@ -1098,7 +1107,7 @@ export function ConsoleShell({
                   {account.name}
                 </span>
                 <span
-                  className="block truncate text-[10px] font-mono"
+                  className="block truncate font-mono text-[10px]"
                   style={{ color: 'var(--chrome-fg-faint)' }}
                 >
                   {account.role}
@@ -1116,7 +1125,8 @@ export function ConsoleShell({
                 paddingLeft: collapsed ? '11px' : '8px',
                 paddingRight: collapsed ? '11px' : '8px',
                 gap: collapsed ? '0px' : '8px',
-                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                transition:
+                  'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
               aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
@@ -1144,7 +1154,7 @@ export function ConsoleShell({
               >
                 <span>Collapse</span>
                 <kbd
-                  className="ml-auto text-[10px] font-mono"
+                  className="ml-auto font-mono text-[10px]"
                   style={{ color: 'var(--chrome-fg-faint)' }}
                 >
                   ⌘B
@@ -1154,7 +1164,11 @@ export function ConsoleShell({
           </div>
         </nav>
 
-        <main id="main-content" className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto" style={{ background: 'var(--surface-base)' }}>
+        <main
+          id="main-content"
+          className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto"
+          style={{ background: 'var(--surface-base)' }}
+        >
           {children}
         </main>
       </div>
@@ -1170,7 +1184,12 @@ export function ConsoleShell({
         <Dialog.Portal>
           <Dialog.Overlay
             ref={(el) => {
-              if (el) gsapSafe.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'power2.out' });
+              if (el)
+                gsapSafe.fromTo(
+                  el,
+                  { opacity: 0 },
+                  { opacity: 1, duration: 0.2, ease: 'power2.out' },
+                );
             }}
             className="fixed inset-0 flex justify-center"
             style={{
@@ -1185,7 +1204,7 @@ export function ConsoleShell({
                 gsapSafe.fromTo(
                   el,
                   { opacity: 0, y: -24, scale: 0.95 },
-                  { opacity: 1, y: 0, scale: 1, duration: 0.32, ease: 'power3.out' }
+                  { opacity: 1, y: 0, scale: 1, duration: 0.32, ease: 'power3.out' },
                 );
               }
             }}
@@ -1220,7 +1239,10 @@ export function ConsoleShell({
                 }}
                 placeholder="Jump to a screen, a workspace, or an action"
                 className="flex-1 border-none bg-transparent outline-none"
-                style={{ font: '400 var(--text-md)/1.4 var(--font-ui)', color: 'var(--text-primary)' }}
+                style={{
+                  font: '400 var(--text-md)/1.4 var(--font-ui)',
+                  color: 'var(--text-primary)',
+                }}
               />
               <kbd
                 className="h-5 rounded-chip px-1.5"
@@ -1351,7 +1373,11 @@ function ChromeButton({
       className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg py-0 pr-2.5 pl-2 transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
       style={{
         border: bordered ? '1px solid var(--chrome-rule)' : '1px solid transparent',
-        background: expanded ? 'var(--chrome-hover)' : bordered ? 'var(--chrome-hover)' : 'transparent',
+        background: expanded
+          ? 'var(--chrome-hover)'
+          : bordered
+            ? 'var(--chrome-hover)'
+            : 'transparent',
         color: 'var(--chrome-fg)',
         font: '400 12.5px/1 var(--font-ui)',
       }}
@@ -1412,7 +1438,7 @@ function Dropdown({ children, className = '' }: { children: React.ReactNode; cla
     gsapSafe.fromTo(
       ref.current,
       { opacity: 0, y: -10, scale: 0.95, transformOrigin: 'top right' },
-      { opacity: 1, y: 0, scale: 1, duration: 0.26, ease: 'back.out(2)' }
+      { opacity: 1, y: 0, scale: 1, duration: 0.26, ease: 'back.out(2)' },
     );
 
     const items = ref.current.querySelectorAll('a, button');
@@ -1420,7 +1446,7 @@ function Dropdown({ children, className = '' }: { children: React.ReactNode; cla
       gsapSafe.fromTo(
         items,
         { opacity: 0, y: 4 },
-        { opacity: 1, y: 0, stagger: 0.025, duration: 0.2, ease: 'power2.out', delay: 0.04 }
+        { opacity: 1, y: 0, stagger: 0.025, duration: 0.2, ease: 'power2.out', delay: 0.04 },
       );
     }
   }, []);

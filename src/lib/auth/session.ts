@@ -150,12 +150,13 @@ export async function resolveSession(
  * Deliberately fire-and-forget at the call site: a failed write here must
  * never fail the request it was decorating. It is a display value.
  */
-export async function touchSession(sessionId: string, userId: string, requestId: string): Promise<void> {
+export async function touchSession(
+  sessionId: string,
+  userId: string,
+  requestId: string,
+): Promise<void> {
   await withActorContext(userId, requestId, async (tx) => {
-    await tx
-      .update(sessions)
-      .set({ lastActivityAt: new Date() })
-      .where(eq(sessions.id, sessionId));
+    await tx.update(sessions).set({ lastActivityAt: new Date() }).where(eq(sessions.id, sessionId));
   });
 }
 

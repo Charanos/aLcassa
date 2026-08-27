@@ -38,16 +38,33 @@ type Category = 'schema' | 'architecture' | 'compliance' | 'ai';
 function deriveCategory(d: Decision): Category {
   if (d.category) return d.category;
   const q = (d.question + ' ' + d.detail).toLowerCase();
-  if (q.includes('schema') || q.includes('tier') || q.includes('table') || q.includes('plan') || q.includes('suspend')) return 'schema';
-  if (q.includes('embed') || q.includes('vector') || q.includes('ai') || q.includes('rule') || q.includes('precedence')) return 'ai';
-  if (q.includes('support') || q.includes('role') || q.includes('permission') || q.includes('access')) return 'architecture';
+  if (
+    q.includes('schema') ||
+    q.includes('tier') ||
+    q.includes('table') ||
+    q.includes('plan') ||
+    q.includes('suspend')
+  )
+    return 'schema';
+  if (
+    q.includes('embed') ||
+    q.includes('vector') ||
+    q.includes('ai') ||
+    q.includes('rule') ||
+    q.includes('precedence')
+  )
+    return 'ai';
+  if (
+    q.includes('support') ||
+    q.includes('role') ||
+    q.includes('permission') ||
+    q.includes('access')
+  )
+    return 'architecture';
   return 'compliance';
 }
 
-const CATEGORY_META: Record<
-  Category,
-  { label: string; icon: TablerIcon; color: string }
-> = {
+const CATEGORY_META: Record<Category, { label: string; icon: TablerIcon; color: string }> = {
   schema: { label: 'Schema', icon: IconDatabase, color: 'var(--copper-ink)' },
   architecture: { label: 'Architecture', icon: IconServerBolt, color: 'var(--slate-ink)' },
   compliance: { label: 'Compliance', icon: IconCheck, color: 'var(--verdigris-ink)' },
@@ -65,11 +82,7 @@ const FILTERS: Array<{ key: FilterKey; label: string }> = [
   { key: 'compliance', label: 'Compliance' },
 ];
 
-export function InteractiveDecisionMatrix({
-  decisions,
-}: {
-  decisions: Decision[];
-}) {
+export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[] }) {
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -155,7 +168,9 @@ export function InteractiveDecisionMatrix({
             className="rounded-panel border px-5 py-8 text-center"
             style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-sunken)' }}
           >
-            <span className="t-compact text-[var(--ink-faint)]">No decisions in this category.</span>
+            <span className="t-compact text-[var(--ink-faint)]">
+              No decisions in this category.
+            </span>
           </div>
         )}
 
@@ -243,7 +258,7 @@ export function InteractiveDecisionMatrix({
               {/* Expanded body */}
               {isExpanded && (
                 <div
-                  className="border-t px-5 pb-5 pt-4"
+                  className="border-t px-5 pt-4 pb-5"
                   style={{ borderColor: isBlocking ? 'var(--ochre-rule)' : 'var(--rule-soft)' }}
                 >
                   <p
@@ -256,7 +271,9 @@ export function InteractiveDecisionMatrix({
                   <div className="mt-4 flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-1.5">
                       <IconClock size={13} style={{ color: 'var(--ink-faint)' }} />
-                      <span className="t-caption text-[var(--ink-tertiary)]">Due: {decision.when}</span>
+                      <span className="t-caption text-[var(--ink-tertiary)]">
+                        Due: {decision.when}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <IconTag size={13} style={{ color: 'var(--ink-faint)' }} />

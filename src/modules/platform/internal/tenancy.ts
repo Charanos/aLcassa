@@ -159,7 +159,13 @@ export async function setTenantStatus(
 export async function previewSuspension(
   tenantId: string,
   actor: PlatformActor,
-): Promise<{ slug: string; name: string; status: string; activeMembers: number; openSupportSessions: number }> {
+): Promise<{
+  slug: string;
+  name: string;
+  status: string;
+  activeMembers: number;
+  openSupportSessions: number;
+}> {
   return asService(
     {
       actorUserId: actor.userId,

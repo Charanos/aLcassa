@@ -26,7 +26,7 @@ export default async function VerifyPage({
           Wrong address?{' '}
           <Link
             href="/sign-up"
-            className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80 transition-opacity"
+            className="text-[var(--text-action)] underline underline-offset-2 transition-opacity hover:opacity-80"
           >
             Start again
           </Link>
@@ -45,7 +45,8 @@ export default async function VerifyPage({
           We sent a confirmation link to{' '}
           <span className="t-data font-mono font-medium" style={{ color: 'var(--text-primary)' }}>
             {email ?? 'your email'}
-          </span>. It expires in 24 hours.
+          </span>
+          . It expires in 24 hours.
         </p>
       </div>
 

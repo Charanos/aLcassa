@@ -196,9 +196,7 @@ export function CategoryBars({
           />
           <Tooltip
             cursor={{ fill: 'transparent' }}
-            content={
-              <ChartTooltip suffix={suffix} surface={t.surface} rule={t.rule} ink={t.ink} />
-            }
+            content={<ChartTooltip suffix={suffix} surface={t.surface} rule={t.rule} ink={t.ink} />}
           />
           <Bar
             dataKey="value"
@@ -216,9 +214,7 @@ export function CategoryBars({
             <LabelList
               dataKey="value"
               position="right"
-              formatter={(value: unknown) =>
-                typeof value === 'number' ? `${value}${suffix}` : ''
-              }
+              formatter={(value: unknown) => (typeof value === 'number' ? `${value}${suffix}` : '')}
               style={{ fill: t.ink, fontSize: 12, fontFamily: 'var(--font-mono)' }}
             />
           </Bar>
@@ -287,9 +283,7 @@ export function ProgressLine({
             <LabelList
               dataKey="value"
               position="top"
-              formatter={(value: unknown) =>
-                typeof value === 'number' ? `${value}${suffix}` : ''
-              }
+              formatter={(value: unknown) => (typeof value === 'number' ? `${value}${suffix}` : '')}
               style={{ fill: t.ink, fontSize: 11, fontFamily: 'var(--font-mono)' }}
             />
           </Area>
@@ -362,20 +356,25 @@ export function ProportionDonut({
               isAnimationActive={false}
             >
               {segments.map((segment) => (
-                <Cell key={segment.label} fill={segment.hatch ? `url(#${patternId})` : segment.ink} />
+                <Cell
+                  key={segment.label}
+                  fill={segment.hatch ? `url(#${patternId})` : segment.ink}
+                />
               ))}
             </Pie>
             <Tooltip
               content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
-                const point = payload[0]?.payload as
-                  | (typeof segments)[number]
-                  | undefined;
+                const point = payload[0]?.payload as (typeof segments)[number] | undefined;
                 if (!point) return null;
                 return (
                   <div
                     className="rounded-chip border px-3 py-2"
-                    style={{ background: t.surface, borderColor: t.rule, boxShadow: 'var(--shadow-overlay)' }}
+                    style={{
+                      background: t.surface,
+                      borderColor: t.rule,
+                      boxShadow: 'var(--shadow-overlay)',
+                    }}
                   >
                     <div className="t-caption" style={{ color: t.ink }}>
                       {point.label}
@@ -394,7 +393,10 @@ export function ProportionDonut({
             positioned layer, since recharts has no first-class slot for one. */}
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
           <div className="text-center">
-            <div className="t-data tabular-nums" style={{ color: t.ink, fontSize: 26, lineHeight: 1 }}>
+            <div
+              className="t-data tabular-nums"
+              style={{ color: t.ink, fontSize: 26, lineHeight: 1 }}
+            >
               {centerLabel.value}
             </div>
             <div className="t-eyebrow mt-1.5" style={{ color: t.axis }}>
@@ -417,7 +419,10 @@ export function ProportionDonut({
               }}
             />
             <span className="t-caption flex-1 text-[var(--ink-secondary)]">{segment.label}</span>
-            <span className="t-data tabular-nums text-[var(--ink-primary)]" style={{ fontSize: '12px' }}>
+            <span
+              className="t-data text-[var(--ink-primary)] tabular-nums"
+              style={{ fontSize: '12px' }}
+            >
               {segment.value}
             </span>
             <span className="t-caption w-9 text-right text-[var(--ink-tertiary)]">
@@ -479,7 +484,10 @@ export function StackedMeter({
               }}
             />
             <span className="t-caption text-[var(--ink-secondary)]">{segment.label}</span>
-            <span className="t-data tabular-nums text-[var(--ink-primary)]" style={{ fontSize: '12px' }}>
+            <span
+              className="t-data text-[var(--ink-primary)] tabular-nums"
+              style={{ fontSize: '12px' }}
+            >
               {segment.value}
             </span>
           </li>

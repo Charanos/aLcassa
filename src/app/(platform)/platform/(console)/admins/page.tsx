@@ -64,8 +64,14 @@ export default async function AdminsPage() {
   return (
     <ConsolePage>
       {/* Iconography watermarks safely contained */}
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-        <div className="absolute top-[20%] -left-10 hidden -rotate-[15deg] lg:block" style={{ color: 'var(--watermark-tint)' }}>
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="absolute top-[20%] -left-10 hidden -rotate-[15deg] lg:block"
+          style={{ color: 'var(--watermark-tint)' }}
+        >
           <IconShieldLock size={360} stroke={1} />
         </div>
       </div>
@@ -76,10 +82,7 @@ export default async function AdminsPage() {
       >
         <div className="min-w-0 flex-1">
           <ConsoleHeader eyebrow="/platform/admins" title="Admins" />
-          <p
-            className="t-body mt-2"
-            style={{ color: 'var(--text-secondary)', maxWidth: '64ch' }}
-          >
+          <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', maxWidth: '64ch' }}>
             Who can see every workspace on the platform. Keep this list short enough to name from
             memory.
           </p>

@@ -126,7 +126,11 @@ export function RulesEditor({ model }: { model: RulesModel }) {
           disabled={saving || !dirty}
           className="t-compact inline-flex h-[34px] items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors"
           style={{
-            background: done ? 'var(--success-fg)' : dirty ? 'var(--blue-500)' : 'var(--surface-inset)',
+            background: done
+              ? 'var(--success-fg)'
+              : dirty
+                ? 'var(--blue-500)'
+                : 'var(--surface-inset)',
             color: done || dirty ? '#ffffff' : 'var(--text-disabled)',
             fontWeight: 500,
             cursor: saving || !dirty ? 'not-allowed' : 'pointer',
@@ -254,7 +258,10 @@ export function RulesEditor({ model }: { model: RulesModel }) {
                   >
                     {g.title}
                   </span>
-                  <span className="t-caption mt-0.5 block" style={{ color: 'var(--text-tertiary)' }}>
+                  <span
+                    className="t-caption mt-0.5 block"
+                    style={{ color: 'var(--text-tertiary)' }}
+                  >
                     {g.note}
                   </span>
                 </span>
@@ -285,7 +292,9 @@ export function RulesEditor({ model }: { model: RulesModel }) {
                         checked={on}
                         disabled={locked}
                         aria-label={r.label}
-                        title={locked ? 'Enforced by the platform. This cannot be changed.' : undefined}
+                        title={
+                          locked ? 'Enforced by the platform. This cannot be changed.' : undefined
+                        }
                         onCheckedChange={() => {
                           setOverrides((p) => {
                             const next = { ...p };
@@ -341,7 +350,10 @@ export function RulesEditor({ model }: { model: RulesModel }) {
                             />
                           ) : null}
                         </span>
-                        <span className="t-caption mt-0.5 block" style={{ color: 'var(--text-tertiary)' }}>
+                        <span
+                          className="t-caption mt-0.5 block"
+                          style={{ color: 'var(--text-tertiary)' }}
+                        >
                           {r.detail}
                         </span>
                       </span>
@@ -375,10 +387,7 @@ export function RulesEditor({ model }: { model: RulesModel }) {
             boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
           }}
         >
-          <div
-            className="px-5 py-3.5"
-            style={{ borderBottom: '1px solid var(--border-subtle)' }}
-          >
+          <div className="px-5 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
             <p style={{ font: '500 13.5px/1.3 var(--font-ui)', color: 'var(--text-primary)' }}>
               System directive
             </p>

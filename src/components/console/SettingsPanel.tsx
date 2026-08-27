@@ -47,13 +47,7 @@ const TABS: Array<{ key: TabKey; label: string; icon: TablerIcon }> = [
 
 type SaveState = 'idle' | 'saved';
 
-export function SettingsPanel({
-  model,
-  initialTab,
-}: {
-  model: SettingsModel;
-  initialTab: TabKey;
-}) {
+export function SettingsPanel({ model, initialTab }: { model: SettingsModel; initialTab: TabKey }) {
   const [tab, setTab] = useState<TabKey>(initialTab);
 
   const [platformName, setPlatformName] = useState(model.platformName);
@@ -169,7 +163,6 @@ export function SettingsPanel({
                 local zone.
               </p>
             </section>
-
           </>
         ) : null}
 
@@ -390,26 +383,38 @@ export function SettingsPanel({
                   <div
                     key={r.label}
                     className="flex flex-col gap-2 rounded-panel px-4 py-3.5 sm:flex-row sm:items-center sm:gap-4"
-                    style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-sunken)' }}
+                    style={{
+                      border: '1px solid var(--border-subtle)',
+                      background: 'var(--surface-sunken)',
+                    }}
                   >
                     <span className="min-w-0 flex-1">
                       <span className="t-compact block" style={{ color: 'var(--text-primary)' }}>
                         {r.label}
                       </span>
-                      <span className="t-caption mt-0.5 block" style={{ color: 'var(--text-secondary)' }}>
+                      <span
+                        className="t-caption mt-0.5 block"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
                         {r.detail}
                       </span>
                     </span>
                     <span
                       className="numeric inline-flex h-[30px] shrink-0 items-center rounded-chip px-3 whitespace-nowrap"
-                      style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)' }}
+                      style={{
+                        border: '1px solid var(--border-strong)',
+                        background: 'var(--surface-raised)',
+                      }}
                     >
                       {r.value}
                     </span>
                   </div>
                 ))}
               </div>
-              <p className="t-caption mt-4" style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}>
+              <p
+                className="t-caption mt-4"
+                style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+              >
                 Retention is a floor set by the plan, not a ceiling you can lower below it.
                 Shortening a window never deletes existing records retroactively.
               </p>
@@ -436,7 +441,11 @@ export function SettingsPanel({
                     key={x}
                     type="button"
                     className="t-compact inline-flex h-[34px] items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
-                    style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', color: 'var(--text-primary)' }}
+                    style={{
+                      border: '1px solid var(--border-strong)',
+                      background: 'var(--surface-raised)',
+                      color: 'var(--text-primary)',
+                    }}
                   >
                     <IconDownload size={15} stroke={1.5} aria-hidden />
                     {x}
@@ -487,7 +496,10 @@ export function SettingsPanel({
                     </span>
                     <span
                       className="mt-0.5 block"
-                      style={{ font: '400 11.5px/1.4 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                      style={{
+                        font: '400 11.5px/1.4 var(--font-mono)',
+                        color: 'var(--text-tertiary)',
+                      }}
                     >
                       {k.masked}
                     </span>
@@ -501,7 +513,11 @@ export function SettingsPanel({
                   <button
                     type="button"
                     className="t-caption h-7 shrink-0 rounded-panel px-2.5 whitespace-nowrap transition-colors"
-                    style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', color: 'var(--danger-fg)' }}
+                    style={{
+                      border: '1px solid var(--border-strong)',
+                      background: 'var(--surface-raised)',
+                      color: 'var(--danger-fg)',
+                    }}
                   >
                     Revoke
                   </button>
@@ -531,7 +547,10 @@ export function SettingsPanel({
                   <div
                     key={w.id}
                     className="flex items-center gap-3.5 rounded-panel px-4 py-3.5"
-                    style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-sunken)' }}
+                    style={{
+                      border: '1px solid var(--border-subtle)',
+                      background: 'var(--surface-sunken)',
+                    }}
                   >
                     <span
                       aria-hidden
@@ -549,7 +568,10 @@ export function SettingsPanel({
                       >
                         {w.url}
                       </span>
-                      <span className="t-caption mt-0.5 block" style={{ color: 'var(--text-tertiary)' }}>
+                      <span
+                        className="t-caption mt-0.5 block"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
                         {w.events}
                       </span>
                     </span>
@@ -586,14 +608,23 @@ export function SettingsPanel({
                     : 'var(--text-tertiary)',
             }}
           >
-            {saveState === 'saved' ? 'Settings saved.' : dirty ? 'Unsaved changes on this page' : 'No changes'}
+            {saveState === 'saved'
+              ? 'Settings saved.'
+              : dirty
+                ? 'Unsaved changes on this page'
+                : 'No changes'}
           </span>
           <button
             type="button"
             onClick={discard}
             disabled={!dirty}
             className="t-compact h-8 rounded-panel px-3.5 whitespace-nowrap"
-            style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', color: 'var(--text-primary)', opacity: dirty ? 1 : 0.5 }}
+            style={{
+              border: '1px solid var(--border-strong)',
+              background: 'var(--surface-raised)',
+              color: 'var(--text-primary)',
+              opacity: dirty ? 1 : 0.5,
+            }}
           >
             Discard
           </button>
@@ -604,7 +635,12 @@ export function SettingsPanel({
             className="t-compact h-8 rounded-panel px-4 whitespace-nowrap"
             style={{
               border: 'none',
-              background: saveState === 'saved' ? 'var(--success-fg)' : dirty ? 'var(--blue-500)' : 'var(--surface-inset)',
+              background:
+                saveState === 'saved'
+                  ? 'var(--success-fg)'
+                  : dirty
+                    ? 'var(--blue-500)'
+                    : 'var(--surface-inset)',
               color: saveState === 'saved' || dirty ? '#ffffff' : 'var(--text-disabled)',
               fontWeight: 500,
               cursor: dirty ? 'pointer' : 'not-allowed',
@@ -653,7 +689,11 @@ function BreakGlassPanel({ initialActive }: { initialActive: boolean }) {
   return (
     <section
       className="overflow-hidden rounded-overlay"
-      style={{ border: `1px solid ${active ? 'var(--success-fg)' : 'var(--danger-fg)'}`, background: 'var(--surface-raised)', boxShadow: 'var(--glass-highlight), var(--shadow-sm)' }}
+      style={{
+        border: `1px solid ${active ? 'var(--success-fg)' : 'var(--danger-fg)'}`,
+        background: 'var(--surface-raised)',
+        boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
+      }}
     >
       <div
         className="px-5 py-3.5"
@@ -662,16 +702,24 @@ function BreakGlassPanel({ initialActive }: { initialActive: boolean }) {
           borderBottom: `1px solid ${active ? 'var(--success-fg)' : 'var(--danger-fg)'}`,
         }}
       >
-        <p className="t-eyebrow" style={{ color: active ? 'var(--success-fg)' : 'var(--danger-fg)' }}>
+        <p
+          className="t-eyebrow"
+          style={{ color: active ? 'var(--success-fg)' : 'var(--danger-fg)' }}
+        >
           Break glass
         </p>
       </div>
       <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center">
         <span className="min-w-0 flex-1">
           <p className="t-compact" style={{ color: 'var(--text-primary)' }}>
-            {active ? 'Support-session access is suspended platform-wide' : 'Suspend all support-session access'}
+            {active
+              ? 'Support-session access is suspended platform-wide'
+              : 'Suspend all support-session access'}
           </p>
-          <p className="t-caption mt-1.5" style={{ color: 'var(--text-secondary)', maxWidth: '62ch', textWrap: 'pretty' }}>
+          <p
+            className="t-caption mt-1.5"
+            style={{ color: 'var(--text-secondary)', maxWidth: '62ch', textWrap: 'pretty' }}
+          >
             {active
               ? 'No admin, including you, can open a workspace until a second admin re-enables it.'
               : 'Blocks every platform admin from entering any workspace until a second admin re-enables it. Use during a suspected credential compromise. Customers are notified in their own activity log.'}
@@ -700,11 +748,13 @@ function BreakGlassPanel({ initialActive }: { initialActive: boolean }) {
             if (!next) setError(null);
           }
         }}
-        title={active ? 'Re-enable support-session access?' : 'Lock every admin out of every workspace?'}
+        title={
+          active ? 'Re-enable support-session access?' : 'Lock every admin out of every workspace?'
+        }
         consequence={
           active
             ? 'Platform admins will be able to open support sessions again, subject to the usual reason and 30-minute cap.'
-            : "This ends any open support session immediately and blocks new ones, for every admin, including you. It does not affect customer sign-ins."
+            : 'This ends any open support session immediately and blocks new ones, for every admin, including you. It does not affect customer sign-ins.'
         }
         confirmLabel={active ? 'Re-enable access' : 'Lock the platform'}
         tone={active ? 'primary' : 'destructive'}
@@ -777,7 +827,9 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
         className="flex h-[38px] items-center rounded-chip px-3"
         style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-sunken)' }}
       >
-        <span style={{ font: '400 var(--text-base)/1 var(--font-mono)', color: 'var(--text-primary)' }}>
+        <span
+          style={{ font: '400 var(--text-base)/1 var(--font-mono)', color: 'var(--text-primary)' }}
+        >
           {value}
         </span>
       </span>

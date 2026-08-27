@@ -46,7 +46,12 @@ export default async function ResetPasswordPage({
             color: 'var(--text-secondary)',
           }}
         >
-          <IconInfoCircle size={16} stroke={1.5} aria-hidden className="mt-px shrink-0 text-amber-500" />
+          <IconInfoCircle
+            size={16}
+            stroke={1.5}
+            aria-hidden
+            className="mt-px shrink-0 text-amber-500"
+          />
           <p className="t-caption">Setting a new password signs you out everywhere else.</p>
         </div>
 

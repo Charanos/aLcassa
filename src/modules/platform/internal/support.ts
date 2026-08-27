@@ -364,11 +364,7 @@ export async function extendSupportSession(
         .select({ id: sessions.id, tenantId: sessions.tenantId, userId: sessions.userId })
         .from(sessions)
         .where(
-          and(
-            eq(sessions.id, sessionId),
-            eq(sessions.kind, 'support'),
-            isNull(sessions.revokedAt),
-          ),
+          and(eq(sessions.id, sessionId), eq(sessions.kind, 'support'), isNull(sessions.revokedAt)),
         )
         .limit(1);
 

@@ -20,41 +20,41 @@ import { Mark } from '@/components/brand/Mark';
  *   - Web chat: Luminous Amber / Gold (#F59E0B / --amber-400)
  *   - Your Workspace: Crisp White background in Dark Mode, Deep Navy in Light Mode
  */
-const CHANNELS: Array<{ 
-  icon: TablerIcon; 
-  label: string; 
-  y: number; 
+const CHANNELS: Array<{
+  icon: TablerIcon;
+  label: string;
+  y: number;
   iconColorClass: string;
   iconBgClass: string;
   flowColor: string;
 }> = [
-  { 
-    icon: IconBrandWhatsapp, 
-    label: 'WhatsApp', 
+  {
+    icon: IconBrandWhatsapp,
+    label: 'WhatsApp',
     y: 8,
     iconColorClass: 'text-emerald-600',
     iconBgClass: 'bg-emerald-50 border-emerald-200/60',
     flowColor: 'var(--green-400)',
   },
-  { 
-    icon: IconBrandInstagram, 
-    label: 'Instagram', 
+  {
+    icon: IconBrandInstagram,
+    label: 'Instagram',
     y: 90,
     iconColorClass: 'text-rose-600',
     iconBgClass: 'bg-rose-50 border-rose-200/60',
     flowColor: 'var(--orange-400)',
   },
-  { 
-    icon: IconBrandMessenger, 
-    label: 'Messenger', 
+  {
+    icon: IconBrandMessenger,
+    label: 'Messenger',
     y: 172,
     iconColorClass: 'text-blue-600',
     iconBgClass: 'bg-blue-50 border-blue-200/60',
     flowColor: 'var(--blue-400)',
   },
-  { 
-    icon: IconMessage, 
-    label: 'Web chat', 
+  {
+    icon: IconMessage,
+    label: 'Web chat',
     y: 254,
     iconColorClass: 'text-amber-600',
     iconBgClass: 'bg-amber-50 border-amber-200/60',
@@ -75,14 +75,14 @@ const CORE_MID = CORE_Y + CORE_H / 2;
 
 export function HeroDiagram() {
   return (
-    <div 
-      className="relative select-none origin-top lg:origin-top-left scale-[0.6] min-[400px]:scale-[0.7] sm:scale-75 md:scale-90 lg:scale-100 transition-transform duration-500" 
-      style={{ 
-        width: WIDTH, 
-        height: HEIGHT, 
+    <div
+      className="relative origin-top scale-[0.6] transition-transform duration-500 select-none min-[400px]:scale-[0.7] sm:scale-75 md:scale-90 lg:origin-top-left lg:scale-100"
+      style={{
+        width: WIDTH,
+        height: HEIGHT,
         marginBottom: 'calc(-1 * (1 - clamp(0.6, 100vw / 490, 1)) * 420px)',
         marginLeft: 'calc(-1 * (1 - clamp(0.6, 100vw / 490, 1)) * 490px / 2)',
-      }} 
+      }}
       aria-hidden
     >
       <svg
@@ -150,10 +150,16 @@ export function HeroDiagram() {
             <channel.icon size={17} stroke={1.75} className={channel.iconColorClass} />
           </span>
           <span className="min-w-0">
-            <span className="t-compact block truncate font-medium text-[13px]" style={{ color: 'var(--text-primary)' }}>
+            <span
+              className="t-compact block truncate text-[13px] font-medium"
+              style={{ color: 'var(--text-primary)' }}
+            >
               {channel.label}
             </span>
-            <span className="t-eyebrow block text-[9.5px]" style={{ color: 'var(--text-tertiary)' }}>
+            <span
+              className="t-eyebrow block text-[9.5px]"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
               Coming soon
             </span>
           </span>
@@ -177,7 +183,10 @@ export function HeroDiagram() {
         <div className="flex items-start justify-between gap-2">
           <span className="flex items-center gap-2.5">
             <Mark size={20} tone="brand" />
-            <span className="t-chip font-medium tracking-wider text-[11px]" style={{ color: 'var(--workspace-card-fg)' }}>
+            <span
+              className="t-chip text-[11px] font-medium tracking-wider"
+              style={{ color: 'var(--workspace-card-fg)' }}
+            >
               YOUR WORKSPACE
             </span>
           </span>
@@ -190,10 +199,13 @@ export function HeroDiagram() {
         >
           <span
             aria-hidden
-            className="size-2 shrink-0 rounded-full animate-pulse"
+            className="size-2 shrink-0 animate-pulse rounded-full"
             style={{ background: 'var(--workspace-card-status)' }}
           />
-          <span className="t-eyebrow text-[10px] font-normal tracking-wider" style={{ color: 'var(--workspace-card-fg)', opacity: 0.9 }}>
+          <span
+            className="t-eyebrow text-[10px] font-normal tracking-wider"
+            style={{ color: 'var(--workspace-card-fg)', opacity: 0.9 }}
+          >
             LIVE AND ISOLATED
           </span>
         </div>
@@ -253,7 +265,7 @@ function FactCard({
           {label}
         </span>
         <span
-          className="t-compact block whitespace-nowrap font-medium text-[12.5px]"
+          className="t-compact block text-[12.5px] font-medium whitespace-nowrap"
           style={{ color: 'var(--text-primary)' }}
         >
           {value}

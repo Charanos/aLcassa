@@ -6,11 +6,7 @@ import { CommandHint } from './CommandPalette';
  * TrackerHeader: Production-grade header for the project delivery tracker.
  * Flush to top, expandable 1280px width container.
  */
-export function TrackerHeader({
-  sections,
-}: {
-  sections: Array<{ id: string; label: string }>;
-}) {
+export function TrackerHeader({ sections }: { sections: Array<{ id: string; label: string }> }) {
   return (
     <header
       className="sticky top-0 z-40 w-full border-b backdrop-blur-md transition-colors duration-200"

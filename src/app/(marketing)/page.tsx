@@ -31,10 +31,10 @@ export const metadata: Metadata = {
     'WhatsApp, Instagram, Messenger and website chat, handled in one place by one team. Multi-tenant customer support platform.',
 };
 
-const CHANNELS: Array<{ 
-  icon: TablerIcon; 
-  name: string; 
-  status: string; 
+const CHANNELS: Array<{
+  icon: TablerIcon;
+  name: string;
+  status: string;
   description: string;
   iconColorClass: string;
   iconBgClass: string;
@@ -126,13 +126,18 @@ export default async function MarketingPage() {
         {/* Ambient radial washes: balanced two-temperature lighting (soft slate & warm ember) */}
         <div
           className="absolute top-8 -left-20 size-[620px] rounded-full opacity-35 blur-3xl"
-          style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--ink-600) 25%, transparent) 0%, transparent 70%)' }}
+          style={{
+            background:
+              'radial-gradient(circle, color-mix(in oklab, var(--ink-600) 25%, transparent) 0%, transparent 70%)',
+          }}
         />
         <div
           className="absolute top-8 right-0 size-[680px] rounded-full opacity-30 blur-3xl"
-          style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--orange-400) 25%, transparent) 0%, transparent 70%)' }}
+          style={{
+            background:
+              'radial-gradient(circle, color-mix(in oklab, var(--orange-400) 25%, transparent) 0%, transparent 70%)',
+          }}
         />
-
 
         {/* Iconography watermarks with soft architectural multi-tonal tints */}
         <div className="absolute -top-6 -left-20 hidden -rotate-12 text-slate-500/[0.08] lg:block">
@@ -155,36 +160,54 @@ export default async function MarketingPage() {
         {/* ── Hero. Spacious balanced layout: Diagram left, expansive copy right. ── */}
         <section
           id="overview"
-          className="relative mx-auto grid w-full max-w-[1240px] gap-8 pt-12 md:pt-20 lg:grid-cols-[490px_minmax(0,1fr)] lg:items-center lg:gap-12 xl:gap-16 justify-center"
+          className="relative mx-auto grid w-full max-w-[1240px] justify-center gap-8 pt-12 md:pt-20 lg:grid-cols-[490px_minmax(0,1fr)] lg:items-center lg:gap-12 xl:gap-16"
         >
           <div
-            className="relative z-10 hidden justify-center justify-self-center lg:flex shrink-0"
+            className="relative z-10 hidden shrink-0 justify-center justify-self-center lg:flex"
             style={{ width: '490px', height: '420px' }}
           >
             <HeroDiagram />
           </div>
 
-          <div className="animate-hero-reveal relative z-10 w-full" style={{ animationDelay: '100ms' }}>
-            <div className="inline-flex items-center gap-2.5 rounded-full px-3 py-1 text-[11px] font-mono tracking-widest uppercase" style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
+          <div
+            className="animate-hero-reveal relative z-10 w-full"
+            style={{ animationDelay: '100ms' }}
+          >
+            <div
+              className="inline-flex items-center gap-2.5 rounded-full px-3 py-1 font-mono text-[11px] tracking-widest uppercase"
+              style={{
+                background: 'var(--surface-raised)',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
               <span className="relative flex size-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: 'var(--accent-mark)' }} />
-                <span className="relative inline-flex size-2 rounded-full" style={{ background: 'var(--accent-mark)' }} />
+                <span
+                  className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+                  style={{ background: 'var(--accent-mark)' }}
+                />
+                <span
+                  className="relative inline-flex size-2 rounded-full"
+                  style={{ background: 'var(--accent-mark)' }}
+                />
               </span>
               <span style={{ color: 'var(--text-secondary)' }}>Multi-Tenant Architecture</span>
             </div>
 
-            <h1 
-              className="display mt-5 text-[40px] sm:text-[48px] md:text-[52px] lg:text-[50px] xl:text-[56px] font-medium leading-[1.08] tracking-tight" 
+            <h1
+              className="display mt-5 text-[40px] leading-[1.08] font-medium tracking-tight sm:text-[48px] md:text-[52px] lg:text-[50px] xl:text-[56px]"
               style={{ color: 'var(--text-primary)' }}
             >
-              One inbox for every message<br className="hidden sm:inline" /> your customers send.
+              One inbox for every message
+              <br className="hidden sm:inline" /> your customers send.
             </h1>
 
             <p
-              className="t-lede mt-4 text-[16px] sm:text-[17px] md:text-[18px] leading-[1.6]"
+              className="t-lede mt-4 text-[16px] leading-[1.6] sm:text-[17px] md:text-[18px]"
               style={{ color: 'var(--text-secondary)', maxWidth: '52ch' }}
             >
-              WhatsApp, Instagram, Messenger and your website, handled in one unified workspace by your team with strict tenant isolation.
+              WhatsApp, Instagram, Messenger and your website, handled in one unified workspace by
+              your team with strict tenant isolation.
             </p>
 
             {isAuthenticated ? (
@@ -377,7 +400,9 @@ export default async function MarketingPage() {
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className={`grid size-9 shrink-0 place-items-center rounded-chip border ${channel.iconBgClass}`}>
+                    <span
+                      className={`grid size-9 shrink-0 place-items-center rounded-chip border ${channel.iconBgClass}`}
+                    >
                       <channel.icon
                         size={19}
                         stroke={1.75}
@@ -452,9 +477,7 @@ export default async function MarketingPage() {
                   </Link>
                 </Button>
                 <Button asChild variant="secondary" size="lg">
-                  <Link href="/platform/support-sessions">
-                    Support Sessions
-                  </Link>
+                  <Link href="/platform/support-sessions">Support Sessions</Link>
                 </Button>
               </div>
             ) : (
@@ -529,9 +552,7 @@ export default async function MarketingPage() {
           <IconServer2 size={240} stroke={1} />
         </div>
 
-        <div
-          className="relative z-10 mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8"
-        >
+        <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-4 lg:col-span-2">
               <div className="flex items-center gap-3">

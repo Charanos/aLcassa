@@ -36,10 +36,7 @@ function selectAdapter(): EmailAdapter {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const from = process.env.EMAIL_FROM?.trim();
 
-  cached =
-    apiKey && from
-      ? createResendAdapter({ apiKey, from })
-      : createLoggingAdapter();
+  cached = apiKey && from ? createResendAdapter({ apiKey, from }) : createLoggingAdapter();
 
   logger.info('email adapter selected', { adapter: cached.name });
   return cached;
@@ -84,7 +81,11 @@ export async function sendEmail(input: {
         adapter: adapter.name,
         error,
       });
-      return { delivered: false, reason: 'The email provider failed unexpectedly.', retryable: true };
+      return {
+        delivered: false,
+        reason: 'The email provider failed unexpectedly.',
+        retryable: true,
+      };
     });
 
   if (result.delivered) {

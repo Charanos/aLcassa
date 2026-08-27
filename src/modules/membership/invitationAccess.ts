@@ -121,7 +121,9 @@ export async function acceptInvitationByToken(
         sql`select * from app.accept_invitation(
               ${hashInvitationToken(token)}, ${userId}, ${profile.fullName}, ${profile.email})`,
       );
-      const row = (result as unknown as { accepted_tenant_id: string; accepted_role: MemberRole }[])[0];
+      const row = (
+        result as unknown as { accepted_tenant_id: string; accepted_role: MemberRole }[]
+      )[0];
       if (!row) {
         throw new AppError(ERROR_CODES.NOT_FOUND, {
           message: 'This invitation link is not valid. Ask whoever invited you for a new one.',

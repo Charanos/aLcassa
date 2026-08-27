@@ -1,7 +1,12 @@
 import { afterAll, describe, expect, it } from 'vitest';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { asActor, cleanup, closeHarness, withNoContext, type Actor } from './harness';
-import { SEED_TENANT_A, SEED_TENANT_B, SEED_USER_A, SEED_USER_B } from '../../src/db/seed/constants';
+import {
+  SEED_TENANT_A,
+  SEED_TENANT_B,
+  SEED_USER_A,
+  SEED_USER_B,
+} from '../../src/db/seed/constants';
 
 /**
  * 07 §3 · 07 §5. THE M2 ACCOUNT LIFECYCLE, AGAINST THE REAL DATABASE.
@@ -193,7 +198,8 @@ describe('account lifecycle · acceptance', () => {
     created.users.push(firstUser, secondUser);
 
     await withNoContext(
-      (tx) => tx`select * from app.accept_invitation(${hash(token)}, ${firstUser}, 'First', ${email})`,
+      (tx) =>
+        tx`select * from app.accept_invitation(${hash(token)}, ${firstUser}, 'First', ${email})`,
     );
 
     // Catch outside the transaction: Postgres aborts it on the raise, so
@@ -201,7 +207,8 @@ describe('account lifecycle · acceptance', () => {
     let message = '';
     try {
       await withNoContext(
-        (tx) => tx`select * from app.accept_invitation(${hash(token)}, ${secondUser}, 'Second', ${email})`,
+        (tx) =>
+          tx`select * from app.accept_invitation(${hash(token)}, ${secondUser}, 'Second', ${email})`,
       );
     } catch (error) {
       message = error instanceof Error ? error.message : String(error);
@@ -235,7 +242,8 @@ describe('account lifecycle · acceptance', () => {
     let message = '';
     try {
       await withNoContext(
-        (tx) => tx`select * from app.accept_invitation(${hash(token)}, ${userId}, 'Late', ${email})`,
+        (tx) =>
+          tx`select * from app.accept_invitation(${hash(token)}, ${userId}, 'Late', ${email})`,
       );
     } catch (error) {
       message = error instanceof Error ? error.message : String(error);
@@ -306,7 +314,10 @@ describe('account lifecycle · roles and sessions', () => {
     );
     expect(live.length).toBe(1);
 
-    await asActor(asOwnerA, (tx) => tx`update sessions set revoked_at = now() where id = ${sessionId}`);
+    await asActor(
+      asOwnerA,
+      (tx) => tx`update sessions set revoked_at = now() where id = ${sessionId}`,
+    );
 
     const dead = await asActor(
       asOwnerA,

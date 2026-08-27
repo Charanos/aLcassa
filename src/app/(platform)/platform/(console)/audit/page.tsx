@@ -24,10 +24,7 @@ export default async function AuditPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-6">
         <div className="min-w-0 flex-1">
           <ConsoleHeader eyebrow="/platform/audit" title="Audit log" />
-          <p
-            className="t-body mt-2"
-            style={{ color: 'var(--text-secondary)', maxWidth: '68ch' }}
-          >
+          <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', maxWidth: '68ch' }}>
             Append-only. Every platform mutation writes here in the same transaction that performs
             it, so an action that is missing from this log did not happen.
           </p>

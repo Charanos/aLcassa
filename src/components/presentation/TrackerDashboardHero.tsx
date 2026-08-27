@@ -31,19 +31,23 @@ export function TrackerDashboardHero({
         </p>
       </div>
 
-      <div className="mt-4 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="mt-4 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
-          <h1 className="t-display text-4xl md:text-5xl font-normal text-[var(--ink-primary)]">
+          <h1 className="t-display text-4xl font-normal text-[var(--ink-primary)] md:text-5xl">
             aLcassa Delivery Tracker
           </h1>
-          <p className="t-lede mt-3 text-[var(--ink-secondary)]" style={{ maxWidth: 'var(--measure-prose)' }}>
-            The platform layer beneath a customer support inbox: tenancy with real database isolation,
-            authentication, subscription structure, owner-level console, and machine-readable AI rules.
+          <p
+            className="t-lede mt-3 text-[var(--ink-secondary)]"
+            style={{ maxWidth: 'var(--measure-prose)' }}
+          >
+            The platform layer beneath a customer support inbox: tenancy with real database
+            isolation, authentication, subscription structure, owner-level console, and
+            machine-readable AI rules.
           </p>
         </div>
 
         {/* Action CTAs */}
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
+        <div className="flex shrink-0 flex-wrap items-center gap-3">
           <a
             href="#status"
             className="t-compact inline-flex items-center gap-2 rounded-chip border px-4 py-2 text-[var(--action-primary-fg)] transition-colors hover:bg-[var(--copper-ink)]"
@@ -66,7 +70,10 @@ export function TrackerDashboardHero({
       </div>
 
       {/* Telemetry Fact Block Grid */}
-      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6 border-y py-5" style={{ borderColor: 'var(--rule-soft)' }}>
+      <div
+        className="mt-8 grid grid-cols-2 gap-4 border-y py-5 sm:grid-cols-3 lg:grid-cols-6"
+        style={{ borderColor: 'var(--rule-soft)' }}
+      >
         <div>
           <div className="t-eyebrow text-[var(--ink-tertiary)]">Prepared for</div>
           <div className="t-data mt-1 text-[var(--ink-primary)]">{client}</div>
@@ -112,7 +119,7 @@ export function TrackerDashboardHero({
             <span className="t-display text-3xl text-[var(--ink-primary)]">{overallProgress}%</span>
             <span className="t-caption text-[var(--verdigris-ink)]">Milestone 1 Active</span>
           </div>
-          <div className="mt-3 h-1.5 w-full rounded-full bg-[var(--surface-sunken)] overflow-hidden">
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-sunken)]">
             <div
               className="h-full bg-[var(--copper-solid)] transition-all duration-500"
               style={{ width: `${overallProgress}%` }}
@@ -179,7 +186,9 @@ export function TrackerDashboardHero({
             <IconShieldCheck size={16} className="text-[var(--verdigris-ink)]" />
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="t-display text-3xl text-[var(--verdigris-ink)]">{complianceCount} Met</span>
+            <span className="t-display text-3xl text-[var(--verdigris-ink)]">
+              {complianceCount} Met
+            </span>
             <span className="t-caption text-[var(--ink-tertiary)]">Database Enforced</span>
           </div>
           <p className="t-caption mt-2 text-[var(--ink-secondary)]">

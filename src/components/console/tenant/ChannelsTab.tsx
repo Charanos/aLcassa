@@ -25,11 +25,16 @@ function generateSparklineData(seed: number) {
 export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
   const getIcon = (type: string) => {
     switch (type) {
-      case 'whatsapp': return IconBrandWhatsapp;
-      case 'email': return IconMail;
-      case 'web': return IconMessageCircle;
-      case 'sms': return IconDeviceMobileMessage;
-      default: return IconActivity;
+      case 'whatsapp':
+        return IconBrandWhatsapp;
+      case 'email':
+        return IconMail;
+      case 'web':
+        return IconMessageCircle;
+      case 'sms':
+        return IconDeviceMobileMessage;
+      default:
+        return IconActivity;
     }
   };
 
@@ -40,7 +45,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
     <div className="flex flex-col gap-6">
       {/* ── Inverted Gateway Status Ribbon ───────────────────────────────── */}
       <div
-        className="flex flex-col sm:flex-row overflow-hidden rounded-2xl"
+        className="flex flex-col overflow-hidden rounded-2xl sm:flex-row"
         style={{
           background: 'var(--invert-card-bg)',
           color: 'var(--invert-card-fg)',
@@ -49,68 +54,124 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
         }}
       >
         {/* Stat 1 */}
-        <div className="flex-1 p-5 sm:p-6 sm:pr-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Connected Gateways</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:pr-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Connected Gateways
+          </div>
           <div className="mt-2 flex items-baseline gap-2.5">
-            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               {channels.length}
             </span>
-            <span className="text-xs font-mono font-medium" style={{ color: 'var(--success-fg)' }}>
+            <span className="font-mono text-xs font-medium" style={{ color: 'var(--success-fg)' }}>
               {activeCount} healthy
             </span>
           </div>
-          <p className="mt-1 text-[11px] font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
             WhatsApp, Email, Web, SMS
           </p>
-          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
-          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+          <div
+            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
+          <div
+            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
+            style={{
+              background:
+                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
         </div>
 
         {/* Stat 2 */}
-        <div className="flex-1 p-5 sm:p-6 sm:px-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>24h Ingress Volume</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            24h Ingress Volume
+          </div>
           <div className="mt-2 flex items-baseline gap-2.5">
-            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               {totalMessagesToday.toLocaleString('en-GB')}
             </span>
-            <span className="text-xs font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+            <span className="font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
               messages
             </span>
           </div>
-          <p className="mt-1 text-[11px] font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
             Throughput ~4.2 msg/sec peak
           </p>
-          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
-          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+          <div
+            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
+          <div
+            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
+            style={{
+              background:
+                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
         </div>
 
         {/* Stat 3 */}
-        <div className="flex-1 p-5 sm:p-6 sm:px-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Gateway Uptime</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Gateway Uptime
+          </div>
           <div className="mt-2 flex items-baseline gap-2.5">
-            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               99.82%
             </span>
           </div>
-          <p className="mt-1 text-[11px] font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
             Webhook SLA met
           </p>
-          <div className="hidden sm:block absolute right-0 top-6 bottom-6 w-px" style={{ background: 'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)' }} />
-          <div className="sm:hidden absolute bottom-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)' }} />
+          <div
+            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
+          <div
+            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
+            style={{
+              background:
+                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+            }}
+          />
         </div>
 
         {/* Stat 4 */}
-        <div className="flex-1 p-5 sm:p-6 sm:pl-8 relative">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>Delivery Latency</div>
+        <div className="relative flex-1 p-5 sm:p-6 sm:pl-8">
+          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
+            Delivery Latency
+          </div>
           <div className="mt-2 flex items-baseline gap-2.5">
-            <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight" style={{ color: 'var(--invert-card-fg)' }}>
+            <span
+              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
+              style={{ color: 'var(--invert-card-fg)' }}
+            >
               142ms
             </span>
-            <span className="text-xs font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+            <span className="font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
               p95
             </span>
           </div>
-          <p className="mt-1 text-[11px] font-mono" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
             af-south-1 edge gateway
           </p>
         </div>
@@ -119,12 +180,16 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
       {/* ── Channel Cards Grid ─────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Configured Communication Channels</h3>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>Endpoints routing traffic into tenant partitions.</p>
+          <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+            Configured Communication Channels
+          </h3>
+          <p className="mt-0.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+            Endpoints routing traffic into tenant partitions.
+          </p>
         </div>
         <button
           type="button"
-          className="h-8 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-medium text-white transition-all active:scale-95"
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-white transition-all active:scale-95"
           style={{ background: 'var(--blue-500)' }}
         >
           <IconPlus size={14} stroke={1.5} />
@@ -132,7 +197,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {channels.map((ch, idx) => {
           const Icon = getIcon(ch.type);
           const isHealthy = ch.status === 'healthy';
@@ -142,7 +207,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
           return (
             <div
               key={ch.id}
-              className="rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all"
+              className="flex flex-col justify-between rounded-2xl p-5 transition-all sm:p-6"
               style={{
                 border: '1px solid var(--border-subtle)',
                 background: 'var(--surface-raised)',
@@ -151,10 +216,10 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
             >
               <div>
                 {/* Header */}
-                <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div
-                      className="size-11 rounded-xl flex items-center justify-center"
+                      className="flex size-11 items-center justify-center rounded-xl"
                       style={{
                         background: 'var(--surface-inset)',
                         border: '1px solid var(--border-strong)',
@@ -164,45 +229,87 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                       <Icon size={22} stroke={1.5} />
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium leading-snug" style={{ color: 'var(--text-primary)' }}>
+                      <h4
+                        className="text-sm leading-snug font-medium"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         {ch.name}
                       </h4>
-                      <p className="text-xs font-mono capitalize mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
+                      <p
+                        className="mt-0.5 font-mono text-xs capitalize"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
                         {ch.type} gateway connection
                       </p>
                     </div>
                   </div>
 
                   <span
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] uppercase font-mono font-medium"
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px] font-medium uppercase"
                     style={{
-                      background: isHealthy ? 'rgba(16, 185, 129, 0.1)' : isDisconnected ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                      color: isHealthy ? 'var(--success-fg)' : isDisconnected ? 'var(--danger-fg)' : 'var(--warning-fg)',
+                      background: isHealthy
+                        ? 'rgba(16, 185, 129, 0.1)'
+                        : isDisconnected
+                          ? 'rgba(239, 68, 68, 0.1)'
+                          : 'rgba(245, 158, 11, 0.1)',
+                      color: isHealthy
+                        ? 'var(--success-fg)'
+                        : isDisconnected
+                          ? 'var(--danger-fg)'
+                          : 'var(--warning-fg)',
                       border: `1px solid ${isHealthy ? 'rgba(16, 185, 129, 0.25)' : isDisconnected ? 'rgba(239, 68, 68, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
                     }}
                   >
-                    {isDisconnected ? <IconWifiOff size={11} stroke={2} /> : <IconWifi size={11} stroke={2} />}
+                    {isDisconnected ? (
+                      <IconWifiOff size={11} stroke={2} />
+                    ) : (
+                      <IconWifi size={11} stroke={2} />
+                    )}
                     {ch.status}
                   </span>
                 </div>
 
                 {/* Metrics pair */}
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="mb-4 grid grid-cols-2 gap-3">
                   <div
-                    className="p-3 rounded-xl"
-                    style={{ background: 'var(--surface-sunken)', border: '1px solid var(--border-subtle)' }}
+                    className="rounded-xl p-3"
+                    style={{
+                      background: 'var(--surface-sunken)',
+                      border: '1px solid var(--border-subtle)',
+                    }}
                   >
-                    <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>Messages Today</span>
-                    <p className="font-mono text-base font-medium mt-1" style={{ color: 'var(--text-primary)' }}>
+                    <span
+                      className="t-eyebrow text-[9px]"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
+                      Messages Today
+                    </span>
+                    <p
+                      className="mt-1 font-mono text-base font-medium"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
                       {ch.messagesToday.toLocaleString('en-GB')}
                     </p>
                   </div>
                   <div
-                    className="p-3 rounded-xl"
-                    style={{ background: 'var(--surface-sunken)', border: '1px solid var(--border-subtle)' }}
+                    className="rounded-xl p-3"
+                    style={{
+                      background: 'var(--surface-sunken)',
+                      border: '1px solid var(--border-subtle)',
+                    }}
                   >
-                    <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>Uptime Health</span>
-                    <p className="font-mono text-base font-medium mt-1" style={{ color: ch.healthPct < 90 ? 'var(--danger-fg)' : 'var(--text-primary)' }}>
+                    <span
+                      className="t-eyebrow text-[9px]"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
+                      Uptime Health
+                    </span>
+                    <p
+                      className="mt-1 font-mono text-base font-medium"
+                      style={{
+                        color: ch.healthPct < 90 ? 'var(--danger-fg)' : 'var(--text-primary)',
+                      }}
+                    >
                       {ch.healthPct}%
                     </p>
                   </div>
@@ -210,8 +317,11 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
 
                 {/* Sparkline chart */}
                 <div
-                  className="h-16 relative rounded-xl overflow-hidden p-1"
-                  style={{ background: 'var(--surface-sunken)', border: '1px solid var(--border-subtle)' }}
+                  className="relative h-16 overflow-hidden rounded-xl p-1"
+                  style={{
+                    background: 'var(--surface-sunken)',
+                    border: '1px solid var(--border-subtle)',
+                  }}
                 >
                   {!isDisconnected ? (
                     <ResponsiveContainer width="100%" height="100%">
@@ -232,7 +342,10 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                       </AreaChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
+                    <div
+                      className="absolute inset-0 flex items-center justify-center font-mono text-[11px]"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
                       Channel offline · No live telemetry
                     </div>
                   )}
@@ -240,24 +353,35 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
               </div>
 
               {/* Card Footer Actions */}
-              <div className="mt-5 flex items-center justify-between border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
-                <span className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>
+              <div
+                className="mt-5 flex items-center justify-between border-t pt-4"
+                style={{ borderColor: 'var(--border-subtle)' }}
+              >
+                <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
                   Last event: {ch.lastEvent}
                 </span>
 
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="h-7.5 px-2.5 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-                    style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-raised)', color: 'var(--text-secondary)' }}
+                    className="h-7.5 rounded-lg px-2.5 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+                    style={{
+                      border: '1px solid var(--border-subtle)',
+                      background: 'var(--surface-raised)',
+                      color: 'var(--text-secondary)',
+                    }}
                     title="Ping channel connection"
                   >
                     <IconRefresh size={13} stroke={1.5} />
                   </button>
                   <button
                     type="button"
-                    className="h-7.5 px-3 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-                    style={{ border: '1px solid var(--border-strong)', background: 'var(--surface-raised)', color: 'var(--text-primary)' }}
+                    className="h-7.5 rounded-lg px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+                    style={{
+                      border: '1px solid var(--border-strong)',
+                      background: 'var(--surface-raised)',
+                      color: 'var(--text-primary)',
+                    }}
                   >
                     Configure
                   </button>

@@ -212,11 +212,18 @@ export default async function HealthPage() {
                 <span style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}>
                   {isolation.tablesPoliced}
                 </span>
-                <span style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                <span
+                  style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                >
                   / {isolation.tablesTotal}
                 </span>
                 {isolation.tablesPoliced === isolation.tablesTotal ? (
-                  <IconShieldCheck size={16} stroke={1.5} style={{ color: 'var(--success-fg)' }} aria-hidden />
+                  <IconShieldCheck
+                    size={16}
+                    stroke={1.5}
+                    style={{ color: 'var(--success-fg)' }}
+                    aria-hidden
+                  />
                 ) : null}
               </p>
             </div>
@@ -224,7 +231,10 @@ export default async function HealthPage() {
               <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 Cross-tenant attempts · 30d
               </p>
-              <p className="numeric mt-1.5" style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}>
+              <p
+                className="numeric mt-1.5"
+                style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}
+              >
                 {isolation.crossTenantAttempts30d}
               </p>
             </div>
@@ -243,7 +253,9 @@ export default async function HealthPage() {
                 }}
               >
                 {isolation.crossTenantRefused30d}
-                <span style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                <span
+                  style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                >
                   {' '}
                   / {isolation.crossTenantAttempts30d}
                 </span>
@@ -253,17 +265,26 @@ export default async function HealthPage() {
               <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                 Last run
               </p>
-              <p style={{ font: '400 var(--text-sm)/1.4 var(--font-mono)', color: 'var(--text-primary)', marginTop: 6 }}>
+              <p
+                style={{
+                  font: '400 var(--text-sm)/1.4 var(--font-mono)',
+                  color: 'var(--text-primary)',
+                  marginTop: 6,
+                }}
+              >
                 {isolation.lastRun}
               </p>
             </div>
           </div>
-          <p className="t-compact mt-4 border-t pt-3.5" style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}>
+          <p
+            className="t-compact mt-4 border-t pt-3.5"
+            style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}
+          >
             Every table carrying a tenant_id is policed by an RLS policy that scopes it to the
             caller&rsquo;s own tenant. This suite runs against the real schema and asserts that a
-            cross-tenant read returns zero rows rather than a permission error — the same
-            not-403 rule the API itself follows, so a probe result and a live API response can
-            never disagree about what &ldquo;not visible&rdquo; means.
+            cross-tenant read returns zero rows rather than a permission error — the same not-403
+            rule the API itself follows, so a probe result and a live API response can never
+            disagree about what &ldquo;not visible&rdquo; means.
           </p>
         </Panel>
       </div>
@@ -300,8 +321,7 @@ export default async function HealthPage() {
             <span className="numeric" style={{ color: 'var(--text-secondary)' }}>
               {m.refusals.count24h}
             </span>{' '}
-            refusals in the last 24 hours are excluded from the error rate above.{' '}
-            {m.refusals.note}
+            refusals in the last 24 hours are excluded from the error rate above. {m.refusals.note}
           </p>
         </Panel>
 
@@ -331,7 +351,10 @@ export default async function HealthPage() {
                 >
                   {q.name}
                 </span>
-                <span className="t-caption whitespace-nowrap" style={{ color: 'var(--text-tertiary)' }}>
+                <span
+                  className="t-caption whitespace-nowrap"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
                   {q.rate}
                 </span>
                 <span

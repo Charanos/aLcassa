@@ -69,12 +69,16 @@ export function InviteForm({
       {seatsRemaining !== null && seatsRemaining <= 2 ? (
         <p
           className="t-compact rounded-chip border px-3.5 py-2.5"
-          style={{ borderColor: 'var(--ochre-rule)', background: 'var(--ochre-tint)', color: 'var(--ochre-ink)' }}
+          style={{
+            borderColor: 'var(--ochre-rule)',
+            background: 'var(--ochre-tint)',
+            color: 'var(--ochre-ink)',
+          }}
         >
           {seatsRemaining} {seatsRemaining === 1 ? 'seat' : 'seats'} left
-          {planName ? ` on ${planName}` : ''}. 07 §5: a seat is reserved when the
-          invitation is SENT, not when it is accepted — so this one counts
-          immediately, and comes back if you withdraw it.
+          {planName ? ` on ${planName}` : ''}. 07 §5: a seat is reserved when the invitation is
+          SENT, not when it is accepted — so this one counts immediately, and comes back if you
+          withdraw it.
         </p>
       ) : null}
 
@@ -137,17 +141,28 @@ export function InviteForm({
       ) : null}
 
       {error ? (
-        <p role="alert" className="t-compact flex items-start gap-1.5" style={{ color: 'var(--oxide-ink)' }}>
+        <p
+          role="alert"
+          className="t-compact flex items-start gap-1.5"
+          style={{ color: 'var(--oxide-ink)' }}
+        >
           <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
           {error}
         </p>
       ) : null}
 
-      <div className="flex items-center gap-3 border-t pt-5" style={{ borderColor: 'var(--rule-soft)' }}>
+      <div
+        className="flex items-center gap-3 border-t pt-5"
+        style={{ borderColor: 'var(--rule-soft)' }}
+      >
         <Button type="submit" variant="primary" loading={pending} disabled={!emailValid || pending}>
           Send invitation
         </Button>
-        <Button variant="quiet" onClick={() => router.push('/app/settings/team')} disabled={pending}>
+        <Button
+          variant="quiet"
+          onClick={() => router.push('/app/settings/team')}
+          disabled={pending}
+        >
           Cancel
         </Button>
       </div>

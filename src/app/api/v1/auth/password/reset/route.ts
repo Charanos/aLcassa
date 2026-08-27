@@ -84,7 +84,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
         message: updated.error.message,
         details: [
-          { field: 'password', code: ERROR_CODES.VALIDATION_FAILED, message: updated.error.message },
+          {
+            field: 'password',
+            code: ERROR_CODES.VALIDATION_FAILED,
+            message: updated.error.message,
+          },
         ],
       });
     }

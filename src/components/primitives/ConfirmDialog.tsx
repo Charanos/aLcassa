@@ -46,10 +46,7 @@ export function ConfirmDialog({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay
-          className="fixed inset-0 z-[150]"
-          style={{ background: 'var(--scrim)' }}
-        />
+        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--scrim)' }} />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
           style={{
@@ -81,7 +78,11 @@ export function ConfirmDialog({
             <Dialog.Close asChild>
               <Button variant="secondary">{cancelLabel}</Button>
             </Dialog.Close>
-            <Button variant={tone === 'destructive' ? 'destructive' : 'primary'} loading={loading} onClick={onConfirm}>
+            <Button
+              variant={tone === 'destructive' ? 'destructive' : 'primary'}
+              loading={loading}
+              onClick={onConfirm}
+            >
               {confirmLabel}
             </Button>
           </div>

@@ -10,7 +10,11 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
   const rules = [
     { label: 'At least 12 characters', valid: password.length >= 12 },
     { label: 'Contains a number or symbol', valid: /[0-9!@#$%^&*()]/.test(password) },
-    { label: 'Not commonly used', valid: password.length > 0 && !['password123', '123456789012'].includes(password.toLowerCase()) },
+    {
+      label: 'Not commonly used',
+      valid:
+        password.length > 0 && !['password123', '123456789012'].includes(password.toLowerCase()),
+    },
   ];
 
   const validCount = rules.filter((r) => r.valid).length;
@@ -24,15 +28,15 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
         borderColor: 'var(--border-subtle)',
       }}
     >
-      <div className="flex items-center justify-between t-caption">
+      <div className="t-caption flex items-center justify-between">
         <span style={{ color: 'var(--text-secondary)' }}>Password strength</span>
         <span
           className={`t-eyebrow font-medium ${
             validCount === 3
               ? 'text-emerald-600'
               : validCount >= 1
-              ? 'text-amber-600'
-              : 'text-[var(--text-tertiary)]'
+                ? 'text-amber-600'
+                : 'text-[var(--text-tertiary)]'
           }`}
         >
           {validCount === 3 ? 'Strong' : validCount >= 1 ? 'Moderate' : 'Too weak'}
@@ -41,7 +45,7 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
 
       {/* Progress Bar */}
       <div
-        className="h-1.5 w-full rounded-full overflow-hidden"
+        className="h-1.5 w-full overflow-hidden rounded-full"
         style={{ background: 'var(--border-subtle)' }}
       >
         <div
@@ -52,8 +56,8 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
               validCount === 3
                 ? 'var(--success-fg)'
                 : validCount >= 1
-                ? 'var(--accent-mark)'
-                : 'var(--border-strong)',
+                  ? 'var(--accent-mark)'
+                  : 'var(--border-strong)',
           }}
         />
       </div>
@@ -61,7 +65,7 @@ export function PasswordQualityMeter({ password = '' }: PasswordQualityMeterProp
       {/* Checklist */}
       <ul className="space-y-1 pt-1">
         {rules.map((rule, i) => (
-          <li key={i} className="flex items-center gap-2 t-caption text-xs">
+          <li key={i} className="t-caption flex items-center gap-2 text-xs">
             {rule.valid ? (
               <IconCheck size={14} className="text-emerald-600" />
             ) : (

@@ -142,7 +142,12 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
                 className="t-compact flex flex-1 items-center gap-3 rounded-panel border p-4 transition-colors duration-[var(--motion-fade)] hover:border-[var(--copper-rule)] hover:bg-[var(--copper-tint)]"
                 style={{ borderColor: 'var(--rule-base)', minWidth: '240px' }}
               >
-                <IconArrowLeft size={16} stroke={1.5} aria-hidden className="text-[var(--ink-faint)]" />
+                <IconArrowLeft
+                  size={16}
+                  stroke={1.5}
+                  aria-hidden
+                  className="text-[var(--ink-faint)]"
+                />
                 <span>
                   <span className="t-eyebrow block text-[var(--ink-faint)]">Previous</span>
                   <span className="text-[var(--ink-primary)]">
@@ -164,7 +169,12 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
                     {next.n} · {next.title}
                   </span>
                 </span>
-                <IconArrowRight size={16} stroke={1.5} aria-hidden className="text-[var(--ink-faint)]" />
+                <IconArrowRight
+                  size={16}
+                  stroke={1.5}
+                  aria-hidden
+                  className="text-[var(--ink-faint)]"
+                />
               </Link>
             ) : null}
           </nav>

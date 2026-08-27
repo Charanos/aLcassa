@@ -36,7 +36,10 @@ export default function NotFound() {
     >
       <Mark size={28} />
 
-      <p className="t-data mt-8 tabular-nums" style={{ color: 'var(--copper-ink)', fontSize: '13px' }}>
+      <p
+        className="t-data mt-8 tabular-nums"
+        style={{ color: 'var(--copper-ink)', fontSize: '13px' }}
+      >
         404
       </p>
 

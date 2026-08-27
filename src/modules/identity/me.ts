@@ -97,9 +97,7 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
     const [membership] = await tx
       .select({ role: tenantMembers.role, status: tenantMembers.status })
       .from(tenantMembers)
-      .where(
-        and(eq(tenantMembers.userId, ctx.actorId), eq(tenantMembers.tenantId, ctx.tenantId)),
-      )
+      .where(and(eq(tenantMembers.userId, ctx.actorId), eq(tenantMembers.tenantId, ctx.tenantId)))
       .limit(1);
 
     const [subscription] = await tx
@@ -156,7 +154,7 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
      * describing what is happening right now.
      */
     const writesSoFar = support
-      ? (
+      ? ((
           await tx
             .select({ count: sql<number>`count(*)::int` })
             .from(auditLog)
@@ -167,7 +165,7 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
                 gte(auditLog.occurredAt, support.createdAt),
               ),
             )
-        )[0]?.count ?? 0
+        )[0]?.count ?? 0)
       : 0;
 
     return {

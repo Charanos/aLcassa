@@ -40,7 +40,9 @@ export default async function OverviewPage() {
         />
         <Stat
           label="Channel connections"
-          value={m.channels.limit ? `${m.channels.used} / ${m.channels.limit}` : `${m.channels.used}`}
+          value={
+            m.channels.limit ? `${m.channels.used} / ${m.channels.limit}` : `${m.channels.used}`
+          }
         />
       </div>
 

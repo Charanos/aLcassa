@@ -146,15 +146,13 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.CREDENTIAL_REVOKED]: 'This credential was revoked.',
   [ERROR_CODES.CREDENTIAL_SCOPE_MISSING]:
     'This credential does not have the scope required for that. Add it in the dashboard under API credentials.',
-  [ERROR_CODES.CREDENTIAL_LIMIT_REACHED]:
-    'You have created every credential your plan includes.',
+  [ERROR_CODES.CREDENTIAL_LIMIT_REACHED]: 'You have created every credential your plan includes.',
 
   [ERROR_CODES.RULES_VERSION_CONFLICT]:
     'These rules were changed while you were editing. Review the differences before publishing.',
   [ERROR_CODES.RULES_FIELD_LOCKED]: 'This is set by the platform and cannot be changed here.',
 
-  [ERROR_CODES.SUPPORT_SESSION_EXPIRED]:
-    'Your support session ended. Switch in again to continue.',
+  [ERROR_CODES.SUPPORT_SESSION_EXPIRED]: 'Your support session ended. Switch in again to continue.',
   [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 'This account cannot enter support mode.',
   [ERROR_CODES.SUPPORT_WRITE_DENIED]: 'Support mode cannot do this here.',
   [ERROR_CODES.PLATFORM_NOT_ADMIN]: 'This account does not manage the platform.',

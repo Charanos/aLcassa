@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
           Remembered it?{' '}
           <Link
             href="/sign-in"
-            className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80 transition-opacity"
+            className="text-[var(--text-action)] underline underline-offset-2 transition-opacity hover:opacity-80"
           >
             Sign in
           </Link>

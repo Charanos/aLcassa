@@ -36,11 +36,11 @@ export function AuthShell({
       {/* ── Left: Form Side ── */}
       <main
         id="main"
-        className="order-1 flex min-h-screen flex-col justify-center px-6 py-12 sm:px-10 md:px-16 lg:px-16 xl:px-20 relative overflow-hidden"
+        className="relative order-1 flex min-h-screen flex-col justify-center overflow-hidden px-6 py-12 sm:px-10 md:px-16 lg:px-16 xl:px-20"
         style={{ background: 'var(--surface-base)' }}
       >
         {/* Watermark icon behind the form */}
-        <div className="hidden sm:block absolute bottom-10 -left-16 text-slate-500/[0.08] pointer-events-none transform rotate-12">
+        <div className="pointer-events-none absolute bottom-10 -left-16 hidden rotate-12 transform text-slate-500/[0.08] sm:block">
           <IconShieldCheck size={340} stroke={1} />
         </div>
 
@@ -75,7 +75,10 @@ export function AuthShell({
           </h1>
 
           {lede ? (
-            <p className="t-lede mt-2.5" style={{ color: 'var(--text-secondary)', maxWidth: '42ch' }}>
+            <p
+              className="t-lede mt-2.5"
+              style={{ color: 'var(--text-secondary)', maxWidth: '42ch' }}
+            >
               {lede}
             </p>
           ) : null}
@@ -93,7 +96,7 @@ export function AuthShell({
       {/* ── Right: Aside (Sticky 100vh Viewport Locked) ── */}
       <aside
         aria-label="Security and Platform Telemetry"
-        className="order-2 hidden lg:flex lg:sticky lg:top-0 lg:h-screen lg:self-start lg:flex-col lg:justify-between p-8 xl:p-12 overflow-hidden relative border-l"
+        className="relative order-2 hidden overflow-hidden border-l p-8 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:justify-between lg:self-start xl:p-12"
         style={{
           background: 'var(--surface-sunken)',
           borderColor: 'var(--border-subtle)',
@@ -110,14 +113,14 @@ export function AuthShell({
         />
 
         {/* Lock watermark */}
-        <div className="absolute top-12 -right-12 text-amber-600/[0.08] pointer-events-none transform rotate-45">
+        <div className="pointer-events-none absolute top-12 -right-12 rotate-45 transform text-amber-600/[0.08]">
           <IconLock size={260} stroke={1} />
         </div>
 
         {/* Aside Header */}
         <div className="relative z-10">
           <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-chip border t-eyebrow font-medium tracking-wider"
+            className="t-eyebrow inline-flex items-center gap-2 rounded-chip border px-3 py-1.5 font-medium tracking-wider"
             style={{
               background: 'var(--surface-raised)',
               borderColor: 'var(--border-subtle)',
@@ -125,7 +128,7 @@ export function AuthShell({
             }}
           >
             <span
-              className="size-1.5 rounded-full animate-pulse"
+              className="size-1.5 animate-pulse rounded-full"
               style={{ background: 'var(--success-fg)' }}
             />
             <span>SECURE ACCESS ENCLAVE</span>
@@ -139,19 +142,17 @@ export function AuthShell({
 
         {/* Aside Footer */}
         <footer
-          className="relative z-10 shrink-0 flex items-center justify-between gap-4 border-t pt-4"
+          className="relative z-10 flex shrink-0 items-center justify-between gap-4 border-t pt-4"
           style={{ borderColor: 'var(--border-subtle)' }}
         >
           <span className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
             aLcassa · Enterprise Security
           </span>
 
-          <span
-            className="t-chip inline-flex items-center gap-1.5 rounded-chip border px-2.5 py-1 bg-emerald-500/15 text-emerald-700 border-emerald-500/30 font-medium"
-          >
+          <span className="t-chip inline-flex items-center gap-1.5 rounded-chip border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 font-medium text-emerald-700">
             <span
               aria-hidden
-              className="size-1.5 rounded-full animate-pulse"
+              className="size-1.5 animate-pulse rounded-full"
               style={{ background: 'var(--success-fg)' }}
             />
             Isolation Verified

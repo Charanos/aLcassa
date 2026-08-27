@@ -72,7 +72,10 @@ export function BlastRadiusDialog({ change }: { change: PlansModel['pendingChang
       <Dialog.Portal>
         <Dialog.Overlay
           className="fixed inset-0 z-[150]"
-          style={{ background: 'var(--surface-overlay)', animation: 'overlay-in var(--duration-fast) linear' }}
+          style={{
+            background: 'var(--surface-overlay)',
+            animation: 'overlay-in var(--duration-fast) linear',
+          }}
         />
         <Dialog.Content
           className="surface-glass-strong fixed top-1/2 left-1/2 z-[150] w-[560px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-overlay"
@@ -133,7 +136,11 @@ export function BlastRadiusDialog({ change }: { change: PlansModel['pendingChang
             </p>
 
             {error ? (
-              <p role="alert" className="t-compact mt-3 flex items-start gap-1.5" style={{ color: 'var(--danger-fg)' }}>
+              <p
+                role="alert"
+                className="t-compact mt-3 flex items-start gap-1.5"
+                style={{ color: 'var(--danger-fg)' }}
+              >
                 <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
                 {error}
               </p>

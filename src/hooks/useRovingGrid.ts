@@ -40,11 +40,14 @@ export function useRovingGrid<T extends HTMLElement = HTMLElement>(options: {
   const [activeIndex, setActiveIndex] = useState(0);
   const rowRefs = useRef<Array<T | null>>([]);
 
-  const focusIndex = useCallback((index: number) => {
-    const clamped = Math.max(0, Math.min(count - 1, index));
-    setActiveIndex(clamped);
-    rowRefs.current[clamped]?.focus();
-  }, [count]);
+  const focusIndex = useCallback(
+    (index: number) => {
+      const clamped = Math.max(0, Math.min(count - 1, index));
+      setActiveIndex(clamped);
+      rowRefs.current[clamped]?.focus();
+    },
+    [count],
+  );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, index: number) => {

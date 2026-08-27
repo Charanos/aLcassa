@@ -8,7 +8,7 @@ export type StatusDotProps = {
 
 export function StatusDot({ status, label, size = 'sm' }: StatusDotProps) {
   const sizeClass = size === 'sm' ? 'w-2 h-2' : 'w-2.5 h-2.5';
-  
+
   let bgClass = 'bg-[var(--graphite-solid)]';
   if (status === 'operational') bgClass = 'bg-[var(--verdigris-solid)]';
   if (status === 'degraded') bgClass = 'bg-[var(--ochre-solid)]';

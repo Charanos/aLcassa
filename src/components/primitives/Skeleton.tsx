@@ -30,7 +30,9 @@ export type SkeletonProps = { className?: string; 'aria-label'?: string };
 
 /** One line of body text at a plausible width, per the 60–95% rule. */
 export function SkeletonText({ width = 82, className }: { width?: number; className?: string }) {
-  return <Bone className={['h-4', className].filter(Boolean).join(' ')} style={{ width: `${width}%` }} />;
+  return (
+    <Bone className={['h-4', className].filter(Boolean).join(' ')} style={{ width: `${width}%` }} />
+  );
 }
 
 /** A rectangular region: an image, a chart, a map. */

@@ -33,15 +33,51 @@ const sql = postgres(connectionString, { prepare: false, max: 1 });
 // catalogue. Tenant A stays deliberately at its 1-seat Pro limit; see the
 // SEED_TENANT_A comment in constants.ts.
 const TENANTS = [
-  { id: SEED_TENANT_A, slug: 'acme-industrial', name: 'Acme Industrial', status: 'active', plan: 'pro' },
-  { id: SEED_TENANT_B, slug: 'northwind', name: 'Northwind Traders', status: 'active', plan: 'business' },
-  { id: SEED_TENANT_C, slug: 'tamarind', name: 'Tamarind Hotels', status: 'suspended', plan: 'pro' },
+  {
+    id: SEED_TENANT_A,
+    slug: 'acme-industrial',
+    name: 'Acme Industrial',
+    status: 'active',
+    plan: 'pro',
+  },
+  {
+    id: SEED_TENANT_B,
+    slug: 'northwind',
+    name: 'Northwind Traders',
+    status: 'active',
+    plan: 'business',
+  },
+  {
+    id: SEED_TENANT_C,
+    slug: 'tamarind',
+    name: 'Tamarind Hotels',
+    status: 'suspended',
+    plan: 'pro',
+  },
 ] as const;
 
 const USERS = [
-  { id: SEED_USER_A, tenant: SEED_TENANT_A, name: 'Grace Wanjiku', email: 'grace@acme-industrial.example', role: 'owner' },
-  { id: SEED_USER_B, tenant: SEED_TENANT_B, name: 'Peter Otieno', email: 'peter@northwind.example', role: 'owner' },
-  { id: SEED_USER_C, tenant: SEED_TENANT_C, name: 'Fatuma Ali', email: 'fatuma@tamarind.example', role: 'owner' },
+  {
+    id: SEED_USER_A,
+    tenant: SEED_TENANT_A,
+    name: 'Grace Wanjiku',
+    email: 'grace@acme-industrial.example',
+    role: 'owner',
+  },
+  {
+    id: SEED_USER_B,
+    tenant: SEED_TENANT_B,
+    name: 'Peter Otieno',
+    email: 'peter@northwind.example',
+    role: 'owner',
+  },
+  {
+    id: SEED_USER_C,
+    tenant: SEED_TENANT_C,
+    name: 'Fatuma Ali',
+    email: 'fatuma@tamarind.example',
+    role: 'owner',
+  },
 ] as const;
 
 async function main(): Promise<void> {

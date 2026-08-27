@@ -155,8 +155,10 @@ describe('isolation · tables with no tenant column', () => {
       } else {
         // 'some-rows': visible, but scoped. Seeing everything would mean the
         // scoping predicate is not firing.
-        expect(visible, `${table} is scoped, so seeing every row is wrong. ${expectation.why}`)
-          .toBeLessThanOrEqual(total);
+        expect(
+          visible,
+          `${table} is scoped, so seeing every row is wrong. ${expectation.why}`,
+        ).toBeLessThanOrEqual(total);
       }
     });
 

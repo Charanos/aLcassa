@@ -86,7 +86,11 @@ export function hueTokens(code: ErrorCode) {
  * and disabled rather than removed, which is what would make the entitlement
  * look like a missing feature instead of a number the reader can act on.
  */
-export function entitlementDetail(input: { resource: string; limit: number; plan?: string }): string {
+export function entitlementDetail(input: {
+  resource: string;
+  limit: number;
+  plan?: string;
+}): string {
   const upgrade = input.plan ? ` Upgrade past ${input.plan} to raise it.` : '';
   return `${input.resource} is at its limit of ${input.limit.toLocaleString('en-GB')}.${upgrade}`;
 }

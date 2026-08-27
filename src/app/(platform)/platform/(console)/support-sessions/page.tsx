@@ -202,9 +202,7 @@ export default async function SupportSessionsPage() {
                             className="size-1.5 shrink-0 rounded-full"
                             style={{ background: e.dot }}
                           />
-                          <span
-                            style={{ font: '400 12px/1 var(--font-mono)', color: e.ink }}
-                          >
+                          <span style={{ font: '400 12px/1 var(--font-mono)', color: e.ink }}>
                             {h.endedBy}
                           </span>
                         </span>

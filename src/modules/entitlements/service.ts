@@ -82,9 +82,7 @@ export async function checkEntitlement(
  * ordinary path on every miss, which is why a cache outage changes latency and
  * nothing else. 08 §6.
  */
-export async function getEntitlementSnapshot(
-  ctx: ResolvedContext,
-): Promise<EntitlementSnapshot> {
+export async function getEntitlementSnapshot(ctx: ResolvedContext): Promise<EntitlementSnapshot> {
   const cacheKey = CACHE_USES.entitlements(ctx.tenantId);
 
   const hit = await cacheGet<EntitlementSnapshot>(cacheKey);

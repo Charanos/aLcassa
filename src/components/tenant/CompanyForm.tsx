@@ -106,7 +106,10 @@ export function CompanyForm({ model }: { model: CompanyModel }) {
         </p>
       ) : null}
 
-      <div className="flex items-center gap-3 border-t pt-5" style={{ borderColor: 'var(--rule-soft)' }}>
+      <div
+        className="flex items-center gap-3 border-t pt-5"
+        style={{ borderColor: 'var(--rule-soft)' }}
+      >
         <Button type="submit" variant="primary" loading={pending} disabled={!dirty || pending}>
           Save changes
         </Button>

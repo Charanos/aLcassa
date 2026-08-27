@@ -17,7 +17,10 @@ export default async function CredentialsSettingsPage() {
       <PageHeader
         title="API credentials"
         description="Scoped keys for anything reading from or writing to your workspace through the service door."
-        breadcrumbs={[{ label: 'Settings', href: '/app/settings/company' }, { label: 'Credentials' }]}
+        breadcrumbs={[
+          { label: 'Settings', href: '/app/settings/company' },
+          { label: 'Credentials' },
+        ]}
         actions={
           <Button asChild variant="primary">
             <Link href="/app/settings/credentials/new">Create credential</Link>

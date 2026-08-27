@@ -355,7 +355,9 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
           }
           empty={
             <div>
-              <p className="t-compact text-[var(--ink-secondary)]">Nothing matches those filters.</p>
+              <p className="t-compact text-[var(--ink-secondary)]">
+                Nothing matches those filters.
+              </p>
               <button
                 type="button"
                 onClick={() => {

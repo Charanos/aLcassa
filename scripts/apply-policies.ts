@@ -75,9 +75,7 @@ async function main(): Promise<void> {
       // Identifiers come from pg_policies, not user input, but they are still
       // interpolated rather than parameterised because Postgres does not
       // accept a bind parameter in a DDL identifier position.
-      await tx.unsafe(
-        `drop policy if exists "${row.policyname}" on public."${row.tablename}"`,
-      );
+      await tx.unsafe(`drop policy if exists "${row.policyname}" on public."${row.tablename}"`);
     }
 
     if (existing.length > 0) {

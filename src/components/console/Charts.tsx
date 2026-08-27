@@ -101,15 +101,7 @@ function useTokens(): Tokens {
   return tokens;
 }
 
-function Panel({
-  label,
-  value,
-  t,
-}: {
-  label: string;
-  value: string;
-  t: Tokens;
-}) {
+function Panel({ label, value, t }: { label: string; value: string; t: Tokens }) {
   return (
     <div
       className="rounded-chip px-3 py-2"
@@ -121,10 +113,7 @@ function Panel({
       }}
     >
       <div style={{ font: '400 11px/1.4 var(--font-ui)', color: t.muted }}>{label}</div>
-      <div
-        className="numeric mt-0.5"
-        style={{ fontSize: 'var(--text-sm)', color: t.text }}
-      >
+      <div className="numeric mt-0.5" style={{ fontSize: 'var(--text-sm)', color: t.text }}>
         {value}
       </div>
     </div>
@@ -139,11 +128,7 @@ const AXIS = { fontSize: 11, fontFamily: 'var(--font-mono)' };
  * and drawing them both as lines invites reading the gap between them as if it
  * meant something.
  */
-export function MrrChart({
-  data,
-}: {
-  data: Array<{ month: string; mrr: number; net: number }>;
-}) {
+export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; net: number }> }) {
   const t = useTokens();
 
   return (
@@ -176,15 +161,17 @@ export function MrrChart({
               if (!active || !payload?.length) return null;
               const mrr = payload.find((p) => p.dataKey === 'mrr')?.value as number;
               return (
-                <Panel
-                  t={t}
-                  label={String(label)}
-                  value={`KES ${(mrr / 1_000_000).toFixed(2)}M`}
-                />
+                <Panel t={t} label={String(label)} value={`KES ${(mrr / 1_000_000).toFixed(2)}M`} />
               );
             }}
           />
-          <Bar dataKey="net" fill={t.success} fillOpacity={0.45} radius={[2, 2, 0, 0]} barSize={10} />
+          <Bar
+            dataKey="net"
+            fill={t.success}
+            fillOpacity={0.45}
+            radius={[2, 2, 0, 0]}
+            barSize={10}
+          />
           <Area type="monotone" dataKey="mrr" stroke="none" fill="url(#mrr-fill)" />
           <Line
             type="monotone"
@@ -205,11 +192,7 @@ export function MrrChart({
  * count and the value, so the chart is a proportion cue and never the only
  * place a number lives.
  */
-export function PlanMixChart({
-  data,
-}: {
-  data: Array<{ name: string; value: number }>;
-}) {
+export function PlanMixChart({ data }: { data: Array<{ name: string; value: number }> }) {
   const t = useTokens();
   const ramp = [t.blue500, t.blue400, t.ink300];
   const total = data.reduce((sum, d) => sum + d.value, 0);
@@ -393,11 +376,7 @@ export function ThroughputChart({
  * scale, and the reader's question is "how much is very late", not "which
  * bucket is which".
  */
-export function AgeingChart({
-  data,
-}: {
-  data: Array<{ bucket: string; amount: number }>;
-}) {
+export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: number }> }) {
   const t = useTokens();
   const ink = [t.blue200, t.blue400, t.warning, t.danger];
 
@@ -430,7 +409,9 @@ export function AgeingChart({
             content={({ active, payload, label }) => {
               if (!active || !payload?.length) return null;
               const v = payload[0]?.value as number;
-              return <Panel t={t} label={String(label)} value={`KES ${v.toLocaleString('en-GB')}`} />;
+              return (
+                <Panel t={t} label={String(label)} value={`KES ${v.toLocaleString('en-GB')}`} />
+              );
             }}
           />
           <Bar dataKey="amount" radius={[0, 3, 3, 0]} barSize={18}>

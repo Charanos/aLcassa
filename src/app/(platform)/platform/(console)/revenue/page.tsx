@@ -54,10 +54,7 @@ export default async function RevenuePage() {
       >
         <div className="min-w-0 flex-1">
           <ConsoleHeader eyebrow="/platform/revenue" title="Revenue" />
-          <p
-            className="t-body mt-2"
-            style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}
-          >
+          <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}>
             What the platform earns, what it is owed, and which workspaces are worth calling this
             week.
           </p>

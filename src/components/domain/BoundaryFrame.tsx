@@ -133,9 +133,7 @@ export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFram
         {isSupport && supportMode ? (
           <>
             SUPPORT MODE · {supportMode.tenantName.toUpperCase()} ·{' '}
-            <span style={{ color: countdownColour }}>
-              {expired ? 'SESSION ENDED' : label}
-            </span>
+            <span style={{ color: countdownColour }}>{expired ? 'SESSION ENDED' : label}</span>
           </>
         ) : (
           'STAGING'

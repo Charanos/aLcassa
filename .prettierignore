@@ -1,0 +1,26 @@
+# Formatting is for code we write. Everything below is vendored, generated, or
+# a verbatim artefact whose bytes matter more than its layout.
+
+# Build output
+.next/
+node_modules/
+
+# Vendored agent skills. Third-party documentation — reformatting it would make
+# every future update a merge conflict against changes we did not make.
+.agents/
+
+# The Conduit design set, as delivered. These are the specification: 03 §1
+# treats the sheets as the reference the implementation is checked against, so
+# they are read rather than edited and their bytes stay as they arrived.
+public/design/
+design-docs/
+
+# Generated. Drizzle owns the migration files and the lockfile; formatting them
+# would produce a diff on every regeneration.
+src/db/migrations/
+pnpm-lock.yaml
+
+# The project document set is prose, written to a line discipline of its own.
+# Prettier reflows markdown tables and hard-wrapped paragraphs, which would
+# churn documents that are read far more often than they are edited.
+project-docs/
