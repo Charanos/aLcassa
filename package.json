@@ -28,7 +28,7 @@
     "test:cache-disabled": "cross-env CACHE_DISABLED=true vitest run",
     "test:e2e": "playwright test",
     "storybook": "storybook dev -p 6006",
-    "verify": "pnpm typecheck && pnpm lint && pnpm check:policies && pnpm test",
+    "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm check:policies && pnpm test",
     "db:policies": "tsx scripts/apply-policies.ts"
   },
   "dependencies": {
@@ -85,5 +85,13 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0",
     "vitest": "^3.0.7"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": ">=8.5.23",
+      "uuid": ">=11.1.1",
+      "@opentelemetry/core": ">=2.8.0",
+      "esbuild": ">=0.25.0"
+    }
   }
 }

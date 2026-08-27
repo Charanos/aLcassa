@@ -88,12 +88,13 @@ export default tseslint.config(
         'error',
         {
           selector:
-            "MemberExpression[object.name=/^(body|payload|query|params|searchParams|headers)$/][property.name=/^tenant_?[Ii]d$/]",
+            'MemberExpression[object.name=/^(body|payload|query|params|searchParams|headers)$/][property.name=/^tenant_?[Ii]d$/]',
           message:
             'tenant_id is resolved server side from the session and the membership record. It is never read from a request. See 06 §2 rule 2.',
         },
         {
-          selector: "CallExpression[callee.property.name='eq'][arguments.0.property.name='tenantId']",
+          selector:
+            "CallExpression[callee.property.name='eq'][arguments.0.property.name='tenantId']",
           message:
             'Isolation is Row Level Security, not an application filter. If a query appears to need one, you have found a missing policy. See 06 §2 rule 1 and 11 §6 rule 1.',
         },

@@ -1,12 +1,23 @@
 name: CI
 
-# 04 §9. On every pull request: typecheck, lint including the module boundary
-# and service-role import rules, unit tests, THE ISOLATION SUITE, contract tests
-# against the OpenAPI specification, Playwright on the critical paths, and an
-# axe accessibility scan.
+# 04 §9 · 11 §5. The gates that block a merge.
 #
-# The policy check runs BEFORE the tests, because a table without a policy
-# should fail in ten seconds rather than after a full suite.
+# ⚠ THIS WORKFLOW HAD NEVER RUN A SINGLE JOB BEFORE 28 Aug 2026.
+#
+# It called `pnpm install --frozen-lockfile` while the repository contained only
+# `package-lock.json`. pnpm exits immediately when asked for a frozen install
+# with no `pnpm-lock.yaml`, so every job died at the install step — including
+# the isolation suite that `04 §11` calls "blocking with no override path" and
+# the policy check that `06 §2` says "fails the build".
+#
+# Both pass, and have passed throughout, because they were run by hand. But the
+# enforcement everybody was relying on was not there. The lockfile is now
+# committed and this file describes only what it actually does.
+#
+# The previous header also promised contract tests against the OpenAPI
+# specification, Playwright on the critical paths and an axe accessibility
+# scan. None of those existed as jobs. They are recorded as outstanding in
+# `12 · Handover` rather than described here as though they run.
 
 on:
   pull_request:
@@ -18,7 +29,7 @@ env:
 
 jobs:
   static:
-    name: Typecheck and lint
+    name: Typecheck, lint and format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +42,31 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm format:check
+
+  # 11 §6 rule 19: a type error is a failed build, never a warning. That is only
+  # true if the build runs, and it did not. A broken build could reach `main`
+  # with every other job green.
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: static
+    env:
+      # `next build` evaluates route modules, and the Supabase client throws at
+      # import time on a missing key. These are placeholders with the right
+      # SHAPE and no access to anything — the build must not need real secrets.
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/placeholder
+      DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
 
   isolation:
     name: Policies and isolation
@@ -68,6 +104,13 @@ jobs:
       # This is the gate that lets Brian be told the guarantee holds today.
       - name: Isolation suite
         run: pnpm test:isolation
+
+      # 08 §3. The counters the entitlement guard reads must match the rows
+      # they are derived from. Report only — it never repairs in CI, because
+      # "alerts on divergence rather than silently correcting it" is the whole
+      # point and a job that quietly fixed drift would hide its cause.
+      - name: Usage reconciliation
+        run: pnpm reconcile:usage
 
   tests:
     name: Tests
@@ -133,3 +176,19 @@ jobs:
       - run: pnpm db:migrate
       - run: pnpm db:seed
       - run: pnpm test
+
+  # 04 §7. A known-vulnerable dependency is a security finding, and finding it
+  # at handover is finding it late. `--audit-level moderate` rather than `low`:
+  # a gate that cries wolf on every transitive advisory gets switched off.
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --audit-level moderate
