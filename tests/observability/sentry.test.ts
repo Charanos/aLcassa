@@ -107,7 +107,7 @@ describe('sentry scrubber · attached state', () => {
   it('redacts contexts', () => {
     const scrubbed = scrubEvent(
       eventWith({
-        contexts: { custom: { password: 'context-password-value' } } as ErrorEvent['contexts'],
+        contexts: { custom: { password: 'context-password-value' } },
       }),
     );
     expect(JSON.stringify(scrubbed)).not.toContain('context-password-value');

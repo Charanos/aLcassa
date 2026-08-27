@@ -3,7 +3,8 @@ import type { Metadata } from 'next';
 import { IconBuilding } from '@tabler/icons-react';
 import { AuthShell, TenantAside } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
-import { Field, PasswordField } from '@/components/primitives/Field';
+import { Field } from '@/components/primitives/Field';
+import { NewPasswordFields } from '@/components/access/NewPasswordFields';
 import { readInvitationByToken } from '@/modules/membership';
 
 export const metadata: Metadata = {
@@ -84,12 +85,7 @@ export default async function InvitePage({
           borderColor: 'var(--border-strong)',
         }}
       >
-        <IconBuilding
-          size={18}
-          stroke={1.5}
-          aria-hidden
-          className="mt-0.5 shrink-0 text-amber-500"
-        />
+        <IconBuilding size={18} stroke={1.5} aria-hidden className="mt-0.5 shrink-0 text-warning" />
         <div>
           <p className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
             {inviter} invited you to join {company} as {role}.
@@ -103,14 +99,16 @@ export default async function InvitePage({
       <form className="grid gap-4" method="post" action={`/api/v1/invitations/accept/${token}`}>
         <Field label="Your name" name="fullName" autoComplete="name" required />
 
-        <PasswordField
-          label="Choose a password"
-          name="password"
-          autoComplete="new-password"
-          required
-          minLength={12}
-          helper="At least 12 characters."
-        />
+        {/*
+          The accept route creates an account, so it enforces the same twelve
+          characters as the reset flow. One component, one set of rules, shown
+          before submission rather than after.
+
+          No confirm field here: 10 §14's invitation flow is already three
+          steps from an email, and a mistyped password on a screen with a
+          visible meter is recoverable through the ordinary reset flow.
+        */}
+        <NewPasswordFields label="Choose a password" showConfirm={false} />
 
         <Button type="submit" variant="accent" size="lg" className="mt-2 w-full">
           Accept invitation

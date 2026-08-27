@@ -54,6 +54,24 @@ export const AUDIT_ACTIONS = {
 
   SUPPORT_ENTERED: 'support.entered',
   SUPPORT_EXITED: 'support.exited',
+  /**
+   * ⚠ SPLIT OUT OF SUPPORT_ENTERED, BECAUSE ONE ACTION WAS DOING THREE JOBS.
+   *
+   * Entering, extending and merely READING a support session were all written
+   * as `support.entered`. 09 §7 promises a tenant can see "every time the
+   * platform entered their workspace" and gives them a filter to do it — and
+   * that filter was over-counting, reporting one visit as three or four
+   * because every console page load that resolved the session logged another
+   * entry.
+   *
+   * A transparency feature that inflates the number is not more transparent.
+   * It is less trustworthy, and the customer has no way to tell which entries
+   * were real.
+   */
+  SUPPORT_EXTENDED: 'support.extended',
+  /** A read of the session record. Audited because it is a service-role call,
+   *  and distinct because it is not a visit. */
+  SUPPORT_SESSION_READ: 'support.session_read',
 
   SESSION_REVOKED: 'session.revoked',
   AUDIT_EXPORTED: 'audit.exported',

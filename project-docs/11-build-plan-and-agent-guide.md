@@ -137,7 +137,7 @@ Conditions 6 and 8 are the two that turn a promise into a measurement, and both 
 | Layer          | Coverage                                                                                                                                       |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Unit           | Entitlement resolution, rules compilation and precedence, credential hashing and verification, role checks, ETag composition. Pure, near-total |
-| **Isolation**  | **The generated suite. 10 cases per tenant-scoped table. Blocks merge with no override**                                                       |
+| **Isolation**  | **The generated suite. Blocks merge with no override — genuinely, since 28 Aug 2026: see 15 · C44, which records that CI had never run a single job until then**                                                       |
 | Integration    | Every service against a branch database. Transactions, concurrency, the invariants in `05 §10`                                                 |
 | Contract       | Every endpoint against the OpenAPI specification. Plus the three named tests in `07 §12`                                                       |
 | End to end     | Playwright: provisioning, invitation acceptance, credential reveal-once, support mode entry and exit, limit enforcement through both doors     |

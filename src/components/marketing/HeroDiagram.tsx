@@ -32,32 +32,32 @@ const CHANNELS: Array<{
     icon: IconBrandWhatsapp,
     label: 'WhatsApp',
     y: 8,
-    iconColorClass: 'text-emerald-600',
-    iconBgClass: 'bg-emerald-50 border-emerald-200/60',
+    iconColorClass: 'text-success',
+    iconBgClass: 'bg-emerald-50 border-success/60',
     flowColor: 'var(--green-400)',
   },
   {
     icon: IconBrandInstagram,
     label: 'Instagram',
     y: 90,
-    iconColorClass: 'text-rose-600',
-    iconBgClass: 'bg-rose-50 border-rose-200/60',
+    iconColorClass: 'text-danger',
+    iconBgClass: 'bg-rose-50 border-danger/60',
     flowColor: 'var(--orange-400)',
   },
   {
     icon: IconBrandMessenger,
     label: 'Messenger',
     y: 172,
-    iconColorClass: 'text-blue-600',
-    iconBgClass: 'bg-blue-50 border-blue-200/60',
+    iconColorClass: 'text-[var(--blue-600)]',
+    iconBgClass: 'bg-blue-50 border-[var(--blue-200)]/60',
     flowColor: 'var(--blue-400)',
   },
   {
     icon: IconMessage,
     label: 'Web chat',
     y: 254,
-    iconColorClass: 'text-amber-600',
-    iconBgClass: 'bg-amber-50 border-amber-200/60',
+    iconColorClass: 'text-warning',
+    iconBgClass: 'bg-amber-50 border-warning/60',
     flowColor: 'var(--amber-400)',
   },
 ];
@@ -214,7 +214,7 @@ export function HeroDiagram() {
       {/* ── Two supporting facts with Ember and Amber accents ──────────── */}
       <FactCard
         icon={IconActivity}
-        iconColorClass="text-rose-500"
+        iconColorClass="text-danger"
         label="Assistant rules"
         value="Live in under 5 seconds"
         left={CORE_X + 8}
@@ -223,7 +223,7 @@ export function HeroDiagram() {
 
       <FactCard
         icon={IconKey}
-        iconColorClass="text-amber-500"
+        iconColorClass="text-warning"
         label="API credentials"
         value="Shown once, never again"
         left={CORE_X - 44}

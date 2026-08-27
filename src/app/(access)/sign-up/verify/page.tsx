@@ -40,7 +40,7 @@ export default async function VerifyPage({
           borderColor: 'var(--border-strong)',
         }}
       >
-        <IconMail size={22} stroke={1.5} aria-hidden className="text-amber-500" />
+        <IconMail size={22} stroke={1.5} aria-hidden className="text-warning" />
         <p className="t-body mt-3" style={{ color: 'var(--text-secondary)' }}>
           We sent a confirmation link to{' '}
           <span className="t-data font-mono font-medium" style={{ color: 'var(--text-primary)' }}>

@@ -75,12 +75,12 @@ export function LiveSpecPlayground() {
               style={{ borderColor: 'var(--border-subtle)' }}
             >
               <div className="flex items-center gap-2.5">
-                <IconShield size={18} className="text-emerald-600" />
+                <IconShield size={18} className="text-success" />
                 <h3 className="t-panel font-medium" style={{ color: 'var(--text-primary)' }}>
                   RLS Isolation Simulator
                 </h3>
               </div>
-              <span className="t-eyebrow rounded-chip border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-0.5 text-emerald-700">
+              <span className="t-eyebrow rounded-chip border border-success/30 bg-success/15 px-2.5 py-0.5 text-success">
                 Postgres RLS
               </span>
             </div>
@@ -96,7 +96,7 @@ export function LiveSpecPlayground() {
                 onClick={() => setSelectedTenant('tenant_a')}
                 className={`t-compact flex-1 cursor-pointer rounded-chip border p-3 text-left transition-all ${
                   selectedTenant === 'tenant_a'
-                    ? 'border-amber-500/60 bg-amber-500/10'
+                    ? 'border-warning/60 bg-warning/10'
                     : 'border-[var(--border-subtle)] bg-[var(--surface-sunken)] hover:bg-[var(--surface-sunken)]/80'
                 }`}
               >
@@ -120,7 +120,7 @@ export function LiveSpecPlayground() {
                 onClick={() => setSelectedTenant('tenant_b')}
                 className={`t-compact flex-1 cursor-pointer rounded-chip border p-3 text-left transition-all ${
                   selectedTenant === 'tenant_b'
-                    ? 'border-amber-500/60 bg-amber-500/10'
+                    ? 'border-warning/60 bg-warning/10'
                     : 'border-[var(--border-subtle)] bg-[var(--surface-sunken)] hover:bg-[var(--surface-sunken)]/80'
                 }`}
               >
@@ -150,18 +150,18 @@ export function LiveSpecPlayground() {
                 color: 'var(--text-secondary)',
               }}
             >
-              <div className="mb-1 text-[10px] font-medium tracking-widest text-emerald-600 uppercase">
+              <div className="mb-1 text-[10px] font-medium tracking-widest text-success uppercase">
                 Active Tenant Context:
               </div>
               <p className="text-[var(--text-primary)]">
                 SET LOCAL app.current_tenant_id = &apos;
                 {selectedTenant === 'tenant_a' ? 'tnt_acme_892' : 'tnt_zenith_104'}&apos;;
               </p>
-              <p className="mt-1 text-slate-500">
+              <p className="mt-1 text-ink-muted">
                 SELECT * FROM messages WHERE tenant_id =
                 current_setting(&apos;app.current_tenant_id&apos;);
               </p>
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-emerald-700">
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-success">
                 <IconCheck size={14} />
                 <span>Zero cross-tenant leakage guaranteed by database engine</span>
               </div>
@@ -183,12 +183,12 @@ export function LiveSpecPlayground() {
               style={{ borderColor: 'var(--border-subtle)' }}
             >
               <div className="flex items-center gap-2.5">
-                <IconTerminal size={18} className="text-amber-500" />
+                <IconTerminal size={18} className="text-warning" />
                 <h3 className="t-panel font-medium" style={{ color: 'var(--text-primary)' }}>
                   Rule Propagation Engine
                 </h3>
               </div>
-              <span className="t-eyebrow rounded-chip border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-amber-700">
+              <span className="t-eyebrow rounded-chip border border-warning/30 bg-warning/15 px-2.5 py-0.5 text-warning">
                 &lt; 5s Sync
               </span>
             </div>
@@ -233,7 +233,7 @@ export function LiveSpecPlayground() {
                   <span>
                     [{log.time}] {log.event}
                   </span>
-                  <span className="font-normal text-emerald-700">{log.status}</span>
+                  <span className="font-normal text-success">{log.status}</span>
                 </div>
               ))}
             </div>

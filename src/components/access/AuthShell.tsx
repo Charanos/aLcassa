@@ -40,7 +40,7 @@ export function AuthShell({
         style={{ background: 'var(--surface-base)' }}
       >
         {/* Watermark icon behind the form */}
-        <div className="pointer-events-none absolute bottom-10 -left-16 hidden rotate-12 transform text-slate-500/[0.08] sm:block">
+        <div className="pointer-events-none absolute bottom-10 -left-16 hidden rotate-12 transform text-ink-muted/[0.08] sm:block">
           <IconShieldCheck size={340} stroke={1} />
         </div>
 
@@ -113,7 +113,7 @@ export function AuthShell({
         />
 
         {/* Lock watermark */}
-        <div className="pointer-events-none absolute top-12 -right-12 rotate-45 transform text-amber-600/[0.08]">
+        <div className="pointer-events-none absolute top-12 -right-12 rotate-45 transform text-warning/[0.08]">
           <IconLock size={260} stroke={1} />
         </div>
 
@@ -149,7 +149,7 @@ export function AuthShell({
             aLcassa · Enterprise Security
           </span>
 
-          <span className="t-chip inline-flex items-center gap-1.5 rounded-chip border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 font-medium text-emerald-700">
+          <span className="t-chip inline-flex items-center gap-1.5 rounded-chip border border-success/30 bg-success/15 px-2.5 py-1 font-medium text-success">
             <span
               aria-hidden
               className="size-1.5 animate-pulse rounded-full"

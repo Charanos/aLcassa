@@ -277,7 +277,7 @@ export async function readSupportSession(
     {
       actorUserId: actor.userId,
       actorLabel: actor.label,
-      action: AUDIT_ACTIONS.SUPPORT_ENTERED,
+      action: AUDIT_ACTIONS.SUPPORT_SESSION_READ,
       entityType: 'support_session',
       entityId: sessionId,
       reason: 'support session read',
@@ -352,7 +352,7 @@ export async function extendSupportSession(
     {
       actorUserId: actor.userId,
       actorLabel: actor.label,
-      action: AUDIT_ACTIONS.SUPPORT_ENTERED,
+      action: AUDIT_ACTIONS.SUPPORT_EXTENDED,
       entityType: 'support_session',
       entityId: sessionId,
       reason: 'support session extended',
@@ -381,7 +381,7 @@ export async function extendSupportSession(
         actorType: 'platform_admin',
         actorLabel: actor.label,
         supportMode: true,
-        action: AUDIT_ACTIONS.SUPPORT_ENTERED,
+        action: AUDIT_ACTIONS.SUPPORT_EXTENDED,
         entityType: 'support_session',
         entityId: row.id,
         after: { extendedTo: expiresAt.toISOString() },

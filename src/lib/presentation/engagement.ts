@@ -314,7 +314,7 @@ export const COMPLIANCE = [
     evidence:
       'Focus rings never removed, 44px targets, every status carrying a glyph and a word as well as a hue, contrast measured across the one remaining mode and both chrome tiers, reduced motion honoured in CSS and in the GSAP wrapper alike.',
     outstanding:
-      'An axe pass per route in CI, and a manual keyboard pass per milestone. Sheet 13 proposes raising the target to 2.2 AA, which is not currently a contractual item.',
+      'An axe pass per route in CI, and a manual keyboard pass per milestone \u2014 neither exists, and the CI workflow described both until 28 Aug 2026, when it was corrected to list only the jobs it actually runs. Sheet 13 proposes raising the target to 2.2 AA, which is not currently a contractual item.',
     reference: '03 §17 · sheet 13',
   },
 ] as const;
@@ -328,6 +328,20 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-28',
+    title: 'A system-wide review, and a correction about how the safety checks were being enforced',
+    body: 'Before starting the next milestone we stopped and reviewed the whole system rather than the piece in front of us. The most important thing it found needs stating plainly. The automated checks that run on every change — including the tenant isolation suite, the one this engagement rests on — were configured to install the project with one tool while the project was set up for another. Every run failed at the first step, and had done since the checks were written. They have been run by hand throughout and have passed, so nothing incorrect was shipped; what was missing was the automation that would have caught it if something had. That is fixed, along with four other things of exactly the same shape: a safeguard that was described in the documents, believed to be in place, and not actually connected. Rate limiting on the public sign-in and password pages was defined and never applied. Error reporting was installed and never switched on. There was nothing for an uptime monitor to check. And joining a workspace by invitation left no entry in that workspace\u2019s activity log, though every other membership change did. All four are now working, each with a test that fails if it stops.',
+    milestone: 'M1, M2',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-08-28',
+    title: 'The console now reports what is true on every screen',
+    body: 'The same review found several screens still showing the designed placeholder data they were built with, even though the real records existed behind them — including the workspace list and the detail panel, which is where an operator decides whether to suspend a customer. Those are now reading the live database. Where a figure has no real source it says so rather than showing a plausible number: there is no payment gateway in this phase, so a workspace\u2019s monthly value is shown as a dash rather than as a price the customer has not been charged. The design system was also tightened — a hundred and ten places were using colours picked by hand instead of the shared palette, which is how a brand change becomes a hundred edits instead of one.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-08-28',
     title: 'M4 complete: the console reports what is true rather than what was drawn',

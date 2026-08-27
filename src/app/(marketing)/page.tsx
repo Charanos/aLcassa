@@ -44,32 +44,32 @@ const CHANNELS: Array<{
     name: 'WhatsApp Business',
     status: 'Coming soon',
     description: 'Direct Cloud API integration with automatic conversation routing.',
-    iconColorClass: 'text-emerald-600',
-    iconBgClass: 'bg-emerald-50 border-emerald-200/60',
+    iconColorClass: 'text-success',
+    iconBgClass: 'bg-emerald-50 border-success/60',
   },
   {
     icon: IconBrandInstagram,
     name: 'Instagram Direct',
     status: 'Coming soon',
     description: 'Handle customer DMs and story replies right alongside website chat.',
-    iconColorClass: 'text-rose-600',
-    iconBgClass: 'bg-rose-50 border-rose-200/60',
+    iconColorClass: 'text-danger',
+    iconBgClass: 'bg-rose-50 border-danger/60',
   },
   {
     icon: IconBrandMessenger,
     name: 'Facebook Messenger',
     status: 'Coming soon',
     description: 'Page messaging support with rich media and structured responses.',
-    iconColorClass: 'text-blue-600',
-    iconBgClass: 'bg-blue-50 border-blue-200/60',
+    iconColorClass: 'text-[var(--blue-600)]',
+    iconBgClass: 'bg-blue-50 border-[var(--blue-200)]/60',
   },
   {
     icon: IconMessage,
     name: 'Website Chat Widget',
     status: 'Coming soon',
     description: 'Embeddable web chat snippet with a real-time WebSocket connection.',
-    iconColorClass: 'text-amber-600',
-    iconBgClass: 'bg-amber-50 border-amber-200/60',
+    iconColorClass: 'text-warning',
+    iconBgClass: 'bg-amber-50 border-warning/60',
   },
 ];
 
@@ -140,13 +140,13 @@ export default async function MarketingPage() {
         />
 
         {/* Iconography watermarks with soft architectural multi-tonal tints */}
-        <div className="absolute -top-6 -left-20 hidden -rotate-12 text-slate-500/[0.08] lg:block">
+        <div className="absolute -top-6 -left-20 hidden -rotate-12 text-ink-muted/[0.08] lg:block">
           <IconServer2 size={320} stroke={1} />
         </div>
-        <div className="absolute top-[5%] -right-20 hidden rotate-12 text-amber-600/[0.08] md:block">
+        <div className="absolute top-[5%] -right-20 hidden rotate-12 text-warning/[0.08] md:block">
           <IconMessage size={440} stroke={1} />
         </div>
-        <div className="absolute right-[60%] -bottom-20 hidden rotate-[10deg] text-emerald-600/[0.08] md:block">
+        <div className="absolute right-[60%] -bottom-20 hidden rotate-[10deg] text-success/[0.08] md:block">
           <IconBrandWhatsapp size={460} stroke={1} />
         </div>
       </div>
@@ -438,10 +438,10 @@ export default async function MarketingPage() {
           className="relative mt-20 overflow-hidden border-t py-20 md:mt-32"
           style={{ borderColor: 'var(--border-strong)' }}
         >
-          <div className="pointer-events-none absolute top-6 -left-12 hidden -rotate-12 text-emerald-600/[0.08] lg:block">
+          <div className="pointer-events-none absolute top-6 -left-12 hidden -rotate-12 text-success/[0.08] lg:block">
             <IconBrandWhatsappFilled size={280} stroke={1} />
           </div>
-          <div className="pointer-events-none absolute top-6 -right-12 hidden rotate-12 text-rose-600/[0.08] lg:block">
+          <div className="pointer-events-none absolute top-6 -right-12 hidden rotate-12 text-danger/[0.08] lg:block">
             <IconMessageFilled size={260} stroke={1} />
           </div>
 
@@ -548,7 +548,7 @@ export default async function MarketingPage() {
           </svg>
         </div>
 
-        <div className="pointer-events-none absolute right-8 bottom-2 hidden -rotate-12 text-slate-500/[0.08] lg:block">
+        <div className="pointer-events-none absolute right-8 bottom-2 hidden -rotate-12 text-ink-muted/[0.08] lg:block">
           <IconServer2 size={240} stroke={1} />
         </div>
 

@@ -1742,3 +1742,197 @@ reports the four counts this database can answer — workspaces, memberships,
 attention, open support sessions — and leaves vitals empty rather than deriving
 a plausible uptime from the wrong rows. A number without a source is trivia;
 on an operations screen it is a number somebody will act on.
+
+
+---
+
+## C44 · CI had never run a single job
+
+**28 Aug 2026. The most consequential finding of the fidelity audit.**
+
+`.github/workflows/ci.yml` ran `pnpm install --frozen-lockfile`. `package.json`
+declared `packageManager: pnpm@9.15.4`. The repository contained only
+`package-lock.json` — no `pnpm-lock.yaml` existed. pnpm exits immediately when
+asked for a frozen install with no lockfile, so **every job failed at the
+install step, and always had.**
+
+Consequences, stated plainly:
+
+- The isolation suite that `04 §11` and `11 §5` call "blocking with no override
+  path" had **never executed in CI**.
+- The policy check that `06 §2` says "fails the build" had never run either.
+- `pnpm lint` had never run, and reported 13 errors when it finally did — all
+  from the `conduit-appshell-boilerplate/` directory, excluded from tsconfig
+  but not from eslint.
+- `pnpm format:check` had never run, and reported 229 files.
+
+Everything still passed, because it was all run by hand throughout. But the
+enforcement everybody was relying on was theatre. Several other findings in
+this pass are the same shape — a control that is described, believed, and
+absent: rate limiting (C45), Sentry (C46), the health endpoint (C47).
+
+**Resolution.** `pnpm-lock.yaml` committed, `package-lock.json` removed, the
+boilerplate deleted, the codebase formatted. The workflow gained a **build**
+job — a type error is a failed build per `11 §6` rule 19, which is only true if
+the build runs — plus reconciliation in report mode and a dependency audit. Its
+header no longer promises contract tests, Playwright and an axe scan, none of
+which existed as jobs; those are recorded as outstanding in `04 §9` instead.
+
+**The dependency audit found 7 advisories, 2 of them high, and 6 of the 7
+arrive through `@sentry/nextjs`** — the dependency that was installed and never
+used. Rather than weaken the threshold or drop a dependency the architecture
+calls for, four transitives are pinned in `pnpm-workspace.yaml`. They are
+declared in **both** `package.json` and `pnpm-workspace.yaml` on purpose: pnpm
+10 stopped reading the former and says so only as a warning, so a project
+pinned to 9 that is later built with 10 would silently lose its pins.
+
+---
+
+## C45 · Rate limiting was defined and never applied
+
+**28 Aug 2026.** `CACHE_USES.rateLimit` and `CACHE_TTL.rateLimit` had been in
+the cache module since it was written, listed as one of the four scoped uses
+ADR-006 permits. **Nothing ever called them.** `04 §1` places rate limiting at
+the edge, before session resolve; there was nothing there.
+
+The exposure was every endpoint reachable without a session. Supabase applies
+its own limits to sign-in and password reset, which is why this was not
+catastrophic — but invitation acceptance was unprotected, and an attacker could
+burn a real user's Supabase budget at whatever rate they liked.
+
+Now applied to five entry points, with the tightest budgets on the two that
+send email or create an account. `cacheIncrement` is new: get-then-set is a
+read-modify-write, and two requests arriving together both read the same count
+and both write the same number back, so a limit of five admits ten under
+exactly the load that makes a limiter worth having.
+
+**It fails open, and a test enforces that.** `CACHE_DISABLED` is a supported
+mode with a CI job proving the product works in it. A limiter that failed
+closed would take sign-in down whenever Upstash blinked. Verified by making it
+fail closed and watching that one case go red.
+
+---
+
+## C46 · Sentry was a dependency and was never initialised
+
+**28 Aug 2026.** `04 §12` named Sentry as the error tracking service and the
+tracker listed error tracking as wired. Nothing imported it: no
+`instrumentation.ts`, no configuration, no DSN. Every production exception
+would have gone nowhere.
+
+Now initialised for all three runtimes, with `redact()` — the same function
+that guards the logger — applied to event payloads. Headers are **dropped**
+rather than redacted, because `redact` works on known key names and the header
+carrying something is the one nobody thought of. Query strings are replaced
+entirely: recovery and invitation tokens travel in them. The user object is
+reduced to an opaque id.
+
+**Session replay is deliberately off.** It would record a customer's workspace
+and ship it to a third party, and `01 D-09` makes Brian a processor for his
+tenants' data.
+
+---
+
+## C47 · There was no health endpoint
+
+**28 Aug 2026.** `04 §12` names an uptime service and `12` makes a status page
+an M6 deliverable, but nothing existed to poll. A monitor pointed at `/` would
+report the marketing page rendering — true, and useless, because it renders
+perfectly well while the database is unreachable.
+
+`GET /api/health` reports database reachability and cache status, and
+distinguishes them: the database is required and returns 503, the cache is
+optional by design (`08 §6`) and its absence is reported without failing.
+
+**It does not read `drizzle.__drizzle_migrations`, though that was the first
+attempt.** The application connects as `alcassa_app`, which has no USAGE on the
+`drizzle` schema — deliberately, as a least-privilege role that owns nothing.
+The check returned "permission denied" and would have reported a healthy
+database as unreachable, paging somebody. Granting the app role access to make
+a probe work would be widening a privilege boundary for convenience;
+`to_regclass` needs no privilege at all.
+
+---
+
+## C48 · Screens still showing designed data after their milestone closed
+
+**28 Aug 2026.** M4 was marked complete while its primary management surface —
+the workspace list and detail — still rendered fixtures, with real tables
+behind them. So did the support-session register and both audit logs.
+
+Same class as the isolation panel (C43), and worse: the numbers are
+per-customer, so an operator comparing them against what a customer reported
+would have found them plausible and wrong.
+
+All now live. **The fields with no source are stated rather than filled** —
+`monthlyValue`, `invoices`, `billingStats`, `events` and `eventsLimit` have
+nothing behind them, because `08 §1` puts billing out of scope and there is no
+events table. A plan carries a price, but a price is not revenue.
+
+---
+
+## C49 · `member.joined` was defined and never emitted
+
+**28 Aug 2026.** Definition of done condition 3: every write produces an audit
+entry. Inviting, removing and role changes were audited; **accepting was not.**
+The write moved into `app.accept_invitation` when the acceptance flow was
+repaired (C31) and the audit row did not move with it, so a workspace's
+activity log showed an invitation going out and then nothing.
+
+Written inside the same function as the membership, so they cannot come apart.
+
+**Also split `SUPPORT_ENTERED`.** It was emitted for entering, extending and
+merely reading a session, so the tenant's "show me every time you looked"
+filter over-counted — reporting one visit as three or four because every
+console page load that resolved the session logged another entry. A
+transparency feature that inflates its number is less trustworthy, not more.
+`SUPPORT_EXTENDED` and `SUPPORT_SESSION_READ` are now distinct.
+
+---
+
+## C50 · The token layer was bypassed in 110 places
+
+**28 Aug 2026.** `03 §2` makes the token system mandatory. 110 raw Tailwind
+colour classes — `text-emerald-600`, `bg-amber-500`, `text-rose-400` —
+bypassed it, concentrated in the marketing and access components.
+
+Mapped **by meaning rather than by hue**: `text-emerald-600` is not "green", it
+is "this succeeded", and `--success-fg` was already exposed as `text-success`.
+Replacing colour-for-colour would have kept the violation and changed only its
+spelling. Shades were dropped deliberately — 600 and 700 both mean success, and
+the palette has one success colour with measured contrast (`03 §17`).
+
+One subtlety worth recording: `bg-emerald-500/15` maps to `bg-success/15`, not
+`bg-success-bg/15`. `--success-bg` is already the light end of the scale, so
+applying 15% opacity to it produces something close to the page background and
+the chip loses its fill entirely.
+
+**Also wired `PasswordQualityMeter`**, which had been built and imported
+nowhere. It now shows the *same* rules `POST /v1/auth/password/reset` enforces,
+before submission rather than after — a meter encouraging a symbol the server
+does not require is theatre, and one omitting a rule it does require is a trap.
+
+---
+
+## C51 · Dead code and dead tooling removed
+
+**28 Aug 2026.** Housekeeping, recorded because each one was a small lie about
+what the project contains.
+
+- `conduit-appshell-boilerplate/` and its zip — 2.1MB of a starter kit this
+  project outgrew, the source of all 13 lint errors.
+- `src/lib/result/` — 38 lines, zero imports anywhere.
+- `pino` — a dependency; the logger is hand-rolled and imports nothing.
+- `@playwright/test` and the `test:e2e` script — installed with no config and
+  no `tests/e2e` directory. Removed rather than left as a script that fails.
+- The `storybook` script — storybook was never installed.
+
+**Kept, with reasons:** `CredentialReveal` (built for M5 and documented as
+such), the six `console/tenant/*Tab.tsx` components (now reachable through the
+wired detail drawer), `StatusDot` and `Spinner` (small primitives with obvious
+future use, and removing them would be churn).
+
+**A finding that turned out to be wrong:** the audit flagged "`error.tsx` at
+only 3 segment roots". That is correct and fine — `(marketing)` and `(access)`
+inherit the root boundary, which is how Next.js route groups work. Recorded so
+the next audit does not re-raise it.

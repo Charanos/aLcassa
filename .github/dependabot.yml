@@ -1,0 +1,34 @@
+# 04 §7. A known-vulnerable dependency is a security finding, and finding it at
+# handover is finding it late.
+#
+# The `audit` job in ci.yml FAILS a build on a moderate advisory. That is the
+# gate; this is what stops the gate from being a surprise — without it, the
+# first anyone hears of an advisory is a red build on an unrelated pull
+# request, which is how a security gate gets switched off.
+#
+# Weekly rather than daily: this is a two-person team, and a stream of daily
+# dependency pull requests is a stream nobody reads.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # One pull request for the routine noise. Patch and minor updates to dev
+      # tooling do not each deserve their own review.
+      dev-tooling:
+        dependency-type: development
+        update-types: ['minor', 'patch']
+      # Production minors together as well — but majors stay separate, because
+      # a Next or Drizzle major is a piece of work rather than a bump.
+      production-minor:
+        dependency-type: production
+        update-types: ['minor', 'patch']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

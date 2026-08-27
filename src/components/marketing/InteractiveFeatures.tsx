@@ -37,8 +37,8 @@ const FEATURES: FeatureItem[] = [
       'Agent: Handles customer messages. Read-only access to settings.',
     ],
     codeOrVisualType: 'roles',
-    iconColorClass: 'text-amber-600',
-    iconBgClass: 'bg-amber-50 border-amber-200/60',
+    iconColorClass: 'text-warning',
+    iconBgClass: 'bg-amber-50 border-warning/60',
   },
   {
     id: 'rls',
@@ -52,8 +52,8 @@ const FEATURES: FeatureItem[] = [
       'Automated isolation regression suite blocks every deployment.',
     ],
     codeOrVisualType: 'rls',
-    iconColorClass: 'text-emerald-600',
-    iconBgClass: 'bg-emerald-50 border-emerald-200/60',
+    iconColorClass: 'text-success',
+    iconBgClass: 'bg-emerald-50 border-success/60',
   },
   {
     id: 'credentials',
@@ -67,8 +67,8 @@ const FEATURES: FeatureItem[] = [
       'Rotation replaces a key without re-revealing previous values.',
     ],
     codeOrVisualType: 'credentials',
-    iconColorClass: 'text-rose-600',
-    iconBgClass: 'bg-rose-50 border-rose-200/60',
+    iconColorClass: 'text-danger',
+    iconBgClass: 'bg-rose-50 border-danger/60',
   },
   {
     id: 'rules',
@@ -82,8 +82,8 @@ const FEATURES: FeatureItem[] = [
       'Master and tenant rule precedence enforced systematically.',
     ],
     codeOrVisualType: 'rules',
-    iconColorClass: 'text-blue-600',
-    iconBgClass: 'bg-blue-50 border-blue-200/60',
+    iconColorClass: 'text-[var(--blue-600)]',
+    iconBgClass: 'bg-blue-50 border-[var(--blue-200)]/60',
   },
   {
     id: 'audit',
@@ -211,7 +211,7 @@ export function InteractiveFeatures() {
               className="t-compact flex items-start gap-3"
               style={{ color: 'var(--text-secondary)' }}
             >
-              <IconCheck size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+              <IconCheck size={16} className="mt-0.5 shrink-0 text-success" />
               <span>{detail}</span>
             </li>
           ))}
@@ -229,7 +229,7 @@ export function InteractiveFeatures() {
                 style={{ color: 'var(--text-tertiary)' }}
               >
                 <span>MULTI-TENANT PERMISSION TOPOLOGY</span>
-                <span className="font-normal text-emerald-600">RBAC ENFORCED</span>
+                <span className="font-normal text-success">RBAC ENFORCED</span>
               </div>
 
               {/* Compact Visual Role Topology SVG Diagram */}
@@ -382,7 +382,7 @@ export function InteractiveFeatures() {
                 style={{ color: 'var(--text-tertiary)' }}
               >
                 <span>DATABASE TENANT ISOLATION BARRIER</span>
-                <span className="font-normal text-emerald-600">ZERO LEAKAGE</span>
+                <span className="font-normal text-success">ZERO LEAKAGE</span>
               </div>
 
               {/* Compact RLS Isolation Wall Diagram */}
@@ -493,7 +493,7 @@ export function InteractiveFeatures() {
                 style={{ color: 'var(--text-tertiary)' }}
               >
                 <span>ONE-WAY ARGON2 CRYPTOGRAPHIC ENGINE</span>
-                <span className="font-normal text-amber-600">NON-RETRIEVABLE</span>
+                <span className="font-normal text-warning">NON-RETRIEVABLE</span>
               </div>
 
               {/* Compact One-Way Hash Flow Graphic */}
@@ -517,7 +517,7 @@ export function InteractiveFeatures() {
                     <span className="t-micro mb-0.5 block text-[var(--text-tertiary)]">
                       SAVED HASH
                     </span>
-                    <span className="t-data-sm text-emerald-600">$argon2id$v=19...</span>
+                    <span className="t-data-sm text-success">$argon2id$v=19...</span>
                   </div>
                 </div>
               </div>
@@ -528,9 +528,9 @@ export function InteractiveFeatures() {
             <div className="animate-hero-reveal">
               <div className="t-eyebrow mb-3 flex items-center justify-between text-[var(--text-tertiary)]">
                 <span className="flex items-center gap-1.5">
-                  <IconTerminal size={14} className="text-amber-500" /> GET /api/v1/rules
+                  <IconTerminal size={14} className="text-warning" /> GET /api/v1/rules
                 </span>
-                <span className="font-normal text-emerald-600">&lt; 5s PROPAGATION</span>
+                <span className="font-normal text-success">&lt; 5s PROPAGATION</span>
               </div>
               <pre
                 className="t-code overflow-x-auto rounded-panel border border-l-4 border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-4 leading-relaxed whitespace-pre-wrap text-[var(--text-primary)]"
@@ -538,24 +538,24 @@ export function InteractiveFeatures() {
               >
                 {`{
   "`}
-                <span className="text-amber-600">tone</span>
+                <span className="text-warning">tone</span>
                 {`": "`}
-                <span className="text-emerald-600">technical_warm</span>
+                <span className="text-success">technical_warm</span>
                 {`",
   "`}
-                <span className="text-amber-600">escalation_threshold</span>
+                <span className="text-warning">escalation_threshold</span>
                 {`": `}
-                <span className="text-rose-500">0.85</span>
+                <span className="text-danger">0.85</span>
                 {`,
   "`}
-                <span className="text-amber-600">handover_trigger</span>
+                <span className="text-warning">handover_trigger</span>
                 {`": ["`}
-                <span className="text-emerald-600">pricing_custom</span>
+                <span className="text-success">pricing_custom</span>
                 {`", "`}
-                <span className="text-emerald-600">billing_dispute</span>
+                <span className="text-success">billing_dispute</span>
                 {`"],
   "`}
-                <span className="text-amber-600">knowledge_base_version</span>
+                <span className="text-warning">knowledge_base_version</span>
                 {`": "`}
                 <span className="text-[var(--text-secondary)]">v1.4.2</span>
                 {`"
@@ -568,7 +568,7 @@ export function InteractiveFeatures() {
             <div className="animate-hero-reveal space-y-3">
               <div className="t-eyebrow flex items-center justify-between text-[var(--text-tertiary)]">
                 <span>ACTIVITY LOG STREAM</span>
-                <span className="font-normal text-emerald-600">IMMUTABLE APPEND-ONLY</span>
+                <span className="font-normal text-success">IMMUTABLE APPEND-ONLY</span>
               </div>
               <div
                 className="divide-y overflow-hidden rounded-chip border bg-[var(--surface-sunken)]"
@@ -586,11 +586,11 @@ export function InteractiveFeatures() {
                       </div>
                     </div>
                   </div>
-                  <span className="t-data font-mono text-amber-600">14:22:01</span>
+                  <span className="t-data font-mono text-warning">14:22:01</span>
                 </div>
                 <div className="t-compact flex items-center justify-between p-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                    <span className="size-1.5 rounded-full bg-success-bg" />
                     <div>
                       <span className="font-medium text-[var(--text-primary)]">
                         Assistant Rules Updated

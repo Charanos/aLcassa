@@ -164,3 +164,112 @@ A repository containing the code and every artefact above. A recorded walkthroug
 And thirty days of support against defects, scoped to the definition of done.
 
 **The known-gaps list is the most professional thing in the package.** A handover that claims completeness is a handover that gets discovered. One that names what is not there, and why it was left, is one that Brian can plan from.
+
+
+---
+
+## Operations runbook
+
+**Added 28 Aug 2026**, from the fidelity audit. Everything here is a command
+somebody will need at 3am, and none of it was written down.
+
+### Environment variables
+
+| Variable | Required | What breaks without it |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | **yes** | Middleware throws on every request. The whole site returns 500 |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | **yes** | Same |
+| `DATABASE_URL` | **yes** | Every query fails. Must be the RLS-bound `alcassa_app` role, **never** `postgres` |
+| `DATABASE_URL_ADMIN` | migrations, platform ops | Migrations, the policy check and every service-role operation |
+| `RESEND_API_KEY` + `EMAIL_FROM` | no | Invitations are not emailed. The interface says so and hands the owner a link |
+| `SENTRY_DSN` | no | No error reporting. Nothing else changes |
+| `UPSTASH_REDIS_*` | no | Cache off, rate limiting off. Correctness unaffected — proved by a CI job |
+| `CRON_SECRET` | no | The nightly reconciliation route answers 404 |
+| `ALLOW_DEMO_ACCESS` | no | The review bypass buttons disappear. **Must not be set where real customer data lives** |
+
+⚠ **`DATABASE_URL` must not be the `postgres` role.** It carries `BYPASSRLS`,
+which makes every policy in the system inert while appearing to work. This was
+set wrongly once, in August 2026, and is recorded in `15 · C30`.
+
+### Is it up?
+
+```
+curl https://<host>/api/health
+```
+
+`200` with `status: "ok"` means the database is reachable and migrated. `503`
+means it is not, and the response says which of the three checked tables is
+missing. The cache is reported but never fails the check — it is optional by
+design (`08 §6`).
+
+### The nightly usage check found drift
+
+The reconciliation compares each usage counter against the rows it is derived
+from. It **reports and never repairs**, because silent correction hides the bug
+that caused the drift.
+
+```
+pnpm reconcile:usage
+```
+
+Find what wrote the wrong number first. A counter changes only inside the
+transaction of the operation that consumed the resource, so drift means an
+increment without a matching decrement, a double decrement, or a write that
+escaped its transaction. Once the cause is fixed:
+
+```
+pnpm reconcile:usage --repair --reason "corrected after <the fix>" --actor <platform-admin-uuid>
+```
+
+Both flags are required. The actor is verified against `platform_admins` before
+anything is written, and every corrected figure gets an audit row naming who
+and why.
+
+### Rotating a key
+
+**Supabase publishable key** — safe to rotate any time; it is public by design
+and RLS is what protects the data. Update the environment and redeploy.
+
+**Supabase secret key** — rotate in the Supabase dashboard, update
+`SUPABASE_SECRET_KEY`, redeploy. Only `src/lib/auth/supabase/admin.ts` uses it,
+and that file is lint-guarded to `src/modules/platform`.
+
+**Database passwords** — `alcassa_app` and the admin role are separate on
+purpose. Rotating the app role affects the running application; rotating the
+admin role affects migrations and platform operations only.
+
+**`CRON_SECRET`** — rotate freely. The worst case is a skipped nightly report.
+
+### Before a release
+
+```
+pnpm verify
+```
+
+Runs the same static gates CI does — typecheck, lint, format, policy check and
+the full test suite. If this passes and CI fails, the difference is the build
+job or the database-backed jobs, both of which need a database.
+
+### Migrations
+
+```
+pnpm db:migrate
+```
+
+Runs `drizzle-kit migrate` **and then** applies the policy catalogue, as one
+command. They are never run separately: a table without its policy is the
+precise failure `06 §2` exists to prevent.
+
+There is no rollback command, deliberately — see `04 §9`. The recovery path is
+a new forward migration or point-in-time recovery.
+
+### Something is wrong and I need to look inside a customer's workspace
+
+Use support mode from the console. It opens a thirty-minute session that is
+recorded in **the customer's own activity log** as well as ours, with your name
+and your stated reason.
+
+Do not reach for the admin database credentials. `06 §7` permits the service
+role for exactly four operations, none of which is reading a tenant's content,
+and `06 §10` says a feature that seems to need it is a request to weaken the
+isolation model rather than a reason to.

@@ -67,7 +67,7 @@ function AccessTelemetryCard() {
     >
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <IconFingerprint size={16} stroke={1.5} className="text-amber-600" />
+          <IconFingerprint size={16} stroke={1.5} className="text-warning" />
           <span
             className="t-eyebrow font-medium tracking-wider"
             style={{ color: 'var(--text-tertiary)' }}
@@ -75,7 +75,7 @@ function AccessTelemetryCard() {
             SESSION ENCLAVE
           </span>
         </div>
-        <span className="t-chip inline-flex items-center gap-1.5 rounded-chip border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 font-medium text-emerald-700">
+        <span className="t-chip inline-flex items-center gap-1.5 rounded-chip border border-success/30 bg-success/15 px-2 py-0.5 font-medium text-success">
           <span
             className="size-1.5 animate-pulse rounded-full"
             style={{ background: 'var(--success-fg)' }}
@@ -104,12 +104,12 @@ function AccessTelemetryCard() {
           style={{ borderColor: 'var(--border-subtle)' }}
         >
           <div className="flex items-center gap-1.5">
-            <IconCheck size={13} stroke={2.5} className="text-emerald-600" />
+            <IconCheck size={13} stroke={2.5} className="text-success" />
             <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
               {active.status}
             </span>
           </div>
-          <code className="t-code font-mono text-[10px] font-normal text-amber-600">
+          <code className="t-code font-mono text-[10px] font-normal text-warning">
             {active.code}
           </code>
         </div>
@@ -135,7 +135,7 @@ function AccessTelemetryCard() {
           <span className="t-eyebrow block" style={{ color: 'var(--text-tertiary)' }}>
             KEYS
           </span>
-          <span className="t-data mt-0.5 block font-mono text-xs font-normal text-amber-600">
+          <span className="t-data mt-0.5 block font-mono text-xs font-normal text-warning">
             ARGON2ID
           </span>
         </div>
@@ -143,7 +143,7 @@ function AccessTelemetryCard() {
           <span className="t-eyebrow block" style={{ color: 'var(--text-tertiary)' }}>
             AUDIT
           </span>
-          <span className="t-data mt-0.5 block font-mono text-xs font-normal text-emerald-600">
+          <span className="t-data mt-0.5 block font-mono text-xs font-normal text-success">
             APPEND-ONLY
           </span>
         </div>
@@ -159,15 +159,15 @@ const TENANT_SECURITY_SPECS = [
     icon: IconDatabase,
     title: 'Postgres Tenant Partitioning',
     desc: 'Each workspace is completely segregated at the database layer with zero shared memory states.',
-    colorClass: 'text-emerald-600',
-    bgClass: 'bg-emerald-50 border-emerald-200/60',
+    colorClass: 'text-success',
+    bgClass: 'bg-emerald-50 border-success/60',
   },
   {
     icon: IconLock,
     title: 'Irreversible Hash Encryption',
     desc: 'Credentials and auth tokens are hashed mathematically and cannot be retrieved even by operators.',
-    colorClass: 'text-amber-600',
-    bgClass: 'bg-amber-50 border-amber-200/60',
+    colorClass: 'text-warning',
+    bgClass: 'bg-amber-50 border-warning/60',
   },
 ] as const;
 
@@ -182,7 +182,7 @@ function SecuritySpecsCard() {
     >
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <IconShieldCheck size={16} stroke={1.5} className="text-emerald-600" />
+          <IconShieldCheck size={16} stroke={1.5} className="text-success" />
           <span
             className="t-eyebrow font-medium tracking-wider"
             style={{ color: 'var(--text-tertiary)' }}
@@ -245,10 +245,10 @@ export function TenantAside() {
 /* ── Platform Aside ─────────────────────────────────────────────────────── */
 
 const PLATFORM_STATS = [
-  { label: 'Workspaces', value: 'Isolated', icon: IconBolt, color: 'text-amber-500' },
-  { label: 'Rules Engine', value: 'Active', icon: IconTerminal, color: 'text-blue-500' },
-  { label: 'Audit Trail', value: 'Append-only', icon: IconClock, color: 'text-emerald-500' },
-  { label: 'Security Gate', value: 'Enforced', icon: IconShieldCheck, color: 'text-rose-500' },
+  { label: 'Workspaces', value: 'Isolated', icon: IconBolt, color: 'text-warning' },
+  { label: 'Rules Engine', value: 'Active', icon: IconTerminal, color: 'text-[var(--blue-500)]' },
+  { label: 'Audit Trail', value: 'Append-only', icon: IconClock, color: 'text-success' },
+  { label: 'Security Gate', value: 'Enforced', icon: IconShieldCheck, color: 'text-danger' },
 ] as const;
 
 export function PlatformAside() {
@@ -289,12 +289,12 @@ export function PlatformAside() {
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <IconUsers size={16} stroke={1.75} aria-hidden className="text-amber-500" />
+            <IconUsers size={16} stroke={1.75} aria-hidden className="text-warning" />
             <span className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
               Support Sessions Logged
             </span>
           </div>
-          <span className="t-chip rounded-chip border border-amber-500/30 bg-amber-500/15 px-2 py-0.5 font-medium text-amber-700">
+          <span className="t-chip rounded-chip border border-warning/30 bg-warning/15 px-2 py-0.5 font-medium text-warning">
             Audited
           </span>
         </div>

@@ -327,6 +327,10 @@ The channel adapter contract is written and reviewed **at M0, before the schema 
 
 ## 7. Security
 
+**Rate limiting, corrected 28 Aug 2026.** `§1` places rate limiting at the edge, before session resolve. It did not exist: `CACHE_USES.rateLimit` and its TTL had been in the cache module since it was written, listed as one of the four uses ADR-006 permits, and nothing ever called them. It is now applied to the five public entry points — sign-in, password forgot, password reset, invitation read and invitation accept — with the tightest budgets on the two that send email or create an account.
+
+**It fails open.** `CACHE_DISABLED` is a supported mode with a CI job dedicated to proving the product works in it, so a limiter that failed closed would take sign-in down whenever the cache blinked, converting a latency problem into an outage. Rate limiting is a mitigation; correctness is the policies, and they do not depend on Redis. A test asserts the fail-open behaviour specifically, because it is the property a future edit is most likely to "fix".
+
 ### Controls
 
 | Control | Implementation |
@@ -354,6 +358,15 @@ The first four are normal for a Phase 1 foundation. The fifth is a flagged gap u
 ---
 
 ## 8. Observability
+
+**Corrected 28 Aug 2026.** `@sentry/nextjs` had been a dependency for months and was never initialised — no `instrumentation.ts`, no configuration, no DSN. Every production exception would have gone nowhere, while this document and the tracker both described error tracking as wired. It now initialises for all three runtimes (node, edge, browser).
+
+**An error report is an exfiltration path.** `05 I-16` keeps customer fields out of logs; a crash report is a log with a wider audience, read by whoever holds a Sentry seat rather than by whoever holds database access. So the same `redact()` that guards the logger guards the event payload: request bodies redacted, headers **dropped** except the correlation id — the header carrying something is the one nobody thought of — query strings replaced entirely because recovery and invitation tokens travel in them, and the user object reduced to an opaque id. `sendDefaultPii` is off rather than scrubbed after the fact.
+
+**Session replay is deliberately not enabled.** It would record a customer's workspace — their team, their settings, their messages — and ship it to a third party. `01 D-09` makes Brian a processor for his tenants' data, and that is not a decision to take on his behalf to make debugging easier.
+
+**`GET /api/health`** is the probe target, added the same day; there was previously nothing for an uptime service to poll. It reports database reachability and cache status, distinguishing them: the database is required and its absence returns 503, while the cache is optional by design (`08 §6`) and its absence is reported without failing the check. It checks that the SCHEMA is present rather than that `select 1` answers, because the failure that actually happens is a deploy reaching an unmigrated database.
+
 
 Switched on in **week 2**, not during hardening, because instrumentation is only useful with history behind it. The brief says this and it is right.
 
@@ -387,11 +400,38 @@ Any cross-tenant read detected by the isolation suite in CI, which should never 
 
 **Added 24 Aug 2026, per ADR-012.** The FastAPI service is a second deployable with its own environment variables (`DATABASE_URL`, the Redis connection, the argon2id parameters) and its own release, versioned independently of the Next.js application. A migration still runs once, against the shared database, before either service's deploy proceeds.
 
-CI on every pull request: typecheck, lint including the module boundary and service-role import rules, unit tests, **the isolation suite**, contract tests against the OpenAPI specification, Playwright on the critical paths, an axe accessibility scan, and **the cross-language conformance suite** driving the same entitlement scenario through both the session door and the FastAPI service door.
+### Continuous integration
+
+**Corrected 28 Aug 2026.** This section previously described a CI pipeline that did not run at all. The workflow called `pnpm install --frozen-lockfile` while the repository contained only `package-lock.json`; pnpm exits immediately when asked for a frozen install with no `pnpm-lock.yaml`, so every job failed at the install step and always had. The isolation suite this document calls "blocking with no override path" had **never executed in CI**. It passed throughout, run by hand, but the enforcement was not there. See `15 · C44`.
+
+The list below is now what the workflow actually contains, and nothing else. Work that is planned but not built is in the outstanding table underneath rather than described as though it runs.
+
+| Job | What it gates |
+|---|---|
+| `static` | `typecheck`, `lint` (including the module-boundary and service-role import rules), `format:check` |
+| `build` | `next build`. Added 28 Aug — a type error is a failed build per `11 §6` rule 19, which is only true if the build runs. It did not, so a broken build could reach `main` with every other job green. Runs with placeholder environment values of the correct shape: a build must never need real secrets |
+| `isolation` | `check:policies`, then the isolation suite, then usage reconciliation in report mode. A tenant-scoped table without a policy fails here in ten seconds rather than after a full suite |
+| `tests` | The whole vitest suite against a migrated, seeded database |
+| `cache-disabled` | The same suite with `CACHE_DISABLED=true`, proving definition-of-done condition 9 |
+| `audit` | `pnpm audit --audit-level moderate`. Vulnerable transitive dependencies are pinned in `pnpm-workspace.yaml` with the advisory each pin resolves |
+
+**Outstanding, and named here rather than implied elsewhere:** contract tests against the OpenAPI specification, Playwright on the critical paths, an axe accessibility scan, and the cross-language conformance suite driving one entitlement scenario through both doors. None exists. The conformance suite in particular is blocked on the FastAPI service door itself (ADR-012).
 
 **A tenant-scoped table without an RLS policy fails the build.** That check is a script that reads the schema and the policy catalogue and compares them, and it runs before the tests.
 
+### Migrations and rollback
+
 Migrations are forward-only and backwards-compatible for one release. Data migrations run as scripts with progress and resumability.
+
+**There is no automated rollback, and that is a decision rather than an omission.** `db:migrate` runs `drizzle-kit migrate` and then applies the policy catalogue, as one command, so tables and their policies can never be applied separately. Drizzle emits no down-migrations, and a generated one would be a guess about intent — dropping a column to reverse an addition destroys whatever was written to it in the meantime.
+
+The recovery path is therefore forward: write a new migration that undoes the change, or restore from point-in-time recovery, which the production project has. Both are slower than a rollback command and neither can silently lose data. The one-release backwards-compatibility rule is what makes this workable: a deploy can always be reverted to the previous application version without touching the schema.
+
+### Scheduled work
+
+ADR-007 notes that the serverless model gives no long-running process, so anything scheduled is a cron hitting a route. In Phase 1 there is exactly one: `/api/cron/reconcile` at 02:00 daily, declared in `vercel.json`.
+
+It **reports and never repairs**, per `08 §3`. Repair is a CLI command requiring a named platform admin and a stated reason, and a scheduler can supply neither. The route authenticates with `CRON_SECRET` as a bearer token and answers 404 — not 401 — to anything else, including when the secret is unset: an unconfigured cron endpoint that answered would be an unauthenticated report on every workspace's usage.
 
 ---
 
