@@ -11,6 +11,8 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import { AppShell, type NavGroup } from '@/components/structure/AppShell';
+import { currentSessionOrNull } from '@/lib/auth/resolve';
+import { loadMe } from '@/modules/identity';
 
 /**
  * 02 §4 · 02 §8. The tenant application.
@@ -19,12 +21,21 @@ import { AppShell, type NavGroup } from '@/components/structure/AppShell';
  * not see Credentials. A disabled item that a person cannot use is an
  * invitation to ask why, and Brian is the support team.
  *
- * ⚠ The role and tenant below are placeholders until the identity module lands
- * at M2. They come from `/v1/me` (07 §3), which returns everything needed to
- * render this shell in one round trip, INCLUDING the `supportMode` object that
- * drives the boundary frame. That object is server-driven and never read from a
- * query parameter, because a frame that could be suppressed by editing a URL
- * would be worthless.
+ * ⚠ AS OF 27 Aug 2026 THE ROLE AND TENANT ARE REAL. M2 landed the identity
+ * module, so this shell reads `loadMe` — the one round trip 07 §3 specifies —
+ * and the role that filters the navigation is the one on the membership row
+ * rather than a constant.
+ *
+ * That matters more than it looks: an agent does not see Credentials because
+ * the SERVER did not send it, not because the client hid it. A filter applied
+ * after the fact is a filter that can be un-applied in a browser.
+ *
+ * `supportMode` likewise comes from the payload, and the payload reads it
+ * from the sessions table — never from a query parameter, because a frame
+ * that could be suppressed by editing a URL would be worthless.
+ *
+ * When there is no session — the review deployment's demo cookie — it falls
+ * back to the designed values, exactly as the read model does.
  */
 
 const navigation: NavGroup[] = [
@@ -92,10 +103,12 @@ const navigation: NavGroup[] = [
   },
 ];
 
-export default function TenantLayout({ children }: { children: React.ReactNode }) {
-  // TODO(M2): replace with `await getMe()` once the identity module lands.
-  const tenantName = 'Acme Industrial';
-  const role = 'owner';
+export default async function TenantLayout({ children }: { children: React.ReactNode }) {
+  const ctx = await currentSessionOrNull();
+  const me = ctx ? await loadMe(ctx) : null;
+
+  const tenantName = me?.tenant?.name ?? 'Acme Industrial';
+  const role = me?.membership?.role ?? 'owner';
 
   return (
     <AppShell
@@ -103,13 +116,18 @@ export default function TenantLayout({ children }: { children: React.ReactNode }
       titleBlock={{ label: 'Workspace', value: tenantName }}
       navigation={navigation}
       role={role}
-      // ⚠ supportMode IS EXPLICIT AND NULL, NOT OMITTED. This is the exact
-      // seam named in the doc comment above: `/v1/me` returns the real object
-      // at M2, and the boundary frame this shell renders reads only from it —
-      // never from anything client-side. Writing `null` here rather than
-      // leaving the prop out is the difference between "this is wired to a
-      // seam" and "this hasn't been thought about yet."
-      supportMode={null}
+      /*
+       * ⚠ THE FRAME IS ON WHEN SOMEONE IS LOOKING IN, NOT WHEN THE READER IS
+       *   THE ONE LOOKING.
+       *
+       * `loadMe` reads this from an open support session against THIS
+       * workspace, so the owner sees the boundary frame while the platform is
+       * inside — which is the only reader for whom it means anything. It is
+       * not `ctx.supportMode`, which is true only for the platform's own
+       * session and would therefore show the frame to everyone except the
+       * person it is meant to inform.
+       */
+      supportMode={me?.supportMode ?? null}
     >
       {children}
     </AppShell>

@@ -37,11 +37,14 @@ const resetSchema = z
     // 02 §9. Length over composition rules: a 12-character passphrase beats
     // `P@ssw0rd!` and is likelier to be remembered than written down.
     password: z.string().min(12, 'Use at least 12 characters.'),
-    confirmPassword: z.string(),
+    // The field name matches the built form. Aligning the schema to the page
+    // rather than the page to the schema: the name is arbitrary, and a rename
+    // in a route nobody is looking at is how a form silently stops validating.
+    passwordConfirm: z.string(),
   })
-  .refine((value) => value.password === value.confirmPassword, {
+  .refine((value) => value.password === value.passwordConfirm, {
     message: 'Both passwords must match.',
-    path: ['confirmPassword'],
+    path: ['passwordConfirm'],
   });
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

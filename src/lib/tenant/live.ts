@@ -1,0 +1,243 @@
+import 'server-only';
+import { and, desc, eq, isNull } from 'drizzle-orm';
+import { invitations, tenantMembers, userProfiles } from '@/db/schema';
+import { currentSessionOrNull } from '@/lib/auth/resolve';
+import { listActiveSessions } from '@/lib/auth/session';
+import { withTenantContext } from '@/lib/db';
+import { getEntitlementSnapshot } from '@/modules/entitlements';
+import type { AccountModel, AccountSessionsModel, TeamModel } from './data';
+
+/**
+ * The M2 half of the tenant read model, against the real database.
+ *
+ * ⚠ WHY THIS IS A SEPARATE FILE FROM `data.ts` RATHER THAN AN EDIT TO IT.
+ *
+ * `data.ts` is a fixture seam: every function there returns a designed shape
+ * so the interface could be built and reviewed before any table existed. Three
+ * of those shapes now have real tables behind them — team, account and
+ * sessions — and the other seven do not.
+ *
+ * Editing `data.ts` in place would leave one file where some functions read a
+ * database and some invent their answer, with nothing in a call site to say
+ * which. Keeping the live readers here means the boundary is visible in the
+ * import: a page reading from `./live` is reading the truth, and a page
+ * reading from `./data` is not yet.
+ *
+ * ⚠ EACH ONE FALLS BACK TO THE FIXTURE WHEN THERE IS NO SESSION.
+ *
+ * That is not a hedge against failure — it is what keeps the review
+ * deployment working. `/api/demo` hands out a cookie that names no real
+ * session, so `currentSessionOrNull` answers null and the designed data is
+ * shown instead. A signed-in person sees their own workspace; a reviewer
+ * clicking the demo button sees the fixtures. Neither ever sees the other's.
+ */
+
+/** Two letters for the avatar. "Grace Wanjiku" → GW, "Brian" → BR. */
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '??';
+  if (parts.length === 1) return (parts[0] ?? '').slice(0, 2).toUpperCase();
+  return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase();
+}
+
+function formatDate(value: Date | null): string {
+  if (!value) return '—';
+  return value.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+/**
+ * Relative time, and it stops at "days" on purpose. Beyond a week or so a
+ * reader wants the date, not "43 days ago" — which they would have to do
+ * arithmetic on to act.
+ */
+function relative(value: Date): string {
+  const deltaMs = Date.now() - value.getTime();
+  const minutes = Math.round(deltaMs / 60_000);
+  if (minutes < 1) return 'Active now';
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.round(hours / 24);
+  if (days <= 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+  return formatDate(value);
+}
+
+/**
+ * `/app/settings/team`, live.
+ *
+ * Seats counts active members PLUS pending invitations, per 08 §2 — the same
+ * rule the entitlement guard enforces on the way in, read here from the same
+ * counter rather than recomputed, so the number on the screen and the number
+ * that refuses an invitation cannot disagree.
+ */
+export async function getLiveTeam(): Promise<TeamModel | null> {
+  const ctx = await currentSessionOrNull();
+  if (!ctx) return null;
+
+  const snapshot = await getEntitlementSnapshot(ctx);
+  const seats = snapshot.byKey.seats;
+
+  return withTenantContext(ctx, async (tx) => {
+    const memberRows = await tx
+      .select({
+        id: tenantMembers.id,
+        userId: tenantMembers.userId,
+        role: tenantMembers.role,
+        status: tenantMembers.status,
+        joinedAt: tenantMembers.joinedAt,
+        fullName: userProfiles.fullName,
+        email: userProfiles.email,
+      })
+      .from(tenantMembers)
+      .leftJoin(userProfiles, eq(userProfiles.id, tenantMembers.userId))
+      .where(and(eq(tenantMembers.tenantId, ctx.tenantId), isNull(tenantMembers.deletedAt)))
+      .orderBy(tenantMembers.createdAt);
+
+    const invitationRows = await tx
+      .select({
+        id: invitations.id,
+        email: invitations.email,
+        role: invitations.role,
+        createdAt: invitations.createdAt,
+        expiresAt: invitations.expiresAt,
+      })
+      .from(invitations)
+      .where(
+        and(
+          eq(invitations.tenantId, ctx.tenantId),
+          isNull(invitations.acceptedAt),
+          isNull(invitations.revokedAt),
+        ),
+      )
+      .orderBy(desc(invitations.createdAt));
+
+    return {
+      members: memberRows.map((row) => ({
+        id: row.id,
+        name: row.fullName ?? 'Pending',
+        email: row.email ?? '',
+        role: row.role,
+        // 03 §14: "Active" carries no badge — absence is the signal — so the
+        // three states that DO earn one are the only ones mapped here.
+        status: row.status,
+        initials: initialsOf(row.fullName ?? '?'),
+        joinedAt: formatDate(row.joinedAt),
+      })),
+      invitations: invitationRows.map((row) => ({
+        id: row.id,
+        email: row.email,
+        role: row.role,
+        sentAt: relative(row.createdAt),
+        expiresAt: formatDate(row.expiresAt),
+        // Sheet 12: an expired invitation is a state with a remedy, not an
+        // error. It stays in the list so the owner can send a fresh one.
+        status: row.expiresAt.getTime() <= Date.now() ? ('expired' as const) : ('pending' as const),
+      })),
+      seatsUsed: seats?.current ?? memberRows.length + invitationRows.length,
+      seatsLimit: seats?.limit ?? null,
+    };
+  });
+}
+
+/** `/app/account`, live. */
+export async function getLiveAccount(): Promise<AccountModel | null> {
+  const ctx = await currentSessionOrNull();
+  if (!ctx) return null;
+
+  return withTenantContext(ctx, async (tx) => {
+    const [profile] = await tx
+      .select({
+        fullName: userProfiles.fullName,
+        email: userProfiles.email,
+        createdAt: userProfiles.createdAt,
+      })
+      .from(userProfiles)
+      .where(eq(userProfiles.id, ctx.actorId))
+      .limit(1);
+
+    const [membership] = await tx
+      .select({ role: tenantMembers.role, joinedAt: tenantMembers.joinedAt })
+      .from(tenantMembers)
+      .where(
+        and(eq(tenantMembers.userId, ctx.actorId), eq(tenantMembers.tenantId, ctx.tenantId)),
+      )
+      .limit(1);
+
+    const name = profile?.fullName ?? ctx.actorLabel;
+
+    return {
+      profile: {
+        name,
+        email: profile?.email ?? '',
+        role: membership?.role ?? 'agent',
+        initials: initialsOf(name),
+        // Tenure in THIS workspace, not account age. "Member since" on a
+        // team page answers "how long have they been here", and the two
+        // differ for anyone who joined a second workspace later.
+        memberSince: formatDate(membership?.joinedAt ?? profile?.createdAt ?? null),
+        // The resolver refuses an unverified account before this runs, so
+        // reaching this line at all means it is verified.
+        emailVerified: true,
+      },
+    };
+  });
+}
+
+/**
+ * `/app/account/sessions`, live.
+ *
+ * ⚠ THE CURRENT SESSION IS MARKED, NOT HIDDEN. Design sheet 09. A person
+ * knows they are signed in on this device, so its absence from the list
+ * reads as a bug rather than as tact.
+ */
+export async function getLiveAccountSessions(): Promise<AccountSessionsModel | null> {
+  const ctx = await currentSessionOrNull();
+  if (!ctx) return null;
+
+  const rows = await listActiveSessions(ctx.actorId, ctx.requestId);
+
+  return {
+    sessions: rows.map((row) => ({
+      id: row.id,
+      device: describeAgent(row.userAgent),
+      // No geolocation service is wired, and inventing "Nairobi, Kenya" from
+      // an address would be a fabrication on a security screen — the one
+      // place a wrong detail could talk someone out of revoking a session
+      // that is not theirs. The address itself is a fact.
+      location: row.ipAddress ?? 'Unknown location',
+      lastActive: relative(row.lastActivityAt),
+      current: row.id === ctx.sessionId,
+    })),
+  };
+}
+
+/**
+ * A user agent string, reduced to the two facts a person needs to recognise
+ * their own device: the browser and the platform.
+ *
+ * Deliberately crude. Full user-agent parsing is a dependency with a data
+ * file that goes stale, and the cost of being wrong here is low — "Unknown
+ * browser" next to a last-seen time and an address is still enough to decide
+ * whether a session is yours.
+ */
+function describeAgent(userAgent: string | null): string {
+  if (!userAgent) return 'Unknown device';
+
+  const browser =
+    /Edg\//.test(userAgent) ? 'Edge'
+    : /OPR\//.test(userAgent) ? 'Opera'
+    : /Chrome\//.test(userAgent) ? 'Chrome'
+    : /Safari\//.test(userAgent) ? 'Safari'
+    : /Firefox\//.test(userAgent) ? 'Firefox'
+    : 'Unknown browser';
+
+  const platform =
+    /Windows/.test(userAgent) ? 'Windows'
+    : /Android/.test(userAgent) ? 'Android'
+    : /iPhone|iPad/.test(userAgent) ? 'iOS'
+    : /Mac OS X/.test(userAgent) ? 'macOS'
+    : /Linux/.test(userAgent) ? 'Linux'
+    : null;
+
+  return platform ? `${browser} on ${platform}` : browser;
+}

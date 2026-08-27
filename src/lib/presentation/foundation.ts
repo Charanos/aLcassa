@@ -141,6 +141,34 @@ export const FOUNDATION: FoundationItem[] = [
     evidence: 'src/modules/membership/',
     milestone: 'M2',
   },
+  {
+    area: 'Isolation',
+    what: 'The account lifecycle covered by 12 further cases: invitation, acceptance, replay, expiry, roles and session theft',
+    state: 'built',
+    evidence: 'tests/isolation/account-lifecycle.test.ts',
+    milestone: 'M2',
+  },
+  {
+    area: 'Isolation',
+    what: 'Invitation acceptance through two narrow security-definer functions, so the table stays closed to everyone without a token',
+    state: 'built',
+    evidence: 'src/db/policies/02_identity.sql',
+    milestone: 'M2',
+  },
+  {
+    area: 'Console',
+    what: 'The workspace shell reads the signed-in member: navigation is filtered by the server, not hidden by the client',
+    state: 'built',
+    evidence: 'src/app/(tenant)/app/layout.tsx',
+    milestone: 'M2',
+  },
+  {
+    area: 'Console',
+    what: 'Team, account and session screens reading live data, with the designed fixtures still behind the review bypass',
+    state: 'built',
+    evidence: 'src/lib/tenant/live.ts',
+    milestone: 'M2',
+  },
 
   // ── System plumbing ─────────────────────────────────────────────────────
   {

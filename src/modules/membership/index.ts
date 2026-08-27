@@ -15,7 +15,19 @@ export {
   changeMemberRole,
   removeMember,
   transferOwnership,
-  acceptInvitation,
 } from './service';
+
+/**
+ * The two operations that run before the acceptor has a membership, and
+ * therefore before any tenant context exists. They go through narrow
+ * SECURITY DEFINER functions rather than Drizzle queries — see the file for
+ * why that is the only correct option of the three available.
+ */
+export {
+  readInvitationByToken,
+  acceptInvitationByToken,
+  hashInvitationToken,
+} from './invitationAccess';
+export type { InvitationPreview } from './invitationAccess';
 
 export type { InviteInput, InviteResult } from './service';

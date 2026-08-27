@@ -8,6 +8,13 @@
       "when": 1787606422300,
       "tag": "0000_volatile_bloodstrike",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787847161293,
+      "tag": "0001_same_tyrannus",
+      "breakpoints": true
     }
   ]
 }

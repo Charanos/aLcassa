@@ -1,5 +1,17 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
+import { currentSession } from '@/lib/auth/resolve';
+import { revokeSession as revokeSessionService } from '@/lib/auth/session';
+import { isAppError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import {
+  inviteMember,
+  removeMember as removeMemberService,
+  revokeInvitation as revokeInvitationService,
+} from '@/modules/membership';
+import { updateOwnProfile } from '@/modules/identity';
+
 /**
  * Tenant application server actions.
  *
@@ -14,12 +26,48 @@
  * with a reason naming exactly which table or module is still pending,
  * rather than silently succeeding against nothing.
  *
- * When the tenant mutation layer lands, each of these becomes a real write —
- * the validation, the shape and the call sites in the pages below do not
- * change.
+ * ⚠ AS OF 27 Aug 2026 THAT IS NO LONGER TRUE OF ALL OF THEM, AND THE SPLIT
+ *   IS THE POINT OF THIS NOTE.
+ *
+ * M2 landed the membership and session modules, so the five actions that
+ * belong to the account lifecycle — invite, revoke invitation, remove member,
+ * update profile, revoke session — now WRITE. They call the same services the
+ * `/api/v1` routes call, through the same `withTenantContext`, under the same
+ * policies, audited identically. Nothing about them is a shortcut taken
+ * because they are Server Actions rather than routes.
+ *
+ * The remaining four still refuse by name: company settings, both credential
+ * actions and rule publishing wait on M4a and M5. The prediction above held —
+ * their validation, shape and call sites did not change when the write
+ * arrived, only the last line of each function did.
  */
 
 type ActionResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Every real action below goes through here.
+ *
+ * ⚠ IT TURNS AN AppError INTO A SENTENCE AND EVERYTHING ELSE INTO A SHRUG.
+ *
+ * A Server Action's rejection is shown to a person, so an unrecognised
+ * failure must not put a stack trace or a Postgres constraint name in front
+ * of them. An `AppError` carries a message written for a reader, so that one
+ * is shown. Anything else is logged and reported generically: if we did not
+ * anticipate it, we cannot describe it honestly.
+ */
+async function attempt(operation: () => Promise<void>): Promise<ActionResult> {
+  try {
+    await operation();
+    return { ok: true };
+  } catch (error) {
+    if (isAppError(error)) return { ok: false, error: error.message };
+    logger.error('server action failed', { error });
+    return {
+      ok: false,
+      error: 'That did not go through. Try again, and get in touch if it keeps happening.',
+    };
+  }
+}
 
 // eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function updateCompany(input: {
@@ -37,27 +85,40 @@ export async function updateCompany(input: {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function sendInvitation(input: { email: string; role: string }): Promise<ActionResult> {
   if (!/.+@.+\..+/.test(input.email)) return { ok: false, error: 'Enter a valid email address.' };
-  if (!['owner', 'admin', 'agent'].includes(input.role)) return { ok: false, error: 'Select a role.' };
+  // 06 §5. `owner` is absent deliberately: a workspace has exactly one, and
+  // handing it over is a transfer rather than an invitation.
+  if (!['admin', 'agent'].includes(input.role)) return { ok: false, error: 'Select a role.' };
 
-  return {
-    ok: false,
-    error: 'Invitations write to the invitations table and send a real email, neither of which exists yet. The request itself is valid — nothing else is blocking it.',
-  };
+  return attempt(async () => {
+    const ctx = await currentSession();
+    await inviteMember(ctx, { email: input.email, role: input.role as 'admin' | 'agent' });
+    revalidatePath('/app/settings/team');
+  });
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function revokeInvitation(id: string): Promise<ActionResult> {
   if (!id) return { ok: false, error: 'Select an invitation to revoke.' };
-  return { ok: false, error: 'Revoking an invitation is not wired until the invitations table lands.' };
+
+  return attempt(async () => {
+    const ctx = await currentSession();
+    await revokeInvitationService(ctx, id);
+    revalidatePath('/app/settings/team');
+  });
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function removeMember(id: string): Promise<ActionResult> {
   if (!id) return { ok: false, error: 'Select a member to remove.' };
-  return { ok: false, error: 'Removing a member is not wired until the memberships mutation module lands.' };
+
+  return attempt(async () => {
+    const ctx = await currentSession();
+    // The owner check and the "an admin may only remove agents" rule both
+    // live in the service, next to each other, rather than being restated
+    // here where they could drift from the route's copy.
+    await removeMemberService(ctx, id);
+    revalidatePath('/app/settings/team');
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
@@ -89,14 +150,25 @@ export async function publishAiRules(input: { changeNote: string }): Promise<Act
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function updateProfile(input: { name: string }): Promise<ActionResult> {
   if (!input.name.trim()) return { ok: false, error: 'Name cannot be empty.' };
-  return { ok: false, error: 'Profile updates are not wired until the identity module lands at M2.' };
+
+  return attempt(async () => {
+    const ctx = await currentSession();
+    await updateOwnProfile(ctx, input.name.trim());
+    revalidatePath('/app/account');
+  });
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function revokeSession(id: string): Promise<ActionResult> {
   if (!id) return { ok: false, error: 'Select a session to revoke.' };
-  return { ok: false, error: 'Session revocation is not wired until the session-store module lands.' };
+
+  return attempt(async () => {
+    const ctx = await currentSession();
+    // Through the service rather than by id alone: it scopes the update to
+    // this actor, so a crafted id belonging to someone else updates nothing
+    // instead of ending their session.
+    await revokeSessionService(id, ctx.actorId, ctx.requestId, 'revoked by the account holder');
+    revalidatePath('/app/account/sessions');
+  });
 }

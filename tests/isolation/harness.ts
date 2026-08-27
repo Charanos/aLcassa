@@ -179,6 +179,25 @@ export async function adminCount(table: string): Promise<number> {
   return Number(rows[0]?.count ?? 0);
 }
 
+/**
+ * ⚠ CLEANUP MUST BYPASS RLS, AND FORGETTING THAT MAKES IT SILENTLY USELESS.
+ *
+ * A test that tidies up with the RLS-bound `sql` connection and no context
+ * set deletes NOTHING: every policy compares against a null tenant, the
+ * DELETE matches no rows, and it reports success because zero rows deleted is
+ * not an error. The fixtures then accumulate across runs and start failing
+ * OTHER suites — which is how eight cases in the generated suite began
+ * reporting wrong row counts after this file's own cases all passed.
+ *
+ * So teardown goes through the admin connection, deliberately and only here.
+ */
+export async function cleanup(
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+): Promise<void> {
+  await adminSql(strings as unknown as never, ...(values as never[]));
+}
+
 export async function closeHarness(): Promise<void> {
   await Promise.all([sql.end(), adminSql.end()]);
 }

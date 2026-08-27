@@ -93,12 +93,26 @@ export function AdminProfileCard({
             <span className="t-compact text-[var(--ink-primary)]">Console settings</span>
           </button>
           <div className="my-1 border-t" style={{ borderColor: 'var(--rule-base)' }} />
-          <button role="menuitem" className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100 hover:bg-[var(--surface-hover)]">
-            <IconLogout size={16} stroke={1.75} style={{ color: 'var(--oxide-solid)' }} />
-            <span className="t-compact" style={{ color: 'var(--oxide-solid)' }}>
-              Sign out
-            </span>
-          </button>
+          {/*
+            ⚠ A FORM POST, AND IT USED TO BE A BUTTON WITH NO HANDLER — so
+            this control did nothing at all. Signing out changes state, so it
+            is a POST rather than a link or an onClick: the cookies are
+            `sameSite: 'lax'`, which does not travel on a cross-site POST, so
+            another site cannot forge the request. It also means leaving does
+            not depend on JavaScript having loaded.
+          */}
+          <form method="post" action="/api/v1/auth/sign-out" className="contents">
+            <button
+              type="submit"
+              role="menuitem"
+              className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100 hover:bg-[var(--surface-hover)]"
+            >
+              <IconLogout size={16} stroke={1.75} style={{ color: 'var(--oxide-solid)' }} />
+              <span className="t-compact" style={{ color: 'var(--oxide-solid)' }}>
+                Sign out
+              </span>
+            </button>
+          </form>
         </div>
       )}
     </div>

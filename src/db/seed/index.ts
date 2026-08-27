@@ -39,9 +39,9 @@ const TENANTS = [
 ] as const;
 
 const USERS = [
-  { id: SEED_USER_A, tenant: SEED_TENANT_A, name: 'Grace Wanjiku', role: 'owner' },
-  { id: SEED_USER_B, tenant: SEED_TENANT_B, name: 'Peter Otieno', role: 'owner' },
-  { id: SEED_USER_C, tenant: SEED_TENANT_C, name: 'Fatuma Ali', role: 'owner' },
+  { id: SEED_USER_A, tenant: SEED_TENANT_A, name: 'Grace Wanjiku', email: 'grace@acme-industrial.example', role: 'owner' },
+  { id: SEED_USER_B, tenant: SEED_TENANT_B, name: 'Peter Otieno', email: 'peter@northwind.example', role: 'owner' },
+  { id: SEED_USER_C, tenant: SEED_TENANT_C, name: 'Fatuma Ali', email: 'fatuma@tamarind.example', role: 'owner' },
 ] as const;
 
 async function main(): Promise<void> {
@@ -100,8 +100,10 @@ async function main(): Promise<void> {
     //    the limit-reached path has something to fire against. ──────────────
     for (const user of USERS) {
       await tx`
-        insert into user_profiles (id, full_name) values (${user.id}, ${user.name})
-        on conflict (id) do update set full_name = excluded.full_name
+        insert into user_profiles (id, full_name, email)
+        values (${user.id}, ${user.name}, ${user.email})
+        on conflict (id) do update
+          set full_name = excluded.full_name, email = excluded.email
       `;
       await tx`
         insert into tenant_members (tenant_id, user_id, role, status, joined_at)
@@ -117,8 +119,10 @@ async function main(): Promise<void> {
 
     // ── Platform admin. Brian. ────────────────────────────────────────────
     await tx`
-      insert into user_profiles (id, full_name) values (${SEED_PLATFORM_ADMIN}, 'Brian')
-      on conflict (id) do nothing
+      insert into user_profiles (id, full_name, email)
+      values (${SEED_PLATFORM_ADMIN}, 'Brian', 'brian@alcassa.example')
+      on conflict (id) do update
+        set full_name = excluded.full_name, email = excluded.email
     `;
     await tx`
       insert into platform_admins (user_id, display_name)

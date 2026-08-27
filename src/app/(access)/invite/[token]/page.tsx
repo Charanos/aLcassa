@@ -4,6 +4,7 @@ import { IconBuilding } from '@tabler/icons-react';
 import { AuthShell, TenantAside } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field, PasswordField } from '@/components/primitives/Field';
+import { readInvitationByToken } from '@/modules/membership';
 
 export const metadata: Metadata = {
   title: 'Accept your invitation',
@@ -18,11 +19,32 @@ export default async function InvitePage({
   searchParams: Promise<{ state?: 'expired' | 'accepted' | 'revoked' }>;
 }) {
   const { token } = await params;
-  const { state } = await searchParams;
+  const { state: stateParam } = await searchParams;
 
-  const company = 'Acme Industrial';
-  const inviter = 'Grace Wanjiku';
-  const role = 'agent';
+  /**
+   * ⚠ THE INVITATION IS READ HERE, NOT TRUSTED FROM `?state=`.
+   *
+   * The three refusal screens below used to be driven entirely by a query
+   * parameter, which is fine for reviewing a design and wrong the moment the
+   * page is real: anyone could append `?state=accepted` to a live invitation
+   * and be told it was already used, and — worse — a genuinely expired
+   * invitation with no parameter would render the accept form as though it
+   * still worked.
+   *
+   * `readInvitation` looks the token up by hash and returns the workspace,
+   * the role and the true state. The parameter is still honoured when the
+   * lookup finds nothing, so the designed screens remain reachable for review.
+   */
+  const invitation = await readInvitationByToken(token, crypto.randomUUID());
+
+  // 'pending' is a state the refusal screens must NOT render, so it collapses
+  // to undefined and the accept form shows instead.
+  const state =
+    invitation && invitation.state !== 'pending' ? invitation.state : (invitation ? undefined : stateParam);
+
+  const company = invitation?.tenantName ?? 'Acme Industrial';
+  const inviter = invitation?.invitedByName ?? 'Grace Wanjiku';
+  const role = invitation?.invitedRole ?? 'agent';
 
   if (state) {
     const copy = {

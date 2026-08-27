@@ -364,64 +364,19 @@ export async function transferOwnership(
 }
 
 /**
- * 07 §5 · `POST /v1/invitations/accept/:token`. Public.
+ * ⚠ `acceptInvitation` USED TO LIVE HERE AND IT COULD NEVER HAVE WORKED.
  *
- * ⚠ THE TOKEN IS LOOKED UP BY HASH, AND THE TENANT COMES FROM THE ROW.
+ * It wrote to `invitations` and `tenant_members` through Drizzle under a
+ * context with no tenant — which is the only context available before the
+ * membership it creates exists. Every policy on both tables compares against
+ * a null tenant, so the writes matched nothing and the acceptance silently
+ * did nothing at all. The isolation probe caught it; a user would have
+ * reported "the link says it worked and I am not in the workspace".
  *
- * Never from the request. This is the same rule the channel adapter guide
- * states for webhooks (document 16 §6) and for the same reason: anything the
- * caller sends is attacker-controlled, and a tenant id taken from a body is
- * an invitation to join a workspace nobody invited you to.
+ * It now lives in `./invitationAccess.ts`, over the SECURITY DEFINER
+ * functions in `02_identity.sql` — which is what that file's comment said
+ * the design was from the beginning.
  */
-export async function acceptInvitation(
-  token: string,
-  userId: string,
-  requestId: string,
-  tx: Transaction,
-): Promise<{ tenantId: string; role: MemberRole }> {
-  const [invitation] = await tx
-    .select()
-    .from(invitations)
-    .where(eq(invitations.tokenHash, hashToken(token)))
-    .limit(1);
-
-  if (!invitation) {
-    // Deliberately the same shape as an expired one from the caller's point
-    // of view: a distinct "no such token" confirms which tokens are real.
-    throw new AppError(ERROR_CODES.NOT_FOUND, {
-      message: 'This invitation link is not valid. Ask for a new one.',
-      internal: { requestId },
-    });
-  }
-  if (invitation.revokedAt) throw new AppError(ERROR_CODES.INVITATION_REVOKED);
-  if (invitation.acceptedAt) throw new AppError(ERROR_CODES.INVITATION_ALREADY_ACCEPTED);
-  if (invitation.expiresAt.getTime() <= Date.now()) {
-    throw new AppError(ERROR_CODES.INVITATION_EXPIRED);
-  }
-
-  // Single use, and marked BEFORE the membership is created. If the insert
-  // below fails the whole transaction rolls back, so the ordering costs
-  // nothing; if it ever stopped being one transaction, this ordering is the
-  // one that fails closed.
-  await tx
-    .update(invitations)
-    .set({ acceptedAt: new Date() })
-    .where(eq(invitations.id, invitation.id));
-
-  await tx
-    .insert(tenantMembers)
-    .values({
-      tenantId: invitation.tenantId,
-      userId,
-      role: invitation.role,
-      status: 'active',
-      invitedBy: invitation.invitedBy,
-      joinedAt: new Date(),
-    })
-    .onConflictDoNothing();
-
-  return { tenantId: invitation.tenantId, role: invitation.role };
-}
 
 async function loadMember(
   tx: Transaction,

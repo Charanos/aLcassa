@@ -1,5 +1,6 @@
 import 'server-only';
 import { and, eq, isNull } from 'drizzle-orm';
+import { headers } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import { platformAdmins, tenantMembers, tenants, userProfiles } from '@/db/schema';
 import { withActorContext } from '@/lib/db';
@@ -36,10 +37,54 @@ function ipOf(request: NextRequest): string | null {
 }
 
 /**
- * The session door. `/api/v1/*`, and every tenant-facing page.
+ * ⚠ TWO ENTRY POINTS, ONE RESOLUTION. THE DUPLICATE WOULD HAVE BEEN THE BUG.
+ *
+ * A route handler is given a `NextRequest`. A Server Component and a Server
+ * Action are not — they read the same cookies through `next/headers`
+ * instead. That difference is purely about how the request is reachable, and
+ * it must not become two implementations of who the caller is: the moment
+ * they can disagree, one of them is a way to be somebody you are not.
+ *
+ * So `resolveSessionDoor` (routes) and `currentSession` (pages and actions)
+ * are both thin wrappers over the same body below. The ONLY thing that
+ * differs is where the caller's IP address is read from.
+ */
+export async function currentSession(requestId?: string): Promise<ResolvedContext> {
+  const id = requestId ?? crypto.randomUUID();
+  const headerList = await headers();
+  return resolveSessionCore(
+    headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+    id,
+  );
+}
+
+/**
+ * The same, but answering null instead of throwing.
+ *
+ * A page that renders differently for a signed-out reader wants a value, not
+ * an exception — and catching `AppError` at every call site to decide that
+ * is how one of them ends up catching too much.
+ */
+export async function currentSessionOrNull(): Promise<ResolvedContext | null> {
+  try {
+    return await currentSession();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The session door. `/api/v1/*`.
  */
 export async function resolveSessionDoor(
   request: NextRequest,
+  requestId: string,
+): Promise<ResolvedContext> {
+  return resolveSessionCore(ipOf(request), requestId);
+}
+
+async function resolveSessionCore(
+  ipAddress: string | null,
   requestId: string,
 ): Promise<ResolvedContext> {
   const supabase = await createSupabaseServerClient();
@@ -141,7 +186,7 @@ export async function resolveSessionDoor(
     actorType: 'user',
     supportMode: session.kind === 'support',
     requestId,
-    ipAddress: ipOf(request),
+    ipAddress,
     sessionId: session.id,
   });
 }
@@ -156,8 +201,34 @@ export async function resolveSessionDoor(
  * so `tenantId` is empty and every tenant-scoped policy matches nothing —
  * which is the correct default for the most privileged actor in the system.
  */
+export async function currentPlatformSession(requestId?: string): Promise<ResolvedContext> {
+  const id = requestId ?? crypto.randomUUID();
+  const headerList = await headers();
+  return resolvePlatformCore(
+    headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+    id,
+  );
+}
+
+/** Null rather than throwing, for a console page that renders a sign-in
+ *  prompt instead of an error. Same reasoning as `currentSessionOrNull`. */
+export async function currentPlatformSessionOrNull(): Promise<ResolvedContext | null> {
+  try {
+    return await currentPlatformSession();
+  } catch {
+    return null;
+  }
+}
+
 export async function resolvePlatformDoor(
   request: NextRequest,
+  requestId: string,
+): Promise<ResolvedContext> {
+  return resolvePlatformCore(ipOf(request), requestId);
+}
+
+async function resolvePlatformCore(
+  ipAddress: string | null,
   requestId: string,
 ): Promise<ResolvedContext> {
   const supabase = await createSupabaseServerClient();
@@ -211,7 +282,7 @@ export async function resolvePlatformDoor(
     actorType: 'platform_admin',
     supportMode: false,
     requestId,
-    ipAddress: ipOf(request),
+    ipAddress,
     sessionId: session.id,
   });
 }

@@ -1345,3 +1345,81 @@ memberships and several assertions were weaker than they appeared. Reseeded.
 including an explicit correction of the "152 of 152" figure quoted on
 25 August. Isolation was never breached; the evidence offered for it was
 thinner than it was presented as being.
+
+---
+
+## C31 · Invitation acceptance runs through security-definer functions
+
+**27 Aug 2026. Defect, found by the M2 lifecycle probe.**
+
+`acceptInvitation` wrote to `invitations` and `tenant_members` through Drizzle
+under `withActorContext` — a context with no tenant, which is the only context
+available before the membership it creates exists. Every policy on both tables
+compares against `app.current_tenant_id()`, which was null, so **both writes
+matched zero rows and were silently discarded**. The route returned 200, set a
+session cookie, and redirected the new member into a workspace they had not
+joined.
+
+Nothing static could catch it: the query was valid, the types were right, and
+zero rows updated is not an error in Postgres.
+
+`02_identity.sql` had described the correct design all along — "a
+security-definer function that looks the invitation up by token hash, which is
+why there is no public select policy here". That is now built:
+`app.invitation_by_token(text)` and `app.accept_invitation(text, uuid, text,
+text)`, both `SECURITY DEFINER` with `search_path` pinned. Acceptance is one
+statement, so marking the token used and creating the membership cannot come
+apart.
+
+The service role was considered and rejected: `serviceClient.ts` lists four
+permitted operations and states that it may **never** read a tenant's members.
+
+---
+
+## C32 · `sessions_modify` gains a tenant constraint in its with-check
+
+**27 Aug 2026. Security defect, exposed by fixing C30.**
+
+The clause read:
+
+```sql
+with check (user_id = app.current_actor_id() or kind = 'support')
+```
+
+No constraint on `tenant_id`. A signed-in user could `UPDATE` their own session
+row and set `tenant_id` to **any workspace on the platform**, including one
+they hold no membership in.
+
+**Why it went unnoticed.** Isolation case 6 — "moving one of tenant A's own
+rows into tenant B is rejected" — exists to catch precisely this. It had been
+passing for the wrong reason: while the policies called `auth.uid()` (C30),
+nothing on this table was writable by anyone, so the case could not fail.
+Repairing C30 made the gap visible on the next run, and left one migrated row
+— user A's session pinned to tenant B — as physical evidence.
+
+**Blast radius: limited, not nil.** `resolveSessionCore` reads the tenant from
+the session and then requires a membership in it, so a moved session resolved
+to `auth.no_membership` rather than to another tenant's data. Defence in depth
+held. That is not a reason to leave it: the point of a with-check clause is
+that it holds whether or not the application above it is careful.
+
+**Resolution.** A session may now be pinned only to a workspace its owner
+belongs to, verified by an `exists` against `tenant_members`. The
+`tenant_id is null` branch is what keeps platform sessions, which are scoped to
+no tenant, legal.
+
+---
+
+## C33 · Test teardown must bypass RLS
+
+**27 Aug 2026. Process defect.**
+
+`account-lifecycle.test.ts` cleaned up through the RLS-bound connection with no
+context set. Every `delete` matched zero rows and reported success, so its
+fixtures accumulated across runs and began breaking eight cases in the
+generated suite, which counts rows in `sessions` and `user_profiles`.
+
+The harness now exposes `cleanup`, which goes through the admin connection and
+says why in its own comment. This is the same failure shape as the original
+harness defect where ground-truth reads shared the RLS-bound connection: an
+operation that silently does nothing is worse than one that fails.

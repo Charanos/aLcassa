@@ -819,9 +819,17 @@ export function ConsoleShell({
                 <MenuLink href="/platform/settings" icon={IconSettings}>
                   Settings
                 </MenuLink>
-                <MenuLink href="/platform/sign-in" icon={IconLogout} danger>
-                  Sign out
-                </MenuLink>
+                {/*
+                  ⚠ A FORM, NOT A LINK, AND THE DIFFERENCE IS NOT COSMETIC.
+
+                  This was `<MenuLink href="/platform/sign-in">`, which
+                  navigated to the sign-in screen and changed nothing else:
+                  the session row stayed live and the cookie stayed set, so
+                  going back to /platform admitted the same person straight
+                  in. On a shared machine that is the entire risk — they
+                  believe they have left, and they have not.
+                */}
+                <MenuSignOut />
               </Dropdown>
             ) : null}
           </div>
@@ -1429,6 +1437,31 @@ function Dropdown({ children, className = '' }: { children: React.ReactNode; cla
     >
       {children}
     </div>
+  );
+}
+
+/**
+ * The one control in this menu that changes state rather than navigating.
+ *
+ * It is styled to match `MenuLink`'s danger variant so the menu reads as one
+ * list, but it is a submit button inside a POST form. See the note at its
+ * call site for why that distinction is load-bearing.
+ */
+function MenuSignOut() {
+  return (
+    <form method="post" action="/api/v1/auth/sign-out" className="contents">
+      <button
+        type="submit"
+        className="flex h-[34px] w-full items-center gap-3 rounded-panel px-2.5 transition-colors hover:bg-[var(--surface-inset)]"
+        style={{
+          color: 'var(--danger-fg)',
+          font: '400 var(--text-sm)/1 var(--font-ui)',
+        }}
+      >
+        <IconLogout size={16} stroke={1.5} />
+        <span>Sign out</span>
+      </button>
+    </form>
   );
 }
 

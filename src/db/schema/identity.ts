@@ -24,6 +24,24 @@ import { tenantRef } from './tenancy';
 export const userProfiles = pgTable('user_profiles', {
   id: uuid('id').primaryKey(), // matches auth.users.id
   fullName: text('full_name').notNull(),
+  /**
+   * ⚠ A DELIBERATE DUPLICATE OF auth.users.email, AND THE PROJECTION IS THE
+   *   REASON THIS TABLE EXISTS.
+   *
+   * The address of record lives in Supabase's `auth.users`, which is
+   * reachable only through the admin client — and that client is lint-guarded
+   * to `src/modules/platform` precisely because it bypasses Row Level
+   * Security. So a tenant rendering its own team list could not show who
+   * anybody is without either widening that guard or reading every member's
+   * identity through an RLS-bypassing path on an ordinary page load. Both are
+   * worse than a copied column.
+   *
+   * It is NOT the source of truth and nothing authenticates against it. It is
+   * written when a profile is created and left alone otherwise; if the two
+   * ever disagree, `auth.users` is right. Nullable because a profile can
+   * exist before its address is known, and because a lie is worse than a gap.
+   */
+  email: text('email'),
   avatarPath: text('avatar_path'),
   lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
   ...timestamps,

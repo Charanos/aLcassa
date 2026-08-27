@@ -1,33 +1,44 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { eq } from 'drizzle-orm';
-import { createHash } from 'node:crypto';
-import { invitations, tenants } from '@/db/schema';
+import { z } from 'zod';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
-import { withActorContext, withoutTenantContext } from '@/lib/db';
 import { AppError, ERROR_CODES } from '@/lib/errors';
+import { readRequestBody, wantsJson } from '@/lib/http/body';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
-import { acceptInvitation } from '@/modules/membership';
+import { acceptInvitationByToken, readInvitationByToken } from '@/modules/membership';
 
 /**
  * 07 §5 · `GET` and `POST /v1/invitations/accept/:token`. Both public.
  *
  * ⚠ PUBLIC, AND THEREFORE THE MOST CAREFULLY SCOPED ROUTE IN THE APPLICATION.
  *
- * There is no session here — the whole point is that the recipient may not
- * have an account yet — so `withoutTenantContext` is used, which sets an
- * EMPTY tenant rather than none at all. Every tenant-scoped policy then
- * compares against a null tenant and matches nothing. The invitation row is
- * reachable only because its own policy admits a lookup by token hash, and
- * the tenant it names is read FROM THAT ROW.
+ * There is no session here — the point is that the recipient may not have an
+ * account yet — and therefore no tenant context, so every policy on
+ * `invitations` and `tenant_members` matches nothing. Both operations below
+ * go through the narrow SECURITY DEFINER functions in `02_identity.sql`,
+ * keyed by the token hash. See `modules/membership/invitationAccess.ts` for
+ * why that is the only correct option of the three available.
  *
  * The token never appears in a log line. It is a bearer credential for the
  * seven days it lives, so a log that records it is a log that grants access.
  */
 
-function hashToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
+/** The create branch's body. There is deliberately NO `email` field — the
+ *  address comes from the invitation row, and accepting one from the caller
+ *  would be the vulnerability. */
+const signUpSchema = z.object({
+  fullName: z.string().trim().min(1, 'Enter your name.').max(120),
+  // 02 §9. Length over composition rules, matching the reset flow.
+  password: z.string().min(12, 'Use at least 12 characters.'),
+});
+
+/** The four non-pending states, mapped onto the catalogue in one place so the
+ *  preview and the acceptance refuse identically. */
+function refuseIfNotPending(state: string): void {
+  if (state === 'revoked') throw new AppError(ERROR_CODES.INVITATION_REVOKED);
+  if (state === 'accepted') throw new AppError(ERROR_CODES.INVITATION_ALREADY_ACCEPTED);
+  if (state === 'expired') throw new AppError(ERROR_CODES.INVITATION_EXPIRED);
 }
 
 /**
@@ -35,8 +46,7 @@ function hashToken(token: string): string {
  *
  * It answers before any account exists, so the recipient can see WHAT they
  * are being asked to join before deciding to sign up for it. An accept screen
- * that says only "you have been invited" asks a person to take an action on
- * no information.
+ * saying only "you have been invited" asks a person to act on no information.
  */
 export async function GET(
   request: NextRequest,
@@ -46,45 +56,25 @@ export async function GET(
 
   try {
     const { token } = await segment.params;
+    const invitation = await readInvitationByToken(token, requestId);
 
-    const preview = await withoutTenantContext(requestId, async (tx) => {
-      const [row] = await tx
-        .select({
-          email: invitations.email,
-          role: invitations.role,
-          expiresAt: invitations.expiresAt,
-          acceptedAt: invitations.acceptedAt,
-          revokedAt: invitations.revokedAt,
-          tenantName: tenants.name,
-          tenantSlug: tenants.slug,
-        })
-        .from(invitations)
-        .innerJoin(tenants, eq(tenants.id, invitations.tenantId))
-        .where(eq(invitations.tokenHash, hashToken(token)))
-        .limit(1);
-      return row ?? null;
-    });
-
-    if (!preview) {
+    if (!invitation) {
       throw new AppError(ERROR_CODES.NOT_FOUND, {
         message: 'This invitation link is not valid. Ask whoever invited you for a new one.',
       });
     }
-    if (preview.revokedAt) throw new AppError(ERROR_CODES.INVITATION_REVOKED);
-    if (preview.acceptedAt) throw new AppError(ERROR_CODES.INVITATION_ALREADY_ACCEPTED);
-    if (preview.expiresAt.getTime() <= Date.now()) {
-      throw new AppError(ERROR_CODES.INVITATION_EXPIRED);
-    }
+    refuseIfNotPending(invitation.state);
 
     return jsonOk(
       {
-        // The address is echoed so the sign-up form can prefill it and the
-        // recipient can see which of their addresses was invited. It is not
-        // a disclosure: they are holding the token that was sent to it.
-        email: preview.email,
-        role: preview.role,
-        tenant: { name: preview.tenantName, slug: preview.tenantSlug },
-        expiresAt: preview.expiresAt.toISOString(),
+        // Echoed so the form can prefill it and the recipient can see which
+        // of their addresses was invited. Not a disclosure: they are holding
+        // the token that was sent to it.
+        email: invitation.invitedEmail,
+        role: invitation.invitedRole,
+        tenant: { name: invitation.tenantName },
+        invitedBy: invitation.invitedByName,
+        expiresAt: invitation.expiresAt.toISOString(),
       },
       { requestId },
     );
@@ -94,24 +84,30 @@ export async function GET(
 }
 
 /**
- * `POST` — "creates or attaches the user."
+ * `POST` — "creates or attaches the user." BOTH, and the branch is decided by
+ * whether the caller already has a session.
  *
- * ⚠ THE CALLER MUST ALREADY BE AUTHENTICATED, AND THAT IS A DELIBERATE
- *   NARROWING OF WHAT 07 §5 ALLOWS.
+ *   Already signed in  → attach that account to the workspace.
+ *   Not signed in      → create the account from the name and password on the
+ *                        form, AT THE INVITED ADDRESS, then attach it.
  *
- * "Creates or attaches" could mean this route accepts a password and creates
- * the account itself. It does not, because that would make it a second
- * account-creation path with its own password handling, sitting on a public
- * URL, reachable by anyone holding a token. Instead the accept screen sends
- * the recipient through the ordinary sign-up or sign-in flow first — which is
- * Supabase's, with its own rate limiting and verification — and then posts
- * here. So by this line the caller has proved who they are, and the only
- * thing left to do is attach them.
+ * ⚠ WHY CREATING AN ACCOUNT ON A PUBLIC URL IS SAFE HERE, AND ONLY HERE.
  *
- * The address is NOT required to match the invited one. A person invited at
- * work@example.com who signs in with an existing account is the same person,
- * and refusing them would be a support ticket with no security benefit: the
- * token is the credential, and they have it.
+ * The account is created at `invitation.invitedEmail` — the address the token
+ * was issued to — and never at one the caller supplies. So the worst a
+ * stranger holding a stolen token can do is create the account they could
+ * already have created by accepting the invitation any other way. No input
+ * redirects the membership elsewhere, because the tenant and the address both
+ * come from the row rather than the request.
+ *
+ * The alternative — bouncing the recipient to a generic sign-up and back —
+ * loses the invitation across two redirects and an email confirmation, which
+ * is exactly where invited users are lost in practice.
+ *
+ * ⚠ THE ADDRESS IS NOT REQUIRED TO MATCH ON THE SIGNED-IN BRANCH. Someone
+ * invited at work@example.com who signs in with an account they already had
+ * is the same person; refusing them is a support ticket with no security
+ * benefit, because the token is the credential and they hold it.
  */
 export async function POST(
   request: NextRequest,
@@ -119,49 +115,93 @@ export async function POST(
 ): Promise<NextResponse> {
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
   const log = logger.child({ requestId, route: '/api/v1/invitations/accept' });
-  const wantsJson = (request.headers.get('content-type') ?? '').includes('application/json');
+  const asJson = wantsJson(request);
 
   try {
     const { token } = await segment.params;
 
     const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase.auth.getUser();
+    const { data } = await supabase.auth.getUser();
 
-    if (error || !data.user) {
-      throw new AppError(ERROR_CODES.AUTH_SESSION_EXPIRED, {
-        message: 'Sign in or create an account first, then open the invitation link again.',
+    let userId = data.user?.id ?? null;
+    let fullName = (data.user?.user_metadata?.full_name as string | undefined) ?? '';
+    let email = data.user?.email ?? '';
+
+    if (!userId) {
+      // ─ The create branch. Read the invitation FIRST: the address to
+      //   register at comes from the row, never from the form. ─────────────
+      const invitation = await readInvitationByToken(token, requestId);
+      if (!invitation) {
+        throw new AppError(ERROR_CODES.NOT_FOUND, {
+          message: 'This invitation link is not valid. Ask whoever invited you for a new one.',
+        });
+      }
+      refuseIfNotPending(invitation.state);
+
+      const body = signUpSchema.safeParse(await readRequestBody(request));
+      if (!body.success) {
+        throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+          details: body.error.issues.map((issue) => ({
+            field: issue.path.join('.') || '_',
+            code: issue.code,
+            message: issue.message,
+          })),
+        });
+      }
+
+      const created = await supabase.auth.signUp({
+        email: invitation.invitedEmail,
+        password: body.data.password,
+        options: { data: { full_name: body.data.fullName } },
       });
+
+      if (created.error || !created.data.user) {
+        throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+          message:
+            created.error?.message ??
+            'That account could not be created. If you already have one, sign in first and open this link again.',
+        });
+      }
+
+      userId = created.data.user.id;
+      fullName = body.data.fullName;
+      email = invitation.invitedEmail;
     }
-    const userId = data.user.id;
+
+    const acceptingUserId = userId;
 
     /**
-     * ⚠ ONE TRANSACTION, AND IT HAS TO BE.
+     * ⚠ ONE DATABASE FUNCTION, AND IT HAS TO BE.
      *
      * Marking the invitation used and creating the membership must succeed or
-     * fail together. Separately, a failure between them burns the token
-     * without granting access — and the token is single-use, so there is no
-     * second attempt. The person is locked out of a workspace they were
-     * invited to, holding a link that now reports "already accepted".
+     * fail together. Apart, a failure between them burns a single-use token
+     * without granting access — the person is locked out of a workspace they
+     * were invited to, holding a link that now reports "already accepted".
      */
-    const result = await withActorContext(userId, requestId, (tx) =>
-      acceptInvitation(token, userId, requestId, tx),
+    const result = await acceptInvitationByToken(
+      token,
+      acceptingUserId,
+      { fullName, email },
+      requestId,
     );
 
-    // 05 §9. The membership write is audited from inside the tenant once it
-    // exists; the join itself is recorded here against the tenant it created.
-    log.info('invitation accepted', { userId, tenantId: result.tenantId, role: result.role });
+    log.info('invitation accepted', {
+      userId: acceptingUserId,
+      tenantId: result.tenantId,
+      role: result.role,
+    });
 
-    // Straight into the workspace. Making someone sign in again immediately
-    // after accepting is a needless step that reads as a failure.
+    // Straight into the workspace. Asking someone to sign in again the
+    // instant they accept reads as a failure.
     const session = await createSession({
-      userId,
+      userId: acceptingUserId,
       kind: 'tenant',
       tenantId: result.tenantId,
       effectiveRole: result.role,
       requestId,
     });
 
-    const response = wantsJson
+    const response = asJson
       ? jsonOk({ tenantId: result.tenantId, role: result.role, destination: '/app' }, { requestId })
       : NextResponse.redirect(new URL('/app', request.url), 303);
 
@@ -173,11 +213,20 @@ export async function POST(
 
     return response;
   } catch (error) {
-    if (wantsJson) return jsonError(error, requestId);
+    if (asJson) return jsonError(error, requestId);
+
     const code = error instanceof AppError ? error.code : ERROR_CODES.INTERNAL;
-    const url = new URL(request.url);
-    url.pathname = '/sign-in';
-    url.search = `?error=${code}`;
+    log.warn('invitation acceptance failed', { code });
+
+    /**
+     * Back to the invitation screen rather than to sign-in, carrying the
+     * reason. The three refusal states have designed screens there; sending
+     * someone to a sign-in form instead strands them with no explanation of
+     * what happened to their invitation.
+     */
+    const { token } = await segment.params;
+    const url = new URL(`/invite/${token}`, request.url);
+    url.searchParams.set('error', code);
     return NextResponse.redirect(url, 303);
   }
 }

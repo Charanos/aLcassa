@@ -157,8 +157,8 @@ export const MILESTONES = [
     gate: 'Demo: full account lifecycle',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 70,
-    note: 'The account lifecycle is built end to end as of 27 Aug 2026: sign-in through both doors, sign-out, password recovery and reset, the session list with per-device and bulk revocation, invitations with accept, and ownership transfer. Sessions are ROWS rather than tokens, which is what makes revocation take effect on the next request instead of when a token happens to expire. Fourteen routes, each one going through the same six-stage pipeline as the rest of the API. What remains is the interfaces on top of them and the email transport that currently makes an invitation a link the owner sends by hand.',
+    progress: 90,
+    note: 'The account lifecycle is built and wired end to end as of 27 Aug 2026: sign-in through both doors, sign-out, password recovery and reset, the session list with per-device and bulk revocation, invitations through to acceptance, role changes and ownership transfer. Fourteen routes and five server actions, all through the same six-stage pipeline and the same services, so the screen and the API cannot drift. The team, account and sessions screens now read the real database; the workspace shell reads the signed-in member, so an agent does not see Credentials because the SERVER did not send it. Twelve new isolation cases cover the whole flow. What remains is the email transport that currently leaves an invitation as a link the owner passes on by hand.',
   },
   {
     id: 'M3',
@@ -329,6 +329,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-27',
+    title: 'Two flaws found by running the account flow rather than reading it',
+    body: 'Both were invisible to every check that does not touch a database, and both are fixed. First: accepting an invitation wrote nothing. The write ran before the new member had a membership — which is the whole point of accepting — so the rules that scope data to a workspace matched nothing and silently discarded it. The link reported success, signed the person in, and left them outside the workspace they had just joined. It now runs through two narrow database functions keyed by the invitation token, which is the design the policy file described from the start. Second, and more serious: repairing last week’s rules exposed a real gap they had been hiding. A signed-in person could reassign their own session to any workspace on the platform, including ones they had no membership in. A second check further along stopped that from reaching anyone else’s data — nobody was exposed — but the rule that should have refused it outright was not doing so. It does now: a session can only be pinned to a workspace its owner belongs to. Both are covered by twelve new tests that run against the real database on every change.',
+    milestone: 'M2',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-08-27',
     title: 'M2: the account lifecycle works, end to end',

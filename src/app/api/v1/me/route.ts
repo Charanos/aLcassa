@@ -1,12 +1,8 @@
-import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { userProfiles } from '@/db/schema';
 import { resolveSessionDoor } from '@/lib/auth/resolve';
-import { withTenantContext } from '@/lib/db';
 import { defineRoute } from '@/lib/http/pipeline';
 import { jsonOk } from '@/lib/http/response';
-import { AUDIT_ACTIONS, audited } from '@/lib/audit';
-import { loadMe } from '@/modules/identity';
+import { loadMe, updateOwnProfile } from '@/modules/identity';
 
 /**
  * 07 §3 · `GET /v1/me` — "everything needed to render the shell in one round
@@ -53,42 +49,7 @@ export const PATCH = defineRoute({
     avatarPath: z.string().trim().max(500).nullable().optional(),
   }),
   handle: async ({ ctx, body, requestId }) => {
-    const updated = await withTenantContext(ctx, async (tx) => {
-      const [before] = await tx
-        .select({ fullName: userProfiles.fullName, avatarPath: userProfiles.avatarPath })
-        .from(userProfiles)
-        .where(eq(userProfiles.id, ctx.actorId))
-        .limit(1);
-
-      return audited(
-        tx,
-        ctx,
-        {
-          action: AUDIT_ACTIONS.PROFILE_UPDATED,
-          entityType: 'user_profile',
-          entityId: ctx.actorId,
-          before,
-          after: { fullName: body.fullName, avatarPath: body.avatarPath ?? before?.avatarPath },
-        },
-        async () => {
-          const [row] = await tx
-            .update(userProfiles)
-            .set({
-              fullName: body.fullName,
-              ...(body.avatarPath !== undefined ? { avatarPath: body.avatarPath } : {}),
-              updatedAt: new Date(),
-            })
-            .where(eq(userProfiles.id, ctx.actorId))
-            .returning({
-              id: userProfiles.id,
-              fullName: userProfiles.fullName,
-              avatarPath: userProfiles.avatarPath,
-            });
-          return row;
-        },
-      );
-    });
-
+    const updated = await updateOwnProfile(ctx, body.fullName, body.avatarPath);
     return jsonOk(updated, { requestId });
   },
 });

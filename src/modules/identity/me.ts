@@ -1,6 +1,7 @@
 import 'server-only';
-import { and, eq, gt, isNull } from 'drizzle-orm';
+import { and, eq, gt, gte, isNull, sql } from 'drizzle-orm';
 import {
+  auditLog,
   plans,
   sessions,
   subscriptions,
@@ -37,7 +38,25 @@ export type Me = {
     currentPeriodEnd: string | null;
   } | null;
   entitlements: Entitlement[];
-  supportMode: { active: boolean; expiresAt: string | null; platformAdminName: string | null } | null;
+  /**
+   * Sheet 07 · 07 §8. THE RECEIPT, NOT A FLAG.
+   *
+   * The boundary frame does not merely say "support is here" — it shows the
+   * resolved tenant id, the resolved role and the number of writes made so
+   * far, because "every number names its source". A frame that asserted
+   * isolation without showing the values it resolved would be asking to be
+   * taken on trust, which is the opposite of the point.
+   */
+  supportMode: {
+    active: boolean;
+    expiresAt: string;
+    tenantName: string;
+    platformAdminName: string;
+    reason?: string | null;
+    resolvedTenantId: string;
+    resolvedRole: 'support';
+    writesSoFar: number;
+  } | null;
   platformAdmin: boolean;
 };
 
@@ -107,6 +126,8 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
      */
     const [support] = await tx
       .select({
+        id: sessions.id,
+        createdAt: sessions.createdAt,
         expiresAt: sessions.expiresAt,
         supportContext: sessions.supportContext,
       })
@@ -120,6 +141,34 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
         ),
       )
       .limit(1);
+
+    /**
+     * The write count on the receipt.
+     *
+     * Counted from the tenant's OWN audit log, filtered to entries written
+     * under support mode since this session opened. That flag is set by
+     * `writeAudit` from the resolved context rather than by any caller, so
+     * the number cannot be under-reported by a handler that forgot to
+     * declare itself.
+     *
+     * `occurred_at` bounds it to this session rather than to every support
+     * visit ever made, which is what "so far" means on a frame that is
+     * describing what is happening right now.
+     */
+    const writesSoFar = support
+      ? (
+          await tx
+            .select({ count: sql<number>`count(*)::int` })
+            .from(auditLog)
+            .where(
+              and(
+                eq(auditLog.tenantId, ctx.tenantId),
+                eq(auditLog.supportMode, true),
+                gte(auditLog.occurredAt, support.createdAt),
+              ),
+            )
+        )[0]?.count ?? 0
+      : 0;
 
     return {
       user: {
@@ -144,7 +193,15 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
         ? {
             active: true,
             expiresAt: support.expiresAt.toISOString(),
-            platformAdminName: support.supportContext?.platformAdminId ?? null,
+            tenantName: tenant?.name ?? 'this workspace',
+            // The id until the platform_admins row is joined in at M4, where
+            // the console owns that read. A name is better; an identifier is
+            // honest, and an empty frame would be neither.
+            platformAdminName: support.supportContext?.platformAdminId ?? 'Platform support',
+            reason: support.supportContext?.reason ?? null,
+            resolvedTenantId: ctx.tenantId,
+            resolvedRole: 'support' as const,
+            writesSoFar,
           }
         : null,
       // The console is a different door. A tenant payload never asserts it.

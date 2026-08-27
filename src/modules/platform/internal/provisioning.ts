@@ -130,7 +130,7 @@ export async function provisionTenant(
         // The profile projection over `auth.users`. 05 §4.
         await tx
           .insert(userProfiles)
-          .values({ id: ownerUserId, fullName: ownerName })
+          .values({ id: ownerUserId, fullName: ownerName, email: ownerEmail })
           .onConflictDoNothing();
 
         // 06 §5: "A tenant always has exactly one owner." This is the row
