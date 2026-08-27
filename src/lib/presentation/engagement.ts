@@ -147,7 +147,7 @@ export const MILESTONES = [
     tranche: 2,
     status: 'active' as MilestoneStatus,
     progress: 85,
-    note: 'The gate is met, and was demonstrated live on 25 Aug 2026 rather than reported: the isolation suite runs against the real database and passes 152 of 152 across 15 tenant-scoped tables, with the policy check reporting 0 problems. Schema, migrations, the full policy catalogue and tenant provisioning are applied and working. Running the suite against a real database for the first time found three defects that had been making it silently vacuous; all three are fixed and recorded in document 15. Only the staging environment is outstanding.',
+    note: 'The gate is met: the isolation suite runs against the real database and passes 152 of 152 across 15 tenant-scoped tables, plus 20 further cases added on 27 Aug 2026, with the policy check reporting 0 problems. Schema, migrations, the full policy catalogue and tenant provisioning are applied and working. Reaching a live database found four defects in the suite itself, each of which had been letting it report green while proving less than it claimed — the last and largest being that it only ever asked whether a tenant could see ANOTHER tenant’s rows, never whether they could see their own. Six tables were returning nothing to anyone and it could not tell. All four are fixed and recorded in document 15. Only the staging environment is outstanding.',
   },
   {
     id: 'M2',
@@ -240,8 +240,9 @@ export const COMPLIANCE = [
       'No request, through any door, in any role, including the platform owner, can read or write a row belonging to another tenant.',
     state: 'partial' as ComplianceState,
     evidence:
-      'Demonstrated live on 25 Aug 2026 rather than asserted: 152 of 152 isolation cases across 15 tenant-scoped tables, run against the real database, with the policy check reporting 0 problems. Policies carry a with-check clause and row level security is FORCED, so the table owner does not bypass it either. The application connects as a role that cannot bypass policies at all, which is separate from the role migrations run as.',
-    outstanding: 'Manual policy review by a person at M1 and again at M6.',
+      'Demonstrated live rather than asserted: 172 isolation cases run against the real database, with the policy check reporting 0 problems. 152 cover the 15 tenant-scoped tables; 20 more, added 27 Aug 2026, cover the 8 policed tables that carry no tenant column and were therefore outside the generated suite entirely. Policies carry a with-check clause and row level security is FORCED, so the table owner does not bypass it either. The application connects as a role that cannot bypass policies at all, which is separate from the role migrations run as.',
+    outstanding:
+      'Manual policy review by a person at M1 and again at M6 — brought forward in importance by the 27 Aug finding, which a person reading the policies would have caught faster than the suite did.',
     reference: '06 · Tenancy and isolation',
   },
   {
@@ -328,6 +329,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-27',
+    title: 'A correction to the M1 gate report, and the test that will not let it recur',
+    body: 'The isolation guarantee holds. The way it was being verified did not, and this update corrects a figure quoted here on 25 August. Fifteen policy rules identified the signed-in user by a function that reads a login token — which is correct for one of the two ways this application reaches its database, and empty for the other, which is the one every page actually uses. The effect was that six tables returned nothing to anyone: the plan catalogue a customer needs in order to choose an upgrade, and the profile table a customer needs in order to see their own name. The isolation suite passed throughout, because a table that is empty for everyone looks exactly like a table that is perfectly private, and the suite only ever asked the second question. It also selected tables by a column those six do not have, so five of them were never examined at all. Both halves are fixed: the rules now resolve the user through the single function the design always specified, and 20 new cases assert that a customer CAN see what is theirs, not only that they cannot see anyone else’s. That fix was verified by deliberately reintroducing the fault and confirming the new test fails and names the cause. The honest summary: isolation was never breached, the guarantee was never at risk, and the evidence offered for it on 25 August was thinner than it was presented as being.',
+    milestone: 'M1',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-08-25',
     title: 'M1 gate met: tenant isolation demonstrated live, 152 of 152',

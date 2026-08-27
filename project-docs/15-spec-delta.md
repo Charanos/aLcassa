@@ -1292,3 +1292,56 @@ token set exists to prevent.
 | 10  | Does full support access extend to `customer_records`?         | Before M4a                                | That table's RLS policies and its isolation cases | **Open, added 24 Aug 2026.** Proposed no. See `09 §4`    |
 | 11  | Confirm the reading applied to "layered, master always wins"   | Not blocking                              | Nothing; the schema supports either reading       | **Open, added 24 Aug 2026.** See `01 D-08`               |
 | 12  | Console demo data still models the retired four-tier catalogue | Before the console is shown to the client | Nothing in the build; it is fixture data          | **Open, added 24 Aug 2026.** See A16                     |
+
+---
+
+## C30 · Policies must resolve the actor through `app.current_actor_id()`, never `auth.uid()`
+
+**27 Aug 2026. Defect, found while starting M2.**
+
+Fifteen policy predicates across six files called `auth.uid()` directly.
+`00_context.sql` has always stated that "every RLS policy in this database
+reads from these four functions and from nowhere else"; those fifteen call
+sites were a violation of that rule, and the rule was right.
+
+There are two connections into this database and only one carries a JWT:
+
+| Path | Identifies the actor by | `auth.uid()` |
+|---|---|---|
+| Drizzle (`lib/db/client.ts`) — **every application query** | `app.actor_id`, set transaction-locally by `withTenantContext` | **NULL** |
+| Supabase client (PostgREST) | the user's JWT | resolves |
+
+So `user_id = auth.uid()` evaluated `user_id = null`, which matches nothing.
+Six tables returned **zero rows to every caller**: `user_profiles` (including
+the signed-in user's own row), `plans`, `plan_entitlements`,
+`master_ai_rules`, `master_ai_rule_versions`, `platform_admins`.
+
+**Why the isolation suite did not catch it.** Two reasons, and the second is
+the more important one:
+
+1. `tenantScopedTables()` selects tables that have a `tenant_id` column. Five
+   of the six do not, so the suite never named them.
+2. Every case in the suite asked whether tenant A could see tenant B's rows.
+   None asked whether tenant A could see **their own**. A table that is empty
+   for everyone passes every cross-tenant assertion ever written.
+
+**Resolution.** `app.current_actor_id()` reads `app.actor_id` first and falls
+back to `auth.uid()`, so both doors resolve an actor. `SECURITY DEFINER`
+because the application role has no `USAGE` on the `auth` schema; the
+exception block because a JWT that will not resolve must degrade to "no
+actor" rather than raise. The fifteen call sites now go through it.
+
+`tests/isolation/shared-tables.test.ts` covers the eight policed tables with
+no tenant column and asserts **visibility as well as restriction**. Every such
+table must declare who may read it, so a new one cannot ship uncovered. The
+fix was verified by reintroducing the defect on `plans_select` and confirming
+the new test fails and names the cause.
+
+**Also corrected in the same pass:** tenants A and B had lost their
+`tenant_members` rows, so the two tenants the entire suite acts as had no
+memberships and several assertions were weaker than they appeared. Reseeded.
+
+**Reported to the client** in the tracker update feed dated 27 Aug 2026,
+including an explicit correction of the "152 of 152" figure quoted on
+25 August. Isolation was never breached; the evidence offered for it was
+thinner than it was presented as being.
