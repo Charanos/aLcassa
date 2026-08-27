@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { readRequestBody, wantsJson } from '@/lib/http/body';
+import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 import { acceptInvitationByToken, readInvitationByToken } from '@/modules/membership';
@@ -55,6 +56,10 @@ export async function GET(
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
 
   try {
+    // Reading is harmless; guessing at tokens is not. Generous enough that a
+    // recipient refreshing the accept screen is unaffected.
+    await enforceRateLimit(request, RATE_LIMITS.invitationRead);
+
     const { token } = await segment.params;
     const invitation = await readInvitationByToken(token, requestId);
 
@@ -118,6 +123,10 @@ export async function POST(
   const asJson = wantsJson(request);
 
   try {
+    // The tightest of the five: this branch can CREATE AN ACCOUNT, on a public
+    // URL, for anyone holding a token.
+    await enforceRateLimit(request, RATE_LIMITS.invitationAccept);
+
     const { token } = await segment.params;
 
     const supabase = await createSupabaseServerClient();

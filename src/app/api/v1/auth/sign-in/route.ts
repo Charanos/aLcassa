@@ -5,6 +5,7 @@ import { isPlatformAdmin, membershipsFor } from '@/lib/auth/resolve';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { readRequestBody, wantsJson } from '@/lib/http/body';
+import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 
@@ -68,6 +69,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const { email, password, next } = parsed.data;
+
+    /**
+     * ⚠ AFTER PARSING, SO THE BUDGET IS KEYED ON THE ADDRESS.
+     *
+     * Limiting by address as well as by IP means one person's failed attempts
+     * do not consume the budget of everybody else behind the same corporate
+     * NAT — and a credential-stuffing run spraying many addresses from one
+     * host still hits the per-IP half of the key.
+     *
+     * Supabase applies its own limits underneath. This one exists so an
+     * attacker cannot burn a real user's Supabase budget at will, and so the
+     * refusal comes from us with a Retry-After the client can act on.
+     */
+    await enforceRateLimit(request, RATE_LIMITS.signIn, email);
+
     const supabase = await createSupabaseServerClient();
 
     // ─ 1 · Supabase validates the credentials and sets its own cookies ──────

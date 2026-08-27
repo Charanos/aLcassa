@@ -8,7 +8,23 @@ loadEnv({ path: '.env.local', quiet: true });
 
 export default defineConfig({
   resolve: {
-    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      /**
+       * ⚠ `server-only` IS A BUILD-TIME MARKER, NOT A RUNTIME MODULE.
+       *
+       * Next.js resolves it to a package that throws if it is ever pulled into
+       * a client bundle — that is its entire job, and it is why so many files
+       * here start with `import 'server-only'`. Vitest is not Next, so the
+       * import simply fails to resolve and the whole test file refuses to load.
+       *
+       * Aliasing it to an empty stub lets a server module be unit-tested
+       * without weakening the guarantee: the marker still does its work in
+       * `next build`, which is where a client-bundle mistake would actually
+       * be caught.
+       */
+      'server-only': fileURLToPath(new URL('./tests/stubs/server-only.ts', import.meta.url)),
+    },
   },
   test: {
     environment: 'node',

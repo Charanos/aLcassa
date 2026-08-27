@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { readRequestBody, wantsJson } from '@/lib/http/body';
+import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonNoContent } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 
@@ -47,7 +48,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const parsed = forgotSchema.safeParse(raw);
 
-    if (parsed.success) {
+    /**
+     * ⚠ THE LIMIT IS ENFORCED BEFORE THE SEND AND ITS REFUSAL IS SWALLOWED.
+     *
+     * This endpoint answers 204 to everything by design, so that it cannot be
+     * used to discover which addresses have accounts. A 429 would break that
+     * — it would confirm which address had been asked for often enough to
+     * matter. So the limit still stops the mail going out, and the caller is
+     * told nothing.
+     *
+     * This route SENDS EMAIL, which is why the budget is three per five
+     * minutes rather than the sign-in five per minute: an unlimited reset
+     * endpoint is a way to have us deliver somebody else's mail for them.
+     */
+    let limited = false;
+    try {
+      await enforceRateLimit(request, RATE_LIMITS.passwordForgot, parsed.data?.email);
+    } catch {
+      limited = true;
+      log.warn('password reset rate limited');
+    }
+
+    if (parsed.success && !limited) {
       const supabase = await createSupabaseServerClient();
       const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
         // Where the link lands. Supabase appends its own recovery token, and

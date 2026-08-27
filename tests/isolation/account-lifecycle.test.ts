@@ -190,6 +190,46 @@ describe('account lifecycle · acceptance', () => {
     expect(invitation?.accepted_at).toBeTruthy();
   });
 
+  /**
+   * ⚠ THE JOIN MUST BE AUDITED, AND FOR A WHILE IT WAS NOT.
+   *
+   * Definition of done condition 3: every write produces an audit entry.
+   * Inviting, removing and role changes were all audited; ACCEPTING was not,
+   * because the write moved into `app.accept_invitation` when the acceptance
+   * flow was repaired and the audit row did not move with it. A workspace's
+   * activity log showed an invitation going out and then nothing, and a new
+   * person simply appeared in the team list.
+   *
+   * The row is written inside the same function as the membership, so this
+   * case also proves they cannot come apart.
+   */
+  it('writes a member.joined entry the workspace can read', async () => {
+    const email = `joined-${randomUUID()}@example.test`;
+    const { token } = await createInvitation(email);
+    const newUserId = randomUUID();
+    created.users.push(newUserId);
+
+    await withNoContext(
+      (tx) => tx`select * from app.accept_invitation(${hash(token)}, ${newUserId},
+                                                     'Joined Person', ${email})`,
+    );
+
+    // Read as the TENANT: an audit entry they cannot see is not a trail.
+    const entries = await asActor(
+      asOwnerA,
+      (tx) => tx`
+        select action, actor_user_id, actor_type, support_mode, after
+        from audit_log
+        where action = 'member.joined' and actor_user_id = ${newUserId}
+      `,
+    );
+
+    expect(entries.length, 'accepting an invitation left no trace in the activity log').toBe(1);
+    // The person joining is the actor. Nobody did this to them.
+    expect(entries[0]?.actor_type).toBe('user');
+    expect(entries[0]?.support_mode).toBe(false);
+  });
+
   it('refuses a second use of the same token', async () => {
     const email = `replay-${randomUUID()}@example.test`;
     const { token } = await createInvitation(email);

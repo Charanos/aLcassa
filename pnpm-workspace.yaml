@@ -1,0 +1,39 @@
+# ⚠ THE OVERRIDES ARE DECLARED IN TWO PLACES ON PURPOSE.
+#
+# pnpm 9 reads `pnpm.overrides` from package.json. pnpm 10 stopped reading that
+# field and moved every setting here — and it says so only as a WARNING, so a
+# project pinned to 9 that is later built with 10 silently loses its pins and
+# starts installing the vulnerable versions again. The failure is quiet and it
+# arrives with a routine toolchain upgrade.
+#
+# Declaring them in both files means whichever pnpm runs, the pins hold. The
+# duplication costs four lines and removes a way to reintroduce seven
+# advisories without noticing.
+#
+# WHY THESE FOUR. All are transitive; none is a dependency we chose. Six of the
+# seven advisories they resolve arrive through `@sentry/nextjs`, which pulls its
+# own copy of Next and therefore its own postcss. Dropping Sentry would have
+# been the cheaper fix and the wrong one — 04 §12 makes it the error tracking
+# service, and it is being wired in this same pass.
+#
+# Each pin is to the first patched version, not to a fixed release, so ordinary
+# updates still flow. Review at M6: a pin that outlives its advisory is a pin
+# holding the tree back for no reason.
+# Not a monorepo. pnpm 10 requires this field to accept the file at all, and
+# the root IS the only package — declaring it is accurate rather than a
+# workaround for the parser.
+packages:
+  - '.'
+
+overrides:
+  # GHSA-8988-4f7v-96qf and two others: path traversal and arbitrary .map file
+  # disclosure via attacker-controlled sourceMappingURL in CSS comments.
+  postcss: '>=8.5.23'
+  # Missing buffer bounds check in v3/v5/v6 when `buf` is provided.
+  uuid: '>=11.1.1'
+  # Unbounded memory allocation in W3C Baggage propagation.
+  '@opentelemetry/core': '>=2.8.0'
+  # Dev-server request forgery. Reaches us through drizzle-kit, so it is a
+  # development exposure rather than a production one — pinned anyway, because
+  # a developer's machine holds the credentials that reach the real database.
+  esbuild: '>=0.25.0'

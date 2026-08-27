@@ -207,6 +207,41 @@ begin
   values (inv.tenant_id, p_user_id, inv.role, 'active', inv.invited_by, now())
   on conflict (tenant_id, user_id) do nothing;
 
+  -- ⚠ THE JOIN WAS NOT AUDITED, AND EVERY OTHER MEMBERSHIP CHANGE IS.
+  --
+  -- Definition of done, condition 3: "Every write action produces an audit
+  -- entry recording actor, tenant, action, entity, before and after state."
+  -- Inviting was audited. Removing was audited. Changing a role was audited.
+  -- ACCEPTING was not — so a workspace's own activity log showed an
+  -- invitation going out and then nothing, and a new person simply appeared
+  -- in the team list with no record of when or how.
+  --
+  -- `member.joined` was defined in AUDIT_ACTIONS from the beginning and never
+  -- emitted, because the write moved into this function when the acceptance
+  -- flow was repaired (C31) and the audit row did not come with it.
+  --
+  -- It goes here rather than in the caller so it cannot come apart from the
+  -- membership: same function, same transaction, both or neither.
+  --
+  -- `actor_user_id` is the person joining. They are acting on their own
+  -- behalf — nobody did this TO them — which is why this is not a
+  -- platform_admin entry and why support_mode is false.
+  insert into audit_log (
+    tenant_id, actor_user_id, actor_type, actor_label, support_mode,
+    action, entity_type, entity_id, before, after, request_id
+  )
+  values (
+    inv.tenant_id, p_user_id, 'user',
+    coalesce(nullif(btrim(p_full_name), ''), inv.email),
+    false,
+    'member.joined', 'tenant_member', null,
+    null,
+    jsonb_build_object('role', inv.role, 'invitedBy', inv.invited_by),
+    -- The function has no request id of its own. Naming the flow is more
+    -- useful in a log than a null, and it is not pretending to be one.
+    'invitation-accept'
+  );
+
   accepted_tenant_id := inv.tenant_id;
   accepted_role := inv.role;
   return next;

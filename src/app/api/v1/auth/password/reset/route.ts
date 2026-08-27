@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { cookieNameFor, revokeAllSessions } from '@/lib/auth/session';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { readRequestBody, wantsJson } from '@/lib/http/body';
+import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 
@@ -53,6 +54,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const asJson = wantsJson(request);
 
   try {
+    // Before the body is read: this endpoint changes a credential, and the
+    // recovery session it runs under is the only thing standing in front of
+    // it. There is no address to key on, so the budget is per IP.
+    await enforceRateLimit(request, RATE_LIMITS.passwordReset);
+
     const raw = await readRequestBody(request);
 
     const parsed = resetSchema.safeParse(raw);
