@@ -16,6 +16,7 @@ import {
 } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage, FactRow, Panel, SectionHeading } from '@/components/console/Surface';
 import { getOverview, greeting, type QueueItem, type QueueSeverity } from '@/lib/console/data';
+import { getLiveOverview } from '@/lib/console/live';
 import { resolveSupportSession } from '@/lib/console/session';
 import { OverviewChart } from '@/components/console/OverviewChart';
 import { ProvisionWorkspaceButton } from '@/components/console/ProvisionWorkspaceButton';
@@ -95,7 +96,16 @@ const SIGNAL_ICON: Record<string, TablerIcon> = {
 };
 
 export default async function ConsoleOverviewPage() {
-  const [model, session] = await Promise.all([getOverview(), resolveSupportSession()]);
+  /**
+   * Live first, designed fixture second.
+   *
+   * The queue, the signals and the recent activity now come from the
+   * database. The fixture stays behind the review bypass, and it is the only
+   * place the invented revenue and uptime figures still appear — see
+   * `getLiveOverview` for why they are not reproduced against real rows.
+   */
+  const [live, session] = await Promise.all([getLiveOverview(), resolveSupportSession()]);
+  const model = live ?? (await getOverview());
 
   return (
     <ConsolePage>

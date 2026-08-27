@@ -1,10 +1,26 @@
 import 'server-only';
-import { asc, eq, sql } from 'drizzle-orm';
-import { planEntitlements, plans, subscriptions } from '@/db/schema';
+import { and, asc, count, desc, eq, gt, isNull, sql } from 'drizzle-orm';
+import {
+  planEntitlements,
+  plans,
+  platformAuditLog,
+  sessions,
+  subscriptions,
+  tenantMembers,
+  tenants,
+} from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import { withoutTenantContext } from '@/lib/db';
 import { watchlist, type WatchlistEntry } from '@/modules/platform';
-import type { EntitlementRow, PlanHead, PlansModel } from './data';
+import type {
+  AuditLine,
+  EntitlementRow,
+  IsolationStatus,
+  OverviewModel,
+  PlanHead,
+  PlansModel,
+  QueueItem,
+} from './data';
 
 /**
  * The M3 half of the console read model, against the real database.
@@ -153,6 +169,315 @@ export async function getLivePlans(): Promise<PlansModel | null> {
         affected: 0,
         breaching: [],
       },
+    };
+  });
+}
+
+/**
+ * The console overview, from the real database. 09 §2 · 08 §9.
+ *
+ * ⚠ THE QUEUE IS ORDERED BY WHAT EACH ITEM COSTS TO IGNORE.
+ *
+ * Design sheet 05 is emphatic that this screen is not a metric grid: "the
+ * standfirst does the work", and the queue is ranked by consequence rather
+ * than by recency. So a past-due workspace outranks one at 96% of its seats,
+ * which outranks one at 82% — because the first is money already lost, the
+ * second is a customer about to be blocked, and the third is a conversation
+ * worth having this week.
+ *
+ * ⚠ EVERY FIGURE NAMES ITS SOURCE, WHICH IS WHY THERE ARE NO INVENTED ONES.
+ *
+ * The fixture carried revenue, conversation volumes and uptime percentages
+ * that no table produces. Rather than compute something plausible from the
+ * wrong rows, the signals here are the four this database can actually
+ * answer, and the health vitals come from the probes rather than from this
+ * function. A number with no source is trivia, and on an operations screen it
+ * is worse than trivia — it is a number somebody will act on.
+ */
+export async function getLiveOverview(): Promise<OverviewModel | null> {
+  const ctx = await currentPlatformSessionOrNull();
+  if (!ctx) return null;
+
+  const actor = {
+    userId: ctx.actorId,
+    label: ctx.actorLabel,
+    requestId: ctx.requestId,
+    ipAddress: ctx.ipAddress,
+  };
+
+  const [pressure, counts, recentRows] = await Promise.all([
+    watchlist(actor),
+    tenantCounts(ctx.requestId),
+    recentPlatformActivity(ctx.requestId),
+  ]);
+
+  const firstName = ctx.actorLabel.split(/\s+/)[0] ?? 'there';
+
+  /**
+   * The queue. One entry per workspace that needs attention, most costly
+   * first — `watchlist` already sorts past-due above usage pressure.
+   */
+  const queue: QueueItem[] = pressure.map((entry) => {
+    const nearest = entry.nearest;
+    const atCeiling = nearest ? nearest.current >= nearest.limit : false;
+
+    return {
+      id: entry.tenantId,
+      slug: entry.slug,
+      name: entry.name,
+      // Sheet 04: "a ceiling is ochre, not oxide" — a limit reached is a
+      // thing the reader can act on, so it never renders as a failure.
+      // Sheet 04: "a ceiling is ochre, not oxide". Past due is DANGER because
+      // money is already lost; a limit reached is WARNING because the reader
+      // can act on it; approaching one is INFO because it is a conversation
+      // rather than a problem.
+      severity: entry.pastDue ? 'danger' : atCeiling ? 'warning' : 'info',
+      tag: entry.pastDue ? 'Past due' : atCeiling ? 'At limit' : 'Approaching limit',
+      detail: entry.pastDue
+        ? `Subscription is past due on the ${entry.planCode} plan. Access is read-only until it is resolved.`
+        : nearest
+          ? `${nearest.displayName}: ${nearest.current} of ${nearest.limit} used.`
+          : 'Needs attention.',
+      primaryLabel: 'Open workspace',
+      primaryHref: `/platform/tenants?workspace=${entry.slug}`,
+      meta: entry.planCode,
+    };
+  });
+
+  return {
+    operatorFirstName: firstName,
+    stamp: new Date().toLocaleString('en-GB', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    /**
+     * The standfirst. It states the one thing worth knowing before anything
+     * else on the page, and it changes shape when there is nothing wrong —
+     * "3 workspaces, none needing attention" reads as a system in order,
+     * whereas "0 items need attention" reads as a broken query.
+     */
+    headline:
+      queue.length === 0
+        ? {
+            lead: `${counts.total} ${counts.total === 1 ? 'workspace' : 'workspaces'},`,
+            figure: 'none',
+            tail: 'needing attention right now.',
+          }
+        : {
+            lead: 'Attention needed on',
+            figure: String(queue.length),
+            tail: queue.length === 1 ? 'workspace.' : 'workspaces.',
+          },
+    signals: [
+      {
+        id: 'workspaces',
+        label: 'Workspaces',
+        value: String(counts.total),
+        note: `${counts.active} active · ${counts.suspended} suspended`,
+        href: '/platform/tenants',
+        icon: 'building',
+      },
+      {
+        id: 'members',
+        label: 'People',
+        value: String(counts.members),
+        note: 'active memberships across every workspace',
+        href: '/platform/tenants',
+        icon: 'pulse',
+      },
+      {
+        id: 'attention',
+        label: 'Needing attention',
+        value: String(queue.length),
+        note: queue.length === 0 ? 'nothing near a ceiling' : 'past due or near a limit',
+        href: '/platform/health',
+        icon: 'bolt',
+      },
+      {
+        id: 'support',
+        label: 'Open support sessions',
+        value: String(counts.openSupportSessions),
+        note: counts.openSupportSessions === 0 ? 'nobody is inside a workspace' : 'in progress now',
+        href: '/platform/support-sessions',
+        icon: 'coin',
+      },
+    ],
+    queue,
+    restingCount: Math.max(0, counts.total - queue.length),
+    /**
+     * ⚠ EMPTY, DELIBERATELY.
+     *
+     * Vitals are uptime, latency and error-rate probes, and they come from
+     * the observability layer rather than from Postgres. Sheet 11 is explicit
+     * that "a number without a target is trivia"; computing a plausible
+     * uptime from rows we happen to have would be worse than showing none.
+     * The health page owns these and says what is not yet wired.
+     */
+    vitals: [],
+    recent: recentRows,
+  };
+}
+
+/** Counts the overview's signals are built from. One round trip each, and
+ *  all four are facts this database can actually answer. */
+async function tenantCounts(requestId: string): Promise<{
+  total: number;
+  active: number;
+  suspended: number;
+  members: number;
+  openSupportSessions: number;
+}> {
+  return withoutTenantContext(requestId, async (tx) => {
+    const [tenantRows] = await tx
+      .select({
+        total: count(),
+        active: sql<number>`count(*) filter (where ${tenants.status} = 'active')::int`,
+        suspended: sql<number>`count(*) filter (where ${tenants.status} = 'suspended')::int`,
+      })
+      .from(tenants)
+      .where(isNull(tenants.deletedAt));
+
+    const [memberRows] = await tx
+      .select({ n: count() })
+      .from(tenantMembers)
+      .where(and(eq(tenantMembers.status, 'active'), isNull(tenantMembers.deletedAt)));
+
+    const [supportRows] = await tx
+      .select({ n: count() })
+      .from(sessions)
+      .where(
+        and(
+          eq(sessions.kind, 'support'),
+          isNull(sessions.revokedAt),
+          gt(sessions.expiresAt, new Date()),
+        ),
+      );
+
+    return {
+      total: tenantRows?.total ?? 0,
+      active: tenantRows?.active ?? 0,
+      suspended: tenantRows?.suspended ?? 0,
+      members: memberRows?.n ?? 0,
+      openSupportSessions: supportRows?.n ?? 0,
+    };
+  });
+}
+
+/**
+ * The last five things the PLATFORM did, from its own log.
+ *
+ * Deliberately `platform_audit_log` rather than the tenants' own logs: this
+ * line is "what have we been doing", and reading tenant activity across
+ * tenants to populate a dashboard is exactly the cross-tenant content read
+ * `06 §10` says to answer with support mode instead of building.
+ */
+async function recentPlatformActivity(requestId: string): Promise<AuditLine[]> {
+  return withoutTenantContext(requestId, async (tx) => {
+    const rows = await tx
+      .select({
+        occurredAt: platformAuditLog.occurredAt,
+        action: platformAuditLog.action,
+        actorLabel: platformAuditLog.actorLabel,
+        entityType: platformAuditLog.entityType,
+      })
+      .from(platformAuditLog)
+      .orderBy(desc(platformAuditLog.occurredAt))
+      .limit(5);
+
+    return rows.map((row) => ({
+      time: row.occurredAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      action: row.action,
+      target: row.entityType ?? row.actorLabel,
+    }));
+  });
+}
+
+/**
+ * Sheet 11 · 06 §4. THE ISOLATION PANEL, VERIFIED AT READ TIME.
+ *
+ * ⚠ IT COUNTS THE DATABASE RATHER THAN REPORTING A NUMBER SOMEBODY TYPED.
+ *
+ * The fixture this replaces claimed "18 of 18 tables policed, last run 12
+ * Aug, 03:00". The real count is fifteen, the eighteen came from a sentence
+ * in document 06 rather than from the schema, and the timestamp was a
+ * literal. On the one panel in this console that speaks to the guarantee the
+ * whole engagement is sold on, that is the worst possible place for a figure
+ * nobody checked.
+ *
+ * ⚠ "LAST RUN" IS NOW, AND THAT IS AN IMPROVEMENT RATHER THAN A COMPROMISE.
+ *
+ * A CI timestamp answers "did the suite pass when it last ran", which decays
+ * from the moment it is written — a policy dropped by hand at noon leaves a
+ * green 03:00 badge until the next nightly. This query asks the live
+ * database, on this request, whether every tenant-scoped table still has row
+ * level security forced and a policy attached. Sheet 11 wants isolation state
+ * "beside uptime, not buried in CI"; a check that runs when you look at it is
+ * more nearly that than a cached verdict about a different moment.
+ *
+ * It is the same introspection `scripts/check-policies.ts` runs in CI, so the
+ * console and the build cannot disagree about what is policed.
+ */
+export async function getLiveIsolationStatus(): Promise<IsolationStatus | null> {
+  const ctx = await currentPlatformSessionOrNull();
+  if (!ctx) return null;
+
+  return withoutTenantContext(ctx.requestId, async (tx) => {
+    const result = await tx.execute(sql`
+      with scoped as (
+        select c.oid, c.relname, c.relrowsecurity, c.relforcerowsecurity
+        from pg_class c
+        join pg_namespace n on n.oid = c.relnamespace
+        join pg_attribute a on a.attrelid = c.oid
+        where n.nspname = 'public'
+          and c.relkind = 'r'
+          and a.attname = 'tenant_id'
+          and a.attnum > 0
+          and not a.attisdropped
+      )
+      select
+        count(*)::int as total,
+        count(*) filter (
+          where relrowsecurity
+            and relforcerowsecurity
+            and exists (
+              select 1 from pg_policies p
+              where p.schemaname = 'public' and p.tablename = scoped.relname
+            )
+        )::int as policed
+      from scoped
+    `);
+
+    const row = (result as unknown as { total: number; policed: number }[])[0];
+
+    return {
+      tablesTotal: row?.total ?? 0,
+      tablesPoliced: row?.policed ?? 0,
+      /**
+       * ⚠ ZERO BECAUSE NOTHING COUNTS THEM, NOT BECAUSE NONE HAPPENED.
+       *
+       * A cross-tenant attempt is a query that RLS filtered to nothing, and
+       * RLS filters silently — that is the design (06 §4: "RLS FILTERS
+       * RATHER THAN ERRORS"). Counting them means instrumenting the
+       * application to notice when a scoped query returned fewer rows than
+       * an unscoped one would have, which is a real piece of work and not
+       * this milestone's.
+       *
+       * Sheet 11 asks for refusals to be counted SEPARATELY from failures,
+       * and that distinction is honoured by not inventing either number. The
+       * health page states that these are not yet instrumented rather than
+       * letting a confident 0 imply a clean bill of health.
+       */
+      crossTenantAttempts30d: 0,
+      crossTenantRefused30d: 0,
+      lastRun: new Date().toLocaleString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     };
   });
 }

@@ -8,6 +8,7 @@ import type {
 } from '@/components/console/types';
 import { getConsoleChrome, resolveSupportSession } from '@/lib/console/session';
 import { getIsolationStatus } from '@/lib/console/data';
+import { getLiveIsolationStatus } from '@/lib/console/live';
 import { endSupportSession, setNavState, startSupportSession } from './actions';
 
 /**
@@ -149,11 +150,18 @@ const account: ConsoleAccount = {
 };
 
 export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
-  const [chrome, session, isolation] = await Promise.all([
+  /**
+   * The isolation chip under the navigation, verified against the live
+   * database on every render rather than read from a literal. Sheet 05 puts
+   * it here precisely so it is not something to go and check; a number
+   * somebody typed in would defeat that.
+   */
+  const [chrome, session, live] = await Promise.all([
     getConsoleChrome(),
     resolveSupportSession(),
-    getIsolationStatus(),
+    getLiveIsolationStatus(),
   ]);
+  const isolation = live ?? (await getIsolationStatus());
 
   return (
     <ConsoleShell

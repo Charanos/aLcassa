@@ -1693,3 +1693,52 @@ the typed way to say it. Verified: `before->>'currentValue'` returns `9`.
 
 The Drizzle call sites were never affected — Drizzle handles `jsonb` columns
 correctly — so this was confined to the two raw postgres.js writers.
+
+---
+
+## C43 · The isolation panel reported a figure nobody had checked
+
+**28 Aug 2026. Defect, on the console's most load-bearing claim.**
+
+`getIsolationStatus()` returned a hardcoded literal:
+
+```ts
+const ISOLATION: IsolationStatus = {
+  tablesTotal: 18, tablesPoliced: 18,
+  crossTenantAttempts30d: 0, crossTenantRefused30d: 0,
+  lastRun: '12 Aug, 03:00',
+};
+```
+
+The real count is **15**. The eighteen came from `06 §4`'s prose ("roughly
+eighteen tenant-scoped tables") rather than from the schema, and the file's own
+comment said as much while presenting it as fact. The timestamp was a literal.
+
+This sits under the console navigation and on the health page, and it is the
+one number in the product that speaks to the guarantee the engagement is sold
+on. It is the worst possible place for an unverified figure.
+
+**Resolution.** `getLiveIsolationStatus()` runs the same catalogue
+introspection `scripts/check-policies.ts` runs in CI, so the console and the
+build cannot disagree about what is policed. Verified: both report 15/15.
+
+**"Last run" is now, and that is better rather than a compromise.** A CI
+timestamp answers "did the suite pass when it last ran", which decays from the
+moment it is written — a policy dropped by hand at noon leaves a green 03:00
+badge until the next nightly. Sheet 11 wants isolation state "beside uptime,
+not buried in CI"; a check that runs when you look at it is more nearly that.
+
+**Two figures are deliberately still zero, and labelled.**
+`crossTenantAttempts30d` and `crossTenantRefused30d` require instrumenting the
+application to notice when a scoped query returned fewer rows than an unscoped
+one would have — RLS filters silently, by design (`06 §4`: "RLS FILTERS RATHER
+THAN ERRORS"). That is real work and not this milestone's. Sheet 11 asks for
+refusals to be counted separately from failures, and that distinction is
+honoured by inventing neither.
+
+**The same discipline applied to the overview.** The fixture carried revenue,
+conversation volumes and uptime percentages no table produces. `getLiveOverview`
+reports the four counts this database can answer — workspaces, memberships,
+attention, open support sessions — and leaves vitals empty rather than deriving
+a plausible uptime from the wrong rows. A number without a source is trivia;
+on an operations screen it is a number somebody will act on.

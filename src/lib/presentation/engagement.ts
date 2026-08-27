@@ -179,9 +179,9 @@ export const MILESTONES = [
     lands: 'Owner login, tenant management, plan assignment, platform metrics.',
     gate: 'Demo: console operations',
     tranche: 3,
-    status: 'active' as MilestoneStatus,
-    progress: 80,
-    note: 'Support sessions are real as of 27 Aug 2026. A support session is an ordinary row in the sessions table rather than a flag or a token, which is what makes its ceiling genuine: the database reads its workspace and its role exactly as it does for a customer\u2019s own staff. Entering writes three rows in one transaction — the session, our record, and THE CUSTOMER\u2019S — so the transparency claim is a row rather than an intention. Suspension is wired and now requires a reason the customer reads. Writing the tests found a real gap: the rule meant to stop a support session extending its own thirty-minute ceiling was guarding the wrong branch and had never worked. What remains is the platform metrics reading live data.',
+    status: 'complete' as MilestoneStatus,
+    progress: 100,
+    note: 'Support sessions are real as of 27 Aug 2026. A support session is an ordinary row in the sessions table rather than a flag or a token, which is what makes its ceiling genuine: the database reads its workspace and its role exactly as it does for a customer\u2019s own staff. Entering writes three rows in one transaction — the session, our record, and THE CUSTOMER\u2019S — so the transparency claim is a row rather than an intention. Suspension is wired and now requires a reason the customer reads. Writing the tests found a real gap: the rule meant to stop a support session extending its own thirty-minute ceiling was guarding the wrong branch and had never worked. The overview and the isolation panel now read the live database — which corrected the panel that speaks to this engagement\u2019s central guarantee and had been reporting a figure nobody had checked.',
   },
   {
     id: 'M5',
@@ -329,6 +329,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-28',
+    title: 'M4 complete: the console reports what is true rather than what was drawn',
+    body: 'The owner console now reads the real database. The queue on the overview is ordered by what each item costs to ignore — a workspace that has stopped paying above one that is nearly out of seats, above one that is merely approaching a limit — because that is the order somebody would work through them in. The panel that reports tenant isolation deserves its own note: it was showing "18 of 18 tables protected, last checked 12 August at 03:00". The real figure is fifteen, the eighteen came from a sentence in a document rather than from the system, and the timestamp was typed in. On the one screen that speaks to the guarantee this whole engagement rests on, that was the worst possible place for a number nobody had verified. It now counts the database on every page load and reports what it finds, which also means "last checked" is genuinely now rather than whenever a job last ran. Two figures on that panel — attempted and refused cross-tenant reads — are shown as zero and labelled as not yet counted, rather than being invented: the isolation mechanism works by returning nothing rather than by raising an error, so counting attempts is real work that has not been done. Revenue and uptime remain the designed figures for the same reason, and the screens say so.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-08-27',
     title: 'Support sessions are real, and writing the tests found a gap in them',

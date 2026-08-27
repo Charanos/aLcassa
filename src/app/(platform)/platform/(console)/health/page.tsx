@@ -10,6 +10,7 @@ import {
 import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
 import { LatencyChart, ThroughputChart } from '@/components/console/Charts';
 import { getHealth, type DayState, type Incident, type Service } from '@/lib/console/data';
+import { getLiveIsolationStatus } from '@/lib/console/live';
 
 export const metadata: Metadata = { title: 'Health' };
 
@@ -48,6 +49,18 @@ const SEV_INK: Record<Incident['sev'], { bg: string; ink: string }> = {
 
 export default async function HealthPage() {
   const m = await getHealth();
+
+  /**
+   * ⚠ THE ISOLATION PANEL IS LIVE EVEN WHILE THE REST OF THIS PAGE IS NOT.
+   *
+   * Uptime, latency and incident history come from probes that are not wired
+   * yet, so they are still the designed figures. Isolation is different in
+   * kind: it is the guarantee the engagement is sold on, and it is
+   * answerable from the database right now. Leaving it on a fixture beside
+   * genuinely unwired metrics would make the one number that CAN be true
+   * indistinguishable from the ones that cannot.
+   */
+  const isolation = (await getLiveIsolationStatus()) ?? m.isolation;
   const allOk = m.services.every((s) => s.days.every((d) => d === 'ok'));
   // Degraded is amber, never red — red is reserved for a failure of
   // correctness (the isolation suite), not a performance wobble.
@@ -197,12 +210,12 @@ export default async function HealthPage() {
               </p>
               <p className="numeric mt-1.5 flex items-baseline gap-1.5">
                 <span style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}>
-                  {m.isolation.tablesPoliced}
+                  {isolation.tablesPoliced}
                 </span>
                 <span style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
-                  / {m.isolation.tablesTotal}
+                  / {isolation.tablesTotal}
                 </span>
-                {m.isolation.tablesPoliced === m.isolation.tablesTotal ? (
+                {isolation.tablesPoliced === isolation.tablesTotal ? (
                   <IconShieldCheck size={16} stroke={1.5} style={{ color: 'var(--success-fg)' }} aria-hidden />
                 ) : null}
               </p>
@@ -212,7 +225,7 @@ export default async function HealthPage() {
                 Cross-tenant attempts · 30d
               </p>
               <p className="numeric mt-1.5" style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}>
-                {m.isolation.crossTenantAttempts30d}
+                {isolation.crossTenantAttempts30d}
               </p>
             </div>
             <div>
@@ -224,15 +237,15 @@ export default async function HealthPage() {
                 style={{
                   fontSize: 'var(--display-sm)',
                   color:
-                    m.isolation.crossTenantRefused30d === m.isolation.crossTenantAttempts30d
+                    isolation.crossTenantRefused30d === isolation.crossTenantAttempts30d
                       ? 'var(--success-fg)'
                       : 'var(--danger-fg)',
                 }}
               >
-                {m.isolation.crossTenantRefused30d}
+                {isolation.crossTenantRefused30d}
                 <span style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
                   {' '}
-                  / {m.isolation.crossTenantAttempts30d}
+                  / {isolation.crossTenantAttempts30d}
                 </span>
               </p>
             </div>
@@ -241,7 +254,7 @@ export default async function HealthPage() {
                 Last run
               </p>
               <p style={{ font: '400 var(--text-sm)/1.4 var(--font-mono)', color: 'var(--text-primary)', marginTop: 6 }}>
-                {m.isolation.lastRun}
+                {isolation.lastRun}
               </p>
             </div>
           </div>

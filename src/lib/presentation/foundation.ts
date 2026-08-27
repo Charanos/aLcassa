@@ -253,6 +253,27 @@ export const FOUNDATION: FoundationItem[] = [
     evidence: 'tests/isolation/support-mode.test.ts',
     milestone: 'M4',
   },
+  {
+    area: 'Isolation',
+    what: 'The console isolation panel verified against the live catalogue on every render, agreeing with the CI check by construction',
+    state: 'built',
+    evidence: 'src/lib/console/live.ts',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'The overview reading real workspaces, memberships and support sessions, with the queue ranked by what each item costs to ignore',
+    state: 'built',
+    evidence: 'src/app/(platform)/platform/(console)/page.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Uptime, latency and revenue still designed figures, and labelled as such rather than computed from the wrong rows',
+    state: 'scaffolded',
+    evidence: 'src/lib/console/data.ts',
+    milestone: 'M6',
+  },
 
   // ── System plumbing ─────────────────────────────────────────────────────
   {
