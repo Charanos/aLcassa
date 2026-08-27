@@ -156,9 +156,9 @@ export const MILESTONES = [
     lands: 'Login, password reset, sessions, invitations, role enforcement.',
     gate: 'Demo: full account lifecycle',
     tranche: null,
-    status: 'upcoming' as MilestoneStatus,
-    progress: 20,
-    note: 'The session table, the role model and the branded request context exist. The Supabase client layer landed on 25 Aug 2026 — server, browser, middleware session refresh, and an admin client lint-guarded the same way the service-role database client is — and provisioning already creates the first owner by invitation, so the account lifecycle has its first step. The flows themselves, sign-in through ownership transfer, are next.',
+    status: 'active' as MilestoneStatus,
+    progress: 70,
+    note: 'The account lifecycle is built end to end as of 27 Aug 2026: sign-in through both doors, sign-out, password recovery and reset, the session list with per-device and bulk revocation, invitations with accept, and ownership transfer. Sessions are ROWS rather than tokens, which is what makes revocation take effect on the next request instead of when a token happens to expire. Fourteen routes, each one going through the same six-stage pipeline as the rest of the API. What remains is the interfaces on top of them and the email transport that currently makes an invitation a link the owner sends by hand.',
   },
   {
     id: 'M3',
@@ -329,6 +329,20 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-27',
+    title: 'M2: the account lifecycle works, end to end',
+    body: 'Signing in, signing out, recovering a forgotten password, seeing every device signed into the account and revoking any of them, inviting a colleague and having them join, and handing the workspace to a new owner. Two decisions are worth stating because they are not the obvious ones. First, a session is a ROW IN THE DATABASE rather than a token the browser holds: revoking a token means waiting for it to expire, which is not revocation, so ending a session here takes effect on the very next request. Second, transferring ownership asks for the password again even though the person is already signed in — it is the one action in the product that the person taking it cannot undo, and a typed confirmation only proves someone read the dialog, not that they are the account holder. Invitations reserve their seat when they are sent rather than when they are accepted, so a workspace on five seats cannot issue fifty and exceed the limit the moment people start joining. The interfaces on top of these are next, along with the email transport that currently leaves an invitation as a link the owner passes on by hand.',
+    milestone: 'M2',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-08-27',
+    title: 'The review bypass is now switched on per environment rather than always',
+    body: 'The sign-in screens carry buttons that open the console and the workspace without an account, so the work can be reviewed before real accounts exist. Until now those buttons worked everywhere the site was deployed. With real sign-in landing this week that becomes an open door to the owner console rather than a demonstration, so it now requires the environment to say so explicitly. The review deployment keeps it by setting one variable; the environment that eventually holds real customer data must not, and that is recorded as a condition of handover rather than left to memory.',
+    milestone: 'M2',
+    kind: 'decision' as const,
+  },
   {
     date: '2026-08-27',
     title: 'A correction to the M1 gate report, and the test that will not let it recur',

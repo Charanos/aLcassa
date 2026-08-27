@@ -58,6 +58,47 @@ export async function withTenantContext<T>(
  * outside a transaction would instead inherit whatever the previous request on
  * this pooled connection left behind.
  */
+/**
+ * ⚠ THE ONE READ THAT LEGITIMATELY HAS AN ACTOR BUT NO TENANT YET.
+ *
+ * Resolving a request is a chicken-and-egg problem. To set a tenant context
+ * the application must know which tenant the caller belongs to, and that
+ * answer lives in `tenant_members`, which is itself behind RLS. Something
+ * has to run before the tenant is known.
+ *
+ * The tempting shortcut is the service role, and it would be WRONG: session
+ * resolution runs on every single request, so routing it through the one
+ * RLS-bypassing connection would make the bypass the default path through
+ * the application rather than the four audited exceptions `serviceClient.ts`
+ * documents.
+ *
+ * This is the honest alternative. The actor is known — Supabase Auth
+ * validated the token before we got here — so `app.actor_id` is set and
+ * `app.tenant_id` is not. Every tenant-scoped policy compares against a
+ * null tenant and matches nothing; the two policies that key off the actor
+ * (`tenant_members_select`'s own-membership branch and `sessions_select`)
+ * match exactly that person's own rows. Nothing else is reachable.
+ *
+ * USE IT FOR SESSION RESOLUTION AND NOTHING ELSE. Once the tenant is known,
+ * every subsequent query goes through `withTenantContext`.
+ */
+export async function withActorContext<T>(
+  actorId: string,
+  requestId: string,
+  fn: (tx: Transaction) => Promise<T>,
+): Promise<T> {
+  return db.transaction(async (tx) => {
+    // No tenant. Deliberately. See the note above.
+    await tx.execute(sql`select set_config('app.tenant_id', '', true)`);
+    await tx.execute(sql`select set_config('app.role', 'none', true)`);
+    await tx.execute(sql`select set_config('app.support_mode', 'false', true)`);
+    await tx.execute(sql`select set_config('app.actor_id', ${actorId}, true)`);
+    await tx.execute(sql`select set_config('app.request_id', ${requestId}, true)`);
+
+    return fn(tx);
+  });
+}
+
 export async function withoutTenantContext<T>(
   requestId: string,
   fn: (tx: Transaction) => Promise<T>,

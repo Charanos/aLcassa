@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 import {
   IconArrowRight,
   IconBuildingSkyscraper,
@@ -28,7 +29,13 @@ export default function PlatformSignInPage() {
       aside={<PlatformAside />}
       footer={
         <div className="space-y-4">
-          {/* Demo Mode Quick Access */}
+          {/*
+            Demo bypass, rendered only where /api/demo would answer. These
+            links set an OWNER CONSOLE session without authenticating anyone,
+            which is why the gate matters more on this page than on the
+            tenant one. See lib/auth/demoAccess.
+          */}
+          {demoAccessEnabled() ? (
           <div
             className="rounded-panel border p-4 transition-all duration-300"
             style={{
@@ -54,6 +61,7 @@ export default function PlatformSignInPage() {
               </Button>
             </div>
           </div>
+          ) : null}
 
           <div className="flex items-start gap-2.5">
             <IconHistory

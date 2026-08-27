@@ -108,10 +108,38 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'API',
-    what: 'Route handlers for the session, service and platform doors',
+    what: 'The session door: fourteen routes covering the whole account lifecycle, each through the six-stage pipeline',
+    state: 'built',
+    evidence: 'src/app/api/v1/',
+    milestone: 'M2',
+  },
+  {
+    area: 'API',
+    what: 'Route handlers for the service and platform doors',
     state: 'planned',
     evidence: 'src/app/api/',
-    milestone: 'M2 – M4a',
+    milestone: 'M3 – M4a',
+  },
+  {
+    area: 'System',
+    what: 'Sessions as rows, so revocation takes effect on the next request rather than when a token expires',
+    state: 'built',
+    evidence: 'src/lib/auth/session.ts',
+    milestone: 'M2',
+  },
+  {
+    area: 'System',
+    what: 'The two door resolvers: the only place a tenant context is constructed, and never from anything a caller sent',
+    state: 'built',
+    evidence: 'src/lib/auth/resolve.ts',
+    milestone: 'M2',
+  },
+  {
+    area: 'System',
+    what: 'Membership, invitations and the exactly-one-owner invariant, with transfer atomic in one transaction',
+    state: 'built',
+    evidence: 'src/modules/membership/',
+    milestone: 'M2',
   },
 
   // ── System plumbing ─────────────────────────────────────────────────────

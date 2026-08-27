@@ -31,6 +31,8 @@ export const AUDIT_ACTIONS = {
   TENANT_LOGO_UPLOADED: 'tenant.logo_uploaded',
   TENANT_OWNERSHIP_TRANSFERRED: 'tenant.ownership_transferred',
 
+  PROFILE_UPDATED: 'profile.updated',
+
   MEMBER_INVITED: 'member.invited',
   MEMBER_JOINED: 'member.joined',
   MEMBER_ROLE_CHANGED: 'member.role_changed',

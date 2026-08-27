@@ -40,8 +40,27 @@ create policy user_profiles_modify on user_profiles
 alter table tenant_members enable row level security;
 alter table tenant_members force row level security;
 
+-- ⚠ THE SECOND BRANCH IS WHAT MAKES SIGNING IN POSSIBLE, AND IT IS NOT A
+--   WIDENING OF THE FIRST.
+--
+-- Resolving a session is a chicken-and-egg problem: to set a tenant context
+-- the application must first know which tenant this person belongs to, and
+-- that answer lives in this table. Scoped to `current_tenant_id()` alone,
+-- the lookup returns nothing at the exact moment it is needed, and nobody can
+-- sign in. 02 §11 needs the same read to tell a user with no membership that
+-- their account is not attached to a workspace, rather than showing them a
+-- broken shell.
+--
+-- It reads MY OWN rows, never anyone else's: `user_id = current_actor_id()`
+-- is true for at most the handful of memberships one person holds. Isolation
+-- case 2 still passes — tenant A's actor asking for tenant B's member row
+-- matches neither branch, because that row is neither in A's tenant nor owned
+-- by A's user.
 create policy tenant_members_select on tenant_members
-  for select using (tenant_id = app.current_tenant_id());
+  for select using (
+    tenant_id = app.current_tenant_id()
+    or user_id = app.current_actor_id()
+  );
 
 -- Owners and admins manage the team. 24 Aug 2026, per 01 D-13: support now
 -- writes here too, since `can_write_settings()` admits the support role.

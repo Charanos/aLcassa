@@ -7,6 +7,6 @@
 
 export { db } from './client';
 export type { Database, Transaction } from './client';
-export { withTenantContext, withoutTenantContext } from './withTenantContext';
+export { withTenantContext, withActorContext, withoutTenantContext } from './withTenantContext';
 export { hasRole, isSupport } from './context';
 export type { ResolvedContext, TenantRole } from './context';
