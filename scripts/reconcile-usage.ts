@@ -310,8 +310,15 @@ async function main(): Promise<void> {
            -- before/after payload where it is queryable.
            ${`usage_counter:${row.key}`}, null,
            true, ${REASON ?? ''}, ${`reconcile-${Date.now()}`},
-           ${JSON.stringify({ key: row.key, currentValue: row.stored })}::jsonb,
-           ${JSON.stringify({ key: row.key, currentValue: row.actual })}::jsonb)
+           -- ⚠ THE OBJECT, NOT JSON.stringify OF IT.
+           --    postgres.js serialises an object to jsonb itself. Stringifying
+           --    first and casting stores a jsonb STRING — '"{\"key\":…}"' —
+           --    which renders as the right data and is unqueryable with any
+           --    jsonb operator, so the audit trail looks correct and cannot
+           --    be searched. Caught by the support-mode tests hitting the
+           --    same mistake. sql.json() is the typed way to say it.
+           ${sql.json({ key: row.key, currentValue: row.stored })},
+           ${sql.json({ key: row.key, currentValue: row.actual })})
       `;
 
       await tx`

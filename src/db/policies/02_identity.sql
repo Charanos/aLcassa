@@ -237,15 +237,50 @@ create policy sessions_select on sessions
     )
   );
 
+-- ⚠ THE GUARD WAS ON THE WRONG BRANCH, FOUND 27 Aug 2026.
+--
+-- This read:
+--
+--     using (
+--       user_id = app.current_actor_id()
+--       or ( kind = 'support' and ... and not app.is_support_session() )
+--     )
+--
+-- with the comment "a support session cannot extend itself" on the SECOND
+-- branch. That branch is the one letting an OWNER revoke a support session in
+-- their workspace, and the guard belonged there too — but it was the only
+-- place it appeared, and the FIRST branch let the thing it forbade straight
+-- through.
+--
+-- A support session's `user_id` IS the platform admin who opened it, and that
+-- admin is `current_actor_id()` while inside. So `user_id = current_actor_id()`
+-- matched the session's own row, and a support session could
+-- `update sessions set expires_at = now() + interval '8 hours'` on itself —
+-- turning the thirty-minute ceiling in 09 §3 into whatever it liked, silently,
+-- with nothing in the tenant's log to show for it.
+--
+-- 01 D-13 lists this as one of three PERMANENT carve-outs. It is now enforced
+-- rather than described: while `app.support_mode` is on, no support row is
+-- writable by anyone, including its own holder.
+--
+-- What still works, and must: the console's own extend and exit run through
+-- `asService`, outside any support context, and are audited into the tenant's
+-- log — so a renewed ceiling is visible to the customer rather than invisible.
+-- A platform admin's own `kind = 'platform'` session is untouched by this,
+-- because the exclusion is scoped to support rows.
 create policy sessions_modify on sessions
   for all
   using (
-    user_id = app.current_actor_id()
+    (
+      user_id = app.current_actor_id()
+      -- The carve-out. Applies to the holder as much as to anyone else.
+      and not (kind = 'support' and app.is_support_session())
+    )
     or (
       kind = 'support'
       and tenant_id = app.current_tenant_id()
       and app.current_role() = 'owner'
-      and not app.is_support_session()   -- a support session cannot extend itself
+      and not app.is_support_session()   -- 09 §7: the owner revokes, support does not
     )
   )
   /**

@@ -36,6 +36,27 @@ export type { PlanChangePreview, PlatformActor } from './internal/subscriptions'
 export { watchlist, ATTENTION_THRESHOLD } from './internal/watchlist';
 export type { WatchlistEntry } from './internal/watchlist';
 
+/**
+ * 09 §3 · 09 §4. Support sessions.
+ *
+ * A support session is a row in `sessions` with `kind = 'support'` — not a
+ * table of its own and not a flag on the admin — so RLS reads its tenant and
+ * role exactly as it does for a tenant user. See the file for why that is the
+ * whole security argument.
+ */
+export {
+  startSupportSession,
+  endSupportSession,
+  extendSupportSession,
+  readSupportSession,
+  SUPPORT_SESSION_DURATION_MS,
+} from './internal/support';
+export type { SupportSessionRecord } from './internal/support';
+
+/** 06 §8 · 09 §2. Suspension, which is read-only access rather than a lockout. */
+export { setTenantStatus, previewSuspension } from './internal/tenancy';
+export type { TenantStatus } from './internal/tenancy';
+
 export { provisionTenantSchema, slugSchema, RESERVED_SLUGS } from './types';
 
 export type { ProvisionTenantInput, ProvisionTenantResult } from './types';

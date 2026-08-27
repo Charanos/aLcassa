@@ -7,9 +7,19 @@ import {
   CONSOLE_NAV_COOKIE,
   SUPPORT_SESSION_COOKIE,
   SUPPORT_SESSION_DURATION_MS,
+  resolveSupportSessionId,
   type Density,
   type NavState,
 } from '@/lib/console/session';
+import { currentPlatformSession } from '@/lib/auth/resolve';
+import { isAppError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import {
+  endSupportSession as revokeSupportSession,
+  extendSupportSession,
+  setTenantStatus,
+  startSupportSession as mintSupportSession,
+} from '@/modules/platform';
 import {
   getProvisionOptions,
   getWorkspaceDetail,
@@ -111,27 +121,85 @@ export async function startSupportSession(input: {
     return { ok: false, error: 'Select a workspace to enter.' };
   }
 
-  const expiresAt = new Date(Date.now() + SUPPORT_SESSION_DURATION_MS).toISOString();
+  /**
+   * ⚠ THE ROW IS MINTED FIRST, AND THE COOKIE POINTS AT IT.
+   *
+   * This used to write the whole grant — tenant, reason, expiry — into the
+   * cookie and never touch the database, because there was no row to write.
+   * There is now. `startSupportSession` opens the session, writes the
+   * platform audit entry and writes the CUSTOMER's audit entry, all in one
+   * transaction; if any of it fails, nothing is set and the operator is told.
+   */
+  try {
+    const ctx = await currentPlatformSession();
+    const session = await mintSupportSession(
+      { tenantId: input.tenantId, reason },
+      {
+        userId: ctx.actorId,
+        label: ctx.actorLabel,
+        requestId: ctx.requestId,
+        ipAddress: ctx.ipAddress,
+      },
+    );
 
-  (await cookies()).set(
-    SUPPORT_SESSION_COOKIE,
-    JSON.stringify({
-      id: crypto.randomUUID(),
-      tenantId: input.tenantId,
-      tenantName: input.tenantName,
-      reason,
-      expiresAt,
-    }),
-    {
+    (await cookies()).set(SUPPORT_SESSION_COOKIE, session.id, {
       ...COOKIE_BASE,
       // The cookie dies with the grant. A stale cookie outliving its session
-      // would render a banner for a session the database has already closed.
+      // would render a banner for a session the database has already closed —
+      // though the row is checked on every read regardless, so an early
+      // expiry here is a tidiness measure rather than the control.
       maxAge: Math.floor(SUPPORT_SESSION_DURATION_MS / 1000),
-    },
-  );
+    });
 
-  revalidatePath('/platform', 'layout');
-  return { ok: true };
+    revalidatePath('/platform', 'layout');
+    return { ok: true };
+  } catch (error) {
+    if (isAppError(error)) return { ok: false, error: error.message };
+    logger.error('support session could not be opened', { error });
+    return {
+      ok: false,
+      error: 'The support session could not be opened. The platform log has the detail.',
+    };
+  }
+}
+
+/**
+ * 09 §3. Extend a session that is about to lapse.
+ *
+ * "At two minutes remaining a warning appears with an extend action; extending
+ * is a fresh confirmation, not a silent renewal." The confirmation is the
+ * dialog's job; this is the write, and it is audited into the customer's log
+ * so a renewed ceiling is as visible to them as the original entry was.
+ */
+export async function extendCurrentSupportSession(): Promise<StartSessionResult> {
+  try {
+    const sessionId = await resolveSupportSessionId();
+    if (!sessionId) return { ok: false, error: 'There is no support session to extend.' };
+
+    const ctx = await currentPlatformSession();
+    const extended = await extendSupportSession(sessionId, {
+      userId: ctx.actorId,
+      label: ctx.actorLabel,
+      requestId: ctx.requestId,
+      ipAddress: ctx.ipAddress,
+    });
+
+    if (!extended) {
+      return { ok: false, error: 'That session has already ended. Switch in again to continue.' };
+    }
+
+    (await cookies()).set(SUPPORT_SESSION_COOKIE, sessionId, {
+      ...COOKIE_BASE,
+      maxAge: Math.floor(SUPPORT_SESSION_DURATION_MS / 1000),
+    });
+
+    revalidatePath('/platform', 'layout');
+    return { ok: true };
+  } catch (error) {
+    if (isAppError(error)) return { ok: false, error: error.message };
+    logger.error('support session could not be extended', { error });
+    return { ok: false, error: 'The session could not be extended.' };
+  }
 }
 
 /**
@@ -142,6 +210,35 @@ export async function startSupportSession(input: {
  * exit path that can trap someone inside a session they are trying to leave.
  */
 export async function endSupportSession(): Promise<void> {
+  const sessionId = await resolveSupportSessionId();
+
+  /**
+   * ⚠ THE COOKIE GOES LAST, AND THE ORDER MATTERS.
+   *
+   * Clearing it first loses the id, and with it any way to name the row that
+   * must be revoked — leaving a live grant behind that the operator believes
+   * they have ended. Same reasoning as sign-out, and the same consequence if
+   * it were the other way round.
+   *
+   * Every failure is swallowed. 09 §4 wants a one-click exit that is always
+   * available, and an exit with a failure mode is one that can trap somebody
+   * inside a session they are trying to leave. The row expires on its own
+   * timer regardless, so the residual risk is bounded at thirty minutes.
+   */
+  if (sessionId) {
+    try {
+      const ctx = await currentPlatformSession();
+      await revokeSupportSession(sessionId, {
+        userId: ctx.actorId,
+        label: ctx.actorLabel,
+        requestId: ctx.requestId,
+        ipAddress: ctx.ipAddress,
+      });
+    } catch (error) {
+      logger.error('support session row could not be revoked on exit', { sessionId, error });
+    }
+  }
+
   (await cookies()).delete(SUPPORT_SESSION_COOKIE);
   revalidatePath('/platform', 'layout');
 }
@@ -173,46 +270,57 @@ export async function fetchProvisionOptions(): Promise<{
 export type SuspendWorkspaceResult = { ok: true } | { ok: false; error: string };
 
 /**
- * Suspend (or reactivate) a workspace.
+ * 06 §8 · 09 §2. Suspend or reactivate a workspace.
  *
- * ⚠ THIS VALIDATES EVERYTHING AND WRITES NOTHING, ON PURPOSE.
+ * ⚠ SUSPENSION IS READ-ONLY ACCESS, NOT A LOCKOUT. A suspended customer who
+ * can still see their configuration and their team can fix their billing
+ * problem; one locked out entirely opens a support ticket, and Brian is the
+ * support team. The behaviour is `app.tenant_is_writable()` in the database,
+ * not a check here — this only sets the value that function reads.
  *
- * Both dialogs that call this — `WorkspaceActions` and the drawer's inline
- * confirm — had a "Suspend workspace" button with no handler at all before
- * this action existed: `disabled={!armed}` and nothing behind it, in two
- * separate copies. That is worse than refusing, because it looks like it
- * might have worked.
+ * ⚠ THE TYPED SLUG IS CHECKED AGAINST THE RECORD, NOT AGAINST THE CALLER'S
+ *   OWN `slug` ARGUMENT.
  *
- * The actual write is `UPDATE tenants SET status = ...`, gated behind
- * `dbAsService` for the same reason `startSupportSession`'s audit insert is:
- * `src/lib/console/data.ts` is a read-model seam over fixtures, not a live
- * table, until M4. So this checks what it can check now — the workspace is
- * real, the slug on record matches the one the operator typed — and refuses
- * with the specific, named reason rather than reporting success for a write
- * that did not happen.
+ * This action previously compared `confirmSlug` with `slug`, both supplied by
+ * the caller — which is the operator agreeing with themselves, and passes
+ * trivially for a direct call to the Server Action. `setTenantStatus` loads
+ * the workspace and compares against what is on record.
  */
-// Server Actions must be async; there is nothing to await until the write below is real.
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function suspendWorkspace(input: {
   tenantId: string;
   slug: string;
   confirmSlug: string;
+  reason: string;
+  /** Omitted means suspend; 'active' reactivates. */
+  status?: 'active' | 'suspended';
 }): Promise<SuspendWorkspaceResult> {
-  const { tenantId, slug, confirmSlug } = input;
+  if (!input.tenantId) return { ok: false, error: 'Select a workspace.' };
 
-  if (!tenantId || !slug) {
-    return { ok: false, error: 'Select a workspace to suspend.' };
+  try {
+    const ctx = await currentPlatformSession();
+    await setTenantStatus(
+      {
+        tenantId: input.tenantId,
+        status: input.status ?? 'suspended',
+        confirmSlug: input.confirmSlug,
+        reason: input.reason,
+      },
+      {
+        userId: ctx.actorId,
+        label: ctx.actorLabel,
+        requestId: ctx.requestId,
+        ipAddress: ctx.ipAddress,
+      },
+    );
+
+    revalidatePath('/platform/tenants');
+    revalidatePath('/platform');
+    return { ok: true };
+  } catch (error) {
+    if (isAppError(error)) return { ok: false, error: error.message };
+    logger.error('workspace status change failed', { error });
+    return { ok: false, error: 'That did not go through. The platform log has the detail.' };
   }
-
-  if (confirmSlug.trim() !== slug) {
-    return { ok: false, error: 'Typed slug does not match. Suspension was not sent.' };
-  }
-
-  return {
-    ok: false,
-    error:
-      'Suspension writes to the tenant record and is not wired until the tenants table lands in M4. The request itself is valid — nothing else is blocking it.',
-  };
 }
 
 /* ── Plan / entitlement changes ───────────────────────────────────────────── */

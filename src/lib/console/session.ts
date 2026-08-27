@@ -1,5 +1,7 @@
 import 'server-only';
 import { cookies } from 'next/headers';
+import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
+import { readSupportSession } from '@/modules/platform';
 
 /**
  * The support session, as the SERVER sees it.
@@ -27,27 +29,84 @@ import { cookies } from 'next/headers';
  *      same transaction that opens the session, or the record and the grant
  *      can disagree.
  *
- * So the cookie below carries only an opaque id and the absolute expiry. The
- * banner's countdown is derived from `expiresAt` on every tick, which means a
- * refresh, a slow tab, or a laptop resumed from sleep all resolve to the same
- * remaining time — and an expired session renders as expired rather than as
- * "29:59" until someone happens to reload.
+ * So the cookie below carries only an opaque id. The banner's countdown is
+ * derived from the row's `expiresAt` on every tick, which means a refresh, a
+ * slow tab, or a laptop resumed from sleep all resolve to the same remaining
+ * time — and an expired session renders as expired rather than as "29:59"
+ * until someone happens to reload.
  *
- * Authority still rests with the row, not the cookie: the cookie is a pointer,
- * and `resolveSupportSession` is where the row would be loaded and re-checked
- * once M4 lands the `support_sessions` table. Until then this reads the cookie
- * and hard-fails closed on anything it cannot parse.
+ * ⚠ THE ROW ARRIVED AT M4, AND THIS FILE CHANGED SHAPE AGAIN.
+ *
+ * The paragraph here used to say authority "would" rest with the row once M4
+ * landed a `support_sessions` table, and that until then the cookie carried
+ * the tenant, the reason and the expiry itself. Both are now out of date, and
+ * in the safe direction:
+ *
+ *   - The table is `sessions` with `kind = 'support'`, not a table of its
+ *     own — see `modules/platform/internal/support.ts` for why that is the
+ *     entire ceiling argument rather than a schema convenience.
+ *   - The cookie carries ONLY the row id. A cookie that carried the grant was
+ *     a grant its holder could edit; a pointer resolves to nothing the
+ *     instant the row is revoked.
+ *
+ * `resolveSupportSession` therefore returns the id for the caller to resolve
+ * against the database. It deliberately does NOT hit the database itself:
+ * this module is imported by client-adjacent console code, and the row read
+ * is a service-role call that belongs behind the platform module's boundary.
  */
 
 export const SUPPORT_SESSION_COOKIE = 'alcassa_support_session';
 
-/** 09 §4. Thirty minutes, no extension. Stated here once so the dialog copy,
- *  the cookie lifetime and the server check cannot drift apart. */
-export const SUPPORT_SESSION_DURATION_MS = 30 * 60 * 1000;
+/**
+ * 09 §3. Thirty minutes of inactivity.
+ *
+ * ⚠ RE-EXPORTED FROM THE MODULE THAT ISSUES THE GRANT, NOT DECLARED AGAIN.
+ *
+ * It was declared here as its own literal while the session was cookie-only.
+ * Now that the row carries the expiry, two constants could disagree — and the
+ * one that would win is the one nobody was looking at. The dialog copy, the
+ * cookie lifetime and the server check all read this, and it has exactly one
+ * definition.
+ */
+export { SUPPORT_SESSION_DURATION_MS } from '@/modules/platform';
 
+/**
+ * The support session id this request is carrying, if any.
+ *
+ * ⚠ IT RETURNS AN ID, NOT A SESSION, AND THE DIFFERENCE IS THE POINT.
+ *
+ * Everything a caller wants to know — which workspace, whose grant, how long
+ * is left — comes from the row, resolved by `readSupportSession` in the
+ * platform module. Returning a shaped object from here would invite a caller
+ * to trust it, and a cookie is not a source of truth about its own validity.
+ *
+ * The uuid check is not validation of the grant. It only stops an obviously
+ * malformed value reaching a uuid column and raising, which would turn a
+ * tampered cookie into a 500 rather than a signed-out state.
+ */
+export async function resolveSupportSessionId(): Promise<string | null> {
+  const raw = (await cookies()).get(SUPPORT_SESSION_COOKIE)?.value;
+  if (!raw) return null;
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw);
+  return isUuid ? raw : null;
+}
+
+/**
+ * What the console renders: the session as the DATABASE has it.
+ *
+ * ⚠ EVERY FIELD HERE COMES FROM THE ROW. The cookie contributes one thing —
+ * which row to look at — and if the row is revoked, expired, or belongs to a
+ * different operator, this is null however intact the cookie looks.
+ *
+ * The shape is unchanged from when this was cookie-derived, so the banner,
+ * the shell and the session card did not need touching. What changed is that
+ * it is now true.
+ */
 export type SupportSession = {
   id: string;
   tenantId: string;
+  tenantSlug: string;
   tenantName: string;
   /** The operator's stated reason. The customer reads this. */
   reason: string;
@@ -55,46 +114,41 @@ export type SupportSession = {
   expiresAt: string;
 };
 
-type CookiePayload = Partial<Record<keyof SupportSession, unknown>>;
-
-function isExpired(expiresAt: string): boolean {
-  const at = Date.parse(expiresAt);
-  return Number.isNaN(at) || at <= Date.now();
-}
-
 /**
- * Read the active support session, or null.
+ * Resolve the active support session, or null.
  *
- * Fails closed on every ambiguity: unparseable JSON, a missing field, a
- * malformed timestamp and an elapsed timestamp all return null rather than
- * throwing or degrading to a partial session. A support session that cannot
- * be fully verified is not a support session.
+ * Fails closed on every ambiguity, as before — but the ambiguities are now
+ * the ones that matter: a revoked row, an elapsed expiry, somebody else's
+ * grant. A cookie that parses perfectly and names a closed session resolves
+ * to nothing, which is the case the old cookie-only version could not see.
  */
 export async function resolveSupportSession(): Promise<SupportSession | null> {
-  const raw = (await cookies()).get(SUPPORT_SESSION_COOKIE)?.value;
-  if (!raw) return null;
+  const sessionId = await resolveSupportSessionId();
+  if (!sessionId) return null;
 
-  let parsed: CookiePayload;
-  try {
-    parsed = JSON.parse(raw) as CookiePayload;
-  } catch {
-    return null;
-  }
+  // No platform session, no support session. Reading the row is a
+  // service-role call and it is not made on behalf of an unauthenticated
+  // caller holding a cookie.
+  const ctx = await currentPlatformSessionOrNull();
+  if (!ctx) return null;
 
-  const { id, tenantId, tenantName, reason, expiresAt } = parsed;
-  if (
-    typeof id !== 'string' ||
-    typeof tenantId !== 'string' ||
-    typeof tenantName !== 'string' ||
-    typeof reason !== 'string' ||
-    typeof expiresAt !== 'string'
-  ) {
-    return null;
-  }
+  const record = await readSupportSession(sessionId, {
+    userId: ctx.actorId,
+    label: ctx.actorLabel,
+    requestId: ctx.requestId,
+    ipAddress: ctx.ipAddress,
+  });
 
-  if (isExpired(expiresAt)) return null;
+  if (!record) return null;
 
-  return { id, tenantId, tenantName, reason, expiresAt };
+  return {
+    id: record.id,
+    tenantId: record.tenantId,
+    tenantSlug: record.tenantSlug,
+    tenantName: record.tenantName,
+    reason: record.reason,
+    expiresAt: record.expiresAt,
+  };
 }
 
 /**

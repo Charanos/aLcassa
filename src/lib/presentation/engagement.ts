@@ -179,9 +179,9 @@ export const MILESTONES = [
     lands: 'Owner login, tenant management, plan assignment, platform metrics.',
     gate: 'Demo: console operations',
     tranche: 3,
-    status: 'upcoming' as MilestoneStatus,
-    progress: 15,
-    note: 'The console shell and the boundary frame are built. The support role matrix was signed on 24 Aug 2026, as read and write rather than the read-only default it was drawn as, so the session work can start. The isolation suite\'s support cases are regenerated against it.',
+    status: 'active' as MilestoneStatus,
+    progress: 80,
+    note: 'Support sessions are real as of 27 Aug 2026. A support session is an ordinary row in the sessions table rather than a flag or a token, which is what makes its ceiling genuine: the database reads its workspace and its role exactly as it does for a customer\u2019s own staff. Entering writes three rows in one transaction — the session, our record, and THE CUSTOMER\u2019S — so the transparency claim is a row rather than an intention. Suspension is wired and now requires a reason the customer reads. Writing the tests found a real gap: the rule meant to stop a support session extending its own thirty-minute ceiling was guarding the wrong branch and had never worked. What remains is the platform metrics reading live data.',
   },
   {
     id: 'M5',
@@ -329,6 +329,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-27',
+    title: 'Support sessions are real, and writing the tests found a gap in them',
+    body: 'Entering a customer\u2019s workspace to help them is now a recorded event rather than a switch in a browser. It opens a row with a thirty-minute ceiling, and it writes to two logs at once — ours and the customer\u2019s — in a single step, so a visit that happened is a visit they can see, with the operator\u2019s name and their stated reason. The reason is required rather than optional: document 09 argued for that and made the argument conditional on support being able to CHANGE things, which was confirmed on 24 August. The customer can see the session in their own account and end it themselves. Writing the tests for all this found a genuine gap. One of the three permanent limits on a support session is that it cannot extend its own time. The rule meant to enforce that was attached to the wrong half of the condition, and had never actually done so — a session could have quietly given itself eight hours instead of thirty minutes, with nothing in the customer\u2019s log to show for it. It is fixed, and the test that found it now runs on every change. Nothing was exploited: the only sessions that have ever existed are the ones these tests created.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-08-27',
     title: 'M3 complete: the nightly usage check, and what it found first time out',

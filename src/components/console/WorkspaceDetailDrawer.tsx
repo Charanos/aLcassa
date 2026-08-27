@@ -106,6 +106,7 @@ export function WorkspaceDetailDrawer({
   const [sessionOpen, setSessionOpen] = useState(false);
   const [suspendOpen, setSuspendOpen] = useState(false);
   const [suspendError, setSuspendError] = useState<string | null>(null);
+  const [suspendReason, setSuspendReason] = useState('');
   const [suspendPending, startSuspendTransition] = useTransition();
 
   /* Fetch details via Server Action */
@@ -170,9 +171,15 @@ export function WorkspaceDetailDrawer({
   function submitSuspend(typed: string) {
     setSuspendError(null);
     startSuspendTransition(async () => {
-      const result = await suspendWorkspace({ tenantId: row.id, slug: row.slug, confirmSlug: typed });
+      const result = await suspendWorkspace({
+        tenantId: row.id,
+        slug: row.slug,
+        confirmSlug: typed,
+        reason: suspendReason,
+      });
       if (result.ok) {
         setSuspendOpen(false);
+        setSuspendReason('');
       } else {
         setSuspendError(result.error);
       }
@@ -835,6 +842,8 @@ export function WorkspaceDetailDrawer({
           title={`Suspend ${row.name}`}
           consequence="Stated in numbers, because a suspension is felt by people who did not choose it."
           details={
+            <>
+
             <ul className="grid list-none gap-2.5 border-t p-0 pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
               {[
                 [detail.impact.staff, 'staff lose access at their next request. Sessions are not waited out.'],
@@ -852,6 +861,33 @@ export function WorkspaceDetailDrawer({
                 Data is retained. Reactivation restores access immediately and is a single action.
               </li>
             </ul>
+
+            <div className="grid gap-1.5 border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
+              {/*
+                ⚠ REQUIRED, AND THE CUSTOMER READS IT. 09 §7 puts suspension in the
+                tenant's own activity log; a customer whose writes start failing with
+                no explanation cannot tell a billing decision from an outage. The
+                server requires it too, so a direct call cannot skip it.
+              */}
+              <label htmlFor="drawer-suspend-reason" className="t-label" style={{ color: 'var(--text-secondary)' }}>
+                Reason · the customer sees this
+              </label>
+              <textarea
+                id="drawer-suspend-reason"
+                value={suspendReason}
+                onChange={(e) => setSuspendReason(e.target.value)}
+                rows={2}
+                placeholder="Payment overdue since 12 August; invoices sent 1 and 8 August."
+                className="rounded-panel border px-3 py-2"
+                style={{
+                  borderColor: 'var(--rule-base)',
+                  background: 'var(--surface-raised)',
+                  color: 'var(--text-primary)',
+                  font: '400 var(--text-sm)/1.5 var(--font-ui)',
+                }}
+              />
+            </div>
+            </>
           }
           confirmValue={row.slug}
           confirmFieldLabel={`Type "${row.slug}" to confirm`}

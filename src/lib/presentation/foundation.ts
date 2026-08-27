@@ -232,6 +232,27 @@ export const FOUNDATION: FoundationItem[] = [
     evidence: 'src/app/(platform)/platform/(console)/subscription-actions.ts',
     milestone: 'M3',
   },
+  {
+    area: 'Console',
+    what: 'Support sessions as ordinary session rows, so the ceiling is the same machinery that scopes every tenant user',
+    state: 'built',
+    evidence: 'src/modules/platform/internal/support.ts',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Suspension and reactivation, with a reason the customer reads and the typed slug checked against the record rather than the caller',
+    state: 'built',
+    evidence: 'src/modules/platform/internal/tenancy.ts',
+    milestone: 'M4',
+  },
+  {
+    area: 'Isolation',
+    what: 'Support mode proved both ways: the tenant sees every visit, and the three carve-outs hold — including one that had never worked',
+    state: 'built',
+    evidence: 'tests/isolation/support-mode.test.ts',
+    milestone: 'M4',
+  },
 
   // ── System plumbing ─────────────────────────────────────────────────────
   {

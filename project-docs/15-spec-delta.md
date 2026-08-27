@@ -1620,3 +1620,76 @@ name — it is not protected by the page that imports it, and anybody who can
 reach the application can post to it. The actor is therefore resolved from the
 platform cookie on every call, and the check is the same one the console pages
 make: a live platform session **and** a `platform_admins` row.
+
+---
+
+## C41 · `sessions_modify` had the support carve-out on the wrong branch
+
+**27 Aug 2026. SECURITY DEFECT, found by writing the M4 tests.**
+
+`01 D-13` lists three permanent carve-outs on support mode. The second is that
+a support session cannot extend its own timeout. `02_identity.sql` carried a
+comment saying exactly that — on the wrong half of the condition:
+
+```sql
+using (
+  user_id = app.current_actor_id()
+  or (
+    kind = 'support' and tenant_id = app.current_tenant_id()
+    and app.current_role() = 'owner'
+    and not app.is_support_session()   -- a support session cannot extend itself
+  )
+)
+```
+
+The guarded branch is the one letting an **owner** revoke a support session in
+their workspace. The first branch was unguarded — and a support session's
+`user_id` **is** the platform admin who opened it, who is `current_actor_id()`
+while inside. So `user_id = app.current_actor_id()` matched the session's own
+row, and a support session could run:
+
+```sql
+update sessions set expires_at = now() + interval '8 hours' where id = <itself>
+```
+
+turning the thirty-minute ceiling in `09 §3` into whatever it liked, silently,
+with nothing in the tenant's log to show for it.
+
+**Resolution.** The exclusion now applies to the holder as much as to anyone
+else: while `app.support_mode` is on, no support row is writable by anybody.
+The console's own extend and exit still work — they run through `asService`,
+outside any support context, and are audited into the tenant's log, so a
+renewed ceiling is visible to the customer rather than invisible. A platform
+admin's own `kind = 'platform'` session is untouched, because the exclusion is
+scoped to support rows.
+
+**Exposure: none.** The only support sessions that have ever existed are the
+ones these tests created. The defect predates any support session being
+mintable at all — `startSupportSession` wrote a cookie and no row until this
+milestone.
+
+**Why it was not caught earlier.** The generated isolation suite covers
+`sessions` under case 7 ("an agent cannot modify a table restricted to owner
+and admin"), which acts as an *agent*. Nothing acted as a support session
+against its own row until `support-mode.test.ts` existed. Cases 9 in the
+generated suite tests support WRITES, but against a row belonging to the
+tenant — not against the session row itself.
+
+---
+
+## C42 · `JSON.stringify(...)::jsonb` stores a jsonb string, not an object
+
+**27 Aug 2026. Defect in `scripts/reconcile-usage.ts`.**
+
+postgres.js serialises an object to `jsonb` itself. Stringifying first and
+casting stores a jsonb **string** — `'"{\"key\":\"seats\"}"'` — which renders
+as the right data in a table view and is unqueryable with any jsonb operator.
+An audit trail that looks correct and cannot be searched is worse than one that
+looks wrong.
+
+Found because the support-mode tests hit the identical mistake and failed
+loudly on it. Both now pass the object; the script uses `sql.json()`, which is
+the typed way to say it. Verified: `before->>'currentValue'` returns `9`.
+
+The Drizzle call sites were never affected — Drizzle handles `jsonb` columns
+correctly — so this was confined to the two raw postgres.js writers.

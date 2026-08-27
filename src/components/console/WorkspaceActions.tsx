@@ -48,6 +48,7 @@ export function WorkspaceActions({
   const [sessionOpen, setSessionOpen] = useState(false);
   const [suspendOpen, setSuspendOpen] = useState(false);
   const [suspendError, setSuspendError] = useState<string | null>(null);
+  const [reason, setReason] = useState('');
   const [pending, startTransition] = useTransition();
 
   function submitSuspend(typed: string) {
@@ -57,9 +58,16 @@ export function WorkspaceActions({
         tenantId: workspace.id,
         slug: workspace.slug,
         confirmSlug: typed,
+        reason,
       });
       if (result.ok) {
         setSuspendOpen(false);
+        setReason('');
+        pushToast({
+          tone: 'success',
+          title: `${workspace.name} is suspended`,
+          description: 'Their team keeps read access and can still fix the cause.',
+        });
       } else {
         setSuspendError(result.error);
       }
@@ -131,6 +139,7 @@ export function WorkspaceActions({
         title={`Suspend ${workspace.name}`}
         consequence="Stated in numbers, because a suspension is felt by people who did not choose it."
         details={
+          <>
           <ul
             className="grid list-none gap-2.5 border-t p-0 pt-4"
             style={{ borderColor: 'var(--border-subtle)' }}
@@ -148,6 +157,44 @@ export function WorkspaceActions({
               Data is retained. Reactivation restores access immediately and is a single action.
             </li>
           </ul>
+
+            <div
+              className="grid gap-1.5 border-t pt-4"
+              style={{ borderColor: 'var(--border-subtle)' }}
+            >
+              {/*
+                ⚠ REQUIRED, AND THE CUSTOMER READS IT.
+
+                09 §7: suspension lands in the tenant's own activity log. A
+                customer whose writes start failing with no explanation cannot
+                tell a billing decision from an outage, so the sentence written
+                here is the one that tells them which. The server requires it
+                too — a check living only in this dialog is one that a direct
+                call to the Server Action skips entirely.
+              */}
+              <label
+                htmlFor="suspend-reason"
+                className="t-label"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                Reason · the customer sees this
+              </label>
+              <textarea
+                id="suspend-reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                rows={2}
+                placeholder="Payment overdue since 12 August; invoices sent 1 and 8 August."
+                className="rounded-panel border px-3 py-2"
+                style={{
+                  borderColor: 'var(--rule-base)',
+                  background: 'var(--surface-raised)',
+                  color: 'var(--text-primary)',
+                  font: '400 var(--text-sm)/1.5 var(--font-ui)',
+                }}
+              />
+            </div>
+          </>
         }
         confirmValue={workspace.slug}
         confirmFieldLabel={`Type "${workspace.slug}" to confirm`}
