@@ -17,12 +17,12 @@ alter table user_profiles force row level security;
 
 create policy user_profiles_select on user_profiles
   for select using (
-    id = auth.uid()
+    id = app.current_actor_id()
     or exists (
       select 1
       from tenant_members mine
       join tenant_members theirs on theirs.tenant_id = mine.tenant_id
-      where mine.user_id = auth.uid()
+      where mine.user_id = app.current_actor_id()
         and theirs.user_id = user_profiles.id
         and mine.tenant_id = app.current_tenant_id()
         and mine.deleted_at is null
@@ -32,8 +32,8 @@ create policy user_profiles_select on user_profiles
 
 create policy user_profiles_modify on user_profiles
   for all
-  using (id = auth.uid() and not app.is_support_session())
-  with check (id = auth.uid());
+  using (id = app.current_actor_id() and not app.is_support_session())
+  with check (id = app.current_actor_id());
 
 -- ─── tenant_members ─────────────────────────────────────────────────────────
 
@@ -93,7 +93,7 @@ alter table sessions force row level security;
 
 create policy sessions_select on sessions
   for select using (
-    user_id = auth.uid()
+    user_id = app.current_actor_id()
     or (
       kind = 'support'
       and tenant_id = app.current_tenant_id()
@@ -104,7 +104,7 @@ create policy sessions_select on sessions
 create policy sessions_modify on sessions
   for all
   using (
-    user_id = auth.uid()
+    user_id = app.current_actor_id()
     or (
       kind = 'support'
       and tenant_id = app.current_tenant_id()
@@ -112,7 +112,7 @@ create policy sessions_modify on sessions
       and not app.is_support_session()   -- a support session cannot extend itself
     )
   )
-  with check (user_id = auth.uid() or kind = 'support');
+  with check (user_id = app.current_actor_id() or kind = 'support');
 
 -- ─── platform_admins ────────────────────────────────────────────────────────
 -- Not tenant-scoped. A platform admin reads their own row; the table is
@@ -122,4 +122,4 @@ alter table platform_admins enable row level security;
 alter table platform_admins force row level security;
 
 create policy platform_admins_select on platform_admins
-  for select using (user_id = auth.uid() and deleted_at is null);
+  for select using (user_id = app.current_actor_id() and deleted_at is null);

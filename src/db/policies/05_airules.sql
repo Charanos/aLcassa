@@ -13,7 +13,7 @@ alter table master_ai_rules enable row level security;
 alter table master_ai_rules force row level security;
 
 create policy master_ai_rules_select on master_ai_rules
-  for select using (auth.uid() is not null);
+  for select using (app.current_actor_id() is not null);
 
 alter table master_ai_rule_versions enable row level security;
 alter table master_ai_rule_versions force row level security;
@@ -21,7 +21,7 @@ alter table master_ai_rule_versions force row level security;
 -- Only the PUBLISHED version is visible to a tenant. A platform draft is not
 -- something a tenant should be able to read and plan around.
 create policy master_ai_rule_versions_select on master_ai_rule_versions
-  for select using (auth.uid() is not null and status = 'published');
+  for select using (app.current_actor_id() is not null and status = 'published');
 
 -- ─── tenant_ai_rules ────────────────────────────────────────────────────────
 

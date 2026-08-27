@@ -31,9 +31,58 @@ create or replace function app.is_support_session() returns boolean as $$
   select coalesce(nullif(current_setting('app.support_mode', true), ''), 'false')::boolean;
 $$ language sql stable;
 
+-- ────────────────────────────────────────────────────────────────────────────
+-- THE ACTOR, AND WHY THIS FUNCTION IS NOT A ONE-LINER.
+--
+-- ⚠ POLICIES MUST NOT CALL auth.uid() DIRECTLY. THEY DID, IN FIFTEEN PLACES,
+--   AND IT MADE SIX TABLES INVISIBLE TO THE APPLICATION.
+--
+-- There are two ways into this database and only one of them carries a JWT:
+--
+--   Drizzle (`lib/db/client.ts`)  connects as the RLS-bound application role
+--                                and identifies the actor by `app.actor_id`,
+--                                set transaction-locally by withTenantContext.
+--                                THERE IS NO JWT. auth.uid() IS NULL.
+--   Supabase client              connects through PostgREST with the user's
+--                                JWT, so auth.uid() resolves and app.actor_id
+--                                is unset.
+--
+-- Every application query goes down the FIRST path. So a policy reading
+-- auth.uid() evaluates NULL, and `user_id = null` matches nothing: the table
+-- is not merely restricted, it is EMPTY FOR EVERYONE. That is how
+-- user_profiles came to hide the signed-in user's own profile and plans came
+-- to return zero of three rows, while every isolation test still passed —
+-- a cross-tenant read of an empty table is indistinguishable from isolation
+-- working.
+--
+-- Reading both sources here, in one place, is what makes the policies correct
+-- under either door. The header at the top of this file says every policy
+-- reads from these functions AND FROM NOWHERE ELSE; that rule was right, and
+-- the fifteen direct calls were the bug.
+--
+-- SECURITY DEFINER because the application role has no USAGE on the `auth`
+-- schema, and the exception block because it may not have it tomorrow either.
+-- Failing to resolve a JWT must degrade to "no actor", never to an error.
+-- ────────────────────────────────────────────────────────────────────────────
 create or replace function app.current_actor_id() returns uuid as $$
-  select nullif(current_setting('app.actor_id', true), '')::uuid;
-$$ language sql stable;
+declare
+  from_context uuid;
+  from_jwt uuid;
+begin
+  from_context := nullif(current_setting('app.actor_id', true), '')::uuid;
+  if from_context is not null then
+    return from_context;
+  end if;
+
+  begin
+    from_jwt := auth.uid();
+  exception when others then
+    from_jwt := null;
+  end;
+
+  return from_jwt;
+end;
+$$ language plpgsql stable security definer;
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- 06 §8 · SUSPENSION

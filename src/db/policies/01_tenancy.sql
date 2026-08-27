@@ -18,7 +18,7 @@ create policy tenants_select on tenants
     or exists (
       select 1 from tenant_members m
       where m.tenant_id = tenants.id
-        and m.user_id = auth.uid()
+        and m.user_id = app.current_actor_id()
         and m.deleted_at is null
     )
   );

@@ -131,6 +131,54 @@ export async function rowCount(table: string, tenantId: string): Promise<number>
   return Number(rows[0]?.count ?? 0);
 }
 
+/**
+ * ⚠ THE TABLES THE GENERATED SUITE CANNOT SEE, AND WHY THEY NEED A NAME.
+ *
+ * `tenantScopedTables()` selects tables that HAVE a `tenant_id` column,
+ * because those are the ones tenant isolation is about. That is the right
+ * filter for that suite and it leaves a real hole: eight policed tables have
+ * no `tenant_id` at all — plans, the master rules, user profiles, the
+ * platform tables — so the suite never names them, never queries them, and
+ * cannot fail on them.
+ *
+ * A hole that nothing queries is a hole nothing reports. Six of these tables
+ * were returning ZERO ROWS TO EVERY CALLER for weeks because their policies
+ * called `auth.uid()`, which is null on the Drizzle connection every
+ * application query uses. The generated suite stayed green throughout — a
+ * cross-tenant read of a table that is empty for everyone looks exactly like
+ * isolation working.
+ *
+ * `shared-tables.test.ts` covers these, and it asserts VISIBILITY as well as
+ * restriction, because only the visibility half can catch that failure.
+ */
+export async function sharedPolicyTables(): Promise<string[]> {
+  const rows = await adminSql<{ table_name: string }[]>`
+    select c.relname as table_name
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relkind = 'r'
+      and c.relrowsecurity
+      and not exists (
+        select 1 from pg_attribute a
+        where a.attrelid = c.oid
+          and a.attname = 'tenant_id'
+          and a.attnum > 0
+          and not a.attisdropped
+      )
+    order by c.relname
+  `;
+  return rows.map((row) => row.table_name);
+}
+
+/** Ground truth for a table with no tenant column. Bypasses RLS. */
+export async function adminCount(table: string): Promise<number> {
+  const rows = await adminSql<{ count: string }[]>`
+    select count(*)::text as count from ${adminSql(table)}
+  `;
+  return Number(rows[0]?.count ?? 0);
+}
+
 export async function closeHarness(): Promise<void> {
   await Promise.all([sql.end(), adminSql.end()]);
 }

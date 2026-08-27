@@ -59,7 +59,7 @@ create policy platform_audit_log_select on platform_audit_log
   for select using (
     exists (
       select 1 from platform_admins pa
-      where pa.user_id = auth.uid() and pa.deleted_at is null
+      where pa.user_id = app.current_actor_id() and pa.deleted_at is null
     )
   );
 
@@ -68,7 +68,7 @@ create policy platform_audit_log_insert on platform_audit_log
   with check (
     exists (
       select 1 from platform_admins pa
-      where pa.user_id = auth.uid() and pa.deleted_at is null
+      where pa.user_id = app.current_actor_id() and pa.deleted_at is null
     )
   );
 

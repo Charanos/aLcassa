@@ -15,13 +15,13 @@ alter table plans enable row level security;
 alter table plans force row level security;
 
 create policy plans_select on plans
-  for select using (auth.uid() is not null and is_active = true);
+  for select using (app.current_actor_id() is not null and is_active = true);
 
 alter table plan_entitlements enable row level security;
 alter table plan_entitlements force row level security;
 
 create policy plan_entitlements_select on plan_entitlements
-  for select using (auth.uid() is not null);
+  for select using (app.current_actor_id() is not null);
 
 -- ─── subscriptions ──────────────────────────────────────────────────────────
 -- 06 §5: owner sees it, admin sees it read-only, agent does not.
