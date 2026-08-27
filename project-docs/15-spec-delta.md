@@ -1556,3 +1556,67 @@ designed data for M4a and M5 surfaces.
 second source of truth, and its failure mode is the worst kind — a customer
 reading "6 of 10 seats" while the API refuses their seventh invitation, both
 numbers defensible, neither identifiable as the wrong one.
+
+---
+
+## C39 · Usage reconciliation reports; repairing is a separate, attributed act
+
+**27 Aug 2026. Implementation of `08 §3` · `05 I-13`.**
+
+> "A reconciliation job runs nightly, rebuilds each counter from its source
+> rows, and alerts on divergence rather than silently correcting it. Silent
+> correction hides the bug that caused the drift."
+
+`scripts/reconcile-usage.ts` implements exactly that. Default behaviour is
+report-and-exit-non-zero. `--repair` corrects, and requires **both**
+`--reason "…"` and `--actor <platform-admin-uuid>`.
+
+**Why the actor is required.** The first version passed `null` and the insert
+refused it: `platform_audit_log.actor_user_id` is NOT NULL. The two shortcuts
+available at that point were making the column nullable, or attributing the
+write to whichever platform admin the script could find. Both are worse than
+asking — an audit row reading "corrected by nobody" cannot be followed up, and
+one naming an admin who was asleep is actively misleading. The id is verified
+against `platform_admins` before anything is written, so a typo fails loudly
+rather than recording a correction against a stranger.
+
+**Counter definitions are the specification.** `seats` counts active members
+**plus pending invitations**, per `08 §2`. A reconciliation that counted only
+members would "correct" every tenant with an outstanding invitation down to a
+wrong number, nightly, and look like it was working.
+
+The three Phase 2 seams (`channels`, `kb_documents`, `conversations_monthly`)
+are listed with a `null` truth function rather than omitted, so adding the
+feature means writing the query here rather than remembering this file exists.
+
+**It found real drift on its first run** — two invitations left behind by a
+test whose teardown hook had timed out before `hookTimeout` was raised. Not a
+product defect, and a fair demonstration that the job works.
+
+**Also corrected:** the seed set `usage_counters.peak_value` to its column
+default of 0 alongside a `current_value` of 1. A high-water mark below the
+present value is incoherent; the seed now seeds it and takes `greatest()` on
+conflict.
+
+---
+
+## C40 · Console subscription controls live in their own actions file
+
+**27 Aug 2026. Structural.**
+
+Every action that changes a plan, moves a subscription between states or grants
+an override reaches an operation that bypasses Row Level Security.
+`(console)/actions.ts` is a mix of interface preferences (`setDensity`,
+`setNavState`) and honest refusals, and a reviewer asking "what in the console
+can act on another tenant's record" should not have to read past a density
+toggle to find out.
+
+`subscription-actions.ts` holds one privilege level, so the answer to that
+question is a file listing.
+
+Each action resolves the platform session **itself**, via
+`currentPlatformSession`. A Server Action is a public endpoint with a generated
+name — it is not protected by the page that imports it, and anybody who can
+reach the application can post to it. The actor is therefore resolved from the
+platform cookie on every call, and the check is the same one the console pages
+make: a live platform session **and** a `platform_admins` row.

@@ -218,6 +218,20 @@ export const FOUNDATION: FoundationItem[] = [
     evidence: 'tests/isolation/entitlements.test.ts',
     milestone: 'M3',
   },
+  {
+    area: 'System',
+    what: 'Nightly usage reconciliation that reports drift rather than correcting it, with repair gated on a named admin and a stated reason',
+    state: 'built',
+    evidence: 'scripts/reconcile-usage.ts',
+    milestone: 'M3',
+  },
+  {
+    area: 'Console',
+    what: 'Plan change, status transition and override controls, in their own file because every one of them bypasses row level security',
+    state: 'built',
+    evidence: 'src/app/(platform)/platform/(console)/subscription-actions.ts',
+    milestone: 'M3',
+  },
 
   // ── System plumbing ─────────────────────────────────────────────────────
   {

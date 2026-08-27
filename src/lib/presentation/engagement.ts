@@ -168,9 +168,9 @@ export const MILESTONES = [
       'Plans, tiers, entitlements, subscription states, limit enforcement. Caching layer and scoped credentials land alongside.',
     gate: 'Demo: limit enforcement',
     tranche: null,
-    status: 'active' as MilestoneStatus,
-    progress: 75,
-    note: 'The lifecycle is built and enforced as of 27 Aug 2026. Six subscription states with the nine legal moves between them written as a table rather than as scattered conditions — all 36 ordered pairs are covered by tests, because the expensive mistake is the one that silently reactivates a customer who stopped paying. Plan assignment, status changes and entitlement overrides are platform actions, each audited before it runs. The tenant plan screen and the console plan catalogue both read the real database, which corrected a console screen that had been showing four plans that do not exist against limits that were never in the schema. The watchlist finds every workspace within 20% of a limit, and both current workspaces are correctly on it. What remains is the console controls that drive these operations and the nightly usage reconciliation.',
+    status: 'complete' as MilestoneStatus,
+    progress: 100,
+    note: 'COMPLETE, 27 Aug 2026. Six subscription states with the nine legal moves between them written as a table rather than as scattered conditions — all 36 ordered pairs are covered by tests, because the expensive mistake is the one that silently reactivates a customer who stopped paying. Plan assignment, status changes and entitlement overrides are platform actions with console controls behind them, each audited before it runs. The tenant plan screen and the console catalogue read the real database, correcting a console screen that had been showing four plans that do not exist. The watchlist finds every workspace within 20% of a limit or past due, in one query. The nightly reconciliation rebuilds each counter from its source rows and REPORTS divergence rather than correcting it, because silent correction hides the bug that caused the drift; it found real drift on its first run, and correcting it requires a named platform admin and a stated reason.',
   },
   {
     id: 'M4',
@@ -329,6 +329,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-27',
+    title: 'M3 complete: the nightly usage check, and what it found first time out',
+    body: 'The last piece of the plans and limits milestone is a job that runs nightly, counts what each workspace is actually using from the underlying records, and compares it with the running totals the system enforces against. The decision worth explaining is that it does NOT fix what it finds. A total that has drifted is evidence of a bug — something counted a seat and never gave it back, or gave it back twice — and quietly writing the right number every night makes that bug invisible and permanent: the symptom disappears at three in the morning and nobody ever sees the pattern. So it reports and stops. Correcting is a separate, deliberate command that refuses to run without a stated reason and the name of the person running it, and it records both against every figure it changes. It found a genuine discrepancy on its first run — left behind by a test whose cleanup had timed out, not by the product — which is a fair demonstration that it works. The console controls for changing a plan, moving a subscription between states and granting an exception to a limit are wired to the same audited operations.',
+    milestone: 'M3',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-08-27',
     title: 'M3: plans, limits and the states a subscription moves through',

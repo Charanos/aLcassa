@@ -111,9 +111,16 @@ async function main(): Promise<void> {
         on conflict (tenant_id, user_id) do nothing
       `;
       await tx`
-        insert into usage_counters (tenant_id, key, current_value)
-        values (${user.tenant}, 'seats', 1)
-        on conflict (tenant_id, key) do update set current_value = usage_counters.current_value
+        -- peak_value is a high-water mark, so it can never be BELOW
+        -- current_value. Seeding it at its column default of 0 alongside a
+        -- current of 1 produced exactly that incoherence, which the
+        -- reconciliation job surfaced on its first run. A peak that
+        -- understates the present is worse than no peak at all.
+        insert into usage_counters (tenant_id, key, current_value, peak_value)
+        values (${user.tenant}, 'seats', 1, 1)
+        on conflict (tenant_id, key) do update
+          set current_value = usage_counters.current_value,
+              peak_value = greatest(usage_counters.peak_value, usage_counters.current_value)
       `;
     }
 

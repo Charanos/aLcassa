@@ -19,6 +19,7 @@
     "db:migrate": "drizzle-kit migrate && tsx scripts/apply-policies.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "reconcile:usage": "tsx scripts/reconcile-usage.ts",
     "db:seed": "tsx src/db/seed/index.ts",
     "check:policies": "tsx scripts/check-policies.ts",
     "test": "vitest run",
