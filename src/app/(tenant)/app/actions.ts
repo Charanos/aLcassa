@@ -42,7 +42,23 @@ import { updateOwnProfile } from '@/modules/identity';
  * arrived, only the last line of each function did.
  */
 
-type ActionResult = { ok: true } | { ok: false; error: string };
+type ActionResult =
+  | {
+      ok: true;
+      /**
+       * ⚠ A SUCCESS THAT STILL HAS SOMETHING TO SAY.
+       *
+       * Inviting someone succeeds whether or not the email left: the
+       * invitation is a committed row either way. Without this field the
+       * interface has two options and both are wrong — claim the email was
+       * sent, or report a failure that did not happen.
+       *
+       * Sheet 12: an outcome the reader can act on is ochre, not oxide. This
+       * is that shape — "it worked, and here is the part you need to do."
+       */
+      notice?: string;
+    }
+  | { ok: false; error: string };
 
 /**
  * Every real action below goes through here.
@@ -55,10 +71,10 @@ type ActionResult = { ok: true } | { ok: false; error: string };
  * is shown. Anything else is logged and reported generically: if we did not
  * anticipate it, we cannot describe it honestly.
  */
-async function attempt(operation: () => Promise<void>): Promise<ActionResult> {
+async function attempt(operation: () => Promise<string | void>): Promise<ActionResult> {
   try {
-    await operation();
-    return { ok: true };
+    const notice = await operation();
+    return notice ? { ok: true, notice } : { ok: true };
   } catch (error) {
     if (isAppError(error)) return { ok: false, error: error.message };
     logger.error('server action failed', { error });
@@ -93,9 +109,29 @@ export async function sendInvitation(input: { email: string; role: string }): Pr
 
   return attempt(async () => {
     const ctx = await currentSession();
-    await inviteMember(ctx, { email: input.email, role: input.role as 'admin' | 'agent' });
+    const invitation = await inviteMember(ctx, {
+      email: input.email,
+      role: input.role as 'admin' | 'agent',
+    });
     revalidatePath('/app/settings/team');
+
+    if (invitation.delivery.sent) return;
+
+    /**
+     * The email did not go, and the owner is now the only route to their
+     * colleague — so they get the link rather than a reassurance. The
+     * underlying reason is deliberately not repeated at them: "no provider
+     * configured" is an operator's problem, and the person reading this can
+     * act on the link either way.
+     */
+    return `The invitation is ready, but we could not email it. Send them this link yourself: ${appUrl()}/invite/${invitation.token}`;
   });
+}
+
+/** The public origin, from configuration rather than from the request — see
+ *  `acceptUrlFor` in the membership service for why that distinction matters. */
+function appUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/+$/, '') ?? 'http://localhost:3000';
 }
 
 export async function revokeInvitation(id: string): Promise<ActionResult> {

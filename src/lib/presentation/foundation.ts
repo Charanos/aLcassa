@@ -169,6 +169,20 @@ export const FOUNDATION: FoundationItem[] = [
     evidence: 'src/lib/tenant/live.ts',
     milestone: 'M2',
   },
+  {
+    area: 'System',
+    what: 'Transactional email behind an adapter seam, with the copy deck\u2019s templates and an honest no-op where no provider is configured',
+    state: 'built',
+    evidence: 'src/modules/email/',
+    milestone: 'M2',
+  },
+  {
+    area: 'System',
+    what: 'Email templates proved without a provider, including the escaping cases that stop a tenant-typed name reaching an inbox as markup',
+    state: 'built',
+    evidence: 'tests/email/templates.test.ts',
+    milestone: 'M2',
+  },
 
   // ── System plumbing ─────────────────────────────────────────────────────
   {

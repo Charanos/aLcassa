@@ -13,11 +13,21 @@ const ROLES: Array<{ value: MemberRole; label: string; detail: string }> = [
   { value: 'agent', label: 'Agent', detail: 'Handles conversations. No access to settings.' },
 ];
 
-export function InviteForm({ seatsRemaining }: { seatsRemaining: number | null }) {
+export function InviteForm({
+  seatsRemaining,
+  planName,
+}: {
+  seatsRemaining: number | null;
+  /** 08 §2. The plan is passed in rather than named here: the tiers are Pro,
+   *  Business and Custom, and this component previously hardcoded "Growth" —
+   *  a tier from the four-name proposal that was replaced on 24 Aug 2026. */
+  planName?: string;
+}) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<MemberRole>('agent');
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const emailValid = /.+@.+\..+/.test(email);
@@ -26,10 +36,31 @@ export function InviteForm({ seatsRemaining }: { seatsRemaining: number | null }
     e.preventDefault();
     if (!emailValid) return;
     setError(null);
+    setNotice(null);
     startTransition(async () => {
       const result = await sendInvitation({ email, role });
-      if (result.ok) router.push('/app/settings/team');
-      else setError(result.error);
+
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+
+      /**
+       * ⚠ THE REDIRECT IS SKIPPED WHEN THERE IS SOMETHING TO READ.
+       *
+       * The invitation succeeded either way. But when the email could not be
+       * sent, the response carries the only remaining route to that person —
+       * and navigating away would discard it before anyone saw it. So a
+       * plain success leaves for the team list, and a success with a notice
+       * stays put until the owner has copied the link.
+       */
+      if (result.notice) {
+        setNotice(result.notice);
+        setEmail('');
+        return;
+      }
+
+      router.push('/app/settings/team');
     });
   }
 
@@ -40,8 +71,10 @@ export function InviteForm({ seatsRemaining }: { seatsRemaining: number | null }
           className="t-compact rounded-chip border px-3.5 py-2.5"
           style={{ borderColor: 'var(--ochre-rule)', background: 'var(--ochre-tint)', color: 'var(--ochre-ink)' }}
         >
-          {seatsRemaining} {seatsRemaining === 1 ? 'seat' : 'seats'} left on the Growth plan. Sending this
-          invitation counts against it the moment it is accepted.
+          {seatsRemaining} {seatsRemaining === 1 ? 'seat' : 'seats'} left
+          {planName ? ` on ${planName}` : ''}. 07 §5: a seat is reserved when the
+          invitation is SENT, not when it is accepted — so this one counts
+          immediately, and comes back if you withdraw it.
         </p>
       ) : null}
 
@@ -80,6 +113,28 @@ export function InviteForm({ seatsRemaining }: { seatsRemaining: number | null }
           </label>
         ))}
       </fieldset>
+
+      {notice ? (
+        <div
+          role="status"
+          className="t-compact grid gap-2 rounded-panel border px-3.5 py-3"
+          style={{
+            borderColor: 'var(--ochre-rule)',
+            background: 'var(--ochre-tint)',
+            color: 'var(--ochre-ink)',
+          }}
+        >
+          <span>{notice}</span>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => router.push('/app/settings/team')}
+          >
+            Done
+          </Button>
+        </div>
+      ) : null}
 
       {error ? (
         <p role="alert" className="t-compact flex items-start gap-1.5" style={{ color: 'var(--oxide-ink)' }}>

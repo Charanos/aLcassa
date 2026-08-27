@@ -57,20 +57,34 @@ const asOwnerB: Actor = {
  */
 const created = { invitations: [] as string[], users: [] as string[], sessions: [] as string[] };
 
+/**
+ * ⚠ FIVE STATEMENTS, NOT ONE PER ROW.
+ *
+ * The database is remote — a Supabase pooler over the network — so every
+ * round trip costs a second or more. Deleting row by row meant roughly
+ * twenty-five of them and the hook timed out at ten seconds, which fails the
+ * whole FILE while every case in it passes. That is a confusing way to
+ * discover a slow teardown.
+ *
+ * `= any()` sends each set as one array parameter, so the whole teardown is
+ * five trips regardless of how many fixtures the run created. The timeout is
+ * raised as well, because a slow network should make this slow rather than
+ * red.
+ */
 afterAll(async () => {
-  for (const id of created.users) {
-    await cleanup`delete from tenant_members where user_id = ${id}`;
-    await cleanup`delete from sessions where user_id = ${id}`;
-    await cleanup`delete from user_profiles where id = ${id}`;
+  if (created.users.length > 0) {
+    await cleanup`delete from tenant_members where user_id = any(${created.users})`;
+    await cleanup`delete from sessions where user_id = any(${created.users})`;
+    await cleanup`delete from user_profiles where id = any(${created.users})`;
   }
-  for (const id of created.sessions) {
-    await cleanup`delete from sessions where id = ${id}`;
+  if (created.sessions.length > 0) {
+    await cleanup`delete from sessions where id = any(${created.sessions})`;
   }
-  for (const id of created.invitations) {
-    await cleanup`delete from invitations where id = ${id}`;
+  if (created.invitations.length > 0) {
+    await cleanup`delete from invitations where id = any(${created.invitations})`;
   }
   await closeHarness();
-});
+}, 60_000);
 
 async function createInvitation(email: string): Promise<{ id: string; token: string }> {
   const token = randomBytes(32).toString('base64url');

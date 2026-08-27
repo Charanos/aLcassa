@@ -1423,3 +1423,67 @@ The harness now exposes `cleanup`, which goes through the admin connection and
 says why in its own comment. This is the same failure shape as the original
 harness defect where ground-truth reads shared the RLS-bound connection: an
 operation that silently does nothing is worse than one that fails.
+
+---
+
+## C34 · Transactional email: provider chosen, seam built
+
+**27 Aug 2026. Decision, closing the last M2 item.**
+
+`10 §14` names five templates and gives each a subject and opening line. It
+does not name a provider, and `04` lists none among the external services.
+
+**Decision.** Resend, reached over `fetch` with no SDK — the entire surface
+used is one POST with a bearer token, and an SDK for that is a dependency to
+audit and carry into every cold start. It sits behind `EmailAdapter`, so
+changing provider is one new file in `src/modules/email/adapters/` and nothing
+above the interface knows which service is in use.
+
+**Two of the five are not ours.** Verify-email and password-reset are sent by
+Supabase Auth. Reimplementing them would mean minting our own verification and
+recovery tokens alongside Supabase's — a second credential path to maintain and
+get wrong. They are listed in `types.ts` so the set stays complete and nobody
+adds them twice.
+
+**Unconfigured environments report the truth.** The obvious shape is a
+development adapter that logs and returns success. That is wrong: every caller
+then treats an unconfigured production environment as a working one, an owner
+is told their colleague was emailed, and nobody finds out until the colleague
+never arrives. The logging adapter therefore returns `delivered: false`, and
+`/v1/invitations` returns the accept link **only** in that case — a token in a
+response body is a live bearer credential in whatever logs it, so it is
+withheld when the recipient already has it by email.
+
+**Sending happens after the transaction commits.** Inside it, a slow provider
+holds a database transaction open for its whole timeout, and a rollback after a
+successful send mails a link to an invitation that no longer exists. After it,
+a failed send leaves a real invitation whose link the owner can still pass on.
+The second is a nuisance the interface explains; the first is an invitation
+that can be neither accepted nor withdrawn.
+
+**Invitation URLs come from `NEXT_PUBLIC_APP_URL`, never from the request
+`Host` header.** Host-header injection targets exactly this: the recipient
+receives a genuine invitation pointing at an attacker's copy of the accept
+screen and types a new password into it.
+
+---
+
+## C35 · Resend reissues the token rather than repeating the link
+
+**27 Aug 2026. Design note on `POST /v1/invitations/:id/resend`.**
+
+Re-sending the existing link is wrong in both directions. A token that has sat
+in an inbox for six days expires tomorrow, so resending it delivers a link that
+dies almost immediately — precisely the situation the owner is trying to fix.
+And a token mailed twice now exists in two inboxes, two mail servers and two
+sets of logs, for twice as long.
+
+So the row keeps its identity, address and role — it is the same invitation and
+the seat it reserved is not counted again — while the credential inside it is
+replaced and the clock restarts. The previous link stops working immediately.
+
+`07 §5` asks for rate limiting per invitation. A Redis counter would be a fifth
+cache use and `04` ADR-006 scopes that to four, so the control is expressed as
+the remaining life of the existing link: resending is refused while more than
+six of the seven days remain. That catches the common case, which is an owner
+clicking twice, rather than an attack.

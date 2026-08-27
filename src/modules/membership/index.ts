@@ -12,6 +12,7 @@
 export {
   inviteMember,
   revokeInvitation,
+  resendInvitation,
   changeMemberRole,
   removeMember,
   transferOwnership,

@@ -156,9 +156,9 @@ export const MILESTONES = [
     lands: 'Login, password reset, sessions, invitations, role enforcement.',
     gate: 'Demo: full account lifecycle',
     tranche: null,
-    status: 'active' as MilestoneStatus,
-    progress: 90,
-    note: 'The account lifecycle is built and wired end to end as of 27 Aug 2026: sign-in through both doors, sign-out, password recovery and reset, the session list with per-device and bulk revocation, invitations through to acceptance, role changes and ownership transfer. Fourteen routes and five server actions, all through the same six-stage pipeline and the same services, so the screen and the API cannot drift. The team, account and sessions screens now read the real database; the workspace shell reads the signed-in member, so an agent does not see Credentials because the SERVER did not send it. Twelve new isolation cases cover the whole flow. What remains is the email transport that currently leaves an invitation as a link the owner passes on by hand.',
+    status: 'complete' as MilestoneStatus,
+    progress: 100,
+    note: 'COMPLETE, 27 Aug 2026. The full account lifecycle: sign-in through both doors, sign-out, password recovery and reset, the session list with per-device and bulk revocation, invitations sent by email through to acceptance, resend, role changes and ownership transfer. Fifteen routes and five server actions, all through the same six-stage pipeline and the same services, so the screen and the API cannot drift. The workspace shell reads the signed-in member, so an agent does not see Credentials because the SERVER did not send it rather than because the client hid it. Transactional email is an adapter seam with the copy deck\u2019s templates behind it; where no provider is configured it says so and hands over the link rather than claiming a delivery that did not happen. 195 tests pass, 23 of them added at this milestone.',
   },
   {
     id: 'M3',
@@ -329,6 +329,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-08-27',
+    title: 'M2 complete: the account lifecycle, including email',
+    body: 'Everything a person does to get into a workspace and manage who else is in it now works: signing in, signing out, recovering a password, seeing and ending sessions on other devices, inviting a colleague and having them arrive, changing what someone can do, and handing the workspace to a new owner. Invitations are emailed, with the wording taken from the copy deck rather than invented. Three decisions are worth naming. The provider sits behind an adapter, so changing it is one file and nothing above it knows which service is in use. Where no provider is configured — a fresh environment, a review deployment — the system does NOT pretend: it says the email could not be sent and gives the owner the link to pass on, because an owner waiting on a delivery that was never attempted is worse than one who knows they have a job to do. And a resend issues a NEW link rather than repeating the old one, because a link that has sat in an inbox for six days expires tomorrow, which is exactly the problem the owner is trying to solve.',
+    milestone: 'M2',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-08-27',
     title: 'Two flaws found by running the account flow rather than reading it',

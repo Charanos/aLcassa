@@ -18,6 +18,10 @@ export default defineConfig({
     // deliberately serial, because two of them assert on row counts.
     fileParallelism: false,
     testTimeout: 20_000,
+    // Teardown talks to a remote database. The default 10s is enough for a
+    // local one and not for a pooler over the network, where a slow hook
+    // fails the whole FILE while every case in it passes.
+    hookTimeout: 60_000,
     reporters: ['default'],
   },
 });

@@ -77,14 +77,18 @@ export const POST = defineRoute({
     const invitation = await inviteMember(ctx, { email: body.email, role: body.role });
 
     /**
-     * ⚠ THE TOKEN IS RETURNED IN THE RESPONSE, AND THAT IS TEMPORARY.
+     * ⚠ THE TOKEN IS RETURNED ONLY WHEN THE EMAIL DID NOT GO.
      *
-     * There is no mail transport wired yet, so the only way an invitation can
-     * reach anybody is for the interface to show the link and let the owner
-     * send it themselves. This is stated rather than hidden because it has a
-     * real consequence: the token appears in a response body, so it is in
-     * whatever logs that response. When transactional mail lands (M5), this
-     * field goes and the token never leaves the server.
+     * A token in a response body is a live bearer credential in whatever
+     * logs that response, for the seven days it remains valid. When the mail
+     * left, nobody needs it here: the recipient has it, and returning it a
+     * second time only widens where it exists.
+     *
+     * When the mail did NOT leave — no provider configured, or the provider
+     * refused — the owner is the only remaining route to their colleague, so
+     * withholding the link would turn a delivery problem into a dead end.
+     * The trade is deliberate and it is made per-response rather than by
+     * configuration, so it cannot drift into always-on.
      */
     return jsonOk(
       {
@@ -92,8 +96,8 @@ export const POST = defineRoute({
         email: invitation.email,
         role: invitation.role,
         expiresAt: invitation.expiresAt.toISOString(),
-        acceptUrl: `/invite/${invitation.token}`,
-        deliveryPending: true,
+        acceptUrl: invitation.delivery.sent ? null : `/invite/${invitation.token}`,
+        delivery: invitation.delivery,
       },
       { status: 201, requestId },
     );

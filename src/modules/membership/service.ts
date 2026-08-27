@@ -1,12 +1,13 @@
 import 'server-only';
 import { createHash, randomBytes } from 'node:crypto';
 import { and, eq, isNull } from 'drizzle-orm';
-import { invitations, tenantMembers, type MemberRole } from '@/db/schema';
+import { invitations, tenantMembers, tenants, type MemberRole } from '@/db/schema';
 import { AUDIT_ACTIONS, audited } from '@/lib/audit';
 import { withTenantContext, type Transaction } from '@/lib/db';
 import type { ResolvedContext } from '@/lib/db/context';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { assertEntitlement, incrementUsage, invalidateEntitlements } from '@/modules/entitlements';
+import { invitationEmail, sendEmail } from '@/modules/email';
 
 /**
  * 06 §5 · 07 §5. MEMBERSHIP, INVITATIONS AND THE OWNER INVARIANT.
@@ -38,7 +39,22 @@ export type InviteInput = { email: string; role: MemberRole };
  * read back is a token an attacker with database access can use, and there is
  * no operational need to read it after it is sent.
  */
-export type InviteResult = { id: string; email: string; role: MemberRole; token: string; expiresAt: Date };
+export type InviteResult = {
+  id: string;
+  email: string;
+  role: MemberRole;
+  token: string;
+  expiresAt: Date;
+  /**
+   * ⚠ WHETHER THE EMAIL ACTUALLY LEFT, REPORTED RATHER THAN ASSUMED.
+   *
+   * The invitation exists either way — it is a committed row — so this is
+   * not a success flag for the operation. It is what lets the interface say
+   * "we have emailed them" when that is true and "send them this link" when
+   * it is not, instead of claiming the first and being wrong.
+   */
+  delivery: { sent: boolean; reason?: string };
+};
 
 function hashToken(token: string): string {
   // SHA-256 rather than argon2id, and the difference from the credential
@@ -63,7 +79,16 @@ export async function inviteMember(ctx: ResolvedContext, input: InviteInput): Pr
   const expiresAt = new Date(Date.now() + INVITATION_TTL_DAYS * 24 * 60 * 60 * 1000);
   const email = input.email.trim().toLowerCase();
 
-  return withTenantContext(ctx, async (tx) => {
+  const { created, tenantName } = await withTenantContext(ctx, async (tx) => {
+    // The workspace name for the email. Read inside the transaction because
+    // it is the same tenant the invitation is being written against, and a
+    // second read outside could resolve differently under a rename.
+    const [tenant] = await tx
+      .select({ name: tenants.name })
+      .from(tenants)
+      .where(eq(tenants.id, ctx.tenantId))
+      .limit(1);
+
     // No pre-flight "is this address already invited" check, deliberately:
     // `invitations_pending_unique` answers it in the database, where a
     // second request cannot slip between the check and the insert. The
@@ -123,8 +148,184 @@ export async function inviteMember(ctx: ResolvedContext, input: InviteInput): Pr
     await incrementUsage(tx, ctx.tenantId, 'seats', 1);
     await invalidateEntitlements(ctx.tenantId);
 
-    return { id: row.id, email, role: input.role, token, expiresAt };
+    return {
+      created: { id: row.id, email, role: input.role, token, expiresAt },
+      tenantName: tenant?.name ?? 'your workspace',
+    };
   });
+
+  /**
+   * ⚠ THE EMAIL GOES AFTER THE TRANSACTION COMMITS, NOT INSIDE IT.
+   *
+   * Two failure modes, and only one of them is survivable:
+   *
+   *   send inside the transaction   a slow provider holds a database
+   *                                 transaction open for its whole timeout,
+   *                                 and a rollback after a successful send
+   *                                 mails a link to an invitation that no
+   *                                 longer exists
+   *   send after it commits         a failed send leaves a real invitation
+   *                                 whose link the owner can still pass on
+   *
+   * The second is a nuisance the interface can explain. The first is an
+   * invitation that cannot be accepted and cannot be withdrawn, because
+   * nobody has a row for it.
+   *
+   * It does not throw: `sendEmail` reports rather than raises, precisely so
+   * this cannot roll back work that already succeeded.
+   */
+  const delivery = await sendEmail({
+    to: created.email,
+    template: invitationEmail({
+      inviterName: ctx.actorLabel,
+      companyName: tenantName,
+      role: created.role,
+      acceptUrl: acceptUrlFor(created.token),
+      expiresAt: created.expiresAt,
+    }),
+    requestId: ctx.requestId,
+  });
+
+  return {
+    ...created,
+    delivery: delivery.delivered ? { sent: true } : { sent: false, reason: delivery.reason },
+  };
+}
+
+/**
+ * The absolute URL an invitation link points at.
+ *
+ * ⚠ FROM CONFIGURATION, NEVER FROM THE REQUEST.
+ *
+ * Building it from a `Host` header would let anyone who can reach this
+ * endpoint have us mail a link to a domain they chose — the recipient sees a
+ * genuine aLcassa invitation pointing at an attacker's copy of the accept
+ * screen, and types their new password into it. Host header injection is
+ * exactly this attack, and password-reset and invitation mails are its
+ * classic targets.
+ */
+function acceptUrlFor(token: string): string {
+  const base = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/+$/, '') ?? 'http://localhost:3000';
+  return `${base}/invite/${token}`;
+}
+
+/**
+ * 07 §5 · `POST /v1/invitations/:id/resend`. "Rate limited per invitation."
+ *
+ * ⚠ IT MINTS A NEW TOKEN AND RETIRES THE OLD ONE.
+ *
+ * The tempting implementation re-sends the existing link, and it is wrong in
+ * both directions. A token that has been sitting in an inbox for six days
+ * expires in one, so resending it delivers a link that dies almost
+ * immediately — which is precisely the situation the owner is trying to fix.
+ * And a token that has been mailed twice now exists in two inboxes, two mail
+ * servers and two sets of logs, for twice as long.
+ *
+ * So the row keeps its identity, its address and its role — it is the same
+ * invitation, and the seat it reserved is not counted again — while the
+ * credential inside it is replaced and the clock restarts. The previous link
+ * stops working the moment this returns.
+ *
+ * ⚠ THE RATE LIMIT IS THE EXPIRY WINDOW, NOT A COUNTER.
+ *
+ * 07 §5 asks for rate limiting per invitation. A counter in Redis would be a
+ * fifth cache use, and `04` ADR-006 scopes that to four. The cheaper control
+ * is already in the row: resending is refused while the existing link still
+ * has most of its life left, because there is no legitimate reason to reissue
+ * a token the recipient received an hour ago — and an owner clicking twice by
+ * accident is the common case, not an attack.
+ */
+export async function resendInvitation(
+  ctx: ResolvedContext,
+  invitationId: string,
+): Promise<InviteResult> {
+  const token = randomBytes(32).toString('base64url');
+  const expiresAt = new Date(Date.now() + INVITATION_TTL_DAYS * 24 * 60 * 60 * 1000);
+
+  const { updated, tenantName } = await withTenantContext(ctx, async (tx) => {
+    const [tenant] = await tx
+      .select({ name: tenants.name })
+      .from(tenants)
+      .where(eq(tenants.id, ctx.tenantId))
+      .limit(1);
+
+    const [existing] = await tx
+      .select({
+        id: invitations.id,
+        email: invitations.email,
+        role: invitations.role,
+        expiresAt: invitations.expiresAt,
+        createdAt: invitations.createdAt,
+      })
+      .from(invitations)
+      .where(
+        and(
+          eq(invitations.id, invitationId),
+          isNull(invitations.acceptedAt),
+          isNull(invitations.revokedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!existing) {
+      throw new AppError(ERROR_CODES.NOT_FOUND, {
+        message: 'That invitation no longer exists, or it has already been accepted.',
+      });
+    }
+
+    // More than a day of life left means the recipient has a working link
+    // and a second one helps nobody. The window is generous on purpose: it
+    // catches a double click and an impatient owner, not a determined one.
+    const hoursLeft = (existing.expiresAt.getTime() - Date.now()) / 3_600_000;
+    if (hoursLeft > (INVITATION_TTL_DAYS - 1) * 24) {
+      throw new AppError(ERROR_CODES.RATE_LIMIT_EXCEEDED, {
+        message:
+          'That invitation was sent moments ago and its link still works. Wait a day before sending another, or withdraw it and start again.',
+        internal: { invitationId, hoursLeft },
+      });
+    }
+
+    await audited(
+      tx,
+      ctx,
+      {
+        action: AUDIT_ACTIONS.INVITATION_RESENT,
+        entityType: 'invitation',
+        entityId: existing.id,
+        before: { expiresAt: existing.expiresAt.toISOString() },
+        after: { expiresAt: expiresAt.toISOString(), tokenReissued: true },
+      },
+      async () => {
+        await tx
+          .update(invitations)
+          .set({ tokenHash: hashToken(token), expiresAt, updatedAt: new Date() })
+          .where(eq(invitations.id, existing.id));
+      },
+    );
+
+    return {
+      updated: { id: existing.id, email: existing.email, role: existing.role, token, expiresAt },
+      tenantName: tenant?.name ?? 'your workspace',
+    };
+  });
+
+  // After the commit, for the reasons on `inviteMember`.
+  const delivery = await sendEmail({
+    to: updated.email,
+    template: invitationEmail({
+      inviterName: ctx.actorLabel,
+      companyName: tenantName,
+      role: updated.role,
+      acceptUrl: acceptUrlFor(updated.token),
+      expiresAt: updated.expiresAt,
+    }),
+    requestId: ctx.requestId,
+  });
+
+  return {
+    ...updated,
+    delivery: delivery.delivered ? { sent: true } : { sent: false, reason: delivery.reason },
+  };
 }
 
 export async function revokeInvitation(ctx: ResolvedContext, invitationId: string): Promise<void> {
