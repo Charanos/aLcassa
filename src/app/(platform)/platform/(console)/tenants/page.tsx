@@ -4,6 +4,7 @@ import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
 import { WorkspaceTable } from '@/components/console/WorkspaceTable';
 import { ProvisionWorkspaceButton } from '@/components/console/ProvisionWorkspaceButton';
 import { getWorkspaces } from '@/lib/console/data';
+import { getLiveWorkspaces } from '@/lib/console/liveWorkspaces';
 import { countNeedingAttention } from '@/lib/console/attention';
 import { startSupportSession } from '../actions';
 
@@ -23,7 +24,12 @@ export const metadata: Metadata = { title: 'Workspaces' };
  * noted here rather than discovered later.
  */
 export default async function WorkspacesPage() {
-  const rows = await getWorkspaces();
+  /**
+   * Live first, designed fixture second — the pattern every other wired
+   * surface uses. The fixture stays reachable behind the review bypass, where
+   * there is no session for the live reader to resolve.
+   */
+  const rows = (await getLiveWorkspaces()) ?? (await getWorkspaces());
   const attention = countNeedingAttention(rows);
 
   return (

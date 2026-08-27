@@ -5,6 +5,7 @@ import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface'
 import { ActiveSessionCard } from '@/components/console/ActiveSessionCard';
 import { EmptyState } from '@/components/primitives/EmptyState';
 import { getSupportSessions, type EndedBy } from '@/lib/console/data';
+import { getLiveSupportSessions } from '@/lib/console/liveWorkspaces';
 import { resolveSupportSession } from '@/lib/console/session';
 import { endSupportSession } from '../actions';
 
@@ -34,7 +35,13 @@ const ENDED_BY: Record<EndedBy, { dot: string; ink: string }> = {
 };
 
 export default async function SupportSessionsPage() {
-  const [model, active] = await Promise.all([getSupportSessions(), resolveSupportSession()]);
+  /**
+   * Live first, designed fixture second — the pattern every other wired
+   * surface uses. The fixture stays reachable behind the review bypass, where
+   * there is no session for the live reader to resolve.
+   */
+  const [live, active] = await Promise.all([getLiveSupportSessions(), resolveSupportSession()]);
+  const model = live ?? (await getSupportSessions());
 
   return (
     <ConsolePage>

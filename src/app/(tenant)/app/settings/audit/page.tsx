@@ -10,6 +10,7 @@ import {
 import { PageHeader } from '@/components/structure/PageHeader';
 import { EmptyState } from '@/components/primitives/EmptyState';
 import { getTenantAudit } from '@/lib/tenant/data';
+import { getLiveTenantAudit } from '@/lib/tenant/live';
 import type { TenantAuditKind } from '@/lib/tenant/data';
 
 export const metadata: Metadata = { title: 'Activity' };
@@ -28,7 +29,7 @@ const KIND_META: Record<TenantAuditKind, { icon: TablerIcon; ink: string; tint: 
 /** `/app/settings/audit`. Owner and admin. The tenant's own log — filtered
  *  by the same RLS policy every other read in this product answers to. */
 export default async function AuditSettingsPage() {
-  const model = await getTenantAudit();
+  const model = (await getLiveTenantAudit()) ?? (await getTenantAudit());
 
   return (
     <div>

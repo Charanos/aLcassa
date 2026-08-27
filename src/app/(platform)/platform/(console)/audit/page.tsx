@@ -3,6 +3,7 @@ import { IconDownload } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
 import { AuditStream } from '@/components/console/AuditStream';
 import { getAuditEntries } from '@/lib/console/data';
+import { getLiveAuditEntries } from '@/lib/console/liveWorkspaces';
 
 export const metadata: Metadata = { title: 'Audit log' };
 
@@ -17,7 +18,12 @@ export const metadata: Metadata = { title: 'Audit log' };
  * is a log they will not rely on in a dispute.
  */
 export default async function AuditPage() {
-  const entries = await getAuditEntries();
+  /**
+   * Live first, designed fixture second — the pattern every other wired
+   * surface uses. The fixture stays reachable behind the review bypass, where
+   * there is no session for the live reader to resolve.
+   */
+  const entries = (await getLiveAuditEntries()) ?? (await getAuditEntries());
 
   return (
     <ConsolePage>

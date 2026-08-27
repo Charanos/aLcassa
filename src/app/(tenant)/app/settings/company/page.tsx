@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import { PageHeader } from '@/components/structure/PageHeader';
 import { CompanyForm } from '@/components/tenant/CompanyForm';
 import { getCompany } from '@/lib/tenant/data';
+import { getLiveCompany } from '@/lib/tenant/live';
 
 export const metadata: Metadata = { title: 'Company' };
 
 /** 02 §4. Name, logo, contact, timezone, locale. Owner and admin. */
 export default async function CompanySettingsPage() {
-  const model = await getCompany();
+  const model = (await getLiveCompany()) ?? (await getCompany());
 
   return (
     <div>

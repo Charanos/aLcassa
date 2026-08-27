@@ -1,6 +1,15 @@
 import 'server-only';
 import { and, desc, eq, isNull } from 'drizzle-orm';
-import { invitations, plans, subscriptions, tenantMembers, userProfiles } from '@/db/schema';
+import {
+  auditLog,
+  invitations,
+  plans,
+  subscriptions,
+  tenantMembers,
+  tenantSettings,
+  tenants,
+  userProfiles,
+} from '@/db/schema';
 import { currentSessionOrNull } from '@/lib/auth/resolve';
 import { listActiveSessions } from '@/lib/auth/session';
 import { withTenantContext } from '@/lib/db';
@@ -8,6 +17,9 @@ import { getEntitlementSnapshot } from '@/modules/entitlements';
 import type {
   AccountModel,
   AccountSessionsModel,
+  CompanyModel,
+  TenantAuditKind,
+  TenantAuditModel,
   EntitlementKey as SeamEntitlementKey,
   SubscriptionModel,
   TeamModel,
@@ -221,6 +233,131 @@ export async function getLiveSubscription(): Promise<SubscriptionModel | null> {
         grantedBy: 'Andishi support',
       })),
   };
+}
+
+/**
+ * `/app/settings/company`, live. 02 §4.
+ *
+ * ⚠ THE NAME COMES FROM `tenants`, THE REST FROM `tenant_settings`.
+ *
+ * They are two tables on purpose: `tenants.name` is the workspace's identity
+ * and appears in the console, in invitations and in every audit row, while
+ * `tenant_settings.display_name` is what the customer would like shown to
+ * their own people. Falling back from one to the other means a workspace that
+ * has never opened this screen still renders a name rather than a blank.
+ */
+export async function getLiveCompany(): Promise<CompanyModel | null> {
+  const ctx = await currentSessionOrNull();
+  if (!ctx) return null;
+
+  return withTenantContext(ctx, async (tx) => {
+    const [tenant] = await tx
+      .select({ name: tenants.name })
+      .from(tenants)
+      .where(eq(tenants.id, ctx.tenantId))
+      .limit(1);
+
+    const [settings] = await tx
+      .select({
+        displayName: tenantSettings.displayName,
+        logoPath: tenantSettings.logoPath,
+        supportEmail: tenantSettings.supportEmail,
+        timezone: tenantSettings.timezone,
+        locale: tenantSettings.locale,
+      })
+      .from(tenantSettings)
+      .where(eq(tenantSettings.tenantId, ctx.tenantId))
+      .limit(1);
+
+    return {
+      name: settings?.displayName ?? tenant?.name ?? '',
+      /**
+       * ⚠ THE PATH IS NOT A URL, AND IT IS NOT TURNED INTO ONE HERE.
+       *
+       * `logo_path` is a tenant-scoped Supabase Storage path. Rendering it
+       * needs a signed URL, and signing is a write-adjacent operation that
+       * belongs with the upload route landing at M5. Returning the raw path
+       * as if it were a `src` would produce a broken image; null produces the
+       * designed empty state, which is honest.
+       */
+      logoUrl: null,
+      contactEmail: settings?.supportEmail ?? '',
+      timezone: settings?.timezone ?? 'Africa/Nairobi',
+      locale: settings?.locale ?? 'en',
+    };
+  });
+}
+
+/**
+ * `/app/settings/audit`, live. 09 §7.
+ *
+ * ⚠ THIS IS THE SCREEN THE TRANSPARENCY CLAIM IS MADE ON.
+ *
+ * "A tenant can see every time the platform entered their workspace, who it
+ * was, why, and anything they changed while they were in there." That is a
+ * promise about this list. It reads the tenant's own `audit_log` under their
+ * own context, so what they see is exactly what the policies let them see —
+ * there is no filtered or curated version.
+ *
+ * The retention limit comes from the entitlement rather than a constant: 08 §2
+ * makes `audit_retention_days` a plan value, so a Custom tenant sees a year
+ * and a Pro tenant sees thirty days from the same query.
+ */
+export async function getLiveTenantAudit(): Promise<TenantAuditModel | null> {
+  const ctx = await currentSessionOrNull();
+  if (!ctx) return null;
+
+  const snapshot = await getEntitlementSnapshot(ctx);
+  const retentionDays = snapshot.byKey.audit_retention_days?.limit ?? null;
+
+  return withTenantContext(ctx, async (tx) => {
+    const rows = await tx
+      .select({
+        id: auditLog.id,
+        occurredAt: auditLog.occurredAt,
+        actorLabel: auditLog.actorLabel,
+        actorType: auditLog.actorType,
+        supportMode: auditLog.supportMode,
+        action: auditLog.action,
+        entityType: auditLog.entityType,
+      })
+      .from(auditLog)
+      .where(eq(auditLog.tenantId, ctx.tenantId))
+      .orderBy(desc(auditLog.occurredAt))
+      .limit(100);
+
+    return {
+      entries: rows.map((row) => ({
+        id: row.id,
+        time: row.occurredAt.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        // 09 §7. A support visit is labelled as one. The flag is what makes
+        // the customer's "show me every time you looked" filter possible, so
+        // it decides the label rather than the action string does.
+        actor: row.supportMode
+          ? `${row.actorLabel ?? 'Platform'} · support`
+          : (row.actorLabel ?? 'System'),
+        kind: tenantAuditKindOf(row.action, row.supportMode),
+        action: row.action,
+        target: row.entityType,
+      })),
+      retentionDays,
+    };
+  });
+}
+
+/** The five groups the activity screen filters by. Derived from the dotted
+ *  action so a new one lands somewhere sensible rather than nowhere. */
+function tenantAuditKindOf(action: string, supportMode: boolean): TenantAuditKind {
+  if (supportMode) return 'support';
+  if (action.startsWith('member.') || action.startsWith('invitation.')) return 'member';
+  if (action.startsWith('credential.')) return 'credential';
+  if (action.startsWith('rules.')) return 'rules';
+  return 'settings';
 }
 
 /** `/app/account`, live. */

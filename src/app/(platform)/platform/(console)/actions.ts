@@ -27,6 +27,7 @@ import {
   type ProvisionModel,
   type WorkspaceDetail,
 } from '@/lib/console/data';
+import { getLiveWorkspaceDetail, getLiveWorkspaces } from '@/lib/console/liveWorkspaces';
 
 /**
  * Console server actions.
@@ -247,7 +248,9 @@ export async function endSupportSession(): Promise<void> {
  * Read model for a single workspace detail slide-over.
  */
 export async function fetchWorkspaceDetail(slug: string): Promise<WorkspaceDetail | null> {
-  return getWorkspaceDetail(slug);
+  // Live first. The drawer is where an operator decides whether to suspend
+  // somebody, so it is the last screen that should be showing designed data.
+  return (await getLiveWorkspaceDetail(slug)) ?? (await getWorkspaceDetail(slug));
 }
 
 /**
@@ -261,7 +264,10 @@ export async function fetchProvisionOptions(): Promise<{
   options: ProvisionModel;
   existingSlugs: string[];
 }> {
-  const [options, workspaces] = await Promise.all([getProvisionOptions(), getWorkspaces()]);
+  // The slug-uniqueness check must run against REAL slugs, or the modal
+  // would accept a slug that already exists and fail at the insert.
+  const [options, live] = await Promise.all([getProvisionOptions(), getLiveWorkspaces()]);
+  const workspaces = live ?? (await getWorkspaces());
   return { options, existingSlugs: workspaces.map((w) => w.slug) };
 }
 

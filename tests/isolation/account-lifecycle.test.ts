@@ -78,6 +78,12 @@ const created = { invitations: [] as string[], users: [] as string[], sessions: 
  */
 afterAll(async () => {
   if (created.users.length > 0) {
+    // ⚠ THE AUDIT ROWS TOO. `app.accept_invitation` writes a member.joined
+    // entry, and the first version of this teardown did not know that —
+    // because the audit row was added after the teardown was written. The
+    // residue then showed up on the tenant's own activity screen when it was
+    // wired to live data, which is a confusing way to discover a test leak.
+    await cleanup`delete from audit_log where actor_user_id = any(${created.users})`;
     await cleanup`delete from tenant_members where user_id = any(${created.users})`;
     await cleanup`delete from sessions where user_id = any(${created.users})`;
     await cleanup`delete from user_profiles where id = any(${created.users})`;
