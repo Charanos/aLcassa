@@ -43,6 +43,12 @@ jobs:
       - run: pnpm lint
       - run: pnpm format:check
 
+      # An import that package.json does not declare resolves today only if a
+      # transitive dependency happens to provide it. npm's flat node_modules
+      # hid six such imports of dotenv for months; pnpm refused them and the
+      # Vercel build failed. Ten seconds here beats a broken deploy.
+      - run: pnpm check:deps
+
   # 11 §6 rule 19: a type error is a failed build, never a warning. That is only
   # true if the build runs, and it did not. A broken build could reach `main`
   # with every other job green.

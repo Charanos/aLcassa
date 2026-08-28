@@ -1936,3 +1936,46 @@ future use, and removing them would be churn).
 only 3 segment roots". That is correct and fine — `(marketing)` and `(access)`
 inherit the root boundary, which is how Next.js route groups work. Recorded so
 the next audit does not re-raise it.
+
+---
+
+## C52 · Phantom dependencies, and the deploy they broke
+
+**28 Aug 2026. Found by Vercel, minutes after the pnpm migration shipped.**
+
+The production build failed:
+
+```
+./drizzle.config.ts:1:35
+Type error: Cannot find module 'dotenv' or its corresponding type declarations.
+```
+
+`dotenv` was imported by six of our own files — `drizzle.config.ts`,
+`vitest.config.ts`, the three `scripts/`, and the seed — and had **never been
+declared in `package.json`**.
+
+It worked under npm because npm's flat `node_modules` hoists every transitive
+dependency to the top level: `drizzle-kit` depends on dotenv, so dotenv
+appeared at the root and anything could import it. That is a *phantom
+dependency*, and pnpm's linked layout refuses them by design — which is the
+main reason to use pnpm at all.
+
+So the migration did not cause this. It **revealed** a latent fault that had
+been in the repository for months, at the first moment a clean install ran.
+
+**A scan for others found a second:** `server-only`, imported by 34 files under
+`src/lib` and `src/modules`, also undeclared. It survived only because Next's
+bundler aliases it internally — and it is why `vitest.config.ts` needed an
+alias stub to run those files at all. Both are now declared: `server-only` as a
+dependency (runtime modules import it), `dotenv` as a devDependency (config,
+scripts and tests only).
+
+**`scripts/check-phantom-deps.ts` and `pnpm check:deps` now run in CI**, in the
+`static` job, so the next one fails in ten seconds rather than after a push to
+production. Verified by removing `dotenv` from `package.json` and confirming
+the check reproduces the exact failure Vercel reported.
+
+The first version of that scan matched `from '…'` inside comments and string
+literals, and reported `not signed in` and `99.82% because it wobbles every
+third day` as missing packages. It is anchored to line-initial import
+statements now: a checker that cries wolf is a checker somebody switches off.
