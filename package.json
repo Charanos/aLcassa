@@ -16,7 +16,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate && tsx scripts/apply-policies.ts",
+    "db:migrate": "pnpm db:extensions && drizzle-kit migrate && tsx scripts/apply-policies.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "reconcile:usage": "tsx scripts/reconcile-usage.ts",
@@ -28,7 +28,8 @@
     "test:cache-disabled": "cross-env CACHE_DISABLED=true vitest run",
     "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm check:deps && pnpm check:policies && pnpm test",
     "db:policies": "tsx scripts/apply-policies.ts",
-    "check:deps": "tsx scripts/check-phantom-deps.ts"
+    "check:deps": "tsx scripts/check-phantom-deps.ts",
+    "db:extensions": "tsx scripts/create-extensions.ts"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

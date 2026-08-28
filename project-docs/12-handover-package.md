@@ -256,8 +256,15 @@ job or the database-backed jobs, both of which need a database.
 pnpm db:migrate
 ```
 
-Runs `drizzle-kit migrate` **and then** applies the policy catalogue, as one
-command. They are never run separately: a table without its policy is the
+Three steps as one command: **create the extensions**, run `drizzle-kit
+migrate`, then apply the policy catalogue.
+
+The extensions come first because migration 0000 declares `embedding
+vector(1536)` and cannot create that column without the `vector` type. That
+dependency was tribal knowledge until 28 Aug 2026 — the development database
+had the extensions enabled by hand during M1 and nobody wrote it down, so the
+first CI run against a clean container failed on it. A fresh production
+database would have failed the same way. The policies come last. They are never run separately: a table without its policy is the
 precise failure `06 §2` exists to prevent.
 
 There is no rollback command, deliberately — see `04 §9`. The recovery path is
