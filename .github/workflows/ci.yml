@@ -88,7 +88,12 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/aLcassa_test
+      # ⚠ TWO ROLES, AND CONFLATING THEM MAKES THE ISOLATION SUITE PROVE
+      #   NOTHING. Both of these were `postgres` until 28 Aug 2026, and
+      #   `postgres` carries BYPASSRLS — every policy inert for the connection
+      #   the suite runs on. 66 cases failed on the first run that reached a
+      #   database, which is the good outcome. See scripts/create-app-role.ts.
+      DATABASE_URL: postgresql://alcassa_app:alcassa_app@localhost:5432/aLcassa_test
       DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/aLcassa_test
     steps:
       - uses: actions/checkout@v4
@@ -99,6 +104,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:migrate
+      # After the schema, so the grants have tables to apply to; before
+      # anything connects as the app role.
+      - run: pnpm db:app-role
       - run: pnpm db:seed
 
       # 06 §2 rule 1. A tenant-scoped table without a policy fails the build.
@@ -133,7 +141,12 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/aLcassa_test
+      # ⚠ TWO ROLES, AND CONFLATING THEM MAKES THE ISOLATION SUITE PROVE
+      #   NOTHING. Both of these were `postgres` until 28 Aug 2026, and
+      #   `postgres` carries BYPASSRLS — every policy inert for the connection
+      #   the suite runs on. 66 cases failed on the first run that reached a
+      #   database, which is the good outcome. See scripts/create-app-role.ts.
+      DATABASE_URL: postgresql://alcassa_app:alcassa_app@localhost:5432/aLcassa_test
       DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/aLcassa_test
     steps:
       - uses: actions/checkout@v4
@@ -144,6 +157,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:migrate
+      # After the schema, so the grants have tables to apply to; before
+      # anything connects as the app role.
+      - run: pnpm db:app-role
       - run: pnpm db:seed
       - run: pnpm test
 
@@ -168,7 +184,12 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/aLcassa_test
+      # ⚠ TWO ROLES, AND CONFLATING THEM MAKES THE ISOLATION SUITE PROVE
+      #   NOTHING. Both of these were `postgres` until 28 Aug 2026, and
+      #   `postgres` carries BYPASSRLS — every policy inert for the connection
+      #   the suite runs on. 66 cases failed on the first run that reached a
+      #   database, which is the good outcome. See scripts/create-app-role.ts.
+      DATABASE_URL: postgresql://alcassa_app:alcassa_app@localhost:5432/aLcassa_test
       DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/aLcassa_test
       CACHE_DISABLED: 'true'
     steps:
@@ -180,6 +201,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:migrate
+      # After the schema, so the grants have tables to apply to; before
+      # anything connects as the app role.
+      - run: pnpm db:app-role
       - run: pnpm db:seed
       - run: pnpm test
 
