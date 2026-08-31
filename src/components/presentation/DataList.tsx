@@ -56,7 +56,7 @@ export function DataList<T>({
       <div
         className="rounded-panel border px-4 py-10 text-center"
         style={{
-          borderColor: 'var(--rule-base)',
+          borderColor: 'var(--border-subtle)',
           background: 'var(--surface-raised)',
           boxShadow: 'var(--shadow-card)',
         }}
@@ -78,7 +78,7 @@ export function DataList<T>({
       <div
         className="hidden overflow-hidden rounded-panel border md:block"
         style={{
-          borderColor: 'var(--rule-base)',
+          borderColor: 'var(--border-subtle)',
           background: 'var(--surface-raised)',
           boxShadow: 'var(--shadow-card)',
         }}
@@ -92,9 +92,9 @@ export function DataList<T>({
                   <th
                     key={column.key}
                     scope="col"
-                    className="t-micro border-b px-4 py-3 text-[var(--ink-tertiary)]"
+                    className="t-micro border-b px-4 py-3 text-[var(--text-tertiary)]"
                     style={{
-                      borderColor: 'var(--rule-base)',
+                      borderColor: 'var(--border-subtle)',
                       background: 'var(--surface-sunken)',
                       width: column.width,
                     }}
@@ -109,8 +109,8 @@ export function DataList<T>({
             {rows.map((row) => (
               <tr
                 key={rowKey(row)}
-                className="border-b transition-colors duration-[var(--motion-fade)] last:border-b-0 hover:bg-[var(--surface-hover)]"
-                style={{ borderColor: 'var(--rule-soft)' }}
+                className="border-b transition-colors duration-[var(--motion-fade)] last:border-b-0 hover:bg-[var(--surface-inset)]"
+                style={{ borderColor: 'var(--ink-100)' }}
               >
                 {columns.map((column) => (
                   <td
@@ -118,7 +118,7 @@ export function DataList<T>({
                     className={[column.mono ? 't-data' : 't-compact', 'px-4 py-3 align-top'].join(
                       ' ',
                     )}
-                    style={{ color: column.muted ? 'var(--ink-secondary)' : 'var(--ink-primary)' }}
+                    style={{ color: column.muted ? 'var(--text-secondary)' : 'var(--text-primary)' }}
                   >
                     {column.cell(row)}
                   </td>
@@ -136,13 +136,13 @@ export function DataList<T>({
             key={rowKey(row)}
             className="rounded-panel border p-4"
             style={{
-              borderColor: 'var(--rule-base)',
+              borderColor: 'var(--border-subtle)',
               background: 'var(--surface-raised)',
               boxShadow: 'var(--shadow-card)',
             }}
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
-              <span className="t-compact min-w-0 text-[var(--ink-primary)]">
+              <span className="t-compact min-w-0 text-[var(--text-primary)]">
                 {primary ? primary.cell(row) : null}
               </span>
               {badges.map((column) => (
@@ -156,7 +156,7 @@ export function DataList<T>({
               <dl
                 className="mt-3 grid gap-x-4 gap-y-2 border-t pt-3"
                 style={{
-                  borderColor: 'var(--rule-soft)',
+                  borderColor: 'var(--ink-100)',
                   /*
                    * `minmax(0, 1fr)` RATHER THAN `1fr`, AND IT IS THE WHOLE BUG.
                    *
@@ -172,13 +172,13 @@ export function DataList<T>({
               >
                 {fields.map((column) => (
                   <div key={column.key} className="contents">
-                    <dt className="t-eyebrow self-baseline text-[var(--ink-tertiary)]">
+                    <dt className="t-eyebrow self-baseline text-[var(--text-tertiary)]">
                       {column.header}
                     </dt>
                     <dd
                       className={[
                         column.mono ? 't-data' : 't-caption',
-                        'min-w-0 self-baseline text-right text-[var(--ink-secondary)]',
+                        'min-w-0 self-baseline text-right text-[var(--text-secondary)]',
                       ].join(' ')}
                       /* An identifier must wrap somewhere rather than
                        * truncate: a half-shown path is not usable, and this

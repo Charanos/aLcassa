@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import {
   IconArrowRight,
-  IconBolt,
+  IconActivity,
   IconBuildings,
   IconCircleCheck,
   IconClock,
@@ -98,7 +98,7 @@ const SIGNAL_ICON: Record<string, TablerIcon> = {
   coin: IconCoin,
   pulse: IconActivityHeartbeat,
   building: IconBuildings,
-  bolt: IconBolt,
+  bolt: IconActivity,
 };
 
 export default async function ConsoleOverviewPage() {
@@ -375,7 +375,7 @@ export default async function ConsoleOverviewPage() {
         {/* Bottom Bar: Signals */}
         <div className="relative z-10 flex flex-wrap items-center border-t border-[var(--invert-card-rule)] bg-[var(--invert-card-well)]">
           {model.signals.map((s, idx) => {
-            const Icon = SIGNAL_ICON[s.icon] ?? IconBolt;
+            const Icon = SIGNAL_ICON[s.icon] ?? IconActivity;
             return (
               <Link
                 key={s.id}

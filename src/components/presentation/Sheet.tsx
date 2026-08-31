@@ -46,12 +46,12 @@ export function SheetSection({
        * on this page that can contain a table or a long unbroken string.
        */
       className="min-w-0 scroll-mt-24 border-t pt-10 md:pt-14"
-      style={{ borderColor: 'var(--rule-strong)' }}
+      style={{ borderColor: 'var(--border-strong)' }}
       aria-labelledby={`${id}-heading`}
     >
       <div className="flex items-baseline gap-4">
-        <span className="t-eyebrow shrink-0 text-[var(--copper-ink)]">{n}</span>
-        <h2 id={`${id}-heading`} className="t-heading text-[var(--ink-primary)]">
+        <span className="t-eyebrow shrink-0 text-[var(--blue-500)]">{n}</span>
+        <h2 id={`${id}-heading`} className="t-heading text-[var(--text-primary)]">
           {title}
         </h2>
         {/* The rule between the heading and its annotation is drawn out by
@@ -61,10 +61,10 @@ export function SheetSection({
           data-draw-rule
           aria-hidden
           className="hidden h-px flex-1 origin-left self-center md:block"
-          style={{ background: 'var(--rule-soft)' }}
+          style={{ background: 'var(--ink-100)' }}
         />
         {aside ? (
-          <span className="t-eyebrow hidden shrink-0 text-[var(--ink-tertiary)] md:block">
+          <span className="t-eyebrow hidden shrink-0 text-[var(--text-tertiary)] md:block">
             {aside}
           </span>
         ) : null}
@@ -73,7 +73,7 @@ export function SheetSection({
       {lede ? (
         <p
           data-reveal
-          className="t-lede mt-4 text-[var(--ink-secondary)]"
+          className="t-lede mt-4 text-[var(--text-secondary)]"
           style={{ maxWidth: 'var(--measure-prose)' }}
         >
           {lede}
@@ -152,7 +152,7 @@ export function Panel({
         'relative min-w-0 overflow-hidden rounded-panel border p-5',
         'transition-[border-color,box-shadow,transform] duration-[var(--motion-base,200ms)]',
         interactive && !tone
-          ? 'panel-lift hover:-translate-y-0.5 hover:border-[var(--rule-base)]'
+          ? 'panel-lift hover:-translate-y-0.5 hover:border-[var(--border-subtle)]'
           : '',
         className,
       ]
@@ -163,8 +163,8 @@ export function Panel({
         // A toned panel's hairline picks up a whisper of the hue too, so the
         // edge and the glow read as one decision rather than two.
         borderColor: tone
-          ? `color-mix(in oklab, var(--${tone}-rule) 30%, var(--rule-soft) 70%)`
-          : 'var(--rule-soft)',
+          ? `color-mix(in oklab, var(--${tone}-rule) 30%, var(--ink-100) 70%)`
+          : 'var(--ink-100)',
         boxShadow: toneShadow(tone) ?? 'var(--shadow-card)',
       }}
     >
@@ -196,8 +196,8 @@ export function Well({ children, className }: { children: React.ReactNode; class
     <div
       className={['rounded-chip border p-3', className].filter(Boolean).join(' ')}
       style={{
-        background: 'var(--surface-well)',
-        borderColor: 'var(--rule-soft)',
+        background: 'var(--surface-raised)',
+        borderColor: 'var(--ink-100)',
         boxShadow: 'var(--shadow-well)',
       }}
     >
@@ -223,8 +223,8 @@ export function Fact({
     <div data-slot="fact" {...(hero ? { 'data-hero-fact': '' } : {})}>
       {/* Tertiary rather than faint: this label names the value beneath it, so
           it carries information and belongs above the 3:1 step. */}
-      <dt className="t-eyebrow text-[var(--ink-tertiary)]">{k}</dt>
-      <dd className="t-data mt-1.5" style={{ color: tone ?? 'var(--ink-primary)' }}>
+      <dt className="t-eyebrow text-[var(--text-tertiary)]">{k}</dt>
+      <dd className="t-data mt-1.5" style={{ color: tone ?? 'var(--text-primary)' }}>
         {v}
       </dd>
     </div>
@@ -294,11 +294,11 @@ export function StatTile({
       className="rounded-panel border p-5"
       style={{
         background: 'var(--surface-raised)',
-        borderColor: 'var(--rule-base)',
+        borderColor: 'var(--border-subtle)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
-      <div className="t-eyebrow text-[var(--ink-tertiary)]">{label}</div>
+      <div className="t-eyebrow text-[var(--text-tertiary)]">{label}</div>
       <div className="mt-3 flex items-baseline gap-0.5" style={{ color: tone }}>
         <span
           data-count={value}
@@ -313,7 +313,7 @@ export function StatTile({
           </span>
         ) : null}
       </div>
-      <p className="t-caption mt-2.5 text-[var(--ink-tertiary)]">{note}</p>
+      <p className="t-caption mt-2.5 text-[var(--text-tertiary)]">{note}</p>
     </div>
   );
 }

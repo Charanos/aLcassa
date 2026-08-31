@@ -1,3 +1,5 @@
+'use client';
+
 import {
   IconActivity,
   IconBrandInstagram,
@@ -8,6 +10,9 @@ import {
   IconMessage,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
+import { useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import { Mark } from '@/components/brand/Mark';
 
 /**
@@ -74,8 +79,36 @@ const CORE_H = 102;
 const CORE_MID = CORE_Y + CORE_H / 2;
 
 export function HeroDiagram() {
+  const container = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // 03 §7: Motion that serves a purpose. The channels float smoothly to imply active, 
+    // real-time connections waiting for data.
+    gsap.to('.hero-node-float', {
+      y: '-=10',
+      duration: 'random(2.5, 3.5)',
+      yoyo: true,
+      repeat: -1,
+      ease: 'sine.inOut',
+      stagger: {
+        each: 0.15,
+        from: 'random',
+      },
+    });
+
+    // The core breathes steadily to imply stability and active listening
+    gsap.to('.hero-core-float', {
+      y: '-=6',
+      duration: 3,
+      yoyo: true,
+      repeat: -1,
+      ease: 'sine.inOut',
+    });
+  }, { scope: container });
+
   return (
     <div
+      ref={container}
       className="relative origin-top scale-[0.6] transition-transform duration-500 select-none min-[400px]:scale-[0.7] sm:scale-75 md:scale-90 lg:origin-top-left lg:scale-100"
       style={{
         width: WIDTH,
@@ -133,15 +166,12 @@ export function HeroDiagram() {
       {CHANNELS.map((channel) => (
         <div
           key={channel.label}
-          className="absolute z-10 flex items-center gap-3 rounded-panel border px-3 transition-shadow hover:shadow-md"
+          className="hero-node-float surface-glass-strong absolute z-10 flex items-center gap-3 rounded-panel px-3 transition-shadow hover:shadow-md"
           style={{
             left: 0,
             top: channel.y,
             width: NODE_W,
             height: NODE_H,
-            background: 'var(--surface-raised)',
-            borderColor: 'var(--border-subtle)',
-            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <span
@@ -168,7 +198,7 @@ export function HeroDiagram() {
 
       {/* ── The core: High-Contrast Inverted Card (Dark Navy on Light Mode, Crisp White on Dark Mode) ── */}
       <div
-        className="absolute z-20 flex flex-col justify-between rounded-panel border p-3.5 shadow-xl transition-all"
+        className="hero-core-float absolute z-20 flex flex-col justify-between rounded-panel border p-3.5 shadow-xl transition-all"
         style={{
           left: CORE_X,
           top: CORE_Y,
@@ -250,13 +280,10 @@ function FactCard({
 }) {
   return (
     <div
-      className="absolute z-20 flex items-center gap-2.5 rounded-panel border px-3 py-1.5"
+      className="hero-node-float surface-glass-strong absolute z-20 flex items-center gap-2.5 rounded-panel px-3 py-1.5"
       style={{
         left,
         top,
-        background: 'var(--surface-raised)',
-        borderColor: 'var(--border-subtle)',
-        boxShadow: 'var(--shadow-sm)',
       }}
     >
       <Icon size={15} stroke={1.75} className={iconColorClass} aria-hidden />

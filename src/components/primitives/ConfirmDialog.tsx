@@ -46,20 +46,20 @@ export function ConfirmDialog({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--scrim)' }} />
+        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--surface-overlay)' }} />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
           style={{
             background: 'var(--surface-raised)',
-            borderColor: 'var(--rule-base)',
+            borderColor: 'var(--border-subtle)',
             boxShadow: 'var(--shadow-overlay)',
           }}
           // Confirm is never default-focused. Radix focuses the first
           // focusable element by default, which for this layout is Cancel,
           // and that ordering is deliberate rather than incidental.
         >
-          <Dialog.Title className="t-panel text-[var(--ink-primary)]">{title}</Dialog.Title>
-          <Dialog.Description className="t-compact mt-2 text-[var(--ink-secondary)]">
+          <Dialog.Title className="t-panel text-[var(--text-primary)]">{title}</Dialog.Title>
+          <Dialog.Description className="t-compact mt-2 text-[var(--text-secondary)]">
             {consequence}
           </Dialog.Description>
 
@@ -67,7 +67,7 @@ export function ConfirmDialog({
             <p
               role="alert"
               className="t-compact mt-3 flex items-start gap-1.5"
-              style={{ color: 'var(--oxide-ink)' }}
+              style={{ color: 'var(--red-500)' }}
             >
               <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
               {error}
@@ -150,17 +150,17 @@ export function DestructiveConfirm({
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--scrim)' }} />
+        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--surface-overlay)' }} />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
           style={{
             background: 'var(--surface-raised)',
-            borderColor: 'var(--oxide-rule)',
+            borderColor: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))',
             boxShadow: 'var(--shadow-overlay)',
           }}
         >
-          <Dialog.Title className="t-panel text-[var(--ink-primary)]">{title}</Dialog.Title>
-          <Dialog.Description className="t-compact mt-2 text-[var(--ink-secondary)]">
+          <Dialog.Title className="t-panel text-[var(--text-primary)]">{title}</Dialog.Title>
+          <Dialog.Description className="t-compact mt-2 text-[var(--text-secondary)]">
             {consequence} This cannot be undone.
           </Dialog.Description>
 

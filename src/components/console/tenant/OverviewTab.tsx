@@ -8,7 +8,7 @@ import {
   IconMail,
   IconShieldCheck,
   IconUsers,
-  IconBolt,
+  IconCpu,
   IconAlertTriangle,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
@@ -17,7 +17,7 @@ import type { Meter, WorkspaceDetail } from '@/lib/console/data';
 
 const METER_ICON: Record<Meter['icon'], TablerIcon> = {
   seat: IconUsers,
-  bolt: IconBolt,
+  bolt: IconCpu,
   mail: IconMail,
   db: IconDatabase,
   key: IconKey,
@@ -241,7 +241,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
             <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
               {w.meters.map((m) => {
                 const pct = m.used / m.limit;
-                const Icon = METER_ICON[m.icon] ?? IconBolt;
+                const Icon = METER_ICON[m.icon] ?? IconCpu;
                 const color =
                   pct >= 1
                     ? 'var(--danger-fg)'

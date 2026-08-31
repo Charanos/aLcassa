@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { ToastProvider } from '@/components/primitives/Toast';
+import { GsapProvider } from '@/components/structure/GsapProvider';
 import './globals.css';
 
 /**
@@ -52,9 +53,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        {/* One provider, mounted once, so any page can call `useToast()`
-            without knowing whether it needs to bring its own stack. 03 §9. */}
-        <ToastProvider>{children}</ToastProvider>
+        <GsapProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </GsapProvider>
       </body>
     </html>
   );

@@ -22,9 +22,9 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center px-6 py-14 text-center">
-      <Icon size={28} stroke={1.5} aria-hidden className="text-[var(--ink-faint)]" />
-      <h3 className="t-panel mt-4 text-[var(--ink-primary)]">{title}</h3>
-      <p className="t-compact mt-1.5 text-[var(--ink-tertiary)]" style={{ maxWidth: '38ch' }}>
+      <Icon size={28} stroke={1.5} aria-hidden className="text-[var(--ink-300)]" />
+      <h3 className="t-panel mt-4 text-[var(--text-primary)]">{title}</h3>
+      <p className="t-compact mt-1.5 text-[var(--text-tertiary)]" style={{ maxWidth: '38ch' }}>
         {body}
       </p>
       {action ? <div className="mt-5">{action}</div> : null}
@@ -60,7 +60,7 @@ export function EmptyStateSeam({
       className="hatch-slate flex flex-col items-center rounded-panel px-6 py-14 text-center"
       style={{ border: '1px dashed var(--border-strong)' }}
     >
-      <Icon size={28} stroke={1.5} aria-hidden style={{ color: 'var(--slate-ink)' }} />
+      <Icon size={28} stroke={1.5} aria-hidden style={{ color: 'var(--ink-600)' }} />
       <h3 className="t-panel mt-4" style={{ color: 'var(--text-primary)' }}>
         {title}
       </h3>
@@ -86,9 +86,9 @@ export function EmptyStateWithheld({
   return (
     <div
       className="hatch-oxide flex flex-col items-center rounded-panel px-6 py-14 text-center"
-      style={{ border: '1px solid var(--oxide-rule)' }}
+      style={{ border: '1px solid color-mix(in oklab, var(--red-500) 38%, var(--surface-base))' }}
     >
-      <Icon size={28} stroke={1.5} aria-hidden style={{ color: 'var(--oxide-ink)' }} />
+      <Icon size={28} stroke={1.5} aria-hidden style={{ color: 'var(--red-500)' }} />
       <h3 className="t-panel mt-4" style={{ color: 'var(--text-primary)' }}>
         {title}
       </h3>

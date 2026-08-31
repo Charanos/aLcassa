@@ -33,26 +33,26 @@ export default function TenantError({
     <div className="mx-auto flex min-h-[60vh] max-w-[480px] flex-col items-center justify-center px-6 text-center">
       <span
         className="grid size-11 place-items-center rounded-full"
-        style={{ background: 'var(--oxide-tint)' }}
+        style={{ background: 'var(--red-100)' }}
       >
         <IconAlertTriangle
           size={20}
           stroke={1.5}
-          style={{ color: 'var(--oxide-ink)' }}
+          style={{ color: 'var(--red-500)' }}
           aria-hidden
         />
       </span>
 
-      <h1 className="t-panel mt-5" style={{ color: 'var(--ink-primary)' }}>
+      <h1 className="t-panel mt-5" style={{ color: 'var(--text-primary)' }}>
         This screen did not load.
       </h1>
 
-      <p className="t-body mt-2.5" style={{ color: 'var(--ink-secondary)' }}>
+      <p className="t-body mt-2.5" style={{ color: 'var(--text-secondary)' }}>
         We have logged it. Nothing you have already saved was affected.
       </p>
 
       {error.digest ? (
-        <p className="t-caption mt-4" style={{ color: 'var(--ink-tertiary)' }}>
+        <p className="t-caption mt-4" style={{ color: 'var(--text-tertiary)' }}>
           Reference{' '}
           <code
             className="t-data rounded-chip px-1.5 py-0.5"

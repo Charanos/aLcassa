@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import {
-  IconBolt,
   IconClock,
+  IconCpu,
   IconDatabase,
   IconKey,
   IconMail,
@@ -45,7 +45,7 @@ export const metadata: Metadata = { title: 'Plans' };
 
 const ROW_ICON: Record<EntitlementRow['icon'], TablerIcon> = {
   seat: IconUsers,
-  bolt: IconBolt,
+  bolt: IconCpu,
   mail: IconMail,
   db: IconDatabase,
   key: IconKey,

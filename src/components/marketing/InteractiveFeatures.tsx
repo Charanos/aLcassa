@@ -1,611 +1,655 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import {
   IconUsers,
   IconShieldLock,
-  IconLock,
-  IconServer2,
+  IconKey,
+  IconCpu,
   IconHistory,
   IconCheck,
-  IconTerminal,
+  IconX,
+  IconCopy,
+  IconEye,
+  IconEyeOff,
+  IconBrandWhatsapp,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 
 interface FeatureItem {
-  id: string;
+  id: 'rbac' | 'rls' | 'vault' | 'rules' | 'audit';
   icon: TablerIcon;
-  title: string;
-  summary: string;
+  tabLabel: string;
   badge: string;
-  details: string[];
-  codeOrVisualType: 'roles' | 'rls' | 'credentials' | 'rules' | 'audit';
-  iconColorClass: string;
-  iconBgClass: string;
+  title: string;
+  subtitle: string;
+  benefits: {
+    title: string;
+    description: string;
+  }[];
 }
 
 const FEATURES: FeatureItem[] = [
   {
-    id: 'roles',
+    id: 'rbac',
     icon: IconUsers,
-    title: 'Your team, with roles',
-    summary: 'Owners, admins and agents with invitations and a real permission model.',
-    badge: 'Multi-Tenant RBAC',
-    details: [
-      'Owner: Full access, including billing, credentials and team roles.',
-      'Admin: Manages settings, team and assistant rules. Cannot manage credentials.',
-      'Agent: Handles customer messages. Read-only access to settings.',
+    tabLabel: 'Team & Role Governance',
+    badge: 'Granular Permissions',
+    title: 'Give your team exact access without exposing settings or keys.',
+    subtitle:
+      'Structure your customer support hierarchy with distinct permission levels tailored for business owners, department managers, and frontline support staff.',
+    benefits: [
+      {
+        title: 'Business Owners',
+        description: 'Complete authority over billing, channel connections, security policies, and team management.',
+      },
+      {
+        title: 'Managers & Admins',
+        description: 'Configure automated AI responses, invite support team members, and monitor response metrics.',
+      },
+      {
+        title: 'Frontline Support Agents',
+        description: 'Streamlined multi-channel inbox workspace to resolve customer chats without access to sensitive credentials.',
+      },
     ],
-    codeOrVisualType: 'roles',
-    iconColorClass: 'text-warning',
-    iconBgClass: 'bg-amber-50 border-warning/60',
   },
   {
     id: 'rls',
     icon: IconShieldLock,
-    title: 'Your data, genuinely separated',
-    summary: 'Enforced by Postgres Row Level Security on every single table, not application code.',
-    badge: 'Postgres RLS',
-    details: [
-      'Tenant isolation happens at database query layer.',
-      'Application code cannot bypass or forget tenant scope.',
-      'Automated isolation regression suite blocks every deployment.',
+    tabLabel: 'Dedicated Data Isolation',
+    badge: 'Hardware-Level Privacy',
+    title: 'Your customer data stays strictly private to your company.',
+    subtitle:
+      'Every customer interaction, contact detail, and order record is physically segregated in the database, preventing any cross-company visibility.',
+    benefits: [
+      {
+        title: 'Guaranteed Multi-Tenant Boundary',
+        description: 'Your workspace is cryptographically separated from other businesses on the platform at the database query layer.',
+      },
+      {
+        title: 'Zero Leakage Guarantee',
+        description: 'Neither other tenants nor unauthorized agents can ever view or query your customer conversation history.',
+      },
+      {
+        title: 'Continuous Compliance Testing',
+        description: 'Automated isolation test suites verify data segregation on every platform update before deployment.',
+      },
     ],
-    codeOrVisualType: 'rls',
-    iconColorClass: 'text-success',
-    iconBgClass: 'bg-emerald-50 border-success/60',
   },
   {
-    id: 'credentials',
-    icon: IconLock,
-    title: 'Your credentials, write-only',
-    summary: 'API keys are shown once at creation and never stored in plain text.',
-    badge: 'Argon2 Hashed',
-    details: [
-      'Key shown exactly once upon creation.',
-      'Stored as Argon2 hash, impossible to reverse.',
-      'Rotation replaces a key without re-revealing previous values.',
+    id: 'vault',
+    icon: IconKey,
+    tabLabel: 'Secure Credential Vault',
+    badge: 'Write-Only Encryption',
+    title: 'Connect WhatsApp & Instagram with write-only security.',
+    subtitle:
+      'Channel credentials, access tokens, and API secrets are displayed once upon creation and stored exclusively as irreversible cryptographic hashes.',
+    benefits: [
+      {
+        title: 'One-Time Secret Generation',
+        description: 'High-entropy API tokens are revealed exactly once to the owner and cannot be retrieved in plain text later.',
+      },
+      {
+        title: 'Argon2id Hash Encryption',
+        description: 'Protects your company against secret theft using modern memory-hard cryptographic hashing algorithms.',
+      },
+      {
+        title: 'Zero-Downtime Key Rotation',
+        description: 'Replace credentials or revoke team access in a single click without interrupting ongoing live customer conversations.',
+      },
     ],
-    codeOrVisualType: 'credentials',
-    iconColorClass: 'text-danger',
-    iconBgClass: 'bg-rose-50 border-danger/60',
   },
   {
     id: 'rules',
-    icon: IconServer2,
-    title: 'Assistant rules, machine-readable',
-    summary: 'Set how the AI assistant sounds, what it knows, and handover boundaries.',
-    badge: '< 5s Propagation',
-    details: [
-      'Structured JSON spec readable by AI agents and engines.',
-      'Updates propagate to live API endpoints within 5 seconds.',
-      'Master and tenant rule precedence enforced systematically.',
+    icon: IconCpu,
+    tabLabel: 'Custom AI Brand Rules',
+    badge: 'Live Voice & Tone Control',
+    title: 'Define exactly how your AI assistant speaks and when humans take over.',
+    subtitle:
+      'Fine-tune your brand voice, regional tone, customer service policies, and automated human escalation triggers in real time.',
+    benefits: [
+      {
+        title: 'Custom Brand Persona',
+        description: 'Select between professional corporate, warm advisory, or Kenyan bilingual (English / Swahili / Sheng) conversation styles.',
+      },
+      {
+        title: 'Smart Human Escalation',
+        description: 'Automatically routes billing disputes, complex logistics queries, or VIP inquiries directly to human team members.',
+      },
+      {
+        title: 'Instant Rule Synchronization',
+        description: 'Policy and tone adjustments take effect across all connected social channels in under 5 seconds.',
+      },
     ],
-    codeOrVisualType: 'rules',
-    iconColorClass: 'text-[var(--blue-600)]',
-    iconBgClass: 'bg-blue-50 border-[var(--blue-200)]/60',
   },
   {
     id: 'audit',
     icon: IconHistory,
-    title: 'A record of everything',
-    summary: 'Immutable activity log that cannot be edited or deleted by anyone.',
-    badge: 'Append-Only',
-    details: [
-      'Every administrative action appended with timestamp and actor.',
-      'Support mode logins leave audit record in tenant log.',
-      'Zero delete or update permissions on audit entries.',
+    tabLabel: 'Activity & Compliance Log',
+    badge: 'Tamper-Proof Audit Trail',
+    title: 'A permanent, verifiable record of every important team action.',
+    subtitle:
+      'Maintain complete visibility with an append-only audit ledger tracking role adjustments, AI policy updates, and platform support sessions.',
+    benefits: [
+      {
+        title: 'Comprehensive Action Tracking',
+        description: 'Review full timestamps, user accounts, and details for every security, rule, and team configuration change.',
+      },
+      {
+        title: 'Transparent Platform Support',
+        description: 'When aLcassa support assists your team, every session is logged into your private activity history with a unique ticket reference.',
+      },
+      {
+        title: 'Immutable Compliance',
+        description: 'Audit entries cannot be modified or deleted by anyone, ensuring complete legal and operational accountability.',
+      },
     ],
-    codeOrVisualType: 'audit',
-    iconColorClass: 'text-violet-600',
-    iconBgClass: 'bg-violet-50 border-violet-200/60',
   },
 ];
 
 export function InteractiveFeatures() {
-  const [activeId, setActiveId] = useState<string>('roles');
-  const activeFeature: FeatureItem = FEATURES.find((f) => f.id === activeId) ?? FEATURES[0]!;
+  const [activeTab, setActiveTab] = useState<FeatureItem['id']>('rbac');
+
+  // RBAC State
+  const [selectedRole, setSelectedRole] = useState<'owner' | 'admin' | 'agent'>('owner');
+
+  // RLS State
+  const [selectedTenant, setSelectedTenant] = useState<'kwanza' | 'savanna'>('kwanza');
+
+  // Vault State
+  const [revealedKey, setRevealedKey] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+
+  // Rules State
+  const [ruleTone, setRuleTone] = useState<'warm' | 'formal' | 'bilingual'>('warm');
+
+  // Audit State
+  const [auditFilter, setAuditFilter] = useState<'all' | 'security' | 'team'>('all');
+
+  const activeFeature = FEATURES.find((f) => f.id === activeTab) ?? FEATURES[0]!;
 
   return (
-    <div
-      className="mt-10 grid gap-8 border-t pt-8 lg:grid-cols-[1fr_1.25fr] lg:items-start"
-      style={{ borderColor: 'var(--border-subtle)' }}
-    >
-      {/* Left Feature Selector List */}
-      <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-        {FEATURES.map((feature) => {
-          const isActive = feature.id === activeId;
-          const Icon = feature.icon;
-          return (
-            <button
-              key={feature.id}
-              onClick={() => setActiveId(feature.id)}
-              className={`group relative flex w-full cursor-pointer items-start gap-4 rounded-panel px-3.5 py-4 text-left transition-all duration-200 ${
-                isActive
-                  ? 'border-l-4 bg-[var(--surface-raised)] shadow-sm'
-                  : 'border-l-4 border-l-transparent hover:bg-[var(--surface-sunken)]/60'
-              }`}
-              style={{
-                borderLeftColor: isActive ? 'var(--accent-mark)' : 'transparent',
-              }}
-            >
-              {/* Icon Container */}
-              <div
-                className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-chip border transition-colors ${
+    <div className="w-full">
+      {/* ── Section Header ── */}
+      <div className="flex flex-col items-start max-w-3xl">
+        <div className="inline-flex items-center gap-2">
+          <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--orange-500)]">
+            Core Platform Architecture
+          </p>
+        </div>
+        <h2 className="display text-[32px] sm:text-[42px] font-normal tracking-tight text-[var(--text-primary)] mt-3 leading-tight">
+          Engineered for enterprise security, privacy, and team control.
+        </h2>
+        <p className="text-[15px] sm:text-[16px] text-[var(--text-secondary)] mt-3 leading-relaxed">
+          Before routing a single customer message, aLcassa guarantees database-level privacy boundaries,
+          encrypted credentials, and customizable AI brand guidelines.
+        </p>
+      </div>
+
+      {/* ── Clean Tab Switcher (No Dev Numerals) ── */}
+      <div className="mt-10 overflow-x-auto pb-2 scrollbar-none">
+        <div className="flex items-center gap-1.5 p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-sunken)] min-w-max">
+          {FEATURES.map((feature) => {
+            const isActive = feature.id === activeTab;
+            const Icon = feature.icon;
+            return (
+              <button
+                key={feature.id}
+                onClick={() => setActiveTab(feature.id)}
+                className={`group flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] transition-all cursor-pointer ${
                   isActive
-                    ? feature.iconBgClass
-                    : 'border-[var(--border-subtle)] bg-[var(--surface-sunken)]'
+                    ? 'bg-[var(--surface-base)] text-[var(--text-primary)] font-medium shadow-sm border border-[var(--ink-200)]'
+                    : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-base)]/50'
                 }`}
               >
                 <Icon
                   size={16}
                   stroke={1.75}
-                  className={
-                    isActive
-                      ? feature.iconColorClass
-                      : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'
-                  }
+                  className={isActive ? 'text-[var(--orange-500)]' : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'}
                 />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <h3
-                    className="t-panel font-medium"
-                    style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)' }}
-                  >
-                    {feature.title}
-                  </h3>
-
-                  <span
-                    className={`t-eyebrow rounded-chip border px-2.5 py-0.5 whitespace-nowrap transition-all ${
-                      isActive
-                        ? 'border-[var(--border-strong)] bg-[var(--surface-inset)] text-[var(--text-primary)]'
-                        : 'border-[var(--border-subtle)] bg-[var(--surface-sunken)] text-[var(--text-tertiary)]'
-                    }`}
-                  >
-                    {feature.badge}
-                  </span>
-                </div>
-                <p
-                  className="t-compact mt-1 leading-normal"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  {feature.summary}
-                </p>
-              </div>
-            </button>
-          );
-        })}
+                <span>{feature.tabLabel}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Right Specification Viewport Enclosure */}
-      <div className="relative overflow-hidden rounded-panel border border-[var(--border-strong)] bg-[var(--surface-raised)] p-6 shadow-sm md:p-8">
-        {/* Title Block Header */}
-        <div
-          className="flex items-center justify-between border-b pb-4"
-          style={{ borderColor: 'var(--border-subtle)' }}
-        >
-          <div className="flex items-center gap-2.5">
-            <span
-              className="size-2 animate-pulse rounded-full"
-              style={{ background: 'var(--success-fg)' }}
-            />
-            <span className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
-              {activeFeature.title} Specification
+      {/* ── Main Interactive Architectural Stage ── */}
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-base)] p-6 sm:p-8 shadow-sm">
+        
+        {/* Left Column: Feature Value & Interactive Switchers (5 cols) */}
+        <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
+          <div>
+            {/* Header Badge */}
+            <div className="flex items-center justify-between gap-3">
+              <span className="font-mono text-[10.5px] uppercase tracking-wider text-[var(--orange-600)] font-medium bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
+                {activeFeature.badge}
+              </span>
+              <span className="font-mono text-[11px] text-[var(--text-tertiary)]">
+                PRODUCTION READY
+              </span>
+            </div>
+
+            <h3 className="text-[22px] sm:text-[25px] font-normal tracking-tight text-[var(--text-primary)] mt-3.5 leading-snug">
+              {activeFeature.title}
+            </h3>
+
+            <p className="text-[13.5px] sm:text-[14px] text-[var(--text-secondary)] mt-2.5 leading-relaxed">
+              {activeFeature.subtitle}
+            </p>
+
+            {/* Benefits Checklist */}
+            <div className="mt-6 space-y-3.5 pt-6 border-t border-[var(--border-subtle)]">
+              {activeFeature.benefits.map((benefit, idx) => (
+                <div key={idx} className="flex items-start gap-3">
+                  <div className="size-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                    <IconCheck size={12} stroke={2.5} className="text-[var(--green-600)]" />
+                  </div>
+                  <div>
+                    <span className="text-[13.5px] font-medium text-[var(--text-primary)] block">
+                      {benefit.title}
+                    </span>
+                    <span className="text-[12.5px] text-[var(--text-secondary)] leading-normal mt-0.5 block">
+                      {benefit.description}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Interactive Live Demonstrations & Controls */}
+          <div className="pt-6 border-t border-[var(--border-subtle)] bg-[var(--surface-sunken)]/50 -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+            <p className="font-mono text-[10.5px] uppercase tracking-wider text-[var(--text-tertiary)] mb-3">
+              Interactive Preview Controls
+            </p>
+
+            {/* 1. RBAC Switcher */}
+            {activeTab === 'rbac' && (
+              <div className="grid grid-cols-3 gap-2">
+                {(['owner', 'admin', 'agent'] as const).map((role) => (
+                  <button
+                    key={role}
+                    onClick={() => setSelectedRole(role)}
+                    className={`py-2 px-3 rounded-lg text-xs font-medium capitalize transition-all cursor-pointer text-center ${
+                      selectedRole === role
+                        ? 'bg-[var(--surface-base)] text-[var(--text-primary)] shadow-sm border border-[var(--ink-200)]'
+                        : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-base)]/40'
+                    }`}
+                  >
+                    {role === 'owner' ? 'Business Owner' : role === 'admin' ? 'Manager / Admin' : 'Support Agent'}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* 2. RLS Switcher */}
+            {activeTab === 'rls' && (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setSelectedTenant('kwanza')}
+                  className={`py-2 px-3 rounded-lg text-xs transition-all cursor-pointer text-left ${
+                    selectedTenant === 'kwanza'
+                      ? 'bg-[var(--surface-base)] text-[var(--text-primary)] font-medium shadow-sm border border-[var(--ink-200)]'
+                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+                  }`}
+                >
+                  <span className="block font-medium">Kwanza Logistics</span>
+                  <span className="text-[10.5px] text-[var(--text-tertiary)]">Nairobi Workspace</span>
+                </button>
+                <button
+                  onClick={() => setSelectedTenant('savanna')}
+                  className={`py-2 px-3 rounded-lg text-xs transition-all cursor-pointer text-left ${
+                    selectedTenant === 'savanna'
+                      ? 'bg-[var(--surface-base)] text-[var(--text-primary)] font-medium shadow-sm border border-[var(--ink-200)]'
+                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+                  }`}
+                >
+                  <span className="block font-medium">Studio Savanna</span>
+                  <span className="text-[10.5px] text-[var(--text-tertiary)]">Kilimani Workspace</span>
+                </button>
+              </div>
+            )}
+
+            {/* 3. Vault Switcher */}
+            {activeTab === 'vault' && (
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  onClick={() => setRevealedKey(!revealedKey)}
+                  className="flex items-center gap-2 py-2 px-3.5 rounded-lg border border-[var(--border-strong)] bg-[var(--surface-base)] text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] transition-colors cursor-pointer"
+                >
+                  {revealedKey ? <IconEyeOff size={14} /> : <IconEye size={14} />}
+                  <span>{revealedKey ? 'Mask API Secret' : 'Reveal Secret Key'}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setIsCopied(true);
+                    setTimeout(() => setIsCopied(false), 1500);
+                  }}
+                  className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer"
+                >
+                  <IconCopy size={13} />
+                  <span>{isCopied ? 'Copied to Clipboard!' : 'Copy Key'}</span>
+                </button>
+              </div>
+            )}
+
+            {/* 4. Rules Switcher */}
+            {activeTab === 'rules' && (
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    { id: 'warm', label: 'Warm Professional', sub: 'Friendly advice' },
+                    { id: 'formal', label: 'Corporate Strict', sub: 'Direct enterprise' },
+                    { id: 'bilingual', label: 'Bilingual Sheng', sub: 'Swahili / English' },
+                  ] as const
+                ).map((tone) => (
+                  <button
+                    key={tone.id}
+                    onClick={() => setRuleTone(tone.id)}
+                    className={`py-2 px-2.5 rounded-lg text-left transition-all cursor-pointer ${
+                      ruleTone === tone.id
+                        ? 'bg-[var(--surface-base)] text-[var(--text-primary)] font-medium shadow-sm border border-[var(--ink-200)]'
+                        : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    <span className="block text-xs font-medium">{tone.label}</span>
+                    <span className="text-[10px] text-[var(--text-tertiary)] block">{tone.sub}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* 5. Audit Switcher */}
+            {activeTab === 'audit' && (
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    { id: 'all', label: 'All Activities' },
+                    { id: 'security', label: 'Support Sessions' },
+                    { id: 'team', label: 'Rule Changes' },
+                  ] as const
+                ).map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setAuditFilter(f.id)}
+                    className={`py-2 px-2.5 rounded-lg text-xs transition-all cursor-pointer text-center ${
+                      auditFilter === f.id
+                        ? 'bg-[var(--surface-base)] text-[var(--text-primary)] font-medium shadow-sm border border-[var(--ink-200)]'
+                        : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: High-Fidelity Client-Facing Visual Demonstration (7 cols) */}
+        <div className="lg:col-span-7 flex flex-col rounded-xl border border-[var(--ink-200)] bg-[var(--surface-sunken)] overflow-hidden">
+          
+          {/* Header Bar */}
+          <div className="flex items-center justify-between border-b border-[var(--ink-200)] bg-[var(--surface-base)] px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="size-2 rounded-full bg-[var(--green-500)]" />
+              <span className="font-mono text-[11px] text-[var(--text-secondary)] uppercase tracking-wider">
+                {activeTab === 'rbac' && 'Role Permissions & Access Scope'}
+                {activeTab === 'rls' && 'Dedicated Database Boundary · Active'}
+                {activeTab === 'vault' && 'Argon2id Salted Cryptographic Vault'}
+                {activeTab === 'rules' && 'Live AI Assistant Response Preview'}
+                {activeTab === 'audit' && 'Immutable Audit Trail'}
+              </span>
+            </div>
+            <span className="text-[11px] text-[var(--text-tertiary)] font-mono">
+              ZERO CONFIG OVERHEAD
             </span>
           </div>
-          <span
-            className="t-eyebrow font-mono text-[11px]"
-            style={{ color: 'var(--text-tertiary)' }}
-          >
-            SEAM #{activeFeature.id.toUpperCase()}
-          </span>
-        </div>
 
-        {/* Feature Detail Checklist */}
-        <ul className="mt-6 space-y-3">
-          {activeFeature.details.map((detail, idx) => (
-            <li
-              key={idx}
-              className="t-compact flex items-start gap-3"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              <IconCheck size={16} className="mt-0.5 shrink-0 text-success" />
-              <span>{detail}</span>
-            </li>
-          ))}
-        </ul>
-
-        {/* Technical Terminal & Code Spec Viewport */}
-        <div
-          className="relative mt-6 border-t pt-6"
-          style={{ borderColor: 'var(--border-subtle)' }}
-        >
-          {activeFeature.codeOrVisualType === 'roles' && (
-            <div className="animate-hero-reveal space-y-3">
-              <div
-                className="t-eyebrow flex items-center justify-between"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
-                <span>MULTI-TENANT PERMISSION TOPOLOGY</span>
-                <span className="font-normal text-success">RBAC ENFORCED</span>
-              </div>
-
-              {/* Compact Visual Role Topology SVG Diagram */}
-              <div className="mx-auto max-w-md rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-3">
-                <svg viewBox="0 0 360 110" fill="none" className="h-auto max-h-[140px] w-full">
-                  {/* Root Node */}
-                  <rect
-                    x="130"
-                    y="6"
-                    width="100"
-                    height="26"
-                    rx="4"
-                    fill="var(--surface-raised)"
-                    stroke="var(--border-strong)"
-                    strokeWidth="1"
-                  />
-                  <text
-                    x="180"
-                    y="23"
-                    textAnchor="middle"
-                    fill="var(--text-primary)"
-                    className="t-micro font-medium"
-                    fontSize="9"
-                  >
-                    WORKSPACE
-                  </text>
-
-                  {/* Connectors */}
-                  <path
-                    d="M 180 32 L 60 60"
-                    stroke="var(--border-subtle)"
-                    strokeWidth="1"
-                    strokeDasharray="3 3"
-                  />
-                  <path
-                    d="M 180 32 L 180 60"
-                    stroke="var(--border-subtle)"
-                    strokeWidth="1"
-                    strokeDasharray="3 3"
-                  />
-                  <path
-                    d="M 180 32 L 300 60"
-                    stroke="var(--border-subtle)"
-                    strokeWidth="1"
-                    strokeDasharray="3 3"
-                  />
-
-                  {/* Leaf Nodes */}
-                  <g transform="translate(15, 60)">
-                    <rect
-                      width="90"
-                      height="36"
-                      rx="4"
-                      fill="var(--surface-raised)"
-                      stroke="var(--accent-mark)"
-                      strokeWidth="1.25"
-                    />
-                    <text
-                      x="45"
-                      y="16"
-                      textAnchor="middle"
-                      fill="var(--text-primary)"
-                      className="t-eyebrow font-medium"
-                      fontSize="9"
-                    >
-                      OWNER
-                    </text>
-                    <text
-                      x="45"
-                      y="28"
-                      textAnchor="middle"
-                      fill="var(--text-tertiary)"
-                      className="t-micro"
-                      fontSize="7"
-                    >
-                      FULL ACCESS
-                    </text>
-                  </g>
-
-                  <g transform="translate(135, 60)">
-                    <rect
-                      width="90"
-                      height="36"
-                      rx="4"
-                      fill="var(--surface-raised)"
-                      stroke="var(--border-strong)"
-                      strokeWidth="1"
-                    />
-                    <text
-                      x="45"
-                      y="16"
-                      textAnchor="middle"
-                      fill="var(--text-primary)"
-                      className="t-eyebrow font-normal"
-                      fontSize="9"
-                    >
-                      ADMIN
-                    </text>
-                    <text
-                      x="45"
-                      y="28"
-                      textAnchor="middle"
-                      fill="var(--text-tertiary)"
-                      className="t-micro"
-                      fontSize="7"
-                    >
-                      CONFIG MODE
-                    </text>
-                  </g>
-
-                  <g transform="translate(255, 60)">
-                    <rect
-                      width="90"
-                      height="36"
-                      rx="4"
-                      fill="var(--surface-raised)"
-                      stroke="var(--border-subtle)"
-                      strokeWidth="1"
-                    />
-                    <text
-                      x="45"
-                      y="16"
-                      textAnchor="middle"
-                      fill="var(--text-primary)"
-                      className="t-eyebrow"
-                      fontSize="9"
-                    >
-                      AGENT
-                    </text>
-                    <text
-                      x="45"
-                      y="28"
-                      textAnchor="middle"
-                      fill="var(--text-tertiary)"
-                      className="t-micro"
-                      fontSize="7"
-                    >
-                      MESSAGING
-                    </text>
-                  </g>
-                </svg>
-              </div>
-            </div>
-          )}
-
-          {activeFeature.codeOrVisualType === 'rls' && (
-            <div className="animate-hero-reveal space-y-3">
-              <div
-                className="t-eyebrow flex items-center justify-between"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
-                <span>DATABASE TENANT ISOLATION BARRIER</span>
-                <span className="font-normal text-success">ZERO LEAKAGE</span>
-              </div>
-
-              {/* Compact RLS Isolation Wall Diagram */}
-              <div className="mx-auto max-w-md rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-3">
-                <svg viewBox="0 0 360 90" fill="none" className="h-auto max-h-[120px] w-full">
-                  {/* Tenant A Zone */}
-                  <rect
-                    x="10"
-                    y="8"
-                    width="150"
-                    height="74"
-                    rx="4"
-                    fill="var(--surface-raised)"
-                    stroke="var(--success-fg)"
-                    strokeWidth="1"
-                  />
-                  <text
-                    x="85"
-                    y="26"
-                    textAnchor="middle"
-                    fill="var(--success-fg)"
-                    className="t-eyebrow font-normal"
-                    fontSize="9"
-                  >
-                    TENANT A ISOLATION
-                  </text>
-                  <path
-                    d="M 25 45 L 145 45"
-                    stroke="var(--success-fg)"
-                    strokeWidth="1.5"
-                    strokeDasharray="3 3"
-                  />
-                  <text
-                    x="85"
-                    y="62"
-                    textAnchor="middle"
-                    fill="var(--text-secondary)"
-                    className="t-micro"
-                    fontSize="8"
-                  >
-                    AUTHORIZED
-                  </text>
-
-                  {/* Hard Isolation Wall */}
-                  <line
-                    x1="180"
-                    y1="8"
-                    x2="180"
-                    y2="82"
-                    stroke="var(--accent-mark)"
-                    strokeWidth="2"
-                    strokeDasharray="4 2"
-                  />
-                  <text
-                    x="180"
-                    y="48"
-                    textAnchor="middle"
-                    fill="var(--accent-mark-text)"
-                    className="t-micro font-mono font-medium"
-                    fontSize="7"
-                    transform="rotate(-90 180 48)"
-                  >
-                    RLS BARRIER
-                  </text>
-
-                  {/* Tenant B Blocked Zone */}
-                  <rect
-                    x="200"
-                    y="8"
-                    width="150"
-                    height="74"
-                    rx="4"
-                    fill="var(--surface-raised)"
-                    stroke="var(--danger-fg)"
-                    strokeWidth="1"
-                    opacity="0.8"
-                  />
-                  <text
-                    x="275"
-                    y="26"
-                    textAnchor="middle"
-                    fill="var(--danger-fg)"
-                    className="t-eyebrow font-normal"
-                    fontSize="9"
-                  >
-                    TENANT B DATA
-                  </text>
-                  <path d="M 215 45 L 335 45" stroke="var(--danger-fg)" strokeWidth="1.5" />
-                  <text
-                    x="275"
-                    y="62"
-                    textAnchor="middle"
-                    fill="var(--danger-fg)"
-                    className="t-micro font-normal"
-                    fontSize="8"
-                  >
-                    BLOCKED
-                  </text>
-                </svg>
-              </div>
-            </div>
-          )}
-
-          {activeFeature.codeOrVisualType === 'credentials' && (
-            <div className="animate-hero-reveal space-y-3">
-              <div
-                className="t-eyebrow flex items-center justify-between"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
-                <span>ONE-WAY ARGON2 CRYPTOGRAPHIC ENGINE</span>
-                <span className="font-normal text-warning">NON-RETRIEVABLE</span>
-              </div>
-
-              {/* Compact One-Way Hash Flow Graphic */}
-              <div className="mx-auto max-w-md rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-3">
-                <div className="t-code flex flex-col items-center justify-between gap-2 sm:flex-row">
-                  <div className="flex-1 rounded-chip border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-2 text-center">
-                    <span className="t-micro mb-0.5 block text-[var(--text-tertiary)]">
-                      PLAIN API KEY
-                    </span>
-                    <span className="t-data-sm text-[var(--text-action)]">alc_live_8f3a...</span>
-                  </div>
-
-                  <div
-                    className="t-caption shrink-0 px-1 font-mono font-normal"
-                    style={{ color: 'var(--accent-mark-text)' }}
-                  >
-                    &rarr; ARGON2 &rarr;
-                  </div>
-
-                  <div className="flex-1 rounded-chip border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-2 text-center">
-                    <span className="t-micro mb-0.5 block text-[var(--text-tertiary)]">
-                      SAVED HASH
-                    </span>
-                    <span className="t-data-sm text-success">$argon2id$v=19...</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeFeature.codeOrVisualType === 'rules' && (
-            <div className="animate-hero-reveal">
-              <div className="t-eyebrow mb-3 flex items-center justify-between text-[var(--text-tertiary)]">
-                <span className="flex items-center gap-1.5">
-                  <IconTerminal size={14} className="text-warning" /> GET /api/v1/rules
-                </span>
-                <span className="font-normal text-success">&lt; 5s PROPAGATION</span>
-              </div>
-              <pre
-                className="t-code overflow-x-auto rounded-panel border border-l-4 border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-4 leading-relaxed whitespace-pre-wrap text-[var(--text-primary)]"
-                style={{ borderLeftColor: 'var(--accent-mark)' }}
-              >
-                {`{
-  "`}
-                <span className="text-warning">tone</span>
-                {`": "`}
-                <span className="text-success">technical_warm</span>
-                {`",
-  "`}
-                <span className="text-warning">escalation_threshold</span>
-                {`": `}
-                <span className="text-danger">0.85</span>
-                {`,
-  "`}
-                <span className="text-warning">handover_trigger</span>
-                {`": ["`}
-                <span className="text-success">pricing_custom</span>
-                {`", "`}
-                <span className="text-success">billing_dispute</span>
-                {`"],
-  "`}
-                <span className="text-warning">knowledge_base_version</span>
-                {`": "`}
-                <span className="text-[var(--text-secondary)]">v1.4.2</span>
-                {`"
-}`}
-              </pre>
-            </div>
-          )}
-
-          {activeFeature.codeOrVisualType === 'audit' && (
-            <div className="animate-hero-reveal space-y-3">
-              <div className="t-eyebrow flex items-center justify-between text-[var(--text-tertiary)]">
-                <span>ACTIVITY LOG STREAM</span>
-                <span className="font-normal text-success">IMMUTABLE APPEND-ONLY</span>
-              </div>
-              <div
-                className="divide-y overflow-hidden rounded-chip border bg-[var(--surface-sunken)]"
-                style={{ borderColor: 'var(--border-subtle)' }}
-              >
-                <div className="t-compact flex items-center justify-between p-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="size-1.5 rounded-full bg-[var(--accent-mark)]" />
-                    <div>
-                      <span className="font-medium text-[var(--text-primary)]">
-                        Support Mode Session
-                      </span>
-                      <div className="t-caption text-[var(--text-tertiary)]">
-                        Reason: Ticket #4829 investigation
+          {/* Dynamic Content Viewport */}
+          <div className="flex-1 p-5 text-[13px] leading-relaxed flex flex-col justify-center">
+            
+            {/* 1. RBAC VISUALIZER */}
+            {activeTab === 'rbac' && (
+              <div className="space-y-4">
+                {/* Active Role Card */}
+                <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-base)] p-4 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative size-10 rounded-full overflow-hidden border border-[var(--border-strong)]">
+                        <Image
+                          src={
+                            selectedRole === 'owner'
+                              ? '/avatars/japheth.jpg'
+                              : selectedRole === 'admin'
+                              ? '/avatars/amina.jpg'
+                              : '/avatars/kevin.jpg'
+                          }
+                          alt="Team member"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-medium text-[var(--text-primary)]">
+                          {selectedRole === 'owner' && 'Japheth Njoroge'}
+                          {selectedRole === 'admin' && 'Amina Wanjiku'}
+                          {selectedRole === 'agent' && 'Kevin Omondi'}
+                        </div>
+                        <div className="text-[11.5px] text-[var(--text-secondary)]">
+                          {selectedRole === 'owner' && 'Operations Director · Kwanza Logistics'}
+                          {selectedRole === 'admin' && 'Customer Support Manager'}
+                          {selectedRole === 'agent' && 'Support Agent (Nairobi Hub)'}
+                        </div>
                       </div>
                     </div>
+                    <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--orange-600)] font-semibold bg-amber-500/10 px-2.5 py-1 rounded-md">
+                      {selectedRole.toUpperCase()}
+                    </span>
                   </div>
-                  <span className="t-data font-mono text-warning">14:22:01</span>
-                </div>
-                <div className="t-compact flex items-center justify-between p-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="size-1.5 rounded-full bg-success-bg" />
-                    <div>
-                      <span className="font-medium text-[var(--text-primary)]">
-                        Assistant Rules Updated
-                      </span>
-                      <div className="t-caption text-[var(--text-tertiary)]">
-                        Actor: owner@acme.com
+
+                  {/* Permissions Checklist Table */}
+                  <div className="mt-3.5 space-y-2">
+                    {[
+                      { label: 'Multi-Channel Inbox & Chat Resolution', allowed: true },
+                      { label: 'AI Assistant Rules & Tone Configuration', allowed: selectedRole !== 'agent' },
+                      { label: 'Invite & Manage Team Members', allowed: selectedRole !== 'agent' },
+                      { label: 'Manage API Credentials & Billing', allowed: selectedRole === 'owner' },
+                    ].map((perm, idx) => (
+                      <div key={idx} className="flex items-center justify-between py-1 px-2 rounded-lg bg-[var(--surface-sunken)] text-xs">
+                        <span className="text-[var(--text-secondary)]">{perm.label}</span>
+                        <div className="flex items-center gap-1.5 font-medium">
+                          {perm.allowed ? (
+                            <span className="text-[var(--green-600)] flex items-center gap-1">
+                              <IconCheck size={13} stroke={2.5} /> Enabled
+                            </span>
+                          ) : (
+                            <span className="text-rose-600 flex items-center gap-1">
+                              <IconX size={13} stroke={2.5} /> Restricted
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                  <span className="t-data font-mono text-[var(--text-tertiary)]">12:05:44</span>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* 2. RLS VISUALIZER */}
+            {activeTab === 'rls' && (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-base)] p-4 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
+                    <span className="font-medium text-[var(--text-primary)]">
+                      {selectedTenant === 'kwanza' ? 'Kwanza Logistics Workspace' : 'Studio Savanna Workspace'}
+                    </span>
+                    <span className="text-[11px] font-mono text-[var(--green-600)] bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                      100% ISOLATED
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-[var(--text-secondary)] mt-2.5">
+                    {selectedTenant === 'kwanza'
+                      ? 'Live queries only access Kwanza Logistics dispatch inquiries. Zero cross-visibility with Studio Savanna.'
+                      : 'Live queries only access Studio Savanna bridal inquiries. Zero cross-visibility with Kwanza Logistics.'}
+                  </p>
+
+                  <div className="mt-3 space-y-2">
+                    {selectedTenant === 'kwanza' ? (
+                      <>
+                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-[var(--surface-sunken)] text-xs">
+                          <span className="font-medium text-[var(--text-primary)]">Dispatch Inquiries (WhatsApp API)</span>
+                          <span className="text-[var(--text-tertiary)] font-mono">14 Active Chats</span>
+                        </div>
+                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-[var(--surface-sunken)] text-xs">
+                          <span className="font-medium text-[var(--text-primary)]">Mombasa Fleet Notifications</span>
+                          <span className="text-[var(--text-tertiary)] font-mono">6 Resolved</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-[var(--surface-sunken)] text-xs">
+                          <span className="font-medium text-[var(--text-primary)]">Bridal Styling Requests (Instagram)</span>
+                          <span className="text-[var(--text-tertiary)] font-mono">8 Active Chats</span>
+                        </div>
+                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-[var(--surface-sunken)] text-xs">
+                          <span className="font-medium text-[var(--text-primary)]">VIP Lookbook Consultations</span>
+                          <span className="text-[var(--text-tertiary)] font-mono">3 Scheduled</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. VAULT VISUALIZER */}
+            {activeTab === 'vault' && (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-base)] p-4 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-[var(--text-primary)]">
+                      Production Webhook &amp; Channel Key
+                    </span>
+                    <span className="text-[10.5px] font-mono text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded">
+                      ONE-TIME REVEAL
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border-subtle)] font-mono text-xs text-[var(--text-primary)] font-semibold tracking-wider">
+                    {revealedKey ? 'alc_live_9f83a27e4c19d4b0086a' : 'alc_live_••••••••••••••••••••••••'}
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-[var(--surface-sunken)] space-y-1">
+                    <div className="flex items-center justify-between text-[11px] text-[var(--text-tertiary)]">
+                      <span>Stored Argon2id Hash (Uncrackable)</span>
+                      <span className="text-[var(--green-600)] font-medium">PROTECTED</span>
+                    </div>
+                    <p className="font-mono text-[11px] text-[var(--green-600)] break-all">
+                      $argon2id$v=19$m=65536,t=3,p=4$dGVzdF9zYWx0...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 4. RULES VISUALIZER */}
+            {activeTab === 'rules' && (
+              <div className="space-y-3">
+                <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-base)] p-4 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5 mb-3">
+                    <div className="flex items-center gap-2">
+                      <IconBrandWhatsapp size={16} className="text-[var(--green-600)]" />
+                      <span className="text-xs font-medium text-[var(--text-primary)]">
+                        Live AI Simulated Reply
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono text-[var(--green-600)] bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                      SYNCED IN &lt; 5s
+                    </span>
+                  </div>
+
+                  {/* Customer Prompt */}
+                  <div className="bg-[var(--surface-sunken)] p-2.5 rounded-lg text-xs mb-2.5">
+                    <span className="text-[10px] font-mono text-[var(--text-tertiary)] block">Customer Inquiry:</span>
+                    <span className="text-[var(--text-primary)]">
+                      &quot;Habari, can you confirm when my order from Mombasa will arrive in Nairobi?&quot;
+                    </span>
+                  </div>
+
+                  {/* AI Response based on selected tone */}
+                  <div className="border border-[var(--border-subtle)] bg-[var(--surface-base)] p-3 rounded-lg text-xs leading-relaxed">
+                    <span className="text-[10px] font-mono text-[var(--orange-600)] font-semibold block mb-1">
+                      AI Assistant ({ruleTone === 'warm' ? 'Warm Professional' : ruleTone === 'formal' ? 'Corporate Strict' : 'Bilingual Sheng'}):
+                    </span>
+                    {ruleTone === 'warm' && (
+                      <p className="text-[var(--text-primary)]">
+                        &quot;Hello! Thank you for checking in with Kwanza Logistics. Your Mombasa dispatch (#KW-902) is currently on the highway and scheduled for arrival at the Westlands hub by 4:30 PM today. Let me know if you&apos;d like live SMS tracking!&quot;
+                      </p>
+                    )}
+                    {ruleTone === 'formal' && (
+                      <p className="text-[var(--text-primary)]">
+                        &quot;Consignment #KW-902 is in transit between Mombasa and Nairobi. Estimated delivery: Today at 16:30 EAT. A designated agent will contact you upon warehouse receipt.&quot;
+                      </p>
+                    )}
+                    {ruleTone === 'bilingual' && (
+                      <p className="text-[var(--text-primary)]">
+                        &quot;Habari! Mzigo wako wa Mombasa (#KW-902) uko njiani fiti kabisa, unatarajiwa kufika Nairobi Westlands hub saa 10:30 jioni ya leo. Tukutumie alert kwa SMS ikishafika?&quot;
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 5. AUDIT VISUALIZER */}
+            {activeTab === 'audit' && (
+              <div className="space-y-2.5">
+                <div className="p-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-base)] shadow-sm">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-[var(--text-primary)]">
+                      Support Session Opened (Ticket #8291)
+                    </span>
+                    <span className="text-[10.5px] font-mono text-[var(--text-tertiary)]">2 mins ago</span>
+                  </div>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                    Platform Support mode authorized by Japheth Njoroge for channel diagnostics.
+                  </p>
+                  <div className="mt-2 text-[10px] font-mono text-[var(--green-600)] flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-[var(--green-500)]" /> Cryptographic Integrity Verified
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-base)] shadow-sm">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-[var(--text-primary)]">
+                      WhatsApp Escalation Rule Updated
+                    </span>
+                    <span className="text-[10.5px] font-mono text-[var(--text-tertiary)]">1 hour ago</span>
+                  </div>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                    Amina Wanjiku updated automatic VIP escalation keyword triggers.
+                  </p>
+                  <div className="mt-2 text-[10px] font-mono text-[var(--green-600)] flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-[var(--green-500)]" /> Cryptographic Integrity Verified
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* Footer Bar */}
+          <div className="border-t border-[var(--ink-200)] bg-[var(--surface-base)] px-4 py-2.5 flex items-center justify-between text-[11px] text-[var(--text-tertiary)] font-mono">
+            <span>ENTERPRISE GUARANTEE</span>
+            <span className="text-[var(--text-primary)] font-medium">ALCASSA SECURE CORE</span>
+          </div>
         </div>
+
       </div>
     </div>
   );

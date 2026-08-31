@@ -56,16 +56,16 @@ function CredentialRow({ credential }: { credential: Credential }) {
   }
 
   return (
-    <li className="border-t py-4 first:border-t-0" style={{ borderColor: 'var(--rule-soft)' }}>
+    <li className="border-t py-4 first:border-t-0" style={{ borderColor: 'var(--ink-100)' }}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="t-body font-medium text-[var(--ink-primary)]">{credential.name}</span>
+            <span className="t-body font-medium text-[var(--text-primary)]">{credential.name}</span>
             {credential.status === 'revoked' ? <Badge tone="pastDue">Revoked</Badge> : null}
             {usage ? <Badge tone={usage.tone}>{usage.label}</Badge> : null}
           </div>
-          <p className="t-data mt-1 text-[var(--ink-tertiary)]">{credential.prefix}…</p>
-          <p className="t-caption mt-1 text-[var(--ink-tertiary)]">
+          <p className="t-data mt-1 text-[var(--text-tertiary)]">{credential.prefix}…</p>
+          <p className="t-caption mt-1 text-[var(--text-tertiary)]">
             {credential.scopes.join(' · ')} — created {credential.createdAt} by{' '}
             {credential.createdBy}
           </p>
@@ -80,7 +80,7 @@ function CredentialRow({ credential }: { credential: Credential }) {
         <p
           role="alert"
           className="t-caption mt-1.5 flex items-center gap-1.5"
-          style={{ color: 'var(--oxide-ink)' }}
+          style={{ color: 'var(--red-500)' }}
         >
           <IconAlertTriangle size={13} stroke={1.5} className="shrink-0" aria-hidden />
           {error}

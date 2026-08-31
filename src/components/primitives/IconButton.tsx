@@ -29,12 +29,12 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
       disabled={disabled}
       className={[
         'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-chip border transition-colors duration-[var(--motion-fade)]',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]',
-        'disabled:cursor-not-allowed disabled:text-[var(--disabled-ink)]',
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]',
+        'disabled:cursor-not-allowed disabled:text-[var(--text-disabled)]',
         SIZES[size],
         variant === 'bordered'
-          ? 'border-[var(--rule-base)] bg-[var(--surface-raised)] text-[var(--ink-secondary)] hover:not-disabled:border-[var(--rule-strong)] hover:not-disabled:text-[var(--ink-primary)]'
-          : 'border-transparent text-[var(--ink-tertiary)] hover:not-disabled:bg-[var(--surface-hover)] hover:not-disabled:text-[var(--ink-primary)]',
+          ? 'border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--text-secondary)] hover:not-disabled:border-[var(--border-strong)] hover:not-disabled:text-[var(--text-primary)]'
+          : 'border-transparent text-[var(--text-tertiary)] hover:not-disabled:bg-[var(--surface-inset)] hover:not-disabled:text-[var(--text-primary)]',
         className,
       ]
         .filter(Boolean)

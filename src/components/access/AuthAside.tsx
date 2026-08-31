@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import {
-  IconBolt,
   IconCheck,
   IconClock,
   IconDatabase,
   IconFingerprint,
   IconLock,
+  IconServer2,
   IconShieldCheck,
   IconTerminal,
   IconUsers,
@@ -245,7 +245,7 @@ export function TenantAside() {
 /* ── Platform Aside ─────────────────────────────────────────────────────── */
 
 const PLATFORM_STATS = [
-  { label: 'Workspaces', value: 'Isolated', icon: IconBolt, color: 'text-warning' },
+  { label: 'Workspaces', value: 'Isolated', icon: IconServer2, color: 'text-warning' },
   { label: 'Rules Engine', value: 'Active', icon: IconTerminal, color: 'text-[var(--blue-500)]' },
   { label: 'Audit Trail', value: 'Append-only', icon: IconClock, color: 'text-success' },
   { label: 'Security Gate', value: 'Enforced', icon: IconShieldCheck, color: 'text-danger' },

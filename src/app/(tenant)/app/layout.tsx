@@ -66,6 +66,12 @@ const navigation: NavGroup[] = [
         roles: ['owner', 'admin', 'support'],
       },
       {
+        href: '/app/settings/appearance',
+        label: 'Appearance',
+        icon: <IconLayoutDashboard size={16} stroke={1.5} />,
+        roles: ['owner', 'admin'],
+      },
+      {
         href: '/app/settings/team',
         label: 'Team',
         icon: <IconUsers size={16} stroke={1.5} />,

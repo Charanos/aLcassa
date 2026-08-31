@@ -42,18 +42,18 @@ export default function RootError({
     <main
       id="main"
       className="mx-auto flex min-h-dvh flex-col items-center justify-center px-6 text-center"
-      style={{ background: 'var(--surface-page)', maxWidth: '520px' }}
+      style={{ background: 'var(--surface-base)', maxWidth: '520px' }}
     >
       <Mark size={28} />
 
-      <h1 className="t-title mt-8 text-[var(--ink-primary)]">Something broke on our side.</h1>
+      <h1 className="t-title mt-8 text-[var(--text-primary)]">Something broke on our side.</h1>
 
-      <p className="t-body mt-3 text-[var(--ink-secondary)]">
+      <p className="t-body mt-3 text-[var(--text-secondary)]">
         We have logged it. Your work here was not affected.
       </p>
 
       {error.digest ? (
-        <p className="t-caption mt-4 text-[var(--ink-tertiary)]">
+        <p className="t-caption mt-4 text-[var(--text-tertiary)]">
           Reference{' '}
           <code
             className="t-data rounded-chip px-1.5 py-0.5"

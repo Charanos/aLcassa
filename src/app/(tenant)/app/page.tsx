@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Badge } from '@/components/feedback/Badge';
-import { Stat } from '@/components/feedback/Stat';
+import { DashboardHero } from '@/components/tenant/DashboardHero';
 import { getOverview } from '@/lib/tenant/data';
 
 export const metadata: Metadata = { title: 'Overview' };
@@ -23,40 +23,26 @@ export default async function OverviewPage() {
   const complete = m.checklist.every((step) => step.done);
 
   return (
-    <div className="grid gap-7">
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="t-title text-[var(--ink-primary)]">
-          Good to see you, {m.operatorFirstName}
-        </h1>
-        <Badge tone="active">{m.planStatus === 'active' ? 'Active' : m.planStatus}</Badge>
-      </div>
-
-      {/* ── Plan usage and team size ────────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Stat label="Plan" value={m.planName} />
-        <Stat
-          label="Staff seats"
-          value={m.seats.limit ? `${m.seats.used} / ${m.seats.limit}` : `${m.seats.used}`}
-        />
-        <Stat
-          label="Channel connections"
-          value={
-            m.channels.limit ? `${m.channels.used} / ${m.channels.limit}` : `${m.channels.used}`
-          }
-        />
-      </div>
+    <div className="grid gap-12">
+      <DashboardHero
+        planName={m.planName}
+        planStatus={m.planStatus}
+        operatorFirstName={m.operatorFirstName}
+        seats={{ used: m.seats.used, limit: m.seats.limit ?? undefined }}
+        channels={{ used: m.channels.used, limit: m.channels.limit ?? undefined }}
+      />
 
       {/* ── Setup checklist ──────────────────────────────────────────── */}
       {complete ? null : (
         <section
           data-slot="panel"
           aria-labelledby="setup-heading"
-          className="rounded-panel border border-[var(--rule-base)] bg-[var(--surface-raised)] p-5"
+          className="gsap-reveal rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-6 md:p-8"
         >
-          <h2 id="setup-heading" className="t-panel text-[var(--ink-primary)]">
+          <h2 id="setup-heading" className="t-panel text-[var(--text-primary)]">
             Set up your workspace
           </h2>
-          <p className="t-compact mt-1 text-[var(--ink-secondary)]">
+          <p className="t-compact mt-1 text-[var(--text-secondary)]">
             Five steps. You can come back to any of them.
           </p>
 
@@ -65,17 +51,17 @@ export default async function OverviewPage() {
               <li
                 key={step.key}
                 className="flex items-center gap-3 border-t py-3 first:border-t-0"
-                style={{ borderColor: 'var(--rule-soft)' }}
+                style={{ borderColor: 'var(--ink-100)' }}
               >
-                <span className="t-data w-5 text-[var(--ink-tertiary)]">{index + 1}</span>
+                <span className="t-data w-5 text-[var(--text-tertiary)]">{index + 1}</span>
                 {step.done ? (
-                  <span className="t-body flex-1" style={{ color: 'var(--ink-tertiary)' }}>
+                  <span className="t-body flex-1" style={{ color: 'var(--text-tertiary)' }}>
                     {step.doneLabel}
                   </span>
                 ) : (
                   <Link
                     href={step.href}
-                    className="t-body flex-1 text-[var(--ink-primary)] transition-colors hover:text-[var(--copper-ink)]"
+                    className="t-body flex-1 text-[var(--text-primary)] transition-colors hover:text-[var(--blue-500)]"
                   >
                     {step.label}
                   </Link>
@@ -91,15 +77,15 @@ export default async function OverviewPage() {
       <section
         data-slot="panel"
         aria-labelledby="activity-heading"
-        className="rounded-panel border border-[var(--rule-base)] bg-[var(--surface-raised)] p-5"
+        className="gsap-reveal rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-6 md:p-8"
       >
         <div className="flex items-center justify-between">
-          <h2 id="activity-heading" className="t-panel text-[var(--ink-primary)]">
+          <h2 id="activity-heading" className="t-panel text-[var(--text-primary)]">
             Recent activity
           </h2>
           <Link
             href="/app/settings/audit"
-            className="t-compact text-[var(--ink-tertiary)] transition-colors hover:text-[var(--copper-ink)]"
+            className="t-compact text-[var(--text-tertiary)] transition-colors hover:text-[var(--blue-500)]"
           >
             View all
           </Link>
@@ -110,12 +96,12 @@ export default async function OverviewPage() {
             <li
               key={`${line.time}-${i}`}
               className="flex items-baseline justify-between gap-4 border-t py-2.5 first:border-t-0"
-              style={{ borderColor: 'var(--rule-soft)' }}
+              style={{ borderColor: 'var(--ink-100)' }}
             >
-              <span className="t-body text-[var(--ink-primary)]">
+              <span className="t-body text-[var(--text-primary)]">
                 <span className="font-medium">{line.actor}</span> {line.action}
               </span>
-              <span className="t-data shrink-0 text-[var(--ink-tertiary)]">{line.time}</span>
+              <span className="t-data shrink-0 text-[var(--text-tertiary)]">{line.time}</span>
             </li>
           ))}
         </ul>

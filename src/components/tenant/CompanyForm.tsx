@@ -62,36 +62,36 @@ export function CompanyForm({ model }: { model: CompanyModel }) {
       />
 
       <label className="grid gap-1.5">
-        <span className="t-label text-[var(--ink-secondary)]">Timezone</span>
+        <span className="t-label text-[var(--text-secondary)]">Timezone</span>
         <select
           value={timezone}
           onChange={(e) => {
             setTimezone(e.target.value);
             setSaved(false);
           }}
-          className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--ink-primary)]"
-          style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-sunken)' }}
+          className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--text-primary)]"
+          style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
         >
           <option value="Africa/Nairobi">Africa/Nairobi (EAT, UTC+3)</option>
           <option value="Africa/Lagos">Africa/Lagos (WAT, UTC+1)</option>
           <option value="Africa/Johannesburg">Africa/Johannesburg (SAST, UTC+2)</option>
           <option value="UTC">UTC</option>
         </select>
-        <span className="t-caption min-h-[18px] text-[var(--ink-tertiary)]">
+        <span className="t-caption min-h-[18px] text-[var(--text-tertiary)]">
           Every timestamp in the product renders in this zone, with the UTC value on hover.
         </span>
       </label>
 
       <label className="grid gap-1.5">
-        <span className="t-label text-[var(--ink-secondary)]">Locale</span>
+        <span className="t-label text-[var(--text-secondary)]">Locale</span>
         <select
           value={locale}
           onChange={(e) => {
             setLocale(e.target.value);
             setSaved(false);
           }}
-          className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--ink-primary)]"
-          style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-sunken)' }}
+          className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--text-primary)]"
+          style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
         >
           <option value="en-KE">English (Kenya)</option>
           <option value="en-US">English (US)</option>
@@ -101,24 +101,24 @@ export function CompanyForm({ model }: { model: CompanyModel }) {
       </label>
 
       {error ? (
-        <p role="alert" className="t-compact" style={{ color: 'var(--oxide-ink)' }}>
+        <p role="alert" className="t-compact" style={{ color: 'var(--red-500)' }}>
           {error}
         </p>
       ) : null}
 
       <div
         className="flex items-center gap-3 border-t pt-5"
-        style={{ borderColor: 'var(--rule-soft)' }}
+        style={{ borderColor: 'var(--ink-100)' }}
       >
         <Button type="submit" variant="primary" loading={pending} disabled={!dirty || pending}>
           Save changes
         </Button>
         {saved ? (
-          <span className="t-compact" style={{ color: 'var(--verdigris-ink)' }}>
+          <span className="t-compact" style={{ color: 'var(--green-500)' }}>
             Saved
           </span>
         ) : dirty ? (
-          <span className="t-compact text-[var(--ink-tertiary)]">Unsaved changes</span>
+          <span className="t-compact text-[var(--text-tertiary)]">Unsaved changes</span>
         ) : null}
       </div>
     </form>

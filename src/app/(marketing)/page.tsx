@@ -2,25 +2,21 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import {
-  IconBrandInstagram,
-  IconBrandMessenger,
-  IconBrandWhatsapp,
   IconBrandWhatsappFilled,
   IconBuildingSkyscraper,
-  IconMessage,
   IconMessageFilled,
   IconServer2,
   IconShieldLock,
   IconArrowRight,
-  type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 import { Button } from '@/components/primitives/Button';
 import { FloatingHeader } from '@/components/marketing/FloatingHeader';
-import { HeroDiagram } from '@/components/marketing/HeroDiagram';
+import { HeroInteractiveConsole } from '@/components/marketing/HeroInteractiveConsole';
 import { InteractiveFeatures } from '@/components/marketing/InteractiveFeatures';
-import { SecuritySection } from '@/components/marketing/SecuritySection';
-import { LiveSpecPlayground } from '@/components/marketing/LiveSpecPlayground';
+import { ChannelsSection } from '@/components/marketing/ChannelsSection';
+import { GsapScrollRevealer } from '@/components/structure/GsapScrollRevealer';
+import { SubtleArchitecturalBackground } from '@/components/marketing/SubtleArchitecturalBackground';
 
 const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'aLcassa_tenant_session';
 const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'aLcassa_platform_session';
@@ -30,48 +26,6 @@ export const metadata: Metadata = {
   description:
     'WhatsApp, Instagram, Messenger and website chat, handled in one place by one team. Multi-tenant customer support platform.',
 };
-
-const CHANNELS: Array<{
-  icon: TablerIcon;
-  name: string;
-  status: string;
-  description: string;
-  iconColorClass: string;
-  iconBgClass: string;
-}> = [
-  {
-    icon: IconBrandWhatsapp,
-    name: 'WhatsApp Business',
-    status: 'Coming soon',
-    description: 'Direct Cloud API integration with automatic conversation routing.',
-    iconColorClass: 'text-success',
-    iconBgClass: 'bg-emerald-50 border-success/60',
-  },
-  {
-    icon: IconBrandInstagram,
-    name: 'Instagram Direct',
-    status: 'Coming soon',
-    description: 'Handle customer DMs and story replies right alongside website chat.',
-    iconColorClass: 'text-danger',
-    iconBgClass: 'bg-rose-50 border-danger/60',
-  },
-  {
-    icon: IconBrandMessenger,
-    name: 'Facebook Messenger',
-    status: 'Coming soon',
-    description: 'Page messaging support with rich media and structured responses.',
-    iconColorClass: 'text-[var(--blue-600)]',
-    iconBgClass: 'bg-blue-50 border-[var(--blue-200)]/60',
-  },
-  {
-    icon: IconMessage,
-    name: 'Website Chat Widget',
-    status: 'Coming soon',
-    description: 'Embeddable web chat snippet with a real-time WebSocket connection.',
-    iconColorClass: 'text-warning',
-    iconBgClass: 'bg-amber-50 border-warning/60',
-  },
-];
 
 /*
  * ⚠ HOW COLOUR IS SPENT ON THIS PAGE, because "use the brand blue" taken
@@ -118,358 +72,201 @@ export default async function MarketingPage() {
       style={{ background: 'var(--surface-base)' }}
       className="relative min-h-screen overflow-x-hidden"
     >
-      {/* ── Full-bleed background artwork ─────────────────────────────── */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[780px] w-full overflow-hidden"
-        aria-hidden="true"
-      >
-        {/* Ambient radial washes: balanced two-temperature lighting (soft slate & warm ember) */}
-        <div
-          className="absolute top-8 -left-20 size-[620px] rounded-full opacity-35 blur-3xl"
-          style={{
-            background:
-              'radial-gradient(circle, color-mix(in oklab, var(--ink-600) 25%, transparent) 0%, transparent 70%)',
-          }}
-        />
-        <div
-          className="absolute top-8 right-0 size-[680px] rounded-full opacity-30 blur-3xl"
-          style={{
-            background:
-              'radial-gradient(circle, color-mix(in oklab, var(--orange-400) 25%, transparent) 0%, transparent 70%)',
-          }}
-        />
-
-        {/* Iconography watermarks with soft architectural multi-tonal tints */}
-        <div className="absolute -top-6 -left-20 hidden -rotate-12 text-ink-muted/[0.08] lg:block">
-          <IconServer2 size={320} stroke={1} />
-        </div>
-        <div className="absolute top-[5%] -right-20 hidden rotate-12 text-warning/[0.08] md:block">
-          <IconMessage size={440} stroke={1} />
-        </div>
-        <div className="absolute right-[60%] -bottom-20 hidden rotate-[10deg] text-success/[0.08] md:block">
-          <IconBrandWhatsapp size={460} stroke={1} />
-        </div>
-      </div>
+      {/* ── Full-bleed subtle architectural background texture ── */}
+      <SubtleArchitecturalBackground />
 
       <FloatingHeader session={session} />
 
-      <main
-        id="main"
-        className="relative z-10 mx-auto w-full max-w-[1280px] px-5 pt-6 pb-32 md:px-8"
-      >
-        {/* ── Hero. Spacious balanced layout: Diagram left, expansive copy right. ── */}
+      <GsapScrollRevealer>
+        <main
+          id="main"
+          className="relative z-10 mx-auto w-full max-w-[1280px] px-5 pt-12 pb-32 md:px-8"
+        >
+          {/* ── Hero. Centered Editorial Architecture with Interactive Workspace Demo Below ── */}
         <section
           id="overview"
-          className="relative mx-auto grid w-full max-w-[1240px] justify-center gap-8 pt-12 md:pt-20 lg:grid-cols-[490px_minmax(0,1fr)] lg:items-center lg:gap-12 xl:gap-16"
+          className="relative mx-auto flex w-full max-w-[1180px] flex-col items-center justify-center pt-8 text-center md:pt-14"
         >
+          {/* Eyebrow status indicator (clean inline, solid non-blinking indicator) */}
           <div
-            className="relative z-10 hidden shrink-0 justify-center justify-self-center lg:flex"
-            style={{ width: '490px', height: '420px' }}
+            className="inline-flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-widest text-[var(--orange-500)]"
           >
-            <HeroDiagram />
+            <span className="size-2 rounded-full bg-[var(--orange-500)]" />
+            <span className="font-semibold">
+              UNIFIED CUSTOMER INBOX PLATFORM
+            </span>
           </div>
 
-          <div
-            className="animate-hero-reveal relative z-10 w-full"
-            style={{ animationDelay: '100ms' }}
+          {/* Centered Editorial Headline */}
+          <h1
+            className="display mx-auto mt-6 max-w-[940px] text-[46px] leading-[1.04] font-medium tracking-tight text-[var(--text-primary)] sm:text-[58px] md:text-[68px] lg:text-[76px]"
           >
+            One inbox for every message
+            <br className="hidden sm:inline" /> your customers send.
+          </h1>
+
+          {/* Centered Lede (Client-Facing, Value-Oriented) */}
+          <p
+            className="t-lede mx-auto mt-6 max-w-[660px] text-[17px] leading-[1.65] text-[var(--text-secondary)] sm:text-[19px]"
+          >
+            Unify WhatsApp, Instagram, Messenger, and live website chat into one intelligent workspace. Delight your customers with instant AI-powered resolutions and enterprise data isolation.
+          </p>
+
+          {/* Centered CTAs */}
+          {isAuthenticated ? (
             <div
-              className="inline-flex items-center gap-2.5 rounded-full px-3 py-1 font-mono text-[11px] tracking-widest uppercase"
-              style={{
-                background: 'var(--surface-raised)',
-                border: '1px solid var(--border-subtle)',
-                boxShadow: 'var(--shadow-sm)',
-              }}
+              className="mt-8 flex flex-wrap items-center justify-center gap-3.5"
             >
-              <span className="relative flex size-2">
-                <span
-                  className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
-                  style={{ background: 'var(--accent-mark)' }}
-                />
-                <span
-                  className="relative inline-flex size-2 rounded-full"
-                  style={{ background: 'var(--accent-mark)' }}
-                />
+              <Button asChild variant="primary" size="lg">
+                <Link href={dashboardHref} className="gap-2 shadow-sm">
+                  <IconShieldLock size={17} stroke={1.5} />
+                  Go to {dashboardLabel} <IconArrowRight size={16} stroke={1.5} />
+                </Link>
+              </Button>
+              <Button asChild variant="secondary" size="lg">
+                <Link href="/platform/tenants" className="gap-2">
+                  <IconBuildingSkyscraper size={16} stroke={1.5} />
+                  Manage Workspaces
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <div
+              className="mt-8 flex flex-wrap items-center justify-center gap-3.5"
+            >
+              <Button asChild variant="primary" size="lg">
+                <Link href="/sign-up" className="gap-2 shadow-sm">
+                  Request access <IconArrowRight size={16} stroke={1.5} />
+                </Link>
+              </Button>
+              <Button asChild variant="secondary" size="lg">
+                <Link href="/sign-in">Sign in</Link>
+              </Button>
+            </div>
+          )}
+
+          {/* Interactive Live Multi-Channel Studio Console Centered Directly Below CTAs */}
+          <div className="w-full mt-10 mb-12">
+            <HeroInteractiveConsole />
+          </div>
+
+          {/* Stats Numerals Bento Strip (Positioned Below Console) */}
+          <div
+            className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 border-y border-[var(--ink-200)] py-8 w-full max-w-[1200px]"
+          >
+            <div className="flex flex-col items-center justify-center text-center">
+              <span className="display text-[40px] sm:text-[48px] font-medium leading-none tracking-tight text-[var(--text-primary)]">
+                100%
               </span>
-              <span style={{ color: 'var(--text-secondary)' }}>Multi-Tenant Architecture</span>
+              <span className="mt-2 font-mono text-[11.5px] uppercase tracking-wider text-[var(--text-tertiary)]">
+                PostgreSQL RLS Isolation
+              </span>
+              <span className="text-[12px] text-[var(--text-secondary)] mt-0.5">
+                Strict tenant_id boundary segregation
+              </span>
             </div>
-
-            <h1
-              className="display mt-5 text-[40px] leading-[1.08] font-medium tracking-tight sm:text-[48px] md:text-[52px] lg:text-[50px] xl:text-[56px]"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              One inbox for every message
-              <br className="hidden sm:inline" /> your customers send.
-            </h1>
-
-            <p
-              className="t-lede mt-4 text-[16px] leading-[1.6] sm:text-[17px] md:text-[18px]"
-              style={{ color: 'var(--text-secondary)', maxWidth: '52ch' }}
-            >
-              WhatsApp, Instagram, Messenger and your website, handled in one unified workspace by
-              your team with strict tenant isolation.
-            </p>
-
-            {isAuthenticated ? (
-              <div
-                className="animate-hero-reveal mt-7 flex flex-col gap-3.5"
-                style={{ animationDelay: '250ms' }}
-              >
-                <div className="flex flex-wrap items-center gap-3.5">
-                  <Button asChild variant="primary" size="lg">
-                    <Link href={dashboardHref} className="gap-2 shadow-sm">
-                      <IconShieldLock size={17} stroke={1.5} />
-                      Go to {dashboardLabel} <IconArrowRight size={16} stroke={1.5} />
-                    </Link>
-                  </Button>
-                  <Button asChild variant="secondary" size="lg">
-                    <Link href="/platform/tenants" className="gap-2">
-                      <IconBuildingSkyscraper size={16} stroke={1.5} />
-                      Manage Workspaces
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div
-                className="animate-hero-reveal mt-7 flex flex-wrap items-center gap-3.5"
-                style={{ animationDelay: '250ms' }}
-              >
-                <Button asChild variant="primary" size="lg">
-                  <Link href="/sign-up" className="gap-2 shadow-sm">
-                    Request access <IconArrowRight size={16} stroke={1.5} />
-                  </Link>
-                </Button>
-                <Button asChild variant="secondary" size="lg">
-                  <Link href="/sign-in">Sign in</Link>
-                </Button>
-              </div>
-            )}
-
-            {/* Metrics row. Tripartite harmony: Navy (100%) + Ember (< 5s) + Emerald (0) */}
-            <div
-              className="mt-10 grid grid-cols-3 gap-6 border-t pt-6"
-              style={{ borderColor: 'var(--border-subtle)' }}
-            >
-              <div>
-                <div className="display display-lg" style={{ color: 'var(--text-primary)' }}>
-                  100%
-                </div>
-                <div className="t-eyebrow mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                  Database isolation
-                </div>
-              </div>
-              <div>
-                <div className="display display-lg" style={{ color: 'var(--accent-mark-text)' }}>
-                  &lt; 5s
-                </div>
-                <div className="t-eyebrow mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                  AI rule propagation
-                </div>
-              </div>
-              <div>
-                <div className="display display-lg" style={{ color: 'var(--success-fg)' }}>
-                  0
-                </div>
-                <div className="t-eyebrow mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                  Master key vulnerabilities
-                </div>
-              </div>
+            <div className="flex flex-col items-center justify-center text-center sm:border-x sm:border-[var(--ink-200)] sm:px-6">
+              <span className="display text-[40px] sm:text-[48px] font-medium leading-none tracking-tight text-[var(--orange-500)]">
+                &lt; 5s
+              </span>
+              <span className="mt-2 font-mono text-[11.5px] uppercase tracking-wider text-[var(--text-tertiary)]">
+                AI Rule Propagation
+              </span>
+              <span className="text-[12px] text-[var(--text-secondary)] mt-0.5">
+                Machine-readable rule engine cache
+              </span>
+            </div>
+            <div className="flex flex-col items-center justify-center text-center">
+              <span className="display text-[40px] sm:text-[48px] font-medium leading-none tracking-tight text-[var(--green-500)]">
+                0
+              </span>
+              <span className="mt-2 font-mono text-[11.5px] uppercase tracking-wider text-[var(--text-tertiary)]">
+                Master Key Vulnerabilities
+              </span>
+              <span className="text-[12px] text-[var(--text-secondary)] mt-0.5">
+                Scoped Argon2id tenant API credentials
+              </span>
             </div>
           </div>
         </section>
 
-        {/* ── Where this is today ───────────────────────────────────────── */}
-        <section
-          className="relative mt-16 overflow-hidden border-y py-6 md:mt-24"
-          style={{ borderColor: 'var(--border-strong)' }}
-        >
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="relative flex size-2" aria-hidden>
-                  <span
-                    className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-70"
-                    style={{ background: 'var(--accent-mark)' }}
-                  />
-                  <span
-                    className="relative inline-flex size-2 rounded-full"
-                    style={{ background: 'var(--accent-mark)' }}
-                  />
-                </span>
-                <p className="t-eyebrow font-medium" style={{ color: 'var(--text-secondary)' }}>
-                  Where this is today
-                </p>
-              </div>
-              <p
-                className="t-lede mt-3"
-                style={{ color: 'var(--text-primary)', maxWidth: 'var(--measure-prose)' }}
-              >
-                The platform underneath is live and running. Channel connections are what we are
-                building next. If you are an early customer, your workspace is already provisioned
-                and you can set your team up now.
-              </p>
-            </div>
-
-            <div
-              className="hidden items-center gap-6 border-l pl-6 lg:flex"
-              style={{ borderColor: 'var(--border-subtle)' }}
-            >
-              <div>
-                <div className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-                  Architecture
-                </div>
-                <div className="t-compact mt-0.5" style={{ color: 'var(--text-primary)' }}>
-                  Isolated row-level
-                </div>
-              </div>
-              <div>
-                <div className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-                  AI engine
-                </div>
-                <div className="t-compact mt-0.5" style={{ color: 'var(--success-fg)' }}>
-                  Machine-readable
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Live capabilities ─────────────────────────────────────────── */}
-        <section id="live-engine" className="mt-20 md:mt-32">
-          <div className="flex flex-col items-start">
-            <div className="flex items-center gap-3">
-              <span
-                aria-hidden
-                className="block h-px w-7"
-                style={{ background: 'var(--accent-mark)' }}
-              />
-              <p className="t-eyebrow font-medium" style={{ color: 'var(--text-secondary)' }}>
-                Live capabilities
-              </p>
-            </div>
-            <h2 className="display display-md mt-3" style={{ color: 'var(--text-primary)' }}>
-              What is already working
-            </h2>
-            <p
-              className="t-body mt-2"
-              style={{ color: 'var(--text-secondary)', maxWidth: 'var(--measure-prose)' }}
-            >
-              The infrastructure layer beneath the inbox, which is the part that has to be right
-              before any message arrives.
-            </p>
-          </div>
-
+        {/* ── Live Engineering Capabilities ────────────────────────────── */}
+        <section id="live-engine" className="gsap-scroll-item mt-20 md:mt-28">
           <InteractiveFeatures />
         </section>
 
-        {/* ── Channels ──────────────────────────────────────────────────── */}
-        <section id="channels" className="mt-20 md:mt-32">
-          <div className="flex flex-col items-end">
-            <div className="flex items-center gap-3">
-              <span
-                aria-hidden
-                className="block h-px w-7"
-                style={{ background: 'var(--accent-mark)' }}
-              />
-              <p className="t-eyebrow font-medium" style={{ color: 'var(--text-secondary)' }}>
-                Channels
-              </p>
-            </div>
-            <h2 className="display display-md mt-3" style={{ color: 'var(--text-primary)' }}>
-              Where the messages will come from
-            </h2>
-            <p
-              className="t-body mt-2 text-right"
-              style={{ color: 'var(--text-secondary)', maxWidth: 'var(--measure-prose)' }}
-            >
-              Four channels, one thread per customer. Connecting them is what we are building next.
-              The platform underneath is built and running now.
-            </p>
-          </div>
-
-          <ul
-            className="mt-10 grid gap-8 border-t pt-8 sm:grid-cols-2 lg:grid-cols-4"
-            style={{ borderColor: 'var(--border-subtle)' }}
-          >
-            {CHANNELS.map((channel, idx) => (
-              <li
-                key={channel.name}
-                className={`flex flex-col justify-between ${idx > 0 ? 'lg:border-l lg:pl-8' : ''}`}
-                style={idx > 0 ? { borderColor: 'var(--border-subtle)' } : undefined}
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`grid size-9 shrink-0 place-items-center rounded-chip border ${channel.iconBgClass}`}
-                    >
-                      <channel.icon
-                        size={19}
-                        stroke={1.75}
-                        className={channel.iconColorClass}
-                        aria-hidden
-                      />
-                    </span>
-                    <span className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-                      {channel.status}
-                    </span>
-                  </div>
-                  <h3 className="t-panel mt-4" style={{ color: 'var(--text-primary)' }}>
-                    {channel.name}
-                  </h3>
-                  <p className="t-compact mt-2" style={{ color: 'var(--text-secondary)' }}>
-                    {channel.description}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+        {/* ── Omnichannel Hub ──────────────────────────────────────────── */}
+        <section id="channels" className="gsap-scroll-item mt-20 md:mt-32">
+          <ChannelsSection />
         </section>
 
-        {/* ── Security ──────────────────────────────────────────────────── */}
-        <div id="security">
-          <SecuritySection />
+        </main>
+      </GsapScrollRevealer>
+
+      {/* ── Unified Closing CTA & Footer Architectural Block ──────────── */}
+      <footer
+        className="relative overflow-hidden border-t mt-20 md:mt-32"
+        style={{
+          borderColor: 'var(--border-strong)',
+          background: 'var(--surface-base)',
+        }}
+      >
+        {/* Subtle full-bleed architectural grid background */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.035]">
+          <svg width="100%" height="100%" aria-hidden="true">
+            <pattern id="unified-footer-grid" width="32" height="32" patternUnits="userSpaceOnUse">
+              <path
+                d="M 32 0 L 0 0 0 32"
+                fill="none"
+                stroke="var(--border-strong)"
+                strokeWidth="1"
+              />
+            </pattern>
+            <rect width="100%" height="100%" fill="url(#unified-footer-grid)" />
+          </svg>
         </div>
 
-        <LiveSpecPlayground />
+        {/* Refined Floating Background Telemetry Icons (Framing CTA & Footer) */}
+        <div className="pointer-events-none absolute top-10 -left-12 hidden -rotate-12 text-emerald-600/[0.045] lg:block select-none" aria-hidden="true">
+          <IconBrandWhatsappFilled size={320} stroke={1} />
+        </div>
+        <div className="pointer-events-none absolute top-14 -right-12 hidden rotate-12 text-blue-600/[0.045] lg:block select-none" aria-hidden="true">
+          <IconMessageFilled size={290} stroke={1} />
+        </div>
+        <div className="pointer-events-none absolute -bottom-6 right-16 hidden -rotate-6 text-slate-800/[0.035] lg:block select-none" aria-hidden="true">
+          <IconServer2 size={270} stroke={1} />
+        </div>
 
-        {/* ── Close ─────────────────────────────────────────────────────── */}
-        <section
-          className="relative mt-20 overflow-hidden border-t py-20 md:mt-32"
-          style={{ borderColor: 'var(--border-strong)' }}
-        >
-          <div className="pointer-events-none absolute top-6 -left-12 hidden -rotate-12 text-success/[0.08] lg:block">
-            <IconBrandWhatsappFilled size={280} stroke={1} />
-          </div>
-          <div className="pointer-events-none absolute top-6 -right-12 hidden rotate-12 text-danger/[0.08] lg:block">
-            <IconMessageFilled size={260} stroke={1} />
-          </div>
-
-          <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center px-4 text-center">
-            <div className="mb-3 flex items-center gap-2">
+        <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 pt-20 pb-12 md:px-8 md:pt-28 md:pb-16">
+          
+          {/* ── 1. Centered Closing Call to Action ── */}
+          <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+            
+            {/* Eyebrow status indicator */}
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50/60 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-emerald-700">
               <span
-                className="size-2 animate-pulse rounded-full"
-                style={{ background: 'var(--success-fg)' }}
-                aria-hidden
+                className="size-2 animate-pulse rounded-full bg-[var(--green-500)]"
+                aria-hidden="true"
               />
-              <span className="t-eyebrow font-medium" style={{ color: 'var(--text-secondary)' }}>
+              <span className="font-semibold">
                 Provisioning ready · Core engine online
               </span>
             </div>
 
-            <h2 className="display display-lg" style={{ color: 'var(--text-primary)' }}>
+            {/* Editorial Headline */}
+            <h2 className="display text-[38px] sm:text-[50px] md:text-[60px] font-medium leading-[1.08] tracking-tight text-[var(--text-primary)]">
               Set your team up now
             </h2>
-            <p
-              className="t-lede mt-4"
-              style={{ color: 'var(--text-secondary)', maxWidth: 'var(--measure-prose)' }}
-            >
+
+            {/* Lede Prose */}
+            <p className="t-lede mt-4 max-w-[620px] text-[16px] sm:text-[17.5px] leading-relaxed text-[var(--text-secondary)]">
               Your workspace, your team, your credentials and your assistant rules are all live.
               When channels arrive, there is nothing left to configure.
             </p>
 
+            {/* Interactive Actions */}
             {isAuthenticated ? (
-              <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
                 <Button asChild variant="primary" size="lg">
                   <Link href={dashboardHref} className="gap-2 shadow-sm">
                     <IconShieldLock size={17} stroke={1.5} />
@@ -481,9 +278,9 @@ export default async function MarketingPage() {
                 </Button>
               </div>
             ) : (
-              <div className="mt-8 flex flex-wrap justify-center gap-4">
-                <Button asChild variant="accent" size="lg">
-                  <Link href="/sign-up" className="gap-2">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
+                <Button asChild variant="primary" size="lg">
+                  <Link href="/sign-up" className="gap-2 shadow-sm">
                     Request access <IconArrowRight size={16} stroke={1.5} />
                   </Link>
                 </Button>
@@ -493,96 +290,59 @@ export default async function MarketingPage() {
               </div>
             )}
 
-            {/* Spec ticker. Three hues, each meaning something different:
-                green is a passing state, orange is the one accent mark, blue
-                is the speed claim that the primary CTA also owns. */}
-            <div
-              className="t-micro mt-10 flex flex-wrap justify-center gap-6 border-t pt-6"
-              style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}
-            >
-              <span className="flex items-center gap-1.5">
+            {/* Spec Ticker */}
+            <div className="font-mono text-[11px] mt-10 flex flex-wrap justify-center gap-6 sm:gap-10 border-t border-[var(--border-subtle)] pt-6 text-[var(--text-tertiary)] w-full max-w-xl">
+              <span className="flex items-center gap-2">
                 <span
-                  className="size-1 rounded-full"
-                  style={{ background: 'var(--success-fg)' }}
-                  aria-hidden
+                  className="size-1.5 rounded-full bg-[var(--green-500)]"
+                  aria-hidden="true"
                 />
-                Row-level isolated
+                Row-Level Isolated
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-2">
                 <span
-                  className="size-1 rounded-full"
-                  style={{ background: 'var(--accent-mark)' }}
-                  aria-hidden
+                  className="size-1.5 rounded-full bg-[var(--orange-500)]"
+                  aria-hidden="true"
                 />
-                Argon2 hashed
+                Argon2 Hashed
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-2">
                 <span
-                  className="size-1 rounded-full"
-                  style={{ background: 'var(--blue-500)' }}
-                  aria-hidden
+                  className="size-1.5 rounded-full bg-[var(--blue-500)]"
+                  aria-hidden="true"
                 />
-                &lt;5s propagation
+                &lt;5s Propagation
               </span>
             </div>
           </div>
-        </section>
-      </main>
 
-      {/* ── Footer ────────────────────────────────────────────────────── */}
-      <footer
-        className="relative overflow-hidden border-t"
-        style={{ borderColor: 'var(--border-strong)' }}
-      >
-        <div className="pointer-events-none absolute inset-0 opacity-[0.06]">
-          <svg width="100%" height="100%" aria-hidden="true">
-            <pattern id="footer-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path
-                d="M 32 0 L 0 0 0 32"
-                fill="none"
-                stroke="var(--border-strong)"
-                strokeWidth="1"
-              />
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#footer-grid)" />
-          </svg>
-        </div>
+          {/* ── 2. Subtle Architectural Divider ── */}
+          <div className="my-16 sm:my-20 border-t border-[var(--border-subtle)] w-full" />
 
-        <div className="pointer-events-none absolute right-8 bottom-2 hidden -rotate-12 text-ink-muted/[0.08] lg:block">
-          <IconServer2 size={240} stroke={1} />
-        </div>
-
-        <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8">
+          {/* ── 3. Footer Navigation Grid ── */}
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-4 lg:col-span-2">
               <div className="flex items-center gap-3">
                 <Mark size={26} />
                 <div>
-                  {/* The wordmark is `aLcassa`, mixed case, capital L. The
-                      previous uppercase treatment is not available to it:
-                      BRAND.md §1 permits ALCASSA only where mixed case is
-                      technically impossible, and CSS `text-transform` is not
-                      an impossibility. */}
-                  <span className="t-panel" style={{ color: 'var(--text-primary)' }}>
+                  <span className="t-panel text-[18px] font-semibold text-[var(--text-primary)]">
                     aLcassa
                   </span>
-                  <p className="t-caption" style={{ color: 'var(--text-tertiary)' }}>
+                  <p className="t-caption text-[12px] text-[var(--text-tertiary)]">
                     Multi-tenant customer support engine
                   </p>
                 </div>
               </div>
-              <p className="t-compact max-w-sm" style={{ color: 'var(--text-secondary)' }}>
+              <p className="t-compact max-w-sm text-[13.5px] text-[var(--text-secondary)] leading-relaxed">
                 Architected for strict database tenant isolation, machine-readable assistant rules,
                 and zero master key vulnerability.
               </p>
               <div
-                className="t-eyebrow inline-flex items-center gap-2 rounded-chip px-2.5 py-1"
-                style={{ background: 'var(--success-bg)', color: 'var(--success-fg)' }}
+                className="t-eyebrow inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50 px-2.5 py-1 text-[11px] font-mono text-[var(--green-600)]"
               >
                 <span
-                  className="size-1.5 animate-pulse rounded-full"
-                  style={{ background: 'var(--success-fg)' }}
-                  aria-hidden
+                  className="size-1.5 animate-pulse rounded-full bg-[var(--green-500)]"
+                  aria-hidden="true"
                 />
                 <span>System operational</span>
               </div>
@@ -594,15 +354,15 @@ export default async function MarketingPage() {
                 { href: '#overview', label: 'Hero overview' },
                 { href: '#live-engine', label: 'Live engine' },
                 { href: '#channels', label: 'Channels' },
-                { href: '#security', label: 'Security model' },
+                { href: '#channels', label: 'Security model' },
               ]}
             />
 
             <div className="space-y-3">
-              <div className="t-eyebrow" style={{ color: 'var(--text-action)' }}>
+              <div className="t-eyebrow font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--text-action)]">
                 Architecture
               </div>
-              <ul className="t-compact space-y-2" style={{ color: 'var(--text-secondary)' }}>
+              <ul className="t-compact space-y-2 text-[13px] text-[var(--text-secondary)]">
                 <li>Postgres RLS policy</li>
                 <li>Argon2 key hashing</li>
                 <li>Multi-tenant RBAC</li>
@@ -611,7 +371,7 @@ export default async function MarketingPage() {
             </div>
 
             <FooterColumn
-              heading="Legal &amp; status"
+              heading="Legal & status"
               links={[
                 { href: '/legal/terms', label: 'Terms of service' },
                 { href: '/legal/privacy', label: 'Privacy notice' },
@@ -621,21 +381,20 @@ export default async function MarketingPage() {
             />
           </div>
 
+          {/* ── 4. Sub-Footer Bar ── */}
           <div
             className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t pt-6"
             style={{ borderColor: 'var(--border-subtle)' }}
           >
             <div
-              className="t-eyebrow flex items-center gap-2"
-              style={{ color: 'var(--text-tertiary)' }}
+              className="t-eyebrow font-mono text-[11px] flex items-center gap-2 text-[var(--text-tertiary)]"
             >
               <span>© 2026 Andishi</span>
               <span>·</span>
               <span>Northern Bypass, Nairobi</span>
             </div>
             <div
-              className="t-micro flex items-center gap-4"
-              style={{ color: 'var(--text-disabled)' }}
+              className="t-micro font-mono text-[11px] flex items-center gap-4 text-[var(--text-disabled)]"
             >
               <span>Version 1.0.0-beta</span>
               <span>·</span>

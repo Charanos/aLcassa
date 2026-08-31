@@ -52,7 +52,7 @@ export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
       <span
         aria-hidden
         className="absolute top-6 bottom-6 left-[7px] hidden w-px md:block"
-        style={{ background: 'var(--rule-base)' }}
+        style={{ background: 'var(--border-subtle)' }}
       />
 
       {milestones.map((milestone) => {
@@ -66,17 +66,17 @@ export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
               style={{
                 background:
                   milestone.status === 'upcoming'
-                    ? 'var(--surface-page)'
+                    ? 'var(--surface-base)'
                     : `var(--${status.tone}-tint)`,
                 borderColor: `var(--${status.tone}-rule)`,
               }}
             />
 
             <article
-              className="rounded-panel border p-5 transition-[border-color,transform] duration-[var(--motion-fade)] hover:-translate-y-px hover:border-[var(--rule-strong)]"
+              className="rounded-panel border p-5 transition-[border-color,transform] duration-[var(--motion-fade)] hover:-translate-y-px hover:border-[var(--border-strong)]"
               style={{
                 background: 'var(--surface-raised)',
-                borderColor: 'var(--rule-base)',
+                borderColor: 'var(--border-subtle)',
                 boxShadow: 'var(--shadow-card)',
               }}
             >
@@ -84,17 +84,17 @@ export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
                 <span className="t-data" style={{ color: `var(--${status.tone}-ink)` }}>
                   {milestone.id}
                 </span>
-                <h3 className="t-panel text-[var(--ink-primary)]">{milestone.name}</h3>
+                <h3 className="t-panel text-[var(--text-primary)]">{milestone.name}</h3>
                 <StatusChip tone={status.tone} icon={status.icon}>
                   {status.label}
                 </StatusChip>
-                <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
+                <span className="t-eyebrow ml-auto text-[var(--text-tertiary)]">
                   week {milestone.week}
                 </span>
               </div>
 
               <p
-                className="t-compact mt-2 text-[var(--ink-secondary)]"
+                className="t-compact mt-2 text-[var(--text-secondary)]"
                 style={{ maxWidth: 'var(--measure-prose)' }}
               >
                 {milestone.lands}
@@ -121,23 +121,23 @@ export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
                   />
                 </div>
                 <span
-                  className="t-data shrink-0 text-[var(--ink-secondary)] tabular-nums"
+                  className="t-data shrink-0 text-[var(--text-secondary)] tabular-nums"
                   style={{ fontSize: '12px' }}
                 >
                   {milestone.progress}%
                 </span>
               </div>
 
-              <p className="t-caption mt-3 text-[var(--ink-tertiary)]">{milestone.note}</p>
+              <p className="t-caption mt-3 text-[var(--text-tertiary)]">{milestone.note}</p>
 
               <div
                 className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-3"
-                style={{ borderColor: 'var(--rule-soft)' }}
+                style={{ borderColor: 'var(--ink-100)' }}
               >
-                <span className="t-eyebrow text-[var(--ink-tertiary)]">Gate</span>
-                <span className="t-compact text-[var(--ink-primary)]">{milestone.gate}</span>
+                <span className="t-eyebrow text-[var(--text-tertiary)]">Gate</span>
+                <span className="t-compact text-[var(--text-primary)]">{milestone.gate}</span>
                 {milestone.tranche ? (
-                  <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
+                  <span className="t-eyebrow ml-auto text-[var(--text-tertiary)]">
                     Releases tranche {milestone.tranche}
                   </span>
                 ) : null}

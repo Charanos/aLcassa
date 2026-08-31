@@ -146,7 +146,7 @@ export default async function SignInPage({
             role="status"
             className="t-caption rounded-panel border px-3 py-2"
             style={{
-              color: 'var(--slate-ink)',
+              color: 'var(--ink-600)',
               background: 'var(--surface-sunken)',
               borderColor: 'var(--border-subtle)',
             }}

@@ -36,7 +36,7 @@ export function DocCard({
     <>
       <span
         className="t-data shrink-0 tabular-nums"
-        style={{ color: 'var(--copper-ink)' }}
+        style={{ color: 'var(--blue-500)' }}
         aria-hidden
       >
         {n}
@@ -44,26 +44,26 @@ export function DocCard({
 
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline gap-2">
-          <span className="t-panel text-[var(--ink-primary)]">{title}</span>
-          {band ? <span className="t-eyebrow text-[var(--ink-faint)]">{band}</span> : null}
+          <span className="t-panel text-[var(--text-primary)]">{title}</span>
+          {band ? <span className="t-eyebrow text-[var(--ink-300)]">{band}</span> : null}
         </span>
-        <span className="t-compact mt-1 block text-[var(--ink-secondary)]">{settles}</span>
-        <span className="t-caption mt-2 block text-[var(--ink-tertiary)]">{source}</span>
+        <span className="t-compact mt-1 block text-[var(--text-secondary)]">{settles}</span>
+        <span className="t-caption mt-2 block text-[var(--text-tertiary)]">{source}</span>
       </span>
 
       <Icon
         size={16}
         stroke={1.5}
         aria-hidden
-        className="mt-1 shrink-0 text-[var(--ink-faint)] group-hover:text-[var(--copper-ink)]"
+        className="mt-1 shrink-0 text-[var(--ink-300)] group-hover:text-[var(--blue-500)]"
       />
     </>
   );
 
   const className =
-    'group flex gap-4 rounded-panel border p-4 transition-colors duration-[var(--motion-fade)] hover:border-[var(--copper-rule)] hover:bg-[var(--copper-tint)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]';
+    'group flex gap-4 rounded-panel border p-4 transition-colors duration-[var(--motion-fade)] hover:border-[var(--blue-200)] hover:bg-[var(--blue-50)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]';
 
-  const style = { borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' };
+  const style = { borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' };
 
   if (external) {
     return (

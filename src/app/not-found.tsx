@@ -32,20 +32,20 @@ export default function NotFound() {
     <main
       id="main"
       className="mx-auto flex min-h-dvh flex-col items-center justify-center px-6 text-center"
-      style={{ background: 'var(--surface-page)', maxWidth: '480px' }}
+      style={{ background: 'var(--surface-base)', maxWidth: '480px' }}
     >
       <Mark size={28} />
 
       <p
         className="t-data mt-8 tabular-nums"
-        style={{ color: 'var(--copper-ink)', fontSize: '13px' }}
+        style={{ color: 'var(--blue-500)', fontSize: '13px' }}
       >
         404
       </p>
 
-      <h1 className="t-title mt-3 text-[var(--ink-primary)]">That is not here.</h1>
+      <h1 className="t-title mt-3 text-[var(--text-primary)]">That is not here.</h1>
 
-      <p className="t-body mt-3 text-[var(--ink-secondary)]">
+      <p className="t-body mt-3 text-[var(--text-secondary)]">
         Or you do not have access to it. There is no way to tell which from this page, and that is
         deliberate.
       </p>

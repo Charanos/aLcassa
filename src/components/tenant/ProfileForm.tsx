@@ -36,18 +36,18 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
     <div className="grid max-w-xl gap-8">
       <section
         className="flex items-center gap-4 rounded-panel border p-5"
-        style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+        style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' }}
       >
         <span
           className="t-heading grid size-12 shrink-0 place-items-center rounded-full"
-          style={{ background: 'var(--copper-tint)', color: 'var(--copper-ink)' }}
+          style={{ background: 'var(--blue-50)', color: 'var(--blue-500)' }}
           aria-hidden
         >
           {profile.initials}
         </span>
         <div>
-          <p className="t-body font-medium text-[var(--ink-primary)]">{profile.name}</p>
-          <p className="t-caption text-[var(--ink-tertiary)]">
+          <p className="t-body font-medium text-[var(--text-primary)]">{profile.name}</p>
+          <p className="t-caption text-[var(--text-tertiary)]">
             {profile.role} · member since {profile.memberSince}
           </p>
         </div>
@@ -66,7 +66,7 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
           <p
             role="alert"
             className="t-compact flex items-start gap-1.5"
-            style={{ color: 'var(--oxide-ink)' }}
+            style={{ color: 'var(--red-500)' }}
           >
             <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
             {error}
@@ -75,22 +75,22 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
 
         <div
           className="flex items-center gap-3 border-t pt-5"
-          style={{ borderColor: 'var(--rule-soft)' }}
+          style={{ borderColor: 'var(--ink-100)' }}
         >
           <Button type="submit" variant="primary" loading={pending} disabled={!dirty || pending}>
             Save changes
           </Button>
           {saved ? (
-            <span className="t-compact" style={{ color: 'var(--verdigris-ink)' }}>
+            <span className="t-compact" style={{ color: 'var(--green-500)' }}>
               Saved
             </span>
           ) : null}
         </div>
       </form>
 
-      <section className="border-t pt-6" style={{ borderColor: 'var(--rule-soft)' }}>
-        <h2 className="t-panel text-[var(--ink-primary)]">Password</h2>
-        <p className="t-compact mt-1 text-[var(--ink-tertiary)]">
+      <section className="border-t pt-6" style={{ borderColor: 'var(--ink-100)' }}>
+        <h2 className="t-panel text-[var(--text-primary)]">Password</h2>
+        <p className="t-compact mt-1 text-[var(--text-tertiary)]">
           Sent to {profile.email}. Signs you out of every other session on completion.
         </p>
         <Button asChild variant="secondary" className="mt-3">
@@ -100,9 +100,9 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
         </Button>
       </section>
 
-      <section className="border-t pt-6" style={{ borderColor: 'var(--rule-soft)' }}>
-        <h2 className="t-panel text-[var(--ink-primary)]">Sessions</h2>
-        <p className="t-compact mt-1 text-[var(--ink-tertiary)]">
+      <section className="border-t pt-6" style={{ borderColor: 'var(--ink-100)' }}>
+        <h2 className="t-panel text-[var(--text-primary)]">Sessions</h2>
+        <p className="t-compact mt-1 text-[var(--text-tertiary)]">
           Everywhere you are currently signed in.
         </p>
         <Button asChild variant="secondary" className="mt-3">

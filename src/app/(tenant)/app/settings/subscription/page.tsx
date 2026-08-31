@@ -30,17 +30,17 @@ export default async function SubscriptionSettingsPage() {
 
       <section
         className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-panel border p-5"
-        style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+        style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' }}
       >
         <div>
-          <p className="t-label text-[var(--ink-tertiary)]">Current plan</p>
-          <p className="t-heading mt-1 text-[var(--ink-primary)]">{model.planName}</p>
+          <p className="t-label text-[var(--text-tertiary)]">Current plan</p>
+          <p className="t-heading mt-1 text-[var(--text-primary)]">{model.planName}</p>
         </div>
         <div className="text-right">
           <Badge tone={SUBSCRIPTION_STATUS_TONE[model.status] ?? 'active'}>
             {model.status === 'active' ? 'Active' : model.status.replace('_', ' ')}
           </Badge>
-          <p className="t-caption mt-1.5 text-[var(--ink-tertiary)]">Renews {model.periodEnd}</p>
+          <p className="t-caption mt-1.5 text-[var(--text-tertiary)]">Renews {model.periodEnd}</p>
         </div>
       </section>
 
@@ -51,9 +51,9 @@ export default async function SubscriptionSettingsPage() {
               key={o.key}
               className="t-compact rounded-chip border px-3.5 py-2.5"
               style={{
-                borderColor: 'var(--copper-rule)',
-                background: 'var(--copper-tint)',
-                color: 'var(--ink-primary)',
+                borderColor: 'var(--blue-200)',
+                background: 'var(--blue-50)',
+                color: 'var(--text-primary)',
               }}
             >
               <span className="font-medium">Override active on {o.key.replace('_', ' ')}:</span>{' '}
@@ -67,16 +67,16 @@ export default async function SubscriptionSettingsPage() {
 
       <section
         className="grid gap-5 rounded-panel border p-5"
-        style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+        style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' }}
       >
         {model.entitlements.map((e) => (
           <LimitBar key={e.key} label={e.label} current={e.current} limit={e.limit} unit={e.unit} />
         ))}
       </section>
 
-      <p className="t-caption mt-6 max-w-prose text-[var(--ink-tertiary)]">
+      <p className="t-caption mt-6 max-w-prose text-[var(--text-tertiary)]">
         Billing is handled directly for now rather than through automatic card charges. See{' '}
-        <a href="/app/billing" className="underline hover:text-[var(--copper-ink)]">
+        <a href="/app/billing" className="underline hover:text-[var(--blue-500)]">
           Billing
         </a>{' '}
         for how payment currently works, or get in touch if you are close to a limit — most plan

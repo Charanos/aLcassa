@@ -164,7 +164,7 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
       aria-modal="true"
       aria-label="Command palette"
       className="fixed inset-0 z-[100] flex items-start justify-center px-4 pt-[12vh]"
-      style={{ background: 'var(--scrim)' }}
+      style={{ background: 'var(--surface-overlay)' }}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) close();
       }}
@@ -173,7 +173,7 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
         className="w-full max-w-[560px] overflow-hidden rounded-overlay border"
         style={{
           background: 'var(--surface-raised)',
-          borderColor: 'var(--rule-base)',
+          borderColor: 'var(--border-subtle)',
           boxShadow: 'var(--shadow-overlay)',
         }}
         onKeyDown={(event) => {
@@ -195,20 +195,20 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
       >
         <div
           className="flex items-center gap-3 border-b px-4"
-          style={{ borderColor: 'var(--rule-soft)' }}
+          style={{ borderColor: 'var(--ink-100)' }}
         >
-          <IconSearch size={16} stroke={1.5} aria-hidden className="text-[var(--ink-tertiary)]" />
+          <IconSearch size={16} stroke={1.5} aria-hidden className="text-[var(--text-tertiary)]" />
           <input
             ref={inputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Jump to a section, a document or a sheet"
             aria-label="Search sections, documents and design sheets"
-            className="t-body flex-1 bg-transparent py-3.5 text-[var(--ink-primary)] outline-none placeholder:text-[var(--ink-tertiary)]"
+            className="t-body flex-1 bg-transparent py-3.5 text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
           />
           <kbd
-            className="t-eyebrow rounded-chip border px-1.5 py-1 text-[var(--ink-tertiary)]"
-            style={{ borderColor: 'var(--rule-base)' }}
+            className="t-eyebrow rounded-chip border px-1.5 py-1 text-[var(--text-tertiary)]"
+            style={{ borderColor: 'var(--border-subtle)' }}
           >
             esc
           </kbd>
@@ -216,13 +216,13 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
 
         <ul ref={listRef} className="max-h-[52vh] overflow-y-auto p-2" role="listbox">
           {results.length === 0 ? (
-            <li className="t-compact px-3 py-6 text-center text-[var(--ink-tertiary)]">
+            <li className="t-compact px-3 py-6 text-center text-[var(--text-tertiary)]">
               Nothing matches {query}.
             </li>
           ) : (
             Object.entries(grouped).map(([group, items]) => (
               <li key={group}>
-                <div className="t-eyebrow px-3 pt-3 pb-1.5 text-[var(--ink-faint)]">{group}</div>
+                <div className="t-eyebrow px-3 pt-3 pb-1.5 text-[var(--ink-300)]">{group}</div>
                 <ul>
                   {items.map((command) => {
                     flatIndex += 1;
@@ -246,19 +246,19 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
                           onClick={() => run(command)}
                           className="flex w-full items-center gap-3 rounded-chip px-3 py-2.5 text-left"
                           style={{
-                            background: isActive ? 'var(--copper-tint)' : 'transparent',
-                            color: isActive ? 'var(--copper-ink)' : 'var(--ink-primary)',
+                            background: isActive ? 'var(--blue-50)' : 'transparent',
+                            color: isActive ? 'var(--blue-500)' : 'var(--text-primary)',
                           }}
                         >
                           <Icon
                             size={15}
                             stroke={1.5}
                             aria-hidden
-                            style={{ color: isActive ? 'var(--copper-ink)' : 'var(--ink-faint)' }}
+                            style={{ color: isActive ? 'var(--blue-500)' : 'var(--ink-300)' }}
                           />
                           <span className="t-compact flex-1 truncate">{command.label}</span>
                           {command.hint ? (
-                            <span className="t-caption truncate text-[var(--ink-tertiary)]">
+                            <span className="t-caption truncate text-[var(--text-tertiary)]">
                               {command.hint}
                             </span>
                           ) : null}
@@ -267,7 +267,7 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
                               size={13}
                               stroke={1.5}
                               aria-hidden
-                              className="text-[var(--ink-faint)]"
+                              className="text-[var(--ink-300)]"
                             />
                           ) : null}
                         </button>
@@ -281,8 +281,8 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
         </ul>
 
         <div
-          className="t-caption flex items-center gap-4 border-t px-4 py-2.5 text-[var(--ink-tertiary)]"
-          style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-sunken)' }}
+          className="t-caption flex items-center gap-4 border-t px-4 py-2.5 text-[var(--text-tertiary)]"
+          style={{ borderColor: 'var(--ink-100)', background: 'var(--surface-sunken)' }}
         >
           <span className="flex items-center gap-1.5">
             <Kbd>↑</Kbd>
@@ -305,7 +305,7 @@ function Kbd({ children }: { children: React.ReactNode }) {
   return (
     <kbd
       className="t-eyebrow inline-grid h-4 min-w-4 place-items-center rounded-chip border px-1"
-      style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+      style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' }}
     >
       {children}
     </kbd>
@@ -325,9 +325,9 @@ export function CommandHint() {
       type="button"
       onClick={() => window.dispatchEvent(new Event(PALETTE_EVENT))}
       aria-label="Open the command palette"
-      className="t-chip hidden items-center gap-2 rounded-chip border px-3 text-[var(--ink-tertiary)] transition-colors duration-[var(--motion-fade)] hover:border-[var(--copper-rule)] hover:text-[var(--copper-ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] md:flex"
+      className="t-chip hidden items-center gap-2 rounded-chip border px-3 text-[var(--text-tertiary)] transition-colors duration-[var(--motion-fade)] hover:border-[var(--blue-200)] hover:text-[var(--blue-500)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] md:flex"
       style={{
-        borderColor: 'var(--rule-base)',
+        borderColor: 'var(--border-subtle)',
         background: 'var(--surface-raised)',
         minHeight: '38px',
       }}

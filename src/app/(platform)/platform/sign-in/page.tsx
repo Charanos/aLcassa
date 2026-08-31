@@ -39,8 +39,8 @@ export default function PlatformSignInPage() {
             <div
               className="rounded-panel border p-4 transition-all duration-300"
               style={{
-                background: 'color-mix(in oklab, var(--ink-inverse) 6%, transparent)',
-                borderColor: 'color-mix(in oklab, var(--ink-inverse) 16%, transparent)',
+                background: 'color-mix(in oklab, var(--text-inverse) 6%, transparent)',
+                borderColor: 'color-mix(in oklab, var(--text-inverse) 16%, transparent)',
               }}
             >
               <div className="grid gap-2 sm:grid-cols-2">
@@ -78,9 +78,9 @@ export default function PlatformSignInPage() {
               size={15}
               stroke={1.5}
               aria-hidden
-              className="mt-0.5 shrink-0 text-[var(--ink-tertiary)]"
+              className="mt-0.5 shrink-0 text-[var(--text-tertiary)]"
             />
-            <p className="t-caption text-[var(--ink-tertiary)]">
+            <p className="t-caption text-[var(--text-tertiary)]">
               Sessions last eight hours. Two-factor authentication is recommended and is quoted
               separately.
             </p>

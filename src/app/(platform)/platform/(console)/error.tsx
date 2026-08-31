@@ -34,12 +34,12 @@ export default function ConsoleError({
     <div className="mx-auto flex min-h-[60vh] max-w-[480px] flex-col items-center justify-center px-6 text-center">
       <span
         className="grid size-11 place-items-center rounded-full"
-        style={{ background: 'var(--oxide-tint)' }}
+        style={{ background: 'var(--red-100)' }}
       >
         <IconAlertTriangle
           size={20}
           stroke={1.5}
-          style={{ color: 'var(--oxide-ink)' }}
+          style={{ color: 'var(--red-500)' }}
           aria-hidden
         />
       </span>

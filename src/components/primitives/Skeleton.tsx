@@ -52,7 +52,7 @@ export function SkeletonRow() {
   return (
     <div
       className="flex items-center gap-4 rounded-panel border p-4"
-      style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-raised)' }}
+      style={{ borderColor: 'var(--ink-100)', background: 'var(--surface-raised)' }}
     >
       <Bone className="h-4 shrink-0" style={{ width: 96 }} />
       <Bone className="h-4 flex-1" style={{ width: '70%' }} />
@@ -69,7 +69,7 @@ export function SkeletonPanel({ lines = 3 }: { lines?: number }) {
   return (
     <div
       className="rounded-panel border p-5"
-      style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-raised)' }}
+      style={{ borderColor: 'var(--ink-100)', background: 'var(--surface-raised)' }}
     >
       <Bone className="h-3.5" style={{ width: 128 }} />
       <div className="mt-4 grid gap-2.5">
@@ -86,7 +86,7 @@ export function SkeletonMetric() {
   return (
     <div
       className="rounded-panel border p-5"
-      style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-raised)' }}
+      style={{ borderColor: 'var(--ink-100)', background: 'var(--surface-raised)' }}
     >
       <Bone className="h-3" style={{ width: 88 }} />
       <Bone className="mt-3 h-8" style={{ width: 64 }} />

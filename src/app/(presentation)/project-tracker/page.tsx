@@ -192,7 +192,7 @@ export default function ProjectTrackerPage() {
   ];
 
   return (
-    <div style={{ background: 'var(--surface-page)' }}>
+    <div style={{ background: 'var(--surface-base)' }}>
       <TrackerMotion />
       <CommandPalette commands={commands} />
       <TrackerHeader sections={SECTIONS} />
@@ -222,27 +222,27 @@ export default function ProjectTrackerPage() {
                 label="Overall progress"
                 value={overall}
                 suffix="%"
-                tone="var(--copper-ink)"
+                tone="var(--blue-500)"
                 note="Mean across all eight milestones"
               />
               <StatTile
                 label="Built and verifiable"
                 value={FOUNDATION_SUMMARY.built}
                 suffix={` / ${String(FOUNDATION_SUMMARY.total)}`}
-                tone="var(--verdigris-ink)"
+                tone="var(--green-500)"
                 note="Openable in the repository today"
               />
               <StatTile
                 label="Blocking decisions"
                 value={blocking.length}
-                tone="var(--ochre-ink)"
+                tone="var(--amber-500)"
                 note="Three are due in week one"
               />
               <StatTile
                 label="Compliance met"
                 value={complianceMet}
                 suffix={` / ${String(COMPLIANCE.length)}`}
-                tone={complianceNeedsYou > 0 ? 'var(--oxide-ink)' : 'var(--verdigris-ink)'}
+                tone={complianceNeedsYou > 0 ? 'var(--red-500)' : 'var(--green-500)'}
                 note={
                   complianceNeedsYou > 0
                     ? `${String(complianceNeedsYou)} item needs a decision from you`
@@ -253,8 +253,8 @@ export default function ProjectTrackerPage() {
 
             <div className="mt-4 grid gap-4 lg:grid-cols-3" data-reveal-group>
               <Panel interactive>
-                <h3 className="t-panel text-[var(--ink-primary)]">Isolation is the product</h3>
-                <p className="t-compact mt-2 text-[var(--ink-secondary)]">
+                <h3 className="t-panel text-[var(--text-primary)]">Isolation is the product</h3>
+                <p className="t-compact mt-2 text-[var(--text-secondary)]">
                   Everything else here is ordinary SaaS engineering. The thing being paid for, and
                   the thing that ends a business if it fails once, is that one tenant can never read
                   another. It is enforced in the database rather than the application, tested on
@@ -263,10 +263,10 @@ export default function ProjectTrackerPage() {
               </Panel>
 
               <Panel interactive>
-                <h3 className="t-panel text-[var(--ink-primary)]">
+                <h3 className="t-panel text-[var(--text-primary)]">
                   The owner is bound by the same rules
                 </h3>
-                <p className="t-compact mt-2 text-[var(--ink-secondary)]">
+                <p className="t-compact mt-2 text-[var(--text-secondary)]">
                   The organization switcher does not use the key that bypasses security. It mints a
                   scoped support session, so the same policies that protect a tenant apply to the
                   person looking in. That is a genuine ceiling rather than a courtesy, and the
@@ -275,8 +275,8 @@ export default function ProjectTrackerPage() {
               </Panel>
 
               <Panel interactive>
-                <h3 className="t-panel text-[var(--ink-primary)]">Documentation has a pass mark</h3>
-                <p className="t-compact mt-2 text-[var(--ink-secondary)]">
+                <h3 className="t-panel text-[var(--text-primary)]">Documentation has a pass mark</h3>
+                <p className="t-compact mt-2 text-[var(--text-secondary)]">
                   A developer who has never seen the repository clones it and runs it locally in
                   under thirty minutes, following the README alone. That test is run with a real
                   person and the result is reported whether or not it flatters us.
@@ -302,17 +302,17 @@ export default function ProjectTrackerPage() {
                   <li key={update.title}>
                     <Panel tone={tone.tone} reveal>
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-                        <span className="t-data text-[var(--ink-tertiary)]">{update.date}</span>
-                        <h3 className="t-panel text-[var(--ink-primary)]">{update.title}</h3>
+                        <span className="t-data text-[var(--text-tertiary)]">{update.date}</span>
+                        <h3 className="t-panel text-[var(--text-primary)]">{update.title}</h3>
                         <StatusChip tone={tone.tone} icon={tone.icon} size="sm">
                           {tone.label}
                         </StatusChip>
-                        <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
+                        <span className="t-eyebrow ml-auto text-[var(--text-tertiary)]">
                           {update.milestone}
                         </span>
                       </div>
                       <p
-                        className="t-compact mt-2 text-[var(--ink-secondary)]"
+                        className="t-compact mt-2 text-[var(--text-secondary)]"
                         style={{ maxWidth: 'var(--measure-prose)' }}
                       >
                         {update.body}
@@ -333,7 +333,7 @@ export default function ProjectTrackerPage() {
             aside="Brief section 04"
           >
             <Panel className="mb-6" reveal>
-              <h3 className="t-micro mb-3 text-[var(--ink-tertiary)]">Progress by milestone</h3>
+              <h3 className="t-micro mb-3 text-[var(--text-tertiary)]">Progress by milestone</h3>
               <ErrorBoundary label="The milestone chart">
                 <ProgressLine data={milestoneChart} suffix="%" height={260} />
               </ErrorBoundary>
@@ -342,7 +342,7 @@ export default function ProjectTrackerPage() {
             <Timeline milestones={MILESTONES} />
 
             <Panel className="mt-6" tone="slate">
-              <p className="t-compact text-[var(--ink-secondary)]">
+              <p className="t-compact text-[var(--text-secondary)]">
                 Error tracking, log aggregation and database metrics are switched on during week 2
                 rather than during hardening, because instrumentation is only useful with history
                 behind it. Two senior developers hold the engagement for its full duration: one owns
@@ -369,10 +369,10 @@ export default function ProjectTrackerPage() {
               {STACK.map((entry) => (
                 <Panel key={entry.layer} reveal interactive>
                   <div className="flex flex-wrap items-baseline justify-between gap-3">
-                    <h3 className="t-micro text-[var(--ink-tertiary)]">{entry.layer}</h3>
-                    <span className="t-data text-[var(--copper-ink)]">{entry.choice}</span>
+                    <h3 className="t-micro text-[var(--text-tertiary)]">{entry.layer}</h3>
+                    <span className="t-data text-[var(--blue-500)]">{entry.choice}</span>
                   </div>
-                  <p className="t-compact mt-2 text-[var(--ink-secondary)]">{entry.why}</p>
+                  <p className="t-compact mt-2 text-[var(--text-secondary)]">{entry.why}</p>
                 </Panel>
               ))}
             </div>
@@ -388,7 +388,7 @@ export default function ProjectTrackerPage() {
             <InteractiveDecisionMatrix decisions={[...OPEN_DECISIONS]} />
 
             <div className="mt-6" data-reveal>
-              <h3 className="t-micro mb-3 text-[var(--ink-tertiary)]">What we need from you</h3>
+              <h3 className="t-micro mb-3 text-[var(--text-tertiary)]">What we need from you</h3>
               <DataList
                 rows={[...CLIENT_INPUTS]}
                 columns={inputColumns}
@@ -413,17 +413,17 @@ export default function ProjectTrackerPage() {
                 return (
                   <Panel key={item.area} tone={spec.tone} reveal>
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-                      <h3 className="t-panel text-[var(--ink-primary)]">{item.area}</h3>
+                      <h3 className="t-panel text-[var(--text-primary)]">{item.area}</h3>
                       <StatusChip tone={spec.tone} icon={spec.icon} size="sm">
                         {spec.label}
                       </StatusChip>
-                      <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
+                      <span className="t-eyebrow ml-auto text-[var(--text-tertiary)]">
                         {item.reference}
                       </span>
                     </div>
 
                     <p
-                      className="t-compact mt-2 text-[var(--ink-primary)]"
+                      className="t-compact mt-2 text-[var(--text-primary)]"
                       style={{ maxWidth: 'var(--measure-prose)' }}
                     >
                       {item.obligation}
@@ -431,15 +431,15 @@ export default function ProjectTrackerPage() {
 
                     <dl className="mt-4 grid gap-4 md:grid-cols-2">
                       <Well>
-                        <dt className="t-eyebrow text-[var(--ink-tertiary)]">In place</dt>
-                        <dd className="t-caption mt-1.5 text-[var(--ink-secondary)]">
+                        <dt className="t-eyebrow text-[var(--text-tertiary)]">In place</dt>
+                        <dd className="t-caption mt-1.5 text-[var(--text-secondary)]">
                           {item.evidence}
                         </dd>
                       </Well>
                       {item.outstanding ? (
                         <Well>
-                          <dt className="t-eyebrow text-[var(--ink-tertiary)]">Outstanding</dt>
-                          <dd className="t-caption mt-1.5 text-[var(--ink-secondary)]">
+                          <dt className="t-eyebrow text-[var(--text-tertiary)]">Outstanding</dt>
+                          <dd className="t-caption mt-1.5 text-[var(--text-secondary)]">
                             {item.outstanding}
                           </dd>
                         </Well>
@@ -469,17 +469,17 @@ export default function ProjectTrackerPage() {
             </div>
 
             <Panel className="mt-4" tone="ochre">
-              <h3 className="t-micro text-[var(--ochre-ink)]">
+              <h3 className="t-micro text-[var(--amber-500)]">
                 Explicitly out of scope for Phase 1
               </h3>
-              <p className="t-caption mt-2 text-[var(--ink-tertiary)]">
+              <p className="t-caption mt-2 text-[var(--text-tertiary)]">
                 Deliberate exclusions rather than oversights. Each one is cheaper to build on top of
                 a finished foundation than alongside one.
               </p>
               <ul className="mt-3 grid gap-2 md:grid-cols-2">
                 {OUT_OF_SCOPE.map((item) => (
-                  <li key={item} className="t-compact flex gap-2 text-[var(--ink-secondary)]">
-                    <span aria-hidden className="text-[var(--ink-faint)]">
+                  <li key={item} className="t-compact flex gap-2 text-[var(--text-secondary)]">
+                    <span aria-hidden className="text-[var(--ink-300)]">
                       ·
                     </span>
                     {item}
@@ -504,21 +504,21 @@ export default function ProjectTrackerPage() {
                   data-reveal
                   className="flex items-baseline gap-3 rounded-panel border p-4"
                   style={{
-                    borderColor: 'var(--rule-base)',
+                    borderColor: 'var(--border-subtle)',
                     background: 'var(--surface-raised)',
                     boxShadow: 'var(--shadow-card)',
                   }}
                 >
-                  <span className="t-data shrink-0 text-[var(--copper-ink)] tabular-nums">
+                  <span className="t-data shrink-0 text-[var(--blue-500)] tabular-nums">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <span className="t-compact text-[var(--ink-secondary)]">{condition}</span>
+                  <span className="t-compact text-[var(--text-secondary)]">{condition}</span>
                 </li>
               ))}
             </ol>
 
             <p
-              className="t-caption mt-4 text-[var(--ink-tertiary)]"
+              className="t-caption mt-4 text-[var(--text-tertiary)]"
               style={{ maxWidth: 'var(--measure-prose)' }}
             >
               Conditions 6 and 8 are the two that turn a promise into a measurement. Both are
@@ -549,11 +549,11 @@ export default function ProjectTrackerPage() {
             </div>
 
             <Panel className="mt-4" tone="copper">
-              <p className="t-compact text-[var(--ink-secondary)]">
+              <p className="t-compact text-[var(--text-secondary)]">
                 Start with{' '}
                 <Link
                   href="/docs/06-tenancy-and-isolation"
-                  className="text-[var(--copper-ink)] underline decoration-[var(--copper-rule)] underline-offset-2"
+                  className="text-[var(--blue-500)] underline decoration-[var(--blue-200)] underline-offset-2"
                 >
                   06 · Tenancy and isolation
                 </Link>{' '}
@@ -573,7 +573,7 @@ export default function ProjectTrackerPage() {
             aside="14 sheets"
           >
             <Panel className="mb-4">
-              <p className="t-compact text-[var(--ink-secondary)]">
+              <p className="t-compact text-[var(--text-secondary)]">
                 The aesthetic, stated once. This product is infrastructure, and its whole job is
                 holding boundaries: between tenants, between roles, between what a credential may
                 read and what it may not. Infrastructure that holds looks like a technical drawing.
@@ -582,7 +582,7 @@ export default function ProjectTrackerPage() {
                 working. Six hues, one meaning each. One weight of type, because a technical drawing
                 has no bold either. Tinted surfaces instead of shadows.
               </p>
-              <p className="t-caption mt-3 text-[var(--ink-tertiary)]">
+              <p className="t-caption mt-3 text-[var(--text-tertiary)]">
                 The page you are reading is drawn in that system. Press the theme control in the
                 header to see the second half of it.
               </p>
@@ -606,13 +606,13 @@ export default function ProjectTrackerPage() {
         </div>
 
         {/* ═══ TITLE BLOCK, FOOT ═════════════════════════════════════════ */}
-        <footer className="mt-20 border-t pt-6" style={{ borderColor: 'var(--rule-strong)' }}>
+        <footer className="mt-20 border-t pt-6" style={{ borderColor: 'var(--border-strong)' }}>
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div className="flex items-center gap-3">
               <Mark size={20} />
               <div>
-                <div className="t-chip text-[var(--ink-primary)]">aLcassa</div>
-                <div className="t-caption text-[var(--ink-tertiary)]">
+                <div className="t-chip text-[var(--text-primary)]">aLcassa</div>
+                <div className="t-caption text-[var(--text-tertiary)]">
                   {ENGAGEMENT.studio} · {ENGAGEMENT.studioLocation}
                 </div>
               </div>
@@ -625,7 +625,7 @@ export default function ProjectTrackerPage() {
             </dl>
           </div>
 
-          <p className="t-caption mt-6 text-[var(--ink-tertiary)]">
+          <p className="t-caption mt-6 text-[var(--text-tertiary)]">
             Commercial in confidence. aLcassa is the codename for the design system and this
             document set, not a proposed product name.
           </p>

@@ -86,7 +86,7 @@
   --color-ink-faint: var(--text-disabled);
   --color-ink-inverse: var(--text-inverse);
 
-  --color-rule-soft: var(--rule-soft);
+  --color-rule-soft: var(--ink-100);
   --color-rule: var(--border-subtle);
   --color-rule-strong: var(--border-strong);
 
@@ -319,14 +319,14 @@
    * on every focusable element, never tinted by the variant it sits on. On a
    * destructive button that is deliberate: the ring answers where, not what. */
   :focus-visible {
-    outline: 2px solid var(--focus);
+    outline: 2px solid var(--border-focus);
     outline-offset: 2px;
     border-radius: var(--r-chip);
   }
 
   ::selection {
-    background: var(--selection-bg);
-    color: var(--selection-fg);
+    background: var(--blue-100);
+    color: var(--ink-900);
   }
 
   /*

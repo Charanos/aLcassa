@@ -7,7 +7,7 @@ import {
   IconCircleX,
   IconAlertTriangle,
   IconUsersGroup,
-  IconBolt,
+  IconCpu,
   IconMail,
   IconDatabase,
   IconKey,
@@ -106,7 +106,7 @@ function fmtNum(n: number): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const METER_ICONS: Record<string, React.ElementType<any>> = {
   seat: IconUsersGroup,
-  bolt: IconBolt,
+  bolt: IconCpu,
   mail: IconMail,
   db: IconDatabase,
   key: IconKey,
@@ -753,7 +753,7 @@ export function WorkspaceDetailDrawer({
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-5">
                     {detail.meters.map((m) => {
-                      const Icon = METER_ICONS[m.icon] ?? IconBolt;
+                      const Icon = METER_ICONS[m.icon] ?? IconCpu;
                       const pct = m.used / m.limit;
                       const color = meterColor(pct);
                       const usedStr = m.unit ? `${m.used}${m.unit}` : fmtNum(m.used);
@@ -1224,7 +1224,7 @@ export function WorkspaceDetailDrawer({
                   <li
                     key={String(text)}
                     className="t-compact flex items-start gap-3"
-                    style={{ color: 'var(--ink-primary)' }}
+                    style={{ color: 'var(--text-primary)' }}
                   >
                     <span
                       className="shrink-0 text-right font-mono font-medium"
@@ -1235,7 +1235,7 @@ export function WorkspaceDetailDrawer({
                     <span>{text}</span>
                   </li>
                 ))}
-                <li className="t-compact mt-1.5" style={{ color: 'var(--ink-secondary)' }}>
+                <li className="t-compact mt-1.5" style={{ color: 'var(--text-secondary)' }}>
                   Data is retained. Reactivation restores access immediately and is a single action.
                 </li>
               </ul>
@@ -1265,7 +1265,7 @@ export function WorkspaceDetailDrawer({
                   placeholder="Payment overdue since 12 August; invoices sent 1 and 8 August."
                   className="rounded-panel border px-3 py-2"
                   style={{
-                    borderColor: 'var(--rule-base)',
+                    borderColor: 'var(--border-subtle)',
                     background: 'var(--surface-raised)',
                     color: 'var(--text-primary)',
                     font: '400 var(--text-sm)/1.5 var(--font-ui)',

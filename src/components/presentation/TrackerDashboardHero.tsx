@@ -25,19 +25,19 @@ export function TrackerDashboardHero({
     <div id="top" className="pt-10 md:pt-14">
       {/* Eyebrow & Title */}
       <div className="flex items-center gap-3">
-        <span aria-hidden className="block h-px w-8" style={{ background: 'var(--copper-rule)' }} />
-        <p className="t-eyebrow text-[var(--copper-ink)]">
+        <span aria-hidden className="block h-px w-8" style={{ background: 'var(--blue-200)' }} />
+        <p className="t-eyebrow text-[var(--blue-500)]">
           Andishi Â· Platform Foundation Â· Phase 1
         </p>
       </div>
 
       <div className="mt-4 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
-          <h1 className="t-display text-4xl font-normal text-[var(--ink-primary)] md:text-5xl">
+          <h1 className="t-display text-4xl font-normal text-[var(--text-primary)] md:text-5xl">
             aLcassa Delivery Tracker
           </h1>
           <p
-            className="t-lede mt-3 text-[var(--ink-secondary)]"
+            className="t-lede mt-3 text-[var(--text-secondary)]"
             style={{ maxWidth: 'var(--measure-prose)' }}
           >
             The platform layer beneath a customer support inbox: tenancy with real database
@@ -50,10 +50,10 @@ export function TrackerDashboardHero({
         <div className="flex shrink-0 flex-wrap items-center gap-3">
           <a
             href="#status"
-            className="t-compact inline-flex items-center gap-2 rounded-chip border px-4 py-2 text-[var(--action-primary-fg)] transition-colors hover:bg-[var(--copper-ink)]"
+            className="t-compact inline-flex items-center gap-2 rounded-chip border px-4 py-2 text-[var(--button-primary-fg)] transition-colors hover:bg-[var(--blue-500)]"
             style={{
-              background: 'var(--action-primary-bg)',
-              borderColor: 'var(--action-primary-border)',
+              background: 'var(--button-primary-bg)',
+              borderColor: 'var(--blue-600)',
               minHeight: 'var(--control-md)',
             }}
           >
@@ -61,8 +61,8 @@ export function TrackerDashboardHero({
           </a>
           <a
             href="#documents"
-            className="t-compact inline-flex items-center rounded-chip border px-4 py-2 text-[var(--ink-primary)] transition-colors hover:bg-[var(--surface-raised)]"
-            style={{ borderColor: 'var(--rule-base)', minHeight: 'var(--control-md)' }}
+            className="t-compact inline-flex items-center rounded-chip border px-4 py-2 text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-raised)]"
+            style={{ borderColor: 'var(--border-subtle)', minHeight: 'var(--control-md)' }}
           >
             Project Documents
           </a>
@@ -72,31 +72,31 @@ export function TrackerDashboardHero({
       {/* Telemetry Fact Block Grid */}
       <div
         className="mt-8 grid grid-cols-2 gap-4 border-y py-5 sm:grid-cols-3 lg:grid-cols-6"
-        style={{ borderColor: 'var(--rule-soft)' }}
+        style={{ borderColor: 'var(--ink-100)' }}
       >
         <div>
-          <div className="t-eyebrow text-[var(--ink-tertiary)]">Prepared for</div>
-          <div className="t-data mt-1 text-[var(--ink-primary)]">{client}</div>
+          <div className="t-eyebrow text-[var(--text-tertiary)]">Prepared for</div>
+          <div className="t-data mt-1 text-[var(--text-primary)]">{client}</div>
         </div>
         <div>
-          <div className="t-eyebrow text-[var(--ink-tertiary)]">Project lead</div>
-          <div className="t-data mt-1 text-[var(--ink-primary)]">{projectLead}</div>
+          <div className="t-eyebrow text-[var(--text-tertiary)]">Project lead</div>
+          <div className="t-data mt-1 text-[var(--text-primary)]">{projectLead}</div>
         </div>
         <div>
-          <div className="t-eyebrow text-[var(--ink-tertiary)]">Against</div>
-          <div className="t-data mt-1 text-[var(--ink-primary)]">Brief {briefVersion}</div>
+          <div className="t-eyebrow text-[var(--text-tertiary)]">Against</div>
+          <div className="t-data mt-1 text-[var(--text-primary)]">Brief {briefVersion}</div>
         </div>
         <div>
-          <div className="t-eyebrow text-[var(--ink-tertiary)]">Issued</div>
-          <div className="t-data mt-1 text-[var(--ink-primary)]">{briefDate}</div>
+          <div className="t-eyebrow text-[var(--text-tertiary)]">Issued</div>
+          <div className="t-data mt-1 text-[var(--text-primary)]">{briefDate}</div>
         </div>
         <div>
-          <div className="t-eyebrow text-[var(--ink-tertiary)]">Duration</div>
-          <div className="t-data mt-1 text-[var(--ink-primary)]">9 working weeks</div>
+          <div className="t-eyebrow text-[var(--text-tertiary)]">Duration</div>
+          <div className="t-data mt-1 text-[var(--text-primary)]">9 working weeks</div>
         </div>
         <div>
-          <div className="t-eyebrow text-[var(--ink-tertiary)]">Status</div>
-          <div className="t-data mt-1 text-[var(--ochre-ink)]">For Review</div>
+          <div className="t-eyebrow text-[var(--text-tertiary)]">Status</div>
+          <div className="t-data mt-1 text-[var(--amber-500)]">For Review</div>
         </div>
       </div>
 
@@ -107,21 +107,21 @@ export function TrackerDashboardHero({
           className="rounded-panel border p-5 transition-all"
           style={{
             background: 'var(--surface-raised)',
-            borderColor: 'var(--rule-soft)',
+            borderColor: 'var(--ink-100)',
             boxShadow: 'var(--shadow-card)',
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="t-eyebrow text-[var(--ink-tertiary)]">Overall Progress</span>
-            <IconClock size={16} className="text-[var(--copper-ink)]" />
+            <span className="t-eyebrow text-[var(--text-tertiary)]">Overall Progress</span>
+            <IconClock size={16} className="text-[var(--blue-500)]" />
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="t-display text-3xl text-[var(--ink-primary)]">{overallProgress}%</span>
-            <span className="t-caption text-[var(--verdigris-ink)]">Milestone 1 Active</span>
+            <span className="t-display text-3xl text-[var(--text-primary)]">{overallProgress}%</span>
+            <span className="t-caption text-[var(--green-500)]">Milestone 1 Active</span>
           </div>
           <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-sunken)]">
             <div
-              className="h-full bg-[var(--copper-solid)] transition-all duration-500"
+              className="h-full bg-[var(--blue-500)] transition-all duration-500"
               style={{ width: `${overallProgress}%` }}
             />
           </div>
@@ -149,23 +149,23 @@ export function TrackerDashboardHero({
             background: 'var(--surface-raised)',
             borderColor:
               blockingCount > 0
-                ? 'color-mix(in oklab, var(--ochre-rule) 45%, var(--rule-soft) 55%)'
-                : 'var(--rule-soft)',
+                ? 'color-mix(in oklab, color-mix(in oklab, var(--amber-500) 38%, var(--surface-base)) 45%, var(--ink-100) 55%)'
+                : 'var(--ink-100)',
             boxShadow:
               blockingCount > 0
-                ? '-3px -3px 12px color-mix(in oklab, var(--ochre-ink) 8%, transparent), 4px 5px 18px color-mix(in oklab, var(--ochre-ink) 8%, transparent), var(--shadow-card)'
+                ? '-3px -3px 12px color-mix(in oklab, var(--amber-500) 8%, transparent), 4px 5px 18px color-mix(in oklab, var(--amber-500) 8%, transparent), var(--shadow-card)'
                 : 'var(--shadow-card)',
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="t-eyebrow text-[var(--ink-tertiary)]">Blocking Decisions</span>
-            <IconAlertTriangle size={16} className="text-[var(--ochre-ink)]" />
+            <span className="t-eyebrow text-[var(--text-tertiary)]">Blocking Decisions</span>
+            <IconAlertTriangle size={16} className="text-[var(--amber-500)]" />
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="t-display text-3xl text-[var(--ochre-ink)]">{blockingCount}</span>
-            <span className="t-caption text-[var(--ochre-ink)]">M4a Decision Gate</span>
+            <span className="t-display text-3xl text-[var(--amber-500)]">{blockingCount}</span>
+            <span className="t-caption text-[var(--amber-500)]">M4a Decision Gate</span>
           </div>
-          <p className="t-caption mt-2 text-[var(--ink-secondary)]">
+          <p className="t-caption mt-2 text-[var(--text-secondary)]">
             {blockingCount > 0
               ? 'Whether full support-mode access extends to customer records requires client signoff.'
               : 'No blocking decisions outstanding.'}
@@ -177,21 +177,21 @@ export function TrackerDashboardHero({
           className="rounded-panel border p-5 transition-all"
           style={{
             background: 'var(--surface-raised)',
-            borderColor: 'var(--rule-soft)',
+            borderColor: 'var(--ink-100)',
             boxShadow: 'var(--shadow-card)',
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="t-eyebrow text-[var(--ink-tertiary)]">Compliance Obligations</span>
-            <IconShieldCheck size={16} className="text-[var(--verdigris-ink)]" />
+            <span className="t-eyebrow text-[var(--text-tertiary)]">Compliance Obligations</span>
+            <IconShieldCheck size={16} className="text-[var(--green-500)]" />
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="t-display text-3xl text-[var(--verdigris-ink)]">
+            <span className="t-display text-3xl text-[var(--green-500)]">
               {complianceCount} Met
             </span>
-            <span className="t-caption text-[var(--ink-tertiary)]">Database Enforced</span>
+            <span className="t-caption text-[var(--text-tertiary)]">Database Enforced</span>
           </div>
-          <p className="t-caption mt-2 text-[var(--ink-secondary)]">
+          <p className="t-caption mt-2 text-[var(--text-secondary)]">
             Data isolation policy verified by automated test suite.
           </p>
         </div>

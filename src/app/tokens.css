@@ -43,27 +43,21 @@
   --brand-ink-mute: #8b8f99;
 
   /* ─ INK SCALE ─
-   * The neutral scale, and the single largest surface in the product. These
-   * are not greys: every step carries the brand hue at 267deg, so text reads
-   * as blue-black ink on a warm page rather than black on white.
-   *
-   * Three of the brand's own values land ON this scale rather than beside it:
-   *   ink-400 = #8B8F99  the moodboard's muted text
-   *   ink-700 = #172A99  the moodboard's body text
-   *   ink-800 = #17225D  the brand navy */
+   * The luxury neutral scale: deep obsidian black to crisp slate.
+   * Monochromatic, rich, and clean without blue cast. */
   --ink-0: #ffffff;
-  --ink-25: #fbfdf4; /* brand cream. The default page background */
-  --ink-50: #f3f6fb;
-  --ink-100: #e9edf5;
-  --ink-200: #d8ddea;
-  --ink-300: #bbc1d2;
-  --ink-400: #8b8f99; /* brand. Tertiary text, large only: 3.15 on cream */
-  --ink-500: #64708b; /* secondary text: 4.83 on cream */
-  --ink-600: #3a5192; /* 7.38 */
-  --ink-700: #172a99; /* brand ink: 11.19 */
-  --ink-800: #17225d; /* brand navy. Body text in light mode: 14.37 */
-  --ink-900: #0c173b; /* raised surface, dark mode */
-  --ink-950: #0b1126; /* page background, dark mode (softened from 040a20) */
+  --ink-25: #fbfbfa; /* pristine architectural warm off-white / page background */
+  --ink-50: #f4f4f5;
+  --ink-100: #e4e4e7;
+  --ink-200: #d4d4d8;
+  --ink-300: #a1a1aa;
+  --ink-400: #71717a; /* muted tertiary text */
+  --ink-500: #52525b; /* secondary body text */
+  --ink-600: #3f3f46;
+  --ink-700: #27272a;
+  --ink-800: #18181b; /* dark charcoal */
+  --ink-900: #09090b; /* rich obsidian black */
+  --ink-950: #040406;
 
   /* ─ ACTION BLUE ─
    * The saturated brand blue. This is a SMALL-DOSE colour: primary buttons,
@@ -212,13 +206,12 @@
   --surface-inset: var(--ink-100);
   --surface-overlay: rgba(4, 10, 32, 0.45);
 
-  /* Body text is the brand navy. Not black, not grey: the identity itself,
-   * doing the job it does on every page of the moodboard. */
-  --text-primary: var(--ink-800); /* 14.37 on cream */
-  --text-secondary: var(--ink-500); /*  4.83 on cream */
-  --text-tertiary: var(--ink-400); /*  3.15 — large text and labels only */
-  --text-inverse: var(--ink-0);
-  --text-disabled: var(--ink-300);
+  /* High-contrast neutral typography: crisp obsidian black on architectural off-white. */
+  --text-primary: #09090b; /* rich obsidian black */
+  --text-secondary: #52525b; /* neutral slate */
+  --text-tertiary: #71717a; /* balanced graphite */
+  --text-inverse: #ffffff;
+  --text-disabled: #a1a1aa;
   --text-action: var(--blue-500); /* links and interactive text */
 
   --border-subtle: var(--ink-200);
@@ -585,138 +578,7 @@
   --support-banner-fg: var(--ink-0);
 }
 
-/* ═══ TIER 0 · COMPATIBILITY LAYER ═════════════════════════════════════════
- *
- * ⚠ MIGRATION SCAFFOLD. DO NOT WRITE NEW CODE AGAINST THESE NAMES.
- *
- * The previous token system ("aLcassa": copper, verdigris, ochre, oxide,
- * slate, graphite on a vellum ground) is referenced ~370 times across ~48
- * component files. Deleting those names in one commit would take every
- * surface in the product down at once, which is the worst possible way to
- * land an identity change: it maximises blast radius and makes it impossible
- * to tell a rebrand regression from a refactor regression.
- *
- * So every old name resolves HERE, onto the nearest aLcassa value, by
- * SEMANTIC ROLE rather than by hue similarity. The whole product picks up the
- * new palette immediately; surfaces are then rewritten against the real
- * tokens one at a time, and this block shrinks until it is empty.
- *
- * The supplied identity file does the same thing for `--gray-*`, so this is
- * the migration pattern the handoff already assumes.
- *
- * ROLE MAPPING, and why each one goes where it goes:
- *
- *   copper     interaction, focus, the primary action   →  BLUE
- *              The single most important mapping. Copper was the old
- *              interaction colour and blue is the new one, so every button,
- *              link and focus ring lands correctly without being touched.
- *              It must NOT map to orange: orange has a one-per-screen budget
- *              and copper appears ~24 files deep.
- *
- *   verdigris  provisioned, within limits, passing      →  GREEN  (success)
- *   ochre      a refusal the reader can resolve         →  AMBER  (warning)
- *   oxide      a refusal they cannot, and destructive   →  RED    (danger)
- *   slate      system and machine facts                 →  INK 600/300
- *   graphite   inert: archived, revoked, disabled       →  INK 500/400
- *
- * Ochre maps to AMBER and not to the brand orange deliberately. 03 §4 puts
- * danger and warning "deliberately apart from the brand orange in hue, so a
- * warning and a brand accent are never confused at a glance" — routing every
- * old ochre chip through #FA5505 would blow the accent budget on every screen
- * in the product simultaneously.
- */
 
-:root {
-  /* ─ surfaces ─ */
-  --surface-page: var(--surface-base);
-  --surface-well: var(--surface-raised); /* nested block: lighter, not darker */
-  --surface-invert: var(--ink-900);
-  --surface-hover: var(--surface-inset);
-
-  /* ─ rules ─ */
-  --rule-soft: var(--ink-100);
-  --rule-base: var(--border-subtle);
-  --rule-strong: var(--border-strong);
-
-  /* ─ ink steps ─ */
-  --ink-primary: var(--text-primary);
-  --ink-secondary: var(--text-secondary);
-  --ink-tertiary: var(--text-tertiary);
-  --ink-faint: var(--ink-300);
-  --ink-inverse: var(--text-inverse);
-
-  /* ─ copper → blue. Interaction. ─ */
-  --copper-ink: var(--blue-500);
-  --copper-solid: var(--blue-500);
-  --copper-tint: var(--blue-50);
-  --copper-rule: var(--blue-200);
-
-  /* ─ verdigris → green. Passing. ─ */
-  --verdigris-ink: var(--green-500);
-  --verdigris-solid: var(--green-500);
-  --verdigris-tint: var(--green-100);
-  --verdigris-rule: color-mix(in oklab, var(--green-500) 38%, var(--surface-base));
-
-  /* ─ ochre → amber. Resolvable refusal. ─ */
-  --ochre-ink: var(--amber-500);
-  --ochre-solid: var(--amber-500);
-  --ochre-tint: var(--amber-100);
-  --ochre-rule: color-mix(in oklab, var(--amber-500) 38%, var(--surface-base));
-
-  /* ─ oxide → red. Unresolvable refusal, and destructive. ─ */
-  --oxide-ink: var(--red-500);
-  --oxide-solid: var(--red-500);
-  --oxide-tint: var(--red-100);
-  --oxide-rule: color-mix(in oklab, var(--red-500) 38%, var(--surface-base));
-
-  /* ─ slate → ink. System and machine facts. ─ */
-  --slate-ink: var(--ink-600);
-  --slate-solid: var(--ink-600);
-  --slate-tint: var(--ink-50);
-  --slate-rule: var(--ink-300);
-
-  /* ─ graphite → ink. Inert. ─ */
-  --graphite-ink: var(--ink-500);
-  --graphite-solid: var(--ink-500);
-  --graphite-tint: var(--ink-100);
-  --graphite-rule: var(--ink-300);
-
-  /* ─ interaction ─ */
-  --focus: var(--border-focus);
-  --selection-bg: var(--blue-100);
-  --selection-fg: var(--ink-900);
-  --scrim: var(--surface-overlay);
-
-  --disabled-surface: var(--ink-50);
-  --disabled-rule: var(--ink-200);
-  --disabled-ink: var(--text-disabled);
-
-  /* ─ old semantic aliases ─ */
-  --text-body: var(--text-secondary);
-  --text-muted: var(--text-tertiary);
-  --text-placeholder: var(--input-placeholder);
-  --text-faint: var(--ink-300);
-  --text-brand: var(--text-action);
-
-  --border-default: var(--border-subtle);
-  --border-emphasis: var(--border-strong);
-
-  --action-primary-bg: var(--button-primary-bg);
-  --action-primary-fg: var(--button-primary-fg);
-  --action-primary-border: var(--blue-600);
-  --action-destructive-bg: var(--button-danger-bg);
-  --action-destructive-fg: var(--button-danger-fg);
-  --action-destructive-border: var(--red-500);
-  --action-quiet-fg: var(--text-action);
-  --action-quiet-hover-bg: var(--blue-50);
-
-  /* ─ old elevation names → the glass/neu system ─ */
-  --shadow-overlay: var(--shadow-lg);
-  --shadow-card: var(--glass-highlight), var(--shadow-sm);
-  --shadow-card-hover: var(--glass-highlight), var(--shadow-md);
-  --shadow-sunken: var(--neu-inset);
-  --shadow-well: var(--neu-inset);
-}
 
 /* Old geometry and layout names, theme-independent. */
 :root {

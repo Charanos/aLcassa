@@ -43,7 +43,7 @@ const CSP_DIRECTIVES = (nonce: string) =>
     // Tailwind emits a stylesheet, and the design system sets token values
     // through inline `style` attributes on server-rendered elements.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    "img-src 'self' data: blob: https://images.unsplash.com https://*.unsplash.com",
     "font-src 'self' data:",
     `connect-src 'self'${isDev ? ' ws: wss:' : ''}`,
     "frame-ancestors 'none'",
