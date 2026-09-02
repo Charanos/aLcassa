@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { IconMenu2, IconX, IconCheck, IconArrowRight, IconShieldLock } from '@tabler/icons-react';
+import { IconMenu2, IconX, IconCheck, IconArrowRight } from '@tabler/icons-react';
 import { Wordmark } from '@/components/brand/Mark';
-import { Button } from '@/components/primitives/Button';
 
 export interface MarketingSessionInfo {
   isAuthenticated: boolean;
@@ -18,10 +17,10 @@ interface FloatingHeaderProps {
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', href: '#overview' },
-  { id: 'live-engine', label: 'Live Platform', href: '#live-engine' },
+  { id: 'live-engine', label: 'Platform', href: '#live-engine' },
   { id: 'channels', label: 'Channels', href: '#channels' },
-  { id: 'security', label: 'Security & RLS', href: '#security' },
-  { id: 'playground', label: 'Spec Playground', href: '#playground' },
+  { id: 'pricing', label: 'Pricing', href: '#pricing' },
+  { id: 'faq', label: 'FAQ', href: '#faq' },
 ];
 
 export function FloatingHeader({ session }: FloatingHeaderProps) {
@@ -156,9 +155,34 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
                 </a>
               );
             })}
+
+            {/* Log in CTA Pill inside grouped navigation container with brand orange bg */}
+            {session?.isAuthenticated ? (
+              <Link
+                href={session.dashboardHref}
+                className="t-compact rounded-full px-4 py-1.5 font-medium text-white transition-all hover:brightness-105 active:scale-95 shadow-xs"
+                style={{
+                  background: 'var(--orange-500)',
+                  transitionDuration: 'var(--duration-fast)',
+                }}
+              >
+                {session.dashboardLabel}
+              </Link>
+            ) : (
+              <Link
+                href="/sign-in"
+                className="t-compact rounded-full px-4.5 py-1.5 font-medium text-white transition-all hover:brightness-105 active:scale-95 shadow-xs"
+                style={{
+                  background: 'var(--orange-500)',
+                  transitionDuration: 'var(--duration-fast)',
+                }}
+              >
+                Log in
+              </Link>
+            )}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 md:hidden">
             <button
               ref={toggleBtnRef}
               onClick={() => setMenuOpen(!menuOpen)}
@@ -221,43 +245,34 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
               );
             })}
 
-            {session?.isAuthenticated ? (
-              <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--border-subtle)' }}>
-                <Button asChild variant="primary" size="md" className="w-full justify-center gap-2">
-                  <Link href={session.dashboardHref} onClick={() => setMenuOpen(false)}>
-                    <IconShieldLock size={15} stroke={1.5} />
-                    <span>Open {session.dashboardLabel}</span>
-                    <IconArrowRight size={14} stroke={2} />
-                  </Link>
-                </Button>
-              </div>
-            ) : (
-              <div
-                className="mt-3 grid grid-cols-2 gap-3 border-t pt-3"
-                style={{ borderColor: 'var(--border-subtle)' }}
-              >
-                <Button
-                  asChild
-                  variant="secondary"
-                  size="md"
-                  className="w-full justify-center whitespace-nowrap"
+            {/* Mobile Log in Button */}
+            <div className="mt-2 border-t pt-2.5" style={{ borderColor: 'var(--border-subtle)' }}>
+              {session?.isAuthenticated ? (
+                <Link
+                  href={session.dashboardHref}
+                  onClick={() => setMenuOpen(false)}
+                  className="t-compact flex items-center justify-between rounded-chip px-4 py-2.5 font-medium text-white shadow-xs transition-all"
+                  style={{
+                    background: 'var(--orange-500)',
+                  }}
                 >
-                  <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
-                    Sign in
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="accent"
-                  size="md"
-                  className="w-full justify-center whitespace-nowrap"
+                  <span>{session.dashboardLabel}</span>
+                  <IconArrowRight size={14} stroke={2} />
+                </Link>
+              ) : (
+                <Link
+                  href="/sign-in"
+                  onClick={() => setMenuOpen(false)}
+                  className="t-compact flex items-center justify-between rounded-chip px-4 py-2.5 font-medium text-white shadow-xs transition-all"
+                  style={{
+                    background: 'var(--orange-500)',
+                  }}
                 >
-                  <Link href="/sign-up" onClick={() => setMenuOpen(false)}>
-                    Request access
-                  </Link>
-                </Button>
-              </div>
-            )}
+                  <span>Log in</span>
+                  <IconArrowRight size={14} stroke={2} />
+                </Link>
+              )}
+            </div>
           </nav>
         </div>
       )}

@@ -9,7 +9,6 @@ import {
   IconCheck,
   IconRoute,
   IconShieldLock,
-  IconShieldCheck,
   IconClock,
   IconKeyOff,
   IconFileCode,
@@ -187,6 +186,7 @@ export function ChannelsSection() {
       {/* ── Right-Aligned Alternating Header ── */}
       <div className="flex flex-col items-end text-right max-w-3xl ml-auto">
         <div className="inline-flex items-center gap-2">
+          <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
           <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--orange-500)]">
             Omnichannel & Security Hub
           </p>
@@ -508,13 +508,6 @@ export function ChannelsSection() {
             {/* Right 5 Cols: Security Guarantees & Editorial Copy (Alternated) */}
             <div className="lg:col-span-5 space-y-6">
               <div>
-                <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-[var(--orange-500)]/30 bg-[var(--orange-500)]/15">
-                  <IconShieldCheck size={15} className="text-[var(--orange-500)]" />
-                  <span className="font-mono text-[10.5px] uppercase tracking-wider text-[var(--orange-500)] font-semibold">
-                    Zero Trust Support Protocol
-                  </span>
-                </div>
-
                 <h3 className="text-[24px] sm:text-[28px] font-normal tracking-tight text-white mt-4 leading-snug">
                   You can see every time we look at your workspace.
                 </h3>

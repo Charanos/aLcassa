@@ -15,6 +15,8 @@ import { FloatingHeader } from '@/components/marketing/FloatingHeader';
 import { HeroInteractiveConsole } from '@/components/marketing/HeroInteractiveConsole';
 import { InteractiveFeatures } from '@/components/marketing/InteractiveFeatures';
 import { ChannelsSection } from '@/components/marketing/ChannelsSection';
+import { FaqSection } from '@/components/marketing/FaqSection';
+import { PricingSection } from '@/components/marketing/PricingSection';
 import { GsapScrollRevealer } from '@/components/structure/GsapScrollRevealer';
 import { SubtleArchitecturalBackground } from '@/components/marketing/SubtleArchitecturalBackground';
 
@@ -80,12 +82,12 @@ export default async function MarketingPage() {
       <GsapScrollRevealer>
         <main
           id="main"
-          className="relative z-10 mx-auto w-full max-w-[1280px] px-5 pt-12 pb-32 md:px-8"
+          className="relative z-10 mx-auto w-full max-w-[1380px] px-5 pt-12 pb-32 md:px-8"
         >
           {/* ── Hero. Centered Editorial Architecture with Interactive Workspace Demo Below ── */}
         <section
           id="overview"
-          className="relative mx-auto flex w-full max-w-[1180px] flex-col items-center justify-center pt-8 text-center md:pt-14"
+          className="relative mx-auto flex w-full max-w-[1320px] flex-col items-center justify-center pt-8 text-center md:pt-14"
         >
           {/* Eyebrow status indicator (clean inline, solid non-blinking indicator) */}
           <div
@@ -95,11 +97,12 @@ export default async function MarketingPage() {
             <span className="font-semibold">
               UNIFIED CUSTOMER INBOX PLATFORM
             </span>
+            <span className="size-2 rounded-full bg-[var(--orange-500)]" />
           </div>
 
           {/* Centered Editorial Headline */}
           <h1
-            className="display mx-auto mt-6 max-w-[940px] text-[46px] leading-[1.04] font-medium tracking-tight text-[var(--text-primary)] sm:text-[58px] md:text-[68px] lg:text-[76px]"
+            className="display mx-auto mt-6 max-w-[1020px] text-[46px] leading-[1.06] font-medium tracking-tight text-[var(--text-primary)] sm:text-[58px] md:text-[68px] lg:text-[76px]"
           >
             One inbox for every message
             <br className="hidden sm:inline" /> your customers send.
@@ -107,7 +110,7 @@ export default async function MarketingPage() {
 
           {/* Centered Lede (Client-Facing, Value-Oriented) */}
           <p
-            className="t-lede mx-auto mt-6 max-w-[660px] text-[17px] leading-[1.65] text-[var(--text-secondary)] sm:text-[19px]"
+            className="t-lede mx-auto mt-6 max-w-[740px] text-[17px] leading-[1.68] text-[var(--text-secondary)] sm:text-[19px]"
           >
             Unify WhatsApp, Instagram, Messenger, and live website chat into one intelligent workspace. Delight your customers with instant AI-powered resolutions and enterprise data isolation.
           </p>
@@ -117,13 +120,13 @@ export default async function MarketingPage() {
             <div
               className="mt-8 flex flex-wrap items-center justify-center gap-3.5"
             >
-              <Button asChild variant="primary" size="lg">
-                <Link href={dashboardHref} className="gap-2 shadow-sm">
+              <Button asChild variant="primary" size="lg" className="rounded-full px-6 shadow-sm hover:shadow-md transition-all">
+                <Link href={dashboardHref} className="gap-2">
                   <IconShieldLock size={17} stroke={1.5} />
                   Go to {dashboardLabel} <IconArrowRight size={16} stroke={1.5} />
                 </Link>
               </Button>
-              <Button asChild variant="secondary" size="lg">
+              <Button asChild variant="secondary" size="lg" className="rounded-full px-6 transition-all hover:bg-[var(--surface-sunken)]">
                 <Link href="/platform/tenants" className="gap-2">
                   <IconBuildingSkyscraper size={16} stroke={1.5} />
                   Manage Workspaces
@@ -134,12 +137,12 @@ export default async function MarketingPage() {
             <div
               className="mt-8 flex flex-wrap items-center justify-center gap-3.5"
             >
-              <Button asChild variant="primary" size="lg">
-                <Link href="/sign-up" className="gap-2 shadow-sm">
+              <Button asChild variant="primary" size="lg" className="rounded-full px-7 shadow-sm hover:shadow-md transition-all">
+                <Link href="/sign-up" className="gap-2">
                   Request access <IconArrowRight size={16} stroke={1.5} />
                 </Link>
               </Button>
-              <Button asChild variant="secondary" size="lg">
+              <Button asChild variant="secondary" size="lg" className="rounded-full px-7 transition-all hover:bg-[var(--surface-sunken)]">
                 <Link href="/sign-in">Sign in</Link>
               </Button>
             </div>
@@ -152,7 +155,7 @@ export default async function MarketingPage() {
 
           {/* Stats Numerals Bento Strip (Positioned Below Console) */}
           <div
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 border-y border-[var(--ink-200)] py-8 w-full max-w-[1200px]"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 border-y border-[var(--ink-200)] py-8 w-full max-w-[1320px]"
           >
             <div className="flex flex-col items-center justify-center text-center">
               <span className="display text-[40px] sm:text-[48px] font-medium leading-none tracking-tight text-[var(--text-primary)]">
@@ -200,6 +203,16 @@ export default async function MarketingPage() {
           <ChannelsSection />
         </section>
 
+        {/* ── Pricing & Packages ────────────────────────────────────────── */}
+        <section id="pricing" className="gsap-scroll-item mt-20 md:mt-32">
+          <PricingSection />
+        </section>
+
+        {/* ── Frequently Asked Questions ────────────────────────────────── */}
+        <section id="faq" className="gsap-scroll-item mt-20 md:mt-32">
+          <FaqSection />
+        </section>
+
         </main>
       </GsapScrollRevealer>
 
@@ -211,20 +224,57 @@ export default async function MarketingPage() {
           background: 'var(--surface-base)',
         }}
       >
-        {/* Subtle full-bleed architectural grid background */}
-        <div className="pointer-events-none absolute inset-0 opacity-[0.035]">
-          <svg width="100%" height="100%" aria-hidden="true">
-            <pattern id="unified-footer-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path
-                d="M 32 0 L 0 0 0 32"
-                fill="none"
-                stroke="var(--border-strong)"
-                strokeWidth="1"
-              />
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#unified-footer-grid)" />
-          </svg>
-        </div>
+        {/* Soft atmospheric ambient light in footer */}
+        <div
+          className="pointer-events-none absolute top-10 left-1/4 size-[600px] -translate-x-1/2 rounded-full opacity-[0.18] blur-[120px]"
+          style={{
+            background: 'radial-gradient(circle, var(--ink-400) 0%, transparent 70%)',
+          }}
+        />
+        <div
+          className="pointer-events-none absolute top-16 right-1/4 size-[650px] translate-x-1/2 rounded-full opacity-[0.12] blur-[130px]"
+          style={{
+            background: 'radial-gradient(circle, var(--orange-400) 0%, transparent 70%)',
+          }}
+        />
+
+        {/* Soft Architectural Engineering Curves Texture (Same as Hero) */}
+        <svg
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.035] select-none"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="footer-arch-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="var(--ink-900)" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="var(--ink-400)" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="footer-arch-grad-2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="var(--orange-500)" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="var(--ink-900)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          <path
+            d="M -100 120 C 300 240, 800 -40, 1400 160 C 1800 280, 2100 80, 2400 220"
+            stroke="url(#footer-arch-grad-1)"
+            strokeWidth="1.2"
+          />
+          <path
+            d="M -100 240 C 350 380, 750 40, 1350 280 C 1750 400, 2050 160, 2400 340"
+            stroke="url(#footer-arch-grad-1)"
+            strokeWidth="0.9"
+          />
+          <path
+            d="M -100 380 C 400 520, 700 120, 1300 400 C 1700 520, 2000 260, 2400 460"
+            stroke="url(#footer-arch-grad-2)"
+            strokeWidth="0.85"
+          />
+
+          <ellipse cx="15%" cy="35%" rx="440" ry="240" stroke="url(#footer-arch-grad-1)" strokeWidth="0.75" />
+          <ellipse cx="85%" cy="25%" rx="500" ry="280" stroke="url(#footer-arch-grad-2)" strokeWidth="0.75" />
+        </svg>
 
         {/* Refined Floating Background Telemetry Icons (Framing CTA & Footer) */}
         <div className="pointer-events-none absolute top-10 -left-12 hidden -rotate-12 text-emerald-600/[0.045] lg:block select-none" aria-hidden="true">
@@ -237,22 +287,10 @@ export default async function MarketingPage() {
           <IconServer2 size={270} stroke={1} />
         </div>
 
-        <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 pt-20 pb-12 md:px-8 md:pt-28 md:pb-16">
+        <div className="relative z-10 mx-auto w-full max-w-[1380px] px-5 pt-20 pb-12 md:px-8 md:pt-28 md:pb-16">
           
           {/* ── 1. Centered Closing Call to Action ── */}
           <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-            
-            {/* Eyebrow status indicator */}
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50/60 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-emerald-700">
-              <span
-                className="size-2 animate-pulse rounded-full bg-[var(--green-500)]"
-                aria-hidden="true"
-              />
-              <span className="font-semibold">
-                Provisioning ready · Core engine online
-              </span>
-            </div>
-
             {/* Editorial Headline */}
             <h2 className="display text-[38px] sm:text-[50px] md:text-[60px] font-medium leading-[1.08] tracking-tight text-[var(--text-primary)]">
               Set your team up now
@@ -267,24 +305,24 @@ export default async function MarketingPage() {
             {/* Interactive Actions */}
             {isAuthenticated ? (
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
-                <Button asChild variant="primary" size="lg">
-                  <Link href={dashboardHref} className="gap-2 shadow-sm">
+                <Button asChild variant="primary" size="lg" className="rounded-full px-6 shadow-sm hover:shadow-md transition-all">
+                  <Link href={dashboardHref} className="gap-2">
                     <IconShieldLock size={17} stroke={1.5} />
                     Return to {dashboardLabel} <IconArrowRight size={16} stroke={1.5} />
                   </Link>
                 </Button>
-                <Button asChild variant="secondary" size="lg">
+                <Button asChild variant="secondary" size="lg" className="rounded-full px-6 transition-all hover:bg-[var(--surface-sunken)]">
                   <Link href="/platform/support-sessions">Support Sessions</Link>
                 </Button>
               </div>
             ) : (
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
-                <Button asChild variant="primary" size="lg">
-                  <Link href="/sign-up" className="gap-2 shadow-sm">
+                <Button asChild variant="primary" size="lg" className="rounded-full px-7 shadow-sm hover:shadow-md transition-all">
+                  <Link href="/sign-up" className="gap-2">
                     Request access <IconArrowRight size={16} stroke={1.5} />
                   </Link>
                 </Button>
-                <Button asChild variant="secondary" size="lg">
+                <Button asChild variant="secondary" size="lg" className="rounded-full px-7 transition-all hover:bg-[var(--surface-sunken)]">
                   <Link href="/sign-in">Sign in</Link>
                 </Button>
               </div>
@@ -354,7 +392,7 @@ export default async function MarketingPage() {
                 { href: '#overview', label: 'Hero overview' },
                 { href: '#live-engine', label: 'Live engine' },
                 { href: '#channels', label: 'Channels' },
-                { href: '#channels', label: 'Security model' },
+                { href: '#faq', label: 'FAQ' },
               ]}
             />
 

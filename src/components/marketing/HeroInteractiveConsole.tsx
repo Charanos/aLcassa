@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import {
   IconBrandWhatsapp,
   IconBrandInstagram,
@@ -11,12 +12,12 @@ import {
   IconSearch,
   IconCircleCheck,
   IconClock,
-  IconRoute,
   IconGauge,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { Mark } from '../brand/Mark';
 
 type ChannelType = 'whatsapp' | 'instagram' | 'messenger' | 'webchat';
 
@@ -168,7 +169,7 @@ export function HeroInteractiveConsole() {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-[1200px] mx-auto select-none">
+    <div ref={containerRef} className="relative pt-8 w-full max-w-[1320px] mx-auto select-none">
       {/* ── Soft Ambient Backlight Glow ───────────────────────────────── */}
       <div
         className="pointer-events-none absolute -inset-6 rounded-[32px] opacity-30 blur-3xl transition-all duration-700"
@@ -177,17 +178,6 @@ export function HeroInteractiveConsole() {
         }}
       />
 
-      {/* ── Precision Telemetry Badges Flanking the Console (Clean, No Blinking) ── */}
-      <div className="telemetry-tag-1 pointer-events-none absolute -top-4 -left-3 z-30 hidden lg:flex items-center gap-2 rounded-full border border-[var(--ink-200)] bg-[var(--ink-0)] px-3.5 py-1 text-[11px] font-sans shadow-md backdrop-blur-md">
-        <span className="size-2 rounded-full bg-[var(--green-500)]" />
-        <span className="text-[var(--text-primary)] font-medium">PostgreSQL RLS Active · tenant_vault_01</span>
-      </div>
-
-      <div className="telemetry-tag-2 pointer-events-none absolute -top-4 -right-3 z-30 hidden lg:flex items-center gap-2 rounded-full border border-[var(--ink-200)] bg-[var(--ink-0)] px-3.5 py-1 text-[11px] font-sans shadow-md backdrop-blur-md">
-        <IconRoute size={14} className="text-[var(--orange-500)]" />
-        <span className="text-[var(--text-primary)] font-medium">AI Rule Propagation &lt; 5s</span>
-      </div>
-
       {/* ── The Master Console Frame (Expansive & Aligned with Strip) ── */}
       <div className="relative z-10 overflow-hidden rounded-2xl border border-[var(--ink-200)] bg-[var(--ink-0)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.07)] transition-all">
         
@@ -195,11 +185,17 @@ export function HeroInteractiveConsole() {
         <div className="flex flex-wrap items-center justify-between border-b border-[var(--ink-100)] bg-[var(--ink-50)]/90 px-5 py-3.5 backdrop-blur-md">
           {/* Left: Platform Brand / Active Workspace */}
           <div className="flex items-center gap-3">
-            <span className="size-2 rounded-full bg-[var(--green-500)]" />
             <div className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text-primary)]">
-              <span>aLcassa Unified Workspace</span>
-              <span className="text-[var(--ink-300)]">/</span>
-              <span className="font-normal text-[var(--text-secondary)]">Live Inbound Streams</span>
+              {/* logo */}
+              <Link
+                href="/"
+                className="flex items-center gap-3 text-inherit no-underline hover:text-inherit"
+                aria-label="aLcassa Homepage"
+              >
+                <Mark size={30}/>
+              </Link>
+              <span className="text-[var(--ink-300)]">|</span>
+              <span className="font-normal text-[var(--text-secondary)]">{active.senderRole}</span>
             </div>
           </div>
 
@@ -410,23 +406,6 @@ export function HeroInteractiveConsole() {
             </div>
           </div>
         </div>
-
-        {/* Global Security & Channel Health Footer (Accurate to Docs) */}
-        <div className="flex flex-wrap items-center justify-between border-t border-[var(--ink-100)] bg-[var(--ink-50)]/80 px-5 py-3 text-[11.5px] text-[var(--text-secondary)]">
-          <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-[var(--green-500)]" />
-            <span className="font-medium text-[var(--text-primary)]">PostgreSQL Row-Level Security</span>
-            <span className="text-[var(--ink-300)]">·</span>
-            <span>Enforced per tenant_id</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span>Machine-Readable Rules Cache &lt; 5s</span>
-            <span className="text-[var(--ink-300)]">·</span>
-            <span className="text-[var(--green-500)] font-medium">0 Master Key Vulnerabilities</span>
-          </div>
-        </div>
-
       </div>
     </div>
   );

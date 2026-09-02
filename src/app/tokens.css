@@ -120,10 +120,10 @@
   --display-lg: clamp(42px, 4.4vw, 52px); /* large closing & major section titles */
   --display-hero: clamp(52px, 5.4vw, 62px);
 
-  --leading-tight: 1.22;
-  --leading-snug: 1.35;
-  --leading-normal: 1.55;
-  --leading-relaxed: 1.7;
+  --leading-tight: 1.25;
+  --leading-snug: 1.42;
+  --leading-normal: 1.62;
+  --leading-relaxed: 1.78;
 
   /* Weight ceiling is 500. There is no --weight-bold, deliberately. */
   --weight-light: 300;
@@ -131,7 +131,7 @@
   --weight-medium: 500;
 
   --font-ui: 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --font-mono: var(--font-lekton), 'Lekton', 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
   --font-display:
     'Libertinus Serif Display', 'Libertinus Serif', 'Linux Libertine O', Georgia, serif;
 
@@ -655,20 +655,20 @@
   --t-heading: 500 var(--display-sm) / var(--display-leading) var(--font-display);
   --t-heading-tracking: var(--display-tracking);
 
-  --t-panel: var(--weight-medium) var(--text-lg) / 1.4 var(--font-ui);
+  --t-panel: var(--weight-medium) var(--text-lg) / 1.45 var(--font-ui);
   --t-lede: var(--weight-normal) var(--text-md) / var(--leading-normal) var(--font-ui);
   --t-body: var(--weight-normal) var(--text-base) / var(--leading-normal) var(--font-ui);
-  --t-compact: var(--weight-normal) var(--text-sm) / 1.5 var(--font-ui);
-  --t-caption: var(--weight-normal) var(--text-sm) / 1.45 var(--font-ui);
-  --t-label: var(--weight-medium) var(--text-xs) / 1.4 var(--font-ui);
+  --t-compact: var(--weight-normal) var(--text-sm) / 1.58 var(--font-ui);
+  --t-caption: var(--weight-normal) var(--text-sm) / 1.5 var(--font-ui);
+  --t-label: var(--weight-medium) var(--text-xs) / 1.45 var(--font-ui);
   --t-label-tracking: 0.01em;
-  --t-micro: var(--weight-medium) var(--text-xs) / 1.35 var(--font-mono);
+  --t-micro: var(--weight-medium) var(--text-xs) / 1.4 var(--font-mono);
   --t-micro-tracking: 0.06em;
 
-  --t-data: var(--weight-normal) var(--text-base) / 1.5 var(--font-mono);
-  --t-code: var(--weight-normal) var(--text-sm) / 1.7 var(--font-mono);
-  --t-chip: var(--weight-medium) var(--text-xs) / 1 var(--font-mono);
+  --t-data: var(--weight-normal) var(--text-base) / 1.55 var(--font-mono);
+  --t-code: var(--weight-normal) var(--text-sm) / 1.75 var(--font-mono);
+  --t-chip: var(--weight-medium) var(--text-xs) / 1.15 var(--font-mono);
   --t-chip-tracking: 0.06em;
-  --t-eyebrow: var(--weight-medium) var(--text-xs) / 1 var(--font-mono);
+  --t-eyebrow: var(--weight-medium) var(--text-xs) / 1.15 var(--font-mono);
   --t-eyebrow-tracking: 0.12em;
 }

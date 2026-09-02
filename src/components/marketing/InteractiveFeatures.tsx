@@ -178,6 +178,7 @@ export function InteractiveFeatures() {
           <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--orange-500)]">
             Core Platform Architecture
           </p>
+          <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
         </div>
         <h2 className="display text-[32px] sm:text-[42px] font-normal tracking-tight text-[var(--text-primary)] mt-3 leading-tight">
           Engineered for enterprise security, privacy, and team control.
