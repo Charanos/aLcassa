@@ -1,286 +1,458 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   IconBrandWhatsapp,
   IconBrandInstagram,
   IconBrandMessenger,
   IconMessage,
-  IconCpu,
   IconArrowRight,
-  IconSearch,
+  IconSend,
   IconCircleCheck,
+  IconCheck,
   IconClock,
-  IconGauge,
+  IconShieldLock,
+  IconCpu,
+  IconSearch,
+  IconBell,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Mark } from '../brand/Mark';
+import { StatusBadge, type StatusBadgeTone } from '@/components/ui/StatusBadge';
 
 type ChannelType = 'whatsapp' | 'instagram' | 'messenger' | 'webchat';
+
+const getChannelTone = (id: ChannelType): StatusBadgeTone => {
+  switch (id) {
+    case 'whatsapp':
+      return 'success';
+    case 'instagram':
+      return 'danger';
+    case 'messenger':
+      return 'info';
+    case 'webchat':
+      return 'warning';
+  }
+};
 
 interface ConversationItem {
   id: ChannelType;
   channelName: string;
-  sublabel: string;
   icon: TablerIcon;
   color: string;
   badgeBg: string;
-  senderName: string;
-  senderRole: string;
   avatarUrl: string;
+  senderName: string;
+  senderBusiness: string;
+  senderRole: string;
   snippet: string;
   time: string;
-  unread: boolean;
   fullMessage: string;
-  aiRuleTrigger: string;
-  aiLatency: string;
-  aiResolution: string;
+  suggestedReply: string;
+  ruleTag: string;
+  ruleLatency: string;
   quickActions: string[];
 }
 
 const CONVERSATIONS: ConversationItem[] = [
   {
     id: 'whatsapp',
-    channelName: 'WhatsApp Business API',
-    sublabel: 'Verified Direct Channel',
+    channelName: 'WhatsApp',
     icon: IconBrandWhatsapp,
     color: '#16a34a',
-    badgeBg: 'rgba(22, 163, 74, 0.08)',
-    senderName: 'Japheth Njoroge',
-    senderRole: 'Operations Director · Kwanza Logistics (Nairobi)',
+    badgeBg: 'rgba(22, 163, 74, 0.12)',
     avatarUrl: '/avatars/japheth.jpg',
-    snippet: 'Expanding dispatch team for Mombasa depot',
+    senderName: 'Japheth Njoroge',
+    senderBusiness: 'Kwanza Logistics',
+    senderRole: 'Operations Director (Nairobi Depot)',
+    snippet: 'Any update on the Mombasa delivery?',
     time: 'Just now',
-    unread: true,
-    fullMessage: 'Habari Brian! We are expanding our fleet operations for the Mombasa depot this week. Can we provision 4 extra agent seats to our workspace before Friday?',
-    aiRuleTrigger: 'Rule #04: "Tenant Seat Expansion" · Verified Tenant Admin Role',
-    aiLatency: '0.38s',
-    aiResolution: 'Validated tenant admin authorization. 4 agent seats provisioned in tenant workspace. Prorated balance queued in billing meter with zero downtime.',
-    quickActions: ['Confirm Provisioning', 'Send Billing Receipt', 'View Fleet Usage'],
+    fullMessage:
+      'Habari! Just checking — any update on when our Mombasa container clears for delivery to the Westlands warehouse?',
+    suggestedReply:
+      'Habari Japheth! Your container cleared Mtito Andei at 11:20am. It should reach the Westlands warehouse by 4:30pm today.',
+    ruleTag: 'Rule #04 · Logistics Live Ingest',
+    ruleLatency: '1.1s',
+    quickActions: ['Attach live tracking link', 'Assign to dispatch'],
   },
   {
     id: 'instagram',
-    channelName: 'Instagram Direct',
-    sublabel: 'Meta Graph Messaging',
+    channelName: 'Instagram',
     icon: IconBrandInstagram,
     color: '#e11d48',
-    badgeBg: 'rgba(225, 29, 72, 0.08)',
-    senderName: 'Amina Wanjiku',
-    senderRole: 'Creative Director · Studio Savanna (Kilimani)',
+    badgeBg: 'rgba(225, 29, 72, 0.12)',
     avatarUrl: '/avatars/amina.jpg',
-    snippet: 'Custom AI triage rules for bridal bookings',
+    senderName: 'Amina Wanjiku',
+    senderBusiness: 'Studio Savanna',
+    senderRole: 'Creative Director (Kilimani)',
+    snippet: 'Any slots free this Saturday?',
     time: '2m ago',
-    unread: true,
-    fullMessage: 'Hey team! We receive over 250 WhatsApp & Instagram inquiries weekly for bridal bookings. Can we configure custom auto-triage rules for high-value client bookings?',
-    aiRuleTrigger: 'Rule #12: "Automated Lead Routing" · Sentiment: High Intent (0.97)',
-    aiLatency: '0.29s',
-    aiResolution: 'Configured keyword trigger: [wedding, bridal, quote] -> Routed to VIP triage inbox with automated confirmation response.',
-    quickActions: ['Preview Rule Logic', 'Test Rule Simulator', 'Assign to Lead Agent'],
+    fullMessage:
+      'Loved the bridal lookbook on your story! Do you have any slots free for a private fitting this Saturday?',
+    suggestedReply:
+      'Hi Amina! We have 2:00pm and 4:30pm open this Saturday in Kilimani. Want me to hold 2:00pm for you?',
+    ruleTag: 'Rule #09 · Appointment Auto-Triage',
+    ruleLatency: '0.9s',
+    quickActions: ['Check calendar', 'Move to bookings'],
   },
   {
     id: 'messenger',
-    channelName: 'Facebook Messenger',
-    sublabel: 'Meta Webhook Receiver',
+    channelName: 'Messenger',
     icon: IconBrandMessenger,
     color: '#2563eb',
-    badgeBg: 'rgba(37, 99, 235, 0.08)',
-    senderName: 'Kevin Omondi',
-    senderRole: 'Lead Systems Architect · PayPulse Africa (Westlands)',
+    badgeBg: 'rgba(37, 99, 235, 0.12)',
     avatarUrl: '/avatars/kevin.jpg',
-    snippet: 'Scoped API key validation for message webhook',
+    senderName: 'Kevin Omondi',
+    senderBusiness: 'PayPulse Africa',
+    senderRole: 'Lead Systems Architect',
+    snippet: 'Can we get a call today?',
     time: '5m ago',
-    unread: false,
-    fullMessage: 'Good morning! We are integrating our core backend with aLcassa webhooks. Where do we verify the tenant-scoped webhook signing keys?',
-    aiRuleTrigger: 'Rule #09: "M2M Webhook Integration" · Scoped API Key Policy',
-    aiLatency: '0.45s',
-    aiResolution: 'API keys are strictly isolated per tenant in PostgreSQL RLS with Argon2id hashing. Directed to Settings > API Credentials with sample HMAC payload.',
-    quickActions: ['Open API Documentation', 'Rotate Secret Key', 'Test Event Dispatch'],
+    fullMessage:
+      "Hi there, we're reviewing your platform for our team and had a couple of questions. Could someone call us today?",
+    suggestedReply:
+      "Hi Kevin, happy to help. I've booked you a 20-minute call with our team today at 3:00pm — does that work for you?",
+    ruleTag: 'Rule #17 · Enterprise Lead Routing',
+    ruleLatency: '1.4s',
+    quickActions: ['Book the call', 'Flag as priority'],
   },
   {
     id: 'webchat',
-    channelName: 'Live Website Chat',
-    sublabel: 'WebSocket Secure Stream',
+    channelName: 'Website chat',
     icon: IconMessage,
     color: '#d97706',
-    badgeBg: 'rgba(217, 119, 6, 0.08)',
-    senderName: 'Dr. Faith Chebet',
-    senderRole: 'Medical Operations Director · AfyaCare Diagnostics',
+    badgeBg: 'rgba(217, 119, 6, 0.12)',
     avatarUrl: '/avatars/faith.jpg',
-    snippet: 'Patient data privacy & tenant boundary isolation',
+    senderName: 'Dr. Faith Chebet',
+    senderBusiness: 'AfyaCare Diagnostics',
+    senderRole: 'Medical Operations Director',
+    snippet: 'Is our patient data kept separate?',
     time: '8m ago',
-    unread: false,
-    fullMessage: 'We are assessing aLcassa for patient appointment messaging across 6 branch clinics. Does the architecture guarantee complete data isolation between clinics?',
-    aiRuleTrigger: 'Rule #01: "PostgreSQL Row-Level Security Enforced"',
-    aiLatency: '0.22s',
-    aiResolution: 'Every database query runs under Postgres Row-Level Security (RLS) on tenant_id with zero master key exposure. Branch tenant records are 100% segregated.',
-    quickActions: ['Download Security Spec', 'Schedule Compliance Demo', 'Contact Brian'],
+    fullMessage:
+      'Quick question before we sign up — is our patient data kept fully separate from your other clients on the platform?',
+    suggestedReply:
+      'Good afternoon Dr. Chebet — yes. Your data is fully separated from every other business on the platform, always.',
+    ruleTag: 'Rule #12 · Healthcare Tenancy Isolation',
+    ruleLatency: '1.2s',
+    quickActions: ['Share security whitepaper', 'Book technical walkthrough'],
   },
 ];
 
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(query.matches);
+    const listener = (e: MediaQueryListEvent) => setReduced(e.matches);
+    query.addEventListener('change', listener);
+    return () => query.removeEventListener('change', listener);
+  }, []);
+  return reduced;
+}
+
 export function HeroInteractiveConsole() {
-  const [selectedId, setSelectedId] = useState<ChannelType>('whatsapp');
+  const [selectedId, setSelectedId] = useState<ChannelType>('webchat');
   const [isSimulating, setIsSimulating] = useState(false);
+  const [sentIds, setSentIds] = useState<Set<ChannelType>>(new Set());
+  const [activeActions, setActiveActions] = useState<Record<string, string | null>>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const chatViewRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   const active = CONVERSATIONS.find((c) => c.id === selectedId) ?? CONVERSATIONS[0]!;
+  const isSent = sentIds.has(active.id);
+  const selectedIndex = CONVERSATIONS.findIndex((c) => c.id === selectedId);
 
-  // Smooth floating animation on perimeter telemetry tags
-  useGSAP(() => {
-    gsap.to('.telemetry-tag-1', {
-      y: '-=5',
-      duration: 4.0,
-      yoyo: true,
-      repeat: -1,
-      ease: 'sine.inOut',
-    });
-    gsap.to('.telemetry-tag-2', {
-      y: '-=6',
-      duration: 4.6,
-      yoyo: true,
-      repeat: -1,
-      ease: 'sine.inOut',
-      delay: 0.5,
-    });
-  }, { scope: containerRef });
+  // Soft ambient floating backlight
+  useGSAP(
+    () => {
+      if (reducedMotion) return;
+      gsap.to('.hero-console-glow', {
+        scale: 1.04,
+        duration: 6,
+        yoyo: true,
+        repeat: -1,
+        ease: 'sine.inOut',
+      });
+    },
+    { scope: containerRef, dependencies: [reducedMotion] }
+  );
 
-  // Conversation switch transition
+  // Subtle thread transition on conversation switch
   useEffect(() => {
-    if (chatViewRef.current) {
-      gsap.fromTo(
-        chatViewRef.current,
-        { opacity: 0, y: 6 },
-        { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }
-      );
-    }
-  }, [selectedId]);
+    if (!chatViewRef.current || reducedMotion) return;
+    gsap.fromTo(
+      chatViewRef.current,
+      { opacity: 0, y: 5 },
+      { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' }
+    );
+  }, [selectedId, reducedMotion]);
 
   const handleSimulateNext = () => {
     setIsSimulating(true);
     setTimeout(() => {
       setIsSimulating(false);
-      const currentIndex = CONVERSATIONS.findIndex((c) => c.id === selectedId);
-      const nextIndex = (currentIndex + 1) % CONVERSATIONS.length;
+      const nextIndex = (selectedIndex + 1) % CONVERSATIONS.length;
       setSelectedId(CONVERSATIONS[nextIndex]!.id);
-    }, 550);
+    }, 320);
+  };
+
+  const handleSendReply = () => {
+    setSentIds((prev) => new Set(prev).add(active.id));
+  };
+
+  const handleResetSent = (id: ChannelType) => {
+    setSentIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const toggleAction = (action: string) => {
+    setActiveActions((prev) => ({
+      ...prev,
+      [active.id]: prev[active.id] === action ? null : action,
+    }));
   };
 
   return (
-    <div ref={containerRef} className="relative pt-8 w-full max-w-[1320px] mx-auto select-none">
-      {/* ── Soft Ambient Backlight Glow ───────────────────────────────── */}
+    <div
+      ref={containerRef}
+      className="relative pt-6 w-full max-w-[1320px] mx-auto select-none text-left"
+    >
+      <span className="sr-only">
+        Interactive live preview of the aLcassa omnichannel tenant workspace with live customer conversation
+        on {active.channelName} and rule-driven assistant resolution.
+      </span>
+
+      {/* Atmospheric Ambient Backlight */}
       <div
-        className="pointer-events-none absolute -inset-6 rounded-[32px] opacity-30 blur-3xl transition-all duration-700"
+        className="hero-console-glow pointer-events-none absolute -inset-6 rounded-[36px] opacity-20 blur-3xl transition-colors duration-700"
         style={{
           background: `radial-gradient(circle at 50% 30%, ${active.color} 0%, transparent 65%)`,
         }}
+        aria-hidden="true"
       />
 
-      {/* ── The Master Console Frame (Expansive & Aligned with Strip) ── */}
-      <div className="relative z-10 overflow-hidden rounded-2xl border border-[var(--ink-200)] bg-[var(--ink-0)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.07)] transition-all">
+      {/* Master Workspace Console Frame */}
+      <div className="relative z-10 overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--ink-200)] bg-[var(--ink-0)] shadow-[0_24px_70px_-18px_rgba(0,0,0,0.07)]">
         
-        {/* Top Header Bar */}
-        <div className="flex flex-wrap items-center justify-between border-b border-[var(--ink-100)] bg-[var(--ink-50)]/90 px-5 py-3.5 backdrop-blur-md">
-          {/* Left: Platform Brand / Active Workspace */}
+        {/* Top Header Bar: Workspace Shell */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ink-100)] bg-[var(--ink-50)]/70 px-5 sm:px-6 py-3.5 backdrop-blur-md">
+          {/* Brand & Workspace breadcrumbs */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text-primary)]">
-              {/* logo */}
-              <Link
-                href="/"
-                className="flex items-center gap-3 text-inherit no-underline hover:text-inherit"
-                aria-label="aLcassa Homepage"
-              >
-                <Mark size={30}/>
-              </Link>
-              <span className="text-[var(--ink-300)]">|</span>
-              <span className="font-normal text-[var(--text-secondary)]">{active.senderRole}</span>
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-inherit no-underline hover:text-inherit"
+              aria-label="aLcassa homepage"
+            >
+              <Mark size={28} />
+              <span className="text-[13.5px] font-semibold tracking-tight text-[var(--text-primary)]">
+                aLcassa
+              </span>
+            </Link>
+            <span className="text-[var(--ink-300)]" aria-hidden="true">|</span>
+            <div className="flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-secondary)]">
+              <span className="font-semibold text-[var(--text-primary)]">Acme Corp HQ</span>
+              <span className="text-[var(--ink-300)]">·</span>
+              <span className="text-[var(--text-tertiary)]">Unified Inbound</span>
             </div>
           </div>
 
-          {/* Center Search Bar */}
-          <div className="hidden md:flex items-center gap-2 rounded-lg border border-[var(--ink-200)] bg-[var(--ink-0)] px-3.5 py-1.5 text-[11.5px] text-[var(--text-tertiary)] shadow-xs w-[320px]">
-            <IconSearch size={13} className="text-[var(--ink-400)]" />
-            <span className="flex-1 truncate">Filter messages or search rules...</span>
-            <kbd className="rounded bg-[var(--ink-100)] px-1.5 py-0.5 text-[9.5px] font-mono font-semibold text-[var(--text-secondary)]">⌘K</kbd>
+          {/* Center: Search Bar with "Every channel, one inbox" placeholder */}
+          <div className="hidden md:flex items-center gap-2 rounded-xl border border-[var(--ink-200)]/80 bg-[var(--ink-0)] px-3 py-1.5 text-[12px] text-[var(--text-secondary)] shadow-xs w-[280px] lg:w-[320px] transition-all focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-500)]/15">
+            <IconSearch size={14} className="text-[var(--text-tertiary)] shrink-0" aria-hidden="true" />
+            <input
+              type="text"
+              placeholder="Every channel, one inbox"
+              className="w-full bg-transparent text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none cursor-default"
+              readOnly
+              aria-label="Search inbox"
+            />
+            <kbd className="hidden lg:inline-flex items-center font-mono text-[9.5px] text-[var(--text-tertiary)] bg-[var(--ink-50)] border border-[var(--ink-200)]/80 px-1.5 py-0.5 rounded">
+              ⌘K
+            </kbd>
           </div>
 
-          {/* Right: Live Stream & Latency Indicator */}
-          <div className="flex items-center gap-2 text-[11.5px]">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-100)] px-3 py-1 font-medium text-[var(--green-500)]">
-              <span className="size-1.5 rounded-full bg-[var(--green-500)]" />
-              4 INBOUND FEEDS ONLINE
-            </span>
+          {/* Right: Production-Grade Dashboard Control Cluster */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* 1. Connected Channels Micro-Dock */}
+            <div className="hidden sm:flex items-center gap-2 rounded-full bg-[var(--surface-sunken)] border border-[var(--ink-200)]/80 py-1 pl-1.5 pr-2.5 shadow-2xs">
+              <div className="flex -space-x-1.5 items-center">
+                <span
+                  className="grid size-5 place-items-center rounded-full bg-[#16a34a] text-white ring-2 ring-white shadow-xs"
+                  title="WhatsApp connected"
+                  aria-label="WhatsApp channel active"
+                >
+                  <IconBrandWhatsapp size={11} stroke={2.5} />
+                </span>
+                <span
+                  className="grid size-5 place-items-center rounded-full bg-[#e11d48] text-white ring-2 ring-white shadow-xs"
+                  title="Instagram connected"
+                  aria-label="Instagram channel active"
+                >
+                  <IconBrandInstagram size={11} stroke={2.5} />
+                </span>
+                <span
+                  className="grid size-5 place-items-center rounded-full bg-[#2563eb] text-white ring-2 ring-white shadow-xs"
+                  title="Messenger connected"
+                  aria-label="Messenger channel active"
+                >
+                  <IconBrandMessenger size={11} stroke={2.5} />
+                </span>
+                <span
+                  className="grid size-5 place-items-center rounded-full bg-[#d97706] text-white ring-2 ring-white shadow-xs"
+                  title="Webchat connected"
+                  aria-label="Website chat channel active"
+                >
+                  <IconMessage size={11} stroke={2.5} />
+                </span>
+              </div>
+              <span className="font-mono text-[10.5px] font-medium text-[var(--text-secondary)]">
+                4 live
+              </span>
+            </div>
+
+            {/* Subtle Divider */}
+            <div className="h-4 w-px bg-[var(--ink-200)] hidden sm:block" aria-hidden="true" />
+
+            {/* 3. Notification Activity Bell */}
+            <button
+              type="button"
+              className="relative p-1.5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] rounded-lg transition-colors cursor-pointer"
+              aria-label="1 unread inbound notification"
+            >
+              <IconBell size={16} stroke={1.8} />
+              <span className="absolute top-1 right-1 size-1.5 rounded-full bg-[var(--orange-500)] ring-1.5 ring-white" />
+            </button>
+
+            {/* 4. Active Tenant Operator Profile */}
+            <div className="flex items-center gap-2 pl-0.5">
+              <div className="relative">
+                <div className="size-6 rounded-full overflow-hidden ring-1 ring-[var(--ink-200)] shadow-2xs">
+                  <Image
+                    src="/avatars/wanjiru.jpg"
+                    alt="Operator Wanjiru Maina"
+                    width={24}
+                    height={24}
+                    className="size-full object-cover"
+                    unoptimized
+                  />
+                </div>
+                <span className="absolute bottom-0 right-0 size-2 rounded-full bg-emerald-500 ring-[1.5px] ring-white" />
+              </div>
+              <span className="hidden xl:inline-block font-mono text-[11px] text-[var(--text-secondary)] font-medium">
+                Wanjiru M.
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Console Body: 2-Pane Workstation (Left: Stream Feed, Right: Active Thread & Rules) */}
-        <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] divide-y md:divide-y-0 md:divide-x divide-[var(--ink-100)]">
+        {/* Two-Column Main Workspace */}
+        <div className="grid grid-cols-1 md:grid-cols-[330px_1fr] divide-y md:divide-y-0 md:divide-x divide-[var(--ink-100)]">
           
-          {/* Left Pane: Multi-Channel Inbox List */}
-          <div className="bg-[var(--ink-50)]/40 p-3 flex flex-col gap-1.5">
-            <div className="px-2 py-1 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
-                Inbound Feeds
+          {/* Left Column: Clean Conversation List (No generic left border) */}
+          <div className="bg-[var(--ink-50)]/30 p-3 sm:p-4 flex flex-col gap-1.5">
+            <div className="flex items-center justify-between px-2 py-1 mb-1">
+              <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                Recent Inbound
               </span>
-              <span className="rounded-full bg-[var(--ink-200)] px-2 py-0.2 text-[10px] font-medium text-[var(--text-primary)]">
-                4 Active
+              <span className="font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                {CONVERSATIONS.length} Active
               </span>
             </div>
 
             {CONVERSATIONS.map((item) => {
               const isSelected = item.id === selectedId;
               const Icon = item.icon;
+              const sent = sentIds.has(item.id);
+
               return (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => setSelectedId(item.id)}
-                  className={`group relative flex items-start gap-3.5 rounded-xl p-3 text-left transition-all cursor-pointer ${
+                  aria-pressed={isSelected}
+                  aria-label={`Open conversation with ${item.senderName} on ${item.channelName}`}
+                  className={`group relative flex items-start gap-3 rounded-2xl p-3 text-left transition-all duration-200 cursor-pointer min-h-[64px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] ${
                     isSelected
-                      ? 'bg-[var(--ink-0)] border border-[var(--ink-200)] shadow-sm'
-                      : 'hover:bg-[var(--ink-0)]/60 border border-transparent'
+                      ? 'bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] border border-[var(--ink-200)]/80 scale-[1.01]'
+                      : 'hover:bg-white/60 border border-transparent'
                   }`}
                 >
-                  <div className="relative shrink-0">
-                    <img
-                      src={item.avatarUrl}
-                      alt={item.senderName}
-                      className="size-11 rounded-full object-cover ring-1 ring-[var(--ink-200)] shadow-xs"
-                    />
+                  {/* Avatar with Channel Ring Indicator */}
+                  <div className="relative shrink-0 mt-0.5">
+                    <div
+                      className={`relative size-11 rounded-full overflow-hidden transition-all duration-200 ${
+                        isSelected
+                          ? 'ring-2 ring-offset-2 shadow-xs'
+                          : 'ring-1 ring-[var(--ink-200)]/60'
+                      }`}
+                      style={{
+                        borderColor: item.color,
+                        boxShadow: isSelected ? `0 0 0 2px ${item.color}` : undefined,
+                      }}
+                    >
+                      <Image
+                        src={item.avatarUrl}
+                        alt={item.senderName}
+                        width={44}
+                        height={44}
+                        className="size-full object-cover"
+                        unoptimized
+                      />
+                    </div>
                     <span
-                      className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full text-white shadow-xs"
+                      className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full bg-white text-white shadow-xs"
                       style={{ background: item.color }}
                     >
-                      <Icon size={11} stroke={2.5} />
+                      <Icon size={11} stroke={2.5} aria-hidden="true" />
                     </span>
                   </div>
 
+                  {/* Customer & Message Meta */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="font-sans text-[13.5px] font-semibold text-[var(--text-primary)] truncate">
+                      <span className="text-[13.5px] font-semibold text-[var(--text-primary)] truncate">
                         {item.senderName}
                       </span>
-                      <span className="text-[10.5px] text-[var(--text-tertiary)] shrink-0">
-                        {item.time}
-                      </span>
+                      {isSelected ? (
+                        <StatusBadge tone="success" variant="pill" size="sm">
+                          Viewing
+                        </StatusBadge>
+                      ) : (
+                        <span className="font-mono text-[10.5px] text-[var(--text-tertiary)] shrink-0">
+                          {item.time}
+                        </span>
+                      )}
                     </div>
 
-                    <p className="font-sans text-[12px] text-[var(--text-secondary)] truncate mt-0.5">
-                      {item.snippet}
+                    <p className="text-[12px] text-[var(--text-secondary)] truncate mt-0.5">
+                      {sent ? (
+                        <span className="text-emerald-600 font-medium inline-flex items-center gap-1">
+                          <IconCheck size={12} stroke={2.5} />
+                          Resolved
+                        </span>
+                      ) : (
+                        item.snippet
+                      )}
                     </p>
 
-                    <div className="mt-1.5 flex items-center gap-1.5">
-                      <span
-                        className="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium"
-                        style={{ background: item.badgeBg, color: item.color }}
+                    <div className="mt-1 flex items-center justify-between gap-1">
+                      <span className="font-mono text-[10px] text-[var(--text-tertiary)] truncate">
+                        {item.senderBusiness}
+                      </span>
+                      <StatusBadge
+                        tone={getChannelTone(item.id)}
+                        variant="squircle"
+                        size="sm"
                       >
-                        {item.channelName.split(' ')[0]}
-                      </span>
-                      <span className="text-[10.5px] text-[var(--text-tertiary)] truncate">
-                        {item.sublabel}
-                      </span>
+                        {item.channelName}
+                      </StatusBadge>
                     </div>
                   </div>
                 </button>
@@ -288,118 +460,200 @@ export function HeroInteractiveConsole() {
             })}
           </div>
 
-          {/* Right Pane: Live Active Thread & AI Rule Processing */}
-          <div ref={chatViewRef} className="p-5 sm:p-7 bg-[var(--ink-0)] flex flex-col justify-between min-h-[400px]">
+          {/* Right Column: Active Live Thread (De-boxed & spacious layout) */}
+          <div
+            ref={chatViewRef}
+            className="p-5 sm:p-7 bg-[var(--ink-0)] flex flex-col justify-between min-h-[470px] text-left"
+          >
             <div>
-              {/* Thread Header */}
-              <div className="flex items-center justify-between border-b border-[var(--ink-100)] pb-4">
+              {/* Thread Header: Contact Identity & Compliance */}
+              <div className="flex items-center justify-between gap-3 pb-5 border-b border-[var(--ink-100)]">
                 <div className="flex items-center gap-3.5">
-                  <div className="relative">
-                    <img
-                      src={active.avatarUrl}
-                      alt={active.senderName}
-                      className="size-11 rounded-full object-cover ring-2 ring-[var(--ink-100)] shadow-xs"
-                    />
+                  <div className="relative shrink-0">
+                    <div className="relative size-11 rounded-full overflow-hidden ring-1 ring-[var(--ink-200)] shadow-xs">
+                      <Image
+                        src={active.avatarUrl}
+                        alt={active.senderName}
+                        width={44}
+                        height={44}
+                        className="size-full object-cover"
+                        unoptimized
+                      />
+                    </div>
                     <span
                       className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full text-white shadow-xs"
                       style={{ background: active.color }}
                     >
-                      <active.icon size={11} stroke={2.5} />
+                      <active.icon size={11} stroke={2.5} aria-hidden="true" />
                     </span>
                   </div>
+
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-sans text-[15px] font-semibold text-[var(--text-primary)]">
+                      <h4 className="text-[15.5px] font-semibold text-[var(--text-primary)]">
                         {active.senderName}
                       </h4>
-                      <span
-                        className="rounded-md px-2 py-0.5 text-[11px] font-medium"
-                        style={{ background: active.badgeBg, color: active.color }}
-                      >
-                        {active.channelName}
-                      </span>
                     </div>
-                    <p className="text-[12px] text-[var(--text-tertiary)]">
-                      {active.senderRole}
+                    <p className="text-[12px] text-[var(--text-secondary)] mt-0.5">
+                      {active.senderRole} · {active.senderBusiness}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-[12px] text-[var(--text-secondary)]">
-                  <IconClock size={14} className="text-[var(--text-tertiary)]" />
-                  <span>Avg Latency: &lt; 5s</span>
-                </div>
+                {/* Tenancy & Security Badge */}
+                <StatusBadge
+                  tone={getChannelTone(active.id)}
+                  variant="pill"
+                  size="md"
+                >
+                  {active.channelName}
+                </StatusBadge>
               </div>
 
-              {/* Message Feed */}
-              <div className="mt-5 flex flex-col gap-4">
-                {/* Incoming customer message */}
-                <div className="self-start max-w-[88%] rounded-2xl rounded-tl-sm border border-[var(--ink-200)] bg-[var(--ink-50)] p-4 text-[14px] leading-relaxed text-[var(--text-primary)] shadow-xs">
-                  {active.fullMessage}
+              {/* Message Feed Stream */}
+              <div className="mt-6 flex flex-col gap-4">
+                
+                {/* 1. Customer Inbound Bubble (Clean, unboxed styling) */}
+                <div className="self-start max-w-[82%]">
+                  <div className="rounded-2xl rounded-tl-xs bg-[var(--surface-sunken)] p-4 text-[14px] text-left leading-relaxed text-[var(--text-primary)] shadow-xs">
+                    <p>{active.fullMessage}</p>
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[10.5px] text-[var(--text-tertiary)] px-1">
+                    <IconClock size={12} />
+                    <span>{active.time}</span>
+                    <span>·</span>
+                    <span>Inbound via {active.channelName}</span>
+                  </div>
                 </div>
 
-                {/* AI Assistant Rule Trace Card (No Sparkles / No Lightning) */}
-                <div className="rounded-xl border border-[var(--blue-200)] bg-[var(--blue-50)]/80 p-3.5 text-[12.5px]">
-                  <div className="flex items-center justify-between text-[11.5px] font-semibold text-[var(--blue-600)]">
-                    <span className="flex items-center gap-1.5">
-                      <IconCpu size={15} className="text-[var(--blue-500)]" />
-                      AI RULE MATCH &amp; AUTOMATED RESOLUTION
-                    </span>
-                    <span className="flex items-center gap-1 rounded bg-white/90 px-2 py-0.5 text-[10.5px] font-medium text-[var(--orange-500)] shadow-xs">
-                      <IconGauge size={12} />
-                      {active.aiLatency} execution
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-[12px] font-mono text-[var(--text-secondary)]">
-                    {active.aiRuleTrigger}
-                  </p>
-                  <p className="mt-1.5 font-sans text-[13px] text-[var(--text-primary)] font-medium">
-                    {active.aiResolution}
-                  </p>
-                </div>
+                {/* 2. Co-pilot Pre-Drafted Assistant Resolution */}
+                {!isSent ? (
+                  <div className="mt-2 rounded-2xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-5 text-left transition-all">
+                    {/* Header: Rule Matching & Latency */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--ink-100)] mb-3.5">
+                      <div className="flex items-center gap-2 font-mono text-[11.5px] font-semibold text-[var(--text-primary)]">
+                        <IconCpu size={14} className="text-[var(--orange-500)]" />
+                        <span>AI Assistant Suggested Reply</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <StatusBadge tone="neutral" variant="squircle" size="sm">
+                          {active.ruleTag}
+                        </StatusBadge>
+                        <StatusBadge tone="success" variant="squircle" size="sm">
+                          ⚡ {active.ruleLatency}
+                        </StatusBadge>
+                      </div>
+                    </div>
 
-                {/* Response bubble */}
-                <div className="self-end max-w-[88%] rounded-2xl rounded-tr-sm bg-[var(--blue-500)] p-4 text-[14px] leading-relaxed text-white shadow-sm">
-                  <div className="mb-1.5 flex items-center justify-between text-[11px] font-mono text-white/80">
-                    <span className="flex items-center gap-1.5 text-white font-medium">
-                      <IconCircleCheck size={13} />
-                      Automated Instant Response
-                    </span>
-                    <span>Just now</span>
+                    {/* Pre-drafted reply copy */}
+                    <p className="text-[14px] text-left leading-relaxed text-[var(--text-primary)]">
+                      {active.suggestedReply}
+                    </p>
+
+                    {/* Optional Attached Quick Action pill */}
+                    {activeActions[active.id] && (
+                      <div className="mt-3">
+                        <StatusBadge tone="info" variant="pill" size="md" icon={IconCheck}>
+                          Attached to dispatch: {activeActions[active.id]}
+                        </StatusBadge>
+                      </div>
+                    )}
+
+                    {/* Dispatch Button & Quick Actions */}
+                    <div className="mt-4 pt-3.5 border-t border-[var(--ink-100)] flex flex-wrap items-center justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={handleSendReply}
+                        className="inline-flex items-center gap-2 rounded-full bg-[var(--blue-500)] hover:bg-[var(--blue-600)] px-5 py-2 text-[13px] font-medium text-white transition-all shadow-sm hover:shadow-md cursor-pointer active:scale-95"
+                      >
+                        <IconSend size={14} aria-hidden="true" />
+                        <span>Send this reply</span>
+                      </button>
+
+                      {/* Micro actions to attach */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-mono text-[10.5px] text-[var(--text-tertiary)] mr-1">
+                          Attach:
+                        </span>
+                        {active.quickActions.map((action) => {
+                          const isAttached = activeActions[active.id] === action;
+                          return (
+                            <button
+                              key={action}
+                              type="button"
+                              onClick={() => toggleAction(action)}
+                              className={`rounded-full px-3 py-1 text-[11.5px] font-medium transition-all cursor-pointer ${
+                                isAttached
+                                  ? 'bg-blue-100 text-[var(--blue-700)] border border-blue-300'
+                                  : 'border border-[var(--ink-200)] bg-white text-[var(--text-secondary)] hover:bg-[var(--ink-50)]'
+                              }`}
+                            >
+                              {action} {isAttached && '✓'}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-[13.5px] leading-relaxed text-white/95">
-                    {active.aiResolution.split('.')[0]}. Confirmation ticket generated and dispatched.
-                  </p>
-                </div>
+                ) : (
+                  <>
+                    {/* Outbound Dispatched Message Bubble */}
+                    <div className="self-end max-w-[82%] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <div className="rounded-2xl rounded-tr-xs bg-[var(--blue-500)] p-4 text-[14px] text-left leading-relaxed text-white shadow-sm">
+                        <p>{active.suggestedReply}</p>
+                        {activeActions[active.id] && (
+                          <div className="mt-2 pt-2 border-t border-white/20 text-[11.5px] font-mono text-white/90">
+                            📎 {activeActions[active.id]}
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-1.5 flex items-center justify-end gap-1.5 font-mono text-[10.5px] text-[var(--text-tertiary)] px-1">
+                        <span>Just now</span>
+                        <span>·</span>
+                        <span className="inline-flex items-center gap-1 font-semibold text-emerald-600">
+                          <IconCheck size={12} stroke={2.5} />
+                          Dispatched via {active.channelName} Cloud API
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Single-line Resolved Status Banner */}
+                    <div className="mt-2 flex items-center justify-between rounded-xl bg-emerald-50/90 border border-emerald-200/80 px-4 py-2 text-[12.5px] text-emerald-800 animate-in fade-in duration-200">
+                      <span className="flex items-center gap-2">
+                        <IconCircleCheck size={15} className="text-emerald-600 shrink-0" />
+                        <span>Thread resolved and logged to immutable audit stream</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleResetSent(active.id)}
+                        className="text-[11.5px] font-medium text-emerald-700 hover:underline cursor-pointer"
+                      >
+                        Reset demo
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Bottom Quick Action Bar */}
-            <div className="mt-6 border-t border-[var(--ink-100)] pt-3.5 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11.5px] uppercase tracking-wider text-[var(--text-tertiary)] mr-1">
-                  Actions:
-                </span>
-                {active.quickActions.map((action) => (
-                  <button
-                    key={action}
-                    type="button"
-                    className="rounded-lg border border-[var(--ink-200)] bg-[var(--ink-0)] px-3 py-1 text-[12px] font-medium text-[var(--text-primary)] transition-all hover:bg-[var(--ink-50)] hover:border-[var(--ink-400)] shadow-xs"
-                  >
-                    {action}
-                  </button>
-                ))}
+            {/* Bottom Bar: Guided Step Switcher */}
+            <div className="mt-6 pt-4 border-t border-[var(--ink-100)] flex items-center justify-between">
+              <div className="flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-tertiary)]">
+                <span>Scenario {selectedIndex + 1} of {CONVERSATIONS.length}</span>
+                <span>·</span>
+                <span className="capitalize">{active.id}</span>
               </div>
 
               <button
                 type="button"
                 onClick={handleSimulateNext}
                 disabled={isSimulating}
-                className="group flex cursor-pointer items-center gap-2 rounded-lg bg-[var(--ink-900)] px-3.5 py-1.5 text-[12.5px] font-medium text-white transition-all hover:bg-[var(--ink-800)] active:scale-95 shadow-xs"
+                className="group flex cursor-pointer items-center gap-2 rounded-full border border-[var(--ink-200)] bg-[var(--ink-0)] px-4 py-1.5 text-[12.5px] font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--ink-50)] hover:border-[var(--ink-300)] hover:text-[var(--text-primary)] min-h-[34px] disabled:opacity-60 shadow-xs"
               >
-                <span>{isSimulating ? 'Switching...' : 'Simulate Next Inbound'}</span>
+                <span>{isSimulating ? 'Switching…' : 'See next message'}</span>
                 <IconArrowRight
                   size={14}
+                  aria-hidden="true"
                   className="transition-transform group-hover:translate-x-0.5"
                 />
               </button>

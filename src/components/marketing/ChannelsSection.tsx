@@ -1,570 +1,637 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   IconBrandWhatsapp,
   IconBrandInstagram,
   IconBrandMessenger,
   IconMessage,
   IconCheck,
-  IconRoute,
-  IconShieldLock,
+  IconX,
+  IconLock,
   IconClock,
-  IconKeyOff,
-  IconFileCode,
-  IconDatabase,
+  IconEye,
+  IconArrowRight,
+  IconPlayerPlay,
+  IconPlayerPause,
+  IconShieldLock,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+
+/* ---------------------------------------------------------------------- */
+/*  Content & Data Model (100% Preserved Revamped Type)                  */
+/* ---------------------------------------------------------------------- */
+
+interface Bubble {
+  from: 'customer' | 'reply';
+  text: string;
+  time: string;
+}
 
 interface ChannelItem {
   id: 'whatsapp' | 'instagram' | 'messenger' | 'webchat';
   name: string;
-  badge: string;
+  handle: string;
   icon: TablerIcon;
   accentHex: string;
-  glowColor: string;
-  channelTag: string;
-  headline: string;
-  description: string;
-  capabilities: string[];
-  simulation: {
-    customerName: string;
-    customerCompany: string;
-    channelDetail: string;
-    inboundText: string;
-    inboundTime: string;
-    aiRoutingAction: string;
-    aiConfidence: string;
-    resolvedResponse: string;
-    resolvedTime: string;
-    agentName: string;
-  };
+  accentSoft: string;
+  oneLiner: string;
+  bullets: string[];
+  thread: Bubble[];
+  note: string;
 }
 
 const CHANNELS: ChannelItem[] = [
   {
     id: 'whatsapp',
-    name: 'WhatsApp Business API',
-    badge: 'Meta Cloud API',
+    name: 'WhatsApp',
+    handle: 'Kwanza Logistics',
     icon: IconBrandWhatsapp,
-    accentHex: '#22c55e',
-    glowColor: 'rgba(34, 197, 94, 0.15)',
-    channelTag: 'WHATSAPP_CLOUD_GATEWAY',
-    headline: 'Direct Meta Cloud API streaming for mission-critical logistics & orders.',
-    description:
-      'Native integration with official WhatsApp Cloud webhooks. Automatically dispatch delivery tracking, order invoices, and route high-urgency customer inquiries.',
-    capabilities: [
-      'Official Meta Cloud API direct webhook streaming',
-      'Interactive quick-reply actions & media document attachments',
-      'Automated dispatch alerts & after-hours customer triage',
+    accentHex: '#16a34a',
+    accentSoft: '#dcfce7',
+    oneLiner: 'Your busiest channel, handled the way customers already expect.',
+    bullets: [
+      'Delivery updates and invoices sent the moment they matter',
+      'Photos, PDFs, and voice notes come through same as always',
+      'After hours, urgent messages still reach someone',
     ],
-    simulation: {
-      customerName: 'Japheth Njoroge',
-      customerCompany: 'Kwanza Logistics (Nairobi)',
-      channelDetail: 'WhatsApp Business · +254 712 ••• 890',
-      inboundText: 'Habari, could you confirm when our Mombasa container batch #KW-902 clears for Westlands warehouse delivery?',
-      inboundTime: '11:42 EAT',
-      aiRoutingAction: 'Matched keyword "Mombasa container" → Auto-Queried Fleet Database',
-      aiConfidence: '99.4% intent match',
-      resolvedResponse: 'Habari Japheth! Batch #KW-902 cleared Mtito Andei checkpoint at 11:20 AM. Estimated warehouse arrival: 4:30 PM today.',
-      resolvedTime: '11:42:04 EAT (< 4s automated resolution)',
-      agentName: 'Automated Inbound Dispatch Engine',
-    },
+    thread: [
+      {
+        from: 'customer',
+        text: 'Habari, any update on when container batch KW-902 clears for our Westlands delivery?',
+        time: '11:42',
+      },
+      {
+        from: 'reply',
+        text: 'Habari Japheth! Batch KW-902 cleared Mtito Andei at 11:20am. Should reach the warehouse by 4:30pm today.',
+        time: '11:42',
+      },
+    ],
+    note: 'Answered in 4 seconds, straight from the tracking system — no one had to go look it up.',
   },
   {
     id: 'instagram',
-    name: 'Instagram Direct',
-    badge: 'Story & DM Sync',
+    name: 'Instagram',
+    handle: 'Studio Savanna',
     icon: IconBrandInstagram,
-    accentHex: '#f43f5e',
-    glowColor: 'rgba(244, 63, 94, 0.15)',
-    channelTag: 'INSTAGRAM_GRAPH_V21',
-    headline: 'Convert Instagram Story mentions & lookbook DMs into scheduled appointments.',
-    description:
-      'Aggregate customer direct messages and story reactions without team members juggling mobile credentials. Keep your luxury, retail, or creative brand responsive 24/7.',
-    capabilities: [
-      'Instant Story reply and reel mention aggregation',
-      'Lookbook triage with automated VIP fitting scheduler',
-      'Seamless handoff from automated triage to senior stylists',
+    accentHex: '#e11d48',
+    accentSoft: '#ffe4e6',
+    oneLiner: 'Turn story replies and DMs into actual bookings.',
+    bullets: [
+      'Story mentions and comment replies land in the same inbox',
+      'Booking requests get matched to real open slots',
+      'Nothing sits unread in a personal account overnight',
     ],
-    simulation: {
-      customerName: 'Amina Wanjiku',
-      customerCompany: 'Studio Savanna (Kilimani)',
-      channelDetail: 'Instagram Direct · @aminaw_creative',
-      inboundText: 'Loved the new bridal lookbook showcase on your story! Are there slots available for a private fitting this Saturday in Kilimani?',
-      inboundTime: '12:05 EAT',
-      aiRoutingAction: 'Story Reply Triage → Category: Bridal Consultation (Kilimani)',
-      aiConfidence: '98.8% intent match',
-      resolvedResponse: 'Hello Amina! We have 2:00 PM and 4:30 PM slots available this Saturday at our Kilimani studio. Shall we reserve 2:00 PM for you?',
-      resolvedTime: '12:05:03 EAT (< 3s automated resolution)',
-      agentName: 'Studio Savanna Concierge Desk',
-    },
+    thread: [
+      {
+        from: 'customer',
+        text: 'Loved the bridal lookbook on your story! Any slots for a private fitting this Saturday?',
+        time: '12:05',
+      },
+      {
+        from: 'reply',
+        text: 'Hi Amina! We have 2pm and 4:30pm open this Saturday in Kilimani. Want me to hold 2pm for you?',
+        time: '12:05',
+      },
+    ],
+    note: 'Checked the real booking calendar before replying, so the slot is actually free.',
   },
   {
     id: 'messenger',
-    name: 'Facebook Messenger',
-    badge: 'Enterprise Pages',
+    name: 'Messenger',
+    handle: 'PayPulse Africa',
     icon: IconBrandMessenger,
-    accentHex: '#3b82f6',
-    glowColor: 'rgba(59, 130, 246, 0.15)',
-    channelTag: 'MESSENGER_WEBHOOK_INGEST',
-    headline: 'Consolidate multiple brand page inboxes into a structured resolution queue.',
-    description:
-      'Manage multiple brand and regional business pages from one dashboard. Enrich inbound leads, qualify technical requirements, and resolve customer support tickets.',
-    capabilities: [
-      'Multi-page Facebook Messenger synchronisation',
-      'Automated lead qualification & CRM contact creation',
-      'Encrypted webhook payload verification with HMAC SHA-256',
+    accentHex: '#2563eb',
+    accentSoft: '#dbeafe',
+    oneLiner: 'One inbox for every page you run, not five separate logins.',
+    bullets: [
+      'All your business pages come into one shared view',
+      'Serious leads get flagged so they don’t wait in line',
+      'New contacts save straight into your customer list',
     ],
-    simulation: {
-      customerName: 'Kevin Omondi',
-      customerCompany: 'PayPulse Africa (Westlands)',
-      channelDetail: 'Facebook Messenger · PayPulse Enterprise Support',
-      inboundText: 'Hello, our engineering team is reviewing your scoped tenant API credentials. Can we arrange an architect walkthrough today?',
-      inboundTime: '13:15 EAT',
-      aiRoutingAction: 'Enterprise Lead Tagged → Priority: High → Systems Architect Escalation',
-      aiConfidence: '97.6% intent match',
-      resolvedResponse: 'Hello Kevin! Absolutely. We have scheduled a 20-minute technical session with our systems architect for today at 3:00 PM.',
-      resolvedTime: '13:15:05 EAT (< 5s escalation)',
-      agentName: 'PayPulse Systems Desk',
-    },
+    thread: [
+      {
+        from: 'customer',
+        text: 'Hi, our engineering team is reviewing your API access. Could we get a walkthrough today?',
+        time: '13:15',
+      },
+      {
+        from: 'reply',
+        text: 'Hi Kevin, happy to help. I’ve booked you a 20-minute session with our technical lead today at 3pm.',
+        time: '13:15',
+      },
+    ],
+    note: 'Flagged as a serious lead and handed straight to the right person.',
   },
   {
     id: 'webchat',
-    name: 'Website Chat Widget',
-    badge: 'Real-time WebSocket',
+    name: 'Website chat',
+    handle: 'AfyaCare Diagnostics',
     icon: IconMessage,
-    accentHex: '#f59e0b',
-    glowColor: 'rgba(245, 158, 11, 0.15)',
-    channelTag: 'WEBSOCKET_STREAM_V1',
-    headline: 'Sub-15kb embeddable widget with dedicated database-level data isolation.',
-    description:
-      'A featherweight web widget that loads in milliseconds. Features real-time WebSocket connectivity, tenant branding customization, and instantaneous AI greetings.',
-    capabilities: [
-      'Lightweight sub-15kb script with zero layout shifts',
-      'Persistent conversation memory across customer browser sessions',
-      'PostgreSQL RLS guaranteed patient & client data privacy',
+    accentHex: '#d97706',
+    accentSoft: '#fef3c7',
+    oneLiner: 'A chat bubble for your site that loads instantly and stays put.',
+    bullets: [
+      'Loads in a blink — visitors never wait on it',
+      'Remembers a conversation even if someone closes the tab',
+      'Looks and sounds like your business, not a generic bot',
     ],
-    simulation: {
-      customerName: 'Dr. Faith Chebet',
-      customerCompany: 'AfyaCare Diagnostics',
-      channelDetail: 'Portal Chat · portal.afyacare.co.ke/diag',
-      inboundText: 'Is clinical laboratory diagnostic data transmitted over this web chat isolated under our dedicated tenant boundary?',
-      inboundTime: '14:30 EAT',
-      aiRoutingAction: 'Security Verification Query → Checked Tenant Isolation Protocol',
-      aiConfidence: '99.9% intent match',
-      resolvedResponse: 'Good afternoon Dr. Chebet. Yes, all web chat traffic is segregated at the PostgreSQL query layer via RLS, ensuring 100% tenant data isolation.',
-      resolvedTime: '14:30:02 EAT (< 2s security response)',
-      agentName: 'AfyaCare Dedicated Portal Desk',
-    },
+    thread: [
+      {
+        from: 'customer',
+        text: 'Is patient data from this chat kept separate from your other clients’ data?',
+        time: '14:30',
+      },
+      {
+        from: 'reply',
+        text: 'Good afternoon Dr. Chebet — yes. Your data is fully separated from every other business on the platform, always.',
+        time: '14:30',
+      },
+    ],
+    note: 'A question worth taking seriously — answered plainly, no hedging.',
   },
 ];
 
+/* ---------------------------------------------------------------------- */
+/*  Component: Unified Inverted Channels & Security Hub                   */
+/* ---------------------------------------------------------------------- */
+
 export function ChannelsSection() {
   const [activeId, setActiveId] = useState<ChannelItem['id']>('whatsapp');
-  const activeChannel = CHANNELS.find((c) => c.id === activeId) ?? CHANNELS[0]!;
+  const active = CHANNELS.find((c) => c.id === activeId) ?? CHANNELS[0]!;
 
-  const [secondsRemaining, setSecondsRemaining] = useState(1434);
-  const [isRevoked, setIsRevoked] = useState(false);
+  const [typedIn, setTypedIn] = useState(false);
+  useEffect(() => {
+    setTypedIn(false);
+    const t = setTimeout(() => setTypedIn(true), 120);
+    return () => clearTimeout(t);
+  }, [activeId]);
+
+  // Support Session Permit Countdown State
+  const SESSION_LENGTH = 30 * 60;
+  const [secondsLeft, setSecondsLeft] = useState(SESSION_LENGTH - 366); // ~23:54 remaining
+  const [granted, setGranted] = useState(true);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (isRevoked) return;
-    const timer = setInterval(() => {
-      setSecondsRemaining((prev) => (prev > 0 ? prev - 1 : 1800));
+    if (!granted) return;
+    intervalRef.current = setInterval(() => {
+      setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
     }, 1000);
-    return () => clearInterval(timer);
-  }, [isRevoked]);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [granted]);
 
-  const formatTime = (secs: number) => {
-    const mins = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${mins.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
+  const mm = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+  const ss = (secondsLeft % 60).toString().padStart(2, '0');
 
   return (
     <div className="w-full">
-      {/* ── Right-Aligned Alternating Header ── */}
-      <div className="flex flex-col items-end text-right max-w-3xl ml-auto">
-        <div className="inline-flex items-center gap-2">
-          <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
+      {/* ── Right-Aligned Section Header (Alternating Cadence) ── */}
+      <div className="flex flex-col items-end text-right max-w-3xl ml-auto mb-10 sm:mb-14">
+        <div className="inline-flex items-center gap-2 mb-2.5">
           <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--orange-500)]">
-            Omnichannel & Security Hub
+            Getting in touch
           </p>
-          <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
+          <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden="true" />
         </div>
-        <h2 className="display text-[32px] sm:text-[42px] font-normal tracking-tight text-[var(--text-primary)] mt-3 leading-tight">
-          Where the messages come from.<br className="hidden sm:block" /> How they remain secure.
+        <h2 className="display text-[32px] sm:text-[44px] font-normal tracking-tight text-[var(--text-primary)] leading-[1.12]">
+          Customers message you everywhere. You answer from one place.
         </h2>
-        <p className="text-[15px] sm:text-[16px] text-[var(--text-secondary)] mt-3 leading-relaxed">
-          Four distinct channels converge into a single unified workspace. Every inbound payload is analyzed, routed, and resolved while strictly contained within your dedicated Row Level Security boundary.
+        <p className="text-[16px] sm:text-[17px] text-[var(--text-secondary)] mt-3.5 leading-relaxed">
+          WhatsApp, Instagram, Messenger, your website — every conversation lands in a single
+          inbox, answered fast, without anyone digging for the right information.
         </p>
       </div>
 
-      {/* ── Inverted Dark Chrome Enclosure (Breaking Monotony) ── */}
+      {/* ── UNIFIED INVERTED SECTION (Deep Slate Canvas with Atmospheric Depth) ── */}
       <div
-        className="mt-12 overflow-hidden rounded-2xl border transition-all"
+        className="relative overflow-hidden rounded-[36px] border transition-all text-left"
         style={{
-          background: 'var(--invert-card-bg)',
-          borderColor: 'var(--invert-card-border)',
-          color: 'var(--invert-card-fg)',
-          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.5)',
+          background: 'linear-gradient(180deg, #0d121c 0%, #080c14 100%)',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          color: '#F9FAFB',
+          boxShadow: '0 30px 80px -20px rgba(0, 0, 0, 0.65)',
         }}
       >
-        {/* Top Control Bar: Channel Dock Switcher */}
-        <div className="border-b border-white/10 bg-black/30 p-3 sm:p-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-            {CHANNELS.map((channel) => {
-              const isActive = channel.id === activeId;
-              const Icon = channel.icon;
-              return (
-                <button
-                  key={channel.id}
-                  onClick={() => setActiveId(channel.id)}
-                  className={`group relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-white/10 border-white/20 shadow-lg'
-                      : 'bg-white/[0.03] border-white/5 hover:bg-white/[0.07] hover:border-white/10'
-                  }`}
+        {/* Subtle Ambient Radial Glow */}
+        <div
+          className="absolute -top-32 left-1/4 w-[600px] h-[350px] bg-blue-600/10 blur-[130px] pointer-events-none rounded-full"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute -bottom-32 right-1/4 w-[600px] h-[350px] bg-amber-600/10 blur-[130px] pointer-events-none rounded-full"
+          aria-hidden="true"
+        />
+
+        {/* ================================================================= */}
+        {/* TIER 1: Omnichannel Inbound Command Stage                         */}
+        {/* ================================================================= */}
+        <div className="relative z-10 p-6 sm:p-10 lg:p-14">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            
+            {/* Left 7 Cols: Phone-Style Real Customer Thread Card (Airy, Spacious & Beautiful) */}
+            <div className="lg:col-span-7 order-2 lg:order-1 flex justify-center lg:justify-start">
+              <div className="w-full max-w-[590px]">
+                <div
+                  className="rounded-[30px] p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all"
                   style={{
-                    boxShadow: isActive ? `0 0 20px ${channel.glowColor}` : 'none',
+                    background: '#FFFFFF',
+                    color: 'var(--text-primary)',
                   }}
                 >
-                  <div
-                    className="size-8 rounded-lg flex items-center justify-center shrink-0 border border-white/10"
-                    style={{
-                      backgroundColor: isActive ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
-                    }}
-                  >
-                    <Icon size={18} stroke={1.75} style={{ color: channel.accentHex }} />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[13px] font-medium text-white truncate block">
-                        {channel.name}
-                      </span>
+                  {/* Thread Header */}
+                  <div className="flex items-center justify-between gap-3 pb-5 mb-5 border-b border-[var(--ink-100)]">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div
+                        className="size-11 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border border-black/5"
+                        style={{ backgroundColor: active.accentSoft }}
+                      >
+                        <active.icon size={22} stroke={1.8} style={{ color: active.accentHex }} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[16px] font-semibold text-[var(--text-primary)] truncate">
+                            {active.handle}
+                          </span>
+                          <span className="size-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                        </div>
+                        <span className="font-mono text-[11px] text-[var(--text-tertiary)] block mt-0.5">
+                          Verified Business Channel · via {active.name}
+                        </span>
+                      </div>
                     </div>
-                    <span className="font-mono text-[10px] text-white/50 block truncate">
-                      {channel.badge}
-                    </span>
+
+                    <StatusBadge
+                      tone="success"
+                      variant="pill"
+                      size="md"
+                      icon={IconCheck}
+                    >
+                      Answered
+                    </StatusBadge>
                   </div>
 
-                  {isActive && (
-                    <span
-                      className="size-1.5 rounded-full shrink-0"
-                      style={{ backgroundColor: channel.accentHex }}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                  {/* Context Timeline Divider */}
+                  <div className="flex items-center justify-center my-3">
+                    <StatusBadge tone="neutral" variant="pill" size="sm">
+                      Today · 11:40 AM
+                    </StatusBadge>
+                  </div>
 
-        {/* ── Tier 1: Omnichannel Command Stage (Left: Specs, Right: White Console) ── */}
-        <div className="p-6 sm:p-8 lg:p-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            {/* Left 5 Cols: Architecture, Guarantees & Capabilities */}
-            <div className="lg:col-span-5 space-y-6">
-              <div>
-                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-white/10 bg-white/5">
-                  <span
-                    className="size-2 rounded-full"
-                    style={{ backgroundColor: activeChannel.accentHex }}
-                  />
-                  <span className="font-mono text-[10.5px] uppercase tracking-wider text-white/80">
-                    {activeChannel.channelTag}
-                  </span>
+                  {/* Message Bubbles Stream (Unrestricted, Airy, Natural Left-Aligned Flow) */}
+                  <div className="space-y-4 min-h-[200px] flex flex-col justify-center py-2">
+                    {active.thread.map((bubble, i) => {
+                      const isCustomer = bubble.from === 'customer';
+                      return (
+                        <div
+                          key={i}
+                          className={`flex ${isCustomer ? 'justify-start' : 'justify-end'} motion-safe:transition-all motion-safe:duration-500`}
+                          style={{
+                            opacity: typedIn ? 1 : 0,
+                            transform: typedIn ? 'translateY(0)' : 'translateY(6px)',
+                            transitionDelay: `${i * 160}ms`,
+                          }}
+                        >
+                          {/* Chat Bubble Container with Explicit Left Alignment for Internal Content */}
+                          <div className={`max-w-[90%] sm:max-w-[85%] text-left`}>
+                            <div
+                              className="px-5 py-3.5 text-[14.5px] leading-[1.55] shadow-xs text-left"
+                              style={
+                                isCustomer
+                                  ? {
+                                      background: 'var(--surface-sunken)',
+                                      color: 'var(--text-primary)',
+                                      borderRadius: '20px 20px 20px 4px',
+                                      border: '1px solid var(--ink-200)',
+                                    }
+                                  : {
+                                      background: active.accentHex,
+                                      color: '#FFFFFF',
+                                      borderRadius: '20px 20px 4px 20px',
+                                      boxShadow: `0 4px 16px ${active.accentHex}44`,
+                                    }
+                              }
+                            >
+                              <p className="text-left m-0">{bubble.text}</p>
+                            </div>
+                            <div
+                              className={`flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-tertiary)] mt-1.5 px-2 ${
+                                isCustomer ? 'justify-start' : 'justify-end'
+                              }`}
+                            >
+                              <span>{bubble.time}</span>
+                              {!isCustomer && (
+                                <span className="text-emerald-600 font-medium">✓✓ Automated reply</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Resolution Footnote */}
+                  <div className="mt-5 pt-4 border-t border-[var(--ink-100)] flex items-center justify-between gap-3 text-[13px] text-[var(--text-secondary)] leading-relaxed">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="size-5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
+                        <IconCheck size={12} stroke={2.5} />
+                      </div>
+                      <span className="truncate sm:whitespace-normal font-normal">{active.note}</span>
+                    </div>
+                    <StatusBadge tone="success" variant="squircle" size="sm">
+                      ⚡ 4s latency
+                    </StatusBadge>
+                  </div>
                 </div>
+              </div>
+            </div>
 
-                <h3 className="text-[22px] sm:text-[26px] font-normal tracking-tight text-white mt-3.5 leading-snug">
-                  {activeChannel.headline}
-                </h3>
+            {/* Right 5 Cols: Interactive Channel Selector & Guarantees */}
+            <div className="lg:col-span-5 order-1 lg:order-2 flex flex-col justify-between space-y-6">
+              <div className="flex flex-col gap-2.5">
+                {CHANNELS.map((channel) => {
+                  const isActive = channel.id === activeId;
+                  const Icon = channel.icon;
+                  return (
+                    <button
+                      key={channel.id}
+                      type="button"
+                      onClick={() => setActiveId(channel.id)}
+                      aria-pressed={isActive}
+                      aria-label={`Show ${channel.name} example conversation`}
+                      className={`group flex items-center gap-4 rounded-2xl px-4.5 py-3.5 text-left transition-all duration-200 cursor-pointer min-h-[62px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 ${
+                        isActive
+                          ? 'bg-white/[0.12] border border-white/25 shadow-xl scale-[1.01]'
+                          : 'bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.07] hover:border-white/15'
+                      }`}
+                    >
+                      <div
+                        className="size-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200"
+                        style={{
+                          backgroundColor: isActive ? channel.accentHex : 'rgba(255, 255, 255, 0.08)',
+                          boxShadow: isActive ? `0 0 18px ${channel.accentHex}77` : 'none',
+                        }}
+                      >
+                        <Icon
+                          size={21}
+                          stroke={1.8}
+                          style={{ color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.65)' }}
+                        />
+                      </div>
 
-                <p className="text-[13.5px] text-white/70 mt-2.5 leading-relaxed">
-                  {activeChannel.description}
-                </p>
+                      <div className="min-w-0 flex-1">
+                        <span
+                          className="text-[15.5px] font-medium block transition-colors"
+                          style={{ color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.75)' }}
+                        >
+                          {channel.name}
+                        </span>
+                        {isActive && (
+                          <span className="text-[13px] text-white/65 block mt-0.5 leading-snug">
+                            {channel.oneLiner}
+                          </span>
+                        )}
+                      </div>
+
+                      <IconArrowRight
+                        size={17}
+                        aria-hidden="true"
+                        className="shrink-0 transition-all duration-200"
+                        style={{
+                          opacity: isActive ? 0.9 : 0,
+                          transform: isActive ? 'translateX(0)' : 'translateX(-4px)',
+                          color: '#fff',
+                        }}
+                      />
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Core Capabilities */}
-              <div className="space-y-3 pt-5 border-t border-white/10">
-                {activeChannel.capabilities.map((cap, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 text-[13px] text-white/90">
-                    <div className="size-4 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 mt-0.5">
-                      <IconCheck size={11} stroke={2.5} className="text-emerald-400" />
+              {/* Active Channel Bullets */}
+              <div className="pt-6 border-t border-white/10 space-y-3.5">
+                {active.bullets.map((bullet, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="size-5 rounded-full bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center shrink-0 mt-0.5">
+                      <IconCheck size={12} stroke={2.5} className="text-emerald-400" aria-hidden="true" />
                     </div>
-                    <span>{cap}</span>
+                    <span className="text-[14px] text-white/80 leading-relaxed">{bullet}</span>
                   </div>
                 ))}
               </div>
-
-              {/* Security Seal Note */}
-              <div className="flex items-center gap-2 font-mono text-[11px] text-white/50 pt-2">
-                <IconShieldLock size={14} className="text-emerald-400" />
-                <span>Zero cross-tenant exposure · RLS Enforced</span>
-              </div>
             </div>
 
-            {/* Right 7 Cols: Live Inbound Payload & Unified Stream Visualizer (White Console) */}
-            <div className="lg:col-span-7 rounded-xl border border-[var(--ink-300)] bg-white p-5 sm:p-6 space-y-5 shadow-2xl text-[var(--text-primary)]">
-              
-              {/* Telemetry Header */}
-              <div className="flex items-center justify-between border-b border-[var(--ink-200)] pb-3 font-mono text-[11px]">
-                <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[var(--green-500)]" />
-                  <span className="text-[var(--text-primary)] font-semibold">{activeChannel.simulation.channelDetail}</span>
-                </div>
-                <span className="text-[var(--green-600)] bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 font-medium">
-                  STREAMING ONLINE
-                </span>
-              </div>
-
-              {/* Customer Identity Bar */}
-              <div className="flex items-center justify-between bg-[var(--surface-sunken)] p-3 rounded-lg border border-[var(--border-subtle)]">
-                <div>
-                  <span className="text-xs font-semibold text-[var(--text-primary)] block">
-                    {activeChannel.simulation.customerName}
-                  </span>
-                  <span className="text-[11px] text-[var(--text-secondary)]">
-                    {activeChannel.simulation.customerCompany}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="font-mono text-[10.5px] text-[var(--text-tertiary)] block">Inbound Gateway</span>
-                  <span
-                    className="font-mono text-[11px] font-semibold"
-                    style={{ color: activeChannel.accentHex }}
-                  >
-                    {activeChannel.name}
-                  </span>
-                </div>
-              </div>
-
-              {/* Live Inbound Message Frame */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between font-mono text-[10.5px] text-[var(--text-tertiary)]">
-                  <span>INBOUND CUSTOMER PAYLOAD:</span>
-                  <span>{activeChannel.simulation.inboundTime}</span>
-                </div>
-                <div className="bg-[var(--surface-sunken)] border border-[var(--border-subtle)] p-3.5 rounded-xl text-[13px] text-[var(--text-primary)] leading-relaxed shadow-xs">
-                  &quot;{activeChannel.simulation.inboundText}&quot;
-                </div>
-              </div>
-
-              {/* Smart Routing Telemetry Chip */}
-              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-emerald-900">
-                  <IconRoute size={15} className="text-[var(--green-600)]" />
-                  <span className="text-[11.5px] font-medium">{activeChannel.simulation.aiRoutingAction}</span>
-                </div>
-                <span className="font-mono text-[10.5px] text-emerald-800 bg-white border border-emerald-300 px-2 py-0.5 rounded font-semibold shadow-xs">
-                  {activeChannel.simulation.aiConfidence}
-                </span>
-              </div>
-
-              {/* Outbound Dispatch Response */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between font-mono text-[10.5px] text-[var(--text-tertiary)]">
-                  <span>UNIFIED WORKSPACE RESOLUTION:</span>
-                  <span className="text-[var(--green-600)] font-medium">{activeChannel.simulation.resolvedTime}</span>
-                </div>
-                <div className="p-3.5 rounded-xl text-[13px] text-white bg-[var(--blue-500)] leading-relaxed shadow-sm">
-                  {activeChannel.simulation.resolvedResponse}
-                </div>
-              </div>
-
-              {/* Footer Status Bar */}
-              <div className="pt-2 flex items-center justify-between font-mono text-[10.5px] text-[var(--text-tertiary)] border-t border-[var(--border-subtle)]">
-                <span>RESPONDER: {activeChannel.simulation.agentName.toUpperCase()}</span>
-                <span className="text-[var(--text-primary)] font-medium">ALCASSA SECURE OMNICHANNEL CORE</span>
-              </div>
-
-            </div>
           </div>
         </div>
 
-        {/* ── Tier 2: Enterprise Security & Isolation (ALTERNATING: Left: White Console, Right: Specs) ── */}
-        <div className="border-t border-white/10 bg-black/20 p-6 sm:p-8 lg:p-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {/* ── Architectural Separator between Omnichannel & Security Permit ── */}
+        <div className="relative z-10 border-t border-white/10 mx-6 sm:mx-10 lg:mx-28" />
+
+        {/* ================================================================= */}
+        {/* TIER 2: Trust & Ephemeral Support Permit Stage                    */}
+        {/* ================================================================= */}
+        <div className="relative z-10 p-6 sm:p-10 lg:p-14">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             
-            {/* Left 7 Cols: Telemetry Support Console & Live RLS Terminal (Alternated) */}
-            <div className="lg:col-span-7 rounded-xl border border-[var(--ink-300)] bg-white p-5 sm:p-6 space-y-4 shadow-2xl transition-all text-[var(--text-primary)]">
-              
-              {/* Telemetry Header */}
-              <div className="flex flex-wrap items-center justify-between border-b border-[var(--ink-200)] pb-3.5 gap-2 font-mono text-[11px]">
-                <div className="flex items-center gap-2">
-                  <span className={`size-2 rounded-full ${isRevoked ? 'bg-rose-500' : 'bg-[var(--green-500)]'}`} />
-                  <span className="text-[var(--text-primary)] font-semibold">
-                    {isRevoked ? 'SESSION TERMINATED' : 'ACTIVE SUPPORT SESSION #SES-8829'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2.5 py-0.5 rounded-full font-medium ${
-                    isRevoked
-                      ? 'bg-rose-100 text-rose-700 border border-rose-200'
-                      : 'bg-emerald-50 text-[var(--green-600)] border border-emerald-500/20'
-                  }`}>
-                    {isRevoked ? 'TOKEN DESTROYED' : 'SCOPED RLS ENFORCED'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isRevoked) {
-                        setIsRevoked(false);
-                        setSecondsRemaining(1800);
-                      } else {
-                        setIsRevoked(true);
-                      }
-                    }}
-                    className={`text-[10.5px] font-mono px-2.5 py-1 rounded transition-colors cursor-pointer font-semibold ${
-                      isRevoked
-                        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                        : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
-                    }`}
-                  >
-                    {isRevoked ? 'Re-authorize' : 'Revoke Access'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Target & Session Metadata Box */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[var(--surface-sunken)] p-3 rounded-lg border border-[var(--border-subtle)] text-xs">
-                <div>
-                  <span className="font-mono text-[10px] text-[var(--text-tertiary)] uppercase block">Target Workspace</span>
-                  <span className="font-semibold text-[var(--text-primary)]">Acme Logistics (#829)</span>
-                  <span className="text-[11px] text-[var(--text-secondary)] block">Nairobi Hub · Mombasa Road</span>
-                </div>
-                <div>
-                  <span className="font-mono text-[10px] text-[var(--text-tertiary)] uppercase block">Operator & Scope</span>
-                  <span className="font-semibold text-[var(--text-primary)]">support_ops@alcassa.internal</span>
-                  <span className="text-[11px] text-[var(--text-secondary)] block">Ticket #4829 (Read-Only Isolation)</span>
-                </div>
-              </div>
-
-              {/* Countdown Bar */}
-              <div className={`flex items-center justify-between rounded-lg border p-3 transition-colors ${
-                isRevoked
-                  ? 'bg-zinc-100 border-zinc-300 text-zinc-600'
-                  : 'bg-rose-50/80 border-rose-200 text-rose-900'
-              }`}>
-                <div className="flex items-center gap-2">
-                  <IconClock size={16} className={isRevoked ? 'text-zinc-500' : 'text-rose-600'} />
-                  <span className="text-[12px] font-medium">
-                    {isRevoked ? 'Hard-Kill Triggered (Epoch Cleared)' : 'Automated Hard-Kill Expiry:'}
-                  </span>
-                </div>
-                <span className={`font-mono text-[14px] font-bold tracking-widest ${
-                  isRevoked ? 'text-zinc-500' : 'text-rose-600'
-                }`}>
-                  {isRevoked ? '00:00 (REVOKED)' : formatTime(secondsRemaining)}
-                </span>
-              </div>
-
-              {/* Live Row Level Security Query Sandbox */}
-              <div className="space-y-1.5 font-mono">
-                <div className="flex items-center justify-between text-[10.5px] text-[var(--text-tertiary)]">
-                  <div className="flex items-center gap-1.5">
-                    <IconDatabase size={13} className="text-[var(--text-secondary)]" />
-                    <span>POSTGRESQL RLS ENFORCEMENT LAYER:</span>
-                  </div>
-                  <span className="text-emerald-700 font-semibold">100% ISOLATED</span>
-                </div>
-                <div className="bg-[#18181b] text-emerald-400 p-3 rounded-lg text-[11px] leading-relaxed border border-zinc-700 shadow-inner overflow-x-auto">
-                  <span className="text-blue-400">SELECT</span> * <span className="text-blue-400">FROM</span> tenant_inbox_messages<br />
-                  <span className="text-blue-400">WHERE</span> tenant_id = <span className="text-amber-300">&apos;acme_829&apos;</span> <span className="text-zinc-400">-- [RLS Policy: Zero cross-leakage]</span><br />
-                  <span className="text-blue-400">AND</span> session_mode = <span className="text-amber-300">&apos;READ_ONLY&apos;</span>;
-                </div>
-              </div>
-
-              {/* Audit Trail Row */}
-              <div className="space-y-1 text-xs">
-                <div className="flex items-center justify-between text-[10.5px] font-mono text-[var(--text-tertiary)]">
-                  <span>REAL-TIME AUDIT DISPATCH LOG:</span>
-                  <span className="text-[var(--green-600)] font-semibold">APPEND-ONLY SECURE</span>
-                </div>
-                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg text-[11.5px] text-emerald-900">
-                  <div className="flex items-center gap-2 truncate">
-                    <IconCheck size={14} className="text-[var(--green-600)] shrink-0" />
-                    <span className="truncate">
-                      {isRevoked
-                        ? 'Admin manual revocation recorded in tenant audit stream.'
-                        : 'Query logged: Inspector accessed invoice #KW-902 · Scoped Token Verified'}
-                    </span>
-                  </div>
-                  <span className="font-mono text-[10px] text-emerald-700 bg-white border border-emerald-300 px-1.5 py-0.5 rounded shrink-0 font-medium">
-                    VERIFIED
-                  </span>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="pt-2 flex items-center justify-between font-mono text-[10px] text-[var(--text-tertiary)] border-t border-[var(--border-subtle)]">
-                <span>AUTH: ARGON2ID_EPHEMERAL_KEY</span>
-                <span className="text-[var(--text-primary)] font-medium">KENYA DPA 2019 COMPLIANT</span>
-              </div>
-            </div>
-
-            {/* Right 5 Cols: Security Guarantees & Editorial Copy (Alternated) */}
+            {/* Left 5 Cols: Editorial Security Guarantees */}
             <div className="lg:col-span-5 space-y-6">
               <div>
-                <h3 className="text-[24px] sm:text-[28px] font-normal tracking-tight text-white mt-4 leading-snug">
-                  You can see every time we look at your workspace.
+                <h3 className="display text-[28px] sm:text-[36px] font-normal tracking-tight text-white mt-1 leading-[1.15]">
+                  If someone on our team ever opens your account, you'll know.
                 </h3>
-
-                <p className="text-[13.5px] text-white/70 mt-3 leading-relaxed">
-                  When our support team opens your account, they do it through a scoped session bound by exactly the same Row Level Security rules that protect you from every other business on the platform. Not a master key. The session is read-only, it expires after thirty minutes, it is written to your own activity log with a reason, and you can end it yourself at any time.
+                <p className="text-[15px] sm:text-[16px] text-white/75 mt-3.5 leading-relaxed">
+                  Nobody at Alcassa has a master key to every business on the platform. When our
+                  support team needs to help with your account, they request access to yours
+                  specifically. It's time-limited, it's read-only, and it shows up in your activity
+                  log the moment it happens.
                 </p>
               </div>
 
-              {/* Security Metrics Breakdown */}
-              <div className="space-y-3.5 pt-5 border-t border-white/10">
-                <div className="flex items-start gap-3 text-white">
-                  <div className="size-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <IconKeyOff size={16} className="text-[var(--orange-500)]" />
+              {/* 3 Core Security Invariants */}
+              <div className="space-y-4 pt-4 border-t border-white/10">
+                <div className="flex items-start gap-3.5">
+                  <div className="size-10 rounded-2xl flex items-center justify-center shrink-0 bg-white/[0.07] border border-white/10 text-white mt-0.5 shadow-xs">
+                    <IconLock size={18} stroke={1.75} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-[13.5px] font-medium text-white">Zero Master Keys</h4>
-                    <p className="text-[12px] text-white/60 mt-0.5 leading-relaxed">
-                      No superadmin credentials exist. Every session requires a distinct ephemeral token hashed with Argon2id.
+                    <h4 className="text-[14.5px] font-medium text-white">No shared master password</h4>
+                    <p className="text-[13px] text-white/65 mt-0.5 leading-relaxed">
+                      Every visit uses a fresh, one-time key tied to one person and one account. Nothing reused, nothing shared.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 text-white">
-                  <div className="size-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <IconClock size={16} className="text-rose-400" />
+                <div className="flex items-start gap-3.5">
+                  <div className="size-10 rounded-2xl flex items-center justify-center shrink-0 bg-white/[0.07] border border-white/10 text-white mt-0.5 shadow-xs">
+                    <IconClock size={18} stroke={1.75} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-[13.5px] font-medium text-white">30-Min Strict Expiry</h4>
-                    <p className="text-[12px] text-white/60 mt-0.5 leading-relaxed">
-                      Support sessions automatically self-destruct upon countdown expiration or instantly when revoked by your workspace admins.
+                    <h4 className="text-[14.5px] font-medium text-white">Access expires on its own</h4>
+                    <p className="text-[13px] text-white/65 mt-0.5 leading-relaxed">
+                      Thirty minutes, then it's gone — or you can end it yourself, right now, from this screen.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 text-white">
-                  <div className="size-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <IconFileCode size={16} className="text-emerald-400" />
+                <div className="flex items-start gap-3.5">
+                  <div className="size-10 rounded-2xl flex items-center justify-center shrink-0 bg-white/[0.07] border border-white/10 text-white mt-0.5 shadow-xs">
+                    <IconEye size={18} stroke={1.75} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-[13.5px] font-medium text-white">Immutable Audit Ledger</h4>
-                    <p className="text-[12px] text-white/60 mt-0.5 leading-relaxed">
-                      Every read query is timestamped and permanently signed to your workspace compliance activity feed.
+                    <h4 className="text-[14.5px] font-medium text-white">Every visit is on the record</h4>
+                    <p className="text-[13px] text-white/65 mt-0.5 leading-relaxed">
+                      Who looked, when, and why — written to your account's history and impossible to quietly edit out.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Compliance Seal */}
-              <div className="flex items-center gap-2 font-mono text-[11px] text-white/50 pt-2 border-t border-white/10">
-                <IconShieldLock size={14} className="text-emerald-400" />
-                <span>Audited for Kenya DPA 2019 & ISO/IEC 27001 Tenancy Isolation</span>
+              <div className="pt-4 border-t border-white/10 flex items-center gap-2 font-mono text-[11px] text-white/50">
+                <IconShieldLock size={15} className="text-emerald-400" />
+                <span>Handled under Kenya's Data Protection Act, 2019.</span>
+              </div>
+            </div>
+
+            {/* Right 7 Cols: The Interactive "Support Permit" Canvas */}
+            <div className="lg:col-span-7 flex justify-center lg:justify-end">
+              <div className="w-full max-w-[590px]">
+                <div
+                  className="rounded-[30px] p-7 sm:p-9 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all space-y-6"
+                  style={{
+                    background: '#FFFFFF',
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  {/* Permit Header */}
+                  <div className="flex items-start justify-between gap-4 flex-wrap pb-4 border-b border-[var(--ink-100)]">
+                    <div>
+                      <span className="font-mono text-[11px] text-[var(--text-tertiary)] block">
+                        This is what you'd see right now, in your own dashboard
+                      </span>
+                      <h4 className="text-[18px] font-semibold text-[var(--text-primary)] mt-1">
+                        Support access to Kwanza Logistics
+                      </h4>
+                    </div>
+                    <StatusBadge
+                      tone={granted ? 'success' : 'neutral'}
+                      variant="pill"
+                      dot
+                      pulse={granted}
+                      size="md"
+                    >
+                      {granted ? 'Currently open' : 'Closed'}
+                    </StatusBadge>
+                  </div>
+
+                  {/* Who + Why Meta Grid */}
+                  <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-[var(--surface-sunken)]/70 border border-[var(--ink-200)]/60">
+                    <div>
+                      <span className="font-mono text-[11px] text-[var(--text-tertiary)] block">Opened by</span>
+                      <span className="text-[14px] font-medium text-[var(--text-primary)] block mt-0.5">
+                        Wanjiru, Support
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-mono text-[11px] text-[var(--text-tertiary)] block">Reason given</span>
+                      <span className="text-[14px] font-medium text-[var(--text-primary)] block mt-0.5">
+                        Ticket #4829, invoice question
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Live Countdown Clock Bar */}
+                  <div
+                    className="flex items-center justify-between rounded-2xl p-4.5 transition-colors border"
+                    style={{
+                      background: granted ? '#fff7ed' : 'var(--surface-sunken)',
+                      borderColor: granted ? 'rgba(249, 115, 22, 0.2)' : 'var(--ink-200)',
+                    }}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <IconClock
+                        size={19}
+                        className={granted ? 'text-[var(--orange-500)]' : 'text-[var(--text-tertiary)]'}
+                        aria-hidden="true"
+                      />
+                      <span className="text-[14px] font-medium text-[var(--text-primary)]">
+                        {granted ? 'Closes automatically in' : 'Access closed'}
+                      </span>
+                    </div>
+                    <span
+                      className="font-mono font-semibold text-[22px] tracking-tight tabular-nums"
+                      style={{ color: granted ? 'var(--orange-500)' : 'var(--text-tertiary)' }}
+                      aria-hidden="true"
+                    >
+                      {granted ? `${mm}:${ss}` : '00:00'}
+                    </span>
+                  </div>
+
+                  {/* Interactive Revoke/Start Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (granted) {
+                        setGranted(false);
+                      } else {
+                        setGranted(true);
+                        setSecondsLeft(SESSION_LENGTH);
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-2 rounded-full py-3.5 min-h-[48px] text-[14px] font-medium transition-all cursor-pointer shadow-sm hover:shadow-md active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)]"
+                    style={
+                      granted
+                        ? { background: 'var(--text-primary)', color: '#fff' }
+                        : { background: 'var(--blue-500)', color: '#fff' }
+                    }
+                  >
+                    {granted ? (
+                      <>
+                        <IconPlayerPause size={17} aria-hidden="true" />
+                        <span>End this session now</span>
+                      </>
+                    ) : (
+                      <>
+                        <IconPlayerPlay size={17} aria-hidden="true" />
+                        <span>Start a new session</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Permission Scope Checklist */}
+                  <div className="pt-4 border-t border-[var(--ink-100)]">
+                    <span className="font-mono text-[11px] text-[var(--text-tertiary)] block mb-2.5 uppercase tracking-wider">
+                      What this lets them see
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { label: 'View this account only', ok: true },
+                        { label: 'Read-only, no edits', ok: true },
+                        { label: 'Other businesses on the platform', ok: false },
+                        { label: 'Anything after it expires', ok: false },
+                      ].map((item, i) => (
+                        <StatusBadge
+                          key={i}
+                          tone={item.ok ? 'success' : 'neutral'}
+                          variant="pill"
+                          size="md"
+                          icon={item.ok ? IconCheck : IconX}
+                        >
+                          {item.label}
+                        </StatusBadge>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
               </div>
             </div>
 
           </div>
         </div>
+
       </div>
     </div>
   );
