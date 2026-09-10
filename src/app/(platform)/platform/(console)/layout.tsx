@@ -9,7 +9,8 @@ import type {
 import { getConsoleChrome, resolveSupportSession } from '@/lib/console/session';
 import { getIsolationStatus } from '@/lib/console/data';
 import { getLiveIsolationStatus } from '@/lib/console/live';
-import { endSupportSession, setNavState, startSupportSession } from './actions';
+import { getLiveConsoleChrome } from '@/lib/console/liveChrome';
+import { endSupportSession, startSupportSession } from './actions';
 
 /**
  * 02 §6 · 09 §1. The platform console. Brian's workspace, and the one interface
@@ -58,18 +59,21 @@ const navigation: ConsoleNavGroup[] = [
 ];
 
 /*
- * ⚠ PLACEHOLDER DATA, AND IT IS MARKED AS SUCH ON PURPOSE.
+ * ⚠ THESE ARE NOW THE FALLBACK, NOT THE SOURCE — EXCEPT `notices`.
  *
- * These three constants are the seam where M1 and M4 will connect. Each is
- * shaped exactly as the query that replaces it will return, so swapping them
- * is a function call and not a refactor:
+ * `workspaces` and `account` are served live by `getLiveConsoleChrome()`
+ * below and these literals render only when there is no platform session,
+ * which in practice means the review deployment's demo cookie. The switcher
+ * needed it most: it lists workspaces to SWITCH INTO, so a fixture there was
+ * offering a door to somewhere that does not exist.
  *
- *   workspaces →  dbAsService.select(...).from(tenants).orderBy(lastSeenAt)
- *                 A platform record operation, and one of the few legitimate
- *                 service-role reads: the console owner is listing tenants,
- *                 not reading tenant business data. 11 §6 rule 3.
- *   notices    →  a platform notifications query, once that table exists.
- *   account    →  the resolved platform admin session.
+ *   workspaces →  live: recent tenants joined to their plan. DONE.
+ *   account    →  live: the resolved platform admin. DONE.
+ *   notices    →  a platform notifications query, ONCE THAT TABLE EXISTS.
+ *                 It does not. There is no notifications table anywhere in
+ *                 `src/db/schema`, which is also why the bell's "Mark all
+ *                 read" control was removed rather than wired — there is no
+ *                 read flag to set. This is the last fixture in the shell.
  *
  * They are deliberately NOT faked deeper in the component tree. Keeping the
  * fixtures at the boundary means the shell below has never seen anything but
@@ -156,24 +160,38 @@ export default async function PlatformLayout({ children }: { children: React.Rea
    * it here precisely so it is not something to go and check; a number
    * somebody typed in would defeat that.
    */
-  const [chrome, session, live] = await Promise.all([
+  const [chrome, session, live, liveChrome] = await Promise.all([
     getConsoleChrome(),
     resolveSupportSession(),
     getLiveIsolationStatus(),
+    getLiveConsoleChrome(),
   ]);
   const isolation = live ?? (await getIsolationStatus());
+
+  /*
+   * ⚠ TWO OF THE THREE FIXTURES ABOVE ARE NOW A FALLBACK RATHER THAN THE
+   * SOURCE. `getLiveConsoleChrome` returns the real switcher list and the
+   * real signed-in admin, or `null` when there is no platform session — the
+   * review deployment's demo cookie — in which case the designed values below
+   * still render and nothing breaks. Same contract as `getLiveIsolationStatus`
+   * directly above.
+   *
+   * `notices` has no live form and stays a literal: there is no notifications
+   * table in the schema to query. It is the last fixture in this shell.
+   */
+  const switcherWorkspaces = liveChrome?.workspaces ?? workspaces;
+  const signedInAccount = liveChrome?.account ?? account;
 
   return (
     <ConsoleShell
       navigation={navigation}
-      workspaces={workspaces}
+      workspaces={switcherWorkspaces}
       notices={notices}
-      account={account}
+      account={signedInAccount}
       nav={chrome.nav}
       density={chrome.density}
       session={session}
       isolation={isolation}
-      onNavStateChange={setNavState}
       onStartSession={startSupportSession}
       onEndSession={endSupportSession}
     >

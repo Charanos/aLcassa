@@ -1,28 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import gsap from 'gsap';
 import * as Dialog from '@radix-ui/react-dialog';
 import {
   IconAlertTriangle,
   IconArrowUpRight,
+  IconArrowRight,
   IconBell,
   IconChevronDown,
   IconChevronLeft,
+  IconCircleDot,
   IconFileText,
-  IconGlobe,
   IconLayoutSidebar,
   IconLogout,
   IconSearch,
-  IconSettings,
   IconUser,
+  IconHexagon,
+  IconLayersIntersect,
+  IconCube,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
+import Image from 'next/image';
 import { Mark } from '@/components/brand/Mark';
 import { CONSOLE_ICONS } from './icons';
+import { ConsoleMobileNav } from './ConsoleMobileNav';
 import { SupportSessionBanner } from './SupportSessionBanner';
 import { StartSessionDialog } from './StartSessionDialog';
 import { ProvisionWorkspaceDialog } from './ProvisionWorkspaceDialog';
@@ -73,6 +77,30 @@ import type { IsolationStatus } from '@/lib/console/data';
 
 const OVERLAY_Z = 60;
 
+/* ── Floating-rail geometry ───────────────────────────────────────────────
+ * Four numbers that have to agree with each other, so they are declared once
+ * instead of being typed into a style object twice. The layout track is
+ * `width + INSET * 2`; if those two ever disagree the panel sits off-centre
+ * in its own gutter, which is the kind of two-pixel wrongness that is very
+ * hard to see and impossible to unsee.
+ */
+const RAIL_INSET = 12;
+/*
+ * ⚠ 60 AND 248 RECONCILE A DRIFT. `chromeStyle()` in `lib/console/session.ts`
+ * has always published `--nav-w` as 60/248 while this file laid the rail out
+ * at 58/240 — two sources of truth for one measurement, which stayed
+ * invisible only because nothing ever read the custom property. Matching them
+ * costs two pixels and removes the trap. The extra 8px on the open rail is
+ * also the one place labels were tight: "Support sessions" plus its badge is
+ * the longest row in the navigation.
+ */
+const RAIL_W = 60;
+const RAIL_W_OPEN = 248;
+/* Slightly softer than `--radius-lg` (12px). At this height the panel reads
+ * as a tall card, and a tall card wants a marginally rounder corner than a
+ * button does or the ends look pinched. */
+const RAIL_RADIUS = 16;
+
 export type ConsoleShellProps = {
   navigation: ConsoleNavGroup[];
   workspaces: ConsoleWorkspace[];
@@ -84,7 +112,16 @@ export type ConsoleShellProps = {
   /** Sheet 05: isolation state sits under the navigation permanently, rather
    *  than being something the operator has to go and check. */
   isolation: IsolationStatus;
-  onNavStateChange: (nav: NavState) => Promise<void>;
+  /*
+   * ⚠ `onNavStateChange` USED TO LIVE HERE AND THE SHELL NEVER CALLED IT.
+   * It was a required prop, the layout dutifully passed the `setNavState`
+   * server action into it, and the destructure below silenced the unused
+   * warning with an eslint-disable — three files cooperating to plumb a
+   * value nowhere. `saveNavPref` replaced it deliberately (see that
+   * function for why a Route Handler beats a Server Action for a cosmetic
+   * cookie), and the action itself is gone: an exported `'use server'`
+   * function is a POST-able endpoint whether or not anything calls it.
+   */
   onStartSession: (input: {
     tenantId: string;
     tenantName: string;
@@ -126,7 +163,6 @@ export function ConsoleShell({
   density,
   session,
   isolation,
-  onNavStateChange: _onNavStateChange /* eslint-disable-line @typescript-eslint/no-unused-vars */,
   onStartSession,
   onEndSession,
   children,
@@ -151,33 +187,156 @@ export function ConsoleShell({
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [searchParams, pathname, router]);
 
-  const [collapsed, setCollapsed] = useState(nav === 'collapsed');
+  /*
+   * ── THE RAIL HAS TWO STATES AND THEY ARE NOT THE SAME THING ─────────────
+   *
+   * `locked` is the PREFERENCE — what the operator chose, what the cookie
+   * holds, and what the server renders at on the next hard navigation.
+   * `peeking` is a TRANSIENT hover expansion that exists only while the
+   * pointer (or keyboard focus) is inside a locked-collapsed rail.
+   *
+   * Gmail's behaviour, and the reason it works: the rail sits collapsed, it
+   * opens under the pointer so you can read a label without committing to
+   * anything, and the button is what makes a choice stick. Peeking therefore
+   * NEVER calls `saveNavPref` — a preference that changed because somebody's
+   * cursor crossed the rail on the way to the page is not a preference.
+   *
+   * `collapsed` below stays the VISUAL flag, because roughly thirty style
+   * branches in this file already branch on it and they all want "is the rail
+   * narrow right now", not "what did the operator choose".
+   */
+  const [locked, setLocked] = useState<NavState>(nav);
+  const [peeking, setPeeking] = useState(false);
+
+  const lockedCollapsed = locked === 'collapsed';
+  const collapsed = lockedCollapsed && !peeking;
+
+  /*
+   * The hue of the bell's unread dot: the most severe thing waiting behind
+   * it. `danger` outranks `warning` outranks everything else, matching the
+   * order `NOTICE_INK` already establishes for the rows themselves — so the
+   * dot and the first chip the operator sees after opening it agree.
+   */
+  const noticeAccent = useMemo(() => {
+    if (notices.some((n) => n.kind === 'danger')) return 'var(--danger-fg)';
+    if (notices.some((n) => n.kind === 'warning')) return 'var(--warning-fg)';
+    /* Nothing needs acting on, but something is unread. The accent mark is
+       the system's "look here" that carries no severity of its own. */
+    return 'var(--accent-mark)';
+  }, [notices]);
   const [openMenu, setOpenMenu] = useState<'switcher' | 'notices' | 'account' | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [pendingWorkspace, setPendingWorkspace] = useState<ConsoleWorkspace | null>(null);
-  const [, startTransition] = useTransition();
-  void startTransition; // retained for future use
+
+  /** The highlighted row in the palette, driven by the arrow keys and by
+   *  hover so the two can never disagree about what Enter will open. */
+  const [paletteIndex, setPaletteIndex] = useState(0);
+  const selectedHitRef = useRef<HTMLAnchorElement>(null);
 
   const paletteInput = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const navElRef = useRef<HTMLElement>(null);
 
-  const expanded = !collapsed;
-  void expanded; // used structurally via `collapsed` inverse
 
-  const closeAll = useCallback(() => {
+  /**
+   * ⚠ WHICH CONTROL OPENED THE CURRENT MENU, SO FOCUS CAN GO BACK TO IT.
+   *
+   * The three top-bar menus are hand-rolled rather than Radix, so nothing was
+   * managing focus. Escape closed them and left focus on `<body>` — a
+   * keyboard operator pressed Escape and lost their place entirely, with the
+   * next Tab starting again from the top of the document. Returning focus to
+   * the trigger is the one thing every menu implementation owes the keyboard,
+   * and it is the difference between "dismissed" and "vanished".
+   */
+  const menuTriggerRef = useRef<HTMLElement | null>(null);
+
+  const closeAll = useCallback((restoreFocus = false) => {
     setOpenMenu(null);
     setPaletteOpen(false);
+    if (restoreFocus) menuTriggerRef.current?.focus();
+    menuTriggerRef.current = null;
   }, []);
 
+  /** Records the trigger, then toggles. Used by all three top-bar menus so
+   *  none of them can be the one that forgets. */
+  const toggleMenu = useCallback(
+    (kind: 'switcher' | 'notices' | 'account', el: HTMLElement | null) => {
+      setOpenMenu((current) => {
+        const next = current === kind ? null : kind;
+        menuTriggerRef.current = next ? el : null;
+        return next;
+      });
+    },
+    [],
+  );
+
+  /**
+   * The button and ⌘B. This is the only thing that writes the preference.
+   *
+   * ⚠ IT CLEARS THE PEEK. Locking the rail open while the pointer is still
+   * inside it would otherwise leave `peeking` true underneath, and the rail
+   * would appear to collapse on mouse-out despite having just been locked
+   * open — the exact opposite of what the operator asked for.
+   */
   const toggleCollapse = useCallback(() => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      saveNavPref(next ? 'collapsed' : 'expanded');
+    setPeeking(false);
+    setLocked((prev) => {
+      const next: NavState = prev === 'collapsed' ? 'expanded' : 'collapsed';
+      saveNavPref(next);
       return next;
     });
   }, []);
+
+  /*
+   * ⚠ OPENING IS DELAYED, CLOSING IS NOT. This asymmetry is the difference
+   * between a rail that feels intentional and one that flickers.
+   *
+   * The rail runs the full height of the window down the left edge, so the
+   * pointer crosses it constantly — on the way to the browser's own chrome,
+   * on the way back from a tab, on any diagonal toward the top-left of the
+   * page. Opening instantly means a 182px panel flashing open and shut
+   * several times a minute for someone who never asked for it. A short hold
+   * asks the pointer to mean it.
+   *
+   * Closing has no delay because a rail that lingers after the pointer has
+   * left is covering content the operator is already trying to read.
+   */
+  const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const PEEK_DELAY_MS = 140;
+
+  const cancelPeekTimer = useCallback(() => {
+    if (peekTimer.current) {
+      clearTimeout(peekTimer.current);
+      peekTimer.current = null;
+    }
+  }, []);
+
+  /* Peeking is meaningless on an expanded rail, and a stale `true` left over
+     from before a lock would fight the next collapse. */
+  const startPeek = useCallback(() => {
+    if (locked !== 'collapsed') return;
+    cancelPeekTimer();
+    peekTimer.current = setTimeout(() => setPeeking(true), PEEK_DELAY_MS);
+  }, [locked, cancelPeekTimer]);
+
+  const endPeek = useCallback(() => {
+    cancelPeekTimer();
+    setPeeking(false);
+  }, [cancelPeekTimer]);
+
+  /* Keyboard focus must NOT wait — a tab landing on a clipped icon needs the
+     label immediately, and focus is unambiguous intent in a way that a
+     passing cursor is not. */
+  const focusPeek = useCallback(() => {
+    if (locked !== 'collapsed') return;
+    cancelPeekTimer();
+    setPeeking(true);
+  }, [locked, cancelPeekTimer]);
+
+  /* An unmount mid-hover would otherwise leave a timer to fire into a dead
+     component. */
+  useEffect(() => cancelPeekTimer, [cancelPeekTimer]);
 
   // Track collapse state in a ref so GSAP effects can read current value
   // without needing to be in their dependency arrays.
@@ -200,7 +359,7 @@ export function ConsoleShell({
         toggleCollapse();
         return;
       }
-      if (e.key === 'Escape') closeAll();
+      if (e.key === 'Escape') closeAll(true);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -223,6 +382,22 @@ export function ConsoleShell({
   useEffect(() => {
     closeAll();
   }, [pathname, closeAll]);
+
+  /*
+   * A new query means a new list, and an index left pointing at row six of a
+   * list that now has two would send Enter somewhere the operator never saw.
+   * Reset on every change of the result set, not just of the query string.
+   */
+  useEffect(() => {
+    setPaletteIndex(0);
+  }, [query, paletteOpen]);
+
+  /* Keep the highlighted row in view when the arrows walk past the fold.
+     `block: 'nearest'` scrolls the minimum needed, so the list does not jump
+     the selection to the middle on every keypress. */
+  useEffect(() => {
+    selectedHitRef.current?.scrollIntoView({ block: 'nearest' });
+  }, [paletteIndex]);
 
   const paletteHits = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -458,8 +633,24 @@ export function ConsoleShell({
       style={{
         background: 'var(--surface-base)',
         color: 'var(--text-primary)',
-        // Server-computed. See note 2 in the header comment.
-        ['--nav-w' as string]: collapsed ? '58px' : '240px',
+        /*
+         * Server-computed. See note 2 in the header comment.
+         *
+         * ⚠ IT TRACKS THE LOCKED WIDTH, NOT THE VISIBLE ONE. This is the
+         * rail's FOOTPRINT — what the page has to lay out around — and a peek
+         * deliberately does not change that (it overlays instead). Wiring it
+         * to `collapsed` would make the variable oscillate every time a
+         * pointer crossed the rail, which is the one thing a layout variable
+         * must never do.
+         *
+         * ⚠ NOTHING READS IT TODAY. `grep 'var(--nav-w)'` returns no hits,
+         * and `chromeStyle` in `lib/console/session.ts` publishes a DIFFERENT
+         * pair of numbers for the same variable (60/248 against 58/240 here)
+         * — two sources of truth that have already drifted apart because
+         * neither has a consumer to keep them honest. Before using this from
+         * CSS, reconcile the two.
+         */
+        ['--nav-w' as string]: `${lockedCollapsed ? RAIL_W : RAIL_W_OPEN}px`,
         ['--row-h' as string]: density === 'dense' ? '36px' : '40px',
         ['--row-pad' as string]: density === 'dense' ? '6px' : '8px',
       }}
@@ -484,33 +675,76 @@ export function ConsoleShell({
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header
         ref={headerRef}
-        className="relative flex shrink-0 items-center gap-3 px-4 md:px-5"
+        data-slot="toolbar"
+        /*
+         * ⚠ TABBING OUT OF AN OPEN MENU CLOSES IT.
+         *
+         * The mousedown listener already dismissed these menus when a POINTER
+         * went elsewhere, and nothing did the equivalent for the keyboard: Tab
+         * past the last item and focus moved on into the page while the menu
+         * stayed open above it — a panel covering content, anchored to nothing
+         * the operator was looking at, dismissable only by reaching for the
+         * mouse. React's `onBlur` bubbles (unlike the native event), so this
+         * one handler covers every control and every item inside all three
+         * menus.
+         *
+         * `relatedTarget` is where focus is GOING. It is null when focus
+         * leaves the document entirely — switching tabs, clicking the browser
+         * chrome — and in that case the menu is deliberately left alone,
+         * because returning to the window should not have silently changed
+         * what was on screen.
+         */
+        onBlur={(e) => {
+          const next = e.relatedTarget as Node | null;
+          if (!next) return;
+          if (!e.currentTarget.contains(next)) setOpenMenu(null);
+        }}
+        className="relative z-50 flex h-[var(--topbar-height)] shrink-0 items-center justify-between border-b px-4 lg:px-6"
         style={{
-          height: 'var(--topbar-height)',
           background: 'var(--chrome-bg)',
-          color: 'var(--chrome-fg)',
-          borderBottom: '1px solid var(--chrome-rule)',
-          boxShadow: 'var(--chrome-highlight)',
-          zIndex: 30,
+          borderColor: 'var(--chrome-rule)',
         }}
       >
-        <Link
-          href="/platform"
-          className="inline-flex shrink-0 items-center gap-3"
-          style={{ color: 'var(--chrome-fg)' }}
-        >
-          <Mark size={20} tone="chrome" title="aLcassa" />
-          <span
-            className="hidden sm:inline"
-            style={{
-              font: '500 15px/1 var(--font-ui)',
-              letterSpacing: '-0.015em',
-              color: 'var(--chrome-fg)',
-            }}
+        {/* Subtle Architectural Top Bar Backdrop Art */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden select-none" aria-hidden="true">
+          <div
+            className="absolute -top-14 left-10 size-[200px] rounded-full opacity-[0.05] blur-[60px]"
+            style={{ background: 'var(--blue-500)' }}
+          />
+          <div
+            className="absolute -top-14 right-24 size-[180px] rounded-full opacity-[0.035] blur-[60px]"
+            style={{ background: 'var(--orange-500)' }}
+          />
+          <IconLayersIntersect
+            size={110}
+            stroke={0.8}
+            className="absolute -top-4 left-[18%] rotate-[18deg] text-[var(--chrome-fg-muted)] opacity-[0.08]"
+          />
+          <IconCube
+            size={90}
+            stroke={0.7}
+            className="absolute -bottom-6 right-[26%] -rotate-[14deg] text-[var(--chrome-fg-muted)] opacity-[0.08]"
+          />
+        </div>
+        {/* ── Left: Logo & Switcher ────────────────────────────────────── */}
+        <div className="flex shrink-0 items-center gap-3">
+          <Link
+            href="/platform"
+            className="inline-flex shrink-0 items-center gap-3"
+            style={{ color: 'var(--chrome-fg)' }}
           >
-            aLcassa
-          </span>
-        </Link>
+            <Mark size={20} tone="brand" title="aLcassa" />
+            <span
+              className="hidden sm:inline"
+              style={{
+                font: '500 15px/1 var(--font-ui)',
+                letterSpacing: '-0.015em',
+                color: 'var(--chrome-fg)',
+              }}
+            >
+              aLcassa
+            </span>
+          </Link>
 
         <span
           aria-hidden
@@ -521,32 +755,43 @@ export function ConsoleShell({
         {/* ── Workspace switcher ─────────────────────────────────────── */}
         <div className="relative hidden shrink-0 md:block">
           <ChromeButton
-            onClick={() => setOpenMenu((m) => (m === 'switcher' ? null : 'switcher'))}
+            onClick={(e) => toggleMenu('switcher', e.currentTarget)}
             expanded={openMenu === 'switcher'}
             bordered
           >
-            <span
-              className="grid size-4 place-items-center rounded-[3px]"
-              style={{
-                background: 'var(--chrome-active-bg)',
-                color: 'var(--chrome-action)',
-                font: '500 9px/1 var(--font-mono)',
-              }}
+            {/*
+              ⚠ THIS WAS THE LITERAL CHARACTER `◎`.
+
+              A Unicode glyph standing in for an icon in a bar where every
+              other mark is Tabler: it renders at whatever weight and baseline
+              the user's font stack decides, ignores `stroke`, and lands
+              differently on Windows, macOS and Linux. It also could not take
+              a colour independently of its label.
+
+              A real icon can, and does — this is the one always-visible spot
+              in the top bar where brand blue reads as identity rather than as
+              a state, which is what keeps the bar from being a single flat
+              navy note.
+            */}
+            <IconCircleDot
+              size={15}
+              stroke={1.5}
+              className="shrink-0"
+              style={{ color: 'var(--chrome-action)' }}
               aria-hidden
-            >
-              ◎
-            </span>
+            />
             <span className="text-[12.5px] whitespace-nowrap">Switch workspace</span>
             <IconChevronDown
               size={13}
-              stroke={1.5}
+              stroke={1.25}
+              className={`transition-transform duration-200 ${openMenu === 'switcher' ? 'rotate-180' : ''}`}
               style={{ color: 'var(--chrome-fg-muted)' }}
               aria-hidden
             />
           </ChromeButton>
 
           {openMenu === 'switcher' ? (
-            <Dropdown className="left-0 w-[380px] p-1.5">
+            <Dropdown className="left-0 w-[380px] p-2">
               <p className="t-eyebrow px-2.5 pt-2 pb-1.5" style={{ color: 'var(--text-tertiary)' }}>
                 Recent workspaces
               </p>
@@ -558,26 +803,26 @@ export function ConsoleShell({
                     setOpenMenu(null);
                     setPendingWorkspace(w);
                   }}
-                  className="flex w-full items-center gap-2.5 rounded-panel px-2.5 py-2.5 text-left transition-colors hover:bg-[var(--surface-inset)]"
+                  className="flex w-full items-center gap-3 rounded-[8px] px-2.5 py-2.5 text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
                   style={{ color: 'var(--text-primary)' }}
                 >
                   <span
-                    className="grid size-[26px] shrink-0 place-items-center rounded-panel"
+                    className="grid size-[30px] shrink-0 place-items-center rounded-[6px]"
                     style={{
                       background: 'var(--blue-50)',
-                      color: 'var(--blue-500)',
-                      font: '500 11px/1 var(--font-mono)',
+                      color: 'var(--blue-600)',
+                      font: '600 12px/1 var(--font-mono)',
                     }}
                     aria-hidden
                   >
                     {w.initials}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="t-compact block truncate">{w.name}</span>
+                    <span className="block truncate font-medium text-[13.5px]" style={{ color: 'var(--text-primary)' }}>{w.name}</span>
                     <span
-                      className="block truncate"
+                      className="block truncate mt-[2px]"
                       style={{
-                        font: '400 11px/1.4 var(--font-mono)',
+                        font: '400 12px/1.4 var(--font-mono)',
                         color: 'var(--text-tertiary)',
                       }}
                     >
@@ -585,52 +830,68 @@ export function ConsoleShell({
                     </span>
                   </span>
                   <span
-                    style={{ font: '400 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                    style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
                   >
                     {w.plan}
                   </span>
                 </button>
               ))}
               <p
-                className="t-compact mx-2.5 mt-1.5 mb-2 border-t pt-2"
-                style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}
+                className="mx-2.5 mt-1.5 mb-1 border-t pt-3 text-[12px] font-medium leading-relaxed"
+                style={{ borderColor: 'rgba(0,0,0,0.06)', color: 'var(--text-tertiary)' }}
               >
                 Selecting a workspace opens a confirmation. It never navigates straight in.
               </p>
             </Dropdown>
           ) : null}
         </div>
+      </div>
 
-        {/* ── Command palette trigger ─────────────────────────────────── */}
+      {/* ── Center: Command palette trigger ───────────────────────────── */}
+      <div className="flex flex-1 justify-center px-4">
         <button
           type="button"
           onClick={() => {
             setPaletteOpen(true);
             setQuery('');
+            setOpenMenu(null);
           }}
-          className="flex h-8 min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left transition-all hover:border-[var(--chrome-rule-strong)] hover:bg-[var(--chrome-hover)] md:max-w-[280px]"
+          className="group flex h-[32px] w-full max-w-[340px] cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left transition-all hover:border-[var(--chrome-rule-strong)] hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
           style={{
             border: '1px solid var(--chrome-rule)',
-            background: 'transparent',
+            background: 'rgba(255, 255, 255, 0.02)',
             color: 'var(--chrome-fg-muted)',
             font: '400 12.5px/1 var(--font-ui)',
+            boxShadow: 'var(--chrome-neu)',
           }}
         >
-          <IconSearch size={14} stroke={1.5} aria-hidden />
-          <span className="flex-1 truncate">Search or jump to...</span>
+          <IconSearch
+            size={14}
+            stroke={1.3}
+            className="transition-colors group-hover:text-[var(--chrome-fg)]"
+            style={{ color: 'var(--chrome-fg-faint)' }}
+            aria-hidden
+          />
+          <span className="flex-1 truncate text-[12px] transition-colors group-hover:text-[var(--chrome-fg)]">
+            Search or jump to...
+          </span>
           <kbd
-            className="hidden h-[18px] items-center rounded-[4px] px-1.5 sm:inline-flex"
+            className="hidden h-[22px] items-center gap-[3px] rounded-[5px] px-1.5 sm:inline-flex select-none"
             style={{
+              background: 'color-mix(in oklab, var(--chrome-active-bg) 60%, transparent)',
               border: '1px solid var(--chrome-rule-strong)',
-              font: '500 10px/1 var(--font-mono)',
-              color: 'var(--chrome-fg-muted)',
+              font: '500 11px/1 var(--font-mono)',
+              color: 'var(--chrome-fg)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 1px 1px rgba(0,0,0,0.2)',
             }}
           >
-            ⌘K
+            <span style={{ opacity: 0.5, fontSize: '10px' }}>⌘</span>K
           </kbd>
         </button>
+      </div>
 
-        <div className="ml-auto flex shrink-0 items-center gap-1.5">
+      {/* ── Right: Actions ────────────────────────────────────────────── */}
+      <div className="flex shrink-0 items-center gap-1.5">
           {/* ── Notifications ─────────────────────────────────────────── */}
           <div className="relative">
             <ChromeIconButton
@@ -646,86 +907,124 @@ export function ConsoleShell({
                     .to(icon, { rotate: -8, duration: 0.06 })
                     .to(icon, { rotate: 0, duration: 0.1, ease: 'back.out(2)' });
                 }
-                setOpenMenu((m) => (m === 'notices' ? null : 'notices'));
+                toggleMenu('notices', e.currentTarget);
               }}
             >
-              <IconBell size={18} stroke={1.5} aria-hidden />
+              <IconBell size={18} stroke={1.25} aria-hidden />
               {notices.length > 0 ? (
+                /*
+                 * ⚠ THE DOT NOW REPORTS THE WORST THING IN THE LIST.
+                 *
+                 * It was `--blue-400` regardless of contents, with a
+                 * permanent `animate-ping`. Both were wrong in the same
+                 * direction: blue reads INFORMATIONAL, and the fixture behind
+                 * it opens with a declined payment and a workspace at 94% of
+                 * its events limit. An operator glancing at that bell was
+                 * being told "something happened" in the one hue the system
+                 * reserves for "nothing is wrong".
+                 *
+                 * 03 §14's taxonomy already answers this — oxide refuses,
+                 * ochre resolves — so the dot takes the hue of the most
+                 * severe unread notice and inherits its meaning. On a bar
+                 * this monotone that is also where the warmth comes from:
+                 * colour earned by state rather than sprinkled on.
+                 *
+                 * ⚠ THE PING IS GONE. An animation that never stops is not an
+                 * alert, it is wallpaper — and this is a console somebody sits
+                 * in all day. The hue carries it.
+                 */
                 <span
-                  className="absolute top-1.5 right-2 size-1.5 rounded-full"
-                  style={{ background: 'var(--chrome-action)' }}
+                  className="pointer-events-none absolute top-2 right-2 flex size-2 items-center justify-center"
                   aria-hidden
-                />
+                >
+                  <span
+                    className="relative size-1.5 rounded-full"
+                    style={{
+                      background: noticeAccent,
+                      boxShadow: `0 0 6px ${noticeAccent}`,
+                    }}
+                  />
+                </span>
               ) : null}
             </ChromeIconButton>
 
             {openMenu === 'notices' ? (
-              <Dropdown className="right-0 w-[372px] overflow-hidden">
+              <Dropdown className="right-0 w-[380px] overflow-hidden">
                 <div
-                  className="flex items-center justify-between gap-3 border-b px-4 py-3"
-                  style={{ borderColor: 'var(--border-subtle)' }}
+                  className="flex items-center justify-between gap-3 border-b px-5 py-4"
+                  style={{ borderColor: 'rgba(0,0,0,0.06)' }}
                 >
                   <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
                     Notifications
                   </p>
-                  <button
-                    type="button"
-                    className="t-caption"
-                    style={{ color: 'var(--text-action)' }}
-                  >
-                    Mark all read
-                  </button>
+                  {/*
+                    ⚠ "MARK ALL READ" IS DELIBERATELY ABSENT UNTIL THERE IS A
+                    READ STATE TO WRITE.
+                    `Console-Shell` draws it, and it was here as a
+                    `<button type="button">` with no `onClick` — it rendered,
+                    it took a click, and it did nothing. `notices` is still a
+                    module-scope literal in the console layout, whose own note
+                    says it becomes "a platform notifications query, once that
+                    table exists"; there is no read flag anywhere to flip.
+                    01 D-05's rule for unbuilt surfaces is that a placeholder
+                    is "not disabled and not a dead link" — a control that
+                    silently absorbs a click is worse than either, because it
+                    teaches the operator that the console lies. It returns
+                    with the notifications table, wired to it.
+                  */}
                 </div>
-                {notices.map((n) => {
-                  const ink = NOTICE_INK[n.kind];
-                  return (
-                    <Link
-                      key={n.id}
-                      href={n.href}
-                      className="flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors hover:bg-[var(--surface-inset)]"
-                      style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-primary)' }}
-                    >
-                      <span
-                        className="grid size-[26px] shrink-0 place-items-center rounded-panel"
-                        style={{ background: ink.bg, color: ink.fg }}
-                        aria-hidden
+                <div className="scrollbar-slim max-h-[360px] overflow-y-auto">
+                  {notices.map((n) => {
+                    const ink = NOTICE_INK[n.kind];
+                    return (
+                      <Link
+                        key={n.id}
+                        href={n.href}
+                        className="group flex w-full items-start gap-4 border-b px-5 py-4 text-left transition-colors hover:bg-[rgba(0,0,0,0.02)]"
+                        style={{ borderColor: 'rgba(0,0,0,0.04)' }}
                       >
-                        {n.kind === 'plain' ? (
-                          <IconFileText size={14} stroke={1.5} />
-                        ) : (
-                          <IconAlertTriangle size={14} stroke={1.5} />
-                        )}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="t-compact block">{n.title}</span>
                         <span
-                          className="mt-0.5 block"
+                          className="grid size-[32px] shrink-0 place-items-center rounded-[8px]"
+                          style={{ background: n.kind === 'plain' ? 'rgba(0,0,0,0.04)' : ink.bg, color: n.kind === 'plain' ? 'var(--text-secondary)' : ink.fg }}
+                          aria-hidden
+                        >
+                          {n.kind === 'plain' ? (
+                            <IconFileText size={16} stroke={1.5} />
+                          ) : (
+                            <IconAlertTriangle size={16} stroke={1.5} />
+                          )}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-semibold text-[13.5px] transition-colors group-hover:text-[var(--blue-600)]" style={{ color: 'var(--text-primary)' }}>{n.title}</span>
+                          <span
+                            className="mt-1 block"
+                            style={{
+                              font: '450 12.5px/1.45 var(--font-ui)',
+                              color: 'var(--text-secondary)',
+                              textWrap: 'pretty',
+                            }}
+                          >
+                            {n.body}
+                          </span>
+                        </span>
+                        <span
+                          className="shrink-0"
                           style={{
-                            font: '400 11.5px/1.45 var(--font-ui)',
-                            color: 'var(--text-secondary)',
-                            textWrap: 'pretty',
+                            font: '500 11.5px/1.5 var(--font-mono)',
+                            color: 'var(--text-tertiary)',
                           }}
                         >
-                          {n.body}
+                          {n.time}
                         </span>
-                      </span>
-                      <span
-                        className="shrink-0"
-                        style={{
-                          font: '400 11px/1.5 var(--font-mono)',
-                          color: 'var(--text-tertiary)',
-                        }}
-                      >
-                        {n.time}
-                      </span>
-                    </Link>
-                  );
-                })}
-                <div className="px-4 py-3" style={{ background: 'var(--surface-sunken)' }}>
+                      </Link>
+                    );
+                  })}
+                </div>
+                <div className="px-5 py-3 border-t bg-[rgba(0,0,0,0.01)]" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
                   <Link
                     href="/platform/settings?tab=notifications"
-                    className="t-caption"
-                    style={{ color: 'var(--text-action)' }}
+                    className="font-medium text-[13px] hover:underline"
+                    style={{ color: 'var(--blue-600)' }}
                   >
                     Notification settings
                   </Link>
@@ -734,19 +1033,21 @@ export function ConsoleShell({
             ) : null}
           </div>
 
-          <Link
-            href="/"
-            aria-label="View marketing landing page"
-            title="Marketing landing page"
-            className="target-44 grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
-            style={{
-              border: 'none',
-              background: 'transparent',
-              color: 'var(--chrome-fg-muted)',
-            }}
-          >
-            <IconGlobe size={18} stroke={1.5} aria-hidden />
-          </Link>
+          {/*
+            ⚠ THE GLOBE ICON WAS REMOVED, NOT RESTYLED.
+
+            It was the THIRD route to `/` in this chrome, and the weakest of
+            the three: an unlabelled icon, in the densest corner of the top
+            bar, whose meaning a reader could only learn by hovering it or
+            clicking it. Icons earn their place by being faster than a label
+            for something done often; nobody leaves the console for the
+            marketing site often. The rail's "Public site" row says what it
+            is in words and keeps the destination one click away.
+
+            Removing it also gives the notification bell and the account
+            control room to breathe, which is what that corner actually
+            needed — see the colour work on the top bar.
+          */}
 
           <span
             aria-hidden
@@ -758,9 +1059,9 @@ export function ConsoleShell({
           <div className="relative">
             <button
               type="button"
-              onClick={() => setOpenMenu((m) => (m === 'account' ? null : 'account'))}
+              onClick={(e) => toggleMenu('account', e.currentTarget)}
               aria-expanded={openMenu === 'account'}
-              className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg py-0 pr-2 pl-1 transition-colors hover:bg-[var(--chrome-hover)]"
+              className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg py-0 pr-2 pl-1 transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
               style={{
                 border: '1px solid transparent',
                 color: 'var(--chrome-fg)',
@@ -778,19 +1079,20 @@ export function ConsoleShell({
               <span className="hidden text-[12.5px] font-medium lg:inline">{account.name}</span>
               <IconChevronDown
                 size={12}
-                stroke={1.5}
+                stroke={1.25}
+                className={`transition-transform duration-200 ${openMenu === 'account' ? 'rotate-180' : ''}`}
                 style={{ color: 'var(--chrome-fg-muted)' }}
                 aria-hidden
               />
             </button>
 
             {openMenu === 'account' ? (
-              <Dropdown className="right-0 w-[254px] p-1.5">
+              <Dropdown className="right-0 w-[260px] p-2">
                 <div
-                  className="mb-1.5 flex items-center gap-2.5 border-b px-2.5 pt-2.5 pb-3"
-                  style={{ borderColor: 'var(--border-subtle)' }}
+                  className="mb-2 flex items-center gap-3 border-b px-3 pt-2 pb-4"
+                  style={{ borderColor: 'rgba(0,0,0,0.06)' }}
                 >
-                  <div className="relative size-[34px] shrink-0 overflow-hidden rounded-full border border-[var(--border-subtle)]">
+                  <div className="relative size-[38px] shrink-0 overflow-hidden rounded-full border border-[rgba(0,0,0,0.08)] shadow-sm">
                     <Image
                       src="https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGJsYWNrJTIwbWFufGVufDB8fDB8fHww"
                       alt={account.name}
@@ -800,15 +1102,15 @@ export function ConsoleShell({
                   </div>
                   <span className="min-w-0 flex-1">
                     <span
-                      className="t-compact block truncate font-medium"
+                      className="block truncate font-semibold text-[14px]"
                       style={{ color: 'var(--text-primary)' }}
                     >
                       {account.name}
                     </span>
                     <span
-                      className="block truncate"
+                      className="block truncate mt-[1px]"
                       style={{
-                        font: '400 11px/1.4 var(--font-mono)',
+                        font: '400 12px/1.4 var(--font-mono)',
                         color: 'var(--text-tertiary)',
                       }}
                     >
@@ -816,14 +1118,26 @@ export function ConsoleShell({
                     </span>
                   </span>
                 </div>
-                <MenuLink href="/" icon={IconGlobe}>
-                  Marketing site
-                </MenuLink>
+                {/*
+                  ⚠ THIS MENU IS ACCOUNT-SCOPED NOW, AND TWO ITEMS LEFT IT.
+                  ONE ACTION, ONE OWNER — the chrome offered three routes to
+                  the public site and two each to profile and settings, from
+                  controls sitting within a few centimetres of each other.
+
+                  "Marketing site" → the rail's own "Public site" row keeps
+                  it. It is not an account action; it was here because the
+                  account menu is where stray links accumulate.
+
+                  "Settings" → `/platform/settings` is PLATFORM settings and
+                  it is already a primary navigation item. Repeating it under
+                  an avatar also made it ambiguous: an avatar menu implies
+                  "my settings", and this was never that.
+
+                  What remains is the set only this menu can offer: who you
+                  are, your own profile, and the way out.
+                */}
                 <MenuLink href="/platform/profile" icon={IconUser}>
                   Your profile
-                </MenuLink>
-                <MenuLink href="/platform/settings" icon={IconSettings}>
-                  Settings
                 </MenuLink>
                 {/*
                   ⚠ A FORM, NOT A LINK, AND THE DIFFERENCE IS NOT COSMETIC.
@@ -843,44 +1157,177 @@ export function ConsoleShell({
       </header>
 
       {/* ── Body ───────────────────────────────────────────────────────── */}
-      <div className="flex min-h-0 flex-1">
+      <div className="relative flex min-h-0 flex-1">
+        {/*
+          ⚠ THE LAYOUT TRACK. It reserves the rail's footprint and NOTHING
+          else — no background, no content, no focus. The rail itself is
+          absolutely positioned over it.
+
+          This is the whole reason a hover-expand is usable. If the rail
+          occupied the flex row directly, peeking would widen it from 58 to
+          240 and shove the entire console 182px right every time the pointer
+          crossed the edge on its way to a table cell. Reflowing a page of
+          data under the cursor is the failure mode that makes people hate
+          hover navigation. The track only changes width when the operator
+          LOCKS a state, which is a deliberate act they are already watching.
+        */}
+        <div
+          aria-hidden
+          className="hidden shrink-0 md:block"
+          style={{
+            /* Rail + the inset on BOTH sides, so the gutter to the left of
+               the panel and the gap between panel and content are equal.
+               `RAIL_INSET * 2` is the whole reason this is not just the
+               rail width — get it wrong and the panel sits closer to one
+               edge than the other, which is instantly visible at this size. */
+            width: `${(lockedCollapsed ? RAIL_W : RAIL_W_OPEN) + RAIL_INSET * 2}px`,
+            transition: 'width 260ms cubic-bezier(0.2, 0, 0, 1)',
+          }}
+        />
         <nav
           ref={navElRef}
           aria-label="Platform navigation"
-          className="hidden shrink-0 flex-col select-none md:flex"
+          onMouseEnter={startPeek}
+          onMouseLeave={endPeek}
+          /*
+            ⚠ FOCUS OPENS IT TOO. A keyboard operator tabbing into a collapsed
+            rail would otherwise move through eleven icon-only buttons whose
+            labels are clipped to `max-width: 0`. `onFocus`/`onBlur` bubble in
+            React, so these fire for descendants; the blur handler checks
+            where focus actually went, because moving between two items inside
+            the rail must not close it.
+          */
+          onFocus={focusPeek}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) endPeek();
+          }}
+          className="absolute hidden flex-col select-none md:flex"
           style={{
-            width: collapsed ? '58px' : '240px',
+            /*
+             * ⚠ A FLOATING PANEL, INSET ON ALL FOUR SIDES — DELIBERATE NOW.
+             *
+             * It became detached by accident when the rail was lifted out of
+             * the flex row to make hover-peek possible, and it read better
+             * than the flush column it replaced, so it is a decision rather
+             * than a leftover. The reasoning that makes it defensible: this
+             * chrome is ALREADY an inverted slab on a cream page (tokens.css
+             * TIER 4), and a dark slab that touches three viewport edges is
+             * a wall. Floating it turns the same slab into an object on the
+             * page, which is what the header dropdowns and the boundary
+             * frame already behave like.
+             *
+             * `top` clears the header rather than sitting under it, so the
+             * cream shows through between the two and the detachment reads
+             * as intent.
+             */
+            top: RAIL_INSET,
+            bottom: RAIL_INSET,
+            left: RAIL_INSET,
+            width: collapsed ? RAIL_W : RAIL_W_OPEN,
             background: 'var(--chrome-bg)',
-            borderRight: '1px solid var(--chrome-rule)',
-            transition: 'width 260ms cubic-bezier(0.2, 0, 0, 1)',
+            /* A full border, not just `borderRight`. A floating object is
+               bounded on every side; a flush column only needs the one edge
+               that meets the content. */
+            border: '1px solid var(--chrome-rule)',
+            borderRadius: RAIL_RADIUS,
+            transition:
+              'width 260ms cubic-bezier(0.2, 0, 0, 1), box-shadow 260ms ease',
             willChange: 'width',
             contain: 'layout style',
-            zIndex: 20,
+            /* Above the main pane so the peek can cover it, and above the
+               page content generally — but below the header's dropdowns and
+               the palette overlay, which must stay on top of everything. */
+            zIndex: 25,
+            /* Load-bearing with the radius: the nav's own backdrop glows and
+               the active-item indicator are absolutely positioned children
+               that would otherwise paint over the rounded corners. */
+            overflow: 'hidden',
+            /*
+             * Elevation carries the state. At rest the panel is seated —
+             * present, but not competing with the page. On peek it lifts,
+             * because it is temporarily covering content the operator can
+             * still see the edges of and needs to read as transient.
+             */
+            boxShadow: peeking
+              ? '0 24px 48px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04)'
+              : '0 6px 20px -8px rgba(0, 0, 0, 0.35)',
           }}
         >
+          {/* Refined Premium Sidebar Backdrop */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden select-none" aria-hidden="true">
+            {/* Soft Brand Accent Atmospheric Glows */}
+            <div
+              className="absolute -top-32 -left-32 size-[360px] rounded-full opacity-[0.08] blur-[90px]"
+              style={{ background: 'var(--blue-500)' }}
+            />
+            <div
+              className="absolute top-[42%] -right-32 size-[280px] rounded-full opacity-[0.05] blur-[85px]"
+              style={{ background: 'var(--orange-500)' }}
+            />
+            {/* Revamped Architectural Watermark Art */}
+            <IconHexagon
+              size={260}
+              stroke={0.7}
+              className="absolute -left-20 top-16 rotate-[15deg] text-[var(--chrome-fg-muted)] opacity-[0.0618]"
+            />
+            <IconLayersIntersect
+              size={240}
+              stroke={0.7}
+              className="absolute -right-20 top-[38%] -rotate-[20deg] text-[var(--chrome-fg-muted)] opacity-[0.0618]"
+            />
+            <IconCube
+              size={220}
+              stroke={0.6}
+              className="absolute -left-16 bottom-24 rotate-[35deg] text-[var(--chrome-fg-muted)] opacity-[0.0618]"
+            />
+          </div>
+
           <div
             ref={navContainerRef}
-            className="relative flex-1 overflow-x-hidden overflow-y-auto px-2.5 pt-6 pb-4"
+            /*
+             * ⚠ `pt-4`, NOT `pt-6`, AND THE GROUPS TIGHTENED WITH IT.
+             * Ten items plus two group headings plus the footer stack were
+             * overflowing a 900px window by a few dozen pixels — enough to
+             * summon a scrollbar for almost nothing, which is the worst of
+             * both worlds. Trimming the top pad and the inter-group margins
+             * buys back roughly 30px and puts the whole navigation inside the
+             * panel at every realistic window height.
+             *
+             * It is NOT a guarantee. A 600px viewport, or devtools docked to
+             * the bottom, will still overflow — which is why the slim
+             * scrollbar below is the graceful degradation rather than the
+             * primary plan.
+             */
+            className="scrollbar-slim scrollbar-slim-chrome relative z-10 flex-1 overflow-x-hidden overflow-y-auto px-2.5 pt-4 pb-3"
           >
             {/* GSAP Smooth Sliding Active Pill Indicator */}
             <div
               ref={indicatorRef}
-              className="pointer-events-none absolute right-2.5 left-2.5 z-0 rounded-lg"
+              className="pointer-events-none absolute right-2.5 left-2.5 z-0 rounded-lg overflow-hidden"
               style={{
-                background: 'var(--chrome-active-bg)',
-                boxShadow: 'var(--chrome-highlight)',
+                background: 'color-mix(in oklab, var(--chrome-active-bg) 90%, transparent)',
+                boxShadow: 'var(--chrome-highlight), 0 1px 3px rgba(0,0,0,0.3)',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
                 opacity: 0,
                 willChange: 'top, opacity',
               }}
               aria-hidden="true"
-            />
+            >
+              <span
+                className="absolute left-0 top-1.5 bottom-1.5 w-[2.5px] rounded-r-full"
+                style={{
+                  background: 'var(--blue-400)',
+                  boxShadow: '0 0 8px var(--blue-400)',
+                }}
+              />
+            </div>
 
             {navigation.map((group, gIdx) => (
-              <div key={group.label} className={gIdx === 0 ? 'mb-4' : 'mt-4 mb-4'}>
+              <div key={group.label} className={gIdx === 0 ? 'mb-3' : 'mt-5 mb-3'}>
                 <p
                   className="t-eyebrow mb-2 ml-2 overflow-hidden tracking-wider whitespace-nowrap"
                   style={{
-                    color: 'var(--chrome-fg-faint)',
+                    color: 'var(--chrome-fg-muted)',
                     fontSize: '10.5px',
                     opacity: collapsed ? 0 : 1,
                     maxHeight: collapsed ? '0px' : '20px',
@@ -925,7 +1372,7 @@ export function ConsoleShell({
                         <span className="flex size-4 shrink-0 items-center justify-center">
                           <Icon
                             size={16}
-                            stroke={active ? 1.8 : 1.5}
+                            stroke={active ? 1.8 : 1.25}
                             className="transition-colors"
                             style={{ color: active ? 'var(--chrome-action)' : 'currentColor' }}
                             aria-hidden
@@ -946,15 +1393,16 @@ export function ConsoleShell({
                         </span>
                         {item.badge ? (
                           <span
-                            className="grid h-4 min-w-4 place-items-center overflow-hidden rounded-full px-1"
+                            className="grid h-4.5 min-w-[18px] place-items-center overflow-hidden rounded-full px-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
                             style={{
                               opacity: collapsed ? 0 : 1,
                               transform: collapsed ? 'scale(0.4)' : 'scale(1)',
                               pointerEvents: collapsed ? 'none' : 'auto',
                               background: active
-                                ? 'var(--chrome-action)'
-                                : 'var(--chrome-rule-strong)',
-                              color: active ? 'var(--chrome-bg)' : 'var(--chrome-fg)',
+                                ? 'var(--blue-500)'
+                                : 'rgba(255, 255, 255, 0.08)',
+                              color: active ? '#ffffff' : 'var(--chrome-fg)',
+                              border: active ? '1px solid var(--blue-400)' : '1px solid rgba(255, 255, 255, 0.1)',
                               font: '500 10px/1 var(--font-mono)',
                               transition:
                                 'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
@@ -993,7 +1441,7 @@ export function ConsoleShell({
                 ? `Isolation green · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
                 : `Isolation gap · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
             }
-            className="mx-2 mb-2 flex items-center rounded-lg py-2 transition-colors hover:bg-[var(--chrome-hover)]"
+            className="mx-2 mb-2 flex items-center rounded-lg py-2 transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
             style={{
               gap: collapsed ? '0px' : '9px',
               paddingLeft: collapsed ? '11px' : '10px',
@@ -1002,18 +1450,33 @@ export function ConsoleShell({
                 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
             }}
           >
-            <span className="flex size-4 shrink-0 items-center justify-center">
-              <span
-                aria-hidden
-                className="size-[7px] rounded-full"
-                style={{ background: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)' }}
-              />
+            <span className="relative flex size-4 shrink-0 items-center justify-center">
+              {isolationOk ? (
+                <>
+                  <span
+                    className="absolute size-2 rounded-full animate-ping opacity-40"
+                    style={{ background: 'var(--success-fg)' }}
+                  />
+                  <span
+                    className="relative size-1.5 rounded-full"
+                    style={{
+                      background: 'var(--success-fg)',
+                      boxShadow: '0 0 6px var(--success-fg)',
+                    }}
+                  />
+                </>
+              ) : (
+                <span
+                  className="size-1.5 rounded-full"
+                  style={{ background: 'var(--warning-fg)', boxShadow: '0 0 6px var(--warning-fg)' }}
+                />
+              )}
             </span>
             <span
-              className="min-w-0 flex-1 overflow-hidden whitespace-nowrap"
+              className="min-w-0 flex-1 overflow-hidden"
               style={{
                 opacity: collapsed ? 0 : 1,
-                maxWidth: collapsed ? '0px' : '150px',
+                maxWidth: collapsed ? '0px' : '190px',
                 transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
                 pointerEvents: collapsed ? 'none' : 'auto',
                 transition:
@@ -1029,8 +1492,9 @@ export function ConsoleShell({
               <span
                 className="block truncate font-mono text-[10px]"
                 style={{ color: 'var(--chrome-fg-faint)' }}
+                title={`${isolation.tablesPoliced} of ${isolation.tablesTotal} tenant-scoped tables policed · Last automated audit: ${isolation.lastRun}`}
               >
-                {isolation.tablesPoliced} of {isolation.tablesTotal} tables · {isolation.lastRun}
+                {isolation.tablesPoliced}/{isolation.tablesTotal} tables · {isolation.lastRun}
               </span>
             </span>
           </Link>
@@ -1039,7 +1503,7 @@ export function ConsoleShell({
             {/* Quick exit to public marketing site */}
             <Link
               href="/"
-              className="flex items-center rounded-lg p-1.5 text-[12px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
+              className="flex items-center rounded-lg p-1.5 text-[12px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
               style={{
                 color: 'var(--chrome-fg-muted)',
                 gap: collapsed ? '0px' : '10px',
@@ -1051,7 +1515,7 @@ export function ConsoleShell({
               title={collapsed ? 'Public marketing site' : undefined}
             >
               <span className="flex size-6 shrink-0 items-center justify-center">
-                <IconArrowUpRight size={15} stroke={1.5} aria-hidden />
+                <IconArrowUpRight size={15} stroke={1.25} aria-hidden />
               </span>
               <span
                 className="min-w-0 flex-1 overflow-hidden whitespace-nowrap"
@@ -1068,17 +1532,33 @@ export function ConsoleShell({
               </span>
             </Link>
 
+            {/*
+              ⚠ IDENTITY READOUT, NOT A SECOND ROUTE TO THE PROFILE.
+
+              This was a `<Link href="/platform/profile">` — the same
+              destination the account control in the top bar already owns,
+              roughly a thumb's width away, in a chrome that also offered the
+              public site three times over. One action, one owner.
+
+              It keeps its place because what it SAYS is not duplicated: which
+              account this window is signed in as, and at what role. That is
+              orientation, and it belongs next to the isolation chip above it,
+              which is the same kind of statement — a fact the operator should
+              not have to go and check. It is a `<div>` now, so it no longer
+              takes a tab stop or invites a click that lands where the avatar
+              menu already goes.
+            */}
             <div
-              className="flex items-center rounded-lg p-1.5 transition-all hover:bg-[var(--chrome-hover)]"
+              className="flex items-center rounded-lg p-1.5"
               style={{
-                background: 'var(--chrome-hover)',
-                boxShadow: 'var(--chrome-highlight)',
+                background: 'transparent',
                 gap: collapsed ? '0px' : '10px',
                 paddingLeft: collapsed ? '7px' : '8px',
                 paddingRight: collapsed ? '7px' : '8px',
                 transition:
                   'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
+              title={collapsed ? `${account.name} (${account.role})` : undefined}
             >
               <div className="relative size-6 shrink-0 overflow-hidden rounded-full border border-[var(--chrome-rule)]">
                 <Image
@@ -1102,7 +1582,7 @@ export function ConsoleShell({
               >
                 <span
                   className="block truncate text-[12px] font-medium"
-                  style={{ color: 'var(--chrome-fg)' }}
+                  style={{ color: 'var(--chrome-fg-muted)' }}
                 >
                   {account.name}
                 </span>
@@ -1118,59 +1598,106 @@ export function ConsoleShell({
             <button
               type="button"
               onClick={toggleCollapse}
-              className="mt-1 flex h-7 w-full cursor-pointer items-center rounded-lg text-[11.5px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
+              className="group mt-1 flex h-[36px] w-full cursor-pointer items-center rounded-lg text-[13px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
               style={{
                 background: 'transparent',
                 color: 'var(--chrome-fg-faint)',
-                paddingLeft: collapsed ? '11px' : '8px',
-                paddingRight: collapsed ? '11px' : '8px',
-                gap: collapsed ? '0px' : '8px',
+                paddingLeft: collapsed ? '11px' : '10px',
+                paddingRight: collapsed ? '11px' : '10px',
+                gap: collapsed ? '0px' : '10px',
                 transition:
                   'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              /* ⚠ `lockedCollapsed`, NOT `collapsed`. While the rail is
+                 peeking it LOOKS expanded, but the click still locks it open —
+                 labelling that 'Collapse sidebar' would describe the opposite
+                 of what pressing it does, to the reader least able to check. */
+              aria-label={lockedCollapsed ? 'Keep sidebar open' : 'Collapse sidebar'}
             >
               <span className="flex size-4 shrink-0 items-center justify-center">
                 <IconChevronLeft
-                  size={14}
-                  stroke={1.5}
+                  size={16}
+                  stroke={1.25}
                   style={{
-                    transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transform: lockedCollapsed ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 260ms cubic-bezier(0.2,0,0,1)',
                   }}
                   aria-hidden
                 />
               </span>
               <span
-                className="flex min-w-0 flex-1 items-center overflow-hidden whitespace-nowrap"
+                className="nav-label min-w-0 flex-1 truncate overflow-hidden whitespace-nowrap text-left"
                 style={{
                   opacity: collapsed ? 0 : 1,
                   maxWidth: collapsed ? '0px' : '150px',
-                  transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
+                  transform: collapsed ? 'translateX(-8px)' : 'translateX(0)',
                   pointerEvents: collapsed ? 'none' : 'auto',
                   transition:
                     'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
-                <span>Collapse</span>
-                <kbd
-                  className="ml-auto font-mono text-[10px]"
-                  style={{ color: 'var(--chrome-fg-faint)' }}
-                >
-                  ⌘B
-                </kbd>
+                <span className="transition-colors group-hover:text-[var(--chrome-fg)]">
+                  {lockedCollapsed ? 'Keep open' : 'Collapse'}
+                </span>
               </span>
+              <kbd
+                className="inline-flex h-[20px] shrink-0 items-center gap-[2.5px] rounded-[5px] px-1.5 select-none"
+                style={{
+                  opacity: collapsed ? 0 : 1,
+                  transform: collapsed ? 'scale(0.4)' : 'scale(1)',
+                  pointerEvents: collapsed ? 'none' : 'auto',
+                  background: 'color-mix(in oklab, var(--chrome-active-bg) 60%, transparent)',
+                  border: '1px solid var(--chrome-rule-strong)',
+                  font: '500 10.5px/1 var(--font-mono)',
+                  color: 'var(--chrome-fg-muted)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 1px 1px rgba(0,0,0,0.2)',
+                  transition: 'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
+                }}
+              >
+                <span style={{ opacity: 0.5, fontSize: '9.5px' }}>⌘</span>B
+              </kbd>
             </button>
           </div>
         </nav>
 
         <main
           id="main-content"
-          className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto"
+          /*
+           * ⚠ CLEARANCE FOR THE MOBILE BAR, AND IT HAS TO BE ON THE SCROLL
+           * CONTAINER. The bar is `position: fixed`, so it sits outside flow
+           * and covers whatever the page ends with — the last table row, a
+           * form's submit button, the final line of an audit entry. Padding
+           * the scroller lets content be scrolled clear of it; padding the
+           * page inside would not, because the overflow is owned here.
+           *
+           * 76px is the bar (≈60) plus its 12px offset and a little air, with
+           * the safe-area inset on top for the home indicator. It is a CLASS
+           * rather than an inline style precisely so `md:pb-0` can cancel it —
+           * an inline `paddingBottom` has no breakpoint and would leave 76px
+           * of dead space under every desktop page.
+           */
+          className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-hide pb-[calc(76px+env(safe-area-inset-bottom,0px))] md:pb-0"
           style={{ background: 'var(--surface-base)' }}
         >
           {children}
         </main>
+
+        {/*
+          Below `md` this is the ONLY navigation that exists — the rail, the
+          workspace switcher and the header divider are all `hidden md:*`.
+          It renders inside the body row rather than beside the shell so it
+          shares the same pathname-driven active state.
+        */}
+        <ConsoleMobileNav
+          navigation={navigation}
+          account={account}
+          isolation={isolation}
+          onOpenPalette={() => {
+            setQuery('');
+            setOpenMenu(null);
+            setPaletteOpen(true);
+          }}
+        />
       </div>
 
       {/* ── Command palette ────────────────────────────────────────────── */}
@@ -1194,7 +1721,8 @@ export function ConsoleShell({
             className="fixed inset-0 flex justify-center"
             style={{
               zIndex: 80,
-              background: 'var(--surface-overlay)',
+              background: 'rgba(0, 0, 0, 0.4)',
+              backdropFilter: 'blur(6px)',
               paddingTop: '12vh',
             }}
           />
@@ -1213,16 +1741,22 @@ export function ConsoleShell({
               paletteInput.current?.focus();
             }}
             aria-describedby={undefined}
-            className="surface-glass-strong fixed top-[12vh] left-1/2 z-[81] flex w-[620px] max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col overflow-hidden rounded-overlay"
-            style={{ maxHeight: '62vh' }}
+            className="fixed top-[12vh] left-1/2 z-[81] flex w-[620px] max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col overflow-hidden rounded-[16px]"
+            style={{
+              maxHeight: '62vh',
+              background: '#ffffff',
+              color: 'var(--text-primary)',
+              border: '1px solid rgba(0,0,0,0.06)',
+              boxShadow: '0 32px 64px -16px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.02)',
+            }}
           >
             <Dialog.Title className="sr-only">Command palette</Dialog.Title>
             <div
-              className="flex items-center gap-2.5 border-b px-4 py-3.5"
-              style={{ borderColor: 'var(--border-subtle)' }}
+              className="flex items-center gap-3 border-b px-5 py-4"
+              style={{ borderColor: 'rgba(0,0,0,0.05)' }}
             >
               <IconSearch
-                size={18}
+                size={20}
                 stroke={1.5}
                 style={{ color: 'var(--text-tertiary)' }}
                 aria-hidden
@@ -1230,81 +1764,162 @@ export function ConsoleShell({
               <input
                 ref={paletteInput}
                 type="text"
+                /* ⚠ A REAL COMBOBOX, NOT A TEXT BOX WITH ARIA SPRINKLED ON.
+                   The rows carried `aria-selected` while nothing declared a
+                   listbox, which is invalid ARIA — a screen reader is told a
+                   link is "selected" with no set for it to be selected
+                   WITHIN, and announces nothing useful. The three parts have
+                   to agree: combobox owns listbox, listbox holds options,
+                   and `aria-activedescendant` names the one that Enter takes
+                   while real focus stays in the input. */
+                role="combobox"
+                aria-expanded
+                aria-controls="console-palette-list"
+                aria-autocomplete="list"
+                aria-activedescendant={
+                  paletteHits[paletteIndex] ? `palette-hit-${paletteIndex}` : undefined
+                }
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && paletteHits[0]) {
-                    router.push(paletteHits[0].key);
+                  /*
+                   * ⚠ THE PALETTE HAD NO KEYBOARD SELECTION AT ALL.
+                   *
+                   * Enter took `paletteHits[0]` unconditionally — the first
+                   * row, forever, no matter what the operator was looking at
+                   * — and the arrow keys did nothing, so a list of eleven
+                   * screens could only be used by typing until exactly one
+                   * survived, or by lifting a hand to the mouse. In a control
+                   * whose entire promise is "keyboard-first", that is the
+                   * feature missing rather than a rough edge.
+                   *
+                   * Down and Up move the selection and WRAP, because a list
+                   * this short is faster to reach backwards from the top than
+                   * to page down through. Home and End are free once an index
+                   * exists. Enter commits whatever is highlighted.
+                   */
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setPaletteIndex((i) => (paletteHits.length ? (i + 1) % paletteHits.length : 0));
+                    return;
+                  }
+                  if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setPaletteIndex((i) =>
+                      paletteHits.length ? (i - 1 + paletteHits.length) % paletteHits.length : 0,
+                    );
+                    return;
+                  }
+                  if (e.key === 'Home') {
+                    e.preventDefault();
+                    setPaletteIndex(0);
+                    return;
+                  }
+                  if (e.key === 'End') {
+                    e.preventDefault();
+                    setPaletteIndex(Math.max(0, paletteHits.length - 1));
+                    return;
+                  }
+                  if (e.key === 'Enter') {
+                    const hit = paletteHits[paletteIndex] ?? paletteHits[0];
+                    if (hit) {
+                      e.preventDefault();
+                      closeAll();
+                      router.push(hit.key);
+                    }
                   }
                 }}
-                placeholder="Jump to a screen, a workspace, or an action"
-                className="flex-1 border-none bg-transparent outline-none"
+                placeholder="Search screens, workspaces, or actions..."
+                className="flex-1 border-none bg-transparent outline-none placeholder:text-[var(--text-tertiary)]"
                 style={{
-                  font: '400 var(--text-md)/1.4 var(--font-ui)',
+                  font: '400 16px/1.4 var(--font-ui)',
                   color: 'var(--text-primary)',
                 }}
               />
               <kbd
-                className="h-5 rounded-chip px-1.5"
+                className="flex h-5 items-center justify-center rounded-[4px] px-1.5"
                 style={{
-                  border: '1px solid var(--border-subtle)',
-                  font: '500 11px/20px var(--font-mono)',
-                  color: 'var(--text-tertiary)',
+                  background: 'linear-gradient(to bottom, #ffffff, #fafafa)',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  boxShadow: '0 1px 1px rgba(0,0,0,0.05)',
+                  font: '500 10px/1 var(--font-mono)',
+                  color: 'rgba(0,0,0,0.4)',
                 }}
               >
                 ESC
               </kbd>
             </div>
-            <div className="flex-1 overflow-y-auto p-1.5">
+            {/* The inline `scrollbarWidth: 'none'` that used to be here would
+                have beaten `.scrollbar-slim`'s `thin` in Firefox — an inline
+                style outranks any class — leaving Firefox with no scrollbar
+                at all while Chrome got the styled one. */}
+            <div
+              id="console-palette-list"
+              role="listbox"
+              aria-label="Results"
+              className="scrollbar-slim scrollbar-slim-chrome flex-1 overflow-y-auto p-2"
+            >
               {paletteHits.length === 0 ? (
                 <p
-                  className="t-compact px-2.5 py-6 text-center"
+                  className="t-compact px-3 py-10 text-center"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   Nothing matches “{query}”.
                 </p>
               ) : (
-                paletteHits.map((hit) => {
+                paletteHits.map((hit, index) => {
                   const Icon = CONSOLE_ICONS[hit.icon] ?? IconLayoutSidebar;
+                  const selected = index === paletteIndex;
                   return (
                     <Link
                       key={`${hit.kind}-${hit.key}`}
                       href={hit.key}
-                      className="flex w-full items-center gap-3 rounded-panel px-2.5 py-2.5 text-left transition-colors hover:bg-[var(--surface-inset)]"
-                      style={{ color: 'var(--text-primary)' }}
+                      /* The pointer and the keyboard drive ONE selection.
+                         Hovering moves the highlight rather than lighting a
+                         second row, so Enter always commits what is lit. */
+                      onMouseEnter={() => setPaletteIndex(index)}
+                      onClick={() => closeAll()}
+                      id={`palette-hit-${index}`}
+                      role="option"
+                      aria-selected={selected}
+                      ref={selected ? selectedHitRef : undefined}
+                      className="group flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-left transition-all"
+                      style={{ background: selected ? 'rgba(0,0,0,0.045)' : 'transparent' }}
                     >
                       <span
-                        className="grid size-[26px] shrink-0 place-items-center rounded-panel"
-                        style={{
-                          background: 'var(--surface-sunken)',
-                          color: 'var(--text-secondary)',
-                        }}
+                        className="flex size-7 shrink-0 items-center justify-center transition-colors group-hover:text-[var(--blue-500)]"
+                        style={{ color: 'var(--text-tertiary)' }}
                         aria-hidden
                       >
-                        <Icon size={16} stroke={1.5} />
+                        <Icon size={18} stroke={1.5} />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="t-compact block truncate">{hit.label}</span>
+                        <span className="block truncate font-medium text-[14.5px] tracking-tight transition-colors group-hover:text-[var(--blue-600)]" style={{ color: 'var(--text-primary)' }}>{hit.label}</span>
                         <span
-                          className="block truncate"
+                          className="block truncate mt-[1px]"
                           style={{
-                            font: '400 11px/1.4 var(--font-mono)',
+                            font: '400 12.5px/1.4 var(--font-ui)',
                             color: 'var(--text-tertiary)',
                           }}
                         >
                           {hit.hint}
                         </span>
                       </span>
-                      <span
-                        className="shrink-0"
-                        style={{
-                          font: '400 11px/1 var(--font-mono)',
-                          letterSpacing: '0.06em',
-                          color: 'var(--text-tertiary)',
-                        }}
-                      >
-                        {hit.kind}
-                      </span>
+                      <div className="flex shrink-0 items-center justify-end">
+                        <span
+                          className="flex items-center justify-center rounded-[6px] border px-2 py-[3px] text-[11px] font-medium transition-colors group-hover:border-[var(--blue-200)] group-hover:bg-[var(--blue-50)] group-hover:text-[var(--blue-600)]"
+                          style={{
+                            borderColor: 'rgba(0,0,0,0.06)',
+                            background: '#fcfcfc',
+                            color: 'var(--text-tertiary)'
+                          }}
+                        >
+                          {hit.kind.charAt(0).toUpperCase() + hit.kind.slice(1).toLowerCase()}
+                        </span>
+                        <div className="flex items-center justify-center overflow-hidden w-0 opacity-0 transition-all duration-200 ease-out group-hover:w-5 group-hover:opacity-100 group-hover:ml-1.5">
+                           <IconArrowRight size={14} stroke={2} className="text-[var(--blue-500)] -translate-x-2 transition-transform duration-200 group-hover:translate-x-0" />
+                        </div>
+                      </div>
                     </Link>
                   );
                 })
@@ -1361,7 +1976,9 @@ function ChromeButton({
   bordered,
 }: {
   children: React.ReactNode;
-  onClick: () => void;
+  /* Takes the event so the caller can record `currentTarget` as the control
+     to return focus to when the menu it opened is dismissed. */
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   expanded: boolean;
   bordered?: boolean;
 }) {
@@ -1370,15 +1987,36 @@ function ChromeButton({
       type="button"
       onClick={onClick}
       aria-expanded={expanded}
-      className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg py-0 pr-2.5 pl-2 transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
+      className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg py-0 pr-2.5 pl-2 transition-[background-color,border-color,color] duration-150 hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
       style={{
-        border: bordered ? '1px solid var(--chrome-rule)' : '1px solid transparent',
+        /*
+         * ⚠ THE OPEN STATE IS BRAND-TINTED, NOT JUST DARKER.
+         *
+         * Every state of this control used to be a shade of the same navy —
+         * rest, hover and OPEN differed only by a few percent of white — so
+         * the one state that matters, "this menu is showing", was the hardest
+         * to see in a bar that is already monotone.
+         *
+         * `--chrome-action` is the token the chrome tier already defines for
+         * exactly this: the action colour stepped up to clear contrast
+         * against the slab (`#043AE1` is 2.52:1 on navy, so the tier
+         * publishes `#96b9ff` instead). Using it here is not a new colour in
+         * the system, it is the system's existing answer finally being asked
+         * the question. `--chrome-active-bg` is its matching tint and is
+         * already what the sidebar's current item uses, so an open menu in
+         * the top bar and the current page in the rail now agree.
+         */
+        border: expanded
+          ? '1px solid color-mix(in oklab, var(--chrome-action) 45%, transparent)'
+          : bordered
+            ? '1px solid var(--chrome-rule)'
+            : '1px solid transparent',
         background: expanded
-          ? 'var(--chrome-hover)'
+          ? 'var(--chrome-active-bg)'
           : bordered
             ? 'var(--chrome-hover)'
             : 'transparent',
-        color: 'var(--chrome-fg)',
+        color: expanded ? 'var(--chrome-action)' : 'var(--chrome-fg)',
         font: '400 12.5px/1 var(--font-ui)',
       }}
     >
@@ -1454,11 +2092,15 @@ function Dropdown({ children, className = '' }: { children: React.ReactNode; cla
   return (
     <div
       ref={ref}
-      className={`surface-glass-strong absolute top-[42px] rounded-overlay ${className}`}
+      className={`absolute top-[42px] rounded-[12px] overflow-hidden ${className}`}
       style={{
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         color: 'var(--text-primary)',
+        border: '1px solid var(--border-subtle)',
         zIndex: OVERLAY_Z,
-        boxShadow: 'var(--glass-highlight), var(--shadow-md)',
+        boxShadow: '0 12px 32px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.02)',
       }}
     >
       {children}
@@ -1478,13 +2120,13 @@ function MenuSignOut() {
     <form method="post" action="/api/v1/auth/sign-out" className="contents">
       <button
         type="submit"
-        className="flex h-[34px] w-full items-center gap-3 rounded-panel px-2.5 transition-colors hover:bg-[var(--surface-inset)]"
+        className="group flex h-[36px] w-full items-center gap-3 rounded-[8px] px-2.5 transition-colors hover:bg-[var(--danger-bg)]"
         style={{
           color: 'var(--danger-fg)',
-          font: '400 var(--text-sm)/1 var(--font-ui)',
+          font: '450 13.5px/1 var(--font-ui)',
         }}
       >
-        <IconLogout size={16} stroke={1.5} />
+        <IconLogout size={16} stroke={1.5} className="transition-transform group-hover:scale-105" />
         <span>Sign out</span>
       </button>
     </form>
@@ -1507,20 +2149,20 @@ function MenuLink({
       href={href}
       onMouseEnter={(e) => {
         const icon = e.currentTarget.querySelector('svg');
-        if (icon) gsapSafe.to(icon, { x: 2, duration: 0.15, ease: 'power1.out' });
+        if (icon) gsapSafe.to(icon, { x: 3, duration: 0.2, ease: 'back.out(2)' });
       }}
       onMouseLeave={(e) => {
         const icon = e.currentTarget.querySelector('svg');
-        if (icon) gsapSafe.to(icon, { x: 0, duration: 0.2, ease: 'power1.out' });
+        if (icon) gsapSafe.to(icon, { x: 0, duration: 0.25, ease: 'power2.out' });
       }}
-      className="flex h-[34px] w-full items-center gap-3 rounded-panel px-2.5 transition-colors hover:bg-[var(--surface-inset)]"
+      className="flex h-[36px] w-full items-center gap-3 rounded-[8px] px-2.5 transition-colors hover:bg-[var(--surface-raised)]"
       style={{
-        color: danger ? 'var(--danger-fg)' : 'var(--text-primary)',
-        font: '400 var(--text-sm)/1 var(--font-ui)',
+        color: danger ? 'var(--danger-fg)' : 'var(--text-secondary)',
+        font: '450 13.5px/1 var(--font-ui)',
       }}
     >
-      <Icon size={15} stroke={1.5} className="shrink-0 transition-transform" aria-hidden />
-      {children}
+      <Icon size={16} stroke={1.5} className="shrink-0 transition-transform" aria-hidden />
+      <span className="text-[var(--text-primary)]">{children}</span>
     </Link>
   );
 }

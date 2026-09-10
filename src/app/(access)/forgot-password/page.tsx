@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { AuthShell, TenantAside } from '@/components/access/AuthShell';
+import { AuthShell } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field } from '@/components/primitives/Field';
 
@@ -19,25 +19,23 @@ export const metadata: Metadata = {
 export default function ForgotPasswordPage() {
   return (
     <AuthShell
-      eyebrow="Workspace"
       title="Reset your password"
-      lede="Enter your email and we will send a reset link."
-      aside={<TenantAside />}
+      lede="Enter the email associated with your workspace account and we will dispatch a secure reset link."
       footer={
-        <p className="t-caption text-center" style={{ color: 'var(--text-tertiary)' }}>
-          Remembered it?{' '}
+        <p className="text-center text-[12.5px] text-[var(--text-secondary)]">
+          Remembered your password?{' '}
           <Link
             href="/sign-in"
-            className="text-[var(--text-action)] underline underline-offset-2 transition-opacity hover:opacity-80"
+            className="font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] underline underline-offset-4 transition-colors"
           >
-            Sign in
+            Return to sign in
           </Link>
         </p>
       }
     >
       <form className="grid gap-4" method="post" action="/api/v1/auth/password/forgot">
         <Field
-          label="Email"
+          label="Account email address"
           name="email"
           type="email"
           autoComplete="email"
@@ -45,7 +43,12 @@ export default function ForgotPasswordPage() {
           placeholder="you@company.co.ke"
         />
 
-        <Button type="submit" variant="primary" size="lg" className="mt-2 w-full">
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="mt-2 w-full font-medium shadow-sm hover:shadow-md cursor-pointer"
+        >
           Send reset link
         </Button>
       </form>

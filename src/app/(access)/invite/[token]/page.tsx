@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { IconBuilding } from '@tabler/icons-react';
-import { AuthShell, TenantAside } from '@/components/access/AuthShell';
+import { AuthShell } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field } from '@/components/primitives/Field';
 import { NewPasswordFields } from '@/components/access/NewPasswordFields';
@@ -68,8 +68,8 @@ export default async function InvitePage({
     }[state];
 
     return (
-      <AuthShell eyebrow="Invitation" title={copy.title} lede={copy.body} aside={<TenantAside />}>
-        <Button asChild variant="secondary" size="lg" className="w-full">
+      <AuthShell title={copy.title} lede={copy.body}>
+        <Button asChild variant="secondary" size="lg" className="w-full font-medium shadow-2xs">
           <Link href="/sign-in">Go to sign in</Link>
         </Button>
       </AuthShell>
@@ -77,41 +77,48 @@ export default async function InvitePage({
   }
 
   return (
-    <AuthShell eyebrow="Invitation" title={`Join ${company}`} aside={<TenantAside />}>
-      <div
-        className="mb-6 flex items-start gap-3 rounded-panel border p-4 shadow-sm"
-        style={{
-          background: 'var(--surface-raised)',
-          borderColor: 'var(--border-strong)',
-        }}
-      >
-        <IconBuilding size={18} stroke={1.5} aria-hidden className="mt-0.5 shrink-0 text-warning" />
-        <div>
-          <p className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
-            {inviter} invited you to join {company} as {role}.
-          </p>
-          <p className="t-caption mt-1" style={{ color: 'var(--text-secondary)' }}>
-            An agent handles customer messages and has read-only access to settings.
+    <AuthShell
+      title={`Join ${company}`}
+      lede="You have been granted access to this workspace. Complete your profile to proceed."
+      cardMaxWidth="max-w-[620px]"
+    >
+      <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/60 p-4 shadow-2xs">
+        <div className="grid size-8 shrink-0 place-items-center rounded-xl bg-[var(--orange-500)]/10 text-[var(--orange-600)]">
+          <IconBuilding size={18} stroke={2} aria-hidden />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-1">
+            <span className="text-[13px] font-semibold text-[var(--text-primary)]">
+              {inviter} invited you
+            </span>
+            <span className="rounded-md bg-[var(--blue-500)]/10 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-[var(--blue-600)] capitalize">
+              {role}
+            </span>
+          </div>
+          <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
+            As a team member on {company}, you can access customer threads and collaborate in real-time.
           </p>
         </div>
       </div>
 
       <form className="grid gap-4" method="post" action={`/api/v1/invitations/accept/${token}`}>
-        <Field label="Your name" name="fullName" autoComplete="name" required />
+        <Field
+          label="Your full name"
+          name="fullName"
+          autoComplete="name"
+          required
+          placeholder="e.g. Amina Wanjiku"
+        />
 
-        {/*
-          The accept route creates an account, so it enforces the same twelve
-          characters as the reset flow. One component, one set of rules, shown
-          before submission rather than after.
+        <NewPasswordFields label="Create your account password" showConfirm={false} />
 
-          No confirm field here: 10 §14's invitation flow is already three
-          steps from an email, and a mistyped password on a screen with a
-          visible meter is recoverable through the ordinary reset flow.
-        */}
-        <NewPasswordFields label="Choose a password" showConfirm={false} />
-
-        <Button type="submit" variant="accent" size="lg" className="mt-2 w-full">
-          Accept invitation
+        <Button
+          type="submit"
+          variant="accent"
+          size="lg"
+          className="mt-2 w-full font-medium shadow-sm hover:shadow-md cursor-pointer"
+        >
+          Accept invitation & join workspace
         </Button>
       </form>
     </AuthShell>

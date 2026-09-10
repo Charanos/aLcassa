@@ -304,18 +304,20 @@
  */
 
 :root {
-  --chrome-bg: #131b3e;
-  --chrome-bg-raised: #1c2754;
-  --chrome-fg: #f0f3fa;
-  --chrome-fg-muted: #9ba9ca;
-  --chrome-fg-faint: #67779c;
-  --chrome-rule: rgba(255, 255, 255, 0.08);
-  --chrome-rule-strong: rgba(255, 255, 255, 0.16);
-  --chrome-action: #7ea8fc;
-  --chrome-hover: rgba(255, 255, 255, 0.06);
-  --chrome-active-bg: rgba(126, 168, 252, 0.14);
-  --chrome-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --chrome-neu: inset 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --chrome-bg: #060913; /* slightly deeper for more contrast */
+  --chrome-bg-raised: #0b1021;
+  --chrome-fg: #ffffff;
+  --chrome-fg-muted: #d4d4d8; /* Significantly brightened for legibility */
+  --chrome-fg-faint: #a1a1aa; /* Lightened from #71717a to ensure mono fonts pop */
+  --chrome-rule: rgba(255, 255, 255, 0.05);
+  --chrome-rule-strong: rgba(255, 255, 255, 0.1);
+  --chrome-action: #ffffff;
+  --chrome-hover: rgba(255, 255, 255, 0.04);
+  --chrome-active-bg: rgba(255, 255, 255, 0.07);
+  --chrome-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --chrome-neu: inset 0 1px 1px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  --chrome-glass: rgba(6, 9, 19, 0.65);
+  --chrome-glass-strong: rgba(6, 9, 19, 0.94);
 }
 
 /* Console geometry. Defaults; the shell root overrides them per user. */

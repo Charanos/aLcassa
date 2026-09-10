@@ -25,6 +25,16 @@ import { redact } from '@/lib/logger';
  */
 export const AUDIT_ACTIONS = {
   TENANT_PROVISIONED: 'tenant.provisioned',
+  /**
+   * A workspace the platform did not create. Distinct from
+   * `tenant.provisioned` ON PURPOSE — the actor on that row is a platform
+   * admin who chose to create it, and the actor on this one is the member of
+   * the public who registered. Folding the two would make "how many
+   * workspaces did we open ourselves this quarter" unanswerable, and would
+   * put an unauthenticated caller's id in a column every other row reads as
+   * "a platform admin did this".
+   */
+  TENANT_SELF_REGISTERED: 'tenant.self_registered',
   TENANT_SUSPENDED: 'tenant.suspended',
   TENANT_REACTIVATED: 'tenant.reactivated',
   TENANT_SETTINGS_UPDATED: 'tenant.settings_updated',

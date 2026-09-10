@@ -7,7 +7,7 @@ import {
   IconHistory,
   IconShieldLock,
 } from '@tabler/icons-react';
-import { AuthShell, PlatformAside } from '@/components/access/AuthShell';
+import { AuthShell } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field, PasswordField } from '@/components/primitives/Field';
 
@@ -22,79 +22,103 @@ export const metadata: Metadata = {
 export default function PlatformSignInPage() {
   return (
     <AuthShell
-      variant="platform"
-      eyebrow="Platform"
-      title="Platform sign in"
-      lede="This account manages every workspace. Access is logged."
-      aside={<PlatformAside />}
+      /*
+       * `variant="platform"` used to be passed here. `AuthShell` declared the
+       * prop and never read it — like `aside`, which is now real — so it
+       * styled nothing. Removed rather than implemented: the console's own
+       * chrome is what distinguishes the platform door, and this page is
+       * already unmistakably itself.
+       */
+      title="Platform Operations"
+      lede="This administrative account commands every workspace enclave. Sessions are cryptographically logged."
       footer={
         <div className="space-y-4">
-          {/*
-            Demo bypass, rendered only where /api/demo would answer. These
-            links set an OWNER CONSOLE session without authenticating anyone,
-            which is why the gate matters more on this page than on the
-            tenant one. See lib/auth/demoAccess.
-          */}
           {demoAccessEnabled() ? (
-            <div
-              className="rounded-panel border p-4 transition-all duration-300"
-              style={{
-                background: 'color-mix(in oklab, var(--text-inverse) 6%, transparent)',
-                borderColor: 'color-mix(in oklab, var(--text-inverse) 16%, transparent)',
-              }}
-            >
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Button
-                  asChild
-                  variant="primary"
-                  size="md"
-                  className="w-full justify-center gap-2 text-xs"
-                >
-                  <Link href="/api/demo?role=platform">
-                    <IconShieldLock size={14} stroke={1.75} />
-                    <span>Admin Console</span>
-                    <IconArrowRight size={13} />
-                  </Link>
-                </Button>
+            <div className="space-y-3 pt-1">
+              <div className="relative flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                  <div className="w-full border-t border-[var(--ink-200)]/70" />
+                </div>
+                <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider">
+                  <span className="bg-white px-2 text-[var(--text-tertiary)]">
+                    Reviewer & Demo Mode
+                  </span>
+                </div>
+              </div>
 
-                <Button
-                  asChild
-                  variant="secondary"
-                  size="md"
-                  className="w-full justify-center gap-2 text-xs"
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Link
+                  href="/api/demo?role=platform"
+                  className="group flex items-center justify-between rounded-xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-2.5 transition-all hover:bg-[var(--ink-50)] hover:border-[var(--ink-300)] shadow-2xs"
                 >
-                  <Link href="/api/demo?role=tenant">
-                    <IconBuildingSkyscraper size={14} stroke={1.75} />
-                    <span>Workspace Inbox</span>
-                    <IconArrowRight size={13} />
-                  </Link>
-                </Button>
+                  <div className="flex items-center gap-2">
+                    <span className="grid size-6 place-items-center rounded-md bg-[var(--danger-bg)] text-[var(--danger-fg)]">
+                      <IconShieldLock size={13} stroke={2} />
+                    </span>
+                    <span className="text-[12px] font-medium text-[var(--text-primary)]">
+                      Admin Console
+                    </span>
+                  </div>
+                  <IconArrowRight
+                    size={12}
+                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
+
+                <Link
+                  href="/api/demo?role=tenant"
+                  className="group flex items-center justify-between rounded-xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-2.5 transition-all hover:bg-[var(--ink-50)] hover:border-[var(--ink-300)] shadow-2xs"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="grid size-6 place-items-center rounded-md bg-[var(--success-bg)] text-[var(--success-fg)]">
+                      <IconBuildingSkyscraper size={13} stroke={2} />
+                    </span>
+                    <span className="text-[12px] font-medium text-[var(--text-primary)]">
+                      Workspace Inbox
+                    </span>
+                  </div>
+                  <IconArrowRight
+                    size={12}
+                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
               </div>
             </div>
           ) : null}
 
-          <div className="flex items-start gap-2.5">
-            <IconHistory
-              size={15}
-              stroke={1.5}
-              aria-hidden
-              className="mt-0.5 shrink-0 text-[var(--text-tertiary)]"
-            />
-            <p className="t-caption text-[var(--text-tertiary)]">
-              Sessions last eight hours. Two-factor authentication is recommended and is quoted
-              separately.
+          <div className="flex items-start gap-2.5 pt-1 text-[11.5px] text-[var(--text-tertiary)] font-mono">
+            <IconHistory size={14} stroke={1.8} aria-hidden className="mt-0.5 shrink-0 text-[var(--warning-fg)]" />
+            <p>
+              Administrative sessions auto-expire after 8 hours. Append-only audit logs capture all actions.
             </p>
           </div>
         </div>
       }
     >
       <form className="grid gap-4" method="post" action="/api/platform/v1/auth/sign-in">
-        <Field label="Email" name="email" type="email" autoComplete="email" required />
+        <Field
+          label="Administrator email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          placeholder="admin@alcassa.internal"
+        />
 
-        <PasswordField label="Password" name="password" autoComplete="current-password" required />
+        <PasswordField
+          label="Master password"
+          name="password"
+          autoComplete="current-password"
+          required
+        />
 
-        <Button type="submit" variant="primary" size="lg" className="mt-2 w-full">
-          Sign in
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="mt-2 w-full font-medium shadow-sm hover:shadow-md cursor-pointer"
+        >
+          Authenticate & enter console
         </Button>
       </form>
     </AuthShell>

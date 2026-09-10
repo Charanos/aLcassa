@@ -217,14 +217,14 @@ export function InteractiveFeatures() {
         <div className="inline-flex items-center gap-2 mb-2">
           <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden="true" />
           <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--orange-500)]">
-            What's underneath
+            What’s underneath
           </p>
         </div>
         <h2 className="display text-[32px] sm:text-[42px] font-normal tracking-tight text-[var(--text-primary)] mt-1 leading-tight">
           Built to be trusted with your customers, not just used by them.
         </h2>
         <p className="text-[15px] sm:text-[16px] text-[var(--text-secondary)] mt-3 leading-relaxed">
-          Before a single message gets routed, your team's access, your customers' data, and your AI assistant's voice are all already set up the way you'd want them.
+          Before a single message gets routed, your team’s access, your customers’ data, and your AI assistant’s voice are all already set up the way you’d want them.
         </p>
       </div>
 
@@ -573,7 +573,7 @@ export function InteractiveFeatures() {
 
                 <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed">
                   Save this somewhere safe once you copy it — we only keep a scrambled version on our
-                  side, so we can't show it to you again, and neither can anyone else.
+                  side, so we can’t show it to you again, and neither can anyone else.
                 </p>
 
                 <div className="pt-2 border-t border-[var(--ink-100)] flex items-center justify-between font-mono text-[10.5px] text-[var(--text-tertiary)]">
@@ -604,7 +604,7 @@ export function InteractiveFeatures() {
                     <span className="font-mono text-[10px] text-[var(--text-tertiary)] block mb-1">
                       Customer inquiry:
                     </span>
-                    "Habari, can you confirm when my order from Mombasa will arrive in Nairobi?"
+                    “Habari, can you confirm when my order from Mombasa will arrive in Nairobi?”
                   </div>
                 </div>
 

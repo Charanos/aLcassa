@@ -27,9 +27,73 @@ export type ChecklistStep = {
   doneLabel: string;
   done: boolean;
   href: string;
+  /** One line under the label saying what the step BUYS the reader. Setup
+   *  lists fail when every row reads as a chore the product wants doing; the
+   *  hint is where the reason lives. */
+  hint: string;
+  /** The call to action on the next unfinished step. Only the first
+   *  incomplete step renders a button — see `SetupChecklist`. */
+  cta: string;
 };
 
 export type ActivityLine = { time: string; actor: string; action: string };
+
+/**
+ * A headline number on the overview, with the eight-reading series its
+ * sparkline draws.
+ *
+ * ⚠ `dir` IS THE MOVEMENT, `tone` IS WHETHER THAT MOVEMENT IS GOOD. They are
+ * two fields because they genuinely come apart: a median reply time that
+ * falls is an arrow DOWN and a GOOD reading, while a satisfaction score that
+ * falls is also down and a bad one. Deriving the colour from the arrow would
+ * paint every improvement in reply time ochre.
+ */
+export type OverviewStat = {
+  key: string;
+  label: string;
+  value: string;
+  delta: string;
+  dir: 'up' | 'down';
+  tone: 'good' | 'warn';
+  note: string;
+  /** Oldest reading first. Unitless — the sparkline scales to its own range. */
+  series: number[];
+};
+
+/** One day on the conversation-volume chart. */
+export type VolumePoint = { date: string; handled: number; escalated: number };
+
+/** A conversation the agent could not close, waiting on a person. */
+export type QueueItem = {
+  id: string;
+  initials: string;
+  name: string;
+  channel: string;
+  snippet: string;
+  wait: string;
+  reason: string;
+  /** Past the escalation threshold — the wait time is rendered in ochre. */
+  hot: boolean;
+};
+
+/** A connected channel and whether it is currently carrying traffic. */
+export type ChannelStatus = {
+  key: string;
+  label: string;
+  detail: string;
+  kind: 'whatsapp' | 'email' | 'web' | 'sms';
+  state: string;
+  tone: 'good' | 'warn' | 'danger';
+};
+
+/** A consumption meter for the current billing period. */
+export type UsageMeter = {
+  key: string;
+  label: string;
+  text: string;
+  pct: number;
+  tone: 'good' | 'warn' | 'danger';
+};
 
 export type OverviewModel = {
   operatorFirstName: string;
@@ -38,6 +102,17 @@ export type OverviewModel = {
   planStatus: 'active' | 'trialing' | 'past_due';
   seats: { used: number; limit: number | null };
   channels: { used: number; limit: number | null };
+  /** Rendered as the eyebrow above the greeting, pre-formatted by the server
+   *  so the tenant's own timezone decides the date rather than the browser's. */
+  today: string;
+  /** One sentence under the greeting. Prose, not a template — see 10 §4. */
+  summary: string;
+  stats: OverviewStat[];
+  volume: VolumePoint[];
+  queue: QueueItem[];
+  queueTotal: number;
+  channelStatus: ChannelStatus[];
+  meters: UsageMeter[];
   checklist: ChecklistStep[];
   recentActivity: ActivityLine[];
 };
@@ -64,27 +139,194 @@ export async function getOverview(): Promise<OverviewModel> {
     planStatus: 'active',
     seats: { used: 12, limit: 15 },
     channels: { used: 3, limit: 5 },
-    checklist: [
+    today: 'Today · Thursday 3 September',
+    summary:
+      'Three channels are live and the assistant handled 68% of inbound messages overnight. Seven conversations are waiting on a person.',
+    /*
+     * The four readings the overview leads with. Two `good` and two `warn` on
+     * purpose — the tile treatment differs by tone, and a fixture that was
+     * uniformly healthy would ship the ochre sparkline untested.
+     */
+    stats: [
+      {
+        key: 'open',
+        label: 'Open conversations',
+        value: '84',
+        delta: '+9',
+        dir: 'up',
+        tone: 'warn',
+        note: '7 waiting on a person',
+        series: [61, 66, 63, 71, 69, 78, 74, 84],
+      },
+      {
+        key: 'reply',
+        label: 'Median first reply',
+        value: '1m 42s',
+        delta: '−18s',
+        dir: 'down',
+        tone: 'good',
+        note: 'Target is under 3 minutes',
+        series: [148, 142, 139, 131, 126, 118, 112, 102],
+      },
+      {
+        key: 'handled',
+        label: 'Handled by the assistant',
+        value: '68%',
+        delta: '+4pt',
+        dir: 'up',
+        tone: 'good',
+        note: '412 of 606 since midnight',
+        series: [58, 60, 59, 62, 64, 63, 66, 68],
+      },
+      {
+        key: 'satisfaction',
+        label: 'Satisfaction',
+        value: '4.6',
+        delta: '−0.1',
+        dir: 'down',
+        tone: 'warn',
+        note: '214 ratings this week',
+        series: [4.8, 4.8, 4.7, 4.7, 4.75, 4.7, 4.65, 4.6],
+      },
+    ],
+    volume: [
+      { date: '12 Jul', handled: 402, escalated: 61 },
+      { date: '15 Jul', handled: 448, escalated: 58 },
+      { date: '18 Jul', handled: 471, escalated: 66 },
+      { date: '21 Jul', handled: 512, escalated: 54 },
+      { date: '24 Jul', handled: 498, escalated: 49 },
+      { date: '27 Jul', handled: 566, escalated: 52 },
+      { date: '30 Jul', handled: 604, escalated: 47 },
+      { date: '02 Aug', handled: 588, escalated: 44 },
+      { date: '05 Aug', handled: 641, escalated: 41 },
+      { date: '08 Aug', handled: 677, escalated: 38 },
+    ],
+    queue: [
+      {
+        id: 'c_1',
+        initials: 'JM',
+        name: 'Joseph Mutiso',
+        channel: 'WhatsApp',
+        snippet: 'The container arrived but two pallets are missing from the manifest.',
+        wait: '18m',
+        reason: 'Escalated',
+        hot: true,
+      },
+      {
+        id: 'c_2',
+        initials: 'RN',
+        name: 'Ruth Njeri',
+        channel: 'Email',
+        snippet: 'Can you re-issue the invoice with our new KRA PIN?',
+        wait: '12m',
+        reason: 'Unassigned',
+        hot: true,
+      },
+      {
+        id: 'c_3',
+        initials: 'AO',
+        name: 'Alex Ochieng',
+        channel: 'Web widget',
+        snippet: 'Assistant said 3 days, the tracking page says 8. Which one is right?',
+        wait: '7m',
+        reason: 'Assistant unsure',
+        hot: false,
+      },
+      {
+        id: 'c_4',
+        initials: 'FK',
+        name: 'Fatuma Kassim',
+        channel: 'WhatsApp',
+        snippet: 'Need a quote for 40ft Mombasa to Kampala, refrigerated.',
+        wait: '5m',
+        reason: 'Unassigned',
+        hot: false,
+      },
+      {
+        id: 'c_5',
+        initials: 'DW',
+        name: 'David Waweru',
+        channel: 'SMS',
+        snippet: 'Stop sending me updates for order 88412.',
+        wait: '3m',
+        reason: 'Opt-out',
+        hot: false,
+      },
+    ],
+    queueTotal: 7,
+    channelStatus: [
+      {
+        key: 'whatsapp',
+        label: 'WhatsApp Business',
+        detail: '+254 711 0•••  ·  quality: high',
+        kind: 'whatsapp',
+        state: 'Connected',
+        tone: 'good',
+      },
       {
         key: 'email',
-        label: 'Confirm your email',
-        doneLabel: 'Email confirmed',
-        done: true,
-        href: '/app/account',
+        label: 'Email',
+        detail: 'support@acmeindustrial.co.ke',
+        kind: 'email',
+        state: 'Connected',
+        tone: 'good',
       },
       {
-        key: 'company',
-        label: 'Add your company details',
-        doneLabel: 'Company details added',
-        done: true,
-        href: '/app/settings/company',
+        key: 'web',
+        label: 'Web widget',
+        detail: 'acmeindustrial.co.ke',
+        kind: 'web',
+        state: 'Connected',
+        tone: 'good',
       },
       {
-        key: 'team',
-        label: 'Invite your team',
-        doneLabel: 'Team invited',
-        done: true,
-        href: '/app/settings/team',
+        key: 'sms',
+        label: 'SMS',
+        detail: 'Africa’s Talking  ·  14 rejected sends',
+        kind: 'sms',
+        state: 'Degraded',
+        tone: 'warn',
+      },
+    ],
+    /* 08 §2. Seats counts active members plus pending invitations, which is
+       why this reads 12 of 15 against a team page showing fewer active rows. */
+    meters: [
+      { key: 'events', label: 'Events', text: '470,300 / 500,000', pct: 94, tone: 'warn' },
+      { key: 'conversations', label: 'Conversations', text: '18,402 / 40,000', pct: 46, tone: 'good' },
+      { key: 'seats', label: 'Staff seats', text: '12 / 15', pct: 80, tone: 'good' },
+    ],
+    /*
+     * ⚠ THE ORDER IS BY VALUE TO THE READER, NOT BY SETUP DEPENDENCY, AND IT
+     * CHANGED IN THIS PASS.
+     *
+     * It used to run email → company → team → credential → rules, which is
+     * the order the DATABASE would like them done in. Read as a list of
+     * reasons to spend the next twenty minutes, that opens with two rows of
+     * administration and buries the only step that makes the product do
+     * anything.
+     *
+     * "Set your assistant rules" is the closest thing this build has to an
+     * activation event: it is the step after which an inbound message gets
+     * handled the way the business wants. It leads now. Company details —
+     * genuinely the least consequential, since nothing breaks without them —
+     * moves last.
+     *
+     * ⚠ WHAT IS MISSING FROM THIS LIST IS THE REAL AHA MOMENT. For an
+     * omnichannel assistant it is "connect WhatsApp and watch a conversation
+     * get handled", not any of these five. There is no channel-connection
+     * surface in this build to point at, so the step cannot be added without
+     * a link that 404s. It belongs at position one the day that screen ships,
+     * and the four below it all drop a place.
+     */
+    checklist: [
+      {
+        key: 'rules',
+        label: 'Set your assistant rules',
+        doneLabel: 'Rules published',
+        done: false,
+        href: '/app/settings/ai-rules',
+        hint: 'Tell the assistant how to answer, and what must always reach a person.',
+        cta: 'Write the rules',
       },
       {
         key: 'credential',
@@ -92,13 +334,35 @@ export async function getOverview(): Promise<OverviewModel> {
         doneLabel: 'Credential created',
         done: false,
         href: '/app/settings/credentials/new',
+        hint: 'Connect your own systems to this workspace.',
+        cta: 'Create one',
       },
       {
-        key: 'rules',
-        label: 'Set your assistant rules',
-        doneLabel: 'Rules published',
-        done: false,
-        href: '/app/settings/ai-rules',
+        key: 'team',
+        label: 'Invite your team',
+        doneLabel: 'Team invited',
+        done: true,
+        href: '/app/settings/team',
+        hint: 'Conversations the assistant escalates need a person to land on.',
+        cta: 'Send an invitation',
+      },
+      {
+        key: 'email',
+        label: 'Confirm your email',
+        doneLabel: 'Email confirmed',
+        done: true,
+        href: '/app/account',
+        hint: 'So we can reach you about the workspace.',
+        cta: 'Resend the link',
+      },
+      {
+        key: 'company',
+        label: 'Add your company details',
+        doneLabel: 'Company details added',
+        done: true,
+        href: '/app/settings/company',
+        hint: 'Your name and timezone appear on invitations and client replies.',
+        cta: 'Add them',
       },
     ],
     recentActivity: [
@@ -660,5 +924,112 @@ export async function getBilling(): Promise<BillingModel> {
     status: 'active',
     periodEnd: '01 Sep 2026',
     contactEmail: 'billing@andishi.co.ke',
+  };
+}
+
+/* ── Shell ────────────────────────────────────────────────────────────── */
+
+export type ShellWorkspace = {
+  id: string;
+  name: string;
+  initials: string;
+  role: string;
+  current: boolean;
+};
+
+export type ShellNotice = {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+  tone: 'info' | 'warn' | 'danger';
+  href: string;
+};
+
+export type ShellPlanMeter = {
+  planName: string;
+  pct: number;
+  detail: string;
+  href: string;
+};
+
+export type ShellModel = {
+  workspaces: ShellWorkspace[];
+  notifications: ShellNotice[];
+  unread: number;
+  planMeter: ShellPlanMeter;
+};
+
+/**
+ * The chrome's own read model — everything the tenant header and sidebar draw
+ * that is not navigation.
+ *
+ * ⚠ THIS IS SEPARATE FROM `getOverview` ON PURPOSE, BECAUSE IT IS READ ON
+ * EVERY TENANT PAGE AND `getOverview` IS READ ON ONE. Folding the two would
+ * make Credentials and Team pay for the overview's stat series and queue.
+ * The real version is one query against memberships, notifications and the
+ * current subscription period — the same round trip `loadMe` already makes,
+ * which is where this collapses into once M2's identity module grows the
+ * fields.
+ *
+ * ⚠ `planMeter.pct` IS THE EVENTS METER, NOT AN AVERAGE OF THE THREE. 08 §2
+ * refuses over the entitlement rather than billing overage, so the number
+ * that matters in the chrome is the one that will actually stop work — and
+ * averaging it with two comfortable meters would hide it at exactly the
+ * moment it starts to matter. It reads 94 against the overview's `meters`
+ * for that reason: same figure, same fixture.
+ */
+// eslint-disable-next-line @typescript-eslint/require-await -- seam, as above
+export async function getShell(): Promise<ShellModel> {
+  return {
+    workspaces: [
+      {
+        id: 'w_acme',
+        name: 'Acme Industrial',
+        initials: 'AI',
+        role: 'Owner',
+        current: true,
+      },
+      {
+        id: 'w_kilimanjaro',
+        name: 'Kilimanjaro Logistics',
+        initials: 'KL',
+        role: 'Admin',
+        current: false,
+      },
+    ],
+    notifications: [
+      {
+        id: 'n_1',
+        title: 'Events at 94% of your plan',
+        body: '470,300 of 500,000 used with 19 days left in this period.',
+        time: '2h',
+        tone: 'warn',
+        href: '/app/settings/subscription',
+      },
+      {
+        id: 'n_2',
+        title: 'SMS channel degraded',
+        body: '14 sends were rejected by the provider in the last hour.',
+        time: '4h',
+        tone: 'danger',
+        href: '/app/settings/credentials',
+      },
+      {
+        id: 'n_3',
+        title: 'David Kimani accepted your invitation',
+        body: 'He joined as an admin and can now see the team.',
+        time: 'Yesterday',
+        tone: 'info',
+        href: '/app/settings/team',
+      },
+    ],
+    unread: 2,
+    planMeter: {
+      planName: 'Growth',
+      pct: 94,
+      detail: '470,300 of 500,000 events. 19 days left in this period.',
+      href: '/app/settings/subscription',
+    },
   };
 }

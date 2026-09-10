@@ -176,6 +176,14 @@ export async function getConsoleChrome(): Promise<{ nav: NavState; density: Dens
 
 /** The CSS custom properties the shell root carries. Kept beside the cookie
  *  readers so a new density option cannot be added in one place only. */
+/*
+ * ⚠ THESE NUMBERS ARE MIRRORED IN `ConsoleShell`'s `RAIL_W` / `RAIL_W_OPEN`
+ * AND MUST STAY EQUAL. They disagreed for a long time — 60/248 here against
+ * 58/240 there — and nothing caught it because no CSS has ever read
+ * `--nav-w`. The shell was moved onto these values rather than the reverse,
+ * so this function stays the published contract. If the rail is resized,
+ * both change together.
+ */
 export function chromeStyle(nav: NavState, density: Density): React.CSSProperties {
   return {
     '--nav-w': nav === 'collapsed' ? '60px' : '248px',

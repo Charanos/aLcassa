@@ -17,6 +17,10 @@ export const ERROR_CODES = {
   AUTH_EMAIL_UNVERIFIED: 'auth.email_unverified',
   AUTH_NO_MEMBERSHIP: 'auth.no_membership',
 
+  // ─ Self-serve registration ─
+  SIGNUP_EMAIL_TAKEN: 'signup.email_taken',
+  SIGNUP_DISABLED: 'signup.disabled',
+
   // ─ Tenancy ─
   TENANT_SUSPENDED: 'tenant.suspended',
   TENANT_NOT_FOUND: 'tenant.not_found',
@@ -79,6 +83,9 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 403,
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]: 403,
 
+  [ERROR_CODES.SIGNUP_EMAIL_TAKEN]: 409,
+  [ERROR_CODES.SIGNUP_DISABLED]: 503,
+
   [ERROR_CODES.TENANT_SUSPENDED]: 403,
   [ERROR_CODES.TENANT_NOT_FOUND]: 404,
 
@@ -125,6 +132,14 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 'Confirm your email before continuing.',
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]:
     'Your account is not attached to a workspace. If you were invited, use the link in your invitation email. Otherwise get in touch.',
+
+  /* Names the way out rather than the failure. Someone who already has an
+     account and tried to register again does not need to be told 'taken' —
+     they need the sign-in link, which the sign-up page renders beside this. */
+  [ERROR_CODES.SIGNUP_EMAIL_TAKEN]:
+    'That email already has an account. Sign in instead, or reset your password if you have forgotten it.',
+  [ERROR_CODES.SIGNUP_DISABLED]:
+    'New workspaces are not open for self-registration right now. Get in touch and we will set yours up.',
 
   [ERROR_CODES.TENANT_SUSPENDED]:
     'This workspace is suspended. You can still see everything here; changes are paused until this is resolved. Get in touch to resolve it.',

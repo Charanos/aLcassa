@@ -1346,14 +1346,17 @@ const ISOLATION: IsolationStatus = {
   tablesPoliced: 18,
   crossTenantAttempts30d: 0,
   crossTenantRefused30d: 0,
-  lastRun: '12 Aug, 03:00',
+  lastRun: 'Today, 03:00',
 };
 
 /** The narrow read the console shell needs. Replaced by the isolation suite's
  *  own last-run record once M1 wires CI results into a table. */
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
 export async function getIsolationStatus(): Promise<IsolationStatus> {
-  return ISOLATION;
+  return {
+    ...ISOLATION,
+    lastRun: 'Today, 03:00',
+  };
 }
 
 /** 30 days of state, with named exceptions. Written as a helper rather than

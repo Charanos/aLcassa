@@ -440,12 +440,12 @@ export function ChannelsSection() {
             <div className="lg:col-span-5 space-y-6">
               <div>
                 <h3 className="display text-[28px] sm:text-[36px] font-normal tracking-tight text-white mt-1 leading-[1.15]">
-                  If someone on our team ever opens your account, you'll know.
+                  If someone on our team ever opens your account, you’ll know.
                 </h3>
                 <p className="text-[15px] sm:text-[16px] text-white/75 mt-3.5 leading-relaxed">
                   Nobody at Alcassa has a master key to every business on the platform. When our
                   support team needs to help with your account, they request access to yours
-                  specifically. It's time-limited, it's read-only, and it shows up in your activity
+                  specifically. It’s time-limited, it’s read-only, and it shows up in your activity
                   log the moment it happens.
                 </p>
               </div>
@@ -471,7 +471,7 @@ export function ChannelsSection() {
                   <div>
                     <h4 className="text-[14.5px] font-medium text-white">Access expires on its own</h4>
                     <p className="text-[13px] text-white/65 mt-0.5 leading-relaxed">
-                      Thirty minutes, then it's gone — or you can end it yourself, right now, from this screen.
+                      Thirty minutes, then it’s gone — or you can end it yourself, right now, from this screen.
                     </p>
                   </div>
                 </div>
@@ -483,7 +483,7 @@ export function ChannelsSection() {
                   <div>
                     <h4 className="text-[14.5px] font-medium text-white">Every visit is on the record</h4>
                     <p className="text-[13px] text-white/65 mt-0.5 leading-relaxed">
-                      Who looked, when, and why — written to your account's history and impossible to quietly edit out.
+                      Who looked, when, and why — written to your account’s history and impossible to quietly edit out.
                     </p>
                   </div>
                 </div>
@@ -491,7 +491,7 @@ export function ChannelsSection() {
 
               <div className="pt-4 border-t border-white/10 flex items-center gap-2 font-mono text-[11px] text-white/50">
                 <IconShieldLock size={15} className="text-emerald-400" />
-                <span>Handled under Kenya's Data Protection Act, 2019.</span>
+                <span>Handled under Kenya’s Data Protection Act, 2019.</span>
               </div>
             </div>
 
@@ -509,7 +509,7 @@ export function ChannelsSection() {
                   <div className="flex items-start justify-between gap-4 flex-wrap pb-4 border-b border-[var(--ink-100)]">
                     <div>
                       <span className="font-mono text-[11px] text-[var(--text-tertiary)] block">
-                        This is what you'd see right now, in your own dashboard
+                        This is what you’d see right now, in your own dashboard
                       </span>
                       <h4 className="text-[18px] font-semibold text-[var(--text-primary)] mt-1">
                         Support access to Kwanza Logistics

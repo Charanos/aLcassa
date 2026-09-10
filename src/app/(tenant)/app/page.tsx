@@ -1,14 +1,20 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { Badge } from '@/components/feedback/Badge';
 import { DashboardHero } from '@/components/tenant/DashboardHero';
+import { ChannelsPanel, MetersPanel, QueuePanel } from '@/components/tenant/OverviewPanels';
+import { Reveal } from '@/components/tenant/Reveal';
+import { SetupChecklist } from '@/components/tenant/SetupChecklist';
+import { VolumeChart, VolumeLegend } from '@/components/tenant/VolumeChart';
+import { ONBOARDING_DISMISSED_COOKIE } from '@/lib/tenant/onboarding';
 import { getOverview } from '@/lib/tenant/data';
 
 export const metadata: Metadata = { title: 'Overview' };
 
 /**
- * 02 §4. The tenant overview: plan usage, team size, recent activity, the
- * setup checklist.
+ * 02 §4. The tenant overview: what needs a person, what the assistant is
+ * absorbing, what the plan has left, and — until it is finished — the setup
+ * checklist.
  *
  * ⚠ THE SETUP CHECKLIST IS THE HIGHEST-VALUE FOUR HOURS IN THE TENANT
  * APPLICATION. A B2B owner's entire first impression is whether they knew
@@ -17,67 +23,80 @@ export const metadata: Metadata = { title: 'Overview' };
  *
  * It disappears PERMANENTLY once complete and it never reappears. A
  * checklist that comes back is a nag. Copy from 10 §4.
+ *
+ * ⚠ THE CHECKLIST SITS ABOVE THE MEASUREMENTS WHILE IT IS UNFINISHED, AND
+ * THE ORDER IS THE POINT. A workspace mid-setup has nothing worth measuring
+ * — its numbers are noise from a half-connected product — so the checklist
+ * takes the position directly under the masthead and pushes the panels down.
+ * Once it is done it vanishes and the measurements close the gap. The design
+ * does not show this section at all; it draws the finished, steady state.
  */
 export default async function OverviewPage() {
-  const m = await getOverview();
+  const [m, jar] = await Promise.all([getOverview(), cookies()]);
+
+  /* Two independent reasons the checklist does not render, and they are not
+     the same thing. `complete` is the permanent disappearance the section's
+     rule describes. `dismissed` is the reader asking for their overview back
+     — see the dismiss handler for why it is a cookie and what that costs. */
   const complete = m.checklist.every((step) => step.done);
+  const dismissed = jar.get(ONBOARDING_DISMISSED_COOKIE)?.value === '1';
 
   return (
-    <div className="grid gap-12">
+    <Reveal>
       <DashboardHero
-        planName={m.planName}
-        planStatus={m.planStatus}
         operatorFirstName={m.operatorFirstName}
-        seats={{ used: m.seats.used, limit: m.seats.limit ?? undefined }}
-        channels={{ used: m.channels.used, limit: m.channels.limit ?? undefined }}
+        planName={m.planName}
+        today={m.today}
+        summary={m.summary}
+        stats={m.stats}
       />
 
       {/* ── Setup checklist ──────────────────────────────────────────── */}
-      {complete ? null : (
-        <section
-          data-slot="panel"
-          aria-labelledby="setup-heading"
-          className="gsap-reveal rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-6 md:p-8"
-        >
-          <h2 id="setup-heading" className="t-panel text-[var(--text-primary)]">
-            Set up your workspace
-          </h2>
-          <p className="t-compact mt-1 text-[var(--text-secondary)]">
-            Five steps. You can come back to any of them.
-          </p>
+      {complete || dismissed ? null : <SetupChecklist steps={m.checklist} />}
 
-          <ol className="mt-4 grid">
-            {m.checklist.map((step, index) => (
-              <li
-                key={step.key}
-                className="flex items-center gap-3 border-t py-3 first:border-t-0"
-                style={{ borderColor: 'var(--ink-100)' }}
-              >
-                <span className="t-data w-5 text-[var(--text-tertiary)]">{index + 1}</span>
-                {step.done ? (
-                  <span className="t-body flex-1" style={{ color: 'var(--text-tertiary)' }}>
-                    {step.doneLabel}
-                  </span>
-                ) : (
-                  <Link
-                    href={step.href}
-                    className="t-body flex-1 text-[var(--text-primary)] transition-colors hover:text-[var(--blue-500)]"
-                  >
-                    {step.label}
-                  </Link>
-                )}
-                {step.done ? <Badge tone="active">Done</Badge> : null}
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+      {/* ── Conversation volume ──────────────────────────────────────── */}
+      <section
+        data-reveal
+        data-slot="panel"
+        aria-labelledby="volume-heading"
+        className="overflow-hidden rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)]"
+        style={{ boxShadow: 'var(--glass-highlight), var(--shadow-sm)' }}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border-subtle)] px-5 pt-[15px] pb-[13px]">
+          <h2
+            id="volume-heading"
+            className="t-eyebrow uppercase"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
+            Conversation volume · 30 days
+          </h2>
+          <VolumeLegend />
+        </div>
+        <div className="px-5 pt-[18px] pb-5">
+          <VolumeChart data={m.volume} />
+        </div>
+      </section>
+
+      {/* ── Queue, channels, meters ──────────────────────────────────── */}
+      <div
+        data-reveal
+        className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,0.95fr)]"
+      >
+        <QueuePanel items={m.queue} total={m.queueTotal} />
+
+        <div className="grid gap-4">
+          <ChannelsPanel channels={m.channelStatus} />
+          <MetersPanel meters={m.meters} />
+        </div>
+      </div>
 
       {/* ── Recent activity ──────────────────────────────────────────── */}
       <section
+        data-reveal
         data-slot="panel"
         aria-labelledby="activity-heading"
-        className="gsap-reveal rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-6 md:p-8"
+        className="rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-6 md:p-8"
+        style={{ boxShadow: 'var(--glass-highlight), var(--shadow-sm)' }}
       >
         <div className="flex items-center justify-between">
           <h2 id="activity-heading" className="t-panel text-[var(--text-primary)]">
@@ -106,6 +125,6 @@ export default async function OverviewPage() {
           ))}
         </ul>
       </section>
-    </div>
+    </Reveal>
   );
 }

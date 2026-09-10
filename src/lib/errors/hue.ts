@@ -28,6 +28,12 @@ const HUE: Record<ErrorCode, ErrorHue> = {
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 'ochre',
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]: 'oxide',
 
+  /* OCHRE: the reader retypes an address or follows the sign-in link and
+     continues. OXIDE would say 'nothing you can do', which is untrue. */
+  [ERROR_CODES.SIGNUP_EMAIL_TAKEN]: 'ochre',
+  /* OXIDE: self-registration being closed is a decision, not a retry. */
+  [ERROR_CODES.SIGNUP_DISABLED]: 'oxide',
+
   [ERROR_CODES.TENANT_SUSPENDED]: 'oxide',
   [ERROR_CODES.TENANT_NOT_FOUND]: 'slate',
 

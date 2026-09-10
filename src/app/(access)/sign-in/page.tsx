@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 import { ERROR_CODES, ERROR_MESSAGES, hueTokens, type ErrorCode } from '@/lib/errors';
-import { IconArrowRight, IconBuildingSkyscraper, IconShieldLock } from '@tabler/icons-react';
-import { AuthShell, TenantAside } from '@/components/access/AuthShell';
+import { IconArrowRight, IconTerminal2, IconFingerprintScan } from '@tabler/icons-react';
+import { AuthShell } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field, PasswordField } from '@/components/primitives/Field';
 
@@ -55,65 +55,73 @@ export default async function SignInPage({
 
   return (
     <AuthShell
-      eyebrow="Workspace"
-      title="Sign in"
-      aside={<TenantAside />}
+      title="Sign in to your workspace"
+      lede="Enter your credentials to access your unified messaging console."
+      cardMaxWidth="max-w-[500px] sm:max-w-[540px]"
       footer={
         <div className="space-y-4">
           {/*
             ── Demo bypass. Rendered only where /api/demo would answer. ──
-            These links set a session cookie without authenticating anyone,
-            so the control disappears wherever the route refuses. Offering a
-            button that 404s is worse than offering none: it reads as a
-            broken product rather than a closed door. See lib/auth/demoAccess.
+            These links set a session cookie without authenticating anyone.
           */}
           {demoAccessEnabled() ? (
-            <div
-              className="rounded-panel border p-4 shadow-sm transition-all duration-300"
-              style={{
-                background: 'var(--surface-raised)',
-                borderColor: 'var(--border-strong)',
-              }}
-            >
-              <p className="t-caption mb-3" style={{ color: 'var(--text-tertiary)' }}>
-                Review access. No account required, and not available where real data lives.
-              </p>
+            <div className="space-y-3 pt-1">
+              <div className="relative flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                  <div className="w-full border-t border-[var(--ink-200)]/70" />
+                </div>
+                <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider">
+                  <span className="bg-white px-2 text-[var(--text-tertiary)]">
+                    Reviewer & Demo Mode
+                  </span>
+                </div>
+              </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
-                <Button
-                  asChild
-                  variant="primary"
-                  size="md"
-                  className="w-full justify-center gap-2 text-xs"
+                <Link
+                  href="/api/demo?role=platform"
+                  className="group flex items-center justify-between rounded-xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-2.5 transition-all hover:bg-[var(--ink-50)] hover:border-[var(--ink-300)] shadow-2xs"
                 >
-                  <Link href="/api/demo?role=platform">
-                    <IconShieldLock size={14} stroke={1.75} />
-                    <span>Admin Dashboard</span>
-                    <IconArrowRight size={13} />
-                  </Link>
-                </Button>
+                  <div className="flex items-center gap-2">
+                    <span className="grid size-6 place-items-center rounded-md bg-[var(--blue-500)]/10 text-[var(--blue-600)]">
+                      <IconTerminal2 size={13} stroke={1.5} />
+                    </span>
+                    <span className="text-[12px] font-medium text-[var(--text-primary)]">
+                      Admin Console
+                    </span>
+                  </div>
+                  <IconArrowRight
+                    size={12}
+                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
 
-                <Button
-                  asChild
-                  variant="secondary"
-                  size="md"
-                  className="w-full justify-center gap-2 text-xs"
+                <Link
+                  href="/api/demo?role=tenant"
+                  className="group flex items-center justify-between rounded-xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-2.5 transition-all hover:bg-[var(--ink-50)] hover:border-[var(--ink-300)] shadow-2xs"
                 >
-                  <Link href="/api/demo?role=tenant">
-                    <IconBuildingSkyscraper size={14} stroke={1.75} />
-                    <span>Workspace Inbox</span>
-                    <IconArrowRight size={13} />
-                  </Link>
-                </Button>
+                  <div className="flex items-center gap-2">
+                    <span className="grid size-6 place-items-center rounded-md bg-[var(--success-bg)] text-[var(--success-fg)]">
+                      <IconFingerprintScan size={13} stroke={1.5} />
+                    </span>
+                    <span className="text-[12px] font-medium text-[var(--text-primary)]">
+                      Workspace Inbox
+                    </span>
+                  </div>
+                  <IconArrowRight
+                    size={12}
+                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
               </div>
             </div>
           ) : null}
 
-          <p className="t-caption text-center" style={{ color: 'var(--text-tertiary)' }}>
-            No workspace yet?{' '}
+          <p className="text-center text-[12.5px] text-[var(--text-secondary)] pt-1">
+            Don&apos;t have a workspace yet?{' '}
             <Link
               href="/sign-up"
-              className="text-[var(--text-action)] underline underline-offset-2 transition-opacity hover:opacity-80"
+              className="font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] underline underline-offset-4 transition-colors"
             >
               Create one
             </Link>
@@ -124,40 +132,34 @@ export default async function SignInPage({
       <form className="grid gap-4" method="post" action="/api/v1/auth/sign-in">
         {next ? <input type="hidden" name="next" value={next} /> : null}
 
-        {/*
-          Sheet 12: a failed sign-in is ochre, not oxide. The reader can act
-          on it — retype the password, ask for a reset — so it resolves
-          rather than refuses. `role="alert"` so a screen reader announces
-          it on the fresh page load rather than leaving it to be discovered.
-        */}
+        {/* Failed sign-in alert banner */}
         {errorMessage ? (
-          <p
+          <div
             role="alert"
-            className="t-caption rounded-panel border px-3 py-2"
+            className="rounded-xl border px-3.5 py-2.5 text-[12.5px] leading-relaxed transition-all"
             style={{ color: tone.fg, background: tone.bg, borderColor: tone.rule }}
           >
             {errorMessage}
-          </p>
+          </div>
         ) : null}
 
-        {/* Arriving from a completed password reset. Slate: nothing is wrong. */}
+        {/* Arriving from a completed password reset */}
         {reset ? (
-          <p
+          <div
             role="status"
-            className="t-caption rounded-panel border px-3 py-2"
+            className="rounded-xl border px-3.5 py-2.5 text-[12.5px] leading-relaxed"
             style={{
-              color: 'var(--ink-600)',
+              color: 'var(--ink-700)',
               background: 'var(--surface-sunken)',
               borderColor: 'var(--border-subtle)',
             }}
           >
-            Your password has been changed, and every other session was signed out. Sign in with the
-            new one.
-          </p>
+            Your password has been changed, and every other active session was signed out. Please sign in with your new password.
+          </div>
         ) : null}
 
         <Field
-          label="Email"
+          label="Email address"
           name="email"
           type="email"
           autoComplete="email"
@@ -165,18 +167,24 @@ export default async function SignInPage({
           placeholder="you@company.co.ke"
         />
 
-        <PasswordField label="Password" name="password" autoComplete="current-password" required />
-
-        <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/forgot-password"
-            className="t-caption text-[var(--text-action)] underline underline-offset-2 transition-opacity hover:opacity-80"
-          >
-            Forgot your password?
-          </Link>
+        <div>
+          <PasswordField
+            label="Password"
+            name="password"
+            autoComplete="current-password"
+            required
+          />
+          <div className="flex justify-end -mt-2 mb-2">
+            <Link
+              href="/forgot-password"
+              className="text-[12px] font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] transition-colors hover:underline underline-offset-2"
+            >
+              Forgot your password?
+            </Link>
+          </div>
         </div>
 
-        <Button type="submit" variant="primary" size="lg" className="mt-2 w-full">
+        <Button type="submit" variant="primary" size="lg" className="w-full font-medium shadow-sm hover:shadow-md">
           Sign in
         </Button>
       </form>

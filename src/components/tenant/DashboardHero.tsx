@@ -1,170 +1,143 @@
-'use client';
+import Link from 'next/link';
+import { IconArrowDownRight, IconArrowUpRight } from '@tabler/icons-react';
+import { Button } from '@/components/primitives/Button';
+import { Sparkline } from '@/components/tenant/Sparkline';
+import type { OverviewStat } from '@/lib/tenant/data';
 
-import { useRef } from 'react';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { Badge } from '@/components/feedback/Badge';
+/**
+ * The overview's masthead: who is reading, what happened since they last
+ * looked, and the four numbers that decide whether they need to do anything.
+ *
+ * ⚠ THIS IS A SERVER COMPONENT, AND THE PREVIOUS VERSION DID NOT NEED TO BE A
+ * CLIENT ONE EITHER. It carried `'use client'` for a GSAP entrance and a
+ * Recharts area chart drawing SEVEN HARDCODED POINTS of `Mon…Sun` invented in
+ * the component file. The entrance moved to `Reveal`, the real series moved
+ * behind `getOverview`, and the sparklines are static SVG — so the whole
+ * masthead now renders on the server and ships no JavaScript at all.
+ *
+ * ⚠ THE DELTA PILL TAKES ITS COLOUR FROM `tone`, NEVER FROM `dir`. A median
+ * reply time falling eighteen seconds is an arrow DOWN and a green pill; a
+ * satisfaction score falling a tenth is also down and an ochre one. The arrow
+ * reports the movement, the colour reports whether the movement is welcome,
+ * and the two are separate fields on the read model precisely because they
+ * come apart. See `OverviewStat`.
+ */
 
 export type DashboardHeroProps = {
-  planName: string;
-  planStatus: string;
   operatorFirstName: string;
-  seats: { used: number; limit?: number };
-  channels: { used: number; limit?: number };
+  planName: string;
+  today: string;
+  summary: string;
+  stats: OverviewStat[];
 };
 
-// Mock data for the chart since the backend doesn't provide time-series usage yet
-const usageData = [
-  { name: 'Mon', usage: 400 },
-  { name: 'Tue', usage: 300 },
-  { name: 'Wed', usage: 550 },
-  { name: 'Thu', usage: 480 },
-  { name: 'Fri', usage: 700 },
-  { name: 'Sat', usage: 650 },
-  { name: 'Sun', usage: 800 },
-];
+/* 03 §14. Ochre resolves, and every one of these readings is something the
+   reader can act on — so `warn` is the worst tone a headline number carries.
+   A stat tile never goes oxide; a refusal the reader cannot act on is not a
+   metric, it is an incident, and it belongs in the boundary frame. */
+const TONES = {
+  good: { ink: 'var(--success-fg)', tint: 'var(--success-bg)' },
+  warn: { ink: 'var(--warning-fg)', tint: 'var(--warning-bg)' },
+} as const;
 
-export function DashboardHero({
-  planName,
-  planStatus,
-  operatorFirstName,
-  seats,
-  channels,
-}: DashboardHeroProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      // Staggered entry animation for elegance
-      gsap.fromTo(
-        '.gsap-reveal',
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power3.out' }
-      );
-      
-      // Chart line draw effect
-      gsap.from('.recharts-area-area', {
-        scaleY: 0,
-        transformOrigin: 'bottom',
-        duration: 1.2,
-        ease: 'power3.out',
-        delay: 0.4
-      });
-    },
-    { scope: containerRef }
-  );
+function StatTile({ stat }: { stat: OverviewStat }) {
+  const tone = TONES[stat.tone];
+  const Arrow = stat.dir === 'up' ? IconArrowUpRight : IconArrowDownRight;
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-8">
-      {/* Header section */}
-      <div className="gsap-reveal flex flex-wrap items-end justify-between gap-4">
+    <div
+      data-slot="panel"
+      className="rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-[18px] pt-4 pb-[15px]"
+      style={{ boxShadow: 'var(--glass-highlight), var(--shadow-sm)' }}
+    >
+      <p className="t-eyebrow uppercase" style={{ color: 'var(--text-tertiary)' }}>
+        {stat.label}
+      </p>
+
+      <p className="mt-2.5 flex items-baseline gap-2.5">
+        <span
+          className="tabular-nums"
+          style={{
+            font: 'var(--t-title)',
+            letterSpacing: 'var(--t-title-tracking)',
+            color: 'var(--text-primary)',
+          }}
+        >
+          {stat.value}
+        </span>
+        <span
+          className="t-micro inline-flex h-5 items-center gap-1 rounded-full pr-[7px] pl-[5px]"
+          style={{ background: tone.tint, color: tone.ink }}
+        >
+          <Arrow size={13} stroke={1.8} aria-hidden />
+          {stat.delta}
+        </span>
+      </p>
+
+      <div className="mt-3 h-[26px]">
+        <Sparkline series={stat.series} stroke={tone.ink} />
+      </div>
+
+      <p className="t-compact mt-2.5" style={{ color: 'var(--text-secondary)' }}>
+        {stat.note}
+      </p>
+    </div>
+  );
+}
+
+export function DashboardHero({
+  operatorFirstName,
+  planName,
+  today,
+  summary,
+  stats,
+}: DashboardHeroProps) {
+  return (
+    <div className="grid gap-5">
+      <div
+        data-reveal
+        className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4"
+      >
         <div>
-          <h1 className="t-display text-[var(--text-primary)] tracking-tight">
-            Good to see you, {operatorFirstName}.
+          <p className="t-eyebrow uppercase" style={{ color: 'var(--text-tertiary)' }}>
+            {today}
+          </p>
+          <h1 className="t-display mt-2" style={{ color: 'var(--text-primary)' }}>
+            Good to see you, {operatorFirstName}
           </h1>
-          <p className="t-lede mt-2 text-[var(--text-secondary)] max-w-2xl">
-            Here is your workspace overview. You are currently on the <strong className="text-[var(--text-primary)] font-medium">{planName}</strong> plan.
+          <p
+            className="t-body mt-2.5 max-w-[62ch] text-pretty"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            {summary}
           </p>
         </div>
-        <div className="pb-1">
-          <Badge tone="active">{planStatus === 'active' ? 'Active' : planStatus}</Badge>
+
+        <div className="flex items-center gap-2">
+          {/* Real routes only. The design's "Open reports" points at a screen
+              this build does not have; sending a reader to a 404 to honour a
+              mockup is not fidelity. Plan and usage is the nearest surface
+              that actually exists, and it is where the meters below link too. */}
+          <Button asChild variant="secondary" size="md">
+            <Link href="/app/settings/subscription">Plan and usage</Link>
+          </Button>
+          <Button asChild variant="primary" size="md">
+            <Link href="/app/inbox">Go to inbox</Link>
+          </Button>
         </div>
       </div>
 
-      {/* Inverted Chrome Element: Dark metrics well for visual distinction from white chrome */}
-      <div 
-        className="gsap-reveal overflow-hidden rounded-[var(--radius-lg)] shadow-2xl relative"
-        style={{ 
-          background: 'var(--invert-card-bg)', 
-          color: 'var(--invert-card-fg)',
-          border: '1px solid var(--invert-card-border)'
-        }}
+      <div
+        data-reveal
+        className="grid gap-3.5"
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(212px, 1fr))' }}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-b"
-             style={{ borderColor: 'var(--invert-card-rule)' }}>
-          
-          <div className="p-6 md:p-8 flex flex-col justify-between">
-            <span className="t-eyebrow tracking-widest uppercase opacity-60">Staff Seats</span>
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="text-4xl md:text-5xl font-mono tracking-tight">{seats.used}</span>
-              {seats.limit && <span className="t-body opacity-50 font-mono">/ {seats.limit}</span>}
-            </div>
-          </div>
-          
-          <div className="p-6 md:p-8 flex flex-col justify-between">
-            <span className="t-eyebrow tracking-widest uppercase opacity-60">Channel Connections</span>
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="text-4xl md:text-5xl font-mono tracking-tight">{channels.used}</span>
-              {channels.limit && <span className="t-body opacity-50 font-mono">/ {channels.limit}</span>}
-            </div>
-          </div>
-
-          <div className="p-6 md:p-8 flex flex-col justify-center relative overflow-hidden group">
-            <div className="relative z-10">
-              <span className="t-eyebrow tracking-widest uppercase opacity-60 group-hover:opacity-100 transition-opacity">Upgrade Plan</span>
-              <p className="t-compact mt-2 opacity-80">Unlock unlimited channels and priority support.</p>
-            </div>
-            {/* Creative GSAP hover background effect will be handled via standard CSS here for robustness, or GSAP on interaction */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" 
-                 style={{ background: 'var(--accent-gradient-bold)' }} />
-          </div>
-        </div>
-
-        {/* Recharts Usage Area */}
-        <div className="p-6 md:p-8 bg-black/20">
-          <div className="flex items-center justify-between mb-6">
-            <span className="t-panel">Weekly Engagement</span>
-            <div className="flex gap-2 items-center">
-              <span className="size-2 rounded-full" style={{ background: 'var(--accent-mark)' }} />
-              <span className="t-compact opacity-70">Messages Processed</span>
-            </div>
-          </div>
-          
-          <div className="h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={usageData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorUsage" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--accent-mark)" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="var(--accent-mark)" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12, fontFamily: 'var(--font-mono)' }} 
-                  dy={10}
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12, fontFamily: 'var(--font-mono)' }}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'var(--invert-card-bg)', 
-                    borderColor: 'var(--invert-card-border)',
-                    borderRadius: 'var(--radius-md)',
-                    fontFamily: 'var(--font-mono)'
-                  }}
-                  itemStyle={{ color: 'var(--accent-mark-text)' }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="usage" 
-                  stroke="var(--accent-mark)" 
-                  strokeWidth={2}
-                  fillOpacity={1} 
-                  fill="url(#colorUsage)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        {stats.map((stat) => (
+          <StatTile key={stat.key} stat={stat} />
+        ))}
       </div>
+
+      <span className="sr-only">You are on the {planName} plan.</span>
     </div>
   );
 }

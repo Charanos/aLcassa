@@ -3,13 +3,9 @@
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import {
-  CONSOLE_DENSITY_COOKIE,
-  CONSOLE_NAV_COOKIE,
   SUPPORT_SESSION_COOKIE,
   SUPPORT_SESSION_DURATION_MS,
   resolveSupportSessionId,
-  type Density,
-  type NavState,
 } from '@/lib/console/session';
 import { currentPlatformSession } from '@/lib/auth/resolve';
 import { isAppError } from '@/lib/errors';
@@ -52,19 +48,24 @@ const COOKIE_BASE = {
  * fewer surface that can disagree with the server.
  */
 
-export async function setNavState(nav: NavState): Promise<void> {
-  (await cookies()).set(CONSOLE_NAV_COOKIE, nav, {
-    ...COOKIE_BASE,
-    maxAge: 60 * 60 * 24 * 365,
-  });
-}
-
-export async function setDensity(density: Density): Promise<void> {
-  (await cookies()).set(CONSOLE_DENSITY_COOKIE, density, {
-    ...COOKIE_BASE,
-    maxAge: 60 * 60 * 24 * 365,
-  });
-}
+/*
+ * ⚠ `setNavState` AND `setDensity` LIVED HERE AND HAD NO CALLERS.
+ *
+ * Both wrote exactly the cookies `POST /api/console/prefs` already writes,
+ * and that Route Handler is the one the shell actually uses — deliberately,
+ * because a Server Action forces an RSC re-render after it settles and these
+ * are cosmetic preferences with nothing to re-render for. `setNavState` was
+ * passed to `ConsoleShell` as `onNavStateChange`, which never invoked it;
+ * `setDensity` was never referenced at all, and there is still no UI control
+ * anywhere that changes density.
+ *
+ * They are deleted rather than left for later because an exported function in
+ * a `'use server'` file is not dead code in the ordinary sense — Next.js
+ * assigns it an action id and it is POST-able by anyone who finds that id,
+ * whether or not the application ever calls it. Unused surface with no caller
+ * to audit is worse than no surface. The Route Handler covers density too,
+ * for whenever a control is built.
+ */
 
 /* ── Support sessions ─────────────────────────────────────────────────────── */
 

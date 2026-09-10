@@ -13,7 +13,6 @@ import {
   IconCircleCheck,
   IconCheck,
   IconClock,
-  IconShieldLock,
   IconCpu,
   IconSearch,
   IconBell,

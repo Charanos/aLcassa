@@ -62,7 +62,7 @@ export function StartSessionDialog({
       <Dialog.Portal>
         <Dialog.Overlay
           className="fixed inset-0 z-[150]"
-          style={{ background: 'var(--surface-overlay)' }}
+          style={{ background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(6px)' }}
         />
         <Dialog.Content
           ref={(el) => {
@@ -70,8 +70,8 @@ export function StartSessionDialog({
             if (el) {
               gsapSafe.fromTo(
                 el,
-                { opacity: 0, y: 18, scale: 0.94 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.34, ease: 'power3.out' },
+                { opacity: 0, y: 18, xPercent: -50, yPercent: -50, scale: 0.94 },
+                { opacity: 1, y: 0, xPercent: -50, yPercent: -50, scale: 1, duration: 0.34, ease: 'power3.out' },
               );
             }
           }}
@@ -79,7 +79,7 @@ export function StartSessionDialog({
             e.preventDefault();
             inputRef.current?.focus();
           }}
-          className="surface-glass-strong fixed top-1/2 left-1/2 z-[150] w-[560px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-overlay"
+          className="surface-glass-strong fixed top-1/2 left-1/2 z-[150] w-[560px] max-w-[92vw] overflow-hidden rounded-overlay"
           style={{ boxShadow: 'var(--glass-highlight), var(--shadow-lg)' }}
         >
           <div className="p-6">
