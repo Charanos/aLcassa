@@ -2076,3 +2076,74 @@ The naming collision is real and is the residual risk: two components named
 `Badge` distinguished only by import path. Renaming one is a coordination
 decision rather than a technical one, and is carried forward rather than taken
 unilaterally while a second agent is editing the same tree.
+
+---
+
+## C47 · The console's AI rules screen was drawn against a model the schema does not implement
+
+**12 Sep 2026. The schema wins; the screen changes shape in `17 §7`.**
+
+`RulesModel` in `lib/console/data.ts` describes three groups of boolean
+toggles, each with a `locked` flag, an `on` state and a per-group `authority`
+of enforced / floor / default.
+
+`master_ai_rule_versions.content` is a `RulesDocument`: six fields, five of
+them prose and one a list — `tone`, `responseGuidelines`, `businessInformation`,
+`escalationInstructions`, `prohibitedTopics`, `customInstructions`. There are no
+toggles and no groups. The **tenant-side** editor already speaks this
+vocabulary, with per-field lock and provenance.
+
+So the console and the tenant application were describing the same rule set in
+two incompatible shapes, and only one of them matches the table.
+
+**Resolution.** `getLiveMasterRules()` returns the document, its version number
+and status, and up to twenty historical versions. The console page is rewritten
+in Stage 3 to render fields rather than toggles, which also brings it into line
+with the tenant editor — the same rules described the same way on both sides of
+the inheritance boundary, which was the point of the feature.
+
+**What is genuinely lost.** The toggle model carried an idea the document does
+not: that `locked` and `on` are different properties, so a safety floor renders
+on a neutral track rather than as an enabled switch somebody could believe they
+turned on. That distinction is kept — it becomes a locked FIELD rather than a
+locked toggle, and `MasterRuleField.locked` carries it.
+
+**What was already wrong and is now visible.** The fixture reported version 24
+propagating to 47 workspaces, and `foundation.ts` claimed
+"locked-versus-enabled toggles, real-time propagation to 47 workspaces" as a
+built item. Publishing moves a pointer on an append-only table; it is not
+propagation, and the toggles were never built. Both are corrected.
+
+---
+
+## C48 · `platform_admins` has no role column, and no owner flag
+
+**12 Sep 2026. The roster reports what the table holds.**
+
+The admins screen was drawn against `AdminRole = 'owner' | 'platform_admin' |
+'support'`. The table carries no role: it has `display_name` and three
+capability booleans — `can_suspend_tenants`, `can_edit_master_rules`,
+`can_enter_support_mode` — and `resolvePlatformCore` gives every platform admin
+`role: 'owner'` in the RLS context regardless.
+
+`getLiveAdmins()` therefore **derives** a label from the capabilities and says
+so: full capability is `platform_admin`, anything narrower is `support`.
+
+**`owner` is never derived.** The available shortcut is to call the earliest row
+the owner. The earliest row is the earliest row. Treating creation order as
+authority is the same shape of defect that put "18 of 18 tables protected" on
+the isolation panel when the real figure was fifteen, on a screen read for the
+same reason this one is.
+
+Three further fields have no source and are reported as absent rather than
+filled:
+
+| Field | Why | Rendered as |
+| --- | --- | --- |
+| `mfa` | Lives in `auth.users`, behind the admin client, which is lint-guarded because it bypasses RLS | `null` → "MFA unknown", in tertiary ink, never amber |
+| `grantedBy` | Not stored | `—` |
+| Pending invitations | `invitations` is tenant-scoped and cannot express platform access | An empty panel that states why |
+
+`mfa` changed from `boolean` to `boolean | null` for this. Rendering unknown as
+"off" would put an amber warning against a colleague who may well have it on,
+and an amber chip on a security screen is a figure somebody acts on.

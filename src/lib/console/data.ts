@@ -79,7 +79,31 @@ export type OverviewModel = {
  * does not change and no page needs touching. Making it sync now would mean
  * changing thirteen call sites later to undo it.
  */
-// eslint-disable-next-line @typescript-eslint/require-await
+/**
+ * ⚠ THE PORTFOLIO HEADCOUNT, DECLARED ONCE.
+ *
+ * The overview's "Workspaces" signal and the status donut in its Portfolio
+ * band are the same fact rendered twice, a screen apart, and they were two
+ * separate literals — the signal read "47 · 41 active · 4 trial · 2 suspended"
+ * while the band counted `getWorkspaces()` and got twelve. Nothing kept them
+ * equal, and the page contradicted itself in two places a reader sees at once.
+ *
+ * Both now read this. It becomes `count(*) … group by status` at M4 and the
+ * two stay equal for free.
+ */
+export const PORTFOLIO_TOTALS = [
+  { status: 'active' as const, count: 41 },
+  { status: 'trial' as const, count: 4 },
+  { status: 'suspended' as const, count: 2 },
+];
+
+export const PORTFOLIO_COUNT = PORTFOLIO_TOTALS.reduce((n, s) => n + s.count, 0);
+
+/** "41 active · 4 trial · 2 suspended", written from the same array the donut
+ *  draws, so a change to one cannot leave the other stale. */
+export const PORTFOLIO_NOTE = PORTFOLIO_TOTALS.map((s) => `${s.count} ${s.status}`).join(' · ');
+
+// eslint-disable-next-line @typescript-eslint/require-await -- seam; see the note above
 export async function getOverview(): Promise<OverviewModel> {
   return {
     operatorFirstName: 'Brian',
@@ -103,8 +127,8 @@ export async function getOverview(): Promise<OverviewModel> {
       {
         id: 'workspaces',
         label: 'Workspaces',
-        value: '47',
-        note: '41 active · 4 trial · 2 suspended',
+        value: String(PORTFOLIO_COUNT),
+        note: PORTFOLIO_NOTE,
         href: '/platform/tenants',
         icon: 'building',
       },
@@ -1756,9 +1780,23 @@ export type Admin = {
   role: AdminRole;
   lastSeen: string;
   sessions30d: number;
-  mfa: boolean;
+  /**
+   * ⚠ NULL MEANS NOT COUNTED, NOT "OFF".
+   *
+   * Multi-factor enrolment lives in Supabase's `auth.users`, reachable only
+   * through the admin client — which is lint-guarded to `modules/platform`
+   * because it bypasses Row Level Security. Reading it on an ordinary page
+   * load would mean widening that guard for a status chip.
+   *
+   * So the live roster reports `null` and the chip says "MFA unknown" rather
+   * than "MFA off". Those are opposite claims about a colleague's account, and
+   * the amber one is the kind of figure somebody acts on.
+   */
+  mfa: boolean | null;
   grantedBy: string;
   grantedOn: string;
+  /** True for the operator reading the page. Derived from the session. */
+  you?: boolean;
 };
 
 export type Invitation = { email: string; sentAgo: string; expiresIn: string };
@@ -2500,3 +2538,385 @@ export async function getWorkspaceActivity(slug?: string): Promise<AuditEntry[]>
     },
   ];
 }
+
+/* ── Overview insights ─────────────────────────────────────────────────── */
+
+export type StatusSlice = { status: WorkspaceStatus; count: number; label: string };
+
+export type PressureRow = {
+  slug: string;
+  name: string;
+  metric: 'seats' | 'events';
+  used: number;
+  limit: number;
+  /** 0–100, rounded. The bar reads this; nothing re-derives it from a string. */
+  pct: number;
+};
+
+export type GrowthPoint = { month: string; opened: number; closed: number; net: number };
+
+export type OverviewInsights = {
+  portfolio: {
+    statusMix: StatusSlice[];
+    /** Worst first. Everything at or above `PRESSURE_THRESHOLD`. */
+    pressure: PressureRow[];
+    seats: { used: number; limit: number; pct: number };
+    events: { used: number; limit: number; pct: number };
+    /** Opened against closed, by month. See the note on the fixture below. */
+    growth: GrowthPoint[];
+  };
+  revenue: {
+    mrr: RevenueModel['mrr'];
+    planMix: RevenueModel['planMix'];
+    ageing: RevenueModel['ageing'];
+    outstanding: string;
+    /** The single worst debt, so the band can name it rather than only chart it. */
+    worst: Collection | null;
+  };
+  operations: {
+    latency: HealthModel['latency'];
+    queues: Queue[];
+    refusals: HealthModel['refusals'];
+    services: { ok: number; degraded: number; down: number };
+    openIncidents: number;
+    sessions: SessionsModel['stats'];
+  };
+};
+
+/** 08 §2 · 03 §14. Within ten percent of a ceiling is "near limit" — the same
+ *  threshold the workspace table's amber state uses, defined once.
+ *
+ *  Exported so the live headroom query counts "at a ceiling" against the same
+ *  number this file does. Two definitions of "near limit" is two answers to
+ *  one question, and the one that wins is whichever the reader is not looking
+ *  at. */
+export const PRESSURE_THRESHOLD = 90;
+
+const STATUS_LABEL: Record<WorkspaceStatus, string> = {
+  active: 'Active',
+  trial: 'Trial',
+  'past due': 'Past due',
+  suspended: 'Suspended',
+  pending: 'Pending',
+};
+
+function pctOf(used: number, limit: number): number {
+  if (limit <= 0) return 0;
+  return Math.round((used / limit) * 100);
+}
+
+/**
+ * The overview's second screen of content — the bands beneath the queue.
+ *
+ * ⚠ IT DERIVES. IT DOES NOT RESTATE.
+ *
+ * This is the whole point of the function and the reason it is not simply
+ * more fixture. `getOverview` already hand-types `6.04M`, `47` and `128k`
+ * while `getRevenue`, `getWorkspaces` and `getHealth` hold the same three
+ * facts independently — four literals for one business, with nothing keeping
+ * them equal. A console whose summary disagrees with the page it links to is
+ * worse than one with no summary, because the reader cannot tell which number
+ * to act on and will eventually check both.
+ *
+ * So every band below is computed from the model that owns it. The status mix
+ * counts `getWorkspaces()`; the pressure list applies the same 90% threshold
+ * the workspace table's amber state uses; the revenue band passes the revenue
+ * page's own series straight through to the same chart components that page
+ * renders. When those models become queries, this becomes correct for free.
+ *
+ * ⚠ `growth` IS THE ONE EXCEPTION AND IS MARKED AS SUCH. Nothing in the
+ * current models carries opened-versus-closed over time — `WorkspaceRow` has
+ * a `created` string, but twelve rows cannot make a twelve-month series, and
+ * inventing one by bucketing them would produce a chart that looks derived
+ * and is not. It is fixture, shaped exactly as the aggregate will return.
+ */
+export async function getOverviewInsights(): Promise<OverviewInsights> {
+  const [workspaces, revenue, health, sessions] = await Promise.all([
+    getWorkspaces(),
+    getRevenue(),
+    getHealth(),
+    getSupportSessions(),
+  ]);
+
+  /* ── Portfolio ───────────────────────────────────────────────────────
+   *
+   * ⚠ THE STATUS MIX IS AN AGGREGATE, NOT A COUNT OF `workspaces`.
+   *
+   * This is the one place deriving the obvious way is WRONG, and it is worth
+   * spelling out because the mistake is invisible until it is on screen.
+   * `getWorkspaces()` returns a SAMPLE — twelve rows for a portfolio of
+   * forty-seven — so counting it yields "12 workspaces" in a donut sitting
+   * directly beneath a hero signal that says 47. The page would contradict
+   * itself, in two places a reader can see at once.
+   *
+   * A total is a `count(*) … group by status`, not a length of whatever the
+   * list endpoint happened to page in. So the mix is stated here, matching the
+   * signal on the same screen, and becomes that query at M4.
+   *
+   * The PRESSURE list below is different and IS derived from the rows: it is a
+   * worst-offenders list, which is exactly what a sample can honestly produce.
+   */
+  const statusMix: StatusSlice[] = PORTFOLIO_TOTALS.filter((s) => s.count > 0).map(({ status, count }) => ({
+    status,
+    count,
+    label: STATUS_LABEL[status],
+  }));
+
+  /* Both meters, flattened into one list — a workspace can be at the ceiling
+     on seats, on events, or on both, and the operator wants the worst
+     regardless of which meter it came from. */
+  const pressure: PressureRow[] = workspaces
+    .flatMap((row): PressureRow[] => [
+      {
+        slug: row.slug,
+        name: row.name,
+        metric: 'seats',
+        used: row.seatsUsed,
+        limit: row.seatsLimit,
+        pct: pctOf(row.seatsUsed, row.seatsLimit),
+      },
+      {
+        slug: row.slug,
+        name: row.name,
+        metric: 'events',
+        used: row.events,
+        limit: row.eventsLimit,
+        pct: pctOf(row.events, row.eventsLimit),
+      },
+    ])
+    .filter((row) => row.pct >= PRESSURE_THRESHOLD)
+    .sort((a, b) => b.pct - a.pct);
+
+  /* ⚠ AGGREGATES, FOR THE SAME REASON THE STATUS MIX IS. Summing the twelve
+     sampled rows and labelling the result "across the platform" would be a
+     figure that is wrong by roughly a factor of four and reads as authoritative
+     — the worst combination. These are `sum(used), sum(limit) … over all
+     tenants` and are stated until that query exists. */
+  const seatsUsed = 3_412;
+  const seatsLimit = 4_200;
+  const eventsUsed = 3_420_000;
+  const eventsLimit = 4_600_000;
+
+  /* ── Operations, summarised from the health model ───────────────────── */
+  const today = (s: Service) => s.days[s.days.length - 1] ?? 'ok';
+  const services = {
+    ok: health.services.filter((s) => today(s) === 'ok').length,
+    degraded: health.services.filter((s) => today(s) === 'degraded').length,
+    down: health.services.filter((s) => today(s) === 'down').length,
+  };
+
+  return {
+    portfolio: {
+      statusMix,
+      pressure,
+      seats: { used: seatsUsed, limit: seatsLimit, pct: pctOf(seatsUsed, seatsLimit) },
+      events: { used: eventsUsed, limit: eventsLimit, pct: pctOf(eventsUsed, eventsLimit) },
+
+      /* ⚠ FIXTURE, AND THE ONLY ONE IN THIS FUNCTION. Nothing models
+         opened-versus-closed over time. `WorkspaceRow` carries a `created`
+         string, but twelve rows cannot make a twelve-month series, and
+         bucketing them would produce a chart that LOOKS derived and is not —
+         which is worse than one that is honestly invented, because nobody
+         would think to check it. Shaped as the monthly aggregate over
+         `tenants.created_at` and `tenants.deleted_at` will return it. */
+      growth: [
+        { month: 'Apr', opened: 4, closed: 1, net: 3 },
+        { month: 'May', opened: 6, closed: 0, net: 6 },
+        { month: 'Jun', opened: 5, closed: 2, net: 3 },
+        { month: 'Jul', opened: 7, closed: 1, net: 6 },
+        { month: 'Aug', opened: 9, closed: 1, net: 8 },
+        { month: 'Sep', opened: 3, closed: 0, net: 3 },
+      ],
+    },
+
+    revenue: {
+      mrr: revenue.mrr,
+      planMix: revenue.planMix,
+      ageing: revenue.ageing,
+      outstanding: revenue.outstanding,
+      /* Already ordered by consequence on the revenue page; the overview wants
+         only the head of that list. */
+      worst: revenue.collections[0] ?? null,
+    },
+
+    operations: {
+      latency: health.latency,
+      /* Deepest queue first — a queue with depth is the only one worth a row
+         on a summary screen. */
+      queues: [...health.queues].sort((a, b) => b.depth - a.depth),
+      refusals: health.refusals,
+      services,
+      openIncidents: health.incidents.filter((i) => !/resolved/i.test(i.status)).length,
+      sessions: sessions.stats,
+    },
+  };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STAGE 1 SEAMS · 17 §5
+   ────────────────────────────────────────────────────────────────────────
+   Read models added for the console density pass. Each one is shaped exactly
+   as the query that replaces it returns, because a fixture that is not shaped
+   like its query is a rewrite disguised as a seam.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/**
+ * One entitlement, across every workspace on one plan.
+ *
+ * ⚠ THE QUESTION THIS ANSWERS IS "IS THIS LIMIT DOING ANYTHING?"
+ *
+ * A plan matrix says a limit is 25. It does not say whether the highest
+ * workspace on that plan is at 3 or at 25, and those imply completely
+ * different things about whether the number was chosen well. `p50` and `max`
+ * together answer it in one read: a limit where the median sits at 8% and the
+ * maximum at 96% is a limit doing its job on exactly one customer.
+ */
+export type HeadroomRow = {
+  key: string;
+  label: string;
+  /** NULL is unlimited. A limit that is not a number has no headroom to plot. */
+  limit: number | null;
+  /** Workspaces on this plan that report this counter at all. */
+  tenants: number;
+  p50: number;
+  max: number;
+  /** Workspaces at or above `PRESSURE_THRESHOLD` percent of the limit. */
+  atCeiling: number;
+};
+
+export type HeadroomPlan = {
+  key: string;
+  name: string;
+  tenants: number;
+  rows: HeadroomRow[];
+};
+
+export type HeadroomModel = {
+  plans: HeadroomPlan[];
+  /** Counters present on no plan's entitlement list. A drift signal. */
+  orphanedCounters: string[];
+};
+
+/**
+ * Designed headroom, for the review bypass.
+ *
+ * Shaped as `getLiveHeadroom` returns it. The figures are plausible rather
+ * than measured, and the page says so wherever it renders them.
+ */
+// eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
+export async function getHeadroom(): Promise<HeadroomModel> {
+  return {
+    plans: [
+      {
+        key: 'pro',
+        name: 'Pro',
+        tenants: 24,
+        rows: [
+          { key: 'seats', label: 'Staff seats', limit: 5, tenants: 24, p50: 3, max: 5, atCeiling: 4 },
+          { key: 'channels', label: 'Channels', limit: 2, tenants: 24, p50: 1, max: 2, atCeiling: 2 },
+          { key: 'api_keys', label: 'API keys', limit: 2, tenants: 19, p50: 1, max: 2, atCeiling: 1 },
+        ],
+      },
+      {
+        key: 'business',
+        name: 'Business',
+        tenants: 15,
+        rows: [
+          { key: 'seats', label: 'Staff seats', limit: 25, tenants: 15, p50: 9, max: 24, atCeiling: 1 },
+          { key: 'channels', label: 'Channels', limit: 6, tenants: 15, p50: 2, max: 5, atCeiling: 0 },
+          { key: 'api_keys', label: 'API keys', limit: 10, tenants: 12, p50: 2, max: 7, atCeiling: 0 },
+        ],
+      },
+      {
+        key: 'custom',
+        name: 'Custom',
+        tenants: 2,
+        rows: [
+          { key: 'seats', label: 'Staff seats', limit: null, tenants: 2, p50: 41, max: 68, atCeiling: 0 },
+          { key: 'channels', label: 'Channels', limit: null, tenants: 2, p50: 7, max: 9, atCeiling: 0 },
+          { key: 'api_keys', label: 'API keys', limit: null, tenants: 2, p50: 6, max: 11, atCeiling: 0 },
+        ],
+      },
+    ],
+    orphanedCounters: [],
+  };
+}
+
+/**
+ * Platform audit volume, one point per day.
+ *
+ * ⚠ `serviceRole` IS BROKEN OUT BECAUSE IT IS THE QUESTION AN AUDITOR ASKS.
+ *
+ * Every platform audit row carries `used_service_role`, precisely so that
+ * "when did we bypass Row Level Security, and why" is one filter rather than a
+ * reconstruction. A volume chart that totals every action hides the only
+ * series on it that anybody would investigate.
+ */
+export type AuditVolumePoint = {
+  /** ISO date, `YYYY-MM-DD`. */
+  day: string;
+  total: number;
+  serviceRole: number;
+  support: number;
+};
+
+// eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
+export async function getAuditVolume(): Promise<AuditVolumePoint[]> {
+  const today = new Date('2026-09-12T00:00:00Z');
+  const shape = [
+    4, 9, 6, 2, 0, 0, 11, 14, 8, 5, 7, 0, 0, 12, 19, 9, 6, 4, 1, 0, 16, 22, 13, 7, 9, 2, 0, 18, 24,
+    15,
+  ];
+  return shape.map((total, i) => {
+    const d = new Date(today);
+    d.setUTCDate(d.getUTCDate() - (shape.length - 1 - i));
+    return {
+      day: d.toISOString().slice(0, 10),
+      total,
+      serviceRole: Math.round(total * 0.18),
+      support: Math.round(total * 0.12),
+    };
+  });
+}
+
+/**
+ * The master rule set as the DATABASE holds it.
+ *
+ * ⚠ THIS IS NOT THE SHAPE `RulesModel` DESCRIBES, and the difference is a spec
+ * delta rather than a translation problem. See `15 C47`.
+ *
+ * `RulesModel` — the console's designed model — is three groups of boolean
+ * toggles with per-rule locks. `master_ai_rule_versions.content` is a
+ * `RulesDocument`: six prose and list fields, versioned, with a per-field lock
+ * expressed as which fields a tenant may override. The tenant-side editor
+ * already speaks the document vocabulary.
+ *
+ * Wiring the toggles to the document would mean inventing the toggles, so this
+ * reader returns the document and the console page changes shape to meet it.
+ */
+export type MasterRuleField = {
+  key: string;
+  label: string;
+  /** Empty string where the master set says nothing about this field. */
+  value: string;
+  /** A field a workspace may not loosen. 01 D-08: locked unless opened. */
+  locked: boolean;
+};
+
+export type MasterRuleVersion = {
+  id: string;
+  versionNumber: number;
+  status: string;
+  savedAt: string;
+  current: boolean;
+};
+
+export type MasterRulesDoc = {
+  versionNumber: number;
+  status: string;
+  savedAt: string;
+  fields: MasterRuleField[];
+  versions: MasterRuleVersion[];
+  /** Workspaces inheriting this set. The blast radius of a publish. */
+  workspaceCount: number;
+};

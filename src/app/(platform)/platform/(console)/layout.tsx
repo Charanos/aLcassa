@@ -7,7 +7,7 @@ import type {
   ConsoleWorkspace,
 } from '@/components/console/types';
 import { getConsoleChrome, resolveSupportSession } from '@/lib/console/session';
-import { getIsolationStatus } from '@/lib/console/data';
+import { getIsolationStatus, PORTFOLIO_COUNT } from '@/lib/console/data';
 import { getLiveIsolationStatus } from '@/lib/console/live';
 import { getLiveConsoleChrome } from '@/lib/console/liveChrome';
 import { endSupportSession, startSupportSession } from './actions';
@@ -35,7 +35,10 @@ const navigation: ConsoleNavGroup[] = [
     label: 'Platform',
     items: [
       { href: '/platform', label: 'Overview', icon: 'dashboard' },
-      { href: '/platform/tenants', label: 'Workspaces', icon: 'building', badge: 47 },
+      /* One count, derived once. It was typed here, in the settings lede, in
+         the rules tab and in four comments; five places to be wrong about how
+         many customers the business has. */
+      { href: '/platform/tenants', label: 'Workspaces', icon: 'building', badge: PORTFOLIO_COUNT },
       { href: '/platform/plans', label: 'Plans', icon: 'list' },
       { href: '/platform/revenue', label: 'Revenue', icon: 'coin' },
       { href: '/platform/ai-rules', label: 'Master rules', icon: 'file' },
@@ -140,7 +143,7 @@ const notices: ConsoleNotice[] = [
     id: 'n_4',
     kind: 'plain',
     title: 'Master rules propagated',
-    body: 'Version 24 reached 47 workspaces in 3.1s',
+    body: `Version 24 reached ${PORTFOLIO_COUNT} workspaces in 3.1s`,
     time: '1d',
     href: '/platform/ai-rules',
   },

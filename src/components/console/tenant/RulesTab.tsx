@@ -5,7 +5,23 @@ import { IconLock, IconPencil, IconRefresh, IconShieldCheck, IconPlus } from '@t
 import type { WorkspaceRule } from '@/lib/console/data';
 import { Panel } from '@/components/console/Surface';
 
-export function RulesTab({ rules }: { rules: WorkspaceRule[] }) {
+/**
+ * ⚠ THE COUNT ARRIVES AS A PROP, AND THAT IS NOT A STYLE PREFERENCE.
+ *
+ * This is a client component. `lib/console/data` opens with `import
+ * 'server-only'`, so importing the shared count directly compiles clean under
+ * `tsc` and fails the BUILD — the type checker has no idea which side of the
+ * boundary a module lands on. The server page that renders this tab reads the
+ * count and passes it down, which is the same direction every other fact on
+ * this screen already travels.
+ */
+export function RulesTab({
+  rules,
+  workspaceCount,
+}: {
+  rules: WorkspaceRule[];
+  workspaceCount: number;
+}) {
   const masterRules = rules.filter((r) => r.state === 'inherited');
   const customRules = rules.filter((r) => r.state !== 'inherited');
 
@@ -38,7 +54,7 @@ export function RulesTab({ rules }: { rules: WorkspaceRule[] }) {
             </span>
           </div>
           <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
-            Propagated across 47 workspaces
+            Propagated across {workspaceCount} workspaces
           </p>
           <div
             className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"

@@ -443,7 +443,7 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'Console',
-    what: 'Master AI rules: locked-versus-enabled toggles, real-time propagation to 47 workspaces',
+    what: 'Master AI rules: the versioned singleton, append-only history, and a publish that moves a pointer rather than restoring data',
     state: 'built',
     evidence: 'src/components/console/RulesEditor.tsx',
     milestone: 'M4a',

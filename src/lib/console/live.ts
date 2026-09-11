@@ -1,6 +1,8 @@
 import 'server-only';
 import { and, asc, count, desc, eq, gt, isNull, sql } from 'drizzle-orm';
 import {
+  masterAiRules,
+  masterAiRuleVersions,
   planEntitlements,
   plans,
   platformAuditLog,
@@ -8,6 +10,7 @@ import {
   subscriptions,
   tenantMembers,
   tenants,
+  usageCounters,
 } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import { withoutTenantContext } from '@/lib/db';
@@ -15,12 +18,15 @@ import { watchlist, type WatchlistEntry } from '@/modules/platform';
 import type {
   AuditLine,
   EntitlementRow,
+  HeadroomModel,
   IsolationStatus,
+  MasterRulesDoc,
   OverviewModel,
   PlanHead,
   PlansModel,
   QueueItem,
 } from './data';
+import { PRESSURE_THRESHOLD } from './data';
 
 /**
  * The M3 half of the console read model, against the real database.
@@ -523,4 +529,234 @@ function iconFor(key: string): EntitlementRow['icon'] {
     support_sla_hours: 'shield',
   };
   return icons[key] ?? 'shield';
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STAGE 1 SEAMS · 17 §5
+   ══════════════════════════════════════════════════════════════════════ */
+
+/**
+ * 08 §2 · 17 §7. Where each plan's workspaces actually sit against its limits.
+ *
+ * ⚠ THIS IS THE QUESTION THE PLANS MATRIX CANNOT ANSWER.
+ *
+ * The matrix says "staff seats: 25". It cannot say whether the busiest
+ * workspace on that plan is at 3 or at 24, and those two facts imply opposite
+ * things about whether 25 was the right number. Lowering a limit is a
+ * blast-radius decision, and a blast radius you cannot see is one you guess.
+ *
+ * ⚠ PERCENTILES ARE COMPUTED IN THE DATABASE rather than by pulling every
+ * counter into memory and sorting. `percentile_cont` is exact for this, and
+ * the returned row count is bounded by plans × entitlements rather than by
+ * however many workspaces exist.
+ *
+ * ⚠ AN UNLIMITED ENTITLEMENT HAS NO HEADROOM, AND IS STILL PLOTTED. Its
+ * `limit` is null and the page draws the observed range without a ceiling,
+ * because "the busiest Custom workspace is on 68 seats" is worth knowing even
+ * where nothing stops it.
+ */
+export async function getLiveHeadroom(): Promise<HeadroomModel | null> {
+  const ctx = await currentPlatformSessionOrNull();
+  if (!ctx) return null;
+
+  return withoutTenantContext(ctx.requestId, async (tx) => {
+    const planRows = await tx
+      .select({ id: plans.id, code: plans.code, name: plans.name, sortOrder: plans.sortOrder })
+      .from(plans)
+      .where(eq(plans.isActive, true))
+      .orderBy(asc(plans.sortOrder));
+
+    if (planRows.length === 0) return null;
+
+    /*
+      One aggregate per (plan, entitlement). The chain is plan → entitlement →
+      the subscriptions on that plan → that workspace's counter for that key.
+      The counter join is a LEFT JOIN so an entitlement nothing has ever
+      touched survives the query — which is itself an answer to "is this limit
+      doing anything?": no, nothing reports it.
+    */
+    const agg = await tx
+      .select({
+        planId: planEntitlements.planId,
+        key: planEntitlements.key,
+        label: planEntitlements.displayName,
+        limitValue: planEntitlements.limitValue,
+        tenants: sql<number>`count(${usageCounters.id})::int`,
+        p50: sql<number>`coalesce(percentile_cont(0.5) within group (order by ${usageCounters.currentValue}), 0)::int`,
+        max: sql<number>`coalesce(max(${usageCounters.currentValue}), 0)::int`,
+        atCeiling: sql<number>`count(*) filter (where ${planEntitlements.limitValue} is not null and ${planEntitlements.limitValue} > 0 and ${usageCounters.currentValue}::numeric / ${planEntitlements.limitValue} >= ${PRESSURE_THRESHOLD} / 100.0)::int`,
+      })
+      .from(planEntitlements)
+      .leftJoin(subscriptions, eq(subscriptions.planId, planEntitlements.planId))
+      .leftJoin(
+        usageCounters,
+        and(
+          eq(usageCounters.tenantId, subscriptions.tenantId),
+          eq(usageCounters.key, planEntitlements.key),
+        ),
+      )
+      .groupBy(
+        planEntitlements.planId,
+        planEntitlements.key,
+        planEntitlements.displayName,
+        planEntitlements.displayOrder,
+        planEntitlements.limitValue,
+      )
+      .orderBy(asc(planEntitlements.displayOrder));
+
+    const counts = await tx
+      .select({ planId: subscriptions.planId, n: sql<number>`count(*)::int` })
+      .from(subscriptions)
+      .groupBy(subscriptions.planId);
+    const countByPlan = new Map(counts.map((c) => [c.planId, c.n]));
+
+    /*
+      A counter key bounded by no plan is drift: something is counting a
+      resource nothing limits. Surfaced rather than dropped, because the silent
+      version of this is a limit somebody forgot to add.
+    */
+    const knownKeys = new Set(agg.map((a) => a.key));
+    const allKeys = await tx.selectDistinct({ key: usageCounters.key }).from(usageCounters);
+    const orphanedCounters = allKeys.map((k) => k.key).filter((k) => !knownKeys.has(k));
+
+    return {
+      plans: planRows.map((p) => ({
+        key: p.code,
+        name: p.name,
+        tenants: countByPlan.get(p.id) ?? 0,
+        rows: agg
+          .filter((a) => a.planId === p.id)
+          .map((a) => ({
+            key: a.key,
+            label: a.label,
+            limit: a.limitValue,
+            tenants: a.tenants,
+            p50: a.p50,
+            max: a.max,
+            atCeiling: a.atCeiling,
+          })),
+      })),
+      orphanedCounters,
+    } satisfies HeadroomModel;
+  });
+}
+
+/**
+ * 08 §5 · 17 §5. The master rule set, and its version history.
+ *
+ * ⚠ THE SHAPE THIS RETURNS IS NOT THE SHAPE THE CONSOLE PAGE WAS DRAWN
+ * AGAINST, and that is a specification delta rather than a mapping problem.
+ * `15 C47` carries the argument. The short version: the screen shows three
+ * groups of boolean toggles, the table stores six prose fields, and producing
+ * the toggles from the document would mean inventing them.
+ *
+ * ⚠ THE HISTORY IS THE FEATURE. Version rows are append-only and publishing
+ * moves a pointer, so every historical set stays readable and a rollback is a
+ * pointer move rather than a restore. A screen that can edit a floor every
+ * workspace inherits, and cannot show what the floor used to be, is missing
+ * the half that makes the edit safe.
+ */
+export async function getLiveMasterRules(): Promise<MasterRulesDoc | null> {
+  const ctx = await currentPlatformSessionOrNull();
+  if (!ctx) return null;
+
+  return withoutTenantContext(ctx.requestId, async (tx) => {
+    const [root] = await tx
+      .select({ id: masterAiRules.id, currentVersionId: masterAiRules.currentVersionId })
+      .from(masterAiRules)
+      .limit(1);
+
+    if (!root) return null;
+
+    const versions = await tx
+      .select({
+        id: masterAiRuleVersions.id,
+        versionNumber: masterAiRuleVersions.versionNumber,
+        status: masterAiRuleVersions.status,
+        content: masterAiRuleVersions.content,
+        createdAt: masterAiRuleVersions.createdAt,
+      })
+      .from(masterAiRuleVersions)
+      .orderBy(desc(masterAiRuleVersions.versionNumber))
+      .limit(20);
+
+    /* The PUBLISHED set, not merely the newest row. A draft sitting above the
+       current version is exactly the case where "newest" is the wrong answer,
+       and it is the case a rules screen will meet every time somebody is
+       part-way through an edit. */
+    const current = versions.find((v) => v.id === root.currentVersionId) ?? versions[0];
+    if (!current) return null;
+
+    const doc = current.content;
+
+    const [tenantCount] = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(tenants)
+      .where(isNull(tenants.deletedAt));
+
+    return {
+      versionNumber: current.versionNumber,
+      status: current.status,
+      savedAt: stamp(current.createdAt),
+      fields: [
+        { key: 'tone', label: 'Tone', value: doc.tone ?? '', locked: false },
+        {
+          key: 'responseGuidelines',
+          label: 'Response guidelines',
+          value: doc.responseGuidelines ?? '',
+          locked: false,
+        },
+        {
+          key: 'businessInformation',
+          label: 'Business information',
+          value: doc.businessInformation ?? '',
+          locked: false,
+        },
+        /* 01 D-08, confirmed 24 Aug 2026: layered, master wins on conflict,
+           and a field is master-authoritative unless explicitly opened. These
+           two are the floor a workspace may tighten and never loosen. */
+        {
+          key: 'escalationInstructions',
+          label: 'Escalation instructions',
+          value: doc.escalationInstructions ?? '',
+          locked: true,
+        },
+        {
+          key: 'prohibitedTopics',
+          label: 'Prohibited topics',
+          value: (doc.prohibitedTopics ?? []).join('\n'),
+          locked: true,
+        },
+        {
+          key: 'customInstructions',
+          label: 'Custom instructions',
+          value: doc.customInstructions ?? '',
+          locked: false,
+        },
+      ],
+      versions: versions.map((v) => ({
+        id: v.id,
+        versionNumber: v.versionNumber,
+        status: v.status,
+        savedAt: shortDate(v.createdAt),
+        current: v.id === current.id,
+      })),
+      workspaceCount: tenantCount?.n ?? 0,
+    } satisfies MasterRulesDoc;
+  });
+}
+
+function stamp(at: Date | null): string {
+  if (!at) return '—';
+  return new Date(at).toLocaleString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function shortDate(at: Date | null): string {
+  if (!at) return '—';
+  return new Date(at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }

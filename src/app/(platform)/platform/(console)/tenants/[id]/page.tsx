@@ -10,6 +10,7 @@ import {
   getWorkspaceChannels,
   getWorkspaceRules,
   getWorkspaceActivity,
+  PORTFOLIO_COUNT,
 } from '@/lib/console/data';
 import { startSupportSession } from '../../actions';
 
@@ -190,7 +191,7 @@ export default async function WorkspaceDetailPage({
       {active === 'billing' ? <BillingTab w={w} /> : null}
       {active === 'staff' ? <StaffTab w={w} staff={await getWorkspaceStaff(w.slug)} /> : null}
       {active === 'channels' ? <ChannelsTab channels={await getWorkspaceChannels(w.slug)} /> : null}
-      {active === 'rules' ? <RulesTab rules={await getWorkspaceRules(w.slug)} /> : null}
+      {active === 'rules' ? <RulesTab rules={await getWorkspaceRules(w.slug)} workspaceCount={PORTFOLIO_COUNT} /> : null}
       {active === 'audit' ? <ActivityTab activity={await getWorkspaceActivity(w.slug)} /> : null}
     </ConsolePage>
   );

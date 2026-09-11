@@ -18,6 +18,7 @@ import { withoutTenantContext } from '@/lib/db';
 import type {
   AuditEntry,
   AuditKind,
+  AuditVolumePoint,
   EndedBy,
   Meter,
   SessionRecord,
@@ -487,4 +488,73 @@ function auditKindOf(action: string): AuditKind {
   if (action.startsWith('rules.')) return 'rules';
   if (action.startsWith('tenant.')) return 'tenant';
   return 'admin';
+}
+
+/**
+ * 17 §5 · 17 §7. Platform audit volume, one row per day for thirty days.
+ *
+ * ⚠ A LOG YOU CANNOT ASK A QUESTION OF IS AN ARCHIVE.
+ *
+ * The audit stream renders entries newest-first and answers "what happened
+ * last". It cannot answer "was last Tuesday unusual", which is the question
+ * somebody actually arrives with. Thirty bars can.
+ *
+ * ⚠ `serviceRole` IS ITS OWN SERIES BECAUSE IT IS THE QUESTION AN AUDITOR
+ * ASKS. Every platform audit row carries `used_service_role` precisely so
+ * that "when did we bypass Row Level Security, and why" is one filter rather
+ * than a reconstruction. Folding it into a total hides the only series on the
+ * chart anybody would investigate.
+ *
+ * ⚠ DAYS WITH NO ACTIVITY ARE ZEROES, NOT GAPS. `generate_series` produces the
+ * calendar and the counts join onto it, so a quiet weekend renders as two
+ * short bars rather than as a chart that silently closes up and makes five
+ * working days look like seven.
+ */
+export async function getLiveAuditVolume(): Promise<AuditVolumePoint[] | null> {
+  const ctx = await currentPlatformSessionOrNull();
+  if (!ctx) return null;
+
+  return withoutTenantContext(ctx.requestId, async (tx) => {
+    const rows = await tx.execute<{
+      day: string;
+      total: number;
+      service_role: number;
+      support: number;
+    }>(sql`
+      with calendar as (
+        select generate_series(
+          (now() at time zone 'utc')::date - interval '29 days',
+          (now() at time zone 'utc')::date,
+          interval '1 day'
+        )::date as day
+      )
+      select
+        to_char(calendar.day, 'YYYY-MM-DD') as day,
+        count(l.id)::int as total,
+        count(*) filter (where l.used_service_role)::int as service_role,
+        count(*) filter (where l.support_session_id is not null)::int as support
+      from calendar
+      left join ${platformAuditLog} l
+        on (l.occurred_at at time zone 'utc')::date = calendar.day
+      group by calendar.day
+      order by calendar.day
+    `);
+
+    /* `execute` returns driver rows rather than a typed result set, so the
+       shape is asserted at exactly one place — here — and everything above
+       this line reads the declared type. */
+    const points = (rows as unknown as Array<{
+      day: string;
+      total: number;
+      service_role: number;
+      support: number;
+    }>).map((r) => ({
+      day: r.day,
+      total: Number(r.total),
+      serviceRole: Number(r.service_role),
+      support: Number(r.support),
+    }));
+
+    return points.length > 0 ? points : null;
+  });
 }
