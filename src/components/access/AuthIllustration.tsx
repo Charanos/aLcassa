@@ -14,7 +14,29 @@ import React from 'react';
 
 export function AuthIllustration() {
   return (
-    <div className="relative w-full max-w-[900px] aspect-[5/3] mx-16 select-none pointer-events-none">
+    /*
+     * ⚠ `aria-hidden` — IT WAS MISSING, AND THAT IS NOT A DETAIL HERE.
+     *
+     * Everything inside is a drawing OF an interface: channel names, a fake
+     * workspace card, "LIVE & ISOLATED", "Shown once". Without this, a screen
+     * reader announces all of it as page content immediately after "Sign in to
+     * your workspace" — roughly twenty words of decoration between the heading
+     * and the email field, on the screen where someone is trying to get in.
+     * It is already `pointer-events-none` and `select-none`; this completes
+     * the same statement for the accessibility tree.
+     *
+     * The type sizes inside are deliberately left off the UI scale for the
+     * same reason — at this size they are marks in a drawing, not typography
+     * a reader is expected to parse.
+     *
+     * No alt text replaces it, deliberately. It illustrates what the product
+     * does, which the marketing site says in prose; the sign-in page's content
+     * is the form.
+     */
+    <div
+      aria-hidden
+      className="relative w-full max-w-[900px] aspect-[5/3] mx-16 select-none pointer-events-none"
+    >
       
       {/* ── Subtle Ambient Lighting ── */}
       <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--blue-500)]/5 blur-[120px] rounded-full pointer-events-none" />
@@ -129,7 +151,7 @@ export function AuthIllustration() {
                 </div>
                 <div>
                   <span className="block font-sans text-[13px] font-semibold tracking-tight text-white leading-none mb-1 whitespace-nowrap">Your Workspace</span>
-                  <span className="block font-sans text-[11px] text-blue-200/50 tracking-tight font-medium leading-none whitespace-nowrap">Enterprise Console</span>
+                  <span className="block font-sans text-[11px] text-[var(--blue-200)]/50 tracking-tight font-medium leading-none whitespace-nowrap">Enterprise Console</span>
                 </div>
               </div>
               <IconServerCog size={16} stroke={1.5} className="text-white/20 shrink-0" />
@@ -141,10 +163,10 @@ export function AuthIllustration() {
             <div className="relative">
               <div className="flex items-center justify-center gap-2">
                 <div className="relative flex items-center justify-center size-2">
-                  <span className="absolute inset-[-2px] rounded-full bg-emerald-400/40 animate-pulse"></span>
-                  <span className="absolute size-1.5 rounded-full bg-emerald-400"></span>
+                  <span className="absolute inset-[-2px] rounded-full bg-[var(--success-fg)]/40 animate-pulse"></span>
+                  <span className="absolute size-1.5 rounded-full bg-[var(--success-fg)]"></span>
                 </div>
-                <span className="font-mono text-[9.5px] font-bold tracking-[0.15em] uppercase text-emerald-400/90 whitespace-nowrap">Live & Isolated</span>
+                <span className="font-mono text-[9.5px] font-bold tracking-[0.15em] uppercase text-[var(--success-fg)]/90 whitespace-nowrap">Live & Isolated</span>
               </div>
             </div>
           </div>
@@ -156,7 +178,7 @@ export function AuthIllustration() {
           <FeatureCard 
             title="Assistant Rules" 
             subtitle="Live in under 5s" 
-            icon={<IconActivity size={18} className="text-red-500" />} 
+            icon={<IconActivity size={18} className="text-[var(--red-500)]" />} 
           />
         </div>
 
@@ -164,7 +186,7 @@ export function AuthIllustration() {
           <FeatureCard 
             title="API Credentials" 
             subtitle="Shown once" 
-            icon={<IconKey size={18} className="text-amber-500" />} 
+            icon={<IconKey size={18} className="text-[var(--amber-500)]" />} 
           />
         </div>
 
@@ -176,10 +198,10 @@ export function AuthIllustration() {
 function ChannelCard({ title, icon }: { title: string; icon: React.ReactNode }) {
   return (
     <div className="group flex items-center gap-3.5 w-full rounded-[1.125rem] bg-white/80 p-2.5 shadow-sm ring-1 ring-black/5 backdrop-blur-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
-      <div className="rounded-[0.6rem] bg-white p-2.5 shrink-0 border border-gray-100/60 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)] transition-transform duration-300 group-hover:scale-105 group-hover:rotate-2">
+      <div className="rounded-[0.6rem] bg-white p-2.5 shrink-0 border border-[var(--ink-100)]/60 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)] transition-transform duration-300 group-hover:scale-105 group-hover:rotate-2">
         {icon}
       </div>
-      <div className="font-sans text-[13px] font-semibold text-gray-800 tracking-tight">
+      <div className="font-sans text-[13px] font-semibold text-[var(--text-primary)] tracking-tight">
         {title}
       </div>
     </div>
@@ -189,14 +211,14 @@ function ChannelCard({ title, icon }: { title: string; icon: React.ReactNode }) 
 function FeatureCard({ title, subtitle, icon }: { title: string; subtitle: string; icon: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3 w-full rounded-[1.125rem] bg-white/80 p-3.5 shadow-sm ring-1 ring-black/5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-      <div className="shrink-0 mt-0.5 rounded-[0.6rem] bg-white p-2 border border-gray-100/60 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)]">
+      <div className="shrink-0 mt-0.5 rounded-[0.6rem] bg-white p-2 border border-[var(--ink-100)]/60 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)]">
         {icon}
       </div>
       <div>
-        <div className="font-mono text-[9px] font-bold tracking-[0.1em] text-gray-400 uppercase leading-tight mb-1">
+        <div className="font-mono text-[9px] font-bold tracking-[0.1em] text-[var(--text-tertiary)] uppercase leading-tight mb-1">
           {title}
         </div>
-        <div className="font-sans text-[12px] text-gray-700 leading-snug font-semibold">
+        <div className="font-sans text-[12px] text-[var(--text-secondary)] leading-snug font-semibold">
           {subtitle}
         </div>
       </div>

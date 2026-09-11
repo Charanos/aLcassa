@@ -597,7 +597,14 @@ export function HeroInteractiveConsole() {
                 ) : (
                   <>
                     {/* Outbound Dispatched Message Bubble */}
-                    <div className="self-end max-w-[82%] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div
+                      className="self-end max-w-[82%]"
+                      /* tailwindcss-animate is not installed in this project, so the
+             animate-in/fade-in/slide-in-* utilities were inert — this
+             arrived with no transition at all. globals.css already defines
+             the keyframes below, and its reduced-motion block covers them. */
+                      style={{ animation: 'panel-in var(--duration-slow) var(--ease-out)' }}
+                    >
                       <div className="rounded-2xl rounded-tr-xs bg-[var(--blue-500)] p-4 text-[14px] text-left leading-relaxed text-white shadow-sm">
                         <p>{active.suggestedReply}</p>
                         {activeActions[active.id] && (
@@ -617,7 +624,8 @@ export function HeroInteractiveConsole() {
                     </div>
 
                     {/* Single-line Resolved Status Banner */}
-                    <div className="mt-2 flex items-center justify-between rounded-xl bg-emerald-50/90 border border-emerald-200/80 px-4 py-2 text-[12.5px] text-emerald-800 animate-in fade-in duration-200">
+                    <div className="mt-2 flex items-center justify-between rounded-xl bg-emerald-50/90 border border-emerald-200/80 px-4 py-2 text-[12.5px] text-emerald-800"
+                    style={{ animation: 'overlay-in var(--duration-base) var(--ease-standard)' }}>
                       <span className="flex items-center gap-2">
                         <IconCircleCheck size={15} className="text-emerald-600 shrink-0" />
                         <span>Thread resolved and logged to immutable audit stream</span>

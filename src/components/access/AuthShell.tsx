@@ -67,7 +67,7 @@ export function AuthShell({
             </Link>
             <Link
               href="/"
-              className="group inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+              className="group inline-flex items-center gap-1.5 text-[length:var(--text-sm)] font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
             >
               <IconArrowLeft
                 size={13}
@@ -98,7 +98,7 @@ export function AuthShell({
                 ) : null}
                 {lede ? (
                   <p className={`leading-relaxed text-[var(--text-secondary)] ${
-                    title ? 'mt-1.5 text-[13px] sm:text-[14px]' : 'text-[14px] sm:text-[15px]'
+                    title ? 'mt-1.5 text-[length:var(--text-sm)] sm:text-[length:var(--text-base)]' : 'text-[length:var(--text-base)]'
                   }`}>
                     {lede}
                   </p>

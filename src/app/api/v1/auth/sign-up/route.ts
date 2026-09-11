@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
 import { AppError, ERROR_CODES } from '@/lib/errors';
+import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
 import { readRequestBody, wantsJson } from '@/lib/http/body';
 import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
@@ -157,6 +158,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       session.id,
       sessionCookieOptions(session.expiresAt),
     );
+
+    /* The verify page is a receipt, not a gate — this is what makes it read
+       as an achievement rather than an errand. */
+    if (!asJson) {
+      response.cookies.set(FLASH_COOKIE, 'workspace_created', FLASH_COOKIE_OPTIONS);
+    }
 
     return response;
   } catch (error) {

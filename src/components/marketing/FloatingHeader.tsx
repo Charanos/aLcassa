@@ -208,8 +208,12 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
       {menuOpen && (
         <div
           ref={menuRef}
-          className="surface-glass-strong animate-in fade-in slide-in-from-top-2 fixed top-18 right-4 left-4 z-50 rounded-overlay border border-[var(--border-subtle)] shadow-2xl sm:left-auto sm:w-80"
-          style={{ animationDuration: 'var(--duration-base)' }}
+          className="surface-glass-strong fixed top-18 right-4 left-4 z-50 rounded-overlay border border-[var(--border-subtle)] shadow-2xl sm:left-auto sm:w-80"
+          /* tailwindcss-animate is not installed in this project, so the
+             animate-in/fade-in/slide-in-* utilities were inert — this
+             arrived with no transition at all. globals.css already defines
+             the keyframes below, and its reduced-motion block covers them. */
+          style={{ animation: 'panel-in var(--duration-base) var(--ease-out)' }}
         >
           <nav className="flex flex-col gap-1.5 p-4">
             {NAV_ITEMS.map((item) => {

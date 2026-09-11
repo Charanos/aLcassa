@@ -25,8 +25,15 @@ import React from 'react';
 export function ConsolePage({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="animate-in fade-in slide-in-from-bottom-3 relative mx-auto w-full max-w-[1380px] overflow-x-clip px-5 pt-8 pb-16 duration-300 ease-out md:px-8 md:pt-10 xl:max-w-[1600px] 2xl:max-w-[1760px]"
-      style={{ color: 'var(--text-primary)' }}
+      className="relative mx-auto w-full max-w-[1380px] overflow-x-clip px-5 pt-8 pb-16 md:px-8 md:pt-10 xl:max-w-[1600px] 2xl:max-w-[1760px]"
+      style={{
+        color: 'var(--text-primary)',
+        /* Same inert-utility fix as the mobile sheet: `animate-in fade-in
+           slide-in-from-bottom-3` comes from tailwindcss-animate, which this
+           project does not install, so every console page was arriving with
+           no transition at all while appearing to ask for one. */
+        animation: 'slide-up-fade var(--duration-slow) var(--ease-out)',
+      }}
     >
       {children}
     </div>

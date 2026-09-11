@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import {
   cookieNameFor,
@@ -73,6 +74,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const response = wantsJson
     ? jsonOk({ signedOut: true }, { requestId })
     : NextResponse.redirect(new URL('/sign-in', request.url), 303);
+
+  /*
+   * ⚠ CONFIRMING A SIGN-OUT MATTERS MORE THAN CONFIRMING A SIGN-IN. Signing
+   * in is self-evident — the workspace is on screen. Signing out lands on a
+   * form that looks identical to the one you would see if the click had
+   * silently failed, which on a shared machine is the difference between
+   * leaving and believing you left. The notice is the proof.
+   */
+  if (!wantsJson) {
+    response.cookies.set(FLASH_COOKIE, 'signed_out', FLASH_COOKIE_OPTIONS);
+  }
 
   for (const kind of kinds) {
     response.cookies.set(cookieNameFor(kind), '', {

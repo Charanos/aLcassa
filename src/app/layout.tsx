@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Lekton } from 'next/font/google';
+import { FlashToasts } from '@/components/primitives/FlashToasts';
 import { ToastProvider } from '@/components/primitives/Toast';
 import { GsapProvider } from '@/components/structure/GsapProvider';
 import './globals.css';
@@ -62,7 +63,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <GsapProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            {/* Announces anything a redirect left behind — see lib/flash.ts
+                for why sign-in and sign-out could not toast without it. */}
+            <FlashToasts />
+            {children}
+          </ToastProvider>
         </GsapProvider>
       </body>
     </html>

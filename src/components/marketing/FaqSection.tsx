@@ -317,7 +317,12 @@ export function FaqSection() {
 
                   {/* Expanded Content */}
                   {isOpen && (
-                    <div className="mt-4 pt-4 border-t border-[var(--ink-100)]/70 text-[13.5px] sm:text-[14px] text-[var(--text-secondary)] leading-relaxed animate-in fade-in-50 duration-200">
+                    <div className="mt-4 pt-4 border-t border-[var(--ink-100)]/70 text-[13.5px] sm:text-[14px] text-[var(--text-secondary)] leading-relaxed"
+                    /* tailwindcss-animate is not installed in this project, so the
+             animate-in/fade-in/slide-in-* utilities were inert — this
+             arrived with no transition at all. globals.css already defines
+             the keyframes below, and its reduced-motion block covers them. */
+                    style={{ animation: 'overlay-in var(--duration-base) var(--ease-standard)' }}>
                       <p>{faq.answer}</p>
                     </div>
                   )}

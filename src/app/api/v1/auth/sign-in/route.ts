@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { isPlatformAdmin, membershipsFor } from '@/lib/auth/resolve';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
 import { AppError, ERROR_CODES } from '@/lib/errors';
+import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
 import { readRequestBody, wantsJson } from '@/lib/http/body';
 import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
@@ -221,6 +222,16 @@ function respond(input: {
     input.cookie.value,
     sessionCookieOptions(input.cookie.expiresAt),
   );
+
+  /*
+   * The greeting, for the document navigation only. A JSON caller gets an
+   * envelope it can act on however it likes and has no page to toast onto —
+   * setting the cookie there would arm a notice for whatever the API client's
+   * user happens to load next, which is somebody else's screen.
+   */
+  if (!input.asJson) {
+    response.cookies.set(FLASH_COOKIE, 'signed_in', FLASH_COOKIE_OPTIONS);
+  }
 
   return response;
 }

@@ -174,17 +174,26 @@ export function ConsoleMobileNav({
       <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
         <Dialog.Portal>
           <Dialog.Overlay
-            className="fixed inset-0 z-50 md:hidden animate-in fade-in duration-200"
-            style={{ background: 'var(--surface-overlay)' }}
+            className="fixed inset-0 z-50 md:hidden"
+            style={{
+              background: 'var(--surface-overlay)',
+              animation: 'overlay-in var(--duration-fast) linear',
+            }}
           />
           <Dialog.Content
             aria-describedby={undefined}
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[86dvh] flex-col rounded-t-2xl md:hidden animate-in slide-in-from-bottom duration-250 ease-out"
+            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[86dvh] flex-col rounded-t-2xl md:hidden"
             style={{
               background: '#0a1024',
               borderTop: '1px solid rgba(255, 255, 255, 0.12)',
               color: 'var(--chrome-fg)',
               paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
+              /* `slide-up-fade`, not `animate-in slide-in-from-bottom`: that
+                 utility comes from tailwindcss-animate, which this project does
+                 not install, so the class was inert and the sheet appeared
+                 instantly. This keyframe already exists in globals.css and is
+                 covered by its reduced-motion block. */
+              animation: 'slide-up-fade var(--duration-slow) var(--ease-out)',
               boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.75)',
             }}
           >
@@ -195,7 +204,7 @@ export function ConsoleMobileNav({
 
             <div className="flex items-center justify-between px-4 py-2">
               <Dialog.Title
-                className="font-mono text-[11px] tracking-wider uppercase"
+                className="font-mono text-[length:var(--text-xs)] tracking-wider uppercase"
                 style={{ color: 'var(--chrome-fg-faint)' }}
               >
                 Platform console
@@ -213,7 +222,7 @@ export function ConsoleMobileNav({
               {navigation.map((group) => (
                 <div key={group.label} className="mb-4">
                   <p
-                    className="mb-1.5 ml-2 font-mono text-[10.5px] tracking-wider uppercase"
+                    className="mb-1.5 ml-2 font-mono text-[length:var(--text-xs)] tracking-wider uppercase"
                     style={{ color: 'var(--chrome-fg-muted)' }}
                   >
                     {group.label}
@@ -227,7 +236,7 @@ export function ConsoleMobileNav({
                           key={item.href}
                           href={item.href}
                           aria-current={active ? 'page' : undefined}
-                          className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[14px] transition-colors"
+                          className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors"
                           style={{
                             background: active ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
                             color: active ? '#ffffff' : 'var(--chrome-fg-muted)',
@@ -237,7 +246,7 @@ export function ConsoleMobileNav({
                           <span className="flex-1 font-medium">{item.label}</span>
                           {item.badge ? (
                             <span
-                              className="rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold"
+                              className="rounded-full px-2 py-0.5 font-mono text-[length:var(--text-xs)] font-semibold"
                               style={{
                                 background: 'rgba(255, 255, 255, 0.12)',
                                 color: '#ffffff',
@@ -269,13 +278,13 @@ export function ConsoleMobileNav({
                   aria-hidden
                 />
                 <span
-                  className="text-[12.5px] font-medium"
+                  className="text-[length:var(--text-sm)] font-medium"
                   style={{ color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)' }}
                 >
                   {isolationOk ? 'Isolation green' : 'Isolation gap'}
                 </span>
                 <span
-                  className="ml-auto font-mono text-[11px]"
+                  className="ml-auto font-mono text-[length:var(--text-xs)]"
                   style={{ color: 'var(--chrome-fg-faint)' }}
                 >
                   {isolation.tablesPoliced}/{isolation.tablesTotal} tables
@@ -284,7 +293,7 @@ export function ConsoleMobileNav({
 
               <Link
                 href="/"
-                className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[14px] transition-colors hover:bg-white/5"
+                className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-white/5"
                 style={{ color: 'var(--chrome-fg-muted)' }}
               >
                 <IconArrowUpRight size={18} stroke={1.5} aria-hidden />
@@ -296,11 +305,11 @@ export function ConsoleMobileNav({
                 style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}
               >
                 <div className="mb-1 px-2.5">
-                  <p className="text-[13px] font-semibold text-white">
+                  <p className="text-[length:var(--text-sm)] font-semibold text-white">
                     {account.name}
                   </p>
                   <p
-                    className="font-mono text-[11px]"
+                    className="font-mono text-[length:var(--text-xs)]"
                     style={{ color: 'var(--chrome-fg-faint)' }}
                   >
                     {account.email}
@@ -309,7 +318,7 @@ export function ConsoleMobileNav({
 
                 <Link
                   href="/platform/profile"
-                  className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[14px] transition-colors hover:bg-white/5"
+                  className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-white/5"
                   style={{ color: 'var(--chrome-fg-muted)' }}
                 >
                   <IconUser size={18} stroke={1.5} aria-hidden />
@@ -319,7 +328,7 @@ export function ConsoleMobileNav({
                 <form method="post" action="/api/v1/auth/sign-out">
                   <button
                     type="submit"
-                    className="flex h-11 w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 text-[14px] transition-colors hover:bg-red-500/10"
+                    className="flex h-11 w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-red-500/10"
                     style={{ color: 'var(--danger-fg)' }}
                   >
                     <IconLogout size={18} stroke={1.5} aria-hidden />

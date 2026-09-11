@@ -118,7 +118,7 @@ export function PasswordQualityMeter({ password = '' }: { password?: string }) {
         </div>
         <span
           aria-live="polite"
-          className="font-mono text-[9px] font-bold tracking-widest uppercase shrink-0"
+          className="font-mono text-[length:var(--text-xs)] font-bold tracking-widest uppercase shrink-0"
           style={{ color: ink }}
         >
           {label}
@@ -127,7 +127,7 @@ export function PasswordQualityMeter({ password = '' }: { password?: string }) {
 
       <ul className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         {rules.map((rule) => (
-          <li key={rule.label} className="flex items-center gap-1.5 text-[10.5px]">
+          <li key={rule.label} className="flex items-center gap-1.5 text-[length:var(--text-xs)]">
             {rule.valid ? (
               <IconCheck
                 size={12}

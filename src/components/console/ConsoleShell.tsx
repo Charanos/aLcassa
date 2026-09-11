@@ -1762,7 +1762,7 @@ export function ConsoleShell({
               zIndex: 80,
               background: 'rgba(0, 0, 0, 0.4)',
               backdropFilter: 'blur(6px)',
-              paddingTop: '12vh',
+              paddingTop: '10dvh',
             }}
           />
           <Dialog.Content
@@ -1780,9 +1780,24 @@ export function ConsoleShell({
               paletteInput.current?.focus();
             }}
             aria-describedby={undefined}
-            className="fixed top-[12vh] left-1/2 z-[81] flex w-[620px] max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col overflow-hidden rounded-[16px]"
+            className="fixed top-[10dvh] left-1/2 z-[81] flex w-[620px] max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col overflow-hidden rounded-[16px]"
             style={{
-              maxHeight: '62vh',
+              /*
+               * ⚠ `dvh`, NOT `vh`, AND IT MATTERS MOST ON A PHONE. Below `md`
+               * the header's own search and workspace switcher are both
+               * `hidden md:*`, so this palette is the ONLY way to reach seven
+               * of the eleven screens and the only workspace switcher there
+               * is — it is what the bottom bar's raised button opens.
+               *
+               * Focusing its input raises the on-screen keyboard, which
+               * shrinks the visual viewport while `100vh` keeps reporting the
+               * LARGE one. Offset and height in `vh` therefore positioned the
+               * dialog against a viewport the reader could no longer see, and
+               * pushed the results — the entire point of opening it — under
+               * the keyboard. `dvh` tracks the live height, so the list stays
+               * where it is looked at.
+               */
+              maxHeight: '70dvh',
               background: '#ffffff',
               color: 'var(--text-primary)',
               border: '1px solid rgba(0,0,0,0.06)',
