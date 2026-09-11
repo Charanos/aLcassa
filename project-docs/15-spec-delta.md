@@ -1979,3 +1979,100 @@ The first version of that scan matched `from '…'` inside comments and string
 literals, and reported `not signed in` and `99.82% because it wobbles every
 third day` as missing packages. It is anchored to line-initial import
 statements now: a checker that cries wolf is a checker somebody switches off.
+
+---
+
+## C44 · Document 03 specified a design system that no longer exists
+
+**12 Sep 2026. The document was wrong; it has been rewritten.**
+
+`03-design-system.md` opens with *"this document is the authority on every
+visual decision. If code disagrees with this file, the code is wrong."* It then
+specified, in §2, a palette that is defined nowhere in the codebase:
+`--copper-*`, `--graphite-*`, `--sheet-*` and a full `[data-theme='dark']`
+inversion. None of them resolve. `tokens.css` states in its own header that the
+client identity handoff *"supersedes the previous token system in full"*, and it
+does — the shipped system is `--brand-blue #043AE1` on `--brand-cream #FBFDF4`
+with `--brand-orange #FA5505` as a budgeted accent, one theme, no inversion.
+
+Four further contradictions, all of them cases where the document forbade
+something the product ships deliberately:
+
+| §20 forbade | The product ships | Resolution |
+| --- | --- | --- |
+| Gradients | The chrome tier's navy-into-obsidian sweep | Permitted on the chrome tier only |
+| Glassmorphism | `--glass-*`, on layered surfaces | Permitted, budget of three composited |
+| Shadows on cards | `--shadow-sm` on panels | Permitted; `--shadow-lg` reserved for overlays |
+| Radius above 6px | The floating rail at 20px | Permitted for objects, not for ruled panels |
+
+§22 stated *"there is no brand"* and specified a placeholder mark in
+`--copper-600`. The identity exists and `docs/BRAND.md` is its authority.
+
+Four passages also carried a find-replace artefact from the Conduit → aLcassa
+rename — "the copper aLcassa", "a aLcassa passing through a boundary" — in `03`
+and in `13`.
+
+**What was kept.** §5 to §19 and §21 were reviewed and retained; their token
+names were swept onto the shipped semantic tokens. The typography system, the
+one-weight rule, the space and radius scales, motion, the component tiers,
+forms, the data grid, accessibility and print were all still accurate.
+
+**What was added.** §4a (the accent budget) and §4b (the tenant accent's four
+surfaces) exist because `globals.css` already cited both by those numbers and
+neither section existed. §23 (the chrome tier), §24 (the chart contract) and
+§25 (scroll surfaces) document behaviour that was built and undocumented.
+
+**What is NOT drift.** The copper-on-vellum vocabulary survives in the
+presentation tier — the delivery tracker and the document viewer — because that
+surface addresses the client rather than an operator, and the drafting-document
+voice is correct for it. The tone names there are labels mapped onto current
+tokens; no superseded token is resolved. The document now says so rather than
+leaving it to look like a leftover.
+
+---
+
+## C45 · `--spacing-0: 2px` redefined the zero step across 293 usages
+
+**11 Sep 2026. The line is removed.**
+
+In Tailwind v4 an `@theme` key is a slot in a namespace the framework owns, not
+a variable being declared. `--spacing-0: 2px` therefore redefined the **zero
+step** of the spacing scale and every utility built from it: 45 `inset-0`, 148
+`p-0`/`m-0`, 85 `top/left/right/bottom-0`, 13 `gap-0`. All 293 were written to
+mean nothing and rendered 2px.
+
+It presented as a 2px unblurred strip on every side of every modal backdrop,
+which reads as a scroll-lock or containing-block problem and is neither. Two
+fixes built on that theory — a `fixed inset-0` shell root, and an `html`
+background — were wrong and were reverted. The cause was found in one look at
+the computed box model the user supplied.
+
+Verified in the **built** CSS (`.inset-0{inset:0}`, no `-0` utility emitting
+2px), not by reading the source. The trap and its four rules are now `03 §19`.
+
+`--s-0: 2px` in the Tier 0 compat block is NOT the same defect and stays: it is
+a plain custom property aliased by nothing. The defect was mapping a compat
+name into a Tailwind namespace.
+
+---
+
+## C46 · Two components named `Badge`, on two grounds
+
+**12 Sep 2026. Both kept, both documented.**
+
+`components/feedback/Badge.tsx` carries the closed `tone` set from `03 §14` and
+renders on the cream page. `components/primitives/Badge.tsx`, added during the
+interface pass, takes an open `intent` and renders on the chrome tier.
+
+They are not duplicates: the chrome tier needs lightened status steps for the
+same reason `--chrome-action` is white rather than `--blue-500` — the page's
+muted status inks are unreadable on obsidian. The new one arrived carrying six
+hardcoded hex values, which is the defect `tokens.css` names in its own header.
+Those are now `--chrome-{success,warning,danger,info,brand}` plus badge and
+pill surface tokens, and the component reads them through `color-mix` so the
+rim and glow tints are tokens too.
+
+The naming collision is real and is the residual risk: two components named
+`Badge` distinguished only by import path. Renaming one is a coordination
+decision rather than a technical one, and is carried forward rather than taken
+unilaterally while a second agent is editing the same tree.

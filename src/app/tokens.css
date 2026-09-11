@@ -305,7 +305,7 @@
 
 :root {
   --chrome-bg-base: #060913; /* obsidian black — the anchor */
-  --chrome-bg-navy: #17225d; /* brand navy — exact match to var(--brand-navy) */
+  --chrome-bg-navy: #07125f; /* brand navy — exact match to var(--brand-navy) */
   /* Header: sweeps from brand navy on the left into obsidian black on the right */
   --chrome-bg: linear-gradient(100deg, var(--chrome-bg-navy) 0%, var(--chrome-bg-base) 70%);
   /* Sidebar pill: same two stops, vertical — obsidian at top, brand navy at the bottom */
@@ -323,6 +323,44 @@
   --chrome-neu: inset 0 1px 1px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
   --chrome-glass: rgba(6, 9, 19, 0.65);
   --chrome-glass-strong: rgba(6, 9, 19, 0.94);
+
+  /* ─ STATUS ON CHROME ─
+   *
+   * ⚠ THE PAGE'S STATUS INKS DO NOT WORK HERE, and this is the same problem
+   * `--chrome-action` already solves one line above.
+   *
+   * The semantic status scale is deliberately muted for ink-on-cream:
+   * `--green-500` is #3f7d53, which reads as authority on a light page and as
+   * mud on obsidian. These are the lightened steps of the same five meanings,
+   * chosen to clear 4.5:1 against `--chrome-bg-base`. They are NOT a second
+   * palette — a badge that means "healthy" means it in both tiers, and only
+   * the step changes.
+   */
+  --chrome-success: #4ade80;
+  --chrome-warning: #fbbf24;
+  --chrome-danger: #f87171;
+  --chrome-info: #60a5fa;
+  --chrome-brand: #a5b4fc;
+
+  /* ─ CHROME BADGE ─ the `Badge` primitive's matte chromeplate treatment.
+   * One surface and one rim for every intent; the intent changes the ink, the
+   * border tint and the glow only. Keeping the surface constant is what stops
+   * a row of badges reading as a row of coloured blocks. */
+  --chrome-badge-bg: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  --chrome-badge-border: rgba(255, 255, 255, 0.15);
+  --chrome-badge-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.2);
+  /* Tint strengths, applied to whichever status ink the intent selects. */
+  --chrome-badge-border-alpha: 0.25;
+  --chrome-badge-glow-alpha: 0.05;
+
+  /* ─ CHROME ICON PILL ─ the glass disc that houses an icon on the slab. */
+  --chrome-pill-bg: rgba(255, 255, 255, 0.05);
+  --chrome-pill-rim: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --chrome-pill-ring: rgba(255, 255, 255, 0.05);
 }
 
 /* Console geometry. Defaults; the shell root overrides them per user. */
@@ -678,4 +716,6 @@
   --t-chip-tracking: 0.06em;
   --t-eyebrow: var(--weight-medium) var(--text-xs) / 1.15 var(--font-mono);
   --t-eyebrow-tracking: 0.12em;
+  --t-badge: var(--weight-medium) 9px / 1.15 var(--font-mono);
+  --t-badge-tracking: 0.04em;
 }

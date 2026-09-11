@@ -329,6 +329,55 @@ export const COMPLIANCE = [
  */
 export const UPDATES = [
   {
+    date: '2026-09-12',
+    title: 'The design document was describing a system we no longer build',
+    body: 'Before starting the next block of interface work we checked the design document against the code, and it did not survive the check. The document specifies a colour palette — a warm off-white ground with a copper accent — that was chosen before your identity arrived and was replaced by it months ago. None of those colours exist in the product any more; they resolve to nothing. The document also forbids four things the product now does on purpose, and states that no brand exists. It opens by saying that where the code disagrees with it, the code is wrong. A second person is currently building against that document. It has been rewritten against what actually ships, with the sections that were still accurate — typography, spacing, motion, accessibility — kept as they were, and the reasoning for each of the four reversals written down rather than left as a silent change. The old system is not deleted: the delivery tracker and the document viewer you are reading this on still use it deliberately, because that surface speaks to you rather than to an operator, and the document now says so.',
+    milestone: 'M4, M6',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-11',
+    title: 'A two-pixel gap around every dialog, and the single line that caused it',
+    body: 'A thin unblurred strip had appeared down the edge of the screen whenever a dialog opened. It looked like a scrolling problem and it was not one, and two attempted fixes built on that theory failed before we asked for the browser’s own measurements instead of reasoning about the stylesheet. The cause was one line: a spacing value had been given the name of the ZERO step. In the styling framework this project uses, that name is not a new value, it is a slot the framework already owns, so redefining it redefined every instruction in the codebase that meant "no space at all" — two hundred and ninety-three of them — to mean two pixels instead. The dialog backdrop was one of those, which is why it stopped two pixels short of each edge. It is removed, the fix is verified in the compiled stylesheet rather than by reading the source, and the trap is written into the design document so the next person to reach for that name finds the warning first.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-11',
+    title: 'The console overview now argues rather than reports',
+    body: 'The first screen of the owner console was a header and a queue. It is now three bands — revenue, portfolio, operations — each of which asks a question, answers it with a chart, and ends in a link to the screen that owns the follow-up. Two decisions are worth naming. The charts use one colour’s range rather than a different colour per series: the first version used six colours, looked well, and failed a colour-blindness check, because three of the six were indistinguishable to a reader with the most common form of it. The single exception is the workspace status ring, which keeps its meaningful colours because its legend names every segment in words, so nothing is carried by colour alone. The second is that the headline count and the ring are now the same figure. They were not: one was a stated total and the other counted a twelve-row sample, so the page could have said "forty-seven workspaces" above a chart adding up to twelve. That is the kind of error nobody reports and everybody notices.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-10',
+    title: 'Creating a workspace from the console actually creates one',
+    body: 'The provisioning dialog on the console’s front screen looked complete and did nothing: it waited, congratulated you, and navigated to a workspace that did not exist. It now calls the same audited provisioning operation the rest of the system uses, and when it refuses it refuses usefully — a name already taken puts the error on the name field rather than in a banner, and an owner who already has an account says so instead of failing generically. A separate path was added for people signing themselves up, which differs from the admin path in one respect worth stating: an administrator creating a workspace for someone never sees or sets their password, they send an invitation. Self-serve sign-up takes a password because the person choosing it is the person typing it.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-08',
+    title: 'The console frame, on a desktop and on a phone',
+    body: 'The console’s navigation was a sidebar that was either open or shut. Open costs a fifth of the working width on every screen; shut costs a click every time you move. It now behaves the way Gmail’s does: narrow by default, widening while the pointer is over it without pushing the page around, and staying wide if you click the control — which is remembered. The distinction matters more than it sounds: a layout that shifts under a pointer that was only passing through is worse than one that holds still. On a phone there was previously no console navigation at all. There is now a bottom bar with the six screens an operator reaches for, and the main action raised out of it. An earlier version of that bar drew its own shape at runtime and measured itself as the window changed; it has been replaced by something a quarter of the size that does the same thing in plain CSS.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-05',
+    title: 'Signing in and out now says so, and several controls that did nothing were found',
+    body: 'Signing in and signing out produced no confirmation of any kind, which is a small thing that reads as a broken thing. Both now confirm. The mechanism is worth a sentence because the obvious version is unsafe: the message has to survive a redirect, so it travels in a single-use cookie that carries a KEY from a fixed list rather than the message text. A cookie that carried arbitrary text would let a crafted link put any sentence in front of a user in the product’s own voice. The same review found a set of controls across the console that render, respond to the mouse, and do nothing at all — an export here, a save there, a notification bell. They are being resolved in the current pass: each one is either wired up, or disabled with the reason stated on the screen. A button that does nothing is worse than an absent one, because the absent one costs nothing and the dead one costs a support call.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-02',
+    title: 'Signing up, and the first ten minutes after',
+    body: 'The account screens were built for the milestone and not for the person. This pass went through all of them — sign-in, sign-up, verification, password recovery, invitation acceptance — and through what happens immediately after, which had not been designed at all. A new workspace now arrives at a screen that knows it is empty and says what to do about it, dismissible by its owner once they no longer need it. Three things were corrected rather than added. The sign-up form showed a workspace address that was not what would actually be created, so the first thing a new customer saw was a small lie. The password field gave no indication of what was acceptable until it refused. And the trial was not disclosed on the screen where someone agrees to it. All three are fixed.',
+    milestone: 'M2, M5',
+    kind: 'delivery' as const,
+  },
+  {
     date: '2026-08-28',
     title: 'A system-wide review, and a correction about how the safety checks were being enforced',
     body: 'Before starting the next milestone we stopped and reviewed the whole system rather than the piece in front of us. The most important thing it found needs stating plainly. The automated checks that run on every change — including the tenant isolation suite, the one this engagement rests on — were configured to install the project with one tool while the project was set up for another. Every run failed at the first step, and had done since the checks were written. They have been run by hand throughout and have passed, so nothing incorrect was shipped; what was missing was the automation that would have caught it if something had. That is fixed, along with four other things of exactly the same shape: a safeguard that was described in the documents, believed to be in place, and not actually connected. Rate limiting on the public sign-in and password pages was defined and never applied. Error reporting was installed and never switched on. There was nothing for an uptime monitor to check. And joining a workspace by invitation left no entry in that workspace\u2019s activity log, though every other membership change did. All four are now working, each with a test that fails if it stops.',

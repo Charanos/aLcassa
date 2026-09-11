@@ -23,9 +23,9 @@ import { useEffect, useState } from 'react';
  *
  *  1. It is NOT an overlay. Layout insets to accommodate it, so nothing is ever
  *     hidden beneath it. See `--boundary-width` and the padding on <body>.
- *  2. It is `--copper-600` IN BOTH THEMES. The only element in the system that
- *     does not change with theme, because a safety signal should look identical
- *     everywhere.
+ *  2. It is `--support-banner-bg` IN EVERY WORKSPACE, and deliberately outside
+ *     the tenant accent system. A workspace that picked a warm accent must not
+ *     be able to make the support frame blend into its own chrome. 03 §8.
  *  3. It is SERVER-DRIVEN from the `supportMode` object on `/v1/me`, never from
  *     a query parameter. A frame that could be suppressed by editing a URL
  *     would be worthless. 07 §3.

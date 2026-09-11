@@ -45,6 +45,8 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 | `12` | Handover Package                         | Requirement 7, treated as a deliverable with its own acceptance test                 |
 | `13` | Code Brief                               | Paste-ready prompt, plus follow-up patterns                                          |
 | `15` | Specification Delta                      | Where the code and a document disagree, and every decision confirmed after M0 |
+| `16` | Channel Adapter Guide                    | Adding a channel. The typed interface, the webhook shell, the seam boundary  |
+| `17` | Console Density and Function Pass        | The console strengthening pass opened 12 Sep 2026. Audit, stages, gates      |
 
 ---
 

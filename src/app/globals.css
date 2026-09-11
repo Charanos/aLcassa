@@ -129,7 +129,25 @@
   --radius-panel: var(--radius-md);
   --radius-overlay: var(--radius-lg);
 
-  --spacing-0: 2px;
+  /*
+   * ⚠ THERE IS NO `--spacing-0`, AND THERE MUST NEVER BE ONE.
+   *
+   * This block held `--spacing-0: 2px`. In Tailwind v4 the spacing scale is a
+   * theme namespace, so that single line redefined the ZERO step — and every
+   * `-0` utility in the codebase with it. `inset-0`, `p-0`, `m-0`, `gap-0`,
+   * `top-0`, `left-0`, `right-0`, `bottom-0`: 293 usages, every one of them
+   * written to mean nothing, all silently resolving to 2px.
+   *
+   * It was visible as a 2px unblurred strip around every modal — `inset-0` on
+   * a backdrop inset by 2px on all four sides leaves a hairline of unblurred
+   * page down each edge — and invisible everywhere else, which is why it
+   * survived: a 2px error reads as a rendering artefact rather than as a bug,
+   * on 45 overlays and 148 padding resets at once.
+   *
+   * Removing it lets `0` fall through to Tailwind's own `calc(var(--spacing) *
+   * 0)`, which is zero. If a 2px step is ever wanted, it needs a name that is
+   * not the number zero.
+   */
   --spacing-1: var(--space-1);
   --spacing-2: var(--space-2);
   --spacing-3: var(--space-3);
@@ -315,7 +333,7 @@
     font: var(--t-code);
   }
 
-  /* Focus is never removed. 2px solid copper at 2px offset, in both themes,
+  /* Focus is never removed. 2px solid `--border-focus` at 2px offset,
    * on every focusable element, never tinted by the variant it sits on. On a
    * destructive button that is deliberate: the ring answers where, not what. */
   :focus-visible {
@@ -335,7 +353,7 @@
    * A drafting sheet has a measured edge, and the default Windows scrollbar is
    * a grey slab that belongs to no design system at all. This one is built from
    * the surface ramp: the track is the page, the thumb is a rule, and it warms
-   * to copper on hover the same way every other interactive edge in the system
+   * to the action blue on hover the same way every other interactive edge in the system
    * does.
    *
    * `scrollbar-gutter: stable` reserves the track whether or not content
@@ -691,6 +709,13 @@
     font: var(--t-eyebrow);
     letter-spacing: var(--t-eyebrow-tracking);
     text-transform: uppercase;
+  }
+  .t-badge {
+    font: var(--t-badge);
+    letter-spacing: var(--t-badge-tracking);
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
   }
 
   /* ── SURFACE RECIPES · 03 §7b ──────────────────────────────────────────
