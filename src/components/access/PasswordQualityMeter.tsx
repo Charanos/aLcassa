@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { IconCheck, IconX } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 
 /**
  * The strength readout under a new-password field.
@@ -102,59 +102,47 @@ export function PasswordQualityMeter({ password = '' }: { password?: string }) {
   }, [password]);
 
   return (
-    <div className="mt-2.5 space-y-2 rounded-xl border border-[var(--ink-200)]/80 bg-[var(--ink-50)]/60 p-3.5 shadow-2xs transition-all">
-      <div className="flex items-center justify-between text-[12px]">
-        <span className="font-medium text-[var(--text-secondary)]">Password security</span>
-        {/*
-          ⚠ `aria-live` IS THE WHOLE POINT OF THIS SPAN. The word is the only
-          summary of the readout, and it changes as the reader types. Without
-          the live region a screen-reader user gets silence while a sighted
-          one watches it move from "Too weak" to "Robust".
-        */}
+    <div className="mt-1.5 px-0.5 transition-all">
+      <div className="flex items-center gap-2.5 mb-2">
+        <div
+          className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(0,0,0,0.06)]"
+          aria-hidden
+        >
+          <div
+            className="h-full rounded-full transition-all duration-300"
+            style={{
+              width: `${percentage}%`,
+              background: ink === 'var(--text-tertiary)' ? 'var(--ink-400)' : ink,
+            }}
+          />
+        </div>
         <span
           aria-live="polite"
-          className="font-mono text-[11px] font-semibold tracking-wider uppercase"
+          className="font-mono text-[9px] font-bold tracking-widest uppercase shrink-0"
           style={{ color: ink }}
         >
           {label}
         </span>
       </div>
 
-      {/* The bar restates the label visually, so it is hidden from the
-          accessibility tree rather than announced a second time. */}
-      <div
-        className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--ink-200)]/80"
-        aria-hidden
-      >
-        <div
-          className="h-full rounded-full transition-all duration-300"
-          style={{
-            width: `${percentage}%`,
-            background: ink === 'var(--text-tertiary)' ? 'var(--ink-400)' : ink,
-          }}
-        />
-      </div>
-
-      {/* Each rule announces its own pass/fail through the icon's label, so
-          the list is navigable rather than a wall of undifferentiated text. */}
-      <ul className="space-y-1.5 pt-1">
+      <ul className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         {rules.map((rule) => (
-          <li key={rule.label} className="flex items-center gap-2 text-[11.5px]">
+          <li key={rule.label} className="flex items-center gap-1.5 text-[10.5px]">
             {rule.valid ? (
               <IconCheck
-                size={13}
-                stroke={2.5}
+                size={12}
+                stroke={3}
                 className="shrink-0"
                 style={{ color: 'var(--success-fg)' }}
                 aria-hidden
               />
             ) : (
-              <IconX size={13} stroke={2} className="shrink-0 text-[var(--ink-400)]" aria-hidden />
+              <div className="size-1 rounded-full bg-[var(--text-tertiary)] opacity-40 shrink-0 mx-[4px]" aria-hidden />
             )}
             <span
               className={
                 rule.valid
-                  ? 'font-medium text-[var(--text-primary)]'
+                  ? 'text-[var(--text-secondary)] font-medium'
                   : 'text-[var(--text-tertiary)]'
               }
             >

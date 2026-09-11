@@ -96,10 +96,12 @@ const RAIL_INSET = 12;
  */
 const RAIL_W = 60;
 const RAIL_W_OPEN = 248;
-/* Slightly softer than `--radius-lg` (12px). At this height the panel reads
- * as a tall card, and a tall card wants a marginally rounder corner than a
- * button does or the ends look pinched. */
-const RAIL_RADIUS = 16;
+/* Softer than `--radius-lg` (12px). At this height the panel reads as a tall
+ * card, and a tall card wants a rounder corner than a button does or the ends
+ * look pinched. Raised from 16 to 20 during the floating-rail polish — the
+ * value was inlined at the call site at the time, which orphaned this constant
+ * and split the geometry across two places again. */
+const RAIL_RADIUS = 20;
 
 export type ConsoleShellProps = {
   navigation: ConsoleNavGroup[];
@@ -718,7 +720,7 @@ export function ConsoleShell({
           <IconLayersIntersect
             size={110}
             stroke={0.8}
-            className="absolute -top-4 left-[18%] rotate-[18deg] text-[var(--chrome-fg-muted)] opacity-[0.08]"
+            className="absolute -top-4 left-[18%] rotate-[18deg] text-[var(--chrome-fg-muted)] opacity-[0.0418]"
           />
           <IconCube
             size={90}
@@ -733,7 +735,12 @@ export function ConsoleShell({
             className="inline-flex shrink-0 items-center gap-3"
             style={{ color: 'var(--chrome-fg)' }}
           >
-            <Mark size={20} tone="brand" title="aLcassa" />
+            <span className="md:hidden inline-flex">
+              <Mark size={20} tone="inverse" title="aLcassa" />
+            </span>
+            <span className="hidden md:inline-flex">
+              <Mark size={20} tone="brand" title="aLcassa" />
+            </span>
             <span
               className="hidden sm:inline"
               style={{
@@ -848,7 +855,7 @@ export function ConsoleShell({
       </div>
 
       {/* ── Center: Command palette trigger ───────────────────────────── */}
-      <div className="flex flex-1 justify-center px-4">
+      <div className="hidden md:flex flex-1 justify-center px-4">
         <button
           type="button"
           onClick={() => {
@@ -1224,14 +1231,14 @@ export function ConsoleShell({
             bottom: RAIL_INSET,
             left: RAIL_INSET,
             width: collapsed ? RAIL_W : RAIL_W_OPEN,
-            background: 'var(--chrome-bg)',
+            background: 'var(--chrome-sidebar-bg)',
             /* A full border, not just `borderRight`. A floating object is
                bounded on every side; a flush column only needs the one edge
                that meets the content. */
             border: '1px solid var(--chrome-rule)',
             borderRadius: RAIL_RADIUS,
             transition:
-              'width 260ms cubic-bezier(0.2, 0, 0, 1), box-shadow 260ms ease',
+              'width 260ms cubic-bezier(0.2, 0, 0, 1), box-shadow 260ms ease, background 260ms ease',
             willChange: 'width',
             contain: 'layout style',
             /* Above the main pane so the peek can cover it, and above the
@@ -1249,8 +1256,8 @@ export function ConsoleShell({
              * still see the edges of and needs to read as transient.
              */
             boxShadow: peeking
-              ? '0 24px 48px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04)'
-              : '0 6px 20px -8px rgba(0, 0, 0, 0.35)',
+              ? '0 32px 64px -16px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.08)'
+              : '0 12px 32px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.04)',
           }}
         >
           {/* Refined Premium Sidebar Backdrop */}
@@ -1268,17 +1275,17 @@ export function ConsoleShell({
             <IconHexagon
               size={260}
               stroke={0.7}
-              className="absolute -left-20 top-16 rotate-[15deg] text-[var(--chrome-fg-muted)] opacity-[0.0618]"
+              className="absolute -left-20 top-16 rotate-[15deg] text-[var(--chrome-fg-muted)] opacity-[0.0318]"
             />
             <IconLayersIntersect
               size={240}
               stroke={0.7}
-              className="absolute -right-20 top-[38%] -rotate-[20deg] text-[var(--chrome-fg-muted)] opacity-[0.0618]"
+              className="absolute -right-20 top-[38%] -rotate-[20deg] text-[var(--chrome-fg-muted)] opacity-[0.0318]"
             />
             <IconCube
               size={220}
               stroke={0.6}
-              className="absolute -left-16 bottom-24 rotate-[35deg] text-[var(--chrome-fg-muted)] opacity-[0.0618]"
+              className="absolute -left-16 bottom-24 rotate-[35deg] text-[var(--chrome-fg-muted)] opacity-[0.0318]"
             />
           </div>
 
@@ -1369,9 +1376,17 @@ export function ConsoleShell({
                             'padding 240ms cubic-bezier(0.2,0,0,1), gap 240ms cubic-bezier(0.2,0,0,1), color 150ms ease',
                         }}
                       >
-                        <span className="flex size-4 shrink-0 items-center justify-center">
+                        {/* Icon scales up subtly when collapsed so it reads clearly as a solo mark */}
+                        <span
+                          className="flex shrink-0 items-center justify-center"
+                          style={{
+                            width: collapsed ? '20px' : '16px',
+                            height: collapsed ? '20px' : '16px',
+                            transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
+                          }}
+                        >
                           <Icon
-                            size={16}
+                            size={collapsed ? 18 : 16}
                             stroke={active ? 1.8 : 1.25}
                             className="transition-colors"
                             style={{ color: active ? 'var(--chrome-action)' : 'currentColor' }}
@@ -1450,25 +1465,48 @@ export function ConsoleShell({
                 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
             }}
           >
-            <span className="relative flex size-4 shrink-0 items-center justify-center">
+            {/* Dot container grows when collapsed so it reads confidently as a solo mark */}
+            <span
+              className="relative flex shrink-0 items-center justify-center"
+              style={{
+                width: collapsed ? '20px' : '16px',
+                height: collapsed ? '20px' : '16px',
+                transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
+              }}
+            >
               {isolationOk ? (
                 <>
                   <span
-                    className="absolute size-2 rounded-full animate-ping opacity-40"
-                    style={{ background: 'var(--success-fg)' }}
-                  />
-                  <span
-                    className="relative size-1.5 rounded-full"
+                    className="absolute rounded-full animate-ping"
                     style={{
                       background: 'var(--success-fg)',
-                      boxShadow: '0 0 6px var(--success-fg)',
+                      opacity: 0.35,
+                      width: collapsed ? '12px' : '8px',
+                      height: collapsed ? '12px' : '8px',
+                      transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
+                    }}
+                  />
+                  <span
+                    className="relative rounded-full"
+                    style={{
+                      background: 'var(--success-fg)',
+                      boxShadow: collapsed ? '0 0 10px var(--success-fg)' : '0 0 6px var(--success-fg)',
+                      width: collapsed ? '8px' : '6px',
+                      height: collapsed ? '8px' : '6px',
+                      transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1), box-shadow 240ms ease',
                     }}
                   />
                 </>
               ) : (
                 <span
-                  className="size-1.5 rounded-full"
-                  style={{ background: 'var(--warning-fg)', boxShadow: '0 0 6px var(--warning-fg)' }}
+                  className="rounded-full"
+                  style={{
+                    background: 'var(--warning-fg)',
+                    boxShadow: collapsed ? '0 0 10px var(--warning-fg)' : '0 0 6px var(--warning-fg)',
+                    width: collapsed ? '8px' : '6px',
+                    height: collapsed ? '8px' : '6px',
+                    transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1), box-shadow 240ms ease',
+                  }}
                 />
               )}
             </span>
@@ -1692,6 +1730,7 @@ export function ConsoleShell({
           navigation={navigation}
           account={account}
           isolation={isolation}
+          isPaletteOpen={paletteOpen}
           onOpenPalette={() => {
             setQuery('');
             setOpenMenu(null);

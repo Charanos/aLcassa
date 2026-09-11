@@ -54,7 +54,7 @@ export function WorkspaceSlugPreview() {
   const typed = companyName.trim() !== '';
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <Field
         label="Company or organisation name"
         name="companyName"
@@ -64,14 +64,14 @@ export function WorkspaceSlugPreview() {
         value={companyName}
         onChange={(e) => setCompanyName(e.target.value)}
         placeholder="Acme Logistics"
-        helper="Visible to your team members and on client invitations."
       />
 
-      <div className="-mt-1 rounded-xl border border-[var(--ink-200)]/80 bg-[var(--ink-50)]/60 px-3 py-2 shadow-2xs">
-        <div className="flex items-center justify-between gap-3 text-[11.5px]">
-          <span className="font-sans text-[var(--text-tertiary)]">Your workspace URL</span>
+      <div className="mt-2.5 rounded-lg border border-[var(--ink-100)] bg-[var(--ink-50)]/50 px-3.5 py-3 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+        <div className="flex items-center gap-2">
+          <span className="font-sans text-[11.5px] font-medium text-[var(--text-secondary)]">URL</span>
+          <div className="h-3.5 w-px bg-[var(--ink-200)]" />
           <span
-            className="truncate font-mono font-medium"
+            className="truncate font-mono text-[12.5px] tracking-tight"
             style={{ color: typed ? 'var(--blue-600)' : 'var(--text-tertiary)' }}
           >
             {slug}.alcassa.app
@@ -81,8 +81,8 @@ export function WorkspaceSlugPreview() {
           The honest half. Stated once, quietly, rather than as a warning —
           it is not a problem, it is how the name is chosen.
         */}
-        <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-tertiary)]">
-          If that name is already taken we add a number to it.
+        <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--text-tertiary)]">
+          This address is visible on team invites. If taken, we’ll append a number automatically.
         </p>
       </div>
     </div>

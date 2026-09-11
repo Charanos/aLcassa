@@ -304,7 +304,12 @@
  */
 
 :root {
-  --chrome-bg: #060913; /* slightly deeper for more contrast */
+  --chrome-bg-base: #060913; /* obsidian black — the anchor */
+  --chrome-bg-navy: #17225d; /* brand navy — exact match to var(--brand-navy) */
+  /* Header: sweeps from brand navy on the left into obsidian black on the right */
+  --chrome-bg: linear-gradient(100deg, var(--chrome-bg-navy) 0%, var(--chrome-bg-base) 70%);
+  /* Sidebar pill: same two stops, vertical — obsidian at top, brand navy at the bottom */
+  --chrome-sidebar-bg: linear-gradient(to top, var(--chrome-bg-base) 30%, var(--chrome-bg-navy) 100%);
   --chrome-bg-raised: #0b1021;
   --chrome-fg: #ffffff;
   --chrome-fg-muted: #d4d4d8; /* Significantly brightened for legibility */

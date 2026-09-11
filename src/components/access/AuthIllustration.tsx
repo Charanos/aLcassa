@@ -1,0 +1,205 @@
+'use client';
+
+import {
+  IconBrandWhatsapp,
+  IconBrandInstagram,
+  IconBrandMessenger,
+  IconMessageCircle,
+  IconLock,
+  IconActivity,
+  IconKey,
+  IconServerCog,
+} from '@tabler/icons-react';
+import React from 'react';
+
+export function AuthIllustration() {
+  return (
+    <div className="relative w-full max-w-[900px] aspect-[5/3] mx-16 select-none pointer-events-none">
+      
+      {/* ── Subtle Ambient Lighting ── */}
+      <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--blue-500)]/5 blur-[120px] rounded-full pointer-events-none" />
+
+      {/* ── Precision SVG Connection Lines (1000x600 Grid) ── */}
+      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" style={{ zIndex: 0 }}>
+        <defs>
+          <linearGradient id="flow-wa" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#25D366" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
+          </linearGradient>
+          <linearGradient id="flow-ig" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#E1306C" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
+          </linearGradient>
+          <linearGradient id="flow-ms" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#00B2FF" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
+          </linearGradient>
+          <linearGradient id="flow-web" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
+          </linearGradient>
+          <linearGradient id="flow-out" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#94A3B8" stopOpacity="0.1" />
+          </linearGradient>
+          
+          <filter id="orb-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* Base Structural Tracks */}
+        <g strokeWidth="1" fill="none" opacity="0.2">
+          <path id="path-wa" d="M 200 120 C 280 120, 290 300, 370 300" stroke="#94A3B8" />
+          <path id="path-ig" d="M 200 240 C 280 240, 290 300, 370 300" stroke="#94A3B8" />
+          <path id="path-ms" d="M 200 360 C 280 360, 290 300, 370 300" stroke="#94A3B8" />
+          <path id="path-web" d="M 200 480 C 280 480, 290 300, 370 300" stroke="#94A3B8" />
+          
+          <path id="path-out-1" d="M 630 300 C 710 300, 690 210, 770 210" stroke="#94A3B8" />
+          <path id="path-out-2" d="M 630 300 C 710 300, 690 390, 770 390" stroke="#94A3B8" />
+        </g>
+
+        {/* Gradient overlays for the tracks */}
+        <g strokeWidth="1.5" fill="none" opacity="0.6">
+          <path d="M 200 120 C 280 120, 290 300, 370 300" stroke="url(#flow-wa)" />
+          <path d="M 200 240 C 280 240, 290 300, 370 300" stroke="url(#flow-ig)" />
+          <path d="M 200 360 C 280 360, 290 300, 370 300" stroke="url(#flow-ms)" />
+          <path d="M 200 480 C 280 480, 290 300, 370 300" stroke="url(#flow-web)" />
+          <path d="M 630 300 C 710 300, 690 210, 770 210" stroke="url(#flow-out)" />
+          <path d="M 630 300 C 710 300, 690 390, 770 390" stroke="url(#flow-out)" />
+        </g>
+
+        {/* Animated Data Orbs */}
+        <g filter="url(#orb-glow)">
+          <circle r="3" fill="#25D366">
+            <animateMotion dur="4s" repeatCount="indefinite" path="M 200 120 C 280 120, 290 300, 370 300" />
+          </circle>
+          <circle r="3" fill="#E1306C">
+            <animateMotion dur="4s" begin="1s" repeatCount="indefinite" path="M 200 240 C 280 240, 290 300, 370 300" />
+          </circle>
+          <circle r="3" fill="#00B2FF">
+            <animateMotion dur="4s" begin="2s" repeatCount="indefinite" path="M 200 360 C 280 360, 290 300, 370 300" />
+          </circle>
+          <circle r="3" fill="#F59E0B">
+            <animateMotion dur="4s" begin="3s" repeatCount="indefinite" path="M 200 480 C 280 480, 290 300, 370 300" />
+          </circle>
+          
+          <circle r="3.5" fill="#3B82F6">
+            <animateMotion dur="3s" begin="0.5s" repeatCount="indefinite" path="M 630 300 C 710 300, 690 210, 770 210" />
+          </circle>
+          <circle r="3.5" fill="#3B82F6">
+            <animateMotion dur="3s" begin="2s" repeatCount="indefinite" path="M 630 300 C 710 300, 690 390, 770 390" />
+          </circle>
+        </g>
+      </svg>
+
+      {/* ── Absolute HTML Nodes (Coordinates matched to 1000x600 SVG) ── */}
+      <div className="absolute inset-0 h-full w-full" style={{ zIndex: 10 }}>
+        
+        {/* INBOUND CHANNELS (Left) */}
+        {/* Placed precisely at left 5% (50px on 1000px width), with 150px width -> Ends at 200px */}
+        <div className="absolute top-[20%] left-[5%] -translate-y-1/2 w-[150px]">
+          <ChannelCard title="WhatsApp" icon={<IconBrandWhatsapp size={18} className="text-[#25D366]" />} />
+        </div>
+        <div className="absolute top-[40%] left-[5%] -translate-y-1/2 w-[150px]">
+          <ChannelCard title="Instagram" icon={<IconBrandInstagram size={18} className="text-[#E1306C]" />} />
+        </div>
+        <div className="absolute top-[60%] left-[5%] -translate-y-1/2 w-[150px]">
+          <ChannelCard title="Messenger" icon={<IconBrandMessenger size={18} className="text-[#00B2FF]" />} />
+        </div>
+        <div className="absolute top-[80%] left-[5%] -translate-y-1/2 w-[150px]">
+          <ChannelCard title="Web Chat" icon={<IconMessageCircle size={18} className="text-[#F59E0B]" />} />
+        </div>
+
+        {/* WORKSPACE HUB (Center) */}
+        {/* Sleek, horizontally-proportioned card. Center left is at 500px, width 240px -> 380px to 620px */}
+        <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[240px]">
+          <div className="relative rounded-xl bg-[#0A0F1A] p-3.5 text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-white/10 backdrop-blur-3xl transition-transform hover:scale-[1.02] duration-700">
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+            
+            <div className="relative flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                {/* Sleek, minimal icon box */}
+                <div className="flex items-center justify-center size-9 shrink-0 rounded-lg bg-[linear-gradient(135deg,#3B82F6_0%,#1D4ED8_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-[#0A0F1A]">
+                  <IconLock size={16} stroke={2} className="text-white drop-shadow-sm" />
+                </div>
+                <div>
+                  <span className="block font-sans text-[13px] font-semibold tracking-tight text-white leading-none mb-1 whitespace-nowrap">Your Workspace</span>
+                  <span className="block font-sans text-[11px] text-blue-200/50 tracking-tight font-medium leading-none whitespace-nowrap">Enterprise Console</span>
+                </div>
+              </div>
+              <IconServerCog size={16} stroke={1.5} className="text-white/20 shrink-0" />
+            </div>
+            
+            {/* Extremely subtle divider */}
+            <div className="relative h-[1px] w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-3" />
+
+            <div className="relative">
+              <div className="flex items-center justify-center gap-2">
+                <div className="relative flex items-center justify-center size-2">
+                  <span className="absolute inset-[-2px] rounded-full bg-emerald-400/40 animate-pulse"></span>
+                  <span className="absolute size-1.5 rounded-full bg-emerald-400"></span>
+                </div>
+                <span className="font-mono text-[9.5px] font-bold tracking-[0.15em] uppercase text-emerald-400/90 whitespace-nowrap">Live & Isolated</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* OUTBOUND FEATURES (Right) */}
+        {/* Placed precisely at right 5% (50px on 1000px width), with 180px width -> Left edge is 770px */}
+        <div className="absolute top-[35%] right-[5%] -translate-y-1/2 w-[180px]">
+          <FeatureCard 
+            title="Assistant Rules" 
+            subtitle="Live in under 5s" 
+            icon={<IconActivity size={18} className="text-red-500" />} 
+          />
+        </div>
+
+        <div className="absolute top-[65%] right-[5%] -translate-y-1/2 w-[180px]">
+          <FeatureCard 
+            title="API Credentials" 
+            subtitle="Shown once" 
+            icon={<IconKey size={18} className="text-amber-500" />} 
+          />
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+function ChannelCard({ title, icon }: { title: string; icon: React.ReactNode }) {
+  return (
+    <div className="group flex items-center gap-3.5 w-full rounded-[1.125rem] bg-white/80 p-2.5 shadow-sm ring-1 ring-black/5 backdrop-blur-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+      <div className="rounded-[0.6rem] bg-white p-2.5 shrink-0 border border-gray-100/60 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)] transition-transform duration-300 group-hover:scale-105 group-hover:rotate-2">
+        {icon}
+      </div>
+      <div className="font-sans text-[13px] font-semibold text-gray-800 tracking-tight">
+        {title}
+      </div>
+    </div>
+  );
+}
+
+function FeatureCard({ title, subtitle, icon }: { title: string; subtitle: string; icon: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3 w-full rounded-[1.125rem] bg-white/80 p-3.5 shadow-sm ring-1 ring-black/5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+      <div className="shrink-0 mt-0.5 rounded-[0.6rem] bg-white p-2 border border-gray-100/60 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)]">
+        {icon}
+      </div>
+      <div>
+        <div className="font-mono text-[9px] font-bold tracking-[0.1em] text-gray-400 uppercase leading-tight mb-1">
+          {title}
+        </div>
+        <div className="font-sans text-[12px] text-gray-700 leading-snug font-semibold">
+          {subtitle}
+        </div>
+      </div>
+    </div>
+  );
+}

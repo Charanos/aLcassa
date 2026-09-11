@@ -57,67 +57,69 @@ export default async function SignInPage({
     <AuthShell
       title="Sign in to your workspace"
       lede="Enter your credentials to access your unified messaging console."
-      cardMaxWidth="max-w-[500px] sm:max-w-[540px]"
+      cardMaxWidth="max-w-[460px]"
       footer={
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/*
             ── Demo bypass. Rendered only where /api/demo would answer. ──
             These links set a session cookie without authenticating anyone.
           */}
           {demoAccessEnabled() ? (
-            <div className="space-y-3 pt-1">
+            <div className="space-y-3.5 pt-2">
               <div className="relative flex items-center justify-center">
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="w-full border-t border-[var(--ink-200)]/70" />
+                  <div className="w-full border-t border-[var(--ink-200)]/60" />
                 </div>
-                <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider">
-                  <span className="bg-white px-2 text-[var(--text-tertiary)]">
+                <div className="relative flex justify-center text-[10px] font-mono uppercase tracking-wider">
+                  <span className="bg-white px-3 text-[var(--text-tertiary)]">
                     Reviewer & Demo Mode
                   </span>
                 </div>
               </div>
 
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid gap-2.5 sm:grid-cols-2">
                 <Link
                   href="/api/demo?role=platform"
-                  className="group flex items-center justify-between rounded-xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-2.5 transition-all hover:bg-[var(--ink-50)] hover:border-[var(--ink-300)] shadow-2xs"
+                  className="group relative flex items-center justify-between rounded-2xl border border-[var(--ink-200)]/80 bg-white/50 p-2.5 transition-all hover:bg-white hover:border-[var(--ink-300)] hover:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.08)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="grid size-6 place-items-center rounded-md bg-[var(--blue-500)]/10 text-[var(--blue-600)]">
-                      <IconTerminal2 size={13} stroke={1.5} />
+                  <div className="flex items-center gap-3">
+                    <span className="relative grid size-8 place-items-center rounded-xl bg-gradient-to-b from-[var(--ink-50)] to-[var(--ink-100)] border border-[var(--ink-200)]/50 text-[var(--ink-700)] shadow-sm overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-[var(--blue-500)]/10 to-transparent" />
+                      <IconTerminal2 size={16} stroke={1.5} className="relative z-10" />
                     </span>
-                    <span className="text-[12px] font-medium text-[var(--text-primary)]">
+                    <span className="text-[12.5px] font-medium text-[var(--text-primary)]">
                       Admin Console
                     </span>
                   </div>
                   <IconArrowRight
-                    size={12}
-                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5"
+                    size={14}
+                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--text-primary)]"
                   />
                 </Link>
 
                 <Link
                   href="/api/demo?role=tenant"
-                  className="group flex items-center justify-between rounded-xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-2.5 transition-all hover:bg-[var(--ink-50)] hover:border-[var(--ink-300)] shadow-2xs"
+                  className="group relative flex items-center justify-between rounded-2xl border border-[var(--ink-200)]/80 bg-white/50 p-2.5 transition-all hover:bg-white hover:border-[var(--ink-300)] hover:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.08)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="grid size-6 place-items-center rounded-md bg-[var(--success-bg)] text-[var(--success-fg)]">
-                      <IconFingerprintScan size={13} stroke={1.5} />
+                  <div className="flex items-center gap-3">
+                    <span className="relative grid size-8 place-items-center rounded-xl bg-gradient-to-b from-[var(--ink-50)] to-[var(--ink-100)] border border-[var(--ink-200)]/50 text-[var(--ink-700)] shadow-sm overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-[var(--success-fg)]/10 to-transparent" />
+                      <IconFingerprintScan size={16} stroke={1.5} className="relative z-10" />
                     </span>
-                    <span className="text-[12px] font-medium text-[var(--text-primary)]">
+                    <span className="text-[12.5px] font-medium text-[var(--text-primary)]">
                       Workspace Inbox
                     </span>
                   </div>
                   <IconArrowRight
-                    size={12}
-                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5"
+                    size={14}
+                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--text-primary)]"
                   />
                 </Link>
               </div>
             </div>
           ) : null}
 
-          <p className="text-center text-[12.5px] text-[var(--text-secondary)] pt-1">
+          <p className="text-center text-[12.5px] text-[var(--text-secondary)] pt-2">
             Don&apos;t have a workspace yet?{' '}
             <Link
               href="/sign-up"
