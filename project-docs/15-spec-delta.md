@@ -2450,3 +2450,77 @@ prose rather than an axis.
 Also: `hover:bg-black/[0.015]` on the plan-mix rows became `--surface-sunken`
 like every other hover in the console, and the ageing copy lost "statistically"
 and a second-person "your cash flow" that did not match the console's voice.
+
+---
+
+## C53 · The overview's last two bands · 13 Sep 2026
+
+Portfolio and Operations through `18`, with no front-end pass in front of them.
+Both were already token-clean, so the findings were structural.
+
+### Two capacity meters that had begun to diverge
+
+The portfolio band held **two near-identical forty-line blocks** — seats and
+events. Seats drew in `--blue-400`, events in `--success-fg`, for no reason
+either meter could state: both show capacity consumed, and green does not mean
+"events".
+
+The duplication's cost is not the lines. It is that the next threshold change or
+accessibility fix lands in one and not the other, and nobody notices until the
+two disagree on screen about what "full" looks like.
+
+One `CapacityMeter` now, with **one encoding shared across all three capacity
+displays in the band** — blue in use, `--warning-fg` at `PRESSURE_THRESHOLD`,
+`--danger-fg` past 100. A series coloured by which metric it is rather than by
+how it is doing spends a meaning on nothing.
+
+It also gained the state it never had: a limit of zero produced **"NaN%"** and a
+bar of unknown width. An unbounded ceiling reads as a figure now, not a fault.
+
+### Three lists truncated silently
+
+Pressure rows at five, queues at four, both dropped the rest with no count. A
+platform with nine workspaces at a ceiling looked exactly like one with five —
+on the panel whose entire job is reporting pressure. Each now names what it is
+hiding and links to the surface that shows it all.
+
+### Bars told screen readers nothing
+
+Limit bars, capacity meters and pressure rows were all two divs — a track and a
+fill — with `aria-hidden` on the track, which actively removes the only figure a
+reader might have got. They are `role="meter"` now, with the value, the bounds,
+and a label naming **what the percentage is a percentage of**.
+
+### Empty states, where there had been none
+
+Seven added across the two bands. Two are worth naming because their copy is the
+design:
+
+- **"No support session has been opened"** is the best reading on that panel, not
+  an absence. This is an accountability ledger; an empty one means the platform
+  has not been inside a customer's workspace, which is the outcome the feature
+  exists to make visible.
+- **"Every workspace has headroom"** reads its threshold from
+  `PRESSURE_THRESHOLD` rather than restating it as prose, so the sentence and the
+  rows above it cannot drift apart.
+
+### The "designed" label moved onto the panels
+
+Three panels in Operations plot probe data that does not exist in Phase 1. A
+single note at the top of a section is read once and scrolled past; the label
+sits in each panel's action slot now, beside the figure at the moment somebody
+reads it.
+
+### Loading no longer grows the page
+
+`loading.tsx` skeletoned the header, signals, queue and rail, then the page
+**grew by three more bands** when the data landed — a scroll position that moves
+under the reader on every load. Both bands export a skeleton mirroring their own
+grid.
+
+### One thing done wrong and reverted in the same pass
+
+Removing an unused icon import, an `export const QUEUE_ICON = IconStack2` was
+briefly added to keep the import "used" — a fudge that turns a lint error into a
+public API. The import was deleted properly instead. Recorded in `18 §12`
+because it is an easy reflex.

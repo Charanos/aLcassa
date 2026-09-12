@@ -7,6 +7,8 @@ import {
 import { QueueSkeleton } from '@/components/console/overview/YourQueue';
 import { PlatformTelemetrySkeleton } from '@/components/console/overview/PlatformTelemetry';
 import { LastActionsSkeleton } from '@/components/console/overview/LastActions';
+import { PortfolioBandSkeleton } from '@/components/console/overview/PortfolioBand';
+import { OperationsBandSkeleton } from '@/components/console/overview/OperationsBand';
 
 /**
  * Overview's loading state. Mirrors the real layout: a header, the inverted
@@ -46,6 +48,15 @@ export default function OverviewLoading() {
           </div>
         </div>
       </SkeletonGroup>
+
+      {/*
+        ⚠ THE LOWER BANDS SKELETON TOO. Without them the page painted its header,
+        signals, queue and rail at full height and then GREW by three more bands
+        when the data landed — a scroll position that moves under the reader on
+        every load. Each band mirrors its own grid.
+      */}
+      <PortfolioBandSkeleton />
+      <OperationsBandSkeleton />
     </ConsolePage>
   );
 }

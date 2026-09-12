@@ -292,7 +292,9 @@ VERIFY
 | Overview · queue | done | done | done | done | done | done |
 | Overview · telemetry rail | done | done | done | done | n/a | done |
 | Overview · last actions | done | done | done | done | n/a | done |
-| Overview · revenue/portfolio/operations bands | done | done | done | — | n/a | — |
+| Overview · revenue band | done | done | done | done | done | done |
+| Overview · portfolio band | done | done | done | done | n/a | done |
+| Overview · operations band | done | done | done | done | n/a | done |
 | Plans · headroom | done | done | done | partial | n/a | done |
 | Audit · volume | done | done | done | done | n/a | — |
 | Revenue · movement | done | done | done | — | n/a | — |
@@ -300,7 +302,9 @@ VERIFY
 | AI rules · fields, versions | done | done | done | partial | n/a | — |
 | Tenants, health, admins, settings, profile, tenant detail | — | — | — | — | — | — |
 
-The overview's three lower bands are the **next** section through this, because the pattern is now proven on the two above them and they are the closest neighbours.
+**The overview page is complete.** Every section on it has been through all seven steps. It is the reference implementation: when a later surface is ambiguous, open the equivalent piece of the overview and match it.
+
+The remaining console surfaces are next, in the order of `17 §9`.
 
 ---
 
@@ -311,3 +315,70 @@ Recorded because both cost a second attempt and both are easy to repeat.
 **Uniformity is not the highest value.** The disabled reason was kept inline, twice, to hold row heights equal. It truncated, twice. Cards already vary with their prose; a legible sentence outranks a pixel of rhythm.
 
 **"Refine, do not rewrite" cuts both ways.** The telemetry rail's visual design was good and was kept almost exactly. What had to go was the invented data behind it — and that is not a style judgement, it is the seam rule. The distinction to hold: **keep the drawing, replace what it is drawn from.**
+
+---
+
+## 12. What the last two bands added to this list
+
+The portfolio and operations bands went through the seven steps with no
+front-end pass in front of them. Four patterns came out that were not in §2–§7
+and are now part of the method.
+
+### Two blocks that are nearly the same block
+
+The portfolio band held **two forty-line capacity meters** — seats and events —
+copied and then diverged. Seats drew in `--blue-400`, events in `--success-fg`,
+for no reason either meter could state: both show the same quantity, capacity
+consumed, and green does not mean "events".
+
+That is the copy's real cost. It is not the duplicated lines, it is that the
+next threshold change, label tweak or accessibility fix lands in one and not the
+other — and nobody notices until the two disagree on screen about what "full"
+looks like.
+
+> **Look for near-identical siblings before anything else in a band.** Extracting
+> them is the step that makes every later step half the work, and the diff
+> between the two copies is usually a defect rather than a decision.
+
+The extraction also forced the colour question, which is the pattern worth
+naming: **a series coloured by WHICH metric it is, rather than by how it is
+doing, spends a meaning on nothing.** One encoding now, shared with the pressure
+list in the same band, so all three capacity displays agree.
+
+### A list that truncates must say so
+
+Three lists in these two bands took a `slice()` and dropped the rest silently:
+pressure rows at five, queues at four. A platform with nine workspaces at a
+ceiling looked exactly like one with five, on the panel whose entire job is
+reporting pressure.
+
+> **Every `slice()` in a presentation component needs a companion count.**
+> `{hidden} more at a ceiling`, linked to the surface that shows them all.
+
+### `role="meter"` is the element for a bar
+
+A progress bar built from two divs — a track and a fill — tells a screen reader
+nothing whatsoever. It is also the single most common shape in this console:
+limit bars, capacity meters, pressure rows, headroom tracks.
+
+> `role="meter"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and a
+> label naming **what the percentage is a percentage of**. Four attributes.
+
+`aria-hidden` on the track (which is what these had) is worse than nothing: it
+actively removes the only figure the reader might have got.
+
+### A `dl` can read in a different order than it displays
+
+The support ledger shows a large value above a small label, which is right
+visually and wrong in markup — a definition list must read term-then-value.
+
+`flex-col-reverse` restores the visual order while leaving `dt` before `dd` in
+the DOM, so a screen reader hears "sessions this week, four" rather than "four,
+sessions this week". Use it wherever a stat block puts its value first.
+
+### And one non-pattern, recorded so it is not repeated
+
+While removing an unused icon import, an `export const QUEUE_ICON = IconStack2`
+was briefly added to keep the import "used". That is a fudge that turns a lint
+error into a public API. The import was deleted properly instead. **If a symbol
+is unused, remove it; do not find it a job.**

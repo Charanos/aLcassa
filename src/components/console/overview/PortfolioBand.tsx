@@ -1,11 +1,32 @@
-import Link from 'next/link';
+import { IconBuildings, IconChartAreaLine } from '@tabler/icons-react';
 import { GrowthChart, StatusMixChart } from '../Charts';
 import { Panel, SectionHeading } from '../Surface';
+import { SkeletonGroup, SkeletonText } from '@/components/primitives/Skeleton';
 import { BandLink } from './shared';
+import { CapacityMeter } from './CapacityMeter';
+import { PressureList } from './PressureList';
 import type { OverviewInsights } from '@/lib/console/data';
 
+/**
+ * PORTFOLIO AND CAPACITY. The overview's second band.
+ *
+ * ⚠ TWO KINDS OF FIGURE SIT IN THIS BAND AND THEY ARE NOT INTERCHANGEABLE.
+ *
+ * The status mix and the two platform capacity meters are **stated aggregates**
+ * — the portfolio's real totals, which the twelve-row sample behind this screen
+ * cannot produce. The pressure list is **derived** from those rows.
+ *
+ * That distinction caused a near-miss once already: counting the sample for the
+ * status donut would have rendered "12 workspaces" under a hero saying 47. The
+ * two are kept apart deliberately and `PORTFOLIO_COUNT` is the single source of
+ * the headline.
+ *
+ * Server component. Only the two charts cross into the client, for the computed
+ * palette and their tooltips.
+ */
 export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['portfolio'] }) {
   const total = portfolio.statusMix.reduce((sum, s) => sum + s.count, 0);
+  const hasGrowth = portfolio.growth.length > 0;
 
   return (
     <section className="mb-10">
@@ -18,156 +39,159 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
 
       <div className="grid gap-5 lg:grid-cols-3">
         <Panel title={`Status · ${total} workspaces`}>
-          <StatusMixChart data={portfolio.statusMix} />
-          <ul className="mt-4 grid gap-2">
-            {portfolio.statusMix.map((slice) => (
-              <li key={slice.status} className="flex items-baseline justify-between gap-3">
-                <span
-                  className="font-mono text-[12.5px] font-medium"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  {slice.label}
-                </span>
-                <span
-                  className="font-mono text-[13.5px] font-medium"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {slice.count}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {total === 0 ? (
+            <NoWorkspaces />
+          ) : (
+            <>
+              <StatusMixChart data={portfolio.statusMix} />
+              {/*
+                ⚠ THE LEGEND IS WHAT MAKES THE DONUT'S SEMANTIC HUES PERMITTED.
+                `03 §24` allows a chart to use meaningful colours rather than a
+                one-hue ramp only when every slice is named in words beside it.
+                A reader who cannot separate the colours reads this list and
+                loses nothing. Removing it would break the chart above it.
+              */}
+              <ul className="mt-4 grid gap-2">
+                {portfolio.statusMix.map((slice) => (
+                  <li key={slice.status} className="flex items-baseline justify-between gap-3">
+                    <span
+                      className="font-mono text-[12.5px] font-medium"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      {slice.label}
+                    </span>
+                    <span
+                      className="font-mono text-[13.5px] font-medium"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      {slice.count}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </Panel>
 
         <Panel title="Opened against closed">
-          <GrowthChart data={portfolio.growth} />
+          {hasGrowth ? <GrowthChart data={portfolio.growth} /> : <NoGrowthYet />}
         </Panel>
 
         <Panel title="At the ceiling">
-          {portfolio.pressure.length === 0 ? (
-            <p
-              className="font-mono text-[13px] font-medium mt-4"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              Nothing is within ten percent of a limit.
-            </p>
-          ) : (
-            <ul className="grid gap-3.5 mt-2">
-              {portfolio.pressure.slice(0, 5).map((row) => (
-                <li key={`${row.slug}-${row.metric}`}>
-                  <div className="flex items-baseline justify-between gap-3">
-                    <Link
-                      href={`/platform/tenants/${row.slug}`}
-                      className="truncate transition-colors hover:text-[var(--text-action)]"
-                      style={{
-                        font: '500 13px/1 var(--font-ui)',
-                        color: 'var(--text-primary)',
-                      }}
-                    >
-                      {row.name}
-                    </Link>
-                    <span
-                      className="font-mono text-[13px] font-medium shrink-0"
-                      style={{
-                        color: row.pct >= 100 ? 'var(--danger-fg)' : 'var(--warning-fg)',
-                      }}
-                    >
-                      {row.pct}%
-                    </span>
-                  </div>
-                  <div
-                    className="relative mt-2 h-px w-full"
-                    style={{ background: 'var(--border-subtle)' }}
-                    aria-hidden
-                  >
-                    <div
-                      className="absolute left-0 top-0 h-full"
-                      style={{
-                        width: `${Math.min(100, row.pct)}%`,
-                        background: row.pct >= 100 ? 'var(--danger-fg)' : 'var(--warning-fg)',
-                        boxShadow: `0 0 10px ${row.pct >= 100 ? 'var(--danger-fg)' : 'var(--warning-fg)'}`,
-                      }}
-                    >
-                      <div
-                        className="absolute right-0 top-1/2 -translate-y-1/2 size-1.5 rounded-full"
-                        style={{
-                          background: row.pct >= 100 ? 'var(--danger-fg)' : 'var(--warning-fg)',
-                          boxShadow: `0 0 8px ${row.pct >= 100 ? 'var(--danger-fg)' : 'var(--warning-fg)'}`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <p
-                    className="mt-1.5 font-mono text-[11px] font-medium"
-                    style={{ color: 'var(--text-tertiary)' }}
-                  >
-                    {row.metric} · {row.used.toLocaleString('en-KE')} of{' '}
-                    {row.limit.toLocaleString('en-KE')}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
+          <PressureList rows={portfolio.pressure} />
         </Panel>
       </div>
 
+      {/*
+        ⚠ ONE COMPONENT, TWICE. These were two near-identical forty-line blocks
+        that had already begun to diverge — seats drew blue and events drew
+        green, for no reason either could state. See `CapacityMeter`.
+      */}
       <div className="mt-5 grid gap-5 sm:grid-cols-2">
         <Panel title="Seats in use across the platform">
-          <div className="mt-2.5">
-            <div className="flex items-end justify-between gap-3 mb-2">
-              <p
-                className="font-mono text-[24px] font-medium"
-                style={{ color: 'var(--text-primary)', lineHeight: 1 }}
-              >
-                {portfolio.seats.pct}%
-              </p>
-              <p className="font-mono text-[12px] font-medium pb-0.5" style={{ color: 'var(--text-secondary)' }}>
-                {portfolio.seats.used.toLocaleString('en-KE')} / {portfolio.seats.limit.toLocaleString('en-KE')}
-              </p>
-            </div>
-            <div
-              className="relative h-1 w-full rounded-full overflow-hidden"
-              style={{ background: 'var(--surface-inset)' }}
-            >
-              <div
-                className="absolute left-0 top-0 h-full rounded-full"
-                style={{
-                  width: `${Math.min(100, portfolio.seats.pct)}%`,
-                  background: portfolio.seats.pct >= 90 ? 'var(--warning-fg)' : 'var(--blue-400)',
-                }}
-              />
-            </div>
-          </div>
+          <CapacityMeter
+            title="Seats in use"
+            used={portfolio.seats.used}
+            limit={portfolio.seats.limit}
+            pct={portfolio.seats.pct}
+            unit="seats"
+          />
         </Panel>
 
         <Panel title="Events this period">
-          <div className="mt-2.5">
-            <div className="flex items-end justify-between gap-3 mb-2">
-              <p
-                className="font-mono text-[24px] font-medium"
-                style={{ color: 'var(--text-primary)', lineHeight: 1 }}
-              >
-                {portfolio.events.pct}%
-              </p>
-              <p className="font-mono text-[12px] font-medium pb-0.5" style={{ color: 'var(--text-secondary)' }}>
-                {portfolio.events.used.toLocaleString('en-KE')} / {portfolio.events.limit.toLocaleString('en-KE')}
-              </p>
-            </div>
-            <div
-              className="relative h-1 w-full rounded-full overflow-hidden"
-              style={{ background: 'var(--surface-inset)' }}
-            >
-              <div
-                className="absolute left-0 top-0 h-full rounded-full"
-                style={{
-                  width: `${Math.min(100, portfolio.events.pct)}%`,
-                  background: portfolio.events.pct >= 90 ? 'var(--warning-fg)' : 'var(--success-fg)',
-                }}
-              />
-            </div>
-          </div>
+          <CapacityMeter
+            title="Events this period"
+            used={portfolio.events.used}
+            limit={portfolio.events.limit}
+            pct={portfolio.events.pct}
+            unit="events"
+          />
         </Panel>
       </div>
     </section>
+  );
+}
+
+/**
+ * ⚠ A PLATFORM WITH NO WORKSPACES IS DAY ONE, NOT A FAILURE. It is also the
+ * state a reviewer meets on a fresh database, so it is the first thing this
+ * screen ever shows somebody. `10 §12`.
+ */
+function NoWorkspaces() {
+  return (
+    <div className="flex flex-col items-start gap-2 py-6">
+      <IconBuildings size={20} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
+      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+        No workspaces yet.
+      </p>
+      <p
+        className="t-caption"
+        style={{ color: 'var(--text-secondary)', maxWidth: '34ch', textWrap: 'pretty' }}
+      >
+        The first provisioned workspace appears here, split by status. Nothing has been created —
+        this is not a failure to load.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * ⚠ A SERIES WITH NO POINTS RENDERS AS AN EMPTY PLOT AREA, which reads as a
+ * broken chart rather than as a young platform. It says which it is.
+ */
+function NoGrowthYet() {
+  return (
+    <div className="flex flex-col items-start gap-2 py-6">
+      <IconChartAreaLine
+        size={20}
+        stroke={1.5}
+        style={{ color: 'var(--text-tertiary)' }}
+        aria-hidden
+      />
+      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+        Not enough history yet.
+      </p>
+      <p
+        className="t-caption"
+        style={{ color: 'var(--text-secondary)', maxWidth: '34ch', textWrap: 'pretty' }}
+      >
+        Opened against closed needs a month of workspaces behind it before the shape means
+        anything.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * The band's loading shape: three panels across, then two. Mirrors the real
+ * grid so the page below it does not move when the band lands. `03 §15`.
+ */
+export function PortfolioBandSkeleton() {
+  return (
+    <SkeletonGroup label="Loading portfolio" className="mb-10">
+      <div className="mb-6 h-7" />
+      <div className="grid gap-5 lg:grid-cols-3">
+        {[0, 1, 2].map((i) => (
+          <Panel key={i} title="">
+            <div className="grid gap-3 py-2">
+              <SkeletonText width={[64, 58, 70][i] ?? 64} />
+              <SkeletonText width={[92, 84, 88][i] ?? 90} />
+              <SkeletonText width={[46, 52, 40][i] ?? 46} />
+              <SkeletonText width={[78, 70, 82][i] ?? 78} />
+            </div>
+          </Panel>
+        ))}
+      </div>
+      <div className="mt-5 grid gap-5 sm:grid-cols-2">
+        {[0, 1].map((i) => (
+          <Panel key={i} title="">
+            <div className="grid gap-3 py-2">
+              <SkeletonText width={[38, 42][i] ?? 38} />
+              <SkeletonText width={100} />
+            </div>
+          </Panel>
+        ))}
+      </div>
+    </SkeletonGroup>
   );
 }

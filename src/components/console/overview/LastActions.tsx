@@ -95,7 +95,7 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
         <div className="flex min-w-0 flex-col justify-start gap-1.5">
           <span className="flex items-center">
             <span
-              className="rounded-[4px] px-1.5 py-0.5 font-mono text-[11px] leading-none font-medium transition-colors duration-200 group-hover/row:bg-[color:var(--row-accent)] group-hover/row:text-white group-hover/row:shadow-sm"
+              className="rounded-[4px] px-1.5 py-0.5 font-mono text-[11px] leading-none font-medium transition-colors duration-200 group-hover/row:bg-[color:var(--row-accent)] group-hover/row:text-[var(--text-inverse)] group-hover/row:shadow-sm"
               style={{
                 background: 'var(--surface-inset)',
                 color: 'var(--text-secondary)',
