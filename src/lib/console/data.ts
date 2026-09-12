@@ -1087,6 +1087,20 @@ export type RevenueModel = {
   movement: MrrMovement[];
   planMix: Array<{ name: string; value: number; tenants: string; display: string }>;
   ageing: Array<{ bucket: string; amount: number }>;
+  /**
+   * ⚠ MONEY WITHOUT ITS UNIT IS NOT A FIGURE, IT IS A NUMBER.
+   *
+   * `outstanding` and every `Collection.amount` were pre-formatted strings with
+   * no currency anywhere on them — the overview's debt card read "594k" and
+   * "184,000" and named no unit at all. In a product priced in KES whose
+   * operator also reads USD invoices, that is a figure somebody can misread by
+   * two orders of magnitude.
+   *
+   * It sits on the MODEL rather than on each amount because the platform bills
+   * in one currency (07 §1), and repeating it per row is how two rows end up
+   * disagreeing.
+   */
+  currency: string;
   outstanding: string;
   collections: Collection[];
 };
@@ -1213,6 +1227,7 @@ export async function getRevenue(): Promise<RevenueModel> {
       { bucket: '90+ days', amount: 62_000 },
     ],
 
+    currency: 'KES',
     outstanding: '594k',
 
     collections: [
@@ -2741,9 +2756,21 @@ export type OverviewInsights = {
     mrr: RevenueModel['mrr'];
     planMix: RevenueModel['planMix'];
     ageing: RevenueModel['ageing'];
+    currency: string;
     outstanding: string;
-    /** The single worst debt, so the band can name it rather than only chart it. */
-    worst: Collection | null;
+    /**
+     * The collection queue, head first.
+     *
+     * ⚠ IT IS ORDERED BY WHAT IS WORTH CHASING, NOT BY AGE — and the overview's
+     * card used to call `collections[0]` "Oldest active debt", which was
+     * simply false.
+     * Mombasa Freight is 94 days late; Kilimanjaro, at the head, is 6. The
+     * order is right and the LABEL was wrong: Mombasa is suspended with its
+     * collection attempts exhausted, so it is a write-off decision rather than
+     * a call to make. The head of this list is the debt somebody can still do
+     * something about.
+     */
+    collections: Collection[];
   };
   operations: {
     latency: HealthModel['latency'];
@@ -2905,10 +2932,12 @@ export async function getOverviewInsights(): Promise<OverviewInsights> {
       mrr: revenue.mrr,
       planMix: revenue.planMix,
       ageing: revenue.ageing,
+      currency: revenue.currency,
       outstanding: revenue.outstanding,
-      /* Already ordered by consequence on the revenue page; the overview wants
-         only the head of that list. */
-      worst: revenue.collections[0] ?? null,
+      /* Already ordered by consequence on the revenue page. The overview shows
+         the head expanded and the rest stacked beneath it, so it wants the
+         list rather than only its first element. */
+      collections: revenue.collections,
     },
 
     operations: {

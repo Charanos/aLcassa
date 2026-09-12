@@ -1,7 +1,12 @@
-import Link from 'next/link';
+import {
+  IconRocket,
+  IconBolt,
+  IconBox,
+} from '@tabler/icons-react';
 import { AgeingChart, MrrChart, PlanMixChart } from '../Charts';
 import { Panel, SectionHeading } from '../Surface';
 import { BandLink } from './shared';
+import { DebtStack } from './DebtStack';
 import type { OverviewInsights } from '@/lib/console/data';
 
 export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] }) {
@@ -15,108 +20,81 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
-        <Panel title="Recurring revenue · net new">
+        <Panel title="Recurring revenue · net new" variant="elevated">
           <MrrChart data={revenue.mrr} />
         </Panel>
 
-        <Panel title="Where it comes from">
+        <Panel title="Where it comes from" variant="elevated">
           <PlanMixChart data={revenue.planMix} />
-          <ul className="mt-4 grid gap-2">
-            {revenue.planMix.map((slice) => (
-              <li key={slice.name} className="flex items-baseline justify-between gap-3">
+          <ul className="mt-5 grid border-t border-[var(--border-subtle)]/40 pt-2">
+            {revenue.planMix.map((slice, i) => {
+              const Icon = slice.name === 'Scale' ? IconRocket : slice.name === 'Growth' ? IconBolt : IconBox;
+              const accentColor = i === 0 ? 'var(--text-primary)' : i === 1 ? 'var(--blue-500)' : 'var(--text-disabled)';
+              
+              return (
+              <li 
+                key={slice.name} 
+                className="group relative flex items-baseline justify-between gap-3 px-2 py-2.5 transition-colors duration-300 hover:bg-black/[0.015]"
+              >
+                <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-[var(--border-subtle)]/40 to-transparent group-last:hidden" />
                 <span
-                  className="font-mono text-[12px] font-medium"
+                  className="flex items-center gap-2 font-ui text-[12.5px] font-medium transition-colors duration-300 group-hover:text-[var(--text-primary)]"
                   style={{ color: 'var(--text-secondary)' }}
                 >
+                  <Icon size={14} stroke={1.5} style={{ color: accentColor }} />
                   {slice.name}
                 </span>
                 <span
-                  className="font-mono text-[13px] font-medium"
+                  className="font-mono text-[12.5px] font-medium tracking-[0.02em] transition-colors duration-300 group-hover:text-[var(--blue-500)]"
                   style={{ color: 'var(--text-primary)' }}
                 >
-                  {slice.display} · {slice.tenants}
+                  {slice.display} <span className="mx-1 font-normal text-[var(--text-tertiary)]">·</span> {slice.tenants}
                 </span>
               </li>
-            ))}
+            )})}
           </ul>
         </Panel>
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.9fr)]">
-        <Panel title="Outstanding">
-          <p
-            className="font-mono text-[32px] font-medium tracking-tight"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            {revenue.outstanding}
-          </p>
-
-          {revenue.worst ? (
-            <div
-              className="group relative mt-5 overflow-hidden rounded-xl px-4 py-3.5 transition-colors duration-300 hover:bg-[var(--surface-inset)]"
-              style={{
-                boxShadow: 'var(--well-inset)',
-              }}
-            >
-              {/* Crimson ambient glow */}
-              <div
-                className="pointer-events-none absolute left-0 top-0 h-full w-1 opacity-60"
-                style={{ background: 'linear-gradient(to bottom, var(--danger-fg), transparent)' }}
-                aria-hidden
-              />
-              <div
-                className="pointer-events-none absolute -inset-x-4 top-0 h-[120px] opacity-30 blur-xl"
-                style={{ background: 'linear-gradient(to bottom, var(--danger-bg), transparent)' }}
-                aria-hidden
-              />
-
-              <div className="relative z-10">
-                <p
-                  className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.15em]"
-                  style={{ color: 'var(--danger-fg)' }}
-                >
-                  Oldest debt
-                </p>
-                <Link
-                  href={`/platform/tenants/${revenue.worst.slug}`}
-                  className="mt-1.5 block truncate transition-colors hover:text-[var(--text-action)]"
-                  style={{
-                    font: '600 15px/1.35 var(--font-ui)',
-                    color: 'var(--text-primary)',
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  {revenue.worst.name}
-                </Link>
-                <p
-                  className="mt-1.5 flex items-center gap-2"
-                  style={{
-                    font: '500 12.5px/1.4 var(--font-mono)',
-                    color: 'var(--text-tertiary)',
-                  }}
-                >
-                  <span style={{ color: 'var(--text-secondary)' }}>{revenue.worst.amount}</span>
-                  <span className="opacity-40">·</span>
-                  <span>{revenue.worst.days} days</span>
-                  <span className="opacity-40">·</span>
-                  <span>{revenue.worst.attempts} attempts</span>
-                </p>
-              </div>
-            </div>
-          ) : (
+        <Panel title="Outstanding" variant="elevated">
+          {/*
+            ⚠ TWO LEVELS, AND THE QUIET ONE COMES FIRST. The aggregate is
+            context — it tells a reader how much of the platform's money is
+            late. The single worst debt is the thing they can act on, and it is
+            the only inverted object in this column for that reason.
+          */}
+          <div className="flex flex-col border-b border-[var(--border-subtle)]/50 pb-5">
+            <p className="flex items-baseline gap-2">
+              <span
+                className="font-mono text-[11px] font-medium tracking-[0.1em] uppercase"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
+                {revenue.currency}
+              </span>
+              <span
+                className="font-mono text-[44px] leading-[0.9] font-medium tracking-[-0.04em]"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                {revenue.outstanding}
+              </span>
+            </p>
             <p
-              className="mt-4 font-mono text-[13px] font-medium"
+              className="mt-3 font-mono text-[10.5px] font-medium tracking-[0.08em] uppercase"
               style={{ color: 'var(--text-secondary)' }}
             >
-              Nothing is overdue.
+              Total platform debt
             </p>
-          )}
+          </div>
+
+          <DebtStack collections={revenue.collections} currency={revenue.currency} />
         </Panel>
 
-        <Panel title="Ageing">
+        <Panel title="Ageing" variant="elevated">
           <AgeingChart data={revenue.ageing} />
         </Panel>
       </div>
     </section>
   );
 }
+

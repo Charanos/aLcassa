@@ -2319,3 +2319,72 @@ Sans has one. **Data: Fira Code → Lilex** — both have tabular figures, but F
 Code's terminal drawing reads as "code editor" beside a book serif, and mono
 carries every timestamp, audit action, count, slug and meta line on the screen.
 The weight ceiling of 500 is unchanged and is why either swap was safe.
+
+---
+
+## C51 · The outstanding card, and a label that was false · 13 Sep 2026
+
+The revenue band's debt card, taken through `18`. Four defects, one of them in
+the data rather than the drawing.
+
+### "Oldest active debt" was not the oldest debt
+
+The card labelled `collections[0]` as the oldest. `collections[0]` is
+Kilimanjaro at **6 days**; Mombasa Freight sits further down at **94**.
+
+The order was right and the label was wrong. The list is ordered by what is
+worth chasing, and Mombasa is suspended with its collection attempts exhausted —
+a write-off decision rather than a call to make. The heading now reads **"Worth
+chasing first"**, which is what the ordering actually means.
+
+### "2 of 3 / 3"
+
+`Collection.attempts` is already the phrase `"2 of 3"`. The component appended
+`/ 3` to it. Visible on screen; the model says it once now.
+
+### Money with no unit
+
+`outstanding: '594k'` and `amount: '184,000'` named no currency anywhere. In a
+product priced in KES whose operator also reads USD invoices, that is a figure
+somebody can misread by two orders of magnitude. `RevenueModel` carries
+`currency` once — on the model rather than per amount, because the platform
+bills in one currency (`07 §1`) and repeating it per row is how two rows come
+to disagree.
+
+### The amount was a gradient that faded to invisible
+
+The headline figure was drawn with `background-clip: text` and
+`-webkit-text-fill-color: transparent`, fading white to 20% white. Three things
+wrong at once: it read as **disabled** on the most important number on the card,
+its tail failed contrast outright, and with no fallback the figure renders
+**invisible** wherever the clip is unsupported. A number nobody can read is not
+a style. It is solid `--chrome-fg` now.
+
+### Also
+
+The **invoice number was in the model and was not drawn** — the one string an
+operator quotes on the phone. The tile borrowed the hero's blue bloom and dot
+grid, spending the hero's signature twice on one page and tinting a card about
+unpaid money in the colour this system uses for *interactive*; it is one
+danger-tinted bloom now, no grid. Raw white alphas throughout became chrome
+tokens. The footer pairs became a `dl`. The `animate-ping` got its
+`motion-reduce` guard.
+
+### The stack
+
+Four of the five outstanding invoices were invisible until somebody opened
+Revenue. The card now shows the head expanded with the rest receding beneath it
+as collapsed pills, and a tail link for any past three.
+
+It **recedes downward, not upward**. The reference this was drawn from stacks
+collapsed cards above the expanded one, which reads as a menu and is right where
+they are alternatives. These are a queue in priority order, so reading order and
+priority order have to agree.
+
+**No new hue.** The reference is violet; blue is interactive here, orange is the
+accent, and the status inks carry state. The pills stay neutral because they are
+not the alarm.
+
+The deck is an affordance, not a structure: `ol`/`li` underneath in the same
+order, so the visual hierarchy and the read order cannot disagree. Server
+component — the narrowing, depth and hover lift are CSS and nothing hydrates.
