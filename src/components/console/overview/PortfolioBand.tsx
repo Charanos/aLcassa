@@ -10,9 +10,10 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
   return (
     <section className="mb-10">
       <SectionHeading
-        title="Portfolio"
-        note="Every workspace, by state and by pressure"
+        title="Portfolio & Capacity"
+        note="Workspace distribution, growth trends, limits pressure, and total platform capacity."
         action={<BandLink href="/platform/tenants">Open workspaces</BandLink>}
+        align="right"
       />
 
       <div className="grid gap-5 lg:grid-cols-3">
@@ -66,7 +67,7 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
                       {row.name}
                     </Link>
                     <span
-                      className="font-mono text-[13px] font-semibold shrink-0"
+                      className="font-mono text-[13px] font-medium shrink-0"
                       style={{
                         color: row.pct >= 100 ? 'var(--danger-fg)' : 'var(--warning-fg)',
                       }}

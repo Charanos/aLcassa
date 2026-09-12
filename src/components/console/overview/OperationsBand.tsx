@@ -14,9 +14,10 @@ export function OperationsBand({
   return (
     <section className="mb-10">
       <SectionHeading
-        title="Operations"
-        note="Latency, depth, and who has been inside a workspace"
+        title="Operations & Ledgers"
+        note="Global latency metrics, service health, queue depths, and the support session accountability register."
         action={<BandLink href="/platform/health">Open health</BandLink>}
+        align="left"
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
@@ -38,7 +39,7 @@ export function OperationsBand({
                 aria-hidden
               />
               <p
-                className="t-compact relative z-10 font-semibold"
+                className="t-compact relative z-10 font-medium"
                 style={{ color: 'var(--text-primary)' }}
               >
                 {allWell
@@ -83,7 +84,7 @@ export function OperationsBand({
             className="grid gap-6 sm:grid-cols-3 rounded-2xl px-6 py-5"
             style={{
               background: 'var(--surface-sunken)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02), inset 0 2px 4px rgba(0,0,0,0.05)',
+              boxShadow: 'var(--well-inset)',
             }}
           >
             {operations.sessions.map((stat) => (

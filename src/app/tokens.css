@@ -131,7 +131,7 @@
   --weight-medium: 500;
 
   --font-ui: 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-lekton), 'Lekton', 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --font-mono: 'Lilex', 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
   --font-display:
     'Libertinus Serif Display', 'Libertinus Serif', 'Linux Libertine O', Georgia, serif;
 
@@ -621,6 +621,82 @@
    * where the raw brand value at 400 would not. */
   --support-banner-bg: var(--orange-500);
   --support-banner-fg: var(--ink-0);
+
+  /* ─ STATUS BADGE · PAGE TIER ─
+   *
+   * ⚠ THE SIX TONES, DERIVED FROM THE SEMANTIC SCALE RATHER THAN RESTATED.
+   *
+   * `ui/StatusBadge.tsx` carried forty-five raw Tailwind palette classes and
+   * twenty-one `rgba()` literals — `bg-emerald-500/[0.08] text-emerald-800`
+   * and so on. That is the defect `tokens.css` names in its own header, and it
+   * has a cost beyond tidiness: it put a SECOND green in the product. A badge
+   * reading "healthy" in Tailwind's emerald beside a meter reading healthy in
+   * `--success-fg` are two greens for one meaning, and nobody can say which is
+   * the product's.
+   *
+   * These are the same six meanings the rest of the system already carries, at
+   * the same values, expressed once. The tint strengths are tokens too, so a
+   * badge row that reads too hot is one edit here rather than six in a
+   * component.
+   *
+   * ⚠ THE SURFACE IS A TINT OF THE INK, NOT A SEPARATE COLOUR. `color-mix`
+   * against the page ground keeps every badge in the same key as the surface
+   * it sits on, which is what stops a row of them reading as stickers.
+   */
+  --badge-tint: 10%; /* fill strength */
+  --badge-edge: 26%; /* border strength */
+
+  --badge-success-fg: var(--success-fg);
+  --badge-success-bg: color-mix(in oklab, var(--success-fg) var(--badge-tint), var(--surface-raised));
+  --badge-success-edge: color-mix(in oklab, var(--success-fg) var(--badge-edge), var(--surface-raised));
+
+  --badge-warning-fg: var(--warning-fg);
+  --badge-warning-bg: color-mix(in oklab, var(--warning-fg) var(--badge-tint), var(--surface-raised));
+  --badge-warning-edge: color-mix(in oklab, var(--warning-fg) var(--badge-edge), var(--surface-raised));
+
+  --badge-danger-fg: var(--danger-fg);
+  --badge-danger-bg: color-mix(in oklab, var(--danger-fg) var(--badge-tint), var(--surface-raised));
+  --badge-danger-edge: color-mix(in oklab, var(--danger-fg) var(--badge-edge), var(--surface-raised));
+
+  --badge-info-fg: var(--blue-500);
+  --badge-info-bg: color-mix(in oklab, var(--blue-500) var(--badge-tint), var(--surface-raised));
+  --badge-info-edge: color-mix(in oklab, var(--blue-500) var(--badge-edge), var(--surface-raised));
+
+  /* `brand` is THE ACCENT, and it carries the one-per-screen budget in 03 §4a.
+   * A surface with a brand badge has spent it. The ink is the text-safe step:
+   * `--accent-mark` at 400 fails contrast under type, which is the single most
+   * common accent defect in this codebase. */
+  --badge-brand-fg: var(--accent-mark-text);
+  --badge-brand-bg: color-mix(in oklab, var(--accent-mark) var(--badge-tint), var(--surface-raised));
+  --badge-brand-edge: color-mix(in oklab, var(--accent-mark) var(--badge-edge), var(--surface-raised));
+
+  /* Neutral is the ABSENCE of a state rather than a seventh colour, so it takes
+   * the surface ramp and the secondary ink and nothing else. */
+  --badge-neutral-fg: var(--text-secondary);
+  --badge-neutral-bg: var(--surface-sunken);
+  --badge-neutral-edge: var(--border-subtle);
+
+  /* One rim highlight for every tone. A per-tone shadow was four values doing
+   * the work of one, and the difference was not visible at 19px tall. */
+  --badge-rim: inset 0 1px 0 color-mix(in oklab, var(--ink-0) 70%, transparent);
+
+  /* ─ QUEUE CARD ─
+   * A deliberately softer pair than the --shadow-* ramp: the queue is a column
+   * of cards on a cream page, and --shadow-sm across eight of them reads as a
+   * stack of receipts. These are the resting and hover layers, tokenised so
+   * the whole column is tuned in one place rather than per card. */
+  --card-rest:
+    0 4px 16px -4px color-mix(in oklab, var(--ink-900) 2%, transparent),
+    0 2px 4px -2px color-mix(in oklab, var(--ink-900) 2%, transparent);
+  /* A sunken well inside a panel: the operations band's figure blocks and the
+   * revenue band's outstanding tile were each hand-rolling this. */
+  --well-inset:
+    inset 0 1px 0 color-mix(in oklab, var(--ink-0) 2%, transparent),
+    inset 0 2px 4px color-mix(in oklab, var(--ink-900) 5%, transparent);
+
+  --card-lift:
+    0 12px 30px -4px color-mix(in oklab, var(--ink-900) 5%, transparent),
+    0 4px 10px -2px color-mix(in oklab, var(--ink-900) 3%, transparent);
 }
 
 

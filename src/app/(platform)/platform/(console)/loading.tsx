@@ -3,9 +3,10 @@ import {
   SkeletonGroup,
   SkeletonHeader,
   SkeletonMetric,
-  SkeletonPanel,
 } from '@/components/primitives/Skeleton';
 import { QueueSkeleton } from '@/components/console/overview/YourQueue';
+import { PlatformTelemetrySkeleton } from '@/components/console/overview/PlatformTelemetry';
+import { LastActionsSkeleton } from '@/components/console/overview/LastActions';
 
 /**
  * Overview's loading state. Mirrors the real layout: a header, the inverted
@@ -34,9 +35,14 @@ export default function OverviewLoading() {
             layout shift with extra steps.
           */}
           <QueueSkeleton />
+          {/*
+            ⚠ THE RAIL'S OWN SKELETONS TOO. Two generic panels were standing in
+            for a four-row telemetry table and a five-row audit tail — the same
+            wrong-shape problem the queue had, on the column beside it.
+          */}
           <div className="flex flex-col gap-4">
-            <SkeletonPanel lines={4} />
-            <SkeletonPanel lines={3} />
+            <PlatformTelemetrySkeleton />
+            <LastActionsSkeleton />
           </div>
         </div>
       </SkeletonGroup>

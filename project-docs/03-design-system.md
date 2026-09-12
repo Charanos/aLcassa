@@ -185,29 +185,31 @@ It never reaches the support boundary frame. See §8.
 
 ## 5. Typography
 
-Three families, all Libertinus, all from Google Fonts, all OFL.
+Three families, three roles. **Revised 12 Sep 2026** — the UI and data faces both changed, and the reasoning for each is below. The display face is unchanged.
 
-| Role                 | Family               | Weights that exist      | Weights used |
-| -------------------- | -------------------- | ----------------------- | ------------ |
-| Display and headings | **Libertinus Serif** | 400, 600, 700 + italics | **400**      |
-| Body and UI          | **Libertinus Sans**  | 400, 700 + italic       | **400**      |
-| Data                 | **Fira Code**        | 300, 400, 500, 600, 700 | **500**      |
+| Role | Family | Token | Weights used |
+| --- | --- | --- | --- |
+| Display and headings | **Libertinus Serif Display** | `--font-display` | **400**, 500 |
+| Body and UI | **DM Sans** | `--font-ui` | **400**, 500 |
+| Data | **Lilex** | `--font-mono` | **400**, 500, 700 |
 
-### Two constraints, both real
+### What changed, and why
 
-**Constraint one: there is one weight per typeface, locked.** Under the rule of medium and normal only, no semibold, no bold, no italic. Libertinus Serif and Sans each use weight 400; Fira Code uses weight 500. Although Fira Code offers multiple weights, only 500 is imported and used.
+**The UI face moved from Libertinus Sans to DM Sans.** Libertinus Sans is a book companion — it is drawn to sit under Libertinus Serif on a page of prose, and it does that well. It is not drawn for a 12px interface label at 90% opacity beside a 10px mono timestamp. Its x-height is low, its counters close at small sizes, and it has one usable weight where the interface wants two (400 for body, 500 for the label that starts a row). DM Sans is a UI face: open counters, a taller x-height, and a 500 that reads as emphasis without reading as bold. The weight ceiling below is unchanged — 500 is still the top.
 
-So the system has **one weight per family, full stop.** That is more constrained than any typical design system and it is workable, because a technical drawing has no bold either. Everything below is built for it.
+**The data face moved from Fira Code to Lilex.** Both are competent monospaces with tabular figures; the choice came down to how they sit beside the serif. Fira Code's terminal-forward drawing — the tall ascenders, the wide letterforms, the ligature set it is known for — reads as "code editor" on a screen whose display face is a book serif. Lilex is drawn narrower and quieter, its figures hold a column, and at 10 to 12px it recedes into the role the system actually wants from mono: **a data face, not a code face**. Ligatures stay off; nothing in this product renders `!==`.
 
-**Constraint two: Libertinus Math is not a monospace font, so it is not the data face.**
+Lilex also matters more than it looks, because mono does more work here than in most products. It carries every timestamp, every audit action name, every entitlement count, every workspace slug, the pager's range readout and the meta line on every queue card. A face that is 5% too loud in that role is 5% too loud roughly two hundred times per screen.
 
-The request named Libertinus Math for the mono role. It is an OpenType _math_ typeface: fraktur alphabets, scaled integral signs, redesigned operators, built for LuaTeX and XeTeX. Google Fonts classifies it as display. Its advance widths are not uniform and its figures are not tabular, which means a column of tenant IDs, timestamps, usage counts or key prefixes would sit unevenly. In a console where the primary reading task is scanning columns, that is a functional defect.
+### Two constraints, both still real
 
-**Fira Code** at weight 500 is the current monospace choice, chosen for its clarity in a data context and its consistent tabular figures. Fallback is Libertinus Mono, which was the original choice and remains a solid substitute.
+**Constraint one: the weight ceiling is 500, and there is no bold.** `--weight-light: 300`, `--weight-normal: 400`, `--weight-medium: 500`, and deliberately no `--weight-bold`. A family switch is the emphasis mechanism, not a weight jump. This survived both face changes and is the reason either was safe.
 
-Libertinus Math keeps one legitimate use: **the entitlement expression display** in `§9`, where a plan limit is genuinely rendered as an inequality (`seats ≤ 15`). Its `≤`, `≥`, `∈` and `∞` glyphs are drawn properly and the browser fallback for those characters is ugly. One component, `MathExpr`, loads it. Nothing else does.
+**Constraint two: Libertinus Math is not a monospace font, so it is not the data face.** The original request named it for the mono role. It is an OpenType _math_ typeface — fraktur alphabets, scaled integrals, redesigned operators — with non-uniform advance widths and non-tabular figures. In a console whose primary reading task is scanning columns, that is a functional defect rather than a taste one.
 
-The mono font is one line in the token file and one line in the type scale. The rest of the system is indifferent.
+It keeps one legitimate use: **the entitlement expression display** in `§9`, where a plan limit is genuinely an inequality (`seats ≤ 15`). Its `≤`, `≥`, `∈` and `∞` are drawn properly and the browser fallback for those characters is ugly. One component, `MathExpr`, loads it. Nothing else does.
+
+The faces are three lines in `tokens.css` and their `@import`s in `globals.css`. Nothing above the token layer knows which face is loaded, which is what made both of these changes a two-line edit rather than a migration.
 
 ### What carries hierarchy instead of weight
 
@@ -245,7 +247,7 @@ Fluid where it needs to be, fixed where a console needs predictability.
 
 Body measure caps at 70 characters. Legal and documentation prose caps at 78.
 
-`font-variant-numeric: tabular-nums` on every number rendered in Libertinus Sans. Mono is already even.
+`font-variant-numeric: tabular-nums` on every number rendered in DM Sans. Lilex is already even.
 
 ### Applied rules
 
@@ -541,7 +543,45 @@ Console editors autosave on blur with a `Saved 14:22` indicator in the toolbar. 
 
 One component, one language, every state mapped. A state not on this table does not get a badge.
 
-Default treatment: 1px rule, `--surface-raised` fill, `--text-secondary` text, `--t-label`, `--r-sm`, 20px tall, 8px padding, glyph plus text always.
+### The three badges, and which one to reach for
+
+**Revised 12 Sep 2026.** There are three, and they are not interchangeable. Picking the wrong one is how a product ends up with two greens meaning "healthy".
+
+| Component | Ground | API | Use it for |
+| --- | --- | --- | --- |
+| `ui/StatusBadge` | the cream page | open `tone` | Any status on a normal surface. The default |
+| `feedback/Badge` | the cream page | closed `tone` from the table below | Domain states that must stay on this taxonomy — tenant, subscription, member |
+| `primitives/Badge` | the **chrome slab** | open `intent` | The console header, rail, and inverted heroes only |
+
+The split between the first two is deliberate: an open `tone` is right for a status somebody is naming on a specific surface, a closed one is right for a domain whose states are enumerated in this document and must not grow by accident.
+
+The third is a different TIER rather than a different taste. The page's muted status inks are unreadable on obsidian, so the chrome slab has lightened steps of the same five meanings — exactly as `--chrome-action` is white rather than `--blue-500`. See §23.
+
+### The tokens
+
+**A badge holds no colour.** `StatusBadge` carried forty-five raw Tailwind palette classes and twenty-one `rgba()` literals until 12 Sep 2026 — `bg-emerald-500/[0.08] text-emerald-800` and a per-tone shadow. That is the defect in §2, and the cost was a second green in the product beside `--success-fg`.
+
+The six tones resolve through Tier 3:
+
+```css
+--badge-tint: 10%;   /* fill strength, every tone */
+--badge-edge: 26%;   /* border strength, every tone */
+
+--badge-{success|warning|danger|info|brand|neutral}-fg
+--badge-{…}-bg    /* color-mix of the ink against --surface-raised */
+--badge-{…}-edge
+--badge-rim       /* one inset highlight, all tones */
+```
+
+Two consequences worth stating. **The surface is a tint of the ink**, mixed against the page ground, which is what stops a row of badges reading as stickers. And **the tint strengths are tokens**, so a badge row that reads too hot is two numbers here rather than six edits in a component.
+
+`brand` is the accent and carries the one-per-screen budget from §4a. Its ink is `--accent-mark-text`, never `--accent-mark`: the brand orange at 400 fails contrast under type.
+
+### Default treatment
+
+1px rule, tinted fill, `--t-label`, `--r-sm`, 20px tall at `sm` and 24px at `md`, 8px padding, **glyph plus text always** — §3 rule 3, colour is never the only carrier.
+
+### The state table
 
 | Domain       | State                    | Hue                                                 |
 | ------------ | ------------------------ | --------------------------------------------------- |

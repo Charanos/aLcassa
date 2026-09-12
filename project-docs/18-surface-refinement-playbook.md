@@ -1,0 +1,313 @@
+# 18 · Surface Refinement Playbook
+
+**Opened:** 12 Sep 2026 · **Derived from:** the console overview's queue and right rail, taken to production quality first
+**Applies to:** every section built in the `17` density pass, and every surface after it
+
+---
+
+## 0. What this document is for
+
+Document `17` got each console surface to the point where it reads real data, has no dead controls, and answers its own question with a band. That is a **floor**, not a finish.
+
+This is the pass that comes after: taking one section at a time from correct to **finished** — every state designed, every interaction resolved, every colour a token, every invented figure either sourced or removed.
+
+It was written by doing it. The overview's queue and right rail were taken through it end to end, and the checklist below is what that work actually turned out to need, in the order it turned out to matter. Nothing here is speculative.
+
+**The method is not a rewrite.** Every section this applies to was designed deliberately and refined by hand. The job is to keep the design and give it the structure, states and honesty it has not been given yet. Where something is torn out, this document says why — and "it was built before we knew better" is a reason, while "I would have done it differently" is not.
+
+---
+
+## 1. The order, and why it is this order
+
+Each step makes the next one cheaper. Doing them out of order means doing some of them twice.
+
+| # | Step | Why here |
+| --- | --- | --- |
+| 1 | **Componentise** | Everything downstream edits files. Do it while the section is still one file and the moves are obvious |
+| 2 | **Truth** | Find invented data before designing states around it. A state for a figure that should not exist is wasted work |
+| 3 | **Tokens** | Before states, because empty and loading states introduce new surfaces that will otherwise be coloured by hand |
+| 4 | **States** | Empty, short, long, loading, error. The shape of the section is settled by now |
+| 5 | **Interaction** | Confirm, pending, success, failure. Needs the states to exist to slot into |
+| 6 | **Accessibility and motion** | A sweep, once the markup has stopped moving |
+| 7 | **Verify and record** | The census scripts, then the delta |
+
+---
+
+## 2. Step 1 · Componentise
+
+**One file per section of the screen**, under `src/components/console/<surface>/`.
+
+- A band, a card, a rail panel: each is its own file.
+- **Server component by default.** A file becomes a client component only when it owns state, and then only the smallest part of it does.
+- It takes a **typed slice of the read model** as a prop. Never the whole model.
+- Skeletons live **beside the component they mirror**, exported from the same file.
+
+### The test that matters
+
+> Could this file be restyled by someone who has never read the data layer?
+
+If not, presentation and data are still tangled.
+
+### Worked example: the queue
+
+`YourQueue.tsx` is a server component. `QueueAction.tsx` is a client component containing **only the button, its dialog and its toast**. The card's icon, name, prose, badge and meta are server-rendered HTML.
+
+The alternative — one client component per card — would have pushed every workspace's prose through the serialisation boundary to gain a button.
+
+### Worked example: the rail
+
+`LastActions` was ninety inline lines in `page.tsx`. Extracted, it is a server component that ships no JavaScript at all: the timeline axis, the node and the connecting line are CSS. **Check that before moving something into a folder full of client components** — it is easy to lose a server component by relocating it.
+
+---
+
+## 3. Step 2 · Truth
+
+Hunt for figures that exist only in a component. This is the step that finds the most, and the findings are always worse than expected.
+
+```bash
+# Data-shaped literals sitting in presentation files
+grep -rn "details: \[\|value: '[0-9]" src/components/console/<surface>/
+```
+
+### What it found in the overview
+
+`PlatformTelemetry` carried a `METRIC_SPECS` map with every service's title, SLA target, gauge ratio and four detail rows — "p50 latency 44ms", "Edge cluster NBO-1", "Twilio SMS Gateway 99.1%". None of it had a source. Three defects travelled with it:
+
+- **The map was keyed by the vital's `label`**, so renaming a service silently dropped its entire spec to a generic fallback.
+- **The live reader returns no vitals at all**, so a signed-in operator saw an empty rail while the review bypass saw four richly detailed services — the opposite of every other surface's arrangement.
+- The footer declared "9 consecutive days incident-free · 99.98% composite SLA". Neither figure had a source.
+
+### The three resolutions
+
+1. **Move it into the read model**, shaped as the query that will replace it. `Vital` went from three fields to eleven; the fixture holds the designed values and the live reader will fill the same shape.
+2. **Derive it.** The footer now counts the vitals it was handed — "3 of 4 within budget". A smaller claim, a true one, and it cannot drift from the rows above it.
+3. **Remove it and say so.** Where neither works, the surface states the absence.
+
+### The rule
+
+> A number with no source is shown as a dash or labelled as not yet counted.
+
+Set when the isolation panel was corrected on 28 Aug, and it has caught something on every surface since.
+
+---
+
+## 4. Step 3 · Tokens
+
+```bash
+# Raw colour in a section
+grep -c '#[0-9a-fA-F]\{3,8\}' src/components/console/<surface>/*.tsx
+grep -c 'rgba(' src/components/console/<surface>/*.tsx
+grep -o '\b\(emerald\|amber\|rose\|sky\|zinc\|slate\)-[0-9]\{2,3\}' src/components/console/<surface>/*.tsx | wc -l
+```
+
+**A Tailwind palette class is the same defect as a hex.** `bg-emerald-500/[0.08]` is a colour decision in a component file; that it arrived as a utility class rather than a literal changes nothing.
+
+### The real cost, stated once
+
+`StatusBadge` held 45 palette classes and 21 `rgba()` literals. The cost was not tidiness — it was **a second green in the product**. A badge reading "healthy" in Tailwind's emerald, beside a meter reading healthy in `--success-fg`, is two greens for one meaning and nobody can say which is the product's.
+
+### How to tokenise without a visual regression
+
+Two options, and the choice is a design decision rather than a mechanical one:
+
+- **Preserve the values.** Add Tier-3 tokens holding the exact rendered values. Zero visual change, defect closed. Right when the component's look has been signed off.
+- **Adopt the system's values.** Point the tokens at the semantic scale. The appearance shifts toward the product's register. Right when the raw values were themselves the drift.
+
+`StatusBadge` took the second, deliberately: Tailwind's emerald, rose and amber are more saturated than this product's muted status scale, so matching the system means the badges sit down slightly against the cream ground — which is the identity, not a regression. **And a hotter register is now two numbers — `--badge-tint`, `--badge-edge` — rather than a rewrite.** That reversibility is the argument for tokenising, so demonstrate it.
+
+### Legitimate exceptions
+
+- **Third-party brand marks.** WhatsApp's `#25D366`, Instagram's `#E1306C`. Not ours to tokenise.
+- **Neutral alpha in a shadow** is tolerable but usually means a `--shadow-*` token was not reached for.
+
+---
+
+## 5. Step 4 · States
+
+**Five states, one code path.** They differ in what they SAY, not in how they are built.
+
+### Empty
+
+Not a fallback — a designed surface, and often the most-read one in a product whose main feature is not built yet.
+
+- **Never "nothing here."** `10 §12`. Say what appears and when.
+- **Distinguish it from a failure to load.** An empty panel with no words is indistinguishable from a broken one. Name the count that was checked.
+- **Pick the right kind.** `03 §16` separates three: `EmptyState` for a region awaiting its first record; `EmptyStateSeam` (hatched, slate) for a boundary that is not built yet; `EmptyStateWithheld` (hatched, oxide) for data this reader may not see.
+
+Three from the overview, all different on purpose:
+
+| Surface | State | Why it reads the way it does |
+| --- | --- | --- |
+| Queue | `QueueClear` | The **best outcome this screen has**. Written as an achievement, naming the count it checked |
+| Telemetry | `TelemetryUnwired` | A **seam**: probes are a real commitment at M6. Hatched, because nothing is broken |
+| Last actions | `NoActionsYet` | A platform on day one. Says explicitly that it is not a failure to load |
+
+`EmptyState`'s centred icon-and-sentence was deliberately **not** used for the queue: it is right for a region waiting for its first record and wrong for one reporting that a check came back clean.
+
+### Heavy
+
+Use `Pagination` / `PagedList` from `primitives`.
+
+- **`PagedList` windows already-rendered server children**, so cards stay server components and only the pager hydrates.
+- **It ships every page's markup.** Right for a bounded list; wrong for an audit log, which wants a cursor against the query. State the reversal point at the call site.
+- **A pager is a rule, not a box.** A bordered bar under a list reads as a second component that arrived with the data.
+- **It renders nothing for a single page**, so the call site never guards it — which is what keeps empty, short and long on one code path.
+
+### Loading
+
+- **The section's own shape, never a generic row.** A skeleton of the wrong shape is a layout shift with extra steps. Both the queue and the rail were drawing generic panels for a card and a four-row table.
+- Opacity pulse, **no shimmer sweep** — a sweep implies a known duration the system cannot promise. `03 §15`.
+- `aria-busy` on the container, once. Static at 0.7 under reduced motion.
+- Where a section has its own query, give it a **`Suspense` boundary** — and put the read **inside** the async child. A boundary around an already-awaited value boundaries nothing.
+
+### Error
+
+Page-level failures belong to `error.tsx`. Action failures are inline, next to the control. See §6.
+
+---
+
+## 6. Step 5 · Interaction
+
+**Three moments, three surfaces.** Getting this wrong is the most common interaction defect in the codebase.
+
+| Moment | Where it belongs | Why |
+| --- | --- | --- |
+| **While it runs** | the control itself | `03 §20` reserves toasts for asynchronous outcomes. A spinner is where the reader is already looking |
+| **On failure** | inline, dialog stays open | A toast that reports a refusal while the dialog closes takes the explanation away from the form that caused it |
+| **On success** | a toast | The dialog has closed and the row has been revalidated away. This is the asynchronous outcome |
+
+### Never fake a save
+
+A handler that sets "Saved." on a timer and writes nothing is **worse than a dead button**: the reader is told the change landed and finds the old value later with no error to explain it. Two shipped in this codebase and both were removed.
+
+Where there is nothing to write to, the control is **disabled with the reason on the surface** — not in a `title`, which gives nothing to a reader without a pointer.
+
+### The reason needs room
+
+The queue's disabled reason shipped twice inline beside the button and **truncated both times** — "No payment gateway in Phase 1 — this reports, it does …". A truncated reason carries the full cost of the explanation and none of its benefit.
+
+It moved onto its own line. **Uniform row height was the wrong thing to protect**: cards already vary with how their prose wraps, and a sentence a reader can finish is worth more than a pixel of rhythm.
+
+### Model the action, do not label it
+
+Replace `label: string` + `href: string` with a **discriminated union**. That turns two rules into compile-time facts:
+
+- An action that **acts** must name its target — `assign_plan` cannot be constructed without a plan code.
+- An action that **cannot act** must say why — `retry_charge` cannot be constructed without a reason.
+
+### State what gets audited, before it runs
+
+`ConfirmDialog` takes a `details` slot beneath its one-sentence `consequence`. Use it to name what the action will record and where.
+
+On a product whose central promise is that the platform cannot touch a customer silently, the moment to say so is **while the operator still has a Cancel button**.
+
+### Keep the action real against designed data
+
+The queue renders fixtures behind the review bypass. Letting the button "succeed" against one would have been the fake save again. The path is identical either way: the slug resolves against `tenants`, and a card with no record behind it is **refused with a sentence naming which kind of data is on screen**. The interaction is complete; the outcome is true.
+
+---
+
+## 7. Step 6 · Accessibility and motion
+
+A sweep, once the markup has stopped moving.
+
+- **Every transform-on-hover gets `motion-reduce`.** Guard the transform, not the colour — a reader who asked for less motion still wants to know which row the pointer is on.
+- **Collapsed content uses `hidden`, never `max-h-0 opacity-0`.** The latter leaves it in the accessibility tree and the tab order; the telemetry rail was reading four collapsed services' details as though on screen. A fixed max-height also clips anything longer than it was drawn for.
+- **A disclosure declares itself**: `aria-expanded` and `aria-controls` on the trigger, an `id` on the panel.
+- **Two buttons that swap a view are a `tablist`.** Three attributes.
+- **A shape that carries meaning takes `role="img"` and a full label.** A meter built from three divs gives a screen reader nothing.
+- **Label a definition list as one.** `dl`/`dt`/`dd` for a detail panel of label-value pairs.
+
+---
+
+## 8. Step 7 · Verify and record
+
+`pnpm tsc` throughout. Lint and build at section boundaries — **and not at all while a dev server is running against the same tree**.
+
+```bash
+# Dead controls, whole console
+node scratch/deadctl.cjs            # must read 0
+
+# Raw colour, this section
+grep -c 'rgba(\|#[0-9a-fA-F]\{6\}' src/components/console/<surface>/*.tsx
+```
+
+Then write the delta into `15`. **Every removal needs a reason a stranger can audit**, and "it was built before we knew better" is one.
+
+---
+
+## 9. The checklist
+
+Copy this per section.
+
+```
+COMPONENTISE
+  [ ] one file per band/card/panel under components/console/<surface>/
+  [ ] server components by default; client only where state lives
+  [ ] each takes a typed slice of the read model
+  [ ] skeleton exported beside the component it mirrors
+
+TRUTH
+  [ ] no data-shaped literals left in presentation files
+  [ ] every figure: sourced, derived, or labelled as not counted
+  [ ] the live reader and the fixture return the SAME shape
+  [ ] maps keyed by id, never by display label
+
+TOKENS
+  [ ] 0 hex, 0 rgba, 0 palette classes (brand marks excepted)
+  [ ] new surfaces read Tier 2/3; chrome surfaces read Tier 4
+  [ ] tint and edge strengths are tokens, not per-tone literals
+
+STATES
+  [ ] empty — designed, named, distinguishable from a failure to load
+  [ ] heavy — PagedList, with the reversal point stated
+  [ ] loading — the section's own shape, pulse not sweep, aria-busy
+  [ ] error — inline for actions, error.tsx for the page
+
+INTERACTION
+  [ ] pending in the control, failure inline, success in a toast
+  [ ] no fake saves anywhere
+  [ ] disabled controls state the reason, with room to read it
+  [ ] actions modelled as a union, not a label and a URL
+  [ ] the confirm dialog names what gets recorded
+
+ACCESS AND MOTION
+  [ ] motion-reduce on every hover transform
+  [ ] hidden, not max-h-0, for collapsed content
+  [ ] aria-expanded/controls, tablist, role="img" on meaningful shapes
+
+VERIFY
+  [ ] tsc clean
+  [ ] dead-control census 0
+  [ ] raw-colour census: brand marks only
+  [ ] delta written into 15
+```
+
+---
+
+## 10. Applied and outstanding
+
+| Section | Componentised | Truth | Tokens | States | Interaction | A11y |
+| --- | --- | --- | --- | --- | --- | --- |
+| Overview · queue | done | done | done | done | done | done |
+| Overview · telemetry rail | done | done | done | done | n/a | done |
+| Overview · last actions | done | done | done | done | n/a | done |
+| Overview · revenue/portfolio/operations bands | done | done | done | — | n/a | — |
+| Plans · headroom | done | done | done | partial | n/a | done |
+| Audit · volume | done | done | done | done | n/a | — |
+| Revenue · movement | done | done | done | — | n/a | — |
+| Sessions · shape | done | done | done | done | n/a | done |
+| AI rules · fields, versions | done | done | done | partial | n/a | — |
+| Tenants, health, admins, settings, profile, tenant detail | — | — | — | — | — | — |
+
+The overview's three lower bands are the **next** section through this, because the pattern is now proven on the two above them and they are the closest neighbours.
+
+---
+
+## 11. Two things the first pass got wrong
+
+Recorded because both cost a second attempt and both are easy to repeat.
+
+**Uniformity is not the highest value.** The disabled reason was kept inline, twice, to hold row heights equal. It truncated, twice. Cards already vary with their prose; a legible sentence outranks a pixel of rhythm.
+
+**"Refine, do not rewrite" cuts both ways.** The telemetry rail's visual design was good and was kept almost exactly. What had to go was the invented data behind it — and that is not a style judgement, it is the seam rule. The distinction to hold: **keep the drawing, replace what it is drawn from.**

@@ -2240,3 +2240,82 @@ rejection happens at save time in the tenant's own console and nothing records
 it. The screen that explains the platform's authority over a customer's
 assistant is the worst place in the product to invent a figure, so it now says
 they are not counted.
+
+---
+
+## C50 · The overview's queue and rail, refined · 12 Sep 2026
+
+The first section taken through `18`, the refinement playbook — which was written
+by doing this and records what the work actually needed.
+
+### `StatusBadge` held colour; it now reads tokens
+
+Forty-five raw Tailwind palette classes and twenty-one `rgba()` literals, one
+set per tone per ground. The cost was not tidiness: it put a **second green in
+the product**. A badge reading "healthy" in Tailwind's emerald, beside a meter
+reading healthy in `--success-fg`, is two greens for one meaning.
+
+Six tones now resolve through Tier-3 `--badge-*`, themselves derived from the
+semantic scale. **The appearance changed and the direction is the point** —
+Tailwind's emerald, rose and amber are more saturated than this product's muted
+status scale, so the badges sit down slightly against the cream ground, which is
+the identity rather than a regression. A hotter register is now `--badge-tint`
+and `--badge-edge`, two numbers, rather than a rewrite.
+
+The icon stroke went from 2.2 to 1.75. At the system's weight ceiling of 500, a
+2.2 glyph was the loudest thing in a 20px chip.
+
+### `PlatformTelemetry` invented its own data
+
+A `METRIC_SPECS` map held every service's title, SLA target, gauge ratio and four
+detail rows — "p50 latency 44ms", "Edge cluster NBO-1", "Twilio SMS Gateway
+99.1%". None had a source. Three defects travelled with it:
+
+| Defect | Consequence |
+| --- | --- |
+| Keyed by the vital's `label` | Renaming a service silently dropped its whole spec |
+| Live reader returns `vitals: []` | A signed-in operator saw an **empty rail with no empty state**, while the review bypass saw four detailed services |
+| `rgba(73,128,252,.1)`, `#c084fc`, `text-emerald-500` | Raw colour, including a second green in the footer |
+
+`Vital` went from three fields to eleven, shaped as a probe would return it. The
+fixture holds the designed values; `lib/observability` fills the same shape at M6
+and the component does not change.
+
+**The footer is derived rather than declared.** It read "9 consecutive days
+incident-free · 99.98% composite SLA" — neither figure had a source. It now
+counts the vitals it was handed, which is a smaller claim, a true one, and one
+that cannot drift from the rows above it.
+
+Two accessibility defects went with the rewrite. Collapsed details used
+`max-h-0 opacity-0`, leaving four services' rows in the accessibility tree and
+the tab order — `hidden` now, which also removes the 120px clip. And the value
+was `v.value.split(' ')[0]`, which mangles any value containing a space; the
+figure and its unit are two fields, set at two sizes.
+
+### `LastActions` was ninety inline lines in `page.tsx`
+
+Extracted to its own server component, tokenised, and given the empty state it
+never had. A platform on its first day has done nothing; an empty panel with no
+words on the one surface whose claim is "an action missing from this log did not
+happen" reads as a failure to load.
+
+### The disabled reason truncated, twice
+
+Shipped inline beside the button to keep card heights equal. At the real column
+width it cut mid-sentence — "No payment gateway in Phase 1 — this reports, it
+does …" — and a `title` does not rescue it: a reader without a pointer gets
+nothing.
+
+**Uniform row height was the wrong thing to protect.** The cards already vary
+with how their prose wraps. The reason moved onto its own line with the card's
+full width, and the fixture's sentences were restored to their full length.
+
+### Typography, recorded late
+
+Both non-display faces changed during the front-end pass and `03 §5` still named
+the old ones. **UI: Libertinus Sans → DM Sans** — a book companion is not drawn
+for a 12px interface label, and the interface wants two weights where Libertinus
+Sans has one. **Data: Fira Code → Lilex** — both have tabular figures, but Fira
+Code's terminal drawing reads as "code editor" beside a book serif, and mono
+carries every timestamp, audit action, count, slug and meta line on the screen.
+The weight ceiling of 500 is unchanged and is why either swap was safe.

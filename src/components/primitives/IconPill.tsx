@@ -40,35 +40,33 @@ export const IconPill = React.forwardRef<HTMLDivElement, IconPillProps>(
       );
     }
 
-    // Tinted variant for light surfaces
-    const toneMap: Record<NonNullable<IconPillProps['tone']>, { bg: string; ring: string; icon: string }> = {
-      success: { bg: 'rgba(16,185,129,0.12)', ring: 'rgba(16,185,129,0.2)', icon: 'rgb(5,150,105)' },
-      brand: { bg: 'rgba(249,115,22,0.12)', ring: 'rgba(249,115,22,0.2)', icon: 'rgb(234,88,12)' },
-      warning: { bg: 'rgba(245,158,11,0.12)', ring: 'rgba(245,158,11,0.2)', icon: 'rgb(217,119,6)' },
-      info: { bg: 'rgba(59,130,246,0.12)', ring: 'rgba(59,130,246,0.2)', icon: 'rgb(37,99,235)' },
-      danger: { bg: 'rgba(239,68,68,0.12)', ring: 'rgba(239,68,68,0.2)', icon: 'rgb(220,38,38)' },
-      neutral: { bg: 'rgba(113,113,122,0.12)', ring: 'rgba(113,113,122,0.2)', icon: 'rgb(82,82,91)' },
-    };
-    
-    const colors = toneMap[tone];
+    /*
+      ⚠ THE TINTED VARIANT READS THE BADGE TOKENS, AND THAT IS THE POINT.
+
+      This was a third copy of the same six meanings, in raw rgb —
+      `rgba(16,185,129,0.12)` for success, and so on. Between this file,
+      `ui/StatusBadge` and `feedback/Badge` the product carried THREE greens for
+      "healthy", none of them `--success-fg`, and no way to say which was
+      correct.
+
+      There is one set now. A pill and the badge beside it on the same card are
+      mixed from the same ink at the same strength, so they agree by
+      construction rather than by somebody keeping two files in step.
+    */
+    const fg = `var(--badge-${tone}-fg)`;
 
     return (
       <div
         ref={ref}
         className={`flex size-6 shrink-0 items-center justify-center rounded-full ${className || ''}`}
         style={{
-          background: colors.bg,
-          boxShadow: `inset 0 0 0 1px ${colors.ring}`,
+          background: `var(--badge-${tone}-bg)`,
+          boxShadow: `inset 0 0 0 1px var(--badge-${tone}-edge)`,
           ...style,
         }}
         {...props}
       >
-        <Icon
-          size={iconSize}
-          stroke={iconStroke}
-          style={{ color: colors.icon }}
-          aria-hidden
-        />
+        <Icon size={iconSize} stroke={iconStroke} style={{ color: fg }} aria-hidden />
       </div>
     );
   }

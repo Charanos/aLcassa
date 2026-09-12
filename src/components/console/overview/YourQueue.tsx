@@ -63,17 +63,18 @@ export function QueueCard({ item }: { item: QueueItem }) {
 
   return (
     <article
-      className="group relative flex flex-col rounded-[16px] bg-white px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="group relative flex flex-col rounded-[16px] px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
       style={{
+        background: 'var(--surface-raised)',
         border: '1px solid var(--border-subtle)',
-        boxShadow: '0 4px 16px -4px rgba(0,0,0,0.02), 0 2px 4px -2px rgba(0,0,0,0.02)',
+        boxShadow: 'var(--card-rest)',
       }}
     >
       {/* Deep Elegant Hover Shadow */}
       <div
         className="pointer-events-none absolute inset-0 rounded-[16px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          boxShadow: '0 12px 30px -4px rgba(0,0,0,0.05), 0 4px 10px -2px rgba(0,0,0,0.03)',
+          boxShadow: 'var(--card-lift)',
         }}
         aria-hidden
       />
@@ -118,21 +119,22 @@ export function QueueCard({ item }: { item: QueueItem }) {
         </p>
 
         {/* Bottom Actions Row */}
-        <div className="mt-4 flex flex-wrap items-center gap-3 pl-[42px]">
-          <QueueAction
-            action={item.action}
-            slug={item.slug}
-            workspace={item.name}
-            observation={item.detail}
-          />
-          <Link
-            href={`/platform/tenants/${item.slug}`}
-            className="t-compact inline-flex h-8 cursor-pointer items-center rounded-lg px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
-            style={{ color: 'var(--text-primary)', fontWeight: 500 }}
-          >
-            Open workspace
-          </Link>
-          <span className="flex-1" />
+        <div className="mt-4 flex items-center justify-between gap-4 pl-[42px]">
+          <div className="flex min-w-0 items-center gap-3">
+            <QueueAction
+              action={item.action}
+              slug={item.slug}
+              workspace={item.name}
+              observation={item.detail}
+            />
+            <Link
+              href={`/platform/tenants/${item.slug}`}
+              className="t-compact shrink-0 inline-flex h-8 cursor-pointer items-center rounded-lg px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
+              style={{ color: 'var(--text-primary)', fontWeight: 500 }}
+            >
+              Open workspace
+            </Link>
+          </div>
           <span
             className="shrink-0 font-mono text-[10px] font-semibold tracking-[0.08em] uppercase opacity-60 transition-opacity duration-300 group-hover:opacity-100"
             style={{ color: 'var(--text-tertiary)' }}
@@ -140,6 +142,28 @@ export function QueueCard({ item }: { item: QueueItem }) {
             {item.meta}
           </span>
         </div>
+
+        {/*
+          ⚠ WHY A DEAD CONTROL SAYS WHY, ON ITS OWN LINE.
+
+          17 §6.4 permits a disabled control only when it states its reason. The
+          first two attempts put that sentence beside the button, where the
+          column width truncated it — and a truncated reason is the worst of
+          the three outcomes, carrying the cost of the explanation with none of
+          the benefit. Here it has the card's full width and wraps.
+
+          It renders from `action.unavailable`, the same field the control is
+          built from, so a control that cannot act and a card with no
+          explanation is not a state that can be constructed.
+        */}
+        {'unavailable' in item.action ? (
+          <p
+            className="t-caption mt-2.5 pl-[42px]"
+            style={{ color: 'var(--text-tertiary)', maxWidth: '72ch', textWrap: 'pretty' }}
+          >
+            {item.action.unavailable}
+          </p>
+        ) : null}
       </div>
     </article>
   );

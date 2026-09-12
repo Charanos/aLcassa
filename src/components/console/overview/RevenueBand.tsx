@@ -8,9 +8,10 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
   return (
     <section className="mb-10">
       <SectionHeading
-        title="Revenue"
-        note="Twelve months, and what is still owed"
+        title="Revenue & Ageing"
+        note="Twelve months of MRR performance, plan mix distribution, and what is still owed to the platform."
         action={<BandLink href="/platform/revenue">Open revenue</BandLink>}
+        align="left"
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
@@ -54,7 +55,7 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
             <div
               className="group relative mt-5 overflow-hidden rounded-xl px-4 py-3.5 transition-colors duration-300 hover:bg-[var(--surface-inset)]"
               style={{
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)',
+                boxShadow: 'var(--well-inset)',
               }}
             >
               {/* Crimson ambient glow */}
@@ -71,7 +72,7 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
 
               <div className="relative z-10">
                 <p
-                  className="font-mono text-[10.5px] font-bold uppercase tracking-[0.15em]"
+                  className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.15em]"
                   style={{ color: 'var(--danger-fg)' }}
                 >
                   Oldest debt

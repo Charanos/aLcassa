@@ -79,10 +79,54 @@ export type Signal = {
   icon: 'coin' | 'pulse' | 'building' | 'bolt';
 };
 
+/** The four services the console watches. A closed set, so a label typo
+ *  cannot silently produce a vital with no icon. */
+export type VitalIcon = 'api' | 'ai' | 'channel' | 'job';
+
+/** One line in a vital's expanded detail. Label and value, both formatted. */
+export type VitalDetail = { label: string; value: string };
+
+/**
+ * One platform vital.
+ *
+ * ⚠ EVERY FIELD HERE USED TO LIVE IN THE COMPONENT, and that was the defect.
+ *
+ * `PlatformTelemetry` carried a `METRIC_SPECS` map keyed by this type's old
+ * three-field `label`: titles, sublabels, SLA targets, gauge ratios, and four
+ * detail rows per service — "p50 latency 44ms", "Edge cluster NBO-1",
+ * "Twilio SMS Gateway 99.1%". None of it had a source, none of it was reachable
+ * by the live reader, and all of it was invented inside a presentation file.
+ *
+ * Two things were wrong with that beyond the seam rule. The map was keyed by
+ * the vital's LABEL, so renaming a service silently dropped its whole spec. And
+ * because the live reader returns no vitals at all, a signed-in operator saw an
+ * empty rail while the review bypass saw four richly detailed services — the
+ * opposite of the arrangement everywhere else in this console.
+ *
+ * The shape now says what a probe would have to supply. When
+ * `lib/observability` lands, it fills this and the component does not change.
+ */
 export type Vital = {
+  /** Stable across renames. The map that broke was keyed by `label`. */
+  key: string;
+  /** "Core API Gateway". */
   label: string;
+  /** What it does, in five words. */
+  sublabel: string;
+  /** The headline figure, formatted. "142ms". */
   value: string;
+  /** What the figure IS. "p95", "mean", "queued". Never part of `value`,
+   *  because the two are set at different sizes. */
+  unit: string;
   state: 'ok' | 'warn' | 'bad';
+  icon: VitalIcon;
+  /** The budget this is measured against, as prose. "< 250ms p95". */
+  target: string;
+  /** Position against that budget, 0 to 1, for the gauge. Clamped on render. */
+  ratio: number;
+  /** One word for the current state. "Nominal", "Elevated backlog". */
+  statusText: string;
+  details: VitalDetail[];
 };
 
 export type AuditLine = {
@@ -202,7 +246,8 @@ export async function getOverview(): Promise<OverviewModel> {
         action: {
           kind: 'retry_charge',
           label: 'Retry charge',
-          unavailable: 'No payment gateway in Phase 1 — this reports, it does not charge.',
+          unavailable:
+            'There is no payment gateway in Phase 1. The console reports on collection and hands the invoice to the finance operator with the failure reason attached; it does not charge cards.',
         },
         meta: 'suspends in 7 days',
       },
@@ -248,7 +293,8 @@ export async function getOverview(): Promise<OverviewModel> {
         action: {
           kind: 'write_off',
           label: 'Write off',
-          unavailable: 'An accounting decision with no operation behind it yet.',
+          unavailable:
+            'Writing off a debt is an accounting decision with no operation behind it in Phase 1. The workspace stays suspended, the record is retained, and reactivation remains one action.',
         },
         meta: 'data retained · reactivation is one action',
       },
@@ -330,11 +376,89 @@ export async function getOverview(): Promise<OverviewModel> {
 
     restingCount: 39,
 
+    /*
+      ⚠ DESIGNED, AND THE SCREEN SAYS SO. There are no probes in Phase 1, so
+      every figure in this block is drawn rather than measured. It moved here
+      out of `PlatformTelemetry`'s `METRIC_SPECS` for the reason every other
+      fixture in this file exists: a read model is where invented data is
+      allowed to live, and a presentation component is not.
+
+      It is shaped as a probe would return it, so `lib/observability` fills this
+      and nothing above it changes.
+    */
     vitals: [
-      { label: 'API', value: '142ms p95', state: 'ok' },
-      { label: 'AI inference', value: '1.9s mean', state: 'ok' },
-      { label: 'Channel delivery', value: '99.4%', state: 'ok' },
-      { label: 'billing.reconcile', value: '61 queued', state: 'warn' },
+      {
+        key: 'api',
+        label: 'Core API Gateway',
+        sublabel: 'Edge ingress and route proxy',
+        value: '142ms',
+        unit: 'p95',
+        state: 'ok',
+        icon: 'api',
+        target: '< 250ms p95',
+        ratio: 142 / 250,
+        statusText: 'Nominal',
+        details: [
+          { label: 'p50 latency', value: '44ms' },
+          { label: 'p99 latency', value: '198ms' },
+          { label: 'Error rate, 5xx', value: '0.00%' },
+          { label: 'Edge cluster', value: 'NBO-1' },
+        ],
+      },
+      {
+        key: 'ai',
+        label: 'AI Model Pipeline',
+        sublabel: 'Assistant response generation',
+        value: '1.9s',
+        unit: 'mean',
+        state: 'ok',
+        icon: 'ai',
+        target: '< 2.5s mean',
+        ratio: 1.9 / 2.5,
+        statusText: 'Optimal',
+        details: [
+          { label: 'Token velocity', value: '84 tok/s' },
+          { label: 'Time to first token', value: '310ms' },
+          { label: 'Concurrency', value: '18 streams' },
+          { label: 'Fallback rate', value: '0.0%' },
+        ],
+      },
+      {
+        key: 'channel',
+        label: 'Dispatch Engine',
+        sublabel: 'Channel webhook broker',
+        value: '99.4%',
+        unit: 'delivered',
+        state: 'ok',
+        icon: 'channel',
+        target: '> 99.0% availability',
+        ratio: 0.994,
+        statusText: 'Operational',
+        details: [
+          { label: 'WhatsApp', value: '99.8%' },
+          { label: 'SMS gateway', value: '99.1%' },
+          { label: 'Retry success', value: '99.9%' },
+          { label: 'Dead-letter queue', value: '0' },
+        ],
+      },
+      {
+        key: 'billing-reconcile',
+        label: 'billing.reconcile',
+        sublabel: 'Nightly usage reconciliation',
+        value: '61',
+        unit: 'queued',
+        state: 'warn',
+        icon: 'job',
+        target: '< 50 queued',
+        ratio: 61 / 100,
+        statusText: 'Elevated backlog',
+        details: [
+          { label: 'Queue depth', value: '61 jobs' },
+          { label: 'Drain rate', value: '14 jobs/s' },
+          { label: 'Oldest item', value: '1m 24s' },
+          { label: 'Workers', value: '4 of 4 active' },
+        ],
+      },
     ],
 
     recent: [

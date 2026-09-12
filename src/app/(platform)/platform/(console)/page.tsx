@@ -11,7 +11,7 @@ import {
   IconBolt,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage, FactRow, Panel } from '@/components/console/Surface';
+import { ConsoleHeader, ConsolePage, Panel, SectionHeading } from '@/components/console/Surface';
 import { getOverview, getOverviewInsights, PORTFOLIO_COUNT, greeting } from '@/lib/console/data';
 import { getLiveOverview } from '@/lib/console/live';
 import { resolveSupportSession } from '@/lib/console/session';
@@ -21,6 +21,8 @@ import { OperationsBand } from '@/components/console/overview/OperationsBand';
 import { PortfolioBand } from '@/components/console/overview/PortfolioBand';
 import { RevenueBand } from '@/components/console/overview/RevenueBand';
 import { YourQueue } from '@/components/console/overview/YourQueue';
+import { PlatformTelemetry } from '@/components/console/overview/PlatformTelemetry';
+import { LastActions } from '@/components/console/overview/LastActions';
 import { Badge } from '@/components/primitives/Badge';
 
 export const metadata: Metadata = { title: 'Overview' };
@@ -364,14 +366,22 @@ export default async function ConsoleOverviewPage() {
       </section>
 
       {/* ── Queue + rail ─────────────────────────────────────────────────── */}
-      <div className="mb-8 grid items-start gap-6 md:mt-24 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
+      <div className="md:mt-24 mb-6">
+        <SectionHeading
+          title="Command & Telemetry"
+          note="The actionable queue, ordered by what it costs to ignore, alongside live platform vitals and recent audit logs."
+          align="right"
+        />
+      </div>
+      <div className="mb-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
         <YourQueue queue={model.queue} restingCount={model.restingCount} />
 
-        <div className="grid gap-6">
+        <div className="sticky top-8 grid gap-6">
           {session ? (
             <Panel
               title="Session live"
               accent="live"
+              variant="elevated"
               action={
                 <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
                   {new Date(session.expiresAt).toLocaleTimeString('en-GB', {
@@ -400,111 +410,9 @@ export default async function ConsoleOverviewPage() {
             </Panel>
           ) : null}
 
-          <Panel
-            title="Platform"
-            action={
-              <Link
-                href="/platform/health"
-                className="t-caption"
-                style={{ color: 'var(--text-action)' }}
-              >
-                Health
-              </Link>
-            }
-          >
-            {model.vitals.map((v, i) => (
-              <FactRow
-                key={v.label}
-                label={v.label}
-                value={v.value}
-                dot={v.state}
-                tone={v.state === 'warn' ? 'warn' : 'default'}
-                last={i === model.vitals.length - 1}
-              />
-            ))}
-            <p className="t-caption mt-3" style={{ color: 'var(--text-tertiary)' }}>
-              No incident in 9 days. Billing reconcile is the only queue with depth.
-            </p>
-          </Panel>
+          <PlatformTelemetry vitals={model.vitals} />
 
-          <Panel
-            title="Last actions"
-            flush
-            action={
-              <Link
-                href="/platform/audit"
-                className="t-caption"
-                style={{ color: 'var(--text-action)' }}
-              >
-                Audit log
-              </Link>
-            }
-          >
-            <div className="py-2">
-              {model.recent.map((r, i) => {
-                const isLast = i === model.recent.length - 1;
-                return (
-                  <div
-                    key={`${r.time}-${r.action}`}
-                    className="group relative flex gap-3 px-4 py-2"
-                  >
-                    {/* Timeline Axis */}
-                    <div className="relative mt-1.5 flex shrink-0 flex-col items-center">
-                      {/* Node Dot */}
-                      <div
-                        className="z-10 h-[7px] w-[7px] rounded-full transition-colors duration-300 group-hover:bg-[var(--blue-400)]"
-                        style={{
-                          background: 'var(--border-strong)',
-                          boxShadow: '0 0 0 2px var(--surface-raised)',
-                        }}
-                      />
-                      {/* Connecting Line */}
-                      {!isLast && (
-                        <div
-                          className="absolute top-[7px] bottom-[-24px] w-px"
-                          style={{ background: 'var(--border-subtle)' }}
-                        />
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="grid gap-0.5 pb-2">
-                      <span className="flex items-baseline gap-2">
-                        <span
-                          className="shrink-0"
-                          style={{
-                            font: '400 11px/1.5 var(--font-mono)',
-                            color: 'var(--text-tertiary)',
-                          }}
-                        >
-                          {r.time}
-                        </span>
-                        {/* The operation name in mono, verbatim. An operator who
-                            needs to find this again will search the audit log for
-                            this exact string. */}
-                        <span
-                          className="min-w-0 flex-1 transition-colors duration-200 group-hover:text-[var(--text-primary)]"
-                          style={{
-                            font: '400 12px/1.45 var(--font-mono)',
-                            color: 'var(--text-secondary)',
-                            overflowWrap: 'anywhere',
-                          }}
-                        >
-                          {r.action}
-                        </span>
-                      </span>
-                      <span
-                        className="t-caption"
-                        style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
-                      >
-                        {r.target}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Panel>
+          <LastActions recent={model.recent} />
         </div>
       </div>
 

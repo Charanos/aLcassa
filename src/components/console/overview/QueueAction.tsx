@@ -63,7 +63,7 @@ export function QueueAction({
 
     case 'retry_charge':
     case 'write_off':
-      return <UnavailableAction label={action.label} reason={action.unavailable} />;
+      return <UnavailableAction label={action.label} />;
 
     case 'assign_plan':
       return (
@@ -80,37 +80,42 @@ export function QueueAction({
 }
 
 /**
- * ⚠ THE REASON SITS BESIDE THE CONTROL, NOT IN A TOOLTIP.
+ * ⚠ THE CONTROL IS THE CONTROL. THE REASON IS THE CARD'S.
  *
- * 17 §6.4 permits a disabled control only when it says why, and a `title`
- * alone fails that for anybody not using a pointer. It stays on one line so a
- * card with an unavailable action is the same height as one with a live
- * action — which is what keeps the queue reading as a single list rather than
- * as four cards of different weights.
+ * Two versions of this shipped with the reason inline beside the button, on the
+ * argument that it kept every card the same height. At the real column width it
+ * TRUNCATED — "No payment gateway in Phase 1 — this reports, it does …" — and a
+ * `title` attribute does not rescue it: the reader without a pointer gets
+ * nothing, and the reader with one has to hover a sentence to find out why a
+ * button is dead.
+ *
+ * That is the worst of the three options. A disabled control whose explanation
+ * is cut off mid-sentence carries the full cost of the explanation and none of
+ * its benefit. 17 §6.4 asks for a stated reason, and a half-stated one does not
+ * satisfy it.
+ *
+ * The reason moved onto its own line, rendered by `QueueCard` from the same
+ * action data, where it has the card's whole width and wraps. Uniform row
+ * height was the wrong thing to protect: the cards already vary with how their
+ * prose wraps, and a sentence a reader can finish is worth more than a pixel of
+ * rhythm.
  */
-function UnavailableAction({ label, reason }: { label: string; reason: string }) {
+function UnavailableAction({ label }: { label: string }) {
   return (
-    <span className="inline-flex min-w-0 flex-wrap items-center gap-2.5">
-      <button
-        type="button"
-        disabled
-        className={`${PRIMARY_CLASS} gap-1.5`}
-        style={{
-          background: 'var(--surface-sunken)',
-          color: 'var(--text-disabled)',
-          border: '1px solid var(--border-subtle)',
-          fontWeight: 600,
-          cursor: 'not-allowed',
-          boxShadow: 'none',
-        }}
-      >
-        <IconLock size={13} stroke={1.75} aria-hidden />
-        {label}
-      </button>
-      <span className="t-caption min-w-0" style={{ color: 'var(--text-tertiary)' }}>
-        {reason}
-      </span>
-    </span>
+    <button
+      type="button"
+      disabled
+      className="t-compact inline-flex h-8 shrink-0 cursor-not-allowed items-center justify-center gap-1.5 rounded-lg px-3.5"
+      style={{
+        background: 'var(--surface-inset)',
+        color: 'var(--text-tertiary)',
+        border: '1px solid var(--border-subtle)',
+        fontWeight: 600,
+      }}
+    >
+      <IconLock size={14} stroke={1.75} aria-hidden />
+      {label}
+    </button>
   );
 }
 
@@ -243,10 +248,10 @@ const PRIMARY_CLASS =
 
 const PRIMARY_STYLE: React.CSSProperties = {
   background: 'var(--blue-500)',
-  color: '#ffffff',
+  color: 'var(--text-inverse)',
   fontWeight: 600,
   boxShadow:
-    '0 4px 12px color-mix(in srgb, var(--blue-500) 22%, transparent), inset 0 1px 1px rgba(255,255,255,0.2)',
+    '0 4px 12px color-mix(in oklab, var(--blue-500) 22%, transparent), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 20%, transparent)',
 };
 
 /** One destination in the "what this records" list. */
