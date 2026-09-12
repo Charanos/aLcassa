@@ -704,3 +704,157 @@ function Swatch({ colour, children }: { colour: string; children: React.ReactNod
     </span>
   );
 }
+
+/* ── MRR movement ────────────────────────────────────────────────────────
+ * The decomposition the level chart cannot show.
+ *
+ * ⚠ "MRR ROSE 4%" AND "MRR ROSE 4% WHILE CHURN DOUBLED" ARE THE SAME LINE ON
+ * THE CHART ABOVE, AND OPPOSITE BUSINESSES.
+ *
+ * A level series answers "how are we doing". It cannot answer "why", and the
+ * why is where the decisions are: growth carried by new logos is a marketing
+ * result, growth carried by expansion is a product result, and flat growth
+ * hiding heavy churn replaced by heavy acquisition is a leaking bucket that
+ * looks identical from the outside.
+ *
+ * ⚠ LOSSES ARE DRAWN DOWNWARD, and the data does NOT carry negative numbers.
+ * Contraction and churn are positive magnitudes in the read model — a sign
+ * convention stored in data is one every call site has to remember, and the
+ * first place that forgets renders churn as growth. The negation happens here,
+ * once, where the axis is.
+ *
+ * ⚠ THE ZERO LINE IS DRAWN SOLID. A mirrored chart without an explicit
+ * baseline invites reading the top of the loss stack as the baseline, which
+ * inverts the whole reading.
+ */
+export function MovementChart({
+  data,
+}: {
+  data: Array<{
+    month: string;
+    new: number;
+    expansion: number;
+    contraction: number;
+    churn: number;
+  }>;
+}) {
+  const t = useTokens();
+
+  const series = data.map((d) => ({
+    month: d.month,
+    gained: d.new,
+    expanded: d.expansion,
+    /* Negated for the axis only. See the header note. */
+    contracted: -d.contraction,
+    churned: -d.churn,
+    net: d.new + d.expansion - d.contraction - d.churn,
+  }));
+
+  const fmt = (n: number) => `${n < 0 ? '−' : ''}${Math.abs(Math.round(n / 1000))}k`;
+
+  return (
+    <div>
+      <ResponsiveContainer width="100%" height={228}>
+        <ComposedChart data={series} margin={{ top: 8, right: 4, bottom: 0, left: -8 }} stackOffset="sign">
+          <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
+          <XAxis
+            dataKey="month"
+            tick={{ ...AXIS, fill: t.muted }}
+            tickLine={false}
+            axisLine={{ stroke: t.rule }}
+          />
+          <YAxis
+            tick={{ ...AXIS, fill: t.muted }}
+            tickLine={false}
+            axisLine={false}
+            width={46}
+            tickFormatter={fmt}
+          />
+          <Tooltip
+            cursor={{ fill: `color-mix(in srgb, ${t.ink300} 18%, transparent)` }}
+            content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null;
+              const row = payload[0]?.payload as (typeof series)[number] | undefined;
+              if (!row) return null;
+              return (
+                <div
+                  className="rounded-chip px-3 py-2"
+                  style={{
+                    background: `color-mix(in srgb, ${t.surface} 88%, transparent)`,
+                    backdropFilter: 'blur(12px)',
+                    border: `1px solid ${t.rule}`,
+                    boxShadow: 'var(--shadow-md)',
+                  }}
+                >
+                  <div style={{ font: '400 11px/1.4 var(--font-mono)', color: t.muted }}>
+                    {String(label)}
+                  </div>
+                  <div
+                    className="numeric mt-0.5"
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: row.net >= 0 ? t.success : t.danger,
+                    }}
+                  >
+                    {row.net >= 0 ? '+' : '−'}
+                    {Math.abs(Math.round(row.net / 1000))}k net
+                  </div>
+                  <div
+                    className="mt-1 grid gap-0.5"
+                    style={{ font: '400 11px/1.5 var(--font-mono)', color: t.muted }}
+                  >
+                    <span>new {fmt(row.gained)}</span>
+                    <span>expansion {fmt(row.expanded)}</span>
+                    <span>contraction {fmt(row.contracted)}</span>
+                    <span>churn {fmt(row.churned)}</span>
+                  </div>
+                </div>
+              );
+            }}
+          />
+          {/* The zero line, explicit. */}
+          <Line
+            type="linear"
+            dataKey={() => 0}
+            stroke={t.rule}
+            strokeWidth={1}
+            dot={false}
+            activeDot={false}
+            isAnimationActive={false}
+            legendType="none"
+          />
+          <Bar dataKey="gained" stackId="m" fill={t.blue500} radius={[2, 2, 0, 0]} />
+          <Bar dataKey="expanded" stackId="m" fill={t.blue200} radius={[0, 0, 0, 0]} />
+          <Bar dataKey="contracted" stackId="m" fill={t.ink300} radius={[0, 0, 0, 0]} />
+          <Bar dataKey="churned" stackId="m" fill={t.danger} radius={[0, 0, 2, 2]} />
+          <Line
+            type="monotone"
+            dataKey="net"
+            stroke={t.text}
+            strokeWidth={1.5}
+            dot={false}
+            isAnimationActive={false}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+        <Swatch colour={t.blue500}>new</Swatch>
+        <Swatch colour={t.blue200}>expansion</Swatch>
+        <Swatch colour={t.ink300}>contraction</Swatch>
+        <Swatch colour={t.danger}>churn</Swatch>
+        <span
+          className="inline-flex items-center gap-1.5 whitespace-nowrap"
+          style={{ font: '400 11.5px/1 var(--font-ui)', color: 'var(--text-secondary)' }}
+        >
+          <span
+            aria-hidden
+            className="shrink-0"
+            style={{ width: 10, height: 2, borderRadius: 2, background: t.text }}
+          />
+          net
+        </span>
+      </div>
+    </div>
+  );
+}

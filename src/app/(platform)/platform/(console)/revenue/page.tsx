@@ -14,6 +14,7 @@ import { ConsoleHeader, ConsolePage, ExportLink, Panel } from '@/components/cons
 import { AgeingChart, MrrChart, PlanMixChart } from '@/components/console/Charts';
 import { CollectionQueueTable } from '@/components/console/CollectionQueueTable';
 import { getRevenue, type Kpi } from '@/lib/console/data';
+import { MovementBand } from '@/components/console/revenue/MovementBand';
 
 export const metadata: Metadata = { title: 'Revenue' };
 
@@ -184,6 +185,8 @@ export default async function RevenuePage() {
           </div>
         </Panel>
       </div>
+
+      <MovementBand movement={m.movement} />
 
       {/* ── Ageing + collection queue ────────────────────────────────── */}
       <div className="mt-5 grid items-start gap-5 lg:grid-cols-[1fr_1.5fr]">

@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/primitives/EmptyState';
 import { getSupportSessions, type EndedBy } from '@/lib/console/data';
 import { getLiveSupportSessions } from '@/lib/console/liveWorkspaces';
 import { resolveSupportSession } from '@/lib/console/session';
+import { ShapeBand } from '@/components/console/sessions/ShapeBand';
 import { endSupportSession } from '../actions';
 
 export const metadata: Metadata = { title: 'Support sessions' };
@@ -268,6 +269,8 @@ export default async function SupportSessionsPage() {
           </div>
         </Panel>
       </div>
+
+      <ShapeBand history={model.history} />
 
       <p className="t-compact mt-3.5" style={{ color: 'var(--text-tertiary)', maxWidth: '84ch' }}>
         Sessions are read-only and expire at 30 minutes with no extension. A customer ending a

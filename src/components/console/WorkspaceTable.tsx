@@ -129,6 +129,26 @@ export function WorkspaceTable({
 
   const attentionCount = useMemo(() => rows.filter(needsAttention).length, [rows]);
 
+  /**
+   * ⚠ THE COUNT LIVES ON THE CHIP, so the summary and the filter are ONE
+   * control rather than two facts a reader has to reconcile.
+   *
+   * 17 §7 argued for a status strip above this table. There already was one —
+   * these chips — and adding a second row of counts beside them would have
+   * been two controls for one job, with the usual outcome: the strip and the
+   * chips disagree the first time a status is added and only one is updated.
+   * The count belongs on the thing that filters by it.
+   *
+   * It counts the WHOLE set rather than the current filter, deliberately. A
+   * chip reading "trial 0" because the search box excludes them tells a reader
+   * there are no trials, which is a different claim and a wrong one.
+   */
+  const byStatus = useMemo(() => {
+    const out = new Map<WorkspaceStatus, number>();
+    for (const r of rows) out.set(r.status, (out.get(r.status) ?? 0) + 1);
+    return out;
+  }, [rows]);
+
   // Overall workspace stats for the summary ribbon
   const stats = useMemo(() => {
     const totalWorkspaces = rows.length;
@@ -434,6 +454,15 @@ export function WorkspaceTable({
                   style={{ background: on ? '#ffffff' : STATUS_INK[s].dot }}
                 />
                 {s}
+                <span
+                  className="numeric"
+                  style={{
+                    fontSize: 11,
+                    color: on ? 'rgba(255,255,255,0.75)' : 'var(--text-tertiary)',
+                  }}
+                >
+                  {byStatus.get(s) ?? 0}
+                </span>
               </button>
             );
           })}

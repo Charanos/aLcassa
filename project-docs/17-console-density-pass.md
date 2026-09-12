@@ -315,3 +315,74 @@ layers are banked and committed.
    this pass does not add a migration. The tab's controls become honestly disabled with
    the reason on the surface, per §6.4.
 4. **Export format is CSV**, streamed, admin-gated, audited as a read.
+
+---
+
+## 11. Stage 3 as built, 12 Sep 2026
+
+§7 was a plan written from an audit. Three of its prescriptions were wrong, and
+correcting them is worth more than delivering them.
+
+### The componentisation
+
+Every band is its own file under `src/components/console/<surface>/`, following
+the pattern the overview established: a **server component** taking a typed
+slice of the read model, with charts as the only client islands.
+
+That split is the point rather than a filing convention. `HeadroomBand`,
+`ShapeBand` and the figure columns beside every chart do arithmetic — medians,
+ratios, bucket counts — and all of it happens once on the server rather than in
+every reader's browser. Two of the four new bands ship **no JavaScript at all**.
+
+`BandLink` moved into `Surface.tsx`. Every band on every surface ends in one, so
+it is surface vocabulary rather than something the overview owns;
+`overview/shared.tsx` re-exports it so nothing breaks and there is still one
+definition.
+
+| Surface | Band | Client JS |
+| --- | --- | --- |
+| `plans/HeadroomBand` | Median and maximum against each limit | none |
+| `audit/VolumeBand` | Thirty days, stacked by consequence | the chart only |
+| `revenue/MovementBand` | New, expansion, contraction, churn | the chart only |
+| `sessions/ShapeBand` | Duration buckets, how it ended, why | none |
+| `rules/RuleFields` · `VersionRail` · `InheritancePanel` | The document, its history, the boundary | none |
+
+### Where §7 was wrong
+
+**Health needed nothing.** §7 prescribed a latency percentile band and queue
+depth small multiples. `HealthModel.latency` already carries p50/p95/p99 and
+`LatencyChart` already draws all three; queues already render with depth and
+rate. Building either would have duplicated what is there. The audit in §1
+called this page the strongest of the ten and should have been believed.
+
+**Tenants needed a count, not a strip.** §7 prescribed a status segment strip
+above the table. The table already had status chips that filter. A second row of
+counts beside them is two controls for one job, with the predictable outcome:
+they disagree the first time a status is added. The count went **on** the chip,
+which is what §7's own argument — "the summary and the rows are the same
+control" — actually implies.
+
+**The admin activity sparkline is deferred.** `getLiveAdmins` already reports
+sessions opened in thirty days and last activity per operator, which answers the
+page's question: not who has access, but who uses it. A sparkline would add
+shape — steady use versus one burst — which is a real distinction and the same
+argument the 30-day health strip rests on. It also needs a second query grouped
+by operator by day. It is worth doing and it is not worth doing before the
+things above it.
+
+### What §7 got right and this pass delivered
+
+Headroom, audit volume, MRR movement and session shape all landed as argued. The
+AI rules rewrite was not in §7 at all — it came out of Stage 1, where writing the
+reader found that the screen described a model the schema does not have.
+
+### Stated limits
+
+- **The audit histogram does not scope the stream.** Brushing needs both inside
+  one client boundary, which would push every entry into the browser. The stream
+  already filters by kind and free text.
+- **No version diff on AI rules.** It needs two documents in the reader rather
+  than one — a second query and a second shape, not a control to switch on.
+- **Revenue movement is designed data.** Decision 2. The twelve rows reconcile
+  with the level chart's `net` for every month, verified by arithmetic rather
+  than asserted; a fixture whose parts do not close is worse than no fixture.

@@ -405,6 +405,7 @@ export async function getLiveSupportSessions(): Promise<SessionsModel | null> {
         admin: row.adminName ?? 'Platform',
         reason: row.supportContext?.reason ?? '—',
         duration: ended ? `${minutes}m` : `${minutes}m · open`,
+        durationMinutes: minutes,
         endedBy,
       };
     });

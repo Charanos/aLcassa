@@ -807,9 +807,34 @@ export type Collection = {
   attempts: string;
 };
 
+/**
+ * One month of MRR movement, decomposed.
+ *
+ * ⚠ `net` IS NOT A FIFTH NUMBER, IT IS THE SUM. new + expansion − contraction
+ * − churn. Carrying it separately would let the parts and the total disagree,
+ * and the one a reader trusts is whichever they saw first. It is derived where
+ * the chart needs it.
+ *
+ * Contraction and churn are POSITIVE magnitudes here and are drawn downward.
+ * Storing them negative makes every call site remember a sign convention, and
+ * the first one to forget produces a chart where churn adds to revenue.
+ */
+export type MrrMovement = {
+  month: string;
+  /** Workspaces that were not paying last month. */
+  new: number;
+  /** Existing workspaces that moved up a plan or past a limit. */
+  expansion: number;
+  /** Existing workspaces that moved down. Positive magnitude. */
+  contraction: number;
+  /** Workspaces that stopped paying. Positive magnitude. */
+  churn: number;
+};
+
 export type RevenueModel = {
   kpis: Kpi[];
   mrr: Array<{ month: string; mrr: number; net: number }>;
+  movement: MrrMovement[];
   planMix: Array<{ name: string; value: number; tenants: string; display: string }>;
   ageing: Array<{ bucket: string; amount: number }>;
   outstanding: string;
@@ -898,6 +923,33 @@ export async function getRevenue(): Promise<RevenueModel> {
       { month: 'Aug', mrr: 6_042_000, net: 322_000 },
     ],
 
+    /*
+      ⚠ THE SAME TWELVE MONTHS, DECOMPOSED, AND THE SUMS MATCH.
+
+      Every row here adds to the `net` on the row above it. A fixture whose
+      parts do not reconcile with its own total is worse than no fixture: the
+      first person to check the arithmetic finds a bug that is not in the code,
+      and stops trusting the screen that is correct.
+
+      Designed, like everything else on this page — there is no gateway in
+      Phase 1. The band says so, and the CSV export carries the caveat in its
+      first column so it survives being mailed on.
+    */
+    movement: [
+      { month: 'Sep', new: 264_000, expansion: 41_000, contraction: 19_000, churn: 76_000 },
+      { month: 'Oct', new: 318_000, expansion: 52_000, contraction: 24_000, churn: 76_000 },
+      { month: 'Nov', new: 251_000, expansion: 63_000, contraction: 31_000, churn: 61_000 },
+      { month: 'Dec', new: 164_000, expansion: 38_000, contraction: 22_000, churn: 52_000 },
+      { month: 'Jan', new: 341_000, expansion: 71_000, contraction: 27_000, churn: 95_000 },
+      { month: 'Feb', new: 268_000, expansion: 59_000, contraction: 18_000, churn: 85_000 },
+      { month: 'Mar', new: 197_000, expansion: 44_000, contraction: 26_000, churn: 69_000 },
+      { month: 'Apr', new: 229_000, expansion: 51_000, contraction: 21_000, churn: 83_000 },
+      { month: 'May', new: 186_000, expansion: 48_000, contraction: 24_000, churn: 74_000 },
+      { month: 'Jun', new: 201_000, expansion: 39_000, contraction: 17_000, churn: 85_000 },
+      { month: 'Jul', new: 152_000, expansion: 36_000, contraction: 29_000, churn: 79_000 },
+      { month: 'Aug', new: 398_000, expansion: 67_000, contraction: 23_000, churn: 120_000 },
+    ],
+
     planMix: [
       { name: 'Scale', value: 3_500_000, tenants: '19 workspaces', display: '3.50M' },
       { name: 'Growth', value: 1_930_000, tenants: '21 workspaces', display: '1.93M' },
@@ -974,7 +1026,16 @@ export type SessionRecord = {
   slug: string;
   admin: string;
   reason: string;
+  /** For display. Formatted where it is produced. */
   duration: string;
+  /**
+   * ⚠ THE SAME QUANTITY AS A NUMBER, and it exists for the reason the
+   * workspace table's seats do: the moment a distribution has to re-derive
+   * minutes by parsing '22m 40s', the formatting and the arithmetic are
+   * coupled and the first label change breaks a chart. Produced alongside the
+   * string, never from it.
+   */
+  durationMinutes: number;
   endedBy: EndedBy;
 };
 
@@ -1017,6 +1078,7 @@ export async function getSupportSessions(): Promise<SessionsModel> {
         admin: 'j.otieno',
         reason: 'Confirming channel disconnect before suspension',
         duration: '8m 12s',
+        durationMinutes: 8.2,
         endedBy: 'customer',
       },
       {
@@ -1027,6 +1089,7 @@ export async function getSupportSessions(): Promise<SessionsModel> {
         admin: 'brian',
         reason: 'Ticket 4802 · invoice dispute, checking event counts',
         duration: '22m 40s',
+        durationMinutes: 22.7,
         endedBy: 'admin',
       },
       {
@@ -1037,6 +1100,7 @@ export async function getSupportSessions(): Promise<SessionsModel> {
         admin: 'wanjiku',
         reason: 'Ticket 4771 · reviewing AI escalation threshold',
         duration: '30m 00s',
+        durationMinutes: 30,
         endedBy: 'expired',
       },
       {
@@ -1047,6 +1111,7 @@ export async function getSupportSessions(): Promise<SessionsModel> {
         admin: 'brian',
         reason: 'Onboarding check before plan upgrade',
         duration: '14m 05s',
+        durationMinutes: 14.1,
         endedBy: 'admin',
       },
       {
@@ -1057,6 +1122,7 @@ export async function getSupportSessions(): Promise<SessionsModel> {
         admin: 'j.otieno',
         reason: 'SEV2 follow-up · verifying no messages were lost',
         duration: '30m 00s',
+        durationMinutes: 30,
         endedBy: 'expired',
       },
       {
@@ -1067,6 +1133,7 @@ export async function getSupportSessions(): Promise<SessionsModel> {
         admin: 'wanjiku',
         reason: 'Trial support · walking the owner through channels',
         duration: '19m 31s',
+        durationMinutes: 19.5,
         endedBy: 'admin',
       },
       {
@@ -1077,6 +1144,7 @@ export async function getSupportSessions(): Promise<SessionsModel> {
         admin: 'brian',
         reason: 'Ticket 4688 · duplicate staff invitations',
         duration: '6m 48s',
+        durationMinutes: 6.8,
         endedBy: 'admin',
       },
       {
@@ -1087,6 +1155,7 @@ export async function getSupportSessions(): Promise<SessionsModel> {
         admin: 'j.otieno',
         reason: 'Ticket 4650 · webhook retries failing',
         duration: '27m 09s',
+        durationMinutes: 27.2,
         endedBy: 'customer',
       },
     ],
