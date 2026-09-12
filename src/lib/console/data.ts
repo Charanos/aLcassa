@@ -1934,7 +1934,8 @@ export type SettingsModel = {
   breakGlassActive: boolean;
   notifications: NotificationRule[];
   retention: RetentionItem[];
-  exports: string[];
+  /** 17 §6.1. A closed catalogue, so the label and the route cannot drift. */
+  exports: Array<{ resource: 'workspaces' | 'revenue' | 'audit'; label: string }>;
   apiKeys: ApiKeyRecord[];
   webhooks: Webhook[];
 };
@@ -2069,7 +2070,11 @@ export async function getSettings(): Promise<SettingsModel> {
       },
     ],
 
-    exports: ['Audit log · CSV', 'Revenue · CSV', 'Workspace roster · CSV'],
+    exports: [
+      { resource: 'audit', label: 'Audit log · CSV' },
+      { resource: 'revenue', label: 'Revenue · CSV' },
+      { resource: 'workspaces', label: 'Workspace roster · CSV' },
+    ],
 
     apiKeys: [
       {

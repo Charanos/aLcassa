@@ -81,8 +81,10 @@ export default async function PlansPage() {
         </div>
         <button
           type="button"
+          disabled
+          title="A new plan is a catalogue and entitlement change, applied as a migration in Phase 1."
           className="t-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap"
-          style={{ background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
+          style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
         >
           <IconPlus size={15} stroke={1.5} aria-hidden />
           New plan

@@ -61,24 +61,30 @@ export function ConsoleHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
+    <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:gap-8">
       <div className="min-w-0 flex-1">
         {breadcrumbs && breadcrumbs.length > 0 ? (
-          <nav
-            className="t-caption mb-2.5 flex items-center gap-1.5"
-            style={{ color: 'var(--text-tertiary)' }}
-          >
+          <nav className="mb-4 -ml-2.5 flex items-center gap-1.5">
             {breadcrumbs.map((bc, i) => (
               <React.Fragment key={i}>
                 {bc.href ? (
-                  <a href={bc.href} className="transition-colors hover:text-[var(--text-primary)]">
+                  <a
+                    href={bc.href}
+                    className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-semibold tracking-widest uppercase transition-all duration-200 hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-primary)]"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {bc.label}
                   </a>
                 ) : (
-                  <span style={{ color: 'var(--text-secondary)' }}>{bc.label}</span>
+                  <span
+                    className="rounded-full bg-[rgba(255,255,255,0.03)] px-2.5 py-1 font-mono text-[10.5px] font-semibold tracking-widest uppercase shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-[rgba(255,255,255,0.02)]"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {bc.label}
+                  </span>
                 )}
                 {i < breadcrumbs.length - 1 && (
-                  <IconChevronRight size={13} className="opacity-40" />
+                  <IconChevronRight size={12} stroke={2.5} className="opacity-30" style={{ color: 'var(--text-tertiary)' }} />
                 )}
               </React.Fragment>
             ))}
@@ -87,18 +93,25 @@ export function ConsoleHeader({
 
         {eyebrow && (
           <p
-            className="t-eyebrow mb-2 tracking-widest uppercase opacity-75"
-            style={{ color: 'var(--text-tertiary)' }}
+            className="mb-2 font-mono text-[10.5px] font-semibold tracking-[0.2em] uppercase"
+            style={{ color: 'var(--text-secondary)', opacity: 0.8 }}
           >
             {eyebrow}
           </p>
         )}
         {/* greeting h1 uses display-sm: 24px — editorial but not hero-sized */}
-        <h1 className="display display-md tracking-tight" style={{ color: 'var(--text-primary)' }}>
+        <h1
+          className="display display-md tracking-tight"
+          style={{
+            color: 'var(--text-primary)',
+            textShadow: '0 2px 10px rgba(0,0,0,0.15)',
+          }}
+        >
           {title}
         </h1>
       </div>
-      {actions ? <div className="flex shrink-0 items-center gap-3">{actions}</div> : null}
+
+      {actions && <div className="flex shrink-0 items-center gap-3">{actions}</div>}
     </div>
   );
 }
@@ -122,37 +135,38 @@ export function SectionHeading({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-4 flex items-center gap-4">
-      <h2
-        className="display display-sm shrink-0 tracking-tight"
-        style={{ color: 'var(--text-primary)' }}
-      >
-        {title}
-      </h2>
+    <div className="mb-6 flex items-center justify-between gap-6">
+      <div className="flex items-center gap-6">
+        <h2
+          className="display display-md shrink-0 tracking-tight"
+          style={{ color: 'var(--text-primary)', fontWeight: 400 }}
+        >
+          {title}
+        </h2>
+        {note ? (
+          <span
+            className="t-caption hidden shrink-0 whitespace-nowrap md:inline"
+            style={{ color: 'var(--text-tertiary)', letterSpacing: '0.01em' }}
+          >
+            {note}
+          </span>
+        ) : null}
+      </div>
       <span
         aria-hidden
-        className="h-px flex-1 bg-gradient-to-r from-[var(--border-strong)]/60 to-transparent"
+        className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--border-strong)]/30 to-transparent"
       />
-      {note ? (
-        <span
-          className="t-caption hidden shrink-0 whitespace-nowrap md:inline"
-          style={{ color: 'var(--text-tertiary)' }}
-        >
-          {note}
-        </span>
-      ) : null}
-      {action}
+      {action ? <div className="shrink-0">{action}</div> : null}
     </div>
   );
 }
 
 /**
- * The console card.
+ * The uncarded console section.
  *
- * 03 §7 puts elevation on borders first and shadow second, so this is a
- * hairline plus the lightest glass highlight — enough to lift off the cream,
- * not enough to notice. `flush` drops the body padding for panels whose
- * content is a list or a table that should meet the edges.
+ * Replaces the traditional nested white card. It acts as a semantic container
+ * and provides a subtle top hairline and optional accent, but leaves the content
+ * to breathe on the main surface.
  */
 export function Panel({
   title,
@@ -165,7 +179,6 @@ export function Panel({
   action?: React.ReactNode;
   children: React.ReactNode;
   flush?: boolean;
-  /** A hue for the header bar. Used sparingly — a live session, a failure. */
   accent?: 'live' | 'warning' | 'danger';
 }) {
   const accentInk =
@@ -178,58 +191,47 @@ export function Panel({
           : undefined;
 
   return (
-    /*
-     * ⚠ NO SHADOW. Sheet 04: "One shadow, one surface. Only the dialog and the
-     * command palette carry elevation. Panels are separated from the page by a
-     * tint step and a hairline, never by a shadow."
-     *
-     * This carried `--shadow-sm` plus an inset white highlight, which is the
-     * default look of every dashboard template and the reason a page of eight
-     * panels read as eight floating cards rather than one instrument. The tint
-     * step (`--surface-raised` against `--surface-base`) and the hairline do
-     * the separating; they were already here, doing the work, underneath a
-     * shadow that was competing with them.
-     */
-    <section
-      className="relative overflow-hidden rounded-2xl"
-      style={{
-        border: '1px solid var(--border-subtle)',
-        background: 'var(--surface-raised)',
-      }}
-    >
+    <section className="group relative flex flex-col pt-1">
+      {/* Top Hairline Separator */}
+      <div
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[var(--border-subtle)] to-transparent"
+        aria-hidden
+      />
       {title ? (
-        <div
-          className="flex items-center gap-3 px-5 py-3.5"
-          style={{
-            borderBottom: '1px solid var(--border-subtle)',
-            background: accent ? 'var(--surface-sunken)' : undefined,
-          }}
-        >
-          {accentInk ? (
-            <span
-              aria-hidden
-              className="size-1.5 shrink-0 rounded-full"
-              style={{
-                background: accentInk,
-                animation: accent === 'live' ? 'pulse-dot 2s ease-in-out infinite' : undefined,
-              }}
-            />
-          ) : null}
-          <p className="t-eyebrow flex-1 tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
-            {title}
-          </p>
-          {action}
+        <div className="mb-5 mt-4 flex items-center justify-between gap-4 px-1">
+          <div className="flex items-center gap-2.5">
+            {accentInk ? (
+              <span className="relative flex size-2 shrink-0 items-center justify-center">
+                <span
+                  aria-hidden
+                  className="absolute inset-0 animate-ping rounded-full opacity-40"
+                  style={{ background: accentInk, animationDuration: '3s' }}
+                />
+                <span
+                  aria-hidden
+                  className="relative size-1.5 rounded-full"
+                  style={{ background: accentInk }}
+                />
+              </span>
+            ) : null}
+            <h3
+              className="font-mono text-[11.5px] font-medium uppercase tracking-[0.15em]"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {title}
+            </h3>
+          </div>
+          {action ? <div className="shrink-0">{action}</div> : null}
         </div>
       ) : null}
-      <div className={flush ? '' : 'p-5'}>{children}</div>
+      <div className={flush ? '' : 'px-1'}>{children}</div>
     </section>
   );
 }
 
 /**
- * A key/value row inside a panel. The value is mono and right-aligned so a
- * column of them can be compared down its right edge, which is the entire
- * reason 03 §6 puts numerics in JetBrains Mono.
+ * A sleek, typography-first row for metrics.
+ * Drops the pulsing dots in favor of clean layout and premium font weights.
  */
 export function FactRow({
   label,
@@ -249,38 +251,121 @@ export function FactRow({
 
   return (
     <div
-      className="flex items-center gap-3 py-3"
-      style={{ borderBottom: last ? undefined : '1px solid var(--border-subtle)' }}
+      className="flex items-center justify-between gap-4 py-3.5 transition-colors duration-300 hover:bg-[var(--surface-inset)]"
+      style={{
+        borderBottom: last ? 'none' : '1px solid var(--border-subtle)',
+        margin: '0 -12px',
+        padding: '14px 12px',
+        borderRadius: '8px',
+      }}
     >
-      {dot ? (
-        <span className="relative flex size-2 shrink-0 items-center justify-center">
+      <div className="flex min-w-0 items-center gap-3">
+        {dot ? (
           <span
             aria-hidden
-            className="absolute inset-0 animate-ping rounded-full opacity-40"
-            style={{ background: dotInk, animationDuration: '2s' }}
+            className="size-1.5 shrink-0 rounded-full"
+            style={{ background: dotInk, boxShadow: `0 0 8px ${dotInk}` }}
           />
-          <span
-            aria-hidden
-            className="relative size-1.5 rounded-full"
-            style={{ background: dotInk }}
-          />
+        ) : null}
+        <span
+          className="truncate"
+          style={{
+            font: '400 13px/1.5 var(--font-ui)',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          {label}
         </span>
-      ) : null}
-      <span
-        className="t-compact min-w-0 flex-1 transition-colors duration-200 hover:text-[var(--text-primary)]"
-        style={{ color: 'var(--text-secondary)', overflowWrap: 'anywhere' }}
-      >
-        {label}
-      </span>
+      </div>
       <span
         className="numeric shrink-0 whitespace-nowrap"
         style={{
-          fontSize: 'var(--text-sm)',
+          font: '500 14px/1 var(--font-mono)',
           color: tone === 'warn' ? 'var(--warning-fg)' : 'var(--text-primary)',
         }}
       >
         {value}
       </span>
     </div>
+  );
+}
+
+
+/**
+ * The console's one download control. 17 §6.1.
+ *
+ * ⚠ IT IS AN ANCHOR, NOT A BUTTON, AND THAT IS THE WHOLE REASON IT WORKS.
+ *
+ * Four screens carried a `<button>` labelled Export that did nothing. Replacing
+ * the handler would have meant a client component, a fetch, a blob and an
+ * object URL on four otherwise server-rendered pages. A link to a route that
+ * answers with `Content-Disposition: attachment` is what a browser already
+ * does, needs no JavaScript, and survives middle-click and "save link as".
+ *
+ * It keeps the button's exact geometry so the row it sits in does not move.
+ */
+export function ExportLink({
+  resource,
+  children,
+}: {
+  resource: 'workspaces' | 'revenue' | 'audit';
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={`/api/platform/export/${resource}`}
+      className="t-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
+      style={{
+        border: '1px solid var(--border-strong)',
+        background: 'var(--surface-raised)',
+        color: 'var(--text-primary)',
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
+/**
+ * A control whose backing does not exist in Phase 1.
+ *
+ * ⚠ THE REASON IS ON THE SURFACE, NOT IN A TOOLTIP.
+ *
+ * 17 §6.4: every control resolves to wired, disabled with a stated reason, or
+ * removed. This is the middle one, and the stated reason is the part that
+ * makes it acceptable — a greyed-out button with no explanation is a dead
+ * control that has also stopped admitting it.
+ *
+ * `title` carries the reason for a pointer, `aria-describedby` would need an
+ * id per instance, so the reason is also rendered as text beside or beneath
+ * the control by the caller. This component refuses to be the only carrier.
+ */
+export function InertControl({
+  reason,
+  className,
+  children,
+}: {
+  reason: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      disabled
+      title={reason}
+      className={
+        className ??
+        't-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap'
+      }
+      style={{
+        border: '1px solid var(--border-subtle)',
+        background: 'var(--surface-sunken)',
+        color: 'var(--text-disabled)',
+        cursor: 'not-allowed',
+      }}
+    >
+      {children}
+    </button>
   );
 }

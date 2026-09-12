@@ -373,8 +373,12 @@ export function BillingTab({ w }: { w: WorkspaceDetail }) {
             <div className="mt-4 flex flex-col gap-2">
               <button
                 type="button"
+                disabled
+                title="There is no payment gateway in Phase 1. The console reports on billing; it does not charge."
                 className="inline-flex h-8.5 w-full items-center justify-center gap-1.5 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
                 style={{
+                  opacity: 0.45,
+                  cursor: 'not-allowed',
                   border: '1px solid var(--border-strong)',
                   background: 'var(--surface-raised)',
                   color: 'var(--text-primary)',
@@ -385,8 +389,12 @@ export function BillingTab({ w }: { w: WorkspaceDetail }) {
               </button>
               <button
                 type="button"
-                className="inline-flex h-8.5 w-full items-center justify-center gap-1.5 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+                disabled
+                title="There is no payment gateway in Phase 1, so there are no issued invoices to statement."
+                className="inline-flex h-8.5 w-full items-center justify-center gap-1.5 rounded-lg text-xs font-medium"
                 style={{
+                  opacity: 0.45,
+                  cursor: 'not-allowed',
                   border: '1px solid var(--border-subtle)',
                   background: 'transparent',
                   color: 'var(--text-secondary)',

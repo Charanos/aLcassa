@@ -76,3 +76,10 @@ export type { TenantStatus } from './internal/tenancy';
 export { provisionTenantSchema, slugSchema, RESERVED_SLUGS } from './types';
 
 export type { ProvisionTenantInput, ProvisionTenantResult } from './types';
+
+/**
+ * 05 §9. A platform action that did not bypass Row Level Security — an export,
+ * for instance. See the file for why it is separate from the `asService`
+ * writer rather than a flag on it.
+ */
+export { recordPlatformAction } from './internal/audit';

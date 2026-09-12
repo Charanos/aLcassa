@@ -2147,3 +2147,67 @@ filled:
 `mfa` changed from `boolean` to `boolean | null` for this. Rendering unknown as
 "off" would put an amber warning against a colleague who may well have it on,
 and an amber chip on a security screen is a figure somebody acts on.
+
+---
+
+## C49 · The dead-control census, and what it actually found
+
+**12 Sep 2026. 29 reported, 25 real, 0 remaining.**
+
+Four of the twenty-nine were false positives: Radix `Trigger asChild` and
+`Close asChild` wrappers, where the handler sits on the parent rather than on
+the button. The census script now looks up one line before reporting.
+
+**`17 §6.2` was optimistic and is corrected here.** The plan estimated twelve
+controls that could simply call an existing audited operation, on the strength
+of `setTenantStatus`, `assignPlan`, `grantOverride` and the rest being built.
+They are built, and they are already wired — through `WorkspaceActions` and
+`subscription-actions.ts`. The dead controls on the tenant tabs are different
+operations, and most of them are ones the console **should not** perform:
+
+| Control | Why it is not wired |
+| --- | --- |
+| Invite Member, Member actions | Membership changes happen inside the workspace, through a logged support session. `09 §4` |
+| Configure channel, Reset override | Same ceiling: a change inside a customer's workspace |
+| Export a workspace's activity | Same ceiling, and more sharply — this is their log |
+| Add/Edit AI rule override | A workspace's own rules are theirs. The platform sets the floor, on `/platform/ai-rules` |
+| Connect channel, Ping channel | The channel runtime is Phase 2. The adapter contract exists; nothing sits above it |
+| Retry Charge, Update payment, Tax statement | No payment gateway in Phase 1. Revenue already states this |
+| Invite admin, Revoke invitation | `invitations` is tenant-scoped. Platform access is granted directly |
+| New plan | Catalogue and entitlement changes are migrations in Phase 1 |
+| Create/Revoke platform API key | Platform-level credentials are not a table |
+
+Each of these is now `disabled` with the reason on the control. **The stated
+reason is the part that makes it acceptable**: a greyed-out button with no
+explanation is a dead control that has also stopped admitting it.
+
+**What was wired:**
+
+- **Four export buttons → one route.** `/api/platform/export/[resource]`, a
+  closed catalogue, admin-gated, audited with `usedServiceRole: false` because
+  it reads through RLS like anything else. `recordPlatformAction` is new and is
+  the only other function permitted to write `platform_audit_log`.
+- **Profile.** Renaming yourself, ending one session, ending every session but
+  this one. Three real writes on a screen that had none.
+- **Audit stream.** "Load older entries" now reveals more of the set it already
+  holds, and says how many remain. The label no longer implies a fetch.
+
+**One control was REMOVED rather than disabled.** The per-admin kebab menu: a
+menu with nothing in it is the case a disabled state cannot rescue, because the
+affordance itself is the promise. The row now shows the date access was
+granted, which is the fact a reader of an access register wants.
+
+### Two fake saves, both corrected
+
+Neither was in the census, because both had handlers. They were worse than the
+dead buttons.
+
+`ProfilePanel.save()` set "Saved." on a timer and wrote nothing. It now calls a
+server action and reports what happened.
+
+`SettingsPanel.save()` did the same, on a page whose own lede warns that a typo
+there reaches every workspace's customers. Platform settings have no store
+(`17 §10.3`, deferred), so the control is now disabled and the footer says
+"Not yet saved anywhere" instead of turning green. **Being told a change landed
+and finding the old value later is worse than a button that does nothing**, and
+on this page it is worse by a wide margin.

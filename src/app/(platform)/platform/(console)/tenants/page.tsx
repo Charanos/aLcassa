@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { IconDownload, IconBuildings } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
+import { ConsoleHeader, ConsolePage, ExportLink } from '@/components/console/Surface';
 import { WorkspaceTable } from '@/components/console/WorkspaceTable';
 import { ProvisionWorkspaceButton } from '@/components/console/ProvisionWorkspaceButton';
 import { getWorkspaces } from '@/lib/console/data';
@@ -52,18 +52,10 @@ export default async function WorkspacesPage() {
         title="Workspaces"
         actions={
           <>
-            <button
-              type="button"
-              className="t-compact inline-flex h-[34px] items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors"
-              style={{
-                border: '1px solid var(--border-strong)',
-                background: 'var(--surface-raised)',
-                color: 'var(--text-primary)',
-              }}
-            >
+            <ExportLink resource="workspaces">
               <IconDownload size={15} stroke={1.5} aria-hidden />
               Export
-            </button>
+            </ExportLink>
             <ProvisionWorkspaceButton />
           </>
         }

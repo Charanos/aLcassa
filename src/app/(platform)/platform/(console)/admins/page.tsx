@@ -3,7 +3,6 @@ import {
   IconAlertTriangle,
   IconCheck,
   IconCrown,
-  IconDotsVertical,
   IconLock,
   IconMail,
   IconMinus,
@@ -121,8 +120,10 @@ export default async function AdminsPage() {
         </div>
         <button
           type="button"
+          disabled
+          title="Platform access is granted directly rather than invited: invitations are scoped to a workspace."
           className="t-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-          style={{ background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
+          style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
         >
           <IconUserPlus size={15} stroke={1.5} aria-hidden />
           Invite admin
@@ -239,14 +240,26 @@ export default async function AdminsPage() {
                     </span>
                   );
                 })()}
-                <button
-                  type="button"
-                  aria-label={`Manage ${a.name}`}
-                  className="grid size-[30px] place-items-center rounded-panel transition-colors hover:bg-[var(--surface-inset)]"
-                  style={{ color: 'var(--text-tertiary)' }}
+                {/*
+                  ⚠ THE ROW MENU IS REMOVED RATHER THAN DISABLED. 17 §6.4.
+
+                  A kebab that opens nothing is the one dead control a disabled
+                  state cannot rescue: there is no action behind it to name, so
+                  a greyed dot with a tooltip is still an affordance promising a
+                  menu that does not exist. This roster is an access REGISTER
+                  rather than a management surface — the footer two rows down
+                  already says so — and access is granted directly in Phase 1.
+
+                  The date it was granted is the fact a reader wants here, and
+                  it is now on the row.
+                */}
+                <span
+                  className="shrink-0 whitespace-nowrap"
+                  style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                  title="When platform access was granted"
                 >
-                  <IconDotsVertical size={16} stroke={1.5} aria-hidden />
-                </button>
+                  {a.grantedOn}
+                </span>
               </span>
             </div>
           );
@@ -321,8 +334,12 @@ export default async function AdminsPage() {
               </span>
               <button
                 type="button"
+                disabled
+                title="Platform admin invitations are not a record. Nothing here can be revoked."
                 className="t-caption h-7 shrink-0 rounded-panel px-2.5 whitespace-nowrap transition-colors"
                 style={{
+                  opacity: 0.45,
+                  cursor: 'not-allowed',
                   border: '1px solid var(--border-strong)',
                   background: 'var(--surface-raised)',
                   color: 'var(--text-secondary)',

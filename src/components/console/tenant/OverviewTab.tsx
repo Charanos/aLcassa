@@ -205,8 +205,10 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
             {w.status === 'past due' && (
               <button
                 type="button"
+                disabled
+                title="There is no payment gateway in Phase 1. A past-due invoice is handed to the finance operator."
                 className="h-8.5 rounded-lg px-3.5 text-xs font-medium text-white transition-all active:scale-95"
-                style={{ background: 'var(--blue-500)' }}
+                style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
               >
                 Retry Charge
               </button>

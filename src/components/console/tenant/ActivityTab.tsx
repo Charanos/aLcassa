@@ -191,8 +191,12 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
         action={
           <button
             type="button"
+            disabled
+            title="A workspace’s own log is reachable only through a logged support session, never directly."
             className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
             style={{
+              opacity: 0.45,
+              cursor: 'not-allowed',
               border: '1px solid var(--border-strong)',
               background: 'var(--surface-raised)',
               color: 'var(--text-primary)',

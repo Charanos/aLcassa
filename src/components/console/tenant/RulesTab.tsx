@@ -236,8 +236,10 @@ export function RulesTab({
           action={
             <button
               type="button"
+              disabled
+              title="A workspace’s own AI rules are edited in their console. The platform sets the floor, at /platform/ai-rules."
               className="inline-flex h-7.5 items-center gap-1 rounded-lg px-2.5 text-xs font-medium text-white transition-all active:scale-95"
-              style={{ background: 'var(--blue-500)' }}
+              style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
             >
               <IconPlus size={13} stroke={1.5} />
               Add Override
@@ -275,18 +277,20 @@ export function RulesTab({
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
+                      disabled
+                      title="A workspace’s own AI rules are edited in their console. The platform sets the floor, at /platform/ai-rules."
                       className="inline-flex items-center gap-1 rounded p-1 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-                      style={{ color: 'var(--text-secondary)' }}
-                      title="Edit rule override"
+                      style={{ opacity: 0.45, cursor: 'not-allowed', color: 'var(--text-secondary)' }}
                     >
                       <IconPencil size={12} stroke={1.5} />
                       Edit
                     </button>
                     <button
                       type="button"
+                      disabled
+                      title="Resetting a workspace override is a change inside their workspace, which needs a support session."
                       className="inline-flex items-center gap-1 rounded p-1 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-                      style={{ color: 'var(--danger-fg)' }}
-                      title="Reset to master value"
+                      style={{ opacity: 0.45, cursor: 'not-allowed', color: 'var(--danger-fg)' }}
                     >
                       <IconRefresh size={12} stroke={1.5} />
                       Reset

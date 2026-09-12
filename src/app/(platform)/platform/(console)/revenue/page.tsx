@@ -10,7 +10,7 @@ import {
   IconUsers,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
+import { ConsoleHeader, ConsolePage, ExportLink, Panel } from '@/components/console/Surface';
 import { AgeingChart, MrrChart, PlanMixChart } from '@/components/console/Charts';
 import { CollectionQueueTable } from '@/components/console/CollectionQueueTable';
 import { getRevenue, type Kpi } from '@/lib/console/data';
@@ -60,18 +60,10 @@ export default async function RevenuePage() {
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            className="t-compact inline-flex h-[34px] items-center gap-2 rounded-panel px-3.5 whitespace-nowrap"
-            style={{
-              border: '1px solid var(--border-strong)',
-              background: 'var(--surface-raised)',
-              color: 'var(--text-primary)',
-            }}
-          >
+          <ExportLink resource="revenue">
             <IconDownload size={15} stroke={1.5} aria-hidden />
             Export CSV
-          </button>
+          </ExportLink>
         </div>
       </div>
 

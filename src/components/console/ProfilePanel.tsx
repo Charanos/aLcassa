@@ -1,9 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { IconCheck, IconCrown, IconKey, IconLock } from '@tabler/icons-react';
 import type { ProfileModel } from '@/lib/console/data';
+import { InertControl } from '@/components/console/Surface';
+import {
+  revokeConsoleSession,
+  revokeOtherConsoleSessions,
+  updateConsoleProfileName,
+} from '@/app/(platform)/platform/(console)/profile-actions';
+
+/**
+ * ⚠ WHY THREE OF THE SECURITY CONTROLS ARE DISABLED RATHER THAN WIRED. 17 §6.4.
+ *
+ * Two-factor codes, the password and the recovery codes all live in Supabase's
+ * `auth.users`, reachable only through the admin client — which is lint-guarded
+ * to `modules/platform` because it bypasses Row Level Security. Widening that
+ * guard so a console screen can redraw a checklist is a poor trade, and these
+ * three are the security items on a security page: a control that silently did
+ * nothing here is worse than one that says what it needs.
+ */
+const SECURITY_REASON: Record<string, string> = {
+  mfa: 'Two-factor enrolment is managed by the identity provider, not from this console.',
+  password: 'Password changes go through the recovery flow, which proves the address first.',
+  recovery: 'Recovery codes are issued by the identity provider and shown only once.',
+};
 
 /**
  * The signed-in operator's own profile. `Profile.dc.html`.
@@ -18,14 +41,53 @@ import type { ProfileModel } from '@/lib/console/data';
  * with the most access on the platform is shown their own ceiling.
  */
 export function ProfilePanel({ model }: { model: ProfileModel }) {
+  const router = useRouter();
   const [name, setName] = useState(model.name);
-  const [saveState, setSaveState] = useState<'idle' | 'saved'>('idle');
-  const dirty = name !== model.name;
+  const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('idle');
+  const [message, setMessage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+  const dirty = name.trim() !== model.name;
 
+  /**
+   * ⚠ THIS USED TO BE A `setTimeout` THAT SET "Saved." AND WROTE NOTHING.
+   *
+   * The failure mode is the worst available for a settings form: the operator
+   * is told the change landed, navigates away, and finds the old value on
+   * their next visit with no error to explain it. It now calls the server
+   * action and reports what actually happened.
+   */
   function save() {
-    if (!dirty) return;
-    setSaveState('saved');
-    setTimeout(() => setSaveState('idle'), 2600);
+    if (!dirty || pending) return;
+    startTransition(async () => {
+      const result = await updateConsoleProfileName(name);
+      if (result.ok) {
+        setSaveState('saved');
+        setMessage(null);
+        router.refresh();
+        setTimeout(() => setSaveState('idle'), 2600);
+      } else {
+        setSaveState('error');
+        setMessage(result.error);
+      }
+    });
+  }
+
+  function endSession(id: string) {
+    if (pending) return;
+    startTransition(async () => {
+      const result = await revokeConsoleSession(id);
+      if (result.ok) router.refresh();
+      else setMessage(result.error);
+    });
+  }
+
+  function endOtherSessions() {
+    if (pending) return;
+    startTransition(async () => {
+      const result = await revokeOtherConsoleSessions();
+      if (result.ok) router.refresh();
+      else setMessage(result.error);
+    });
   }
 
   return (
@@ -132,19 +194,29 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
               className="t-caption flex-1"
               style={{
                 color:
-                  saveState === 'saved'
-                    ? 'var(--success-fg)'
-                    : dirty
-                      ? 'var(--warning-fg)'
-                      : 'var(--text-tertiary)',
+                  saveState === 'error'
+                    ? 'var(--danger-fg)'
+                    : saveState === 'saved'
+                      ? 'var(--success-fg)'
+                      : dirty
+                        ? 'var(--warning-fg)'
+                        : 'var(--text-tertiary)',
               }}
             >
-              {saveState === 'saved' ? 'Saved.' : dirty ? 'Unsaved changes' : 'No changes'}
+              {saveState === 'error'
+                ? message
+                : pending
+                  ? 'Saving…'
+                  : saveState === 'saved'
+                    ? 'Saved.'
+                    : dirty
+                      ? 'Unsaved changes'
+                      : 'No changes'}
             </span>
             <button
               type="button"
               onClick={save}
-              disabled={!dirty}
+              disabled={!dirty || pending}
               className="t-compact h-[34px] rounded-panel px-4 whitespace-nowrap"
               style={{
                 border: 'none',
@@ -215,17 +287,12 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
                     {s.detail}
                   </span>
                 </span>
-                <button
-                  type="button"
-                  className="t-caption h-[30px] shrink-0 rounded-panel px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
-                  style={{
-                    border: '1px solid var(--border-strong)',
-                    background: 'var(--surface-raised)',
-                    color: 'var(--text-primary)',
-                  }}
+                <InertControl
+                  reason={SECURITY_REASON[s.key] ?? 'Managed by the identity provider.'}
+                  className="t-caption h-[30px] shrink-0 rounded-panel px-3.5 whitespace-nowrap"
                 >
                   {s.action}
-                </button>
+                </InertControl>
               </div>
             ))}
           </div>
@@ -247,16 +314,22 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
             <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
               Active sessions
             </p>
+            {/* "Other devices", not "everywhere". A control that also signs
+                YOU out is one nobody presses in the situation it exists for. */}
             <button
               type="button"
-              className="t-caption h-7 shrink-0 rounded-panel px-2.5 whitespace-nowrap transition-colors"
+              onClick={endOtherSessions}
+              disabled={pending || model.sessions.length < 2}
+              className="t-caption h-7 shrink-0 rounded-panel px-2.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
               style={{
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',
                 color: 'var(--danger-fg)',
+                cursor: model.sessions.length < 2 ? 'not-allowed' : undefined,
+                opacity: model.sessions.length < 2 ? 0.55 : undefined,
               }}
             >
-              Sign out everywhere
+              Sign out other devices
             </button>
           </div>
           {model.sessions.map((s, i) => (
@@ -299,8 +372,41 @@ export function ProfilePanel({ model }: { model: ProfileModel }) {
               >
                 {s.when}
               </span>
+              {/*
+                The current device gets a label rather than a control. A row
+                that can end the session you are reading it from is a row
+                somebody ends by accident, and there is a deliberate way to
+                sign out in the account menu.
+              */}
+              {s.current ? (
+                <span
+                  className="shrink-0 whitespace-nowrap"
+                  style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                >
+                  this device
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => endSession(s.id)}
+                  disabled={pending}
+                  className="t-caption h-7 shrink-0 rounded-panel px-2.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
+                  style={{
+                    border: '1px solid var(--border-strong)',
+                    background: 'var(--surface-raised)',
+                    color: 'var(--danger-fg)',
+                  }}
+                >
+                  End
+                </button>
+              )}
             </div>
           ))}
+          {message ? (
+            <p className="t-caption px-5 pb-3.5" style={{ color: 'var(--danger-fg)' }}>
+              {message}
+            </p>
+          ) : null}
         </section>
       </div>
 

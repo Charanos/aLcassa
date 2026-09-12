@@ -45,8 +45,6 @@ const TABS: Array<{ key: TabKey; label: string; icon: TablerIcon }> = [
   { key: 'developer', label: 'Developer', icon: IconCode },
 ];
 
-type SaveState = 'idle' | 'saved';
-
 export function SettingsPanel({ model, initialTab }: { model: SettingsModel; initialTab: TabKey }) {
   const [tab, setTab] = useState<TabKey>(initialTab);
 
@@ -56,7 +54,6 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
   const [notifyOverrides, setNotifyOverrides] = useState<
     Record<string, { console: boolean; email: boolean }>
   >({});
-  const [saveState, setSaveState] = useState<SaveState>('idle');
 
   const dirty =
     platformName !== model.platformName ||
@@ -64,18 +61,31 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
     Object.keys(policyOverrides).length > 0 ||
     Object.keys(notifyOverrides).length > 0;
 
-  function save() {
-    if (!dirty) return;
-    setSaveState('saved');
-    setTimeout(() => setSaveState('idle'), 2600);
-  }
+  /**
+   * ⚠ THERE IS NOTHING TO SAVE INTO, AND THE SCREEN NOW SAYS SO. 17 §6.4.
+   *
+   * This function used to set 'saved', show a green footer, and write nothing.
+   * That is the worst failure available to a settings form — worse than a dead
+   * button, because the operator is told the change landed and finds the old
+   * value on their next visit with no error to explain it. On a page whose own
+   * lede warns that a typo here reaches every workspace's customers, a false
+   * confirmation is not a cosmetic bug.
+   *
+   * The schema has `tenant_settings` and no platform-level equivalent, so
+   * persisting these needs a migration, which this pass deliberately does not
+   * run. Until it lands the controls stay editable — an operator can still see
+   * what the form would do — and the footer states plainly that nothing is
+   * written. The edits are local and disappear on reload, which is what
+   * 'Discard' already did honestly.
+   */
+  const PERSISTENCE_NOTE =
+    'Not yet saved anywhere. Platform settings have no store until the settings table lands.';
 
   function discard() {
     setPlatformName(model.platformName);
     setSupportEmail(model.supportEmail);
     setPolicyOverrides({});
     setNotifyOverrides({});
-    setSaveState('idle');
   }
 
   return (
@@ -436,10 +446,14 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
                 console.
               </p>
               <div className="flex flex-wrap gap-2.5">
+                {/* Links rather than buttons: the route answers with
+                    Content-Disposition and the browser does the rest. Same
+                    handler as the Export control on Workspaces, Revenue and
+                    the audit log — one route, one closed catalogue. 17 §6.1. */}
                 {model.exports.map((x) => (
-                  <button
-                    key={x}
-                    type="button"
+                  <a
+                    key={x.resource}
+                    href={`/api/platform/export/${x.resource}`}
                     className="t-compact inline-flex h-[34px] items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
                     style={{
                       border: '1px solid var(--border-strong)',
@@ -448,8 +462,8 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
                     }}
                   >
                     <IconDownload size={15} stroke={1.5} aria-hidden />
-                    {x}
-                  </button>
+                    {x.label}
+                  </a>
                 ))}
               </div>
             </section>
@@ -475,8 +489,10 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
                 </p>
                 <button
                   type="button"
+                  disabled
+                  title="Platform-level API keys are not a table. Credentials are scoped to a workspace."
                   className="t-compact h-[30px] rounded-panel px-3.5 whitespace-nowrap"
-                  style={{ background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
+                  style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
                 >
                   Create key
                 </button>
@@ -512,8 +528,12 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
                   </span>
                   <button
                     type="button"
+                    disabled
+                    title="Platform-level API keys are not a table. Credentials are scoped to a workspace."
                     className="t-caption h-7 shrink-0 rounded-panel px-2.5 whitespace-nowrap transition-colors"
                     style={{
+                      opacity: 0.45,
+                      cursor: 'not-allowed',
                       border: '1px solid var(--border-strong)',
                       background: 'var(--surface-raised)',
                       color: 'var(--danger-fg)',
@@ -600,19 +620,10 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
           <span
             className="t-compact flex-1"
             style={{
-              color:
-                saveState === 'saved'
-                  ? 'var(--success-fg)'
-                  : dirty
-                    ? 'var(--warning-fg)'
-                    : 'var(--text-tertiary)',
+              color: dirty ? 'var(--warning-fg)' : 'var(--text-tertiary)',
             }}
           >
-            {saveState === 'saved'
-              ? 'Settings saved.'
-              : dirty
-                ? 'Unsaved changes on this page'
-                : 'No changes'}
+            {dirty ? PERSISTENCE_NOTE : 'No changes'}
           </span>
           <button
             type="button"
@@ -630,23 +641,18 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
           </button>
           <button
             type="button"
-            onClick={save}
-            disabled={!dirty}
+            disabled
+            title={PERSISTENCE_NOTE}
             className="t-compact h-8 rounded-panel px-4 whitespace-nowrap"
             style={{
               border: 'none',
-              background:
-                saveState === 'saved'
-                  ? 'var(--success-fg)'
-                  : dirty
-                    ? 'var(--blue-500)'
-                    : 'var(--surface-inset)',
-              color: saveState === 'saved' || dirty ? '#ffffff' : 'var(--text-disabled)',
+              background: 'var(--surface-inset)',
+              color: 'var(--text-disabled)',
               fontWeight: 500,
-              cursor: dirty ? 'pointer' : 'not-allowed',
+              cursor: 'not-allowed',
             }}
           >
-            {saveState === 'saved' ? 'Saved' : 'Save settings'}
+            Save settings
           </button>
         </div>
       </div>

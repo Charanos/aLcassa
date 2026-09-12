@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { IconDownload } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
+import { ConsoleHeader, ConsolePage, ExportLink } from '@/components/console/Surface';
 import { AuditStream } from '@/components/console/AuditStream';
 import { getAuditEntries } from '@/lib/console/data';
 import { getLiveAuditEntries } from '@/lib/console/liveWorkspaces';
@@ -35,18 +35,10 @@ export default async function AuditPage() {
             it, so an action that is missing from this log did not happen.
           </p>
         </div>
-        <button
-          type="button"
-          className="t-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap"
-          style={{
-            border: '1px solid var(--border-strong)',
-            background: 'var(--surface-raised)',
-            color: 'var(--text-primary)',
-          }}
-        >
+        <ExportLink resource="audit">
           <IconDownload size={15} stroke={1.5} aria-hidden />
-          Export range
-        </button>
+          Export
+        </ExportLink>
       </div>
 
       <AuditStream entries={entries} />
