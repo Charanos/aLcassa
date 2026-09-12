@@ -22,6 +22,7 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   consequence,
+  details,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   tone = 'primary',
@@ -34,6 +35,14 @@ export function ConfirmDialog({
   title: string;
   /** One sentence. What confirming actually does. */
   consequence: string;
+  /**
+   * Optional, richer than the one-sentence `consequence` — an impact count, a
+   * list, or what the action will RECORD. Sits between the description and the
+   * error line, the same slot and the same contract as `DestructiveConfirm`,
+   * so the "one sentence" rule in 03 §9 still holds for what actually lands in
+   * `Dialog.Description`.
+   */
+  details?: React.ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
   tone?: 'primary' | 'destructive';
@@ -62,6 +71,8 @@ export function ConfirmDialog({
           <Dialog.Description className="t-compact mt-2 text-[var(--text-secondary)]">
             {consequence}
           </Dialog.Description>
+
+          {details ? <div className="mt-4">{details}</div> : null}
 
           {error ? (
             <p

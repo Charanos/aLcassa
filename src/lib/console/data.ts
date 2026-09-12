@@ -19,6 +19,45 @@ import 'server-only';
 
 export type QueueSeverity = 'danger' | 'warning' | 'info' | 'inert';
 
+/**
+ * What the primary control on a queue card does.
+ *
+ * ⚠ IT IS A DISCRIMINATED UNION, AND THAT IS THE FUNCTIONAL POINT.
+ *
+ * The queue used to carry `primaryLabel` and `primaryHref`: a string and a
+ * link. Every card's button navigated, including the ones labelled "Retry
+ * charge" and "Write off" — verbs that promise an action and delivered a page
+ * change. A reader who presses "Write off" and lands on Revenue has been told
+ * something happened.
+ *
+ * Shaping it as a union makes two rules into compile-time facts rather than
+ * conventions somebody has to remember:
+ *
+ *   AN ACTION THAT ACTS MUST NAME ITS TARGET. `assign_plan` cannot be
+ *   constructed without a plan code, so a card can never offer to move a
+ *   workspace somewhere unspecified.
+ *
+ *   AN ACTION THAT CANNOT ACT MUST SAY WHY. `retry_charge` and `write_off`
+ *   cannot be constructed without a reason, so the Phase 1 gaps are stated on
+ *   the control rather than discovered by pressing it. 17 §6.4.
+ */
+export type QueueAction =
+  /**
+   * Move the workspace onto a named plan. Real, audited, confirmed first —
+   * it changes what a customer is charged.
+   */
+  | { kind: 'assign_plan'; label: string; planCode: string; planName: string }
+  /**
+   * The right plan is a judgement rather than an obvious upgrade, so this
+   * opens the record instead of guessing. A trial ending with six staff on
+   * seats is a phone call, not a button.
+   */
+  | { kind: 'choose_plan'; label: string; href: string }
+  /** Open the record. Always available, never confirmed. */
+  | { kind: 'open'; label: string; href: string }
+  /** No payment gateway in Phase 1, and no write-off operation. 17 §6.4. */
+  | { kind: 'retry_charge' | 'write_off'; label: string; unavailable: string };
+
 export type QueueItem = {
   id: string;
   slug: string;
@@ -26,8 +65,8 @@ export type QueueItem = {
   severity: QueueSeverity;
   tag: string;
   detail: string;
-  primaryLabel: string;
-  primaryHref: string;
+  /** The one control. See `QueueAction`. */
+  action: QueueAction;
   meta: string;
 };
 
@@ -160,8 +199,11 @@ export async function getOverview(): Promise<OverviewModel> {
         tag: 'Past due',
         detail:
           'KES 184,000 declined on 4 August, two retries failed. Access continues until 18 August, then 247 staff lose it automatically.',
-        primaryLabel: 'Retry charge',
-        primaryHref: '/platform/revenue',
+        action: {
+          kind: 'retry_charge',
+          label: 'Retry charge',
+          unavailable: 'No payment gateway in Phase 1 — this reports, it does not charge.',
+        },
         meta: 'suspends in 7 days',
       },
       {
@@ -172,8 +214,12 @@ export async function getOverview(): Promise<OverviewModel> {
         tag: '94% of limit',
         detail:
           '235,104 of 250,000 events used with 19 days left in the period. At the current rate they stop ingesting around the 17th.',
-        primaryLabel: 'Raise to Scale',
-        primaryHref: '/platform/plans',
+        action: {
+          kind: 'assign_plan',
+          label: 'Raise to Scale',
+          planCode: 'business',
+          planName: 'Business',
+        },
         meta: '19 days left in period',
       },
       {
@@ -184,8 +230,11 @@ export async function getOverview(): Promise<OverviewModel> {
         tag: 'Trial ends',
         detail:
           'Ends Sunday with no plan assigned. The owner signed in twice this week and has six staff on seats, so this one is worth a call.',
-        primaryLabel: 'Assign a plan',
-        primaryHref: '/platform/plans',
+        action: {
+          kind: 'choose_plan',
+          label: 'Assign a plan',
+          href: '/platform/tenants/peridot-health?tab=billing',
+        },
         meta: '3 days left',
       },
       {
@@ -196,13 +245,90 @@ export async function getOverview(): Promise<OverviewModel> {
         tag: 'Suspended',
         detail:
           'Suspended 14 days ago. KES 62,000 outstanding for 94 days and collection attempts are exhausted — this is now a write-off decision, not a retry.',
-        primaryLabel: 'Write off',
-        primaryHref: '/platform/revenue',
+        action: {
+          kind: 'write_off',
+          label: 'Write off',
+          unavailable: 'An accounting decision with no operation behind it yet.',
+        },
         meta: 'data retained · reactivation is one action',
+      },
+      /*
+        ⚠ FOUR MORE, SO THE HEAVY STATE IS A REAL STATE RATHER THAN A CLAIM.
+
+        The four above are the designed cards and they stay at the head of the
+        queue, in consequence order. These four continue that order downward —
+        each one costs less to ignore than the one before it — and they exist
+        so the pager, the second page and the "1–5 of 8" readout are things a
+        reviewer can actually see rather than behaviour asserted in a comment.
+
+        The arithmetic still closes: eight here plus `restingCount` is the
+        portfolio total. A queue and a resting count that do not add up to the
+        headline is the defect this file was corrected for once already.
+      */
+      {
+        id: 'q_thika',
+        slug: 'thika-agro-supplies',
+        name: 'Thika Agro Supplies',
+        severity: 'warning',
+        tag: '88% of limit',
+        detail:
+          '4,412 of 5,000 API calls this period. Three of their four integrations went live last week, so this is growth rather than a leak.',
+        action: {
+          kind: 'assign_plan',
+          label: 'Raise to Business',
+          planCode: 'business',
+          planName: 'Business',
+        },
+        meta: '11 days left in period',
+      },
+      {
+        id: 'q_nakuru',
+        slug: 'nakuru-dairy-coop',
+        name: 'Nakuru Dairy Co-operative',
+        severity: 'info',
+        tag: 'Trial ends',
+        detail:
+          'Ends in nine days. Two staff invited, neither has accepted, and nothing has been sent through a channel yet — this one has not started.',
+        action: {
+          kind: 'choose_plan',
+          label: 'Assign a plan',
+          href: '/platform/tenants/nakuru-dairy-coop?tab=billing',
+        },
+        meta: '9 days left',
+      },
+      {
+        id: 'q_eldoret',
+        slug: 'eldoret-motors',
+        name: 'Eldoret Motors Ltd',
+        severity: 'info',
+        tag: 'Seats near limit',
+        detail:
+          '23 of 25 staff seats used. They have hired steadily for two months, so the next two invitations will be refused rather than queued.',
+        action: {
+          kind: 'open',
+          label: 'Open workspace',
+          href: '/platform/tenants/eldoret-motors',
+        },
+        meta: '2 seats remaining',
+      },
+      {
+        id: 'q_kisumu',
+        slug: 'kisumu-lakeside-hotels',
+        name: 'Kisumu Lakeside Hotels',
+        severity: 'inert',
+        tag: 'Dormant',
+        detail:
+          'No message, sign-in or configuration change in 46 days, on a plan that renews on the 3rd. Paid up, so nothing is wrong — it is worth knowing before it renews again.',
+        action: {
+          kind: 'open',
+          label: 'Open workspace',
+          href: '/platform/tenants/kisumu-lakeside-hotels',
+        },
+        meta: 'renews in 21 days',
       },
     ],
 
-    restingCount: 43,
+    restingCount: 39,
 
     vitals: [
       { label: 'API', value: '142ms p95', state: 'ok' },

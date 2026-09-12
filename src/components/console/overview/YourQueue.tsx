@@ -7,135 +7,135 @@ import {
   IconPlayerPause,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { SectionHeading } from '../Surface';
 import type { QueueItem, QueueSeverity } from '@/lib/console/data';
+import { IconPill } from '../../primitives/IconPill';
+import { PagedList } from '../../primitives/Pagination';
+import { SkeletonGroup, SkeletonText } from '../../primitives/Skeleton';
+import { StatusBadge, type StatusBadgeTone } from '../../ui/StatusBadge';
+import { QueueAction } from './QueueAction';
 
-const SEVERITY: Record<
-  QueueSeverity,
-  { rail: string; chipBg: string; chipInk: string; tagBg: string; tagInk: string; icon: TablerIcon }
-> = {
-  danger: {
-    rail: 'var(--danger-fg)',
-    chipBg: 'var(--danger-bg)',
-    chipInk: 'var(--danger-fg)',
-    tagBg: 'var(--danger-bg)',
-    tagInk: 'var(--danger-fg)',
-    icon: IconCreditCard,
-  },
-  warning: {
-    rail: 'var(--warning-fg)',
-    chipBg: 'var(--warning-bg)',
-    chipInk: 'var(--warning-fg)',
-    tagBg: 'var(--warning-bg)',
-    tagInk: 'var(--warning-fg)',
-    icon: IconActivityHeartbeat,
-  },
-  info: {
-    rail: 'var(--blue-400)',
-    chipBg: 'var(--blue-50)',
-    chipInk: 'var(--blue-500)',
-    tagBg: 'var(--surface-inset)',
-    tagInk: 'var(--text-secondary)',
-    icon: IconClock,
-  },
-  inert: {
-    rail: 'var(--ink-400)',
-    chipBg: 'var(--surface-inset)',
-    chipInk: 'var(--text-tertiary)',
-    tagBg: 'var(--surface-inset)',
-    tagInk: 'var(--text-tertiary)',
-    icon: IconPlayerPause,
-  },
+/**
+ * THE QUEUE. Design sheet 05.
+ *
+ * ⚠ IT IS ORDERED BY WHAT EACH ITEM COSTS TO IGNORE, not by recency. A past-due
+ * workspace outranks one at 96% of its seats, which outranks one at 82% —
+ * because the first is money already lost, the second is a customer about to be
+ * blocked, and the third is a conversation worth having this week. That
+ * ordering is what makes it a queue rather than a list.
+ *
+ * ⚠ FOUR STATES, ONE CODE PATH. A queue with nothing in it, with four cards,
+ * and with forty all render through the same component. The states differ in
+ * what they SAY rather than in how they are built:
+ *
+ *   EMPTY — a designed surface, not a fallback. It is also the best outcome
+ *   this screen has, so it reads as an achievement rather than as an absence.
+ *   10 §12: never "nothing here".
+ *
+ *   SHORT — no pager. `Pagination` renders nothing for a single page, so the
+ *   call site does not guard it.
+ *
+ *   LONG — a pager appears under the cards without moving anything above it.
+ *
+ *   LOADING — `QueueSkeleton`, at the card's real dimensions.
+ *
+ * ⚠ ONLY THE ACTION HYDRATES. The cards are server-rendered and `PagedList`
+ * windows the already-rendered children, so paging is instant and no card's
+ * prose crosses the serialisation boundary. See `primitives/Pagination.tsx`.
+ */
+
+const SEVERITY: Record<QueueSeverity, { tone: StatusBadgeTone; icon: TablerIcon }> = {
+  danger: { tone: 'danger', icon: IconCreditCard },
+  warning: { tone: 'warning', icon: IconActivityHeartbeat },
+  info: { tone: 'info', icon: IconClock },
+  inert: { tone: 'neutral', icon: IconPlayerPause },
 };
+
+/**
+ * Five cards fill the column without the page becoming a scroll exercise, and
+ * five is also about as many things as an operator will work through in one
+ * sitting. A queue that shows everything at once is a list; one that shows a
+ * working set is a queue.
+ */
+const PAGE_SIZE = 5;
 
 export function QueueCard({ item }: { item: QueueItem }) {
   const s = SEVERITY[item.severity];
-  const Icon = s.icon;
 
   return (
-    <article className="group relative transition-all duration-400">
+    <article
+      className="group relative flex flex-col rounded-[16px] bg-white px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      style={{
+        border: '1px solid var(--border-subtle)',
+        boxShadow: '0 4px 16px -4px rgba(0,0,0,0.02), 0 2px 4px -2px rgba(0,0,0,0.02)',
+      }}
+    >
+      {/* Deep Elegant Hover Shadow */}
       <div
-        className="pointer-events-none absolute -inset-x-3 -inset-y-1.5 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute inset-0 rounded-[16px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: 'var(--surface-raised)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
+          boxShadow: '0 12px 30px -4px rgba(0,0,0,0.05), 0 4px 10px -2px rgba(0,0,0,0.03)',
         }}
         aria-hidden
       />
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col py-3">
-        <div className="flex items-center gap-3">
-          <span
-            className="grid size-8 shrink-0 place-items-center rounded-lg transition-transform duration-300 group-hover:scale-105"
-            style={{
-              background: s.chipBg,
-              color: s.chipInk,
-              boxShadow: `0 2px 8px ${s.chipBg}`,
-            }}
-            aria-hidden
-          >
-            <Icon size={15} stroke={2} />
-          </span>
-          <Link
-            href={`/platform/tenants/${item.slug}`}
-            className="min-w-0 flex-1 truncate transition-colors hover:text-[var(--text-action)]"
-            style={{
-              font: '600 15.5px/1.35 var(--font-ui)',
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            {item.name}
-          </Link>
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+        {/* Top Header Row: Icon, Name, and Right-Aligned Badge */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <IconPill
+              icon={s.icon}
+              iconSize={14}
+              variant="tinted"
+              tone={s.tone}
+              className="transition-transform duration-300 group-hover:scale-105"
+            />
+            <Link
+              href={`/platform/tenants/${item.slug}`}
+              className="truncate transition-colors hover:text-[var(--text-action)]"
+              style={{
+                font: '600 15px/1.35 var(--font-ui)',
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {item.name}
+            </Link>
+          </div>
 
-          <span
-            className="inline-flex h-5.5 shrink-0 items-center rounded-full px-2.5 whitespace-nowrap"
-            style={{
-              background: s.tagBg,
-              color: s.tagInk,
-              font: '600 10.5px/1 var(--font-mono)',
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-            }}
-          >
-            {item.tag}
-          </span>
+          <div className="flex shrink-0 items-center">
+            <StatusBadge tone={s.tone} variant="pill" size="sm">
+              {item.tag}
+            </StatusBadge>
+          </div>
         </div>
 
+        {/* Detail Text */}
         <p
-          className="mt-2.5 pl-11 text-[13.5px] leading-relaxed opacity-90"
+          className="mt-2 pl-[42px] text-[13.5px] leading-relaxed opacity-90"
           style={{ color: 'var(--text-secondary)', maxWidth: '80ch', textWrap: 'pretty' }}
         >
           {item.detail}
         </p>
 
-        <div className="mt-4 pl-11 flex flex-wrap items-center gap-3">
-          <Link
-            href={item.primaryHref}
-            className="t-compact inline-flex h-8 cursor-pointer items-center justify-center rounded-lg px-4 whitespace-nowrap transition-all duration-300 hover:brightness-110"
-            style={{
-              background: 'var(--blue-500)',
-              color: '#ffffff',
-              fontWeight: 600,
-              boxShadow: '0 4px 12px rgba(14, 165, 233, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)',
-            }}
-          >
-            {item.primaryLabel}
-          </Link>
+        {/* Bottom Actions Row */}
+        <div className="mt-4 flex flex-wrap items-center gap-3 pl-[42px]">
+          <QueueAction
+            action={item.action}
+            slug={item.slug}
+            workspace={item.name}
+            observation={item.detail}
+          />
           <Link
             href={`/platform/tenants/${item.slug}`}
             className="t-compact inline-flex h-8 cursor-pointer items-center rounded-lg px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
-            style={{
-              color: 'var(--text-primary)',
-              fontWeight: 500,
-            }}
+            style={{ color: 'var(--text-primary)', fontWeight: 500 }}
           >
             Open workspace
           </Link>
           <span className="flex-1" />
           <span
-            className="whitespace-nowrap transition-opacity duration-300 group-hover:opacity-100 opacity-60"
-            style={{ font: '500 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+            className="shrink-0 font-mono text-[10px] font-semibold tracking-[0.08em] uppercase opacity-60 transition-opacity duration-300 group-hover:opacity-100"
+            style={{ color: 'var(--text-tertiary)' }}
           >
             {item.meta}
           </span>
@@ -145,51 +145,177 @@ export function QueueCard({ item }: { item: QueueItem }) {
   );
 }
 
-export function YourQueue({
-  queue,
-  restingCount,
-}: {
-  queue: QueueItem[];
-  restingCount: number;
-}) {
+export function YourQueue({ queue, restingCount }: { queue: QueueItem[]; restingCount: number }) {
   return (
     <section>
-      <SectionHeading title="Your queue" note="Ordered by what it costs to ignore" />
+      {queue.length === 0 ? (
+        <QueueClear restingCount={restingCount} />
+      ) : (
+        <>
+          <PagedList pageSize={PAGE_SIZE} noun="workspaces need attention" className="grid gap-5">
+            {queue.map((item) => (
+              <QueueCard key={item.id} item={item} />
+            ))}
+          </PagedList>
 
-      <div className="grid gap-4">
-        {queue.map((item) => (
-          <QueueCard key={item.id} item={item} />
-        ))}
-      </div>
+          <RestingNote restingCount={restingCount} />
+        </>
+      )}
+    </section>
+  );
+}
 
+/**
+ * ⚠ THE EMPTY STATE IS THE BEST OUTCOME THIS SCREEN HAS, and it is written to
+ * read that way.
+ *
+ * A generic "no items" would be technically correct and would waste the one
+ * moment an operations screen has good news. It also has to be distinguishable
+ * from a failure to load — which is why it names the count it checked rather
+ * than simply reporting an absence. `EmptyState` is not used here for the same
+ * reason: its centred icon-and-sentence layout is right for a region that is
+ * waiting for its first record, and wrong for one reporting that a check came
+ * back clean.
+ */
+function QueueClear({ restingCount }: { restingCount: number }) {
+  return (
+    <div
+      className="relative flex flex-col items-start gap-3 overflow-hidden rounded-[16px] px-6 py-8"
+      style={{
+        border: '1px solid var(--border-subtle)',
+        background: 'var(--surface-raised)',
+      }}
+    >
       <div
-        className="group relative mt-6 flex items-center gap-3.5 px-3 py-3 transition-colors duration-300 hover:bg-[var(--surface-inset)]"
-        style={{ borderRadius: '12px' }}
+        aria-hidden
+        className="pointer-events-none absolute -top-10 -left-10 size-40 rounded-full opacity-[0.07] blur-2xl"
+        style={{ background: 'var(--success-fg)' }}
+      />
+      <span
+        className="relative grid size-9 place-items-center rounded-full"
+        style={{ background: 'var(--success-bg)', color: 'var(--success-fg)' }}
+        aria-hidden
       >
-        <div
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-8 rounded-full opacity-20 blur-md transition-opacity duration-500 group-hover:opacity-40"
-          style={{ background: 'var(--success-fg)' }}
-        />
-        <div className="relative flex shrink-0 items-center justify-center">
-          <IconCircleCheck
-            size={18}
-            stroke={2}
-            className="relative z-10"
-            style={{ color: 'var(--success-fg)' }}
-            aria-hidden
-          />
-        </div>
+        <IconCircleCheck size={18} stroke={2} />
+      </span>
+      <div className="relative">
         <p
-          className="t-compact relative z-10 flex-1 font-medium"
-          style={{ color: 'var(--text-secondary)', letterSpacing: '-0.01em' }}
+          style={{
+            font: '600 15px/1.35 var(--font-ui)',
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.02em',
+          }}
         >
-          The other{' '}
-          <span className="font-mono text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+          Nothing needs attention.
+        </p>
+        <p
+          className="t-compact mt-1.5"
+          style={{ color: 'var(--text-secondary)', maxWidth: '62ch', textWrap: 'pretty' }}
+        >
+          All{' '}
+          <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
             {restingCount}
           </span>{' '}
-          workspaces are inside every limit, paid up, and active in the last seven days.
+          workspaces are inside every limit, paid up, and active in the last seven days. This list
+          fills itself when something changes — there is nothing to check.
         </p>
       </div>
-    </section>
+    </div>
+  );
+}
+
+/**
+ * The count of everything NOT in the queue.
+ *
+ * ⚠ IT IS THE DENOMINATOR, AND WITHOUT IT THE QUEUE HAS NO SCALE. Four cards
+ * mean one thing against forty-seven workspaces and something else entirely
+ * against six. The sentence is what stops a short queue reading as a crisis.
+ */
+function RestingNote({ restingCount }: { restingCount: number }) {
+  return (
+    <div
+      className="group relative mt-6 flex items-center gap-3.5 bg-[var(--surface-inset)] px-3 py-3 transition-colors duration-300"
+      style={{ borderRadius: '12px' }}
+    >
+      <div
+        className="pointer-events-none absolute top-1/2 left-3 size-8 -translate-y-1/2 rounded-full opacity-20 blur-md transition-opacity duration-500 group-hover:opacity-40"
+        style={{ background: 'var(--success-fg)' }}
+      />
+      <div className="relative flex shrink-0 items-center justify-center">
+        <IconCircleCheck
+          size={18}
+          stroke={2}
+          className="relative z-10"
+          style={{ color: 'var(--success-fg)' }}
+          aria-hidden
+        />
+      </div>
+      <p
+        className="t-compact relative z-10 flex-1 font-medium"
+        style={{ color: 'var(--text-secondary)', letterSpacing: '-0.01em' }}
+      >
+        The other{' '}
+        <span
+          className="font-mono text-[14px] font-medium"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          {restingCount}
+        </span>{' '}
+        workspaces are inside every limit, paid up, and active in the last seven days.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * ⚠ THE SKELETON IS THE CARD'S DIMENSIONS, NOT A SPINNER. 03 §15: mirror the
+ * real component's structure, vary text widths, opacity pulse and no shimmer
+ * sweep. Three cards rather than five — a screenful, per the same section,
+ * since a skeleton that fills the viewport claims more is coming than usually
+ * is.
+ */
+export function QueueSkeleton() {
+  return (
+    <SkeletonGroup label="Loading the queue" className="grid gap-5">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="rounded-[16px] px-6 py-5"
+          style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-raised)' }}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden
+              className="size-6 shrink-0 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-full motion-reduce:animate-none motion-reduce:opacity-70"
+              style={{ background: 'var(--surface-sunken)' }}
+            />
+            <span className="min-w-0 flex-1">
+              <SkeletonText width={[46, 38, 42][i]} />
+            </span>
+            <span
+              aria-hidden
+              className="h-5 w-16 shrink-0 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-full motion-reduce:animate-none motion-reduce:opacity-70"
+              style={{ background: 'var(--surface-sunken)' }}
+            />
+          </div>
+          <div className="mt-3 grid gap-2 pl-[42px]">
+            <SkeletonText width={[94, 88, 91][i]} />
+            <SkeletonText width={[62, 71, 55][i]} />
+          </div>
+          <div className="mt-4 flex items-center gap-3 pl-[42px]">
+            <span
+              aria-hidden
+              className="h-8 w-28 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-lg motion-reduce:animate-none motion-reduce:opacity-70"
+              style={{ background: 'var(--surface-sunken)' }}
+            />
+            <span
+              aria-hidden
+              className="h-8 w-32 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-lg motion-reduce:animate-none motion-reduce:opacity-70"
+              style={{ background: 'var(--surface-sunken)' }}
+            />
+          </div>
+        </div>
+      ))}
+    </SkeletonGroup>
   );
 }

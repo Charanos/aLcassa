@@ -386,3 +386,127 @@ reader found that the screen described a model the schema does not have.
 - **Revenue movement is designed data.** Decision 2. The twelve rows reconcile
   with the level chart's `net` for every month, verified by arithmetic rather
   than asserted; a fixture whose parts do not close is worse than no fixture.
+
+---
+
+## 12. The queue, to production quality · 12 Sep 2026
+
+A depth pass on one section rather than a breadth pass across many. The queue is
+the first thing on the first screen, and it is the section the front-end agent
+has taken furthest, so it is where the whole state and interaction kit gets
+settled before the pattern is repeated.
+
+### What it did before
+
+Every card's primary control was a `<Link>`. "Retry charge", "Raise to Scale"
+and "Write off" are verbs that promise an action, and all three navigated. A
+reader who presses **Write off** and lands on Revenue has been told something
+happened.
+
+### The action model
+
+`QueueItem.primaryLabel` + `primaryHref` — a string and a URL — became
+`QueueItem.action`, a **discriminated union**. That turns two rules into
+compile-time facts instead of conventions:
+
+- **An action that acts must name its target.** `assign_plan` cannot be
+  constructed without a plan code, so no card can offer to move a workspace
+  somewhere unspecified.
+- **An action that cannot act must say why.** `retry_charge` and `write_off`
+  cannot be constructed without a reason, so the Phase 1 gaps sit on the control
+  rather than being discovered by pressing it.
+
+| Kind | Behaviour |
+| --- | --- |
+| `assign_plan` | Real, audited, confirmed first. `assignPlan` through the queue action |
+| `choose_plan` | Opens the record. The right plan is a judgement, not an obvious upgrade |
+| `open` | Opens the record. What the LIVE queue offers, always |
+| `retry_charge` · `write_off` | Disabled, with the reason beside the control |
+
+**The live queue only ever offers `open`.** The watchlist knows a workspace is
+past due or near a ceiling; it does not know whether the answer is a plan
+change, an override, or a phone call. Offering "Raise to Business" off a
+threshold would be the console deciding a commercial question.
+
+### The action is real even where the card is not
+
+The queue renders designed data behind the review bypass. Letting the button
+"succeed" against a fixture — a pause, a green toast, nothing written — is the
+exact failure this pass has been removing, and worse here than on a settings
+form: an operator who believes they moved a customer onto a paying plan stops
+chasing it.
+
+So the path is identical either way. The slug resolves against `tenants`, and a
+card with no record behind it is **refused with a sentence that explains which
+kind of data is on screen**. The interaction is complete; the outcome is true.
+
+### Three outcomes, three surfaces
+
+| Moment | Surface | Why |
+| --- | --- | --- |
+| While it runs | the button | 03 §20 reserves toasts for asynchronous outcomes. A spinner is where the reader is already looking |
+| On failure | inline, dialog stays open | A toast that reports a refusal while the dialog closes takes the explanation away from the form that caused it |
+| On success | a toast | By then the dialog has closed and the card has been revalidated away. That is the asynchronous outcome the rule is for |
+
+### What gets audited, stated before it runs
+
+`ConfirmDialog` gained a `details` slot — the same slot and contract its sibling
+`DestructiveConfirm` already had, so `consequence` keeps its one-sentence rule.
+The queue uses it to name both destinations: this platform's audit log, and the
+workspace's own activity log, written in the same transaction as the change.
+
+On a product whose central promise is that the platform cannot touch a customer
+silently, the moment to say so is while the operator still has a Cancel button.
+
+### Four states, one code path
+
+- **Empty** — `QueueClear`. The best outcome this screen has, written to read as
+  an achievement rather than an absence, and naming the count it checked so it
+  cannot be mistaken for a failure to load. `EmptyState` is deliberately not
+  used: its centred layout is right for a region awaiting its first record and
+  wrong for one reporting a clean check.
+- **Short** — no pager. `Pagination` renders nothing for a single page, so the
+  call site never guards it.
+- **Long** — a pager appears under the cards, moving nothing above them.
+- **Loading** — `QueueSkeleton` at the card's real dimensions, replacing the
+  generic `SkeletonRow`s in `loading.tsx`. A skeleton of the wrong shape is a
+  layout shift with extra steps.
+
+### The `Pagination` primitive
+
+A **rule, not a box**. A pager drawn as a bordered bar reads as a second
+component that arrived with the data and breaks the rhythm of the list it
+serves. This is a hairline and a row.
+
+- The **range readout** leads, because "6–10 of 23" answers the question a
+  reader has (how much is left) rather than the one they can already see.
+- The **page run elides** past seven pages, so the control's width is bounded. A
+  pager that grows with the dataset reflows the layout when a customer signs up.
+- A **disabled step stays in the layout** rather than vanishing at the ends, so
+  the numbers do not shift under a pointer about to press again.
+- The current page is a **tint**, never a filled blue chip: the surface's one
+  accent is already spent on the action the reader came for.
+
+`PagedList` is the part that matters architecturally. It windows **already-
+rendered server children**, so cards stay server components and only the pager
+hydrates. The trade is stated in the file: it ships every page's markup, which
+is right for a bounded list and wrong for an audit log — that one wants a cursor
+against the query.
+
+### The fixture now exercises both ends
+
+Four more designed cards, continuing the consequence ordering downward, so the
+pager, the second page and the "1–5 of 8" readout are things a reviewer can see
+rather than behaviour asserted in a comment. The four original cards stay at the
+head of the queue. **Eight plus `restingCount` 39 is the portfolio total of 47**
+— checked, not assumed.
+
+### Known and deliberately not changed
+
+`ui/StatusBadge.tsx` carries 36 raw Tailwind palette classes and 16 `rgba()`
+literals, which is the same defect class as the one fixed in `Badge.tsx` at
+Stage 0 — a component file holding colour instead of reading it. It is left
+alone here on purpose: it is the component the front-end agent has just
+finished polishing, and tokenising it changes rendered values. The fix is to
+add Tier-3 tokens holding those exact values, so the tokenisation lands with no
+visual change at all — worth agreeing before it happens rather than after.

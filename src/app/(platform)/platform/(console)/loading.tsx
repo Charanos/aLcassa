@@ -3,9 +3,9 @@ import {
   SkeletonGroup,
   SkeletonHeader,
   SkeletonMetric,
-  SkeletonRow,
   SkeletonPanel,
 } from '@/components/primitives/Skeleton';
+import { QueueSkeleton } from '@/components/console/overview/YourQueue';
 
 /**
  * Overview's loading state. Mirrors the real layout: a header, the inverted
@@ -26,11 +26,14 @@ export default function OverviewLoading() {
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[1.9fr_1fr]">
-          <div className="flex flex-col gap-2.5">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonRow key={i} />
-            ))}
-          </div>
+          {/*
+            ⚠ THE QUEUE'S OWN SKELETON, NOT A GENERIC ROW. 03 §15 requires
+            identical dimensions to the real thing, and a queue card is a
+            three-line article with a badge and two controls — nothing like the
+            data-grid row this used to draw. A skeleton of the wrong shape is a
+            layout shift with extra steps.
+          */}
+          <QueueSkeleton />
           <div className="flex flex-col gap-4">
             <SkeletonPanel lines={4} />
             <SkeletonPanel lines={3} />

@@ -247,8 +247,21 @@ export async function getLiveOverview(): Promise<OverviewModel | null> {
         : nearest
           ? `${nearest.displayName}: ${nearest.current} of ${nearest.limit} used.`
           : 'Needs attention.',
-      primaryLabel: 'Open workspace',
-      primaryHref: `/platform/tenants?workspace=${entry.slug}`,
+      /*
+        ⚠ THE LIVE QUEUE OFFERS 'open', NOT A VERB, AND THAT IS DELIBERATE.
+
+        The fixture's cards carry specific remedies because each one was drawn
+        with a specific situation in mind. The watchlist knows a workspace is
+        past due or near a ceiling; it does not know whether the right answer
+        is a plan change, an override, or a phone call. Offering 'Raise to
+        Business' against a guess would be the console deciding a commercial
+        question on the strength of a threshold.
+      */
+      action: {
+        kind: 'open',
+        label: 'Open workspace',
+        href: `/platform/tenants/${entry.slug}`,
+      },
       meta: entry.planCode,
     };
   });
