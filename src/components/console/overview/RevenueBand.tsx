@@ -97,7 +97,7 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
                   {revenue.currency}
                 </span>
                 <span
-                  className="font-mono text-[36px] leading-[0.9] font-semibold tracking-[-0.02em]"
+                  className="font-mono text-[36px] leading-[0.9] font-medium tracking-[-0.02em]"
                   style={{ color: 'var(--text-primary)' }}
                 >
                   {revenue.outstanding}

@@ -382,3 +382,68 @@ While removing an unused icon import, an `export const QUEUE_ICON = IconStack2`
 was briefly added to keep the import "used". That is a fudge that turns a lint
 error into a public API. The import was deleted properly instead. **If a symbol
 is unused, remove it; do not find it a job.**
+
+---
+
+## 13. The RSC trap that nothing catches
+
+Recorded on its own because it is the only defect found in this whole pass that
+**typechecked, linted, built, and rendered wrong** — and because the console has
+several more places shaped exactly like it.
+
+### What happened
+
+The portfolio legend's five status colours were factored into a shared map, to
+stop the legend and the donut it explains from drifting apart. The map was put
+in `Charts.tsx`, beside the chart that also needs it.
+
+`Charts.tsx` is `'use client'`. The legend is a server component.
+
+**Every dot rendered grey.** A server component importing a value from a client
+module does not receive the value — React replaces every export of a
+`'use client'` module with a client-reference proxy, so each lookup returned
+`undefined` and fell through to the neutral default.
+
+### Why it is worse than it sounds
+
+The legend is the *only* reason `03 §24` permits that donut to use semantic
+hues instead of a one-hue ramp. A legend whose dots are all grey withdraws the
+permission while still looking like it grants it. The chart was in breach and
+nothing said so.
+
+### The pairing rule
+
+| Module carries | A component on the other side gets | Caught by |
+| --- | --- | --- |
+| `server-only` | a build failure | **the build** |
+| `'use client'` | client-reference proxies, silently | **nobody** |
+
+The `server-only` direction is the one this project had already been bitten by
+(`RulesTab`, `15 C49`) and it is the *safe* one — it stops the build. This
+direction does not stop anything.
+
+> **A constant shared between a server component and a client component belongs
+> in a module with NEITHER directive.**
+
+`src/components/console/statusHue.ts` is that module, and its header carries
+this reasoning so the next person to consolidate a duplicated map finds it.
+
+### How to check for it
+
+```bash
+# Server components importing from a 'use client' module.
+# A type-only import is fine; a VALUE import is the trap.
+grep -rn "from '.*Charts'" src/components/console --include=*.tsx \
+  | grep -v "^.*:import type"
+```
+
+Then confirm each importing file is a client component, or that only types and
+components (not plain values) are being imported. **Components and hooks cross
+the boundary correctly; plain objects, arrays and functions do not.**
+
+### And a smaller one found beside it
+
+A row carried `hover:bg-[var(--surface-sunken)]` and did nothing when clicked.
+A hover state is a promise of interaction — it is the dead-control defect
+(`17 §6.4`) wearing a row instead of a button. The legend's rows are inert and
+now look it; the route out is the band's own heading link.

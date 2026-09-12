@@ -136,7 +136,7 @@ export function QueueCard({ item }: { item: QueueItem }) {
             </Link>
           </div>
           <span
-            className="shrink-0 font-mono text-[10px] font-semibold tracking-[0.08em] uppercase opacity-60 transition-opacity duration-300 group-hover:opacity-100"
+            className="shrink-0 font-mono text-[10px] font-medium tracking-[0.08em] uppercase opacity-60 transition-opacity duration-300 group-hover:opacity-100"
             style={{ color: 'var(--text-tertiary)' }}
           >
             {item.meta}

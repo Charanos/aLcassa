@@ -2524,3 +2524,68 @@ Removing an unused icon import, an `export const QUEUE_ICON = IconStack2` was
 briefly added to keep the import "used" — a fudge that turns a lint error into a
 public API. The import was deleted properly instead. Recorded in `18 §12`
 because it is an easy reflex.
+
+---
+
+## C54 · The portfolio band's refinement pass · 13 Sep 2026
+
+### The legend's dots went grey, and nothing caught it
+
+Consolidating the five status colours into one shared map put that map in
+`Charts.tsx` — a `'use client'` module — and imported it into a **server**
+component. React replaces every export of a client module with a
+client-reference proxy, so each lookup returned `undefined` and fell through to
+the neutral default.
+
+It typechecked, linted, built and rendered wrong. The legend is the only reason
+`03 §24` permits that donut semantic hues rather than a one-hue ramp, so the
+chart was in breach and nothing said so.
+
+`src/components/console/statusHue.ts` carries the map now, with **neither**
+directive. `18 §13` carries the general rule: the `server-only` direction fails
+the build, the `'use client'` direction fails silently.
+
+### The queue depth bars were fabricated
+
+`width: active ? '75%' : '100%'` — a depth of 61 and a depth of 3 drew the same
+bar, and an **empty queue drew a full one**, which is backwards. That is the
+"number with no source" defect wearing a proportion, and a bar is worse than a
+wrong figure because it looks derived.
+
+`Queue` carries no ceiling, so no absolute proportion exists to draw. The bars
+are now relative to the **deepest queue on screen** — which is computable, and
+is also the question the panel exists to answer: which one is backing up. When
+every queue is empty, no bar is drawn.
+
+### Eight weight-ceiling violations
+
+`03 §5` sets the ceiling at 500 with deliberately no bold; `font-semibold` is
+600. Ten instances across the section, in figures, labels and micro-caps. All to
+`font-medium`. Hierarchy here comes from size, family switch, colour and case —
+that is the constraint the whole type system is built on.
+
+### A white wash over the end of two meters
+
+`bg-gradient-to-l from-white/60` sat over the last four pixels of the capacity
+meter and the pressure bars — lightening exactly the end a reader measures
+against, as a raw value, duplicated in two files.
+
+### A hover state on a row that does nothing
+
+The legend rows carried a background change on hover, which promises a click.
+The workspace table filters client side and reads no status from the URL, so a
+link would have landed on an unfiltered list — the dead-control defect
+(`17 §6.4`) wearing a row instead of a button. The rows are inert and now look
+it.
+
+### And the panel that ended in a void
+
+"At the ceiling" sits in a three-column grid that stretches every card to the
+tallest. With one workspace at a ceiling it ended in a large empty space, which
+reads as a panel that failed to finish loading. It carries the denominator now —
+"the other 46 workspaces have headroom" — the same move the queue makes, for the
+same reason: one row against 47 means something different from one against 3.
+
+The legend also gained the share percentage. A ring shows that active dominates;
+it cannot show that it is 87%, and the count alone made a reader divide against
+a total printed in the panel title.

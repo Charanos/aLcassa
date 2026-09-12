@@ -1,6 +1,6 @@
 import { IconActivity, IconShieldCheck } from '@tabler/icons-react';
 import { LatencyChart } from '../Charts';
-import { FactRow, Panel, SectionHeading } from '../Surface';
+import { Panel, SectionHeading } from '../Surface';
 import { SkeletonGroup, SkeletonText } from '@/components/primitives/Skeleton';
 import { BandLink } from './shared';
 import type { OverviewInsights } from '@/lib/console/data';
@@ -29,6 +29,9 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
   const allWell = services.degraded === 0 && services.down === 0;
   const queues = operations.queues.slice(0, QUEUES_SHOWN);
   const hiddenQueues = operations.queues.length - queues.length;
+  /* The deepest queue on screen, which is what the mini-bars are drawn
+     against. See the note at the bar. */
+  const deepest = queues.reduce((max, q) => Math.max(max, q.depth), 0);
 
   return (
     <section className="mb-10">
@@ -43,9 +46,12 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
         <Panel
           title="Response latency · p50 / p95 / p99"
           action={<Designed />}
+          variant="elevated"
         >
           {operations.latency.length > 0 ? (
-            <LatencyChart data={operations.latency} />
+            <div className="flex-1 min-w-0 min-h-0 relative pt-2">
+              <LatencyChart data={operations.latency} />
+            </div>
           ) : (
             <NoProbes
               title="No latency is being measured."
@@ -55,29 +61,14 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
         </Panel>
 
         <div className="grid gap-5">
-          <Panel title="Services" action={<Designed />}>
+          <Panel title="Services" action={<Designed />} variant="elevated">
             {total === 0 ? (
               <NoProbes
                 title="No services are reporting."
                 body="Each service answers a probe and appears here with its budget."
               />
             ) : (
-              <div className="relative overflow-hidden rounded-xl bg-[var(--surface-sunken)] px-4 py-3.5 transition-colors duration-300 hover:bg-[var(--surface-inset)]">
-                {/*
-                  A left rule rather than a panel tint. `03 §20`: state is
-                  carried by a badge and a rule, never by colouring a whole
-                  surface — a filled amber panel is an alarm, a rule is
-                  information.
-                */}
-                <div
-                  className="pointer-events-none absolute top-0 left-0 h-full w-1 opacity-60"
-                  style={{
-                    background: allWell
-                      ? 'linear-gradient(to bottom, var(--success-fg), transparent)'
-                      : 'linear-gradient(to bottom, var(--warning-fg), transparent)',
-                  }}
-                  aria-hidden
-                />
+              <div className="group relative overflow-hidden rounded-xl bg-white px-5 py-4 transition-shadow duration-300 hover:shadow-md border border-[var(--border-subtle)] shadow-sm">
                 <p
                   className="t-compact relative z-10 font-medium"
                   style={{ color: 'var(--text-primary)' }}
@@ -106,25 +97,107 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
             )}
           </Panel>
 
-          <Panel title="Queue depth" flush action={<Designed />}>
+          <Panel title="Queue depth" flush action={<Designed />} variant="elevated">
             {queues.length === 0 ? (
-              <div className="px-5 pb-2">
+              <div className="px-1 pb-2">
                 <NoProbes
                   title="No background queues."
                   body="Reconciliation and dispatch jobs report their depth here."
                 />
               </div>
             ) : (
-              <div className="px-5">
-                {queues.map((q, i, list) => (
-                  <FactRow
-                    key={q.name}
-                    label={q.name}
-                    value={`${q.depth.toLocaleString('en-KE')} · ${q.rate}`}
-                    dot={q.depth > 0 ? 'warn' : 'ok'}
-                    last={i === list.length - 1 && hiddenQueues === 0}
-                  />
-                ))}
+              <div className="px-1 pb-2">
+                <div 
+                  className="flex flex-col overflow-hidden rounded-[12px] bg-white transition-shadow duration-300 hover:shadow-md"
+                  style={{
+                    border: '1px solid var(--border-subtle)',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                >
+                  {queues.map((q, i, list) => {
+                    const active = q.depth > 0;
+                    const ink = active ? 'var(--warning-fg)' : 'var(--success-fg)';
+                    /*
+                      ⚠ THE BAR IS RELATIVE TO THE DEEPEST QUEUE, AND IT HAD BEEN
+                      FABRICATED.
+
+                      It shipped as `width: active ? '75%' : '100%'` — a depth of
+                      61 and a depth of 3 drew the same bar, and an EMPTY queue
+                      drew a full one, which is backwards. That is the "number
+                      with no source" defect wearing a proportion, and a bar is
+                      worse than a wrong figure because it looks derived.
+
+                      `Queue` carries no ceiling, so there is no absolute
+                      proportion to draw. What IS computable is how this queue
+                      compares with the deepest one on screen, which is also the
+                      question the panel exists to answer: which one is backing
+                      up. When every queue is empty there is nothing to compare
+                      and no bar is drawn.
+                    */
+                    const share = deepest > 0 ? Math.max(6, (q.depth / deepest) * 100) : 0;
+                    
+                    return (
+                      <div 
+                        key={q.name}
+                        className="group transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
+                        style={{
+                          borderBottom: i === list.length - 1 && hiddenQueues === 0 ? 'none' : '1px solid var(--border-subtle)',
+                        }}
+                      >
+                        <div className="flex items-center justify-between gap-4 px-4 py-3.5">
+                          <span className="flex items-center gap-3 min-w-0">
+                            <span
+                              className="grid size-6 shrink-0 place-items-center rounded-md transition-transform duration-200 group-hover:scale-105"
+                              style={{ color: active ? ink : 'var(--blue-400)' }}
+                              aria-hidden
+                            >
+                              <IconActivity size={15} stroke={1.75} />
+                            </span>
+                            <span className="flex items-center gap-2 min-w-0">
+                              <span className="truncate text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {q.name}
+                              </span>
+                              {active ? (
+                                <span className="size-1.5 shrink-0 rounded-full" style={{ background: ink }} aria-hidden />
+                              ) : null}
+                            </span>
+                          </span>
+
+                          <span className="flex shrink-0 items-center text-right">
+                            <span className="flex flex-col items-end gap-1">
+                              <span className="flex items-baseline justify-end gap-1.5">
+                                <span className="font-mono text-[14px] font-medium tracking-tight" style={{ color: active ? ink : 'var(--text-primary)' }}>
+                                  {q.depth.toLocaleString('en-KE')}
+                                </span>
+                                <span className="text-[12px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+                                  · {q.rate}
+                                </span>
+                              </span>
+                              {deepest > 0 ? (
+                                <span 
+                                  className="flex h-[2px] w-24 overflow-hidden rounded-full bg-[var(--surface-inset)]" 
+                                  role="meter"
+                                  aria-valuenow={q.depth}
+                                  aria-valuemin={0}
+                                  aria-valuemax={deepest}
+                                  aria-label={`${q.name}: ${q.depth} queued, against ${deepest} in the deepest queue`}
+                                >
+                                  <span 
+                                    className="h-full rounded-full transition-all duration-700 ease-out" 
+                                    style={{ 
+                                      width: `${share}%`, 
+                                      background: ink
+                                    }} 
+                                  />
+                                </span>
+                              ) : null}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
                 {/*
                   ⚠ IT ADMITS WHEN IT IS TRUNCATING. The panel took the first
                   four and dropped the rest silently, so six queues looked
@@ -146,16 +219,17 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
         <Panel
           title="Support sessions"
           action={<BandLink href="/platform/support-sessions">Open register</BandLink>}
+          variant="elevated"
         >
           {operations.sessions.length === 0 ? (
             <NoSessionsYet />
           ) : (
-            <dl
-              className="grid gap-6 rounded-2xl px-6 py-5 sm:grid-cols-3"
-              style={{ background: 'var(--surface-sunken)', boxShadow: 'var(--well-inset)' }}
-            >
+            <dl className="grid gap-4 sm:grid-cols-3">
               {operations.sessions.map((stat) => (
-                <div key={stat.label}>
+                <div 
+                  key={stat.label}
+                  className="flex flex-col-reverse justify-end rounded-xl border border-[var(--border-subtle)] bg-white p-5 transition-shadow duration-300 hover:shadow-md shadow-sm"
+                >
                   {/*
                     ⚠ THE VALUE IS THE `dd` AND IT COMES SECOND IN THE MARKUP
                     EVEN THOUGH IT IS FIRST ON SCREEN. A definition list must
@@ -165,13 +239,13 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                   */}
                   <div className="flex flex-col-reverse">
                     <dt
-                      className="mt-1.5 text-[13px] font-medium"
+                      className="mt-2 text-[13px] font-medium"
                       style={{ color: 'var(--text-secondary)' }}
                     >
                       {stat.label}
                     </dt>
                     <dd
-                      className="font-mono text-[24px] font-medium tracking-tight"
+                      className="font-mono text-[32px] font-medium tracking-tight leading-none"
                       style={{
                         color: stat.tone === 'accent' ? 'var(--blue-400)' : 'var(--text-primary)',
                       }}

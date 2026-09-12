@@ -115,7 +115,7 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
         </div>
 
         <span
-          className="mt-0.5 shrink-0 font-mono text-[10.5px] font-semibold tracking-[0.08em] uppercase transition-colors duration-300 group-hover/row:text-[color:var(--row-accent)]"
+          className="mt-0.5 shrink-0 font-mono text-[10.5px] font-medium tracking-[0.08em] uppercase transition-colors duration-300 group-hover/row:text-[color:var(--row-accent)]"
           style={{ color: 'var(--text-tertiary)' }}
         >
           {line.time}

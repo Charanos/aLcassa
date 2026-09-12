@@ -24,8 +24,14 @@ const SHOWN = 5;
  * dropped the rest, so a platform with nine workspaces at a ceiling looked
  * exactly like one with five. Anything past the fifth is counted and linked.
  */
-export function PressureList({ rows }: { rows: PressureRow[] }) {
+export function PressureList({ rows, total }: { rows: PressureRow[]; total: number }) {
   if (rows.length === 0) return <NothingAtCeiling />;
+
+  /* Workspaces with headroom. The panel sits in a three-column grid that
+     stretches every card to the tallest, so a single pressure row left a large
+     void beneath it — and a void reads as a panel that failed to finish
+     loading. This fills it with the fact the list is missing. */
+  const resting = Math.max(0, total - rows.length);
 
   const shown = rows.slice(0, SHOWN);
   const hidden = rows.length - shown.length;
@@ -39,54 +45,52 @@ export function PressureList({ rows }: { rows: PressureRow[] }) {
 
           return (
             <li key={`${row.slug}-${row.metric}`}>
-              <div className="flex items-baseline justify-between gap-3">
-                <Link
-                  href={`/platform/tenants/${row.slug}`}
-                  className="truncate transition-colors hover:text-[var(--text-action)]"
-                  style={{ font: '500 13px/1 var(--font-ui)', color: 'var(--text-primary)' }}
-                >
-                  {row.name}
-                </Link>
-                <span
-                  className="shrink-0 font-mono text-[13px] font-medium"
-                  style={{ color: ink }}
-                >
-                  {row.pct}%
-                </span>
-              </div>
-
-              <div
-                className="relative mt-2 h-px w-full"
-                style={{ background: 'var(--border-subtle)' }}
-                role="meter"
-                aria-valuenow={row.pct}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`${row.name}, ${row.metric}: ${row.used.toLocaleString('en-KE')} of ${row.limit.toLocaleString('en-KE')}, ${row.pct}%`}
+              <Link
+                href={`/platform/tenants/${row.slug}`}
+                className="group block rounded-[10px] p-3 transition-colors duration-300 hover:bg-[var(--surface-sunken)] -mx-3"
               >
+                <div className="flex items-baseline justify-between gap-3 mb-2.5">
+                  <span
+                    className="truncate transition-colors duration-300 group-hover:text-[var(--text-action)]"
+                    style={{ font: '500 13px/1 var(--font-ui)', color: 'var(--text-primary)' }}
+                  >
+                    {row.name}
+                  </span>
+                  <span
+                    className="shrink-0 font-mono text-[13px] font-medium"
+                    style={{ color: ink }}
+                  >
+                    {row.pct}%
+                  </span>
+                </div>
+
                 <div
-                  className="absolute top-0 left-0 h-full"
-                  style={{
-                    width: `${Math.min(100, row.pct)}%`,
-                    background: ink,
-                    boxShadow: `0 0 10px ${ink}`,
-                  }}
+                  className="relative h-1.5 w-full overflow-hidden rounded-full"
+                  style={{ background: 'var(--surface-inset)' }}
+                  role="meter"
+                  aria-valuenow={row.pct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${row.name}, ${row.metric}: ${row.used.toLocaleString('en-KE')} of ${row.limit.toLocaleString('en-KE')}, ${row.pct}%`}
                 >
                   <div
-                    aria-hidden
-                    className="absolute top-1/2 right-0 size-1.5 -translate-y-1/2 rounded-full"
-                    style={{ background: ink, boxShadow: `0 0 8px ${ink}` }}
+                    className="absolute top-0 left-0 h-full rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${Math.min(100, Math.max(0, row.pct))}%`,
+                      background: ink,
+                      boxShadow: `0 0 10px ${ink}`,
+                    }}
                   />
                 </div>
-              </div>
 
-              <p
-                className="mt-1.5 font-mono text-[11px] font-medium"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
-                {row.metric} · {row.used.toLocaleString('en-KE')} of{' '}
-                {row.limit.toLocaleString('en-KE')}
-              </p>
+                <p
+                  className="mt-2.5 font-mono text-[11px] font-medium"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  {row.metric} · {row.used.toLocaleString('en-KE')} of{' '}
+                  {row.limit.toLocaleString('en-KE')}
+                </p>
+              </Link>
             </li>
           );
         })}
@@ -94,9 +98,35 @@ export function PressureList({ rows }: { rows: PressureRow[] }) {
 
       {hidden > 0 ? (
         <p className="mt-4">
-          <BandLink href="/platform/tenants">
-            {hidden} more at a ceiling
-          </BandLink>
+          <BandLink href="/platform/tenants">{hidden} more at a ceiling</BandLink>
+        </p>
+      ) : null}
+
+      {/*
+        ⚠ THE DENOMINATOR, THE SAME MOVE THE QUEUE MAKES.
+
+        One workspace at a ceiling means something different against 47 than it
+        does against 3, and a list without its denominator reads as a system in
+        trouble. It is also what stops the panel ending in empty space: the
+        grid stretches all three cards to the tallest, and a void under a short
+        list looks like a panel that did not finish loading.
+      */}
+      {resting > 0 ? (
+        <p
+          className="t-caption mt-5 flex items-start gap-2 border-t pt-4"
+          style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}
+        >
+          <IconCircleCheck
+            size={14}
+            stroke={1.5}
+            className="mt-px shrink-0"
+            style={{ color: 'var(--success-fg)' }}
+            aria-hidden
+          />
+          <span>
+            The other <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>{resting}</span>{' '}
+            {resting === 1 ? 'workspace has' : 'workspaces have'} headroom.
+          </span>
         </p>
       ) : null}
     </>

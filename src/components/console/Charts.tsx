@@ -104,16 +104,16 @@ function useTokens(): Tokens {
 function Panel({ label, value, t }: { label: string; value: string; t: Tokens }) {
   return (
     <div
-      className="rounded-chip px-3 py-2"
+      className="flex flex-col gap-1 overflow-hidden rounded-[10px] px-3.5 py-2.5"
       style={{
-        background: `color-mix(in srgb, ${t.surface} 85%, transparent)`,
-        backdropFilter: 'blur(12px)',
-        border: `1px solid ${t.rule}`,
-        boxShadow: 'var(--shadow-md)',
+        background: 'color-mix(in srgb, var(--surface-raised) 75%, transparent)',
+        backdropFilter: 'blur(20px) saturate(1.2)',
+        border: '1px solid color-mix(in srgb, var(--border-subtle) 60%, transparent)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.1)',
       }}
     >
-      <div style={{ font: '400 11px/1.4 var(--font-ui)', color: t.muted }}>{label}</div>
-      <div className="numeric mt-0.5" style={{ fontSize: 'var(--text-sm)', color: t.text }}>
+      <div className="font-mono text-[10.5px] font-medium tracking-wide uppercase" style={{ color: t.muted }}>{label}</div>
+      <div className="font-mono text-[13.5px] font-medium tracking-[-0.01em]" style={{ color: t.text }}>
         {value}
       </div>
     </div>
@@ -132,16 +132,16 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
   const t = useTokens();
 
   return (
-    <div style={{ height: 260 }}>
+    <div style={{ height: 340 }}>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
           <defs>
             <linearGradient id="mrr-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={t.blue500} stopOpacity={0.16} />
-              <stop offset="100%" stopColor={t.blue500} stopOpacity={0} />
+              <stop offset="0%" stopColor={t.ink400} stopOpacity={0.15} />
+              <stop offset="100%" stopColor={t.surface} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid stroke={t.rule} strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid stroke="color-mix(in srgb, var(--border-subtle) 40%, transparent)" vertical={false} />
           <XAxis
             dataKey="month"
             tick={{ ...AXIS, fill: t.muted }}
@@ -176,10 +176,10 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
           <Line
             type="monotone"
             dataKey="mrr"
-            stroke={t.blue500}
+            stroke={t.text}
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 3, fill: t.blue500, stroke: t.surface, strokeWidth: 2 }}
+            activeDot={{ r: 3, fill: t.text, stroke: t.surface, strokeWidth: 2 }}
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -194,7 +194,8 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
  */
 export function PlanMixChart({ data }: { data: Array<{ name: string; value: number }> }) {
   const t = useTokens();
-  const ramp = [t.blue500, t.blue400, t.ink300];
+  // Premium palette: Primary ink, accent blue, disabled gray
+  const ramp = [t.text, t.blue500, t.muted];
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
@@ -205,11 +206,11 @@ export function PlanMixChart({ data }: { data: Array<{ name: string; value: numb
             data={data}
             dataKey="value"
             nameKey="name"
-            innerRadius="58%"
+            innerRadius="60%"
             outerRadius="86%"
-            paddingAngle={2}
-            stroke={t.surface}
-            strokeWidth={2}
+            paddingAngle={4}
+            cornerRadius={4}
+            stroke="none"
           >
             {data.map((d, i) => (
               <Cell key={d.name} fill={ramp[i % ramp.length]} />
@@ -252,7 +253,7 @@ export function LatencyChart({
   const t = useTokens();
 
   return (
-    <div style={{ height: 240 }}>
+    <div className="absolute inset-0">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
           <CartesianGrid stroke={t.rule} strokeDasharray="3 3" vertical={false} />
@@ -285,9 +286,30 @@ export function LatencyChart({
               );
             }}
           />
-          <Line type="monotone" dataKey="p99" stroke={t.ink300} strokeWidth={1.5} dot={false} />
-          <Line type="monotone" dataKey="p95" stroke={t.blue500} strokeWidth={2} dot={false} />
-          <Line type="monotone" dataKey="p50" stroke={t.blue200} strokeWidth={1.5} dot={false} />
+          <Line 
+            type="monotone" 
+            dataKey="p99" 
+            stroke={t.ink300} 
+            strokeWidth={1.5} 
+            dot={false} 
+            style={{ filter: 'drop-shadow(0px 3px 6px rgba(0,0,0,0.1))' }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="p95" 
+            stroke={t.blue500} 
+            strokeWidth={2.5} 
+            dot={false} 
+            style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.15))' }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="p50" 
+            stroke={t.blue200} 
+            strokeWidth={1.5} 
+            strokeDasharray="4 4" 
+            dot={false} 
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -378,10 +400,11 @@ export function ThroughputChart({
  */
 export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: number }> }) {
   const t = useTokens();
-  const ink = [t.blue200, t.blue400, t.warning, t.danger];
+  // Neutral escalating to danger
+  const ink = [t.ink300, t.ink400, t.warning, t.danger];
 
   return (
-    <div style={{ height: 214 }}>
+    <div className="absolute inset-0">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
@@ -414,7 +437,7 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
               );
             }}
           />
-          <Bar dataKey="amount" radius={[0, 3, 3, 0]} barSize={18}>
+          <Bar dataKey="amount" radius={[0, 4, 4, 0]} maxBarSize={24}>
             {data.map((d, i) => (
               <Cell key={d.bucket} fill={ink[i % ink.length]} />
             ))}
@@ -445,6 +468,11 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
  * count, so the chart is fully readable with no colour at all — which is the
  * actual test, and the reason the ramp exists in the first place.
  */
+/*
+ * The donut's five status colours, resolved. They mirror `statusHue.ts`,
+ * which is where the shared definition lives — see that file for why a client
+ * module cannot be the single source for a server component.
+ */
 export function StatusMixChart({
   data,
 }: {
@@ -453,6 +481,8 @@ export function StatusMixChart({
   const t = useTokens();
   const total = data.reduce((sum, d) => sum + d.count, 0);
 
+  /* The same five meanings as STATUS_HUE above, resolved to real values —
+     an SVG presentation attribute does not reliably resolve var(). 03 §24. */
   const hue: Record<string, string> = {
     active: t.success,
     trial: t.blue400,
@@ -462,18 +492,18 @@ export function StatusMixChart({
   };
 
   return (
-    <div style={{ height: 196 }}>
+    <div className="w-full h-full min-h-[180px]">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
             dataKey="count"
             nameKey="label"
-            innerRadius="62%"
-            outerRadius="88%"
-            paddingAngle={2}
-            stroke={t.surface}
-            strokeWidth={2}
+            innerRadius="70%"
+            outerRadius="90%"
+            paddingAngle={4}
+            strokeWidth={0}
+            cornerRadius={6}
           >
             {data.map((d) => (
               <Cell key={d.status} fill={hue[d.status] ?? t.ink300} />
@@ -519,7 +549,7 @@ export function GrowthChart({
   const mirrored = data.map((d) => ({ ...d, closedDown: -d.closed }));
 
   return (
-    <div style={{ height: 200 }}>
+    <div className="absolute inset-0">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={mirrored} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
           <CartesianGrid stroke={t.rule} vertical={false} />
@@ -549,13 +579,14 @@ export function GrowthChart({
               );
             }}
           />
-          <Bar dataKey="opened" fill={t.blue500} radius={[3, 3, 0, 0]} barSize={14} />
-          <Bar dataKey="closedDown" fill={t.ink300} radius={[0, 0, 3, 3]} barSize={14} />
+          <Bar dataKey="opened" fill={t.blue500} radius={[4, 4, 0, 0]} maxBarSize={24} />
+          <Bar dataKey="closedDown" fill={t.ink300} radius={[0, 0, 4, 4]} maxBarSize={24} />
           <Line
             type="monotone"
             dataKey="net"
             stroke={t.blue200}
-            strokeWidth={2}
+            strokeWidth={2.5}
+            style={{ filter: 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.1))' }}
             dot={false}
             /* The net is a running read, not a category — it gets the lightest
                weight of the same hue so it sits behind the bars rather than

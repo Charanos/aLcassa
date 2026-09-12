@@ -56,10 +56,10 @@ export function CapacityMeter({
 
   return (
     <div className="mt-2.5">
-      <div className="mb-2 flex items-end justify-between gap-3">
+      <div className="mb-3 flex items-end justify-between gap-3">
         <p
-          className="font-mono text-[24px] font-medium"
-          style={{ color: bounded ? 'var(--text-primary)' : 'var(--text-tertiary)', lineHeight: 1 }}
+          className="font-mono text-[32px] font-medium tracking-tight"
+          style={{ color: bounded ? 'var(--text-primary)' : 'var(--text-tertiary)', lineHeight: 0.9 }}
         >
           {bounded ? `${pct}%` : '—'}
         </p>
@@ -73,7 +73,7 @@ export function CapacityMeter({
       </div>
 
       <div
-        className="relative h-1 w-full overflow-hidden rounded-full"
+        className="relative h-1.5 w-full overflow-hidden rounded-full"
         style={{ background: 'var(--surface-inset)' }}
         role="meter"
         aria-valuenow={bounded ? pct : undefined}
@@ -86,9 +86,19 @@ export function CapacityMeter({
         }
       >
         <div
-          className="absolute top-0 left-0 h-full rounded-full"
-          style={{ width: `${Math.min(100, Math.max(0, pct))}%`, background: ink }}
+          className="absolute top-0 left-0 h-full rounded-full transition-all duration-700 ease-out"
+          style={{
+            width: `${Math.min(100, Math.max(0, pct))}%`,
+            background: ink,
+            boxShadow: bounded ? `0 0 10px ${ink}` : 'none',
+          }}
         />
+        {/*
+          ⚠ NO WHITE WASH AT THE TIP. A gradient to 60% white over the last four
+          pixels lightens exactly the end a reader measures against — and it was
+          a raw value, duplicated here and in the pressure list. The bar carries
+          its own soft glow; the tip does not need a second treatment on top.
+        */}
       </div>
     </div>
   );

@@ -141,7 +141,7 @@ export function SectionHeading({
   const isRight = align === 'right';
 
   return (
-    <div className="mb-10 w-full">
+    <div className="mb-12 mt-24 w-full">
       {/* Top Hairline spanning full width */}
       <div
         className={`w-full h-px mb-6 ${
@@ -258,7 +258,7 @@ export function Panel({
           {action ? <div className="shrink-0">{action}</div> : null}
         </div>
       ) : null}
-      <div className={flush ? '' : 'px-1'}>{children}</div>
+      <div className={`${flush ? '' : 'px-1'} flex-1 min-h-0 flex flex-col`}>{children}</div>
     </section>
   );
 }
@@ -421,11 +421,22 @@ export function BandLink({ href, children }: { href: string; children: React.Rea
   return (
     <Link
       href={href}
-      className="t-caption inline-flex items-center gap-1.5 transition-colors hover:text-[var(--text-primary)]"
-      style={{ color: 'var(--text-action)' }}
+      className="group relative flex h-[34px] items-center gap-2 overflow-hidden rounded-full px-4 transition-all duration-300 hover:bg-black/[0.02]"
+      style={{ 
+        background: 'transparent',
+        border: '1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent)',
+        color: 'var(--text-primary)',
+        font: '500 13px/1 var(--font-ui)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.05)',
+      }}
     >
-      {children}
-      <IconArrowRight size={13} stroke={2} aria-hidden />
+      <span className="relative z-10 transition-colors duration-300 group-hover:text-[var(--blue-500)]">{children}</span>
+      <IconArrowRight 
+        size={14} 
+        stroke={2} 
+        className="relative z-10 opacity-70 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100 group-hover:text-[var(--blue-500)]" 
+        aria-hidden 
+      />
     </Link>
   );
 }

@@ -80,7 +80,7 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
     >
       <header className="mb-4 flex items-center justify-between gap-3">
         <h3
-          className="text-[12px] font-semibold tracking-widest uppercase"
+          className="text-[12px] font-medium tracking-widest uppercase"
           style={{ color: 'var(--text-secondary)' }}
         >
           Platform telemetry
@@ -201,7 +201,7 @@ function ViewTab({
       role="tab"
       aria-selected={active}
       onClick={onSelect}
-      className="relative pb-1 text-[11px] font-semibold tracking-widest uppercase transition-colors"
+      className="relative pb-1 text-[11px] font-medium tracking-widest uppercase transition-colors"
       style={{ color: active ? 'var(--text-primary)' : 'var(--text-tertiary)' }}
     >
       {children}

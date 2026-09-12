@@ -1,5 +1,6 @@
 import { IconBuildings, IconChartAreaLine } from '@tabler/icons-react';
 import { GrowthChart, StatusMixChart } from '../Charts';
+import { StatusLegend } from './StatusLegend';
 import { Panel, SectionHeading } from '../Surface';
 import { SkeletonGroup, SkeletonText } from '@/components/primitives/Skeleton';
 import { BandLink } from './shared';
@@ -38,12 +39,14 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
       />
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <Panel title={`Status · ${total} workspaces`}>
+        <Panel title={`Status · ${total} workspaces`} variant="elevated">
           {total === 0 ? (
             <NoWorkspaces />
           ) : (
-            <>
-              <StatusMixChart data={portfolio.statusMix} />
+            <div className="flex flex-col h-full pt-1">
+              <div className="flex-1 min-w-0 min-h-0 relative">
+                <StatusMixChart data={portfolio.statusMix} />
+              </div>
               {/*
                 ⚠ THE LEGEND IS WHAT MAKES THE DONUT'S SEMANTIC HUES PERMITTED.
                 `03 §24` allows a chart to use meaningful colours rather than a
@@ -51,34 +54,23 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
                 A reader who cannot separate the colours reads this list and
                 loses nothing. Removing it would break the chart above it.
               */}
-              <ul className="mt-4 grid gap-2">
-                {portfolio.statusMix.map((slice) => (
-                  <li key={slice.status} className="flex items-baseline justify-between gap-3">
-                    <span
-                      className="font-mono text-[12.5px] font-medium"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      {slice.label}
-                    </span>
-                    <span
-                      className="font-mono text-[13.5px] font-medium"
-                      style={{ color: 'var(--text-primary)' }}
-                    >
-                      {slice.count}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </>
+              <StatusLegend slices={portfolio.statusMix} total={total} />
+            </div>
           )}
         </Panel>
 
-        <Panel title="Opened against closed">
-          {hasGrowth ? <GrowthChart data={portfolio.growth} /> : <NoGrowthYet />}
+        <Panel title="Opened against closed" variant="elevated">
+          {hasGrowth ? (
+            <div className="flex-1 min-w-0 min-h-0 relative pt-2">
+              <GrowthChart data={portfolio.growth} />
+            </div>
+          ) : (
+            <NoGrowthYet />
+          )}
         </Panel>
 
-        <Panel title="At the ceiling">
-          <PressureList rows={portfolio.pressure} />
+        <Panel title="At the ceiling" variant="elevated">
+          <PressureList rows={portfolio.pressure} total={total} />
         </Panel>
       </div>
 
@@ -88,7 +80,7 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
         green, for no reason either could state. See `CapacityMeter`.
       */}
       <div className="mt-5 grid gap-5 sm:grid-cols-2">
-        <Panel title="Seats in use across the platform">
+        <Panel title="Seats in use across the platform" variant="elevated">
           <CapacityMeter
             title="Seats in use"
             used={portfolio.seats.used}
@@ -98,7 +90,7 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
           />
         </Panel>
 
-        <Panel title="Events this period">
+        <Panel title="Events this period" variant="elevated">
           <CapacityMeter
             title="Events this period"
             used={portfolio.events.used}
