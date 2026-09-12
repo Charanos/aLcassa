@@ -2388,3 +2388,65 @@ not the alarm.
 The deck is an affordance, not a structure: `ol`/`li` underneath in the same
 order, so the visual hierarchy and the read order cannot disagree. Server
 component — the narrowing, depth and hover lift are CSS and nothing hydrates.
+
+---
+
+## C52 · The debt deck's motion, and what the promotion broke · 13 Sep 2026
+
+The stacked card got a GSAP Flip interaction during the front-end pass: clicking
+a collapsed pill promotes it to face-up. The affordance is good — it inspects
+another debt without leaving the page — and three things about it needed work.
+
+### The motion read as clanky, and it was four separate causes
+
+| Cause | Effect |
+| --- | --- |
+| `duration: 0.5` | A ~90px move finishing noticeably after the click that caused it |
+| `ease: 'power3.out'` | Front-loads almost all the distance then crawls — the card appeared to arrive and keep settling |
+| `absolute: true` | Lifted every card out of flow, so the container collapsed mid-flight and the content below jumped twice |
+| `zIndex: 50` on all targets | Flattened their relative layering exactly while they crossed, which is when layering matters most |
+
+Plus `nested: true`, which walks a subtree per target and had no nested Flip
+containers to find, and an inline `scale()` on the flip target itself — a second
+author of the same property, which is why cards visibly snapped to size at the
+end of the move.
+
+Now 340ms, `power2.out`, no `absolute`, no `zIndex` tween, no `nested`, and the
+scale moved onto the pill so the flip target carries position only. It is also
+routed through `prefersReducedMotion` — the DOM has already re-rendered by the
+time the effect runs, so returning early leaves the reader on the correct end
+state instantly rather than on a shortened animation. `13 §2`.
+
+### The promotion made the heading lie
+
+The label says **"Worth chasing first"**. After a click it sat above whatever
+card was last selected, which is not the head of the queue.
+
+Rather than weaken the label into something vague, the deck now admits when it
+is not showing the top of the queue and offers the way back — a **"Top of
+queue"** control that appears only when the face-up card is not
+`collections[0]`. The pills keep their priority order throughout: promotion
+moves one card to the front and leaves the rest in their original relative
+order, so only which card is face-up ever changes.
+
+### Regressions restored
+
+The hero's blue bloom and dot grid had returned to the tile, along with
+`#060913`, five raw white alphas, `--danger-fg` on the near-black ground, and
+`hover:scale-[1.01]` on a card containing a 42px numeral — which resamples the
+figure on every frame and visibly softens it. All back to chrome tokens, one
+danger-tinted bloom, no scale. The file's own header still claimed it was a
+server component that ships no JavaScript; it is a client component now and says
+so, including what that costs.
+
+### Section sweep
+
+Both charts in the band plot money and neither named a currency. The unit now
+sits **on the panel, once** — prefixing every tick would produce "KES 0.0M ·
+KES 2.0M · KES 4.0M", four repetitions of a constant in the one place a reader
+scans for differences. The plan-mix figures carry it inline because they are
+prose rather than an axis.
+
+Also: `hover:bg-black/[0.015]` on the plan-mix rows became `--surface-sunken`
+like every other hover in the console, and the ageing copy lost "statistically"
+and a second-person "your cash flow" that did not match the console's voice.

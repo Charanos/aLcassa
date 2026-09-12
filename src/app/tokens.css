@@ -357,6 +357,15 @@
   --chrome-badge-border-alpha: 0.25;
   --chrome-badge-glow-alpha: 0.05;
 
+  /* ─ DEBT DECK ─ the receding pills under the outstanding card.
+   * Two grounds rather than one opacity ramp: a stack read only through
+   * opacity looks like a rendering fault, and read only through size looks
+   * like a scaling bug. Depth is ground + inset + scale, together. */
+  --deck-near: linear-gradient(145deg, var(--chrome-bg-navy), var(--chrome-bg-raised));
+  --deck-far: linear-gradient(145deg, var(--chrome-bg-raised), var(--chrome-bg-base));
+  --deck-rule: color-mix(in oklab, var(--ink-0) 7%, transparent);
+  --deck-shadow: 0 4px 12px color-mix(in oklab, var(--ink-950) 45%, transparent);
+
   /* ─ CHROME ICON PILL ─ the glass disc that houses an icon on the slab. */
   --chrome-pill-bg: rgba(255, 255, 255, 0.05);
   --chrome-pill-rim: inset 0 1px 0 rgba(255, 255, 255, 0.15);

@@ -1,44 +1,64 @@
+'use client';
+
+import { useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { IconAlertCircle, IconArrowRight, IconCircleCheck } from '@tabler/icons-react';
+import { IconAlertCircle, IconArrowRight, IconArrowUp, IconCircleCheck } from '@tabler/icons-react';
+import gsap from 'gsap';
+import { Flip } from 'gsap/Flip';
+import { prefersReducedMotion } from '@/lib/motion';
 import type { Collection } from '@/lib/console/data';
 
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(Flip);
+}
+
 /**
- * THE DEBT STACK. The overview's outstanding card, lower half.
+ * THE DEBT DECK. The overview's outstanding card, lower half.
  *
  * ⚠ A DECK, AND THE ORDER OF THE DECK IS THE ARGUMENT.
  *
- * One debt is expanded and the rest recede beneath it as collapsed pills,
- * narrowing as they go. The visual metaphor is doing real work: the head of
- * this list is the debt somebody can still act on, and everything under it is
- * context they should be able to see without leaving the page.
+ * One debt is face-up and the rest recede beneath it as collapsed pills. The
+ * metaphor does real work: the head of this list is the debt somebody can still
+ * act on, and everything under it is context they should see without leaving
+ * the page. The card previously showed `collections[0]` and nothing else, so
+ * four of five outstanding invoices were invisible until somebody opened
+ * Revenue.
  *
- * The card previously showed `collections[0]` and nothing else, so four of the
- * five outstanding invoices were invisible until somebody opened Revenue.
+ * ⚠ IT RECEDES DOWNWARD, NOT UPWARD. The reference this was drawn from stacks
+ * collapsed cards ABOVE the expanded one, which reads as a menu and is right
+ * where they are alternatives. These are a queue in priority order, so reading
+ * order and priority order have to agree.
  *
- * ⚠ IT RECEDES DOWNWARD, NOT UPWARD, and that is deliberate. The reference this
- * was drawn from stacks the collapsed cards ABOVE the expanded one, which works
- * where they are alternatives — flight, driving, walking — and reads as a menu.
- * These are not alternatives. They are a queue in priority order, so reading
- * order and priority order have to agree: the one to act on is first and the
- * rest descend.
+ * ⚠ NO NEW HUE. The reference is violet. Here blue is interactive, orange is the
+ * accent, and the status inks carry state — a violet bloom would be a colour
+ * with no meaning on a card about money that has not arrived. The face-up card
+ * blooms `--chrome-danger`; the pills stay neutral because they are not the
+ * alarm.
  *
- * ⚠ NO NEW HUE. The reference is violet. In this system blue is interactive,
- * orange is the accent, and the status inks carry state — a violet bloom would
- * be a colour with no meaning on a card whose entire subject is money that has
- * not arrived. The expanded card blooms in `--chrome-danger`; the pills stay
- * neutral because they are not the alarm.
+ * ⚠ IT IS A CLIENT COMPONENT, AND ONLY BECAUSE OF THE DECK.
  *
- * ⚠ IT IS A LIST TO ANYTHING NOT LOOKING AT IT. The stack is an affordance, not
- * a structure: `ol`/`li` underneath, in the same order, so the visual hierarchy
- * and the read order cannot disagree.
+ * It began as a server component. Turning a card over is state, so it is one
+ * now — but the cost is real and worth naming: every debt's markup crosses the
+ * serialisation boundary to buy one interaction. That trade is acceptable here
+ * because the list is bounded at five and the interaction replaces a page
+ * navigation. On a longer list it would not be.
  *
- * Server component. The narrowing, the depth and the hover lift are CSS; there
- * is no state here and nothing hydrates.
+ * ⚠ IT IS A LIST TO ANYTHING NOT LOOKING AT IT. The deck is an affordance, not a
+ * structure: `ol`/`li` underneath, so the visual arrangement and the read order
+ * cannot disagree.
  */
 
-/** How many collapsed pills before the tail line takes over. Three keeps the
- *  deck legible; past that the pills are thinner than their own text. */
-const PILLS = 3;
+/** How many collapsed pills before the tail link takes over. */
+const PILLS = 2;
+
+/**
+ * ⚠ 340ms, NOT 500. A card moving roughly ninety pixels does not need half a
+ * second, and at 500ms with `power3` the deck read as heavy — the motion
+ * finished noticeably after the click that caused it, which is what makes an
+ * interface feel slow rather than smooth. The system's slow token is 260ms;
+ * this is a layout change rather than a fade, so it earns a little more.
+ */
+const FLIP_MS = 0.34;
 
 export function DebtStack({
   collections,
@@ -47,71 +67,159 @@ export function DebtStack({
   collections: Collection[];
   currency: string;
 }) {
-  const [head, ...rest] = collections;
+  const [deck, setDeck] = useState(collections);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const flipState = useRef<Flip.FlipState | null>(null);
 
-  if (!head) return <NothingOutstanding />;
+  /** The real head of the queue, whatever is currently face-up. */
+  const priority = collections[0];
 
+  function bringToFront(id: string) {
+    if (!deck[0] || deck[0].id === id) return;
+
+    flipState.current = Flip.getState('.deck-card');
+
+    setDeck((prev) => {
+      const idx = prev.findIndex((c) => c.id === id);
+      if (idx === -1) return prev;
+      /* The clicked card moves to the front; everything else keeps its relative
+         order, so the pills below stay in priority order and only which card is
+         face-up changes. */
+      return [prev[idx]!, ...prev.slice(0, idx), ...prev.slice(idx + 1)];
+    });
+  }
+
+  useLayoutEffect(() => {
+    const state = flipState.current;
+    flipState.current = null;
+    if (!state || !containerRef.current) return;
+
+    /*
+      ⚠ REDUCED MOTION SKIPS THE TWEEN, NOT THE CHANGE. The DOM has already
+      re-rendered in its new order by the time this runs, so returning early
+      leaves the reader on the correct end state instantly — which is what
+      sheet 13 asks for, rather than a shortened animation.
+    */
+    if (prefersReducedMotion()) return;
+
+    Flip.from(state, {
+      duration: FLIP_MS,
+      /*
+        ⚠ `power2.out`, NOT `power3`. The stronger curve front-loads almost all
+        the distance and then crawls, which is what read as clanky on a move
+        this short — the card appeared to arrive and then keep settling.
+      */
+      ease: 'power2.out',
+      /*
+        ⚠ THREE THINGS REMOVED FROM THIS CALL, EACH OF THEM A CAUSE OF THE JUDDER.
+
+        `absolute: true` lifted every card out of flow for the duration, so the
+        container collapsed mid-flight and the content below it jumped twice —
+        once out, once back.
+
+        `zIndex: 50` was applied to ALL targets at once, flattening their
+        relative layering exactly while they crossed each other, which is when
+        layering matters most. Stacking is set in CSS now and never tweened; an
+        integer property cannot be interpolated smoothly anyway.
+
+        `nested: true` costs a subtree walk per target and there are no nested
+        Flip containers here. It was doing nothing but work.
+      */
+      targets: '.deck-card',
+    });
+  }, [deck]);
+
+  if (deck.length === 0) return <NothingOutstanding />;
+
+  const head = deck[0]!;
+  const rest = deck.slice(1);
   const pills = rest.slice(0, PILLS);
   const remaining = rest.length - pills.length;
+  const showingPriority = !priority || head.id === priority.id;
 
   return (
-    <div className="mt-6 flex flex-col gap-3.5">
-      <div className="flex items-center gap-2.5">
-        <span className="relative flex size-2 shrink-0 items-center justify-center">
+    <div className="mt-4 flex flex-col gap-3.5" ref={containerRef}>
+      <div className="flex items-center justify-between gap-3">
+        <span className="flex items-center gap-2.5">
+          <span className="relative flex size-2 shrink-0 items-center justify-center">
+            {/*
+              ⚠ THE PULSE IS GUARDED. An indefinite animation is the first thing
+              `prefers-reduced-motion` exists for. The dot still reads as danger
+              without it: the colour carries that, the movement never did.
+            */}
+            <span
+              aria-hidden
+              className="absolute inset-0 animate-ping rounded-full opacity-40 motion-reduce:animate-none"
+              style={{ background: 'var(--danger-fg)', animationDuration: '3s' }}
+            />
+            <span
+              aria-hidden
+              className="relative size-1.5 rounded-full"
+              style={{ background: 'var(--danger-fg)' }}
+            />
+          </span>
           {/*
-            ⚠ THE PULSE IS GUARDED. An indefinite animation is the first thing
-            `prefers-reduced-motion` exists for. The dot still reads as danger
-            without it: the colour was always carrying that, not the movement.
+            ⚠ IT NO LONGER SAYS "Oldest active debt", BECAUSE IT WAS NOT.
+            `collections[0]` is 6 days late; Mombasa Freight, further down, is
+            94. The list is ordered by what is worth CHASING — Mombasa is
+            suspended with its attempts exhausted, so it is a write-off decision
+            rather than a call. The order was right and the label was wrong.
           */}
           <span
-            aria-hidden
-            className="absolute inset-0 animate-ping rounded-full opacity-40 motion-reduce:animate-none"
-            style={{ background: 'var(--danger-fg)', animationDuration: '3s' }}
-          />
-          <span
-            aria-hidden
-            className="relative size-1.5 rounded-full"
-            style={{ background: 'var(--danger-fg)' }}
-          />
+            className="font-ui text-[12.5px] font-medium tracking-wide"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Worth chasing first
+          </span>
         </span>
+
         {/*
-          ⚠ IT NO LONGER SAYS "Oldest active debt", BECAUSE IT WAS NOT.
-          `collections[0]` is Kilimanjaro at 6 days; Mombasa Freight is 94 days
-          late and sits further down. The list is ordered by what is worth
-          chasing — Mombasa is suspended with its attempts exhausted, so it is a
-          write-off decision rather than a call. The order was right and the
-          label was wrong.
+          ⚠ TURNING A CARD OVER MADE THE HEADING LIE, AND THIS IS THE FIX.
+
+          Promoting a pill is a good affordance — it inspects another debt
+          without leaving the page. But the label above claims the face-up card
+          is the one to chase first, and after a click that is no longer true.
+          Rather than weaken the label into something vague, the deck admits
+          when it is not showing the top of the queue and offers the way back.
         */}
-        <span
-          className="font-ui text-[12.5px] font-medium tracking-wide"
-          style={{ color: 'var(--text-secondary)' }}
-        >
-          Worth chasing first
-        </span>
+        {!showingPriority && priority ? (
+          <button
+            type="button"
+            onClick={() => setDeck(collections)}
+            className="t-caption inline-flex shrink-0 items-center gap-1 transition-colors"
+            style={{ color: 'var(--text-action)' }}
+          >
+            <IconArrowUp size={12} stroke={2} aria-hidden />
+            Top of queue
+          </button>
+        ) : null}
       </div>
 
       <ol className="flex flex-col">
-        <li>
+        <li data-flip-id={head.id} className="deck-card relative z-10">
           <HeadCard debt={head} currency={currency} />
         </li>
 
-        {/*
-          Each pill sits a step narrower and a step quieter than the one above
-          it, pulled up under the card's radius so the deck reads as one object
-          rather than four. `z-index` descends so the shadow of each falls on
-          the one below, which is what makes it look stacked rather than listed.
-        */}
         {pills.map((debt, i) => (
           <li
             key={debt.id}
-            className="relative"
-            style={{
-              zIndex: PILLS - i,
-              marginTop: i === 0 ? -12 : -10,
-              paddingInline: `${(i + 1) * 10}px`,
-            }}
+            data-flip-id={debt.id}
+            className="deck-card relative"
+            /*
+              ⚠ THE SCALE IS ON THE PILL, NOT ON THIS ELEMENT. Flip animates the
+              transform of its targets, and an inline `scale()` on the same node
+              is a second author of the same property — they fought, and the
+              result was the card visibly snapping to size at the end of the
+              move. The flip target carries position only.
+            */
+            style={{ zIndex: PILLS - i, marginTop: -16 }}
           >
-            <DebtPill debt={debt} currency={currency} depth={i} />
+            <DebtPill
+              debt={debt}
+              currency={currency}
+              depth={i}
+              onSelect={() => bringToFront(debt.id)}
+            />
           </li>
         ))}
       </ol>
@@ -119,7 +227,7 @@ export function DebtStack({
       {remaining > 0 ? (
         <Link
           href="/platform/revenue"
-          className="t-caption inline-flex items-center gap-1.5 self-start transition-colors"
+          className="t-caption mt-2 inline-flex items-center gap-1.5 self-start transition-colors"
           style={{ color: 'var(--text-action)' }}
         >
           {remaining} more outstanding
@@ -131,7 +239,7 @@ export function DebtStack({
 }
 
 /**
- * The one to act on.
+ * The card that is face-up.
  *
  * ⚠ THE ONE INVERTED OBJECT IN THIS COLUMN, and it earns that by being the only
  * thing here somebody rings a customer about. `03 §23`: the chrome tier inverts
@@ -149,12 +257,21 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
       }}
     >
       {/*
-        ⚠ THE HERO'S AMBIENT ART IS GONE. This tile borrowed the hero's blue
-        bloom and dot grid. It spent the hero's signature twice on one page, so
-        both read as less deliberate — and the bloom was BLUE, which in this
-        system means interactive, on a card about money that has not arrived.
-        One danger-tinted bloom, no grid. Colour that means something beats
-        texture that does not.
+        ⚠ THE HERO'S AMBIENT ART DOES NOT BELONG HERE.
+
+        This tile borrowed the hero's blue bloom and dot grid. Two problems, and
+        the second is the serious one: it spends the hero's signature twice on
+        one page, so both read as less deliberate — and the bloom was BLUE,
+        which in this system means interactive and brand, on a card whose entire
+        subject is money that has not arrived.
+
+        One bloom, in `--chrome-danger`, no grid. Colour that means something
+        beats texture that does not.
+
+        ⚠ NO HOVER SCALE EITHER. `hover:scale-[1.01]` on a card containing a
+        46px numeral resamples the text on every frame of the transition, and
+        the figure visibly softens. The card is not a button; the controls
+        inside it are.
       */}
       <span
         aria-hidden
@@ -184,10 +301,10 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
           </Link>
 
           {/*
-            ⚠ THE INVOICE NUMBER WAS IN THE MODEL AND WAS NOT DRAWN. It is the
-            single most useful string on this card — what an operator quotes on
-            the phone and pastes into a search. A debt card that names the
-            amount and not the invoice sends somebody to go and look it up.
+            ⚠ THE INVOICE NUMBER WAS IN THE MODEL AND UNDRAWN. It is the one
+            string an operator quotes on the phone and pastes into a search. A
+            debt card naming the amount and not the invoice sends somebody off
+            to look it up.
           */}
           <p className="mt-1.5 font-mono text-[11px]" style={{ color: 'var(--chrome-fg-faint)' }}>
             {debt.invoice}
@@ -195,22 +312,22 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
         </div>
 
         {/*
-          ⚠ THE AMOUNT IS SOLID INK. It was a background-clipped gradient fading
-          from white to 20% white, which did three things wrong: it read as
-          disabled on the most important number on the card, its tail failed
-          contrast outright, and `-webkit-text-fill-color: transparent` with no
-          fallback renders the figure INVISIBLE wherever the clip is
-          unsupported. A number nobody can read is not a style.
+          ⚠ THE AMOUNT IS SOLID INK, WITH NO GLOW BEHIND IT. It was once a
+          background-clipped gradient fading to 20% white — which read as
+          disabled on the most important number on the card, failed contrast at
+          its tail, and rendered INVISIBLE wherever the clip is unsupported. The
+          white text-shadow that replaced it was doing nothing visible on a
+          near-black ground except adding a raw value.
         */}
-        <p className="mt-5 flex items-baseline gap-2.5 px-6 pb-6">
+        <p className="mt-4 flex items-baseline gap-2.5 px-6 pb-7">
           <span
-            className="font-mono text-[13px] font-medium tracking-[0.08em] uppercase"
+            className="font-mono text-[14px] font-medium tracking-[0.08em] uppercase"
             style={{ color: 'var(--chrome-fg-faint)' }}
           >
             {currency}
           </span>
           <span
-            className="font-mono text-[46px] leading-none font-medium tracking-tight"
+            className="font-mono text-[42px] leading-none font-medium tracking-tight"
             style={{ color: 'var(--chrome-fg)' }}
           >
             {debt.amount}
@@ -235,37 +352,40 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
 }
 
 /**
- * One receding debt.
+ * One card still face-down.
  *
- * ⚠ EACH STEP IS QUIETER, NOT JUST SMALLER. Depth is carried by three things at
- * once — inset, opacity and surface — because narrowing alone reads as a
- * rendering glitch rather than as a stack. The top padding is what lets the
- * pill above it overlap without clipping its own text.
+ * ⚠ DEPTH IS THREE THINGS AT ONCE — ground, opacity and scale. A stack read
+ * only through opacity looks like a rendering fault; one read only through size
+ * looks like a scaling bug. The top padding is what lets the card above overlap
+ * it without clipping this one's own text.
  */
 function DebtPill({
   debt,
   currency,
   depth,
+  onSelect,
 }: {
   debt: Collection;
   currency: string;
   depth: number;
+  onSelect: () => void;
 }) {
-  const fade = 1 - depth * 0.16;
-
   return (
-    <Link
-      href={`/platform/tenants/${debt.slug}`}
-      className="group/pill flex items-center gap-3 rounded-[16px] px-4 pt-5 pb-3 transition-transform duration-300 hover:-translate-y-px motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-label={`Show ${debt.name}, ${currency} ${debt.amount}, ${debt.days} days overdue`}
+      className="group/pill flex w-full origin-top items-center gap-3 rounded-[16px] px-5 pt-6 pb-4 transition-[opacity,transform] duration-300 hover:-translate-y-px hover:opacity-100 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
       style={{
-        background: 'var(--chrome-bg-raised)',
-        border: '1px solid var(--chrome-rule)',
-        boxShadow: 'var(--shadow-md)',
-        opacity: fade,
+        background: depth === 0 ? 'var(--deck-near)' : 'var(--deck-far)',
+        border: '1px solid var(--deck-rule)',
+        boxShadow: 'var(--deck-shadow)',
+        opacity: 1 - depth * 0.16,
+        transform: `scale(${1 - (depth + 1) * 0.04})`,
       }}
     >
       <span
-        className="min-w-0 flex-1 truncate font-ui text-[13px] font-medium"
+        className="font-ui min-w-0 flex-1 truncate text-left text-[14px] font-medium"
         style={{ color: 'var(--chrome-fg-muted)' }}
       >
         {debt.name}
@@ -277,18 +397,18 @@ function DebtPill({
         {debt.days}d
       </span>
       <span
-        className="shrink-0 font-mono text-[13px] font-medium"
+        className="shrink-0 font-mono text-[14px] font-medium"
         style={{ color: 'var(--chrome-fg)' }}
       >
         <span className="sr-only">{currency} </span>
         {debt.amount}
       </span>
-    </Link>
+    </button>
   );
 }
 
 /**
- * One figure in the head card's footer.
+ * One figure in the face-up card's footer.
  *
  * ⚠ A `dl`, NOT TWO STACKED SPANS. Label and value is exactly what a definition
  * list describes, and declaring it costs nothing — a screen reader then reads
