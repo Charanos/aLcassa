@@ -255,7 +255,7 @@ export function LatencyChart({
   return (
     <div className="absolute inset-0">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+        <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={t.rule} strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="t"

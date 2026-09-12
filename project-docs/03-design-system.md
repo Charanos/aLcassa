@@ -4,7 +4,7 @@
 **Machine-readable twin:** `src/app/tokens.css`. Every value in §2 lives there; this document explains why it has that value. A token added here and not there does not exist.
 **Aesthetic:** technical, warm, dense. Restraint carried by a saturated brand used in small doses.
 
-**Rewritten 12 Sep 2026.** §1 to §4, §20, §22 and the new §23 to §25 were rewritten against the shipped identity. The previous version specified the copper-on-vellum drafting-document system that `tokens.css` supersedes in full, and forbade in §20 several treatments the console now ships deliberately. Sections §5 to §19 and §21 were reviewed and kept. See `15 C44` for the delta.
+**Rewritten 12 Sep 2026, extended 13 Sep.** §1 to §4, §20, §22 and the new §23 to §26 were rewritten against the shipped identity. The previous version specified the copper-on-vellum drafting-document system that `tokens.css` supersedes in full, and forbade in §20 several treatments the console now ships deliberately. Sections §5 to §19 and §21 were reviewed and kept. See `15 C44` for the delta.
 
 ---
 
@@ -777,6 +777,7 @@ The previous version of this section banned gradients, glass, shadows on cards a
 - **Gradients** exist on the chrome tier only, as the two-stop navy-into-obsidian sweep in §23. Nowhere on the cream page.
 - **Glass** is permitted on layered surfaces, at most three composited at once. §2.
 - **Shadow** is a three-step ramp, with `--shadow-sm` on panels and `--shadow-lg` reserved for overlays. It supplements the surface ramp rather than replacing it.
+- **Cards** are permitted where §26 says they are — which is not everywhere. The uncarded section is still the default; the overview is the exception and §26 states why.
 - **Radius** runs to `--radius-overlay` and the console rail is 20px, because a floating rail is an object on the page rather than a panel ruled into it.
 
 A budget is not a licence. Each of these has a stated ceiling, and exceeding the ceiling is the anti-pattern.
@@ -916,3 +917,42 @@ Both suppress `::-webkit-scrollbar-button`, which is what removes the Windows st
 **Where they apply:** any scrolling container inside a panel — a table body, the audit stream, a dialog body, the rail's own overflow. **Where they do not:** the document scroller. The page keeps the platform scrollbar, because a person's main scrollbar is a thing they own rather than a thing the product styles.
 
 Prefer not needing one. A surface that fits is better than a surface that scrolls well.
+
+---
+
+## 26. Carded and uncarded sections
+
+**Added 13 Sep 2026, recording a decision the code had already made.**
+
+The console was built **uncarded**: sections separated by a hairline rule and whitespace, content breathing directly on the page ground. `Panel`'s own comment said so — *"the uncarded console section · replaces the traditional nested white card"* — and §20 forbade card shadows outright.
+
+The overview is now **carded** throughout, and has been since the front-end pass. The document was describing the opposite of what ships.
+
+### Why the overview is the exception
+
+The instinct behind uncarding is right and it is still the default. A hairline and generous whitespace read as calmer and denser than a grid of boxes, and on a screen about **one subject** the page *is* the panel — Workspaces is a table, Audit is a stream, Plans is a matrix. Drawing a card around the only thing on the page adds an edge that separates nothing.
+
+The overview is not that screen. It is **five bands of unrelated subjects stacked vertically**: a queue, a telemetry rail, revenue, portfolio, operations. Uncarded, a reader scrolling it cannot tell where revenue ends and portfolio begins — because a hairline *between* two sections looks exactly like a hairline *inside* one. The rule that separates panels and the rule that separates rows within a panel are the same rule.
+
+Carding gives each band a boundary that survives scrolling. That is what a briefing screen needs and a working screen does not.
+
+### The three variants
+
+| Variant | Treatment | Use it when |
+| --- | --- | --- |
+| `default` | Hairline above, content on the page ground | The screen has **one subject** and the page is the panel |
+| `elevated` | Rounded 16px, `--surface-sunken` ground, own padding | **Unrelated subjects** sit side by side or stack |
+| `flush-glass` | The carded shape, no ground | A panel inside an already-tinted surface |
+
+`flush-glass` exists for one specific failure: nesting a sunken card inside a sunken well produces a second edge that means nothing, and the eye reads the inner one as a mistake.
+
+### The rules
+
+1. **Pick per band, not per panel.** A carded panel beside an uncarded one reads as one of them having failed to render.
+2. **Carding is not licence for elevation.** The card is a ground change and a radius. `--shadow-sm` at most; the surface ramp is doing the separating, not a drop shadow. §20 still holds.
+3. **A card needs a title.** An untitled card is a box with no reason to exist — if a region does not deserve a name, it does not deserve a boundary.
+4. **Do not card a single panel.** One card on a page is a page with an inexplicable box on it.
+
+### What this replaces in §20
+
+§20's "drop shadows on cards → 1px rule" was written for the uncarded system. The current reading: **cards are permitted where §26 says they are, and they carry `--shadow-sm` at most.** The anti-pattern it was protecting against — elevation used to fake hierarchy — is unchanged.

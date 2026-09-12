@@ -85,6 +85,19 @@ export const AUDIT_ACTIONS = {
 
   SESSION_REVOKED: 'session.revoked',
   AUDIT_EXPORTED: 'audit.exported',
+  /**
+   * A platform-level CSV leaving the product: the workspace roster, revenue,
+   * or the audit log itself.
+   *
+   * ⚠ DISTINCT FROM `audit.exported`, WHICH NAMES ONLY THE LOG. The console's
+   * one export route serves three resources, so reusing that action would
+   * record a revenue export as an audit export and make "who took the roster"
+   * unanswerable. The resource travels in `reason`.
+   *
+   * It is here rather than as a literal at the call site because that is the
+   * rule this catalogue exists to enforce — and the export route had broken it.
+   */
+  PLATFORM_EXPORTED: 'platform.exported',
 
   /** 06 §9. The one table where READS are audited, not only writes. */
   CUSTOMER_RECORD_READ: 'customer_record.read',

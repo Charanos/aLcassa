@@ -49,8 +49,18 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
           variant="elevated"
         >
           {operations.latency.length > 0 ? (
-            <div className="flex-1 min-w-0 min-h-0 relative pt-2">
-              <LatencyChart data={operations.latency} />
+            <div className="flex flex-col h-full pt-1">
+              <div className="w-full mb-6">
+                <p 
+                  className="font-ui text-[13px] leading-relaxed text-pretty" 
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  Tail performance — p95 and p99 — against the median, hour by hour across the last day. The tail is what pages somebody; a mean hides it.
+                </p>
+              </div>
+              <div className="flex-1 min-w-0 min-h-0 relative">
+                <LatencyChart data={operations.latency} />
+              </div>
             </div>
           ) : (
             <NoProbes
@@ -68,7 +78,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                 body="Each service answers a probe and appears here with its budget."
               />
             ) : (
-              <div className="group relative overflow-hidden rounded-xl bg-white px-5 py-4 transition-shadow duration-300 hover:shadow-md border border-[var(--border-subtle)] shadow-sm">
+              <div className="group relative overflow-hidden rounded-xl bg-[var(--surface-raised)] px-5 py-4 transition-shadow duration-300 hover:shadow-md border border-[var(--border-subtle)] shadow-sm">
                 <p
                   className="t-compact relative z-10 font-medium"
                   style={{ color: 'var(--text-primary)' }}
@@ -108,7 +118,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
             ) : (
               <div className="px-1 pb-2">
                 <div 
-                  className="flex flex-col overflow-hidden rounded-[12px] bg-white transition-shadow duration-300 hover:shadow-md"
+                  className="flex flex-col overflow-hidden rounded-[12px] bg-[var(--surface-raised)] transition-shadow duration-300 hover:shadow-md"
                   style={{
                     border: '1px solid var(--border-subtle)',
                     boxShadow: 'var(--shadow-sm)',
@@ -224,44 +234,57 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
           {operations.sessions.length === 0 ? (
             <NoSessionsYet />
           ) : (
-            <dl className="grid gap-4 sm:grid-cols-3">
-              {operations.sessions.map((stat) => (
-                <div 
-                  key={stat.label}
-                  className="flex flex-col-reverse justify-end rounded-xl border border-[var(--border-subtle)] bg-white p-5 transition-shadow duration-300 hover:shadow-md shadow-sm"
-                >
-                  {/*
-                    ⚠ THE VALUE IS THE `dd` AND IT COMES SECOND IN THE MARKUP
-                    EVEN THOUGH IT IS FIRST ON SCREEN. A definition list must
-                    read term-then-value; the visual order is restored by the
-                    column direction, so a screen reader hears "sessions this
-                    week, four" rather than "four, sessions this week".
-                  */}
-                  <div className="flex flex-col-reverse">
-                    <dt
-                      className="mt-2 text-[13px] font-medium"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      {stat.label}
-                    </dt>
-                    <dd
-                      className="font-mono text-[32px] font-medium tracking-tight leading-none"
-                      style={{
-                        color: stat.tone === 'accent' ? 'var(--blue-400)' : 'var(--text-primary)',
-                      }}
-                    >
-                      {stat.value}
-                    </dd>
-                  </div>
-                  <p
-                    className="mt-0.5 text-[12px] font-medium opacity-60"
-                    style={{ color: 'var(--text-tertiary)' }}
+            <div className="flex flex-col overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] shadow-sm transition-shadow duration-300 hover:shadow-md">
+              <dl className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-[var(--border-subtle)]">
+                {operations.sessions.map((stat) => (
+                  <div 
+                    key={stat.label}
+                    className="group relative flex flex-1 flex-col justify-center p-6 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
                   >
-                    {stat.note}
-                  </p>
-                </div>
-              ))}
-            </dl>
+                    {/*
+                      ⚠ THE VALUE IS THE `dd` AND IT COMES SECOND IN THE MARKUP
+                      EVEN THOUGH IT IS FIRST ON SCREEN. A definition list must
+                      read term-then-value; the visual order is restored by the
+                      column direction, so a screen reader hears "sessions this
+                      week, four" rather than "four, sessions this week".
+                    */}
+                    <div className="flex flex-col-reverse gap-1.5">
+                      <dt
+                        className="text-[12.5px] font-medium tracking-wide uppercase"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
+                        {stat.label}
+                      </dt>
+                      <dd
+                        className="flex items-center gap-3 font-mono text-[36px] font-medium tracking-tight leading-none"
+                        style={{
+                          color: stat.tone === 'accent' ? 'var(--blue-500)' : 'var(--text-primary)',
+                        }}
+                      >
+                        {stat.tone === 'accent' ? (
+                          <span className="relative flex size-3.5 shrink-0 items-center justify-center">
+                            <span 
+                              className="absolute inset-0 animate-ping rounded-full opacity-40 bg-[var(--blue-400)]" 
+                              style={{ animationDuration: '3s' }} 
+                            />
+                            <span className="relative size-2.5 rounded-full bg-[var(--blue-500)] shadow-[0_0_8px_var(--blue-400)]" />
+                          </span>
+                        ) : null}
+                        {stat.value}
+                      </dd>
+                    </div>
+                    {stat.note ? (
+                      <p
+                        className="mt-2 text-[12px] font-medium opacity-60"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
+                        {stat.note}
+                      </p>
+                    ) : null}
+                  </div>
+                ))}
+              </dl>
+            </div>
           )}
         </Panel>
       </div>

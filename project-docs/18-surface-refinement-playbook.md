@@ -447,3 +447,48 @@ A row carried `hover:bg-[var(--surface-sunken)]` and did nothing when clicked.
 A hover state is a promise of interaction — it is the dead-control defect
 (`17 §6.4`) wearing a row instead of a button. The legend's rows are inert and
 now look it; the route out is the band's own heading link.
+
+---
+
+## 14. Carded or uncarded — decide it once per band
+
+Recorded because this pass **missed it entirely**. The console was built
+uncarded, `Panel`'s own comment said so, and the overview had been carded for
+days before anyone wrote down that the decision had changed. Every band was
+refined against a document describing the opposite of what shipped.
+
+### The decision
+
+| The screen is | Use |
+| --- | --- |
+| **one subject** — a table, a stream, a matrix | `default`, uncarded |
+| **several unrelated subjects** stacked or side by side | `elevated`, carded |
+| a panel inside an already-tinted surface | `flush-glass` |
+
+The reasoning, which is the part worth carrying to the next page: a hairline
+**between** two sections looks exactly like a hairline **inside** one. On a
+single-subject screen that ambiguity costs nothing, because there is only one
+section. On a briefing screen with five bands of unrelated subjects it costs the
+reader the ability to tell where one ends.
+
+### Where it goes wrong
+
+1. **Mixing within a band.** A carded panel beside an uncarded one reads as one
+   of them having failed to render. Pick per band, not per panel.
+2. **Carding a single panel.** One card on a page is a page with an
+   inexplicable box on it.
+3. **An untitled card.** If a region does not deserve a name, it does not
+   deserve a boundary.
+4. **Reaching for elevation once the card exists.** The card is a ground change
+   and a radius. `--shadow-sm` at most — the surface ramp separates, not a drop
+   shadow.
+
+### The step to add
+
+> **Before Step 4 (states), settle carding for the whole band.** Empty and
+> loading states inherit the container's treatment, so deciding afterwards means
+> redrawing every state you just built.
+
+`03 §26` is the authority. It was written after the fact, which is the lesson:
+**when the product and the design document disagree, the document is a defect
+whoever notices it owns** — regardless of who changed the code.

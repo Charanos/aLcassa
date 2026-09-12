@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import { withoutTenantContext } from '@/lib/db';
+import { AUDIT_ACTIONS } from '@/lib/audit';
 import { recordPlatformAction } from '@/modules/platform';
 import { buildExport, isExportResource } from '@/lib/console/export';
 
@@ -58,7 +59,7 @@ export async function GET(
     await recordPlatformAction(tx, {
       actorUserId: ctx.actorId,
       actorLabel: ctx.actorLabel,
-      action: 'platform.exported',
+      action: AUDIT_ACTIONS.PLATFORM_EXPORTED,
       entityType: 'export',
       reason: `${resource} · ${file.rows} rows`,
       ipAddress: ctx.ipAddress,

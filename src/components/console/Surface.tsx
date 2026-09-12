@@ -72,14 +72,14 @@ export function ConsoleHeader({
                 {bc.href ? (
                   <a
                     href={bc.href}
-                    className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-medium tracking-widest uppercase transition-all duration-200 hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-primary)]"
+                    className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-medium tracking-widest uppercase transition-all duration-200 hover:bg-[var(--chrome-hover)] hover:text-[var(--text-primary)]"
                     style={{ color: 'var(--text-secondary)' }}
                   >
                     {bc.label}
                   </a>
                 ) : (
                   <span
-                    className="rounded-full bg-[rgba(255,255,255,0.03)] px-2.5 py-1 font-mono text-[10.5px] font-medium tracking-widest uppercase shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-[rgba(255,255,255,0.02)]"
+                    className="rounded-full bg-[var(--chrome-hover)] px-2.5 py-1 font-mono text-[10.5px] font-medium tracking-widest uppercase shadow-[var(--chrome-highlight)] ring-1 ring-[var(--chrome-rule)]"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {bc.label}
@@ -106,7 +106,7 @@ export function ConsoleHeader({
           className="display display-md tracking-tight"
           style={{
             color: 'var(--text-primary)',
-            textShadow: '0 2px 10px rgba(0,0,0,0.15)',
+            textShadow: '0 2px 10px color-mix(in oklab, var(--ink-950) 15%, transparent)',
           }}
         >
           {title}
@@ -179,11 +179,41 @@ export function SectionHeading({
 }
 
 /**
- * The uncarded console section.
+ * THE CONSOLE SECTION. Three variants, and the choice between them is a design
+ * decision rather than a styling one.
  *
- * Replaces the traditional nested white card. It acts as a semantic container
- * and provides a subtle top hairline and optional accent, but leaves the content
- * to breathe on the main surface.
+ * ⚠ THIS COMMENT USED TO READ "the uncarded console section · replaces the
+ * traditional nested white card", AND THE PRODUCT HAD STOPPED AGREEING WITH IT.
+ *
+ * The console was first built uncarded: sections separated by a hairline rule
+ * and whitespace, content breathing directly on the page. That was the right
+ * instinct for a dense operator screen and it is still the right default — it
+ * is what `default` does.
+ *
+ * It stopped being right for the OVERVIEW specifically, and for one reason: the
+ * overview is not one dense screen, it is **five bands of unrelated subjects**
+ * stacked vertically — a queue, a telemetry rail, revenue, portfolio,
+ * operations. Uncarded, a reader scrolling it cannot tell where revenue ends
+ * and portfolio begins, because a hairline between two sections looks exactly
+ * like a hairline inside one. Carding gives each band a boundary that survives
+ * scrolling, which is what a briefing screen needs and a working screen does
+ * not.
+ *
+ *   `default`      uncarded. A hairline above, content on the page ground.
+ *                  The right choice on a single-subject working screen —
+ *                  Workspaces, Audit, Plans — where the page IS the panel.
+ *
+ *   `elevated`     carded. Rounded, sunken ground, its own padding. The right
+ *                  choice where unrelated subjects sit side by side or stack,
+ *                  which is the overview and nothing else so far.
+ *
+ *   `flush-glass`  the carded SHAPE with no ground, for a panel that sits on a
+ *                  surface already tinted — nesting a sunken card inside a
+ *                  sunken well produces a second edge that means nothing.
+ *
+ * ⚠ THE TWO ARE NOT INTERCHANGEABLE AND MUST NOT BE MIXED WITHIN ONE BAND. A
+ * carded panel beside an uncarded one reads as one of them having failed to
+ * render. Pick per band, not per panel. `03 §26`.
  */
 export function Panel({
   title,
@@ -219,7 +249,7 @@ export function Panel({
         isElevated || isFlushGlass
           ? {
               background: isElevated ? 'var(--surface-sunken)' : 'transparent',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+              boxShadow: 'var(--glass-highlight)',
             }
           : undefined
       }
@@ -421,13 +451,13 @@ export function BandLink({ href, children }: { href: string; children: React.Rea
   return (
     <Link
       href={href}
-      className="group relative flex h-[34px] items-center gap-2 overflow-hidden rounded-full px-4 transition-all duration-300 hover:bg-black/[0.02]"
+      className="group relative flex h-[34px] items-center gap-2 overflow-hidden rounded-full px-4 transition-all duration-300 hover:bg-[var(--surface-sunken)]"
       style={{ 
         background: 'transparent',
         border: '1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent)',
         color: 'var(--text-primary)',
         font: '500 13px/1 var(--font-ui)',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.05)',
+        boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
       }}
     >
       <span className="relative z-10 transition-colors duration-300 group-hover:text-[var(--blue-500)]">{children}</span>

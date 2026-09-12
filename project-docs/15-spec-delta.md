@@ -2589,3 +2589,71 @@ same reason: one row against 47 means something different from one against 3.
 The legend also gained the share percentage. A ring shows that active dominates;
 it cannot show that it is 87%, and the count alone made a reader divide against
 a total printed in the panel title.
+
+---
+
+## C55 · Closing the overview · 13 Sep 2026
+
+The last band refined, and a sweep across everything the page now carries.
+
+### The carding decision was never written down
+
+`Panel`'s own comment read *"the uncarded console section · replaces the
+traditional nested white card"*. The overview had been carded for days. Every
+band in this pass was refined against a document describing the opposite of what
+shipped, and nobody — including this pass — noticed until it was pointed out.
+
+`03 §26` now carries the decision and its reasoning: **a hairline between two
+sections looks exactly like a hairline inside one.** On a single-subject screen
+that costs nothing. On a briefing screen with five bands of unrelated subjects it
+costs the reader the ability to tell where one ends. `default` stays the console
+default; `elevated` is the overview's exception; `flush-glass` is for a panel on
+an already-tinted ground.
+
+§20's shadow reversal now points at §26, and `18 §14` adds the decision to the
+playbook as a step that must be settled **before** states, since empty and
+loading states inherit the container's treatment.
+
+### "Over the last 30 days" was not
+
+The latency panel's new prose claimed a 30-day window. `HealthModel.latency` is
+**24 hourly points** — one day. Corrected, and rewritten to say what the chart is
+for: the tail is what pages somebody, and a mean hides it.
+
+### The export action was invented at the call site
+
+The export route wrote `action: 'platform.exported'` as a bare string while
+`AUDIT_ACTIONS` is a closed catalogue whose own comment warns that inventing a
+string at a call site is how a trail becomes unqueryable. My own earlier work.
+
+It is `AUDIT_ACTIONS.PLATFORM_EXPORTED` now — a real entry, distinct from
+`audit.exported` on purpose: the one route serves three resources, so reusing the
+log's action would record a revenue export as an audit export and make "who took
+the roster" unanswerable. The resource travels in `reason`.
+
+### The shared surface had never been censused
+
+`Surface.tsx` is imported by every console screen and carried eight raw values —
+four white alphas in the segmented control, two shadows, a text shadow and a
+black hover. All tokenised. Three more `bg-white` grounds in the operations band
+went with them.
+
+### Weight ceiling, again
+
+Two more `font-semibold` reintroduced during the last pass. `03 §5` caps at 500.
+The section is clear.
+
+### Final state of the overview
+
+| Check | Result |
+| --- | --- |
+| Raw colour, 14 files | **0** |
+| Weight-ceiling violations | **0** |
+| Handler-less controls, whole console | **0** |
+| Every band: empty, loading, heavy states | **present** |
+| Every band skeleton mirrors its own grid | **yes** |
+| Responsive | `lg:` for band splits, `sm:` for sub-grids, every two-column grid `minmax(0,…)`, no fixed widths |
+| Audited from this page | plan change, provisioning, support session entry and exit — both logs, same transaction |
+
+`notices` remains the one literal in the console chrome: there is no
+notifications table, and the layout says so rather than inventing one.
