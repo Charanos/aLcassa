@@ -32,6 +32,7 @@ import { StartSessionDialog } from './StartSessionDialog';
 import { ProvisionWorkspaceDialog } from './ProvisionWorkspaceDialog';
 import { gsapSafe, prefersReducedMotion } from '@/lib/motion';
 import { useToast } from '@/components/primitives/Toast';
+import { Badge } from '@/components/primitives/Badge';
 import type {
   ConsoleAccount,
   ConsoleNavGroup,
@@ -1331,21 +1332,42 @@ export function ConsoleShell({
 
             {navigation.map((group, gIdx) => (
               <div key={group.label} className={gIdx === 0 ? 'mb-3' : 'mt-5 mb-3'}>
-                <p
-                  className="t-eyebrow mb-2 ml-2 overflow-hidden tracking-wider whitespace-nowrap"
+                {/* ── Group Header (Text when open, line when collapsed) ── */}
+                <div
+                  className="relative flex items-center overflow-hidden"
                   style={{
-                    color: 'var(--chrome-fg-muted)',
-                    fontSize: '10.5px',
-                    opacity: collapsed ? 0 : 1,
-                    maxHeight: collapsed ? '0px' : '20px',
-                    marginBottom: collapsed ? '0px' : '8px',
-                    transform: collapsed ? 'translateY(-6px)' : 'translateY(0)',
-                    transition:
-                      'opacity 180ms ease, max-height 240ms cubic-bezier(0.2,0,0,1), transform 180ms ease, margin-bottom 240ms ease',
+                    maxHeight: collapsed ? (gIdx === 0 ? '0px' : '16px') : '20px',
+                    marginBottom: collapsed ? (gIdx === 0 ? '0px' : '8px') : '8px',
+                    transition: 'max-height 240ms cubic-bezier(0.2,0,0,1), margin-bottom 240ms ease',
                   }}
                 >
-                  {group.label}
-                </p>
+                  <p
+                    className="t-eyebrow ml-2 tracking-wider whitespace-nowrap"
+                    style={{
+                      color: 'var(--chrome-fg-muted)',
+                      fontSize: '10.5px',
+                      opacity: collapsed ? 0 : 1,
+                      transform: collapsed ? 'translateY(-6px)' : 'translateY(0)',
+                      transition: 'opacity 180ms ease, transform 180ms ease',
+                    }}
+                  >
+                    {group.label}
+                  </p>
+                  {/* Subtle dash divider that appears only in collapsed state (and never for the first group) */}
+                  {gIdx > 0 && (
+                    <div
+                      className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full"
+                      style={{
+                        height: '2px',
+                        background: 'rgba(255, 255, 255, 0.22)',
+                        width: collapsed ? '22px' : '0px',
+                        opacity: collapsed ? 1 : 0,
+                        transition: 'width 240ms cubic-bezier(0.2, 0, 0, 1), opacity 240ms ease',
+                      }}
+                      aria-hidden
+                    />
+                  )}
+                </div>
                 <div className="flex flex-col gap-0.5">
                   {group.items.map((item) => {
                     const active =
@@ -1456,21 +1478,23 @@ export function ConsoleShell({
                 ? `Isolation green · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
                 : `Isolation gap · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
             }
-            className="mx-2 mb-2 flex items-center rounded-lg py-2 transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
+            className="group flex h-[38px] items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
             style={{
-              gap: collapsed ? '0px' : '9px',
-              paddingLeft: collapsed ? '11px' : '10px',
-              paddingRight: collapsed ? '11px' : '10px',
+              gap: collapsed ? '0px' : '10px',
+              marginLeft: collapsed ? '0px' : '8px',
+              marginRight: collapsed ? '0px' : '8px',
+              paddingLeft: collapsed ? '18px' : '8px',
+              paddingRight: collapsed ? '0px' : '8px',
               transition:
-                'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                'gap 240ms cubic-bezier(0.2,0,0,1), margin 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
             }}
           >
             {/* Dot container grows when collapsed so it reads confidently as a solo mark */}
             <span
               className="relative flex shrink-0 items-center justify-center"
               style={{
-                width: collapsed ? '20px' : '16px',
-                height: collapsed ? '20px' : '16px',
+                width: collapsed ? '24px' : '18px',
+                height: collapsed ? '24px' : '18px',
                 transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
               }}
             >
@@ -1481,8 +1505,8 @@ export function ConsoleShell({
                     style={{
                       background: 'var(--success-fg)',
                       opacity: 0.35,
-                      width: collapsed ? '12px' : '8px',
-                      height: collapsed ? '12px' : '8px',
+                      width: collapsed ? '12px' : '9px',
+                      height: collapsed ? '12px' : '9px',
                       transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
                     }}
                   />
@@ -1490,9 +1514,9 @@ export function ConsoleShell({
                     className="relative rounded-full"
                     style={{
                       background: 'var(--success-fg)',
-                      boxShadow: collapsed ? '0 0 10px var(--success-fg)' : '0 0 6px var(--success-fg)',
-                      width: collapsed ? '8px' : '6px',
-                      height: collapsed ? '8px' : '6px',
+                      boxShadow: collapsed ? '0 0 10px var(--success-fg)' : '0 0 7px var(--success-fg)',
+                      width: collapsed ? '8px' : '7px',
+                      height: collapsed ? '8px' : '7px',
                       transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1), box-shadow 240ms ease',
                     }}
                   />
@@ -1502,9 +1526,9 @@ export function ConsoleShell({
                   className="rounded-full"
                   style={{
                     background: 'var(--warning-fg)',
-                    boxShadow: collapsed ? '0 0 10px var(--warning-fg)' : '0 0 6px var(--warning-fg)',
-                    width: collapsed ? '8px' : '6px',
-                    height: collapsed ? '8px' : '6px',
+                    boxShadow: collapsed ? '0 0 10px var(--warning-fg)' : '0 0 7px var(--warning-fg)',
+                    width: collapsed ? '8px' : '7px',
+                    height: collapsed ? '8px' : '7px',
                     transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1), box-shadow 240ms ease',
                   }}
                 />
@@ -1522,38 +1546,58 @@ export function ConsoleShell({
               }}
             >
               <span
-                className="block truncate text-[11.5px] font-medium"
-                style={{ color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)' }}
+                className="block truncate font-semibold tracking-tight"
+                style={{ color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)', fontSize: '11.5px' }}
               >
                 {isolationOk ? 'Isolation green' : 'Isolation gap'}
               </span>
               <span
-                className="block truncate font-mono text-[10px]"
-                style={{ color: 'var(--chrome-fg-faint)' }}
-                title={`${isolation.tablesPoliced} of ${isolation.tablesTotal} tenant-scoped tables policed · Last automated audit: ${isolation.lastRun}`}
+                className="block truncate font-mono mt-[1.5px]"
+                style={{ color: 'var(--chrome-fg-faint)', fontSize: '10px' }}
               >
                 {isolation.tablesPoliced}/{isolation.tablesTotal} tables · {isolation.lastRun}
               </span>
             </span>
           </Link>
 
-          <div className="shrink-0 p-2" style={{ borderTop: '1px solid var(--chrome-rule)' }}>
-            {/* Quick exit to public marketing site */}
+          {/* ── Bottom footer ──────────────────────────────────────────────── */}
+          <div
+            className="shrink-0"
+            style={{
+              borderTop: '1px solid var(--chrome-rule)',
+              paddingTop: '6px',
+              paddingBottom: '8px',
+              paddingLeft: collapsed ? '0px' : '8px',
+              paddingRight: collapsed ? '0px' : '8px',
+              marginTop: '6px',
+              transition: 'padding 240ms cubic-bezier(0.2,0,0,1)',
+            }}
+          >
+
+            {/* ── Public site exit ─────────────────────────── */}
             <Link
               href="/"
-              className="flex items-center rounded-lg p-1.5 text-[12px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
+              className="group flex h-[34px] w-full items-center rounded-lg transition-all hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
               style={{
                 color: 'var(--chrome-fg-muted)',
-                gap: collapsed ? '0px' : '10px',
-                paddingLeft: collapsed ? '7px' : '8px',
-                paddingRight: collapsed ? '7px' : '8px',
-                transition:
-                  'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                gap: collapsed ? '0px' : '9px',
+                paddingLeft: collapsed ? '18px' : '8px',
+                paddingRight: collapsed ? '0px' : '8px',
+                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
               title={collapsed ? 'Public marketing site' : undefined}
             >
-              <span className="flex size-6 shrink-0 items-center justify-center">
-                <IconArrowUpRight size={15} stroke={1.25} aria-hidden />
+              <span
+                className="flex shrink-0 items-center justify-center rounded-md"
+                style={{
+                  width: '22px',
+                  height: '22px',
+                  background: collapsed ? 'transparent' : 'rgba(255,255,255,0.05)',
+                  border: collapsed ? 'none' : '1px solid rgba(255,255,255,0.07)',
+                  transition: 'background 200ms ease, border 200ms ease',
+                }}
+              >
+                <IconArrowUpRight size={13} stroke={1.75} aria-hidden />
               </span>
               <span
                 className="min-w-0 flex-1 overflow-hidden whitespace-nowrap"
@@ -1562,48 +1606,39 @@ export function ConsoleShell({
                   maxWidth: collapsed ? '0px' : '140px',
                   transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
                   pointerEvents: collapsed ? 'none' : 'auto',
-                  transition:
-                    'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+                  font: '400 12px/1 var(--font-ui)',
+                  transition: 'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
                 Public site
               </span>
             </Link>
 
-            {/*
-              ⚠ IDENTITY READOUT, NOT A SECOND ROUTE TO THE PROFILE.
-
-              This was a `<Link href="/platform/profile">` — the same
-              destination the account control in the top bar already owns,
-              roughly a thumb's width away, in a chrome that also offered the
-              public site three times over. One action, one owner.
-
-              It keeps its place because what it SAYS is not duplicated: which
-              account this window is signed in as, and at what role. That is
-              orientation, and it belongs next to the isolation chip above it,
-              which is the same kind of statement — a fact the operator should
-              not have to go and check. It is a `<div>` now, so it no longer
-              takes a tab stop or invites a click that lands where the avatar
-              menu already goes.
-            */}
+            {/* ── Account identity ─────────────────────────── */}
             <div
-              className="flex items-center rounded-lg p-1.5"
+              className="flex h-[42px] w-full items-center rounded-lg"
               style={{
-                background: 'transparent',
                 gap: collapsed ? '0px' : '10px',
-                paddingLeft: collapsed ? '7px' : '8px',
-                paddingRight: collapsed ? '7px' : '8px',
-                transition:
-                  'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                paddingLeft: collapsed ? '15px' : '8px',
+                paddingRight: collapsed ? '0px' : '8px',
+                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
               title={collapsed ? `${account.name} (${account.role})` : undefined}
             >
-              <div className="relative size-6 shrink-0 overflow-hidden rounded-full border border-[var(--chrome-rule)]">
+              <div
+                className="relative shrink-0 overflow-hidden rounded-full"
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  border: '1.5px solid rgba(255,255,255,0.12)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                }}
+              >
                 <Image
                   src="https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGJsYWNrJTIwbWFufGVufDB8fDB8fHww"
                   alt={account.name}
-                  width={24}
-                  height={24}
+                  width={30}
+                  height={30}
                   className="size-full object-cover"
                 />
               </div>
@@ -1611,51 +1646,45 @@ export function ConsoleShell({
                 className="min-w-0 flex-1 overflow-hidden whitespace-nowrap"
                 style={{
                   opacity: collapsed ? 0 : 1,
-                  maxWidth: collapsed ? '0px' : '140px',
+                  maxWidth: collapsed ? '0px' : '150px',
                   transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
                   pointerEvents: collapsed ? 'none' : 'auto',
-                  transition:
-                    'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+                  transition: 'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
                 <span
-                  className="block truncate text-[12px] font-medium"
-                  style={{ color: 'var(--chrome-fg-muted)' }}
+                  className="block truncate"
+                  style={{ font: '500 12.5px/1 var(--font-ui)', color: 'var(--chrome-fg)', letterSpacing: '-0.01em' }}
                 >
                   {account.name}
                 </span>
-                <span
-                  className="block truncate font-mono text-[10px]"
-                  style={{ color: 'var(--chrome-fg-faint)' }}
-                >
-                  {account.role}
+                <span className="mt-[3px] flex items-center gap-1.5">
+                  <Badge intent="brand" crisp>
+                    {account.role}
+                  </Badge>
                 </span>
               </span>
             </div>
 
+            {/* ── Collapse toggle ──────────────────────────── */}
             <button
               type="button"
               onClick={toggleCollapse}
-              className="group mt-1 flex h-[36px] w-full cursor-pointer items-center rounded-lg text-[13px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
+              className="group flex h-[34px] w-full cursor-pointer items-center rounded-lg text-[12.5px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
               style={{
                 background: 'transparent',
                 color: 'var(--chrome-fg-faint)',
-                paddingLeft: collapsed ? '11px' : '10px',
-                paddingRight: collapsed ? '11px' : '10px',
-                gap: collapsed ? '0px' : '10px',
-                transition:
-                  'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                paddingLeft: collapsed ? '18px' : '8px',
+                paddingRight: collapsed ? '0px' : '8px',
+                gap: collapsed ? '0px' : '9px',
+                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
-              /* ⚠ `lockedCollapsed`, NOT `collapsed`. While the rail is
-                 peeking it LOOKS expanded, but the click still locks it open —
-                 labelling that 'Collapse sidebar' would describe the opposite
-                 of what pressing it does, to the reader least able to check. */
               aria-label={lockedCollapsed ? 'Keep sidebar open' : 'Collapse sidebar'}
             >
-              <span className="flex size-4 shrink-0 items-center justify-center">
+              <span className="flex size-[24px] shrink-0 items-center justify-center">
                 <IconChevronLeft
-                  size={16}
-                  stroke={1.25}
+                  size={15}
+                  stroke={1.5}
                   style={{
                     transform: lockedCollapsed ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 260ms cubic-bezier(0.2,0,0,1)',
@@ -1670,8 +1699,7 @@ export function ConsoleShell({
                   maxWidth: collapsed ? '0px' : '150px',
                   transform: collapsed ? 'translateX(-8px)' : 'translateX(0)',
                   pointerEvents: collapsed ? 'none' : 'auto',
-                  transition:
-                    'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+                  transition: 'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
                 <span className="transition-colors group-hover:text-[var(--chrome-fg)]">
@@ -1679,20 +1707,19 @@ export function ConsoleShell({
                 </span>
               </span>
               <kbd
-                className="inline-flex h-[20px] shrink-0 items-center gap-[2.5px] rounded-[5px] px-1.5 select-none"
+                className="inline-flex h-[18px] shrink-0 items-center gap-[2px] rounded-[4px] px-1 select-none"
                 style={{
                   opacity: collapsed ? 0 : 1,
                   transform: collapsed ? 'scale(0.4)' : 'scale(1)',
                   pointerEvents: collapsed ? 'none' : 'auto',
-                  background: 'color-mix(in oklab, var(--chrome-active-bg) 60%, transparent)',
+                  background: 'rgba(255,255,255,0.04)',
                   border: '1px solid var(--chrome-rule-strong)',
-                  font: '500 10.5px/1 var(--font-mono)',
-                  color: 'var(--chrome-fg-muted)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 1px 1px rgba(0,0,0,0.2)',
+                  font: '500 10px/1 var(--font-mono)',
+                  color: 'var(--chrome-fg-faint)',
                   transition: 'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
-                <span style={{ opacity: 0.5, fontSize: '9.5px' }}>⌘</span>B
+                <span style={{ opacity: 0.5, fontSize: '9px' }}>⌘</span>B
               </kbd>
             </button>
           </div>

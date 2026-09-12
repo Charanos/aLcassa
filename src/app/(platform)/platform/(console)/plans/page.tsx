@@ -13,8 +13,9 @@ import {
 } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
 import { BlastRadiusDialog } from '@/components/console/BlastRadiusDialog';
-import { getPlans, type EntitlementRow } from '@/lib/console/data';
-import { getLivePlans } from '@/lib/console/live';
+import { getHeadroom, getPlans, type EntitlementRow } from '@/lib/console/data';
+import { getLiveHeadroom, getLivePlans } from '@/lib/console/live';
+import { HeadroomBand } from '@/components/console/plans/HeadroomBand';
 
 export const metadata: Metadata = { title: 'Plans' };
 
@@ -63,7 +64,10 @@ export default async function PlansPage() {
    * never in the schema. A signed-in operator now sees the real Pro,
    * Business and Custom; the review bypass still sees the drawn version.
    */
-  const m = (await getLivePlans()) ?? (await getPlans());
+  const [m, headroom] = await Promise.all([
+    getLivePlans().then(async (live) => live ?? (await getPlans())),
+    getLiveHeadroom().then(async (live) => live ?? (await getHeadroom())),
+  ]);
   const assigned = m.plans.reduce((n, p) => n + p.count, 0);
 
   return (
@@ -334,6 +338,8 @@ export default async function PlansPage() {
           </section>
         </div>
       </div>
+
+      <HeadroomBand model={headroom} />
     </ConsolePage>
   );
 }

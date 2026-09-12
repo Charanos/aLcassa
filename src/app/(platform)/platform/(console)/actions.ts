@@ -13,6 +13,7 @@ import { logger } from '@/lib/logger';
 import {
   endSupportSession as revokeSupportSession,
   extendSupportSession,
+  provisionTenant,
   setTenantStatus,
   startSupportSession as mintSupportSession,
 } from '@/modules/platform';
@@ -385,4 +386,87 @@ export async function toggleBreakGlass(input: { lock: boolean }): Promise<Toggle
       ? 'The platform-wide lock writes to app.support_lock, which withTenantContext does not read yet. Nothing is currently enforcing this — flipping a local flag would be worse than refusing.'
       : 'Re-enabling reads the same unwired flag. There is nothing active to release yet.',
   };
+}
+
+/* ── Provisioning ─────────────────────────────────────────────────────────── */
+
+export type ProvisionWorkspaceResult =
+  | { ok: true; slug: string }
+  | { ok: false; error: string; field?: 'name' | 'slug' | 'ownerEmail' };
+
+/**
+ * Provision a workspace from the console's own dialog.
+ *
+ * ⚠ THE DIALOG WAS A `setTimeout`. That is the whole reason this exists.
+ *
+ * `ProvisionWorkspaceDialog.submit()` ran an 1800ms timer, flipped itself to
+ * "done", raised a toast reading "<name> provisioned · invitation sent to the
+ * owner", and navigated to the workspace list. No request was made and no rows
+ * were written — while the panel beside the form promised five specific things
+ * by name: an RLS-bound tenant row, snapshotted entitlements, an invited
+ * owner, propagated master rules and a `tenant.provision` audit entry.
+ *
+ * A control that fakes a success is worse than one that does nothing visible,
+ * because the operator leaves believing a customer can sign in. `provisionTenant`
+ * has been sitting in `modules/platform` fully built the entire time — creating
+ * tenant, settings, profile and owner membership in one transaction, and
+ * deleting the auth user again if any of it fails. This connects the two.
+ *
+ * ⚠ THE RESULT NAMES A FIELD WHERE IT CAN. `slug_taken` and `owner_exists` are
+ * both fixable by the operator in one edit, and a dialog that says only "that
+ * did not go through" makes them guess which of four inputs to change.
+ */
+export async function provisionWorkspace(input: {
+  name: string;
+  slug: string;
+  ownerEmail: string;
+  ownerName?: string;
+  trial: boolean;
+}): Promise<ProvisionWorkspaceResult> {
+  try {
+    const ctx = await currentPlatformSession();
+
+    const result = await provisionTenant(
+      {
+        name: input.name.trim(),
+        slug: input.slug.trim(),
+        ownerEmail: input.ownerEmail.trim(),
+        /* The dialog collects four fields and an owner NAME is not one of
+           them — 02 §3 has the owner set their own profile from the
+           invitation. The address is the only thing known about them here, so
+           it stands in until they arrive rather than inventing a display name
+           the person never chose. */
+        ownerName: input.ownerName?.trim() || input.ownerEmail.trim(),
+        initialStatus: input.trial ? 'trial' : 'active',
+      },
+      {
+        userId: ctx.actorId,
+        label: ctx.actorLabel,
+        requestId: ctx.requestId,
+        ipAddress: ctx.ipAddress,
+      },
+    );
+
+    if (!result.ok) {
+      const field =
+        result.code === 'slug_taken'
+          ? ('slug' as const)
+          : result.code === 'owner_exists'
+            ? ('ownerEmail' as const)
+            : undefined;
+      return { ok: false, error: result.message, field };
+    }
+
+    /* Both surfaces that count workspaces. The overview's portfolio band and
+       the workspace table would otherwise keep serving a cached page that
+       does not contain the tenant the operator just watched being created. */
+    revalidatePath('/platform/tenants');
+    revalidatePath('/platform');
+
+    return { ok: true, slug: result.slug };
+  } catch (error) {
+    if (isAppError(error)) return { ok: false, error: error.message };
+    logger.error('workspace provisioning failed', { error });
+    return { ok: false, error: 'That did not go through. The platform log has the detail.' };
+  }
 }

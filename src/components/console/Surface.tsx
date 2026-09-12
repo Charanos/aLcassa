@@ -1,4 +1,6 @@
 import React from 'react';
+import Link from 'next/link';
+import { IconArrowRight } from '@tabler/icons-react';
 
 /**
  * The console's surface vocabulary.
@@ -367,5 +369,31 @@ export function InertControl({
     >
       {children}
     </button>
+  );
+}
+
+/**
+ * The link that ends a band.
+ *
+ * ⚠ A BAND WITHOUT ONE IS DECORATION. The pattern the overview established and
+ * every other console surface now follows: a band is a QUESTION, a
+ * visualisation that answers it, and a route to the screen that owns the
+ * follow-up. A reader who finishes a band and has nowhere to go has been shown
+ * a fact rather than given a handle on it.
+ *
+ * It lives here rather than in one surface's folder because it is surface
+ * vocabulary — `overview/shared.tsx` re-exports it so the bands built against
+ * that path keep working, and there is still exactly one definition.
+ */
+export function BandLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="t-caption inline-flex items-center gap-1.5 transition-colors hover:text-[var(--text-primary)]"
+      style={{ color: 'var(--text-action)' }}
+    >
+      {children}
+      <IconArrowRight size={13} stroke={2} aria-hidden />
+    </Link>
   );
 }

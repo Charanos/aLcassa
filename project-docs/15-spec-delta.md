@@ -2211,3 +2211,32 @@ there reaches every workspace's customers. Platform settings have no store
 "Not yet saved anywhere" instead of turning green. **Being told a change landed
 and finding the old value later is worse than a button that does nothing**, and
 on this page it is worse by a wide margin.
+
+### C47 addendum · the toggle model is deleted, not left unreferenced
+
+**12 Sep 2026.** `RulesEditor.tsx` (517 lines), and `Rule`, `RuleGroup`,
+`RulesModel` and `getMasterRules()` in `lib/console/data.ts` (167 lines), are
+removed.
+
+Leaving them in place was the tempting option: the editor is careful work, it
+renders well, and deleting it costs something. It was the wrong option. A read
+model for a shape the database does not have is not dead code, it is a **trap**
+— the next person who needs master rules finds a complete-looking model with a
+matching component and builds against it, and discovers the mismatch after the
+work rather than before it. Git history keeps both.
+
+The distinction worth preserving from the toggle model survived the change:
+`locked` and "has a value" are different properties. A locked field is a floor
+a workspace may tighten and never loosen; an empty field means the platform
+says nothing and the workspace decides alone. Rendering an empty field as
+"off" would claim the platform had made a choice it has not made.
+`rules/RuleFields.tsx` carries both states and the reasoning.
+
+Two figures on the inheritance panel also went, and their absence is the
+point. "Workspace overrides: 12 active" and "conflicts blocked: 4 this month"
+were drawn numbers with no source. Overrides become countable once tenant rule
+rows exist; blocked conflicts are **not counted anywhere at all** — the
+rejection happens at save time in the tenant's own console and nothing records
+it. The screen that explains the platform's authority over a customer's
+assistant is the worst place in the product to invent a figure, so it now says
+they are not counted.

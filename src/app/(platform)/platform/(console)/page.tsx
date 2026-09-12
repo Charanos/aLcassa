@@ -4,28 +4,24 @@ import {
   IconArrowRight,
   IconActivity,
   IconBuildings,
-  IconCircleCheck,
-  IconClock,
   IconCoin,
   IconCreditCard,
-  IconActivityHeartbeat,
-  IconPlayerPause,
   IconDashboard,
   IconChartPie,
+  IconBolt,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import {
-  ConsoleHeader,
-  ConsolePage,
-  FactRow,
-  Panel,
-  SectionHeading,
-} from '@/components/console/Surface';
-import { getOverview, greeting, type QueueItem, type QueueSeverity } from '@/lib/console/data';
+import { ConsoleHeader, ConsolePage, FactRow, Panel } from '@/components/console/Surface';
+import { getOverview, getOverviewInsights, PORTFOLIO_COUNT, greeting } from '@/lib/console/data';
 import { getLiveOverview } from '@/lib/console/live';
 import { resolveSupportSession } from '@/lib/console/session';
 import { OverviewChart } from '@/components/console/OverviewChart';
 import { ProvisionWorkspaceButton } from '@/components/console/ProvisionWorkspaceButton';
+import { OperationsBand } from '@/components/console/overview/OperationsBand';
+import { PortfolioBand } from '@/components/console/overview/PortfolioBand';
+import { RevenueBand } from '@/components/console/overview/RevenueBand';
+import { YourQueue } from '@/components/console/overview/YourQueue';
+import { Badge } from '@/components/primitives/Badge';
 
 export const metadata: Metadata = { title: 'Overview' };
 
@@ -53,52 +49,13 @@ export const metadata: Metadata = { title: 'Overview' };
  *    checking the ones that are.
  */
 
-const SEVERITY: Record<
-  QueueSeverity,
-  { rail: string; chipBg: string; chipInk: string; tagBg: string; tagInk: string; icon: TablerIcon }
-> = {
-  danger: {
-    rail: 'var(--danger-fg)',
-    chipBg: 'var(--danger-bg)',
-    chipInk: 'var(--danger-fg)',
-    tagBg: 'var(--danger-bg)',
-    tagInk: 'var(--danger-fg)',
-    icon: IconCreditCard,
-  },
-  warning: {
-    rail: 'var(--warning-fg)',
-    chipBg: 'var(--warning-bg)',
-    chipInk: 'var(--warning-fg)',
-    tagBg: 'var(--warning-bg)',
-    tagInk: 'var(--warning-fg)',
-    icon: IconActivityHeartbeat,
-  },
-  info: {
-    rail: 'var(--blue-400)',
-    chipBg: 'var(--blue-50)',
-    chipInk: 'var(--blue-500)',
-    tagBg: 'var(--surface-inset)',
-    tagInk: 'var(--text-secondary)',
-    icon: IconClock,
-  },
-  /* Inert, not red. A suspended workspace has already failed — colouring it
-     as an alarm competes with the two items that can still be saved. 03 §3
-     gives this state to the neutral scale for exactly that reason. */
-  inert: {
-    rail: 'var(--ink-400)',
-    chipBg: 'var(--surface-inset)',
-    chipInk: 'var(--text-tertiary)',
-    tagBg: 'var(--surface-inset)',
-    tagInk: 'var(--text-tertiary)',
-    icon: IconPlayerPause,
-  },
-};
+
 
 const SIGNAL_ICON: Record<string, TablerIcon> = {
   coin: IconCoin,
-  pulse: IconActivityHeartbeat,
+  pulse: IconCreditCard,
   building: IconBuildings,
-  bolt: IconActivity,
+  bolt: IconBolt,
 };
 
 export default async function ConsoleOverviewPage() {
@@ -110,7 +67,11 @@ export default async function ConsoleOverviewPage() {
    * place the invented revenue and uptime figures still appear — see
    * `getLiveOverview` for why they are not reproduced against real rows.
    */
-  const [live, session] = await Promise.all([getLiveOverview(), resolveSupportSession()]);
+  const [live, session, insights] = await Promise.all([
+    getLiveOverview(),
+    resolveSupportSession(),
+    getOverviewInsights(),
+  ]);
   const model = live ?? (await getOverview());
 
   return (
@@ -170,314 +131,241 @@ export default async function ConsoleOverviewPage() {
           A completely overhauled inverse chrome section that combines the daily
           briefing with a dynamic Recharts visualization. */}
       <section
-        className="relative mt-6 overflow-hidden rounded-2xl shadow-2xl transition-all duration-300"
+        className="relative mt-6 overflow-hidden rounded-[20px] shadow-2xl transition-all duration-300"
         style={{
-          border: '1px solid var(--invert-card-border)',
-          background: 'var(--invert-card-bg)',
+          background: '#060913', // Use solid dark navy token
+          border: '1px solid rgba(255,255,255,0.08)',
           color: 'var(--invert-card-fg)',
-          boxShadow: 'var(--invert-card-shadow)',
+          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.06)',
         }}
       >
-        <div className="relative z-10 flex flex-col lg:flex-row">
-          {/* Left Column: The Situation Briefing */}
+        {/* ── Premium Ambient Background Art ── */}
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none" aria-hidden="true">
+          {/* Deep atmospheric glows */}
           <div
-            className="relative flex flex-1 flex-col justify-between overflow-hidden p-8 lg:p-10"
-            style={{ borderRight: '1px solid var(--invert-card-rule)' }}
+            className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-[0.18] blur-[120px]"
+            style={{ background: 'var(--blue-500)' }}
+          />
+          <div
+            className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
+            style={{ background: 'var(--indigo-500)' }}
+          />
+
+          {/* Ultra-subtle, elegant mesh topology */}
+          <svg
+            className="absolute inset-0 h-full w-full opacity-[0.4]"
+            viewBox="0 0 1000 400"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMidYMid slice"
           >
-            {/* Background Architectural Artwork - elegant tenant telemetry & topology motif */}
-            <div
-              className="pointer-events-none absolute -right-16 -bottom-20 z-0 rotate-12 transform text-[var(--invert-card-fg)] opacity-[0.12] transition-all duration-700 select-none"
-              aria-hidden="true"
-            >
-              <svg
-                width="480"
-                height="400"
-                viewBox="0 0 480 400"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Orbital radar rings */}
-                <circle
-                  cx="320"
-                  cy="240"
-                  r="220"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  strokeDasharray="4 8"
-                  opacity="0.3"
-                />
-                <circle
-                  cx="320"
-                  cy="240"
-                  r="160"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  opacity="0.4"
-                />
-                <circle
-                  cx="320"
-                  cy="240"
-                  r="100"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  strokeDasharray="3 6"
-                  opacity="0.6"
-                />
-                <circle
-                  cx="320"
-                  cy="240"
-                  r="40"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  opacity="0.8"
-                />
-                <circle cx="320" cy="240" r="12" fill="currentColor" opacity="0.9" />
+            <path
+              d="M -100 250 C 200 350 400 50 700 150 S 1100 0 1200 100"
+              stroke="url(#elegant-line-1)"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M -50 300 C 250 400 450 100 750 200 S 1150 50 1250 150"
+              stroke="url(#elegant-line-2)"
+              strokeWidth="1"
+              strokeDasharray="4 8"
+            />
+            <defs>
+              <linearGradient id="elegant-line-1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
+                <stop offset="40%" stopColor="var(--invert-card-fg)" stopOpacity="0.25" />
+                <stop offset="80%" stopColor="var(--blue-400)" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="elegant-line-2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
+                <stop offset="50%" stopColor="var(--invert-card-fg)" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
 
-                {/* Data streaming waves / paths */}
-                <path
-                  d="M 100 200 Q 210 150 320 240 T 460 180"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  opacity="0.5"
-                  fill="none"
-                />
-                <path
-                  d="M 140 280 Q 250 320 320 240 T 420 100"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  strokeDasharray="4 4"
-                  opacity="0.4"
-                  fill="none"
-                />
+          {/* Minimalist dot matrix overlay fading out at the bottom */}
+          <div
+            className="absolute inset-0 opacity-[0.25]"
+            style={{
+              backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)',
+              backgroundSize: '32px 32px',
+              maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
+              WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
+            }}
+          />
+        </div>
 
-                {/* Constellation & Tenancy Network Interconnects */}
-                <path
-                  d="M 140 200 L 230 160 L 320 240 L 410 190 L 360 330 L 220 310 Z"
-                  stroke="currentColor"
-                  strokeWidth="1.25"
-                  opacity="0.5"
-                />
-                <path
-                  d="M 230 160 L 320 90 L 410 190"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  strokeDasharray="3 4"
-                  opacity="0.4"
-                />
-                <path
-                  d="M 140 200 L 220 310"
-                  stroke="currentColor"
-                  strokeWidth="0.75"
-                  strokeDasharray="2 3"
-                  opacity="0.3"
-                />
-
-                {/* Node anchors */}
-                <circle cx="140" cy="200" r="6" fill="currentColor" opacity="0.75" />
-                <circle cx="230" cy="160" r="8" fill="currentColor" opacity="0.9" />
-                <circle cx="320" cy="90" r="5" fill="currentColor" opacity="0.6" />
-                <circle cx="410" cy="190" r="7" fill="currentColor" opacity="0.8" />
-                <circle cx="360" cy="330" r="7.5" fill="currentColor" opacity="0.85" />
-                <circle cx="220" cy="310" r="5.5" fill="currentColor" opacity="0.7" />
-
-                {/* Micro-nodes */}
-                <circle cx="275" cy="200" r="3" fill="currentColor" opacity="0.5" />
-                <circle cx="365" cy="215" r="3.5" fill="currentColor" opacity="0.6" />
-                <circle cx="280" cy="285" r="3" fill="currentColor" opacity="0.5" />
-
-                {/* Radial crosshair lines */}
-                <line
-                  x1="320"
-                  y1="0"
-                  x2="320"
-                  y2="400"
-                  stroke="currentColor"
-                  strokeWidth="0.75"
-                  strokeDasharray="3 6"
-                  opacity="0.25"
-                />
-                <line
-                  x1="0"
-                  y1="240"
-                  x2="480"
-                  y2="240"
-                  stroke="currentColor"
-                  strokeWidth="0.75"
-                  strokeDasharray="3 6"
-                  opacity="0.25"
-                />
-              </svg>
-            </div>
-
+        <div className="relative z-10 flex flex-col lg:flex-row">
+          {/* Left Column: The Situation Briefing - uncarded */}
+          <div className="relative flex flex-1 flex-col justify-between p-8 lg:p-12 lg:pr-8">
             <div className="relative z-10">
-              {/* t-eyebrow is the mono uppercase class from tokens.css */}
               <p
-                className="t-eyebrow mb-3"
+                className="mb-4 font-mono uppercase tracking-[0.15em]"
                 style={{
                   color: 'var(--invert-card-fg)',
-                  opacity: 0.6,
-                  letterSpacing: 'var(--t-eyebrow-tracking)',
+                  opacity: 0.5,
+                  fontSize: '10.5px',
+                  fontWeight: 500,
                 }}
               >
-                THE SITUATION
+                The Situation
               </p>
-              {/* display display-md = 32-40px Libertinus serif — editorial commanding weight */}
-              <p
-                className="display display-md leading-[1.18]"
+              {/* Refined editorial headline */}
+              <h1
+                className="display display-md leading-[1.12]"
                 style={{
                   color: 'var(--invert-card-fg)',
-                  maxWidth: '36ch',
+                  maxWidth: '32ch',
                   textWrap: 'pretty',
+                  fontSize: '38px',
+                  letterSpacing: '-0.02em',
+                  textShadow: '0 4px 20px rgba(0,0,0,0.5)',
                 }}
               >
                 {model.headline.lead}
-                <em style={{ fontStyle: 'normal', color: 'var(--accent-mark)' }}>
+                <strong
+                  style={{
+                    fontWeight: 'inherit',
+                    color: 'var(--accent-mark)',
+                    background: 'linear-gradient(90deg, #F97316 0%, #FB923C 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
                   {model.headline.figure}
-                </em>
+                </strong>
                 {model.headline.tail}
-              </p>
+              </h1>
             </div>
 
-            <div className="relative z-10 mt-8 flex flex-wrap items-center gap-3">
+            <div className="relative z-10 mt-10 flex flex-wrap items-center gap-4">
               <Link
                 href="/platform/revenue"
-                className="t-compact inline-flex h-8.5 cursor-pointer items-center gap-2 rounded-lg px-3.5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                className="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-lg px-5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(255,255,255,0.15)]"
                 style={{
-                  background: 'var(--invert-card-fg)',
-                  color: 'var(--invert-card-bg)',
-                  fontWeight: 500,
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  background: 'rgba(255,255,255,0.95)',
+                  color: 'var(--brand-navy)', // Matches the navy bg
+                  font: '500 13.5px/1 var(--font-ui)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 }}
               >
                 Open collection queue
-                <IconArrowRight size={14} stroke={2} aria-hidden />
+                <IconArrowRight size={15} stroke={2.5} aria-hidden />
               </Link>
               <Link
                 href="/platform/tenants"
-                className="t-compact inline-flex h-8.5 cursor-pointer items-center rounded-lg px-3.5 whitespace-nowrap transition-colors hover:bg-white/[0.08]"
+                className="inline-flex h-10 cursor-pointer items-center rounded-lg px-5 whitespace-nowrap transition-all duration-300 hover:bg-[rgba(255,255,255,0.08)]"
                 style={{
-                  border: '1px solid var(--invert-card-rule)',
+                  border: '1px solid rgba(255,255,255,0.15)',
                   color: 'var(--invert-card-fg)',
-                  background: 'var(--invert-card-well)',
+                  background: 'rgba(255,255,255,0.03)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.1)',
+                  font: '500 13.5px/1 var(--font-ui)',
                 }}
               >
-                All 47 workspaces
+                All {PORTFOLIO_COUNT} workspaces
               </Link>
             </div>
           </div>
 
-          {/* Right Column: Recharts Data Viz */}
+          {/* Right Column: Recharts Data Viz - uncarded */}
           <div className="relative min-h-[260px] flex-1 lg:min-h-[280px]">
+            {/* Soft gradient fade masking the left edge of the chart to blend with the text */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r from-[#060913] to-transparent hidden lg:block" />
             <OverviewChart />
           </div>
         </div>
 
-        {/* Bottom Bar: Signals */}
-        <div className="relative z-10 flex flex-wrap items-center border-t border-[var(--invert-card-rule)] bg-[var(--invert-card-well)]">
-          {model.signals.map((s, idx) => {
-            const Icon = SIGNAL_ICON[s.icon] ?? IconActivity;
-            return (
-              <Link
-                key={s.id}
-                href={s.href}
-                className="group min-w-[160px] flex-1 cursor-pointer p-4 transition-colors hover:bg-white/[0.04] lg:p-5"
-                style={{
-                  borderRight:
-                    idx < model.signals.length - 1 ? '1px solid var(--invert-card-rule)' : 'none',
-                }}
-              >
-                <div className="mb-1.5 flex items-center gap-1.5">
-                  <Icon
-                    size={14}
-                    stroke={1.5}
-                    style={{ color: 'var(--invert-card-fg)', opacity: 0.5 }}
-                    aria-hidden
-                  />
-                  {/* t-eyebrow: mono, uppercase, 11px, weight-medium */}
-                  <span
-                    className="t-eyebrow whitespace-nowrap"
+        {/* Bottom Bar: Signals - Telemetry Ribbon */}
+        <div className="relative z-10 px-8 pb-8 lg:px-12 lg:pb-12">
+          {/* Elegant sweeping gradient line instead of a hard border */}
+          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.15)] to-transparent opacity-60 lg:left-12 lg:right-12" />
+
+          <div className="grid w-full grid-cols-1 gap-6 pt-8 md:grid-cols-3 md:gap-8">
+            {model.signals.map((s, i) => {
+              const Icon = SIGNAL_ICON[s.icon] ?? IconActivity;
+              
+              // Custom data parsing for premium presentation
+              const isPositive = s.note.startsWith('Up ');
+              const noteText = s.note.replace(/^Up /, '');
+
+              return (
+                <Link
+                  key={s.id}
+                  href={s.href}
+                  className="group relative flex cursor-pointer flex-col justify-between rounded-xl px-5 -m-5 py-1 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                >
+                  {/* Absolute Background Artwork Icon */}
+                  <div className="pointer-events-none absolute -bottom-6 right-3 z-0 text-[var(--invert-card-fg)] opacity-[0.12] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.16]">
+                    <Icon size={140} stroke={1} aria-hidden />
+                  </div>
+
+                  {/* Subtle right divider for grid columns */}
+                  {i < model.signals.length - 1 && (
+                    <div className="pointer-events-none absolute -right-4 top-1/2 hidden h-16 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[rgba(255,255,255,0.1)] to-transparent md:block" />
+                  )}
+
+                  <div className="relative z-10 mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span
+                        className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em]"
+                        style={{ color: 'var(--invert-card-fg)', opacity: 0.5 }}
+                      >
+                        {s.label}
+                      </span>
+                    </div>
+                    <IconArrowRight
+                      size={14}
+                      stroke={2}
+                      className="opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-40"
+                      style={{ color: 'var(--invert-card-fg)' }}
+                    />
+                  </div>
+
+                  <div className="relative z-10 mb-2.5 flex items-end gap-3">
+                    <div
+                      className="font-mono tracking-tight"
+                      style={{
+                        fontSize: '36px',
+                        fontWeight: 300,
+                        color: 'var(--invert-card-fg)',
+                        lineHeight: 1,
+                        textShadow: '0 4px 16px rgba(0,0,0,0.5)',
+                      }}
+                    >
+                      {s.value}
+                    </div>
+                  </div>
+
+                  <div
+                    className="relative z-10 flex items-center gap-2.5"
                     style={{
-                      color: 'var(--invert-card-subtle)',
-                      letterSpacing: 'var(--t-eyebrow-tracking)',
+                      font: '400 13px/1.5 var(--font-ui)',
+                      color: 'var(--invert-card-fg)',
+                      opacity: 0.65,
                     }}
                   >
-                    {s.label}
-                  </span>
-                </div>
-                {/* numeric: mono tabular figures for alignment */}
-                <div
-                  className="numeric"
-                  style={{
-                    fontSize: 'var(--text-xl)',
-                    color: 'var(--invert-card-fg)',
-                    lineHeight: 1.2,
-                  }}
-                >
-                  {s.value}
-                </div>
-                {/* t-caption: 12.5px sans for supporting detail */}
-                <div className="t-caption mt-1" style={{ color: 'var(--invert-card-subtle)' }}>
-                  {s.note}
-                </div>
-              </Link>
-            );
-          })}
+                    {isPositive && (
+                      <Badge intent="success" crisp indicator={false} className="shadow-none">
+                        + UP
+                      </Badge>
+                    )}
+                    <span className="truncate">{noteText}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* ── Queue + rail ─────────────────────────────────────────────────── */}
       <div className="mb-8 grid items-start gap-6 md:mt-24 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
-        <section>
-          <SectionHeading title="Your queue" note="Ordered by what it costs to ignore" />
-
-          <div className="grid gap-3">
-            {model.queue.map((item) => (
-              <QueueCard key={item.id} item={item} />
-            ))}
-          </div>
-
-          {/* The denominator. See the header note. */}
-          <div
-            className="group relative mt-6 flex items-center gap-3.5 overflow-hidden rounded-2xl px-5 py-4"
-            style={{
-              border: '1px solid var(--border-subtle)',
-              background: 'var(--surface-sunken)',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
-            }}
-          >
-            {/* Ambient success glow */}
-            <div
-              className="pointer-events-none absolute top-0 bottom-0 left-0 w-24 opacity-20 transition-opacity duration-500 group-hover:opacity-30"
-              style={{
-                background: 'linear-gradient(90deg, var(--success-bg) 0%, transparent 100%)',
-              }}
-            />
-            <div className="relative flex shrink-0 items-center justify-center">
-              {/* Outer pulsing ring */}
-              <div
-                className="absolute inset-0 animate-ping rounded-full opacity-20"
-                style={{ background: 'var(--success-fg)' }}
-              />
-              <IconCircleCheck
-                size={20}
-                stroke={1.5}
-                className="relative z-10"
-                style={{ color: 'var(--success-fg)' }}
-                aria-hidden
-              />
-            </div>
-            <p
-              className="t-compact relative z-10 flex-1"
-              style={{ color: 'var(--text-secondary)', letterSpacing: '-0.01em' }}
-            >
-              The other{' '}
-              <span className="numeric font-medium" style={{ color: 'var(--text-primary)' }}>
-                {model.restingCount}
-              </span>{' '}
-              workspaces are inside every limit, paid up, and active in the last seven days.
-            </p>
-          </div>
-        </section>
+        <YourQueue queue={model.queue} restingCount={model.restingCount} />
 
         <div className="grid gap-6">
           {session ? (
@@ -501,10 +389,9 @@ export default async function ConsoleOverviewPage() {
               </p>
               <Link
                 href="/platform/support-sessions"
-                className="t-compact mt-3 flex h-[30px] w-full items-center justify-center rounded-panel transition-colors"
+                className="t-compact mt-3 flex h-[30px] w-full items-center justify-center rounded-panel transition-colors hover:bg-[var(--surface-inset)]"
                 style={{
-                  border: '1px solid var(--border-strong)',
-                  background: 'var(--surface-raised)',
+                  background: 'var(--surface-inset)',
                   color: 'var(--text-primary)',
                 }}
               >
@@ -620,113 +507,18 @@ export default async function ConsoleOverviewPage() {
           </Panel>
         </div>
       </div>
+
+      {/*
+        Everything below the queue. The queue is what needs DOING today; these
+        three bands are what the operator checks around it — and each one is
+        derived from the page it links to rather than restated, so the overview
+        cannot disagree with the screen it summarises.
+      */}
+      <RevenueBand revenue={insights.revenue} />
+      <PortfolioBand portfolio={insights.portfolio} />
+      <OperationsBand operations={insights.operations} />
     </ConsolePage>
   );
 }
 
-function QueueCard({ item }: { item: QueueItem }) {
-  const s = SEVERITY[item.severity];
-  const Icon = s.icon;
 
-  return (
-    <article
-      className="group relative overflow-hidden rounded-2xl transition-all duration-400 hover:-translate-y-[2px]"
-      style={{
-        border: '1px solid var(--border-subtle)',
-        background: 'var(--surface-raised)',
-        // Soft subtle neumorphism: soft drop shadow + inner light/dark rim
-        boxShadow:
-          '4px 6px 20px rgba(0, 0, 0, 0.04), inset 1px 1px 0px rgba(255, 255, 255, 0.05), inset -1px -1px 0px rgba(0, 0, 0, 0.02)',
-      }}
-    >
-      {/* Subtle hover gradient wash based on severity rail color */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-10"
-        style={{
-          background: `radial-gradient(circle at top right, ${s.rail}, transparent 70%)`,
-        }}
-      />
-
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col p-5 md:p-6">
-        <div className="flex items-center gap-3">
-          <span
-            className="grid size-[34px] shrink-0 place-items-center rounded-xl"
-            style={{
-              background: s.chipBg,
-              color: s.chipInk,
-              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.05)',
-            }}
-            aria-hidden
-          >
-            <Icon size={16} stroke={1.75} />
-          </span>
-          <Link
-            href={`/platform/tenants/${item.slug}`}
-            className="min-w-0 flex-1 truncate transition-colors hover:text-[var(--text-action)]"
-            style={{
-              font: '500 16px/1.35 var(--font-ui)',
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.01em',
-            }}
-          >
-            {item.name}
-          </Link>
-
-          <span
-            className="inline-flex h-6 shrink-0 items-center rounded-full px-3 whitespace-nowrap"
-            style={{
-              background: s.tagBg,
-              color: s.tagInk,
-              font: '500 11px/1 var(--font-mono)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            {item.tag}
-          </span>
-        </div>
-
-        <p
-          className="mt-4 text-[14px] leading-relaxed opacity-90"
-          style={{ color: 'var(--text-secondary)', maxWidth: '74ch', textWrap: 'pretty' }}
-        >
-          {item.detail}
-        </p>
-
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <Link
-            href={item.primaryHref}
-            className="t-compact inline-flex h-8.5 cursor-pointer items-center justify-center rounded-lg px-4.5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5"
-            style={{
-              background: 'var(--blue-500)',
-              color: '#ffffff',
-              fontWeight: 500,
-              boxShadow:
-                '0 4px 12px rgba(14, 165, 233, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)',
-            }}
-          >
-            {item.primaryLabel}
-          </Link>
-          <Link
-            href={`/platform/tenants/${item.slug}`}
-            className="t-compact inline-flex h-8.5 cursor-pointer items-center rounded-lg px-4 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
-            style={{
-              border: '1px solid var(--border-strong)',
-              background: 'var(--surface-raised)',
-              color: 'var(--text-primary)',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-            }}
-          >
-            Open workspace
-          </Link>
-          <span className="flex-1" />
-          <span
-            className="whitespace-nowrap opacity-60"
-            style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
-          >
-            {item.meta}
-          </span>
-        </div>
-      </div>
-    </article>
-  );
-}

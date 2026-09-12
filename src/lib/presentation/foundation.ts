@@ -445,7 +445,7 @@ export const FOUNDATION: FoundationItem[] = [
     area: 'Console',
     what: 'Master AI rules: the versioned singleton, append-only history, and a publish that moves a pointer rather than restoring data',
     state: 'built',
-    evidence: 'src/components/console/RulesEditor.tsx',
+    evidence: 'src/components/console/rules/',
     milestone: 'M4a',
   },
   {
