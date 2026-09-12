@@ -94,7 +94,7 @@ export default async function MarketingPage() {
             className="inline-flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-widest text-[var(--orange-500)]"
           >
             <span className="size-2 rounded-full bg-[var(--orange-500)]" />
-            <span className="font-semibold">
+            <span className="font-medium">
               UNIFIED CUSTOMER INBOX PLATFORM
             </span>
             <span className="size-2 rounded-full bg-[var(--orange-500)]" />
@@ -363,7 +363,7 @@ export default async function MarketingPage() {
               <div className="flex items-center gap-3">
                 <Mark size={26} />
                 <div>
-                  <span className="t-panel text-[18px] font-semibold text-[var(--text-primary)]">
+                  <span className="t-panel text-[18px] font-medium text-[var(--text-primary)]">
                     aLcassa
                   </span>
                   <p className="t-caption text-[12px] text-[var(--text-tertiary)]">
@@ -397,7 +397,7 @@ export default async function MarketingPage() {
             />
 
             <div className="space-y-3">
-              <div className="t-eyebrow font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--text-action)]">
+              <div className="t-eyebrow font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--text-action)]">
                 Architecture
               </div>
               <ul className="t-compact space-y-2 text-[13px] text-[var(--text-secondary)]">

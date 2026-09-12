@@ -118,7 +118,7 @@ export function PasswordQualityMeter({ password = '' }: { password?: string }) {
         </div>
         <span
           aria-live="polite"
-          className="font-mono text-[length:var(--text-xs)] font-bold tracking-widest uppercase shrink-0"
+          className="font-mono text-[length:var(--text-xs)] font-semibold tracking-widest uppercase shrink-0"
           style={{ color: ink }}
         >
           {label}

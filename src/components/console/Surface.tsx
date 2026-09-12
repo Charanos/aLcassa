@@ -72,14 +72,14 @@ export function ConsoleHeader({
                 {bc.href ? (
                   <a
                     href={bc.href}
-                    className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-semibold tracking-widest uppercase transition-all duration-200 hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-primary)]"
+                    className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-medium tracking-widest uppercase transition-all duration-200 hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-primary)]"
                     style={{ color: 'var(--text-secondary)' }}
                   >
                     {bc.label}
                   </a>
                 ) : (
                   <span
-                    className="rounded-full bg-[rgba(255,255,255,0.03)] px-2.5 py-1 font-mono text-[10.5px] font-semibold tracking-widest uppercase shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-[rgba(255,255,255,0.02)]"
+                    className="rounded-full bg-[rgba(255,255,255,0.03)] px-2.5 py-1 font-mono text-[10.5px] font-medium tracking-widest uppercase shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-[rgba(255,255,255,0.02)]"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {bc.label}
@@ -95,7 +95,7 @@ export function ConsoleHeader({
 
         {eyebrow && (
           <p
-            className="mb-2 font-mono text-[10.5px] font-semibold tracking-[0.2em] uppercase"
+            className="mb-2 font-mono text-[10.5px] font-medium tracking-[0.2em] uppercase"
             style={{ color: 'var(--text-secondary)', opacity: 0.8 }}
           >
             {eyebrow}
@@ -131,34 +131,49 @@ export function SectionHeading({
   title,
   note,
   action,
+  align = 'left',
 }: {
   title: string;
   note?: string;
   action?: React.ReactNode;
+  align?: 'left' | 'right';
 }) {
+  const isRight = align === 'right';
+
   return (
-    <div className="mb-6 flex items-center justify-between gap-6">
-      <div className="flex items-center gap-6">
-        <h2
-          className="display display-md shrink-0 tracking-tight"
-          style={{ color: 'var(--text-primary)', fontWeight: 400 }}
-        >
-          {title}
-        </h2>
-        {note ? (
-          <span
-            className="t-caption hidden shrink-0 whitespace-nowrap md:inline"
-            style={{ color: 'var(--text-tertiary)', letterSpacing: '0.01em' }}
-          >
-            {note}
-          </span>
-        ) : null}
-      </div>
-      <span
+    <div className="mb-10 w-full">
+      {/* Top Hairline spanning full width */}
+      <div
+        className={`w-full h-px mb-6 ${
+          isRight
+            ? 'bg-gradient-to-l from-[var(--border-strong)]/40 via-[var(--border-strong)]/10 to-transparent'
+            : 'bg-gradient-to-r from-[var(--border-strong)]/40 via-[var(--border-strong)]/10 to-transparent'
+        }`}
         aria-hidden
-        className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--border-strong)]/30 to-transparent"
       />
-      {action ? <div className="shrink-0">{action}</div> : null}
+
+      <div className={`flex w-full items-start justify-between gap-8 ${isRight ? 'flex-row-reverse' : ''}`}>
+        {/* Main Content Stack */}
+        <div className={`flex flex-col ${isRight ? 'items-end text-right' : 'items-start text-left'}`}>
+          <h2
+            className="display display-md tracking-tight"
+            style={{ color: 'var(--text-primary)', fontWeight: 400 }}
+          >
+            {title}
+          </h2>
+          {note ? (
+            <p
+              className="t-body mt-2.5"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {note}
+            </p>
+          ) : null}
+        </div>
+
+        {/* Action Link */}
+        {action ? <div className="shrink-0 mt-1">{action}</div> : null}
+      </div>
     </div>
   );
 }
@@ -176,12 +191,14 @@ export function Panel({
   children,
   flush,
   accent,
+  variant = 'default',
 }: {
   title?: string;
   action?: React.ReactNode;
   children: React.ReactNode;
   flush?: boolean;
   accent?: 'live' | 'warning' | 'danger';
+  variant?: 'default' | 'elevated' | 'flush-glass';
 }) {
   const accentInk =
     accent === 'danger'
@@ -192,15 +209,30 @@ export function Panel({
           ? 'var(--blue-500)'
           : undefined;
 
+  const isElevated = variant === 'elevated';
+  const isFlushGlass = variant === 'flush-glass';
+
   return (
-    <section className="group relative flex flex-col pt-1">
-      {/* Top Hairline Separator */}
-      <div
-        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[var(--border-subtle)] to-transparent"
-        aria-hidden
-      />
+    <section
+      className={`group relative flex flex-col ${isElevated || isFlushGlass ? 'rounded-[16px] px-5 py-4' : 'pt-1'} transition-all duration-400`}
+      style={
+        isElevated || isFlushGlass
+          ? {
+              background: isElevated ? 'var(--surface-sunken)' : 'transparent',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+            }
+          : undefined
+      }
+    >
+      {/* Top Hairline Separator (only for default variant) */}
+      {variant === 'default' && (
+        <div
+          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-[var(--border-subtle)] to-transparent"
+          aria-hidden
+        />
+      )}
       {title ? (
-        <div className="mb-5 mt-4 flex items-center justify-between gap-4 px-1">
+        <div className={`mb-5 ${isElevated || isFlushGlass ? '' : 'mt-4'} flex items-center justify-between gap-4 px-1`}>
           <div className="flex items-center gap-2.5">
             {accentInk ? (
               <span className="relative flex size-2 shrink-0 items-center justify-center">
@@ -253,27 +285,27 @@ export function FactRow({
 
   return (
     <div
-      className="flex items-center justify-between gap-4 py-3.5 transition-colors duration-300 hover:bg-[var(--surface-inset)]"
+      className="flex items-center justify-between gap-4 py-2.5 px-2 transition-colors duration-200 hover:bg-[var(--surface-inset)]/50 rounded-md"
       style={{
         borderBottom: last ? 'none' : '1px solid var(--border-subtle)',
-        margin: '0 -12px',
-        padding: '14px 12px',
-        borderRadius: '8px',
       }}
     >
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2.5">
         {dot ? (
           <span
             aria-hidden
             className="size-1.5 shrink-0 rounded-full"
-            style={{ background: dotInk, boxShadow: `0 0 8px ${dotInk}` }}
+            style={{ 
+              background: dotInk, 
+              boxShadow: `0 0 6px ${dotInk}`
+            }}
           />
         ) : null}
         <span
           className="truncate"
           style={{
             font: '400 13px/1.5 var(--font-ui)',
-            color: 'var(--text-secondary)',
+            color: 'var(--text-primary)',
           }}
         >
           {label}
@@ -282,8 +314,8 @@ export function FactRow({
       <span
         className="numeric shrink-0 whitespace-nowrap"
         style={{
-          font: '500 14px/1 var(--font-mono)',
-          color: tone === 'warn' ? 'var(--warning-fg)' : 'var(--text-primary)',
+          font: '500 13px/1 var(--font-mono)',
+          color: tone === 'warn' ? 'var(--warning-fg)' : 'var(--text-secondary)',
         }}
       >
         {value}

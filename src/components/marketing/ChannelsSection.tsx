@@ -192,7 +192,7 @@ export function ChannelsSection() {
       {/* ── Right-Aligned Section Header (Alternating Cadence) ── */}
       <div className="flex flex-col items-end text-right max-w-3xl ml-auto mb-10 sm:mb-14">
         <div className="inline-flex items-center gap-2 mb-2.5">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--orange-500)]">
+          <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--orange-500)]">
             Getting in touch
           </p>
           <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden="true" />
@@ -253,7 +253,7 @@ export function ChannelsSection() {
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[16px] font-semibold text-[var(--text-primary)] truncate">
+                          <span className="text-[16px] font-medium text-[var(--text-primary)] truncate">
                             {active.handle}
                           </span>
                           <span className="size-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
@@ -511,7 +511,7 @@ export function ChannelsSection() {
                       <span className="font-mono text-[11px] text-[var(--text-tertiary)] block">
                         This is what you’d see right now, in your own dashboard
                       </span>
-                      <h4 className="text-[18px] font-semibold text-[var(--text-primary)] mt-1">
+                      <h4 className="text-[18px] font-medium text-[var(--text-primary)] mt-1">
                         Support access to Kwanza Logistics
                       </h4>
                     </div>
@@ -561,7 +561,7 @@ export function ChannelsSection() {
                       </span>
                     </div>
                     <span
-                      className="font-mono font-semibold text-[22px] tracking-tight tabular-nums"
+                      className="font-mono font-medium text-[22px] tracking-tight tabular-nums"
                       style={{ color: granted ? 'var(--orange-500)' : 'var(--text-tertiary)' }}
                       aria-hidden="true"
                     >

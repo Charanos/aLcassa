@@ -64,7 +64,7 @@ export default async function VerifyPage({
             <span className="text-[11px] font-mono text-[var(--text-tertiary)] uppercase tracking-wider block">
               Recipient Address
             </span>
-            <span className="font-mono text-[13px] font-semibold text-[var(--text-primary)] truncate block">
+            <span className="font-mono text-[13px] font-medium text-[var(--text-primary)] truncate block">
               {email ?? 'your workspace email'}
             </span>
           </div>

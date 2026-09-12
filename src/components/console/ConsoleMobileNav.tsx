@@ -246,7 +246,7 @@ export function ConsoleMobileNav({
                           <span className="flex-1 font-medium">{item.label}</span>
                           {item.badge ? (
                             <span
-                              className="rounded-full px-2 py-0.5 font-mono text-[length:var(--text-xs)] font-semibold"
+                              className="rounded-full px-2 py-0.5 font-mono text-[length:var(--text-xs)] font-medium"
                               style={{
                                 background: 'rgba(255, 255, 255, 0.12)',
                                 color: '#ffffff',
@@ -305,7 +305,7 @@ export function ConsoleMobileNav({
                 style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}
               >
                 <div className="mb-1 px-2.5">
-                  <p className="text-[length:var(--text-sm)] font-semibold text-white">
+                  <p className="text-[length:var(--text-sm)] font-medium text-white">
                     {account.name}
                   </p>
                   <p

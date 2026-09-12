@@ -1003,7 +1003,7 @@ export function ConsoleShell({
                           )}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block font-semibold text-[13.5px] transition-colors group-hover:text-[var(--blue-600)]" style={{ color: 'var(--text-primary)' }}>{n.title}</span>
+                          <span className="block font-medium text-[13.5px] transition-colors group-hover:text-[var(--blue-600)]" style={{ color: 'var(--text-primary)' }}>{n.title}</span>
                           <span
                             className="mt-1 block"
                             style={{
@@ -1110,7 +1110,7 @@ export function ConsoleShell({
                   </div>
                   <span className="min-w-0 flex-1">
                     <span
-                      className="block truncate font-semibold text-[14px]"
+                      className="block truncate font-medium text-[14px]"
                       style={{ color: 'var(--text-primary)' }}
                     >
                       {account.name}
@@ -1546,7 +1546,7 @@ export function ConsoleShell({
               }}
             >
               <span
-                className="block truncate font-semibold tracking-tight"
+                className="block truncate font-medium tracking-tight"
                 style={{ color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)', fontSize: '11.5px' }}
               >
                 {isolationOk ? 'Isolation green' : 'Isolation gap'}

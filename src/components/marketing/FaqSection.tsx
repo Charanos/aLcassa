@@ -215,7 +215,7 @@ export function FaqSection() {
         {/* ── Right-Aligned Section Header (Alternating Rhythm) ── */}
         <div className="flex flex-col items-end text-right max-w-3xl ml-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2">
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--orange-500)]">
+            <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--orange-500)]">
               Frequently Asked Questions
             </p>
             <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
@@ -244,7 +244,7 @@ export function FaqSection() {
                   onClick={() => setActiveCategoryId(category.id)}
                   className={`group flex items-center justify-between w-full px-5 py-4 rounded-2xl text-left transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-white text-[var(--text-primary)] font-semibold shadow-[0_4px_25px_rgba(0,0,0,0.06)] border border-[var(--border-subtle)] translate-x-1 sm:translate-x-1.5'
+                      ? 'bg-white text-[var(--text-primary)] font-medium shadow-[0_4px_25px_rgba(0,0,0,0.06)] border border-[var(--border-subtle)] translate-x-1 sm:translate-x-1.5'
                       : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/50 font-medium'
                   }`}
                 >
@@ -288,14 +288,14 @@ export function FaqSection() {
                   >
                     <div className="flex-1 min-w-0 pr-2">
                       {isOpen && faq.tag && (
-                        <span className="inline-flex items-center font-mono text-[10px] uppercase font-semibold tracking-wider text-emerald-700 bg-emerald-50/90 border border-emerald-200/60 px-2 py-0.5 rounded-md mb-2">
+                        <span className="inline-flex items-center font-mono text-[10px] uppercase font-medium tracking-wider text-emerald-700 bg-emerald-50/90 border border-emerald-200/60 px-2 py-0.5 rounded-md mb-2">
                           {faq.tag}
                         </span>
                       )}
                       <h3
                         className={`text-[14.5px] sm:text-[15.5px] leading-snug transition-colors ${
                           isOpen
-                            ? 'font-semibold text-[var(--text-primary)]'
+                            ? 'font-medium text-[var(--text-primary)]'
                             : 'font-medium text-[var(--text-primary)] group-hover:text-[var(--blue-600)]'
                         }`}
                       >

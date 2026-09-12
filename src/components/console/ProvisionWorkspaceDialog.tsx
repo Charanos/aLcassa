@@ -219,7 +219,7 @@ export function ProvisionWorkspaceDialog({
             <div className="flex items-start justify-between">
               <div>
                 <p
-                  className="mb-1.5 font-mono text-[10.5px] font-semibold tracking-[0.2em] uppercase"
+                  className="mb-1.5 font-mono text-[10.5px] font-medium tracking-[0.2em] uppercase"
                   style={{ color: 'var(--blue-500)' }}
                 >
                   New tenant
@@ -276,7 +276,7 @@ export function ProvisionWorkspaceDialog({
                   {/* Identity */}
                   <section>
                     <p
-                      className="mb-5 font-mono text-[11px] font-semibold tracking-[0.15em] uppercase"
+                      className="mb-5 font-mono text-[11px] font-medium tracking-[0.15em] uppercase"
                       style={{ color: 'var(--text-tertiary)' }}
                     >
                       Identity
@@ -313,7 +313,7 @@ export function ProvisionWorkspaceDialog({
                           </span>
                           {slug ? (
                             <span
-                              className="flex items-center gap-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-widest"
+                              className="flex items-center gap-1.5 font-mono text-[10.5px] font-medium uppercase tracking-widest"
                               style={{
                                 color: slugAvailable ? 'var(--green-500)' : 'var(--red-500)',
                               }}
@@ -391,7 +391,7 @@ export function ProvisionWorkspaceDialog({
                   {/* ── Plan ─────────────────────────────────────── */}
                   <section>
                     <p
-                      className="mb-5 font-mono text-[11px] font-semibold tracking-[0.15em] uppercase"
+                      className="mb-5 font-mono text-[11px] font-medium tracking-[0.15em] uppercase"
                       style={{ color: 'var(--text-tertiary)' }}
                     >
                       Plan
@@ -414,7 +414,7 @@ export function ProvisionWorkspaceDialog({
                             }`}
                           >
                             <span
-                              className="block text-[14px] font-semibold"
+                              className="block text-[14px] font-medium"
                               style={{
                                 color: on ? 'var(--blue-600)' : 'var(--text-primary)',
                               }}
@@ -424,7 +424,7 @@ export function ProvisionWorkspaceDialog({
 
                             <div className="mt-3 border-t border-[var(--ink-100)] pt-3">
                               <span
-                                className="block font-mono text-[12px] font-semibold tracking-tight"
+                                className="block font-mono text-[12px] font-medium tracking-tight"
                                 style={{ color: 'var(--text-primary)' }}
                               >
                                 {p.price}
@@ -498,7 +498,7 @@ export function ProvisionWorkspaceDialog({
                     }}
                   >
                     <p
-                      className="mb-5 font-mono text-[10.5px] font-semibold tracking-[0.15em] uppercase"
+                      className="mb-5 font-mono text-[10.5px] font-medium tracking-[0.15em] uppercase"
                       style={{ color: 'var(--text-tertiary)' }}
                     >
                       What happens on submit

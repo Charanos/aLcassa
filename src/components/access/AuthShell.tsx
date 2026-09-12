@@ -92,7 +92,7 @@ export function AuthShell({
             {(title || lede) && (
               <div className="mb-6 sm:mb-8 text-left">
                 {title ? (
-                  <h1 className="font-sans text-[26px] font-semibold tracking-tight text-[var(--text-primary)] sm:text-[30px]">
+                  <h1 className="font-sans text-[26px] font-medium tracking-tight text-[var(--text-primary)] sm:text-[30px]">
                     {title}
                   </h1>
                 ) : null}

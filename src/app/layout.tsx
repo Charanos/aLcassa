@@ -1,16 +1,8 @@
 import type { Metadata, Viewport } from 'next';
-import { Lekton } from 'next/font/google';
 import { FlashToasts } from '@/components/primitives/FlashToasts';
 import { ToastProvider } from '@/components/primitives/Toast';
 import { GsapProvider } from '@/components/structure/GsapProvider';
 import './globals.css';
-
-const lekton = Lekton({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  variable: '--font-lekton',
-  display: 'swap',
-});
 
 /**
  * 02 §10. Only the marketing page and the three legal pages are indexed;
@@ -52,7 +44,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={lekton.variable}>
+    <html lang="en">
       <body>
         {/* 03 §17. Skip link first, tenant switcher second: stepping into a
             tenant is the commonest keyboard action the owner takes. */}

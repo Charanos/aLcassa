@@ -82,7 +82,7 @@ export function WorkspaceJourney({ current }: { current: JourneyStage }) {
                   reads as one path rather than four separate rows. */}
               <div className="flex flex-col items-center" aria-hidden>
                 <span
-                  className="grid size-[22px] shrink-0 place-items-center rounded-full font-mono text-[10px] font-semibold"
+                  className="grid size-[22px] shrink-0 place-items-center rounded-full font-mono text-[10px] font-medium"
                   style={
                     done
                       ? { background: 'var(--success-fg)', color: 'var(--ink-0)' }

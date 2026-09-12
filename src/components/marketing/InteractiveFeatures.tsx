@@ -216,7 +216,7 @@ export function InteractiveFeatures() {
       <div className="flex flex-col items-start max-w-3xl">
         <div className="inline-flex items-center gap-2 mb-2">
           <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden="true" />
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--orange-500)]">
+          <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--orange-500)]">
             What’s underneath
           </p>
         </div>
@@ -313,7 +313,7 @@ export function InteractiveFeatures() {
                     aria-pressed={selectedRole === role}
                     className={`py-2 px-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer text-center min-h-[40px] ${
                       selectedRole === role
-                        ? 'bg-[var(--surface-base)] text-[var(--text-primary)] shadow-xs border border-[var(--ink-200)] font-semibold'
+                        ? 'bg-[var(--surface-base)] text-[var(--text-primary)] shadow-xs border border-[var(--ink-200)] font-medium'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] border border-transparent'
                     }`}
                   >
@@ -446,7 +446,7 @@ export function InteractiveFeatures() {
                       />
                     </div>
                     <div>
-                      <div className="text-[14px] font-semibold text-[var(--text-primary)]">
+                      <div className="text-[14px] font-medium text-[var(--text-primary)]">
                         {activePerson.name}
                       </div>
                       <div className="font-mono text-[11px] text-[var(--text-tertiary)]">
@@ -558,7 +558,7 @@ export function InteractiveFeatures() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <IconKey size={16} className="text-amber-600" />
-                    <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">
+                    <span className="text-[13.5px] font-medium text-[var(--text-primary)]">
                       WhatsApp channel key
                     </span>
                   </div>
@@ -589,7 +589,7 @@ export function InteractiveFeatures() {
                 <div className="flex items-center justify-between pb-3 border-b border-[var(--ink-100)]">
                   <div className="flex items-center gap-2">
                     <IconBrandWhatsapp size={17} className="text-[var(--green-600)]" aria-hidden="true" />
-                    <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">
+                    <span className="text-[13.5px] font-medium text-[var(--text-primary)]">
                       Customer Question & AI Response
                     </span>
                   </div>
@@ -630,7 +630,7 @@ export function InteractiveFeatures() {
               <div className="space-y-3">
                 <div className="p-4 rounded-2xl border border-[var(--ink-200)]/80 bg-white shadow-xs">
                   <div className="flex items-center justify-between text-xs gap-2">
-                    <span className="text-[13px] font-semibold text-[var(--text-primary)]">
+                    <span className="text-[13px] font-medium text-[var(--text-primary)]">
                       Support session opened · Ticket #8291
                     </span>
                     <span className="font-mono text-[10.5px] text-[var(--text-tertiary)] shrink-0">2 min ago</span>
@@ -648,7 +648,7 @@ export function InteractiveFeatures() {
 
                 <div className="p-4 rounded-2xl border border-[var(--ink-200)]/80 bg-white shadow-xs">
                   <div className="flex items-center justify-between text-xs gap-2">
-                    <span className="text-[13px] font-semibold text-[var(--text-primary)]">
+                    <span className="text-[13px] font-medium text-[var(--text-primary)]">
                       WhatsApp escalation rule updated
                     </span>
                     <span className="font-mono text-[10.5px] text-[var(--text-tertiary)] shrink-0">1 hour ago</span>

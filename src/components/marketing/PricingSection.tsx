@@ -184,7 +184,7 @@ export function PricingSection() {
           <div className="flex flex-col items-start text-left max-w-3xl">
             <div className="inline-flex items-center gap-2">
               <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--orange-500)]">
+              <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--orange-500)]">
                 Pricing & Workspace Packages
               </p>
             </div>
@@ -229,7 +229,7 @@ export function PricingSection() {
                 }`}
               >
                 <span>Annual</span>
-                <span className="font-mono text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded-full bg-[var(--orange-500)] text-white">
+                <span className="font-mono text-[10px] font-medium uppercase px-1.5 py-0.2 rounded-full bg-[var(--orange-500)] text-white">
                   Save 15%
                 </span>
               </button>
@@ -258,7 +258,7 @@ export function PricingSection() {
                 {/* Popular Pill Badge (Clean typography, no sparkles) */}
                 {tier.isPopular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-wider text-white bg-[var(--blue-500)] px-3.5 py-1 rounded-full shadow-sm">
+                    <span className="inline-flex items-center font-mono text-[10px] font-semibold uppercase tracking-wider text-white bg-[var(--blue-500)] px-3.5 py-1 rounded-full shadow-sm">
                       {tier.badge}
                     </span>
                   </div>
@@ -267,11 +267,11 @@ export function PricingSection() {
                 <div>
                   {/* Tier Title & Description */}
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-[22px] font-semibold text-[var(--text-primary)]">
+                    <h3 className="text-[22px] font-medium text-[var(--text-primary)]">
                       {tier.name}
                     </h3>
                     {tier.badge && !tier.isPopular && (
-                      <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] bg-[var(--surface-sunken)] border border-[var(--border-subtle)] px-2.5 py-0.5 rounded-full">
+                      <span className="font-mono text-[10px] font-medium uppercase tracking-wider text-[var(--text-tertiary)] bg-[var(--surface-sunken)] border border-[var(--border-subtle)] px-2.5 py-0.5 rounded-full">
                         {tier.badge}
                       </span>
                     )}
@@ -283,7 +283,7 @@ export function PricingSection() {
                   {/* Price Block */}
                   <div className="mt-6 pt-6 border-t border-[var(--ink-100)]">
                     <div className="flex items-baseline gap-2">
-                      <span className="font-mono text-[32px] sm:text-[36px] font-bold tracking-tight text-[var(--text-primary)]">
+                      <span className="font-mono text-[32px] sm:text-[36px] font-semibold tracking-tight text-[var(--text-primary)]">
                         {formattedPrice}
                       </span>
                       {tier.monthlyPrice > 0 && (
@@ -308,7 +308,7 @@ export function PricingSection() {
                         <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
                           {spec.label}
                         </span>
-                        <span className="text-[12.5px] font-semibold text-[var(--text-primary)] mt-0.5">
+                        <span className="text-[12.5px] font-medium text-[var(--text-primary)] mt-0.5">
                           {spec.value}
                         </span>
                       </div>
@@ -317,7 +317,7 @@ export function PricingSection() {
 
                   {/* Checklist of Features & Entitlements */}
                   <div className="mt-6 space-y-3">
-                    <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                    <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--text-tertiary)]">
                       Included in {tier.name}:
                     </p>
                     <ul className="space-y-2.5">

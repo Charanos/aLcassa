@@ -88,20 +88,24 @@ export function Pagination({ page, pageSize, total, onPage, noun, label }: Pagin
   return (
     <nav
       aria-label={label ?? `${noun} pages`}
-      className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-3.5"
+      className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t pt-6"
       style={{ borderColor: 'var(--border-subtle)' }}
     >
       <p
         className="flex-1 whitespace-nowrap"
-        style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+        style={{
+          font: '400 12px/1 var(--font-mono)',
+          color: 'var(--text-tertiary)',
+          letterSpacing: '-0.01em',
+        }}
       >
-        <span style={{ color: 'var(--text-secondary)' }}>
+        <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
           {first}&ndash;{last}
         </span>{' '}
-        of {total} {noun}
+        <span className="opacity-70">of {total} {noun}</span>
       </p>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <Step
           direction="previous"
           disabled={page <= 1}
@@ -111,12 +115,10 @@ export function Pagination({ page, pageSize, total, onPage, noun, label }: Pagin
         {run.map((p, i) =>
           p === null ? (
             <span
-              /* An elision has no identity beyond its position, so the index
-                 IS its key. */
               key={`gap-${i}`}
               aria-hidden
-              className="grid size-7 place-items-center"
-              style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-disabled)' }}
+              className="grid size-8 place-items-center"
+              style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-disabled)' }}
             >
               &middot;&middot;&middot;
             </span>
@@ -127,18 +129,14 @@ export function Pagination({ page, pageSize, total, onPage, noun, label }: Pagin
               onClick={() => onPage(p)}
               aria-label={`Page ${p}`}
               aria-current={p === page ? 'page' : undefined}
-              className="grid size-7 cursor-pointer place-items-center rounded-panel transition-colors"
+              className={`grid size-8 cursor-pointer place-items-center rounded-[8px] transition-all duration-300 ${
+                p === page
+                  ? 'bg-white shadow-sm ring-1 ring-black/[0.04]'
+                  : 'hover:bg-black/[0.03]'
+              }`}
               style={{
-                /*
-                  The current page is a TINT and an ink change, never a filled
-                  blue chip. 03 §3 rule 1 gives a surface one accent, and the
-                  queue's accent is already spent on the action a reader came
-                  here to take. A pager that shouts louder than the thing it
-                  pages is the wrong way round.
-                */
-                background: p === page ? 'var(--surface-inset)' : 'transparent',
-                color: p === page ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                font: `${p === page ? 500 : 400} 11.5px/1 var(--font-mono)`,
+                color: p === page ? 'var(--text-primary)' : 'var(--text-secondary)',
+                font: `${p === page ? 600 : 500} 12px/1 var(--font-mono)`,
               }}
             >
               {p}
@@ -174,14 +172,16 @@ function Step({
       onClick={onClick}
       disabled={disabled}
       aria-label={direction === 'previous' ? 'Previous page' : 'Next page'}
-      className="grid size-7 place-items-center rounded-panel transition-colors"
+      className={`grid size-8 place-items-center rounded-[8px] transition-all duration-300 ${
+        disabled ? '' : 'hover:bg-black/[0.03]'
+      }`}
       style={{
         color: disabled ? 'var(--text-disabled)' : 'var(--text-secondary)',
         cursor: disabled ? 'default' : 'pointer',
         background: 'transparent',
       }}
     >
-      <Icon size={15} stroke={1.75} aria-hidden />
+      <Icon size={16} stroke={2} aria-hidden />
     </button>
   );
 }

@@ -88,10 +88,10 @@ export default async function InvitePage({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-1">
-            <span className="text-[13px] font-semibold text-[var(--text-primary)]">
+            <span className="text-[13px] font-medium text-[var(--text-primary)]">
               {inviter} invited you
             </span>
-            <span className="rounded-md bg-[var(--blue-500)]/10 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-[var(--blue-600)] capitalize">
+            <span className="rounded-md bg-[var(--blue-500)]/10 px-2 py-0.5 font-mono text-[10.5px] font-medium text-[var(--blue-600)] capitalize">
               {role}
             </span>
           </div>

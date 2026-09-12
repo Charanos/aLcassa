@@ -150,7 +150,7 @@ export function AuthIllustration() {
                   <IconLock size={16} stroke={2} className="text-white drop-shadow-sm" />
                 </div>
                 <div>
-                  <span className="block font-sans text-[13px] font-semibold tracking-tight text-white leading-none mb-1 whitespace-nowrap">Your Workspace</span>
+                  <span className="block font-sans text-[13px] font-medium tracking-tight text-white leading-none mb-1 whitespace-nowrap">Your Workspace</span>
                   <span className="block font-sans text-[11px] text-[var(--blue-200)]/50 tracking-tight font-medium leading-none whitespace-nowrap">Enterprise Console</span>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export function AuthIllustration() {
                   <span className="absolute inset-[-2px] rounded-full bg-[var(--success-fg)]/40 animate-pulse"></span>
                   <span className="absolute size-1.5 rounded-full bg-[var(--success-fg)]"></span>
                 </div>
-                <span className="font-mono text-[9.5px] font-bold tracking-[0.15em] uppercase text-[var(--success-fg)]/90 whitespace-nowrap">Live & Isolated</span>
+                <span className="font-mono text-[9.5px] font-semibold tracking-[0.15em] uppercase text-[var(--success-fg)]/90 whitespace-nowrap">Live & Isolated</span>
               </div>
             </div>
           </div>
@@ -201,7 +201,7 @@ function ChannelCard({ title, icon }: { title: string; icon: React.ReactNode }) 
       <div className="rounded-[0.6rem] bg-white p-2.5 shrink-0 border border-[var(--ink-100)]/60 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)] transition-transform duration-300 group-hover:scale-105 group-hover:rotate-2">
         {icon}
       </div>
-      <div className="font-sans text-[13px] font-semibold text-[var(--text-primary)] tracking-tight">
+      <div className="font-sans text-[13px] font-medium text-[var(--text-primary)] tracking-tight">
         {title}
       </div>
     </div>
@@ -215,10 +215,10 @@ function FeatureCard({ title, subtitle, icon }: { title: string; subtitle: strin
         {icon}
       </div>
       <div>
-        <div className="font-mono text-[9px] font-bold tracking-[0.1em] text-[var(--text-tertiary)] uppercase leading-tight mb-1">
+        <div className="font-mono text-[9px] font-semibold tracking-[0.1em] text-[var(--text-tertiary)] uppercase leading-tight mb-1">
           {title}
         </div>
-        <div className="font-sans text-[12px] text-[var(--text-secondary)] leading-snug font-semibold">
+        <div className="font-sans text-[12px] text-[var(--text-secondary)] leading-snug font-medium">
           {subtitle}
         </div>
       </div>

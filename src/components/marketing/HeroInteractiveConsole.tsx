@@ -250,13 +250,13 @@ export function HeroInteractiveConsole() {
               aria-label="aLcassa homepage"
             >
               <Mark size={28} />
-              <span className="text-[13.5px] font-semibold tracking-tight text-[var(--text-primary)]">
+              <span className="text-[13.5px] font-medium tracking-tight text-[var(--text-primary)]">
                 aLcassa
               </span>
             </Link>
             <span className="text-[var(--ink-300)]" aria-hidden="true">|</span>
             <div className="flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-secondary)]">
-              <span className="font-semibold text-[var(--text-primary)]">Acme Corp HQ</span>
+              <span className="font-medium text-[var(--text-primary)]">Acme Corp HQ</span>
               <span className="text-[var(--ink-300)]">·</span>
               <span className="text-[var(--text-tertiary)]">Unified Inbound</span>
             </div>
@@ -357,7 +357,7 @@ export function HeroInteractiveConsole() {
           {/* Left Column: Clean Conversation List (No generic left border) */}
           <div className="bg-[var(--ink-50)]/30 p-3 sm:p-4 flex flex-col gap-1.5">
             <div className="flex items-center justify-between px-2 py-1 mb-1">
-              <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+              <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--text-tertiary)]">
                 Recent Inbound
               </span>
               <span className="font-mono text-[10.5px] text-[var(--text-tertiary)]">
@@ -416,7 +416,7 @@ export function HeroInteractiveConsole() {
                   {/* Customer & Message Meta */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-[13.5px] font-semibold text-[var(--text-primary)] truncate">
+                      <span className="text-[13.5px] font-medium text-[var(--text-primary)] truncate">
                         {item.senderName}
                       </span>
                       {isSelected ? (
@@ -489,7 +489,7 @@ export function HeroInteractiveConsole() {
 
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="text-[15.5px] font-semibold text-[var(--text-primary)]">
+                      <h4 className="text-[15.5px] font-medium text-[var(--text-primary)]">
                         {active.senderName}
                       </h4>
                     </div>
@@ -530,7 +530,7 @@ export function HeroInteractiveConsole() {
                   <div className="mt-2 rounded-2xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-5 text-left transition-all">
                     {/* Header: Rule Matching & Latency */}
                     <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--ink-100)] mb-3.5">
-                      <div className="flex items-center gap-2 font-mono text-[11.5px] font-semibold text-[var(--text-primary)]">
+                      <div className="flex items-center gap-2 font-mono text-[11.5px] font-medium text-[var(--text-primary)]">
                         <IconCpu size={14} className="text-[var(--orange-500)]" />
                         <span>AI Assistant Suggested Reply</span>
                       </div>
@@ -616,7 +616,7 @@ export function HeroInteractiveConsole() {
                       <div className="mt-1.5 flex items-center justify-end gap-1.5 font-mono text-[10.5px] text-[var(--text-tertiary)] px-1">
                         <span>Just now</span>
                         <span>·</span>
-                        <span className="inline-flex items-center gap-1 font-semibold text-emerald-600">
+                        <span className="inline-flex items-center gap-1 font-medium text-emerald-600">
                           <IconCheck size={12} stroke={2.5} />
                           Dispatched via {active.channelName} Cloud API
                         </span>

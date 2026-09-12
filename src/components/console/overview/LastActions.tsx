@@ -56,8 +56,18 @@ export function LastActions({ recent }: { recent: AuditLine[] }) {
 }
 
 function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
+  // Semantic color mapping for audit rail prowess
+  let accentColor = 'var(--text-primary)';
+  if (line.action.includes('suspend') || line.action.includes('delete')) accentColor = 'var(--danger-fg)';
+  else if (line.action.includes('grant') || line.action.includes('auth')) accentColor = 'var(--warning-fg)';
+  else if (line.action.includes('assign') || line.action.includes('create')) accentColor = 'var(--success-fg)';
+  else if (line.action.includes('update') || line.action.includes('master')) accentColor = 'var(--accent-mark)';
+
   return (
-    <div className="group/row relative flex gap-3 px-2 py-3 transition-colors duration-300 hover:bg-[var(--surface-sunken)]">
+    <div 
+      className="group/row relative flex gap-3 px-2 py-3 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
+      style={{ '--row-accent': accentColor } as React.CSSProperties}
+    >
       {/* Timeline axis */}
       <div className="relative flex shrink-0 flex-col items-center pl-1">
         <div className="mt-0.5 flex h-4 w-4 items-center justify-center">
@@ -68,14 +78,14 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
           */}
           <span
             aria-hidden
-            className="z-10 h-1.5 w-1.5 rounded-full border-[1.5px] bg-transparent transition-all duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] group-hover/row:scale-[1.75] group-hover/row:border-[color:var(--blue-500)] group-hover/row:bg-[var(--blue-500)] motion-reduce:transition-none motion-reduce:group-hover/row:scale-100"
+            className="z-10 h-1.5 w-1.5 rounded-full border-[1.5px] bg-transparent transition-all duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] group-hover/row:scale-[1.75] group-hover/row:border-[color:var(--row-accent)] group-hover/row:bg-[color:var(--row-accent)] group-hover/row:shadow-[0_0_12px_color-mix(in_srgb,var(--row-accent)_50%,transparent)] motion-reduce:transition-none motion-reduce:group-hover/row:scale-100"
             style={{ borderColor: 'var(--text-tertiary)' }}
           />
         </div>
         {!isLast && (
           <span
             aria-hidden
-            className="absolute top-4 -bottom-3 w-px transition-colors duration-500 group-hover/row:bg-[var(--blue-400)] motion-reduce:transition-none"
+            className="absolute top-4 -bottom-3 w-px transition-all duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] group-hover/row:bg-[color:var(--row-accent)] group-hover/row:shadow-[0_0_8px_color-mix(in_srgb,var(--row-accent)_30%,transparent)] motion-reduce:transition-none"
             style={{ background: 'var(--border-subtle)' }}
           />
         )}
@@ -85,7 +95,7 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
         <div className="flex min-w-0 flex-col justify-start gap-1.5">
           <span className="flex items-center">
             <span
-              className="rounded-[4px] px-1.5 py-0.5 font-mono text-[11px] leading-none font-medium transition-colors duration-200 group-hover/row:bg-[var(--blue-500)] group-hover/row:text-[var(--text-inverse)]"
+              className="rounded-[4px] px-1.5 py-0.5 font-mono text-[11px] leading-none font-medium transition-colors duration-200 group-hover/row:bg-[color:var(--row-accent)] group-hover/row:text-white group-hover/row:shadow-sm"
               style={{
                 background: 'var(--surface-inset)',
                 color: 'var(--text-secondary)',
@@ -105,7 +115,7 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
         </div>
 
         <span
-          className="mt-0.5 shrink-0 font-mono text-[10.5px] font-semibold tracking-[0.08em] uppercase transition-colors duration-300 group-hover/row:text-[var(--text-action)]"
+          className="mt-0.5 shrink-0 font-mono text-[10.5px] font-semibold tracking-[0.08em] uppercase transition-colors duration-300 group-hover/row:text-[color:var(--row-accent)]"
           style={{ color: 'var(--text-tertiary)' }}
         >
           {line.time}
