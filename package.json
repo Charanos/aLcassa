@@ -30,7 +30,8 @@
     "db:policies": "tsx scripts/apply-policies.ts",
     "check:deps": "tsx scripts/check-phantom-deps.ts",
     "db:extensions": "tsx scripts/create-extensions.ts",
-    "db:app-role": "tsx scripts/create-app-role.ts"
+    "db:app-role": "tsx scripts/create-app-role.ts",
+    "db:check-admin": "tsx scripts/check-admin-account.ts"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

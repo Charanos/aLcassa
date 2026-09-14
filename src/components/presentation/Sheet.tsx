@@ -125,7 +125,8 @@ function toneShadow(tone: Tone | undefined): string | undefined {
   return [
     `-3px -3px 12px color-mix(in oklab, var(--${tone}-ink) 8%, transparent)`,
     `4px 5px 18px color-mix(in oklab, var(--${tone}-ink) 8%, transparent)`,
-    'var(--shadow-card)',
+    `0 0 0 1px color-mix(in oklab, var(--${tone}-rule) 30%, var(--border-subtle) 70%)`,
+    'var(--shadow-sm)'
   ].join(', ');
 }
 
@@ -149,23 +150,18 @@ export function Panel({
       data-tone={tone}
       {...(reveal ? { 'data-reveal': '' } : {})}
       className={[
-        'relative min-w-0 overflow-hidden rounded-panel border p-5',
-        'transition-[border-color,box-shadow,transform] duration-[var(--motion-base,200ms)]',
+        'relative min-w-0 overflow-hidden rounded-[16px] px-6 py-5',
+        'transition-[box-shadow,transform] duration-[var(--motion-base,200ms)]',
         interactive && !tone
-          ? 'panel-lift hover:-translate-y-0.5 hover:border-[var(--border-subtle)]'
+          ? 'panel-lift hover:-translate-y-0.5 hover:shadow-[var(--shadow-md),_0_0_0_1px_var(--border-strong)]'
           : '',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
       style={{
-        background: 'var(--surface-raised)',
-        // A toned panel's hairline picks up a whisper of the hue too, so the
-        // edge and the glow read as one decision rather than two.
-        borderColor: tone
-          ? `color-mix(in oklab, var(--${tone}-rule) 30%, var(--ink-100) 70%)`
-          : 'var(--ink-100)',
-        boxShadow: toneShadow(tone) ?? 'var(--shadow-card)',
+        background: 'white',
+        boxShadow: toneShadow(tone) ?? 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
       }}
     >
       {children}
@@ -194,11 +190,10 @@ export function Panel({
 export function Well({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={['rounded-chip border p-3', className].filter(Boolean).join(' ')}
+      className={['rounded-[12px] p-4', className].filter(Boolean).join(' ')}
       style={{
-        background: 'var(--surface-raised)',
-        borderColor: 'var(--ink-100)',
-        boxShadow: 'var(--shadow-well)',
+        background: 'var(--surface-sunken)',
+        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02), 0 0 0 1px var(--border-subtle)',
       }}
     >
       {children}
@@ -291,11 +286,10 @@ export function StatTile({
   return (
     <div
       data-reveal
-      className="rounded-panel border p-5"
+      className="rounded-[16px] px-6 py-5"
       style={{
-        background: 'var(--surface-raised)',
-        borderColor: 'var(--border-subtle)',
-        boxShadow: 'var(--shadow-card)',
+        background: 'white',
+        boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
       }}
     >
       <div className="t-eyebrow text-[var(--text-tertiary)]">{label}</div>

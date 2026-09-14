@@ -285,7 +285,7 @@ export default async function ConsoleOverviewPage() {
           {/* Elegant sweeping gradient line instead of a hard border */}
           <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.15)] to-transparent opacity-60 lg:left-12 lg:right-12" />
 
-          <div className="grid w-full grid-cols-1 gap-6 pt-8 md:grid-cols-3 md:gap-8">
+          <div className="grid w-full grid-cols-1 gap-6 pt-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             {model.signals.map((s, i) => {
               const Icon = SIGNAL_ICON[s.icon] ?? IconActivity;
               
@@ -297,23 +297,23 @@ export default async function ConsoleOverviewPage() {
                 <Link
                   key={s.id}
                   href={s.href}
-                  className="group relative flex cursor-pointer flex-col justify-between rounded-xl px-5 -m-5 py-1 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                  className="group relative flex cursor-pointer flex-col justify-between rounded-xl px-5 -m-5 py-3 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                 >
                   {/* Absolute Background Artwork Icon */}
-                  <div className="pointer-events-none absolute -bottom-6 right-3 z-0 text-[var(--invert-card-fg)] opacity-[0.12] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.16]">
+                  <div className="pointer-events-none absolute -bottom-4 right-2 z-0 text-[var(--invert-card-fg)] opacity-[0.10] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.18]">
                     <Icon size={140} stroke={1} aria-hidden />
                   </div>
 
                   {/* Subtle right divider for grid columns */}
                   {i < model.signals.length - 1 && (
-                    <div className="pointer-events-none absolute -right-4 top-1/2 hidden h-16 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[rgba(255,255,255,0.1)] to-transparent md:block" />
+                    <div className="pointer-events-none absolute -right-4 top-1/2 hidden h-24 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[rgba(255,255,255,0.12)] to-transparent lg:block" />
                   )}
 
                   <div className="relative z-10 mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <span
                         className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em]"
-                        style={{ color: 'var(--invert-card-fg)', opacity: 0.5 }}
+                        style={{ color: 'var(--invert-card-fg)', opacity: 0.55 }}
                       >
                         {s.label}
                       </span>
@@ -326,11 +326,11 @@ export default async function ConsoleOverviewPage() {
                     />
                   </div>
 
-                  <div className="relative z-10 mb-2.5 flex items-end gap-3">
+                  <div className="relative z-10 mb-3 flex items-end gap-3">
                     <div
                       className="font-mono tracking-tight"
                       style={{
-                        fontSize: '36px',
+                        fontSize: '44px',
                         fontWeight: 300,
                         color: 'var(--invert-card-fg)',
                         lineHeight: 1,

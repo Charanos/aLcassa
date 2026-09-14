@@ -2,7 +2,7 @@ import 'server-only';
 import { desc, eq, isNull } from 'drizzle-orm';
 import { platformAdmins, plans, subscriptions, tenants, userProfiles } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
-import { withoutTenantContext } from '@/lib/db';
+import { withActorContext } from '@/lib/db';
 import { avatarUrlFor } from '@/lib/storage/avatar';
 import type { ConsoleAccount, ConsoleWorkspace } from '@/components/console/types';
 
@@ -58,7 +58,7 @@ export async function getLiveConsoleChrome(): Promise<{
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const rows = await tx
       .select({
         id: tenants.id,

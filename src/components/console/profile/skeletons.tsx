@@ -26,11 +26,10 @@ import { SkeletonText } from '@/components/primitives/Skeleton';
 function CardBones({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-overlay p-5"
+      className="rounded-[16px] px-5 py-4"
       style={{
-        border: '1px solid var(--border-subtle)',
-        background: 'var(--surface-raised)',
-        boxShadow: 'var(--shadow-sm)',
+        background: 'var(--surface-sunken)',
+        boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
       }}
     >
       {children}
@@ -48,7 +47,7 @@ function Bar({ w, h = 14, r = 6 }: { w: number | string; h?: number; r?: number 
         width: typeof w === 'number' ? `${w}%` : w,
         height: h,
         borderRadius: r,
-        background: 'var(--surface-sunken)',
+        background: 'var(--surface-inset)',
       }}
     />
   );

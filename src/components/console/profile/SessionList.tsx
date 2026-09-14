@@ -3,7 +3,8 @@ import type { DeviceSession } from '@/lib/console/data';
 import { PagedList } from '@/components/primitives/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { SectionHeading } from '@/components/console/Surface';
-import { RecordRow, RowGlyph } from '@/components/console/profile/shared';
+import { IconTile } from '@/components/primitives/IconTile';
+import { RecordRow } from '@/components/console/profile/shared';
 import { EndSessionButton, RevokeOthersButton } from '@/components/console/profile/SessionActions';
 
 /**
@@ -94,24 +95,42 @@ function SessionRow({ session, live }: { session: DeviceSession; live: boolean }
   const { current, support } = session;
 
   return (
-    <div 
-      className="mb-4 rounded-xl border overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
-      style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)', boxShadow: 'var(--shadow-sm)' }}
+    <div
+      className="mb-4 overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
+      style={{
+        borderColor: 'var(--border-subtle)',
+        background: 'var(--surface-raised)',
+        boxShadow: 'var(--shadow-sm)',
+      }}
     >
       <RecordRow
         glyph={
-          <RowGlyph tone={current ? 'success' : support ? 'neutral' : 'muted'}>
-            {support ? (
-              <IconLifebuoy size={20} stroke={1.5} />
-            ) : current ? (
-              <IconShieldCheck size={20} stroke={1.5} />
-            ) : (
-              <IconDeviceDesktop size={20} stroke={1.5} />
-            )}
-          </RowGlyph>
+          /*
+            ⚠ A TILE HERE, A CIRCLE IN THE SECURITY LIST, AND THE DIFFERENCE IS
+            THE RULE `IconTile` STATES.
+
+            A device is an OBJECT — a laptop, a phone, a support visit — so it
+            gets the app-icon treatment: a rounded square that reads as a thing.
+            A security item's glyph is a STATE, green for enrolled, so it keeps
+            `RowGlyph`'s tinted circle. Using the same shape for both would make
+            "this is your MacBook" and "this is satisfactory" look like the same
+            kind of claim.
+
+            The tone is still doing work: the current device washes success, a
+            support session washes info because it is a different KIND of thing
+            rather than a better one, and an ordinary other device stays neutral.
+          */
+          <IconTile
+            icon={support ? IconLifebuoy : current ? IconShieldCheck : IconDeviceDesktop}
+            tone={current ? 'success' : support ? 'info' : 'neutral'}
+            size="lg"
+          />
         }
         label={
-          <span className="flex flex-wrap items-center gap-2 text-[14px] font-medium text-black">
+          <span
+            className="flex flex-wrap items-center gap-2 text-[14px]"
+            style={{ color: 'var(--text-primary)', fontWeight: 500 }}
+          >
             {session.device}
             {support ? (
               <StatusBadge tone="info" size="sm">

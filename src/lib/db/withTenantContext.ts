@@ -79,8 +79,29 @@ export async function withTenantContext<T>(
  * (`tenant_members_select`'s own-membership branch and `sessions_select`)
  * match exactly that person's own rows. Nothing else is reachable.
  *
- * USE IT FOR SESSION RESOLUTION AND NOTHING ELSE. Once the tenant is known,
- * every subsequent query goes through `withTenantContext`.
+ * ⚠ USE IT FOR SESSION RESOLUTION, AND FOR A PLATFORM ADMIN READING THEIR OWN
+ * ROWS. It previously said "and nothing else", and that guidance sent the
+ * console's own-account readers to `withoutTenantContext` instead — where they
+ * silently returned nothing for weeks.
+ *
+ * The distinction is which policies a query has to satisfy:
+ *
+ *   ACTOR-SCOPED   `platform_admins_select` (user_id = current_actor_id),
+ *                  `sessions_select`, `platform_audit_log_select` — all keyed
+ *                  on the actor. These need THIS function. `withoutTenantContext`
+ *                  sets `app.actor_id` to '', so `current_actor_id()` is null,
+ *                  every predicate compares against null and matches nothing.
+ *                  The profile screen returned `null` on every request because
+ *                  of exactly that, and fell back to designed data.
+ *
+ *   TENANT-SCOPED  everything with a `tenant_id`. Neither function reaches
+ *                  these across tenants, by design — a platform admin is a
+ *                  member of nothing, so `tenants_select` admits no rows. That
+ *                  is the isolation guarantee, and the sanctioned cross-tenant
+ *                  path is `asService` in `modules/platform`.
+ *
+ * So: this for "my own rows", `withTenantContext` once a tenant is known,
+ * `asService` for anything genuinely cross-tenant.
  */
 export async function withActorContext<T>(
   actorId: string,

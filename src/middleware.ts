@@ -115,7 +115,28 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // ─ Coarse access control. The real authorisation happens in the pipeline;
   //   this only avoids rendering a shell for a request that has no session. ─
   const isTenantTree = pathname.startsWith('/app');
-  const isPlatformTree = pathname.startsWith('/platform') && pathname !== '/platform/sign-in';
+  /**
+   * ⚠ THE `/platform/sign-in` CARVE-OUT IS GONE, BECAUSE THE PAGE IS.
+   *
+   * There were two sign-in pages rendering the same form, and the platform one
+   * posted to `/api/platform/v1/auth/sign-in` — **a route that does not exist**.
+   * The only sign-in handler is `/api/v1/auth/sign-in`, so submitting that page
+   * 404'd. It had presumably never been submitted.
+   *
+   * One page is also the correct design rather than merely the working one. The
+   * handler authenticates FIRST and then asks `isPlatformAdmin(userId)` to
+   * decide the door, so which form somebody typed into cannot affect where they
+   * land — a second page could only ever disagree with the router about that.
+   *
+   * ⚠ 02 §3 IS NOT WEAKENED BY THIS. "Two doors, two cookie names, no
+   * navigational path between them" is about SESSIONS, and the two cookies are
+   * untouched: a platform session and a tenant session remain separate rows with
+   * separate names and no path from one to the other. The claim was never that
+   * the login FORM had to be duplicated — and duplicating it bought a second
+   * thing to keep in step, which is how one of them ended up pointing at a route
+   * nobody had written.
+   */
+  const isPlatformTree = pathname.startsWith('/platform');
 
   if (isTenantTree && !request.cookies.has(TENANT_COOKIE)) {
     const url = request.nextUrl.clone();
@@ -128,7 +149,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   if (isPlatformTree && !request.cookies.has(PLATFORM_COOKIE)) {
     const url = request.nextUrl.clone();
-    url.pathname = '/platform/sign-in';
+    /* The one sign-in page. `?next=` survives, and the handler sends a platform
+       admin to `/platform` on its own once it knows who they are. */
+    url.pathname = '/sign-in';
     url.search = `?next=${encodeURIComponent(pathname + search)}`;
     return NextResponse.redirect(url);
   }

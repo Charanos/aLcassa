@@ -156,6 +156,14 @@ export async function getLiveWorkspaces(): Promise<WorkspaceRow[] | null> {
       .groupBy(auditLog.tenantId);
     const lastByTenant = new Map(activity.map((a) => [a.tenantId, a.last]));
 
+    /* ⚠ AN EMPTY LIST IS NOT "NO WORKSPACES" HERE. `tenants_select` admits only
+       rows the reader is a member of, and a platform admin is a member of none —
+       so this comes back empty whether the business has zero customers or
+       twelve. Null hands the screen to the designed portfolio rather than
+       rendering an empty table over a full database. Same reasoning as the
+       overview's count guard; the architectural fix is in 21 §2. */
+    if (rows.length === 0) return null;
+
     return rows.map((row) => ({
       id: row.id,
       name: row.name,

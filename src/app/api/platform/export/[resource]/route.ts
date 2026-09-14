@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
-import { withoutTenantContext } from '@/lib/db';
+import { withActorContext } from '@/lib/db';
 import { AUDIT_ACTIONS } from '@/lib/audit';
 import { recordPlatformAction } from '@/modules/platform';
 import { buildExport, isExportResource } from '@/lib/console/export';
@@ -55,7 +55,11 @@ export async function GET(
     does not get the file. An export that reaches somebody's laptop with no
     entry in the log is the one outcome this ordering rules out.
   */
-  await withoutTenantContext(ctx.requestId, async (tx) => {
+  /* ⚠ THE ACTOR CONTEXT, NOT THE EMPTY ONE. `platform_audit_log_insert` admits
+     a row only when a `platform_admins` row exists FOR THE CURRENT ACTOR, and
+     `withoutTenantContext` sets no actor — so this insert was refused and the
+     export failed after the file had already been built. */
+  await withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     await recordPlatformAction(tx, {
       actorUserId: ctx.actorId,
       actorLabel: ctx.actorLabel,

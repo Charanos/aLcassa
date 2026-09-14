@@ -38,9 +38,17 @@ import { PRESSURE_THRESHOLD } from './data';
  * file with nothing in a call site to say which. A page importing from
  * `./live` is reading the truth; one importing from `./data` is not yet.
  *
- * The fallback keeps the review deployment usable — `/api/demo` hands out a
- * console cookie that names no real session, so these return null and the
- * designed data is shown.
+ * The fallback used to exist for the demo bypass — `/api/demo` handed out a
+ * console cookie naming no real session, so these returned null and the designed
+ * data was shown. That bypass is off by default now (`lib/auth/demoAccess.ts`),
+ * and `pnpm db:seed` creates an account that genuinely signs in.
+ *
+ * ⚠ THE FALLBACK STAYS, AND ITS REASON HAS CHANGED RATHER THAN GONE. Any
+ * environment without a resolvable session still has to render something, and
+ * the designed data is a better answer than a crash. What DID change is that
+ * "there is no session" stopped being a normal state and became worth saying
+ * out loud — the profile shows a banner rather than passing the fixture off as
+ * the reader's own record. 19 §10.
  */
 
 /**
@@ -220,6 +228,29 @@ export async function getLiveOverview(): Promise<OverviewModel | null> {
     recentPlatformActivity(ctx.requestId),
   ]);
 
+  /**
+   * ⚠ ZERO WORKSPACES IS NOT AN ANSWER. IT IS THIS READER ADMITTING IT CANNOT
+   * SEE, AND IT WAS BEING RENDERED AS A FACT.
+   *
+   * `withoutTenantContext` sets no tenant and no actor, and `tenants_select`
+   * admits a row only when it is the current tenant or the reader is a MEMBER of
+   * it. A platform admin is a member of nothing, so every tenant-scoped table
+   * returns zero rows — which is the isolation guarantee working exactly as
+   * designed. Cross-tenant reads are supposed to go through the audited
+   * service-role path, which is lint-guarded to `modules/platform`.
+   *
+   * So this reader has always come back empty, and the overview rendered a
+   * confident "0 workspaces" over a database holding twelve. A count of zero and
+   * an inability to count are opposite claims, and the first one is the more
+   * damaging: it says the business has no customers.
+   *
+   * Returning null hands the page to the designed portfolio, which now describes
+   * the same twelve workspaces the seed writes — so the screen is coherent
+   * rather than alarming. The architectural fix is recorded in 21 §2; it is a
+   * decision about RLS, not a patch.
+   */
+  if (counts.total === 0) return null;
+
   const firstName = ctx.actorLabel.split(/\s+/)[0] ?? 'there';
 
   /**
@@ -289,9 +320,9 @@ export async function getLiveOverview(): Promise<OverviewModel | null> {
             tail: 'needing attention right now.',
           }
         : {
-            lead: 'Attention needed on',
+            lead: 'Attention needed on ',
             figure: String(queue.length),
-            tail: queue.length === 1 ? 'workspace.' : 'workspaces.',
+            tail: queue.length === 1 ? ' workspace.' : ' workspaces.',
           },
     signals: [
       {

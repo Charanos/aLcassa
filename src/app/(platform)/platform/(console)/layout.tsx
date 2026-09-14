@@ -182,7 +182,24 @@ export default async function PlatformLayout({ children }: { children: React.Rea
    * `notices` has no live form and stays a literal: there is no notifications
    * table in the schema to query. It is the last fixture in this shell.
    */
-  const switcherWorkspaces = liveChrome?.workspaces ?? workspaces;
+  /**
+   * ⚠ `??` WAS THE WRONG OPERATOR FOR THE SWITCHER, AND THE BUG ONLY APPEARED
+   * ONCE THE READER STARTED WORKING.
+   *
+   * An empty array is not nullish, so the moment `getLiveConsoleChrome` returned
+   * `{ workspaces: [], … }` the fallback stopped firing and the switcher went
+   * blank. And it returns empty for a structural reason rather than an
+   * incidental one: the workspace list is a CROSS-TENANT read, `tenants_select`
+   * admits only rows the reader is a member of, and a platform admin is a member
+   * of none. That is the isolation guarantee, not a fault — the sanctioned path
+   * for this list is `asService`, recorded in 21 §2.
+   *
+   * Until then: a length check rather than a null check, so an empty live answer
+   * falls back to the designed list instead of offering a menu with no doors in
+   * it. The ACCOUNT half is genuinely live now, because it reads the operator's
+   * own rows under their own actor context.
+   */
+  const switcherWorkspaces = liveChrome?.workspaces?.length ? liveChrome.workspaces : workspaces;
   const signedInAccount = liveChrome?.account ?? account;
 
   return (

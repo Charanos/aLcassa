@@ -54,7 +54,10 @@ export function PreviewNotice() {
         >
           You are looking at designed sample data, not your account.
         </p>
-        <p className="t-caption mt-1" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
+        <p
+          className="t-caption mt-1"
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
+        >
           Your sign-in could not be resolved, so this page fell back to the reference profile. The
           name, devices and record below belong to nobody. Nothing on this screen can be changed
           until you sign in again.
@@ -62,7 +65,7 @@ export function PreviewNotice() {
       </div>
 
       <Link
-        href="/platform/sign-in?next=%2Fplatform%2Fprofile"
+        href="/sign-in?next=%2Fplatform%2Fprofile"
         className="t-compact inline-flex h-9 shrink-0 items-center gap-2 rounded-chip px-4 whitespace-nowrap transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
         style={{
           background: 'var(--surface-raised)',

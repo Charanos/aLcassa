@@ -2817,3 +2817,91 @@ All six catches now route through one `refusal()` helper: internals stay in
 `logger.error`, and `AUTH_SESSION_EXPIRED` becomes its own outcome with
 `signedOut: true`, so the interface offers a sign-in link rather than a retry
 that would fail identically every time.
+
+---
+
+## C65 · The seed creates an account that can sign in
+
+**14 Sep 2026.** `pnpm db:seed` wrote `user_profiles` and `platform_admins` rows
+for the platform admin and never created the Supabase `auth.users` record behind
+them — so `signInWithPassword` had nothing to match, and the console was only
+ever reachable through the demo bypass.
+
+`src/db/seed/authAccounts.ts` writes the auth user and its email identity at the
+**fixed** `SEED_PLATFORM_ADMIN` uuid, which is why it is SQL rather than
+`admin.createUser()` — that mints its own id, and the isolation suite asserts
+against this one by value.
+
+It resolves `crypt`'s schema from `pg_proc` rather than assuming: Supabase
+installs pgcrypto into `extensions`, which is not on a direct connection's
+`search_path`, so the first version worked on a plain Postgres and failed on the
+thing it was for. It then **verifies** the credentials round-trip and exits
+non-zero with the specific problem if they do not.
+
+The seed refuses to run under `NODE_ENV=production` without
+`SEED_ALLOW_PRODUCTION=1`: it now writes a documented password.
+
+Credentials: `brian@alcassa.co.ke`, overridable via `SEED_ADMIN_EMAIL` /
+`SEED_ADMIN_PASSWORD`. The address moved off `.example` (RFC 2606, reserved so it
+can never resolve) because a row backing a real account needs a reachable inbox
+for recovery.
+
+`src/db/seed/demoProfile.ts` seeds three devices and twelve platform actions, so
+the live reader shows the same shape as the designed fixture instead of an empty
+account — signing in previously made the console worse to look at.
+
+Full design in **19 §12**.
+
+---
+
+## C66 · `IconTile`, and the four inline copies it replaced
+
+The demo doors' icon treatment existed four times inline — two sign-in pages and
+both card helpers in `AuthIllustration` — in four different sizes, radii and
+grounds, and nowhere as a component.
+
+One primitive now, plus the rule it encodes: **a tile is an object, a pill is a
+state.** So device rows get tiles and security rows keep their pills; channels
+get tiles with `glyphColor` for the brand mark; features get tiles with a `tone`.
+
+`glyphColor` is the brand-mark exception 03 §2 already allows — a channel's own
+green is not a palette choice. Recorded in **19 §13**, and in **03 §27** for the
+avatar's own sibling rule.
+
+---
+
+## C67 · The profile shows the operator their own record
+
+The access rail carried "412 audit entries by you" with no route to them, on the
+one screen whose premise is showing an operator their own footprint.
+
+`YourActivity` reads the same table over the same window as that count, so the
+two cannot disagree; renders `used_service_role`, the one column an auditor
+filters on; and joins the tenant so a row names a customer rather than a uuid.
+
+It is the half of the accountability argument `LimitsCard` was missing — the
+ceiling and the record, rather than the ceiling alone.
+
+---
+
+## C68 · The demo bypass is off by default
+
+`lib/auth/demoAccess.ts` returned true whenever `NODE_ENV === 'development'`, so
+`/api/demo` — which sets a session cookie without authenticating anyone — was
+live on every local run, with links to it on both public sign-in pages.
+
+Its own header named the condition that would end this: the resolvers being
+wired. They are, and C65 gives the seed an account that genuinely signs in.
+
+It now requires an explicit `ALLOW_DEMO_ACCESS=true`. The route already gated on
+the same function and answers 404 rather than 403, so one change closes the
+buttons and the route together — hiding the buttons alone would have left the
+URL working.
+
+**It was also the cause of C63.** The cookie it hands out is a literal string
+rather than a session id, so it got a reader past the middleware and resolved to
+nothing, which is precisely the state where the console rendered designed data as
+somebody's real account.
+
+Not deleted: a review deployment may want it, and the removal is four file
+deletions recorded in 19 §15.

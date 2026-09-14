@@ -121,7 +121,7 @@ export function IdentityCard({
                 onDiscard();
               }
             }}
-            className="t-body h-10 w-full rounded-lg px-3 outline-none transition-colors focus-visible:border-[var(--blue-500)] focus-visible:ring-1 focus-visible:ring-[var(--blue-500)]"
+            className="t-body h-10 w-full rounded-lg px-3 transition-colors outline-none focus-visible:border-[var(--blue-500)] focus-visible:ring-1 focus-visible:ring-[var(--blue-500)]"
             style={{
               border: `1px solid ${invalid ? 'var(--danger-fg)' : 'var(--border-strong)'}`,
               background: 'var(--surface-raised)',

@@ -208,7 +208,7 @@ export function AvatarField({
           setDragging(false);
           accept(e.dataTransfer.files?.[0]);
         }}
-        className="group relative grid size-[84px] shrink-0 cursor-pointer place-items-center rounded-full transition-all duration-200 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--border-focus)] overflow-hidden"
+        className="group relative grid size-[84px] shrink-0 cursor-pointer place-items-center overflow-hidden rounded-full transition-all duration-200 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--border-focus)]"
         style={{
           boxShadow: dragging ? '0 0 0 2px var(--blue-500)' : 'var(--shadow-sm)',
           border: '1px solid var(--border-subtle)',
@@ -225,7 +225,7 @@ export function AvatarField({
         {shown ? (
           <Avatar src={shown} name={name} size={84} />
         ) : (
-          <span className="font-ui text-[28px] font-medium leading-none" aria-hidden>
+          <span className="font-ui text-[28px] leading-none font-medium" aria-hidden>
             {initials}
           </span>
         )}
@@ -279,7 +279,9 @@ export function AvatarField({
           style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           {src ? (
-            <p>Your photo appears beside your name in the sidebar, the top bar and the account menu.</p>
+            <p>
+              Your photo appears beside your name in the sidebar, the top bar and the account menu.
+            </p>
           ) : (
             <>
               <p>Add a photo, or keep the initials generated from your name.</p>
@@ -287,7 +289,7 @@ export function AvatarField({
             </>
           )}
         </div>
-        <p className="text-[13px] mt-2" style={{ color: 'var(--text-tertiary)' }}>
+        <p className="mt-2 text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
           {/* ⚠ THE PRIVACY LINE IS NOT MARKETING. The browser re-encodes the
               image before it is uploaded, which drops the EXIF block — and on
               a phone photograph that block contains the GPS coordinates of

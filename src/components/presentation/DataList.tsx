@@ -54,11 +54,10 @@ export function DataList<T>({
   if (rows.length === 0 && empty) {
     return (
       <div
-        className="rounded-panel border px-4 py-10 text-center"
+        className="rounded-[16px] px-4 py-10 text-center"
         style={{
-          borderColor: 'var(--border-subtle)',
-          background: 'var(--surface-raised)',
-          boxShadow: 'var(--shadow-card)',
+          background: 'white',
+          boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
         }}
       >
         {empty}
@@ -76,11 +75,10 @@ export function DataList<T>({
     <>
       {/* ── md and up · the table ─────────────────────────────────────── */}
       <div
-        className="hidden overflow-hidden rounded-panel border md:block"
+        className="hidden overflow-hidden rounded-[16px] md:block"
         style={{
-          borderColor: 'var(--border-subtle)',
-          background: 'var(--surface-raised)',
-          boxShadow: 'var(--shadow-card)',
+          background: 'white',
+          boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
         }}
       >
         <table className="w-full border-collapse text-left">
@@ -134,11 +132,10 @@ export function DataList<T>({
         {rows.map((row) => (
           <li
             key={rowKey(row)}
-            className="rounded-panel border p-4"
+            className="rounded-[16px] p-4"
             style={{
-              borderColor: 'var(--border-subtle)',
-              background: 'var(--surface-raised)',
-              boxShadow: 'var(--shadow-card)',
+              background: 'white',
+              boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
             }}
           >
             <div className="flex flex-wrap items-start justify-between gap-2">

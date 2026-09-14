@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { IconHistory } from '@tabler/icons-react';
 import { Panel } from '../Surface';
-import { SkeletonGroup, SkeletonText } from '@/components/primitives/Skeleton';
+import { SkeletonGroup } from '@/components/primitives/Skeleton';
 import type { AuditLine } from '@/lib/console/data';
 
 /**
@@ -135,19 +135,36 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
  */
 function NoActionsYet() {
   return (
-    <div className="flex flex-col items-start gap-2 px-4 py-8">
-      <IconHistory size={20} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
-      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
-        No platform actions yet.
-      </p>
-      <p
-        className="t-caption"
-        style={{ color: 'var(--text-secondary)', maxWidth: '42ch', textWrap: 'pretty' }}
+    <div
+      className="mt-1 flex flex-col items-center text-center gap-4 rounded-[16px] px-6 py-10 relative overflow-hidden"
+      style={{
+        background: 'white',
+        border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
+        boxShadow: '0 8px 32px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset'
+      }}
+    >
+      <div 
+        className="flex h-12 w-12 items-center justify-center rounded-[14px]" 
+        style={{ 
+          background: 'var(--surface-inset)', 
+          border: '1px solid var(--border-subtle)' 
+        }}
       >
-        Provisioning a workspace, changing a plan or entering a support session writes here in the
-        same transaction that performs it. Nothing has happened yet — this is not a failure to
-        load.
-      </p>
+        <IconHistory size={22} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
+      </div>
+      <div>
+        <p className="text-[14px] font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          No platform actions yet.
+        </p>
+        <p
+          className="t-caption mt-1.5 mx-auto"
+          style={{ color: 'var(--text-secondary)', maxWidth: '42ch', textWrap: 'pretty' }}
+        >
+          Provisioning a workspace, changing a plan or entering a support session writes here in the
+          same transaction that performs it. Nothing has happened yet — this is not a failure to
+          load.
+        </p>
+      </div>
     </div>
   );
 }
@@ -156,11 +173,30 @@ function NoActionsYet() {
 export function LastActionsSkeleton() {
   return (
     <Panel title="Last actions" flush variant="elevated">
-      <SkeletonGroup label="Loading recent actions" className="flex flex-col gap-3 px-3 py-3">
+      <SkeletonGroup label="Loading recent actions" className="flex flex-col py-1">
         {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className="grid gap-1.5">
-            <SkeletonText width={[34, 40, 30, 38, 33][i] ?? 34} />
-            <SkeletonText width={[72, 64, 80, 58, 69][i] ?? 70} />
+          <div key={i} className="flex gap-3 px-2 py-3">
+            {/* Timeline axis */}
+            <div className="relative flex shrink-0 flex-col items-center pl-1">
+              <div className="mt-0.5 flex h-4 w-4 items-center justify-center">
+                <span className="h-1.5 w-1.5 rounded-full border-[1.5px]" style={{ borderColor: 'var(--text-tertiary)', opacity: 0.3 }} />
+              </div>
+              {i < 4 && (
+                <span className="absolute top-4 -bottom-3 w-px" style={{ background: 'var(--border-subtle)', opacity: 0.5 }} />
+              )}
+            </div>
+            
+            {/* Content */}
+            <div className="flex min-w-0 flex-1 flex-col gap-2 pt-0.5">
+              <span
+                className="h-4 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[4px] motion-reduce:animate-none motion-reduce:opacity-70"
+                style={{ width: [110, 85, 130, 95, 120][i], background: 'var(--surface-sunken)' }}
+              />
+              <span
+                className="h-3 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-chip motion-reduce:animate-none motion-reduce:opacity-70"
+                style={{ width: [180, 220, 160, 190, 210][i], background: 'var(--surface-sunken)' }}
+              />
+            </div>
           </div>
         ))}
       </SkeletonGroup>

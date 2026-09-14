@@ -388,27 +388,41 @@ function VitalRow({
 function TelemetryUnwired() {
   return (
     <div
-      className="hatch-slate mt-2 flex flex-col items-start gap-2 rounded-[12px] px-4 py-6"
-      style={{ border: '1px dashed var(--border-strong)' }}
+      className="mt-2 flex flex-col items-center text-center gap-4 rounded-[16px] px-6 py-10 relative overflow-hidden"
+      style={{
+        background: 'white',
+        border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
+        boxShadow: '0 8px 32px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset'
+      }}
     >
-      <IconActivity size={20} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
-      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
-        No probes are reporting yet.
-      </p>
-      <p
-        className="t-caption"
-        style={{ color: 'var(--text-secondary)', maxWidth: '44ch', textWrap: 'pretty' }}
+      <div 
+        className="flex h-12 w-12 items-center justify-center rounded-[14px]" 
+        style={{ 
+          background: 'var(--surface-inset)', 
+          border: '1px solid var(--border-subtle)' 
+        }}
       >
-        Latency, delivery and queue depth arrive from the observability probes at M6. The isolation
-        suite is answerable today and is reported live on the health page.
-      </p>
-      <Link
-        href="/platform/health"
-        className="t-caption mt-1 font-medium"
-        style={{ color: 'var(--text-action)' }}
-      >
-        Open health &rarr;
-      </Link>
+        <IconActivity size={22} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
+      </div>
+      <div>
+        <p className="text-[14px] font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          No probes are reporting yet.
+        </p>
+        <p
+          className="t-caption mt-1.5 mx-auto"
+          style={{ color: 'var(--text-secondary)', maxWidth: '44ch', textWrap: 'pretty' }}
+        >
+          Latency, delivery and queue depth arrive from the observability probes at M6. The isolation
+          suite is answerable today and is reported live on the health page.
+        </p>
+        <Link
+          href="/platform/health"
+          className="t-caption mt-4 inline-flex font-medium"
+          style={{ color: 'var(--text-action)' }}
+        >
+          Open health &rarr;
+        </Link>
+      </div>
     </div>
   );
 }
@@ -419,33 +433,60 @@ function TelemetryUnwired() {
  */
 export function PlatformTelemetrySkeleton() {
   return (
-    <SkeletonGroup
-      label="Loading platform telemetry"
-      className="rounded-[16px] p-5"
+    <section
+      className="relative flex flex-col rounded-[16px] p-5"
+      style={{
+        background: 'var(--surface-sunken)',
+        boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
+      }}
     >
-      <div
-        className="rounded-[12px]"
-        style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-subtle)' }}
-      >
-        {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="flex items-center justify-between gap-3 px-4 py-3.5"
-            style={{ borderBottom: i === 3 ? undefined : '1px solid var(--border-subtle)' }}
-          >
-            <span
-              aria-hidden
-              className="h-4 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-chip motion-reduce:animate-none motion-reduce:opacity-70"
-              style={{ width: [132, 118, 126, 108][i], background: 'var(--surface-sunken)' }}
-            />
-            <span
-              aria-hidden
-              className="h-4 w-14 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-chip motion-reduce:animate-none motion-reduce:opacity-70"
-              style={{ background: 'var(--surface-sunken)' }}
-            />
+      <header className="mb-4 flex items-center justify-between gap-3">
+        <h3
+          className="text-[12px] font-medium tracking-widest uppercase"
+          style={{ color: 'var(--text-secondary)' }}
+        >
+          Platform telemetry
+        </h3>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <span className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>Live</span>
+            <span className="t-compact font-medium" style={{ color: 'var(--text-tertiary)' }}>Budgets</span>
           </div>
-        ))}
-      </div>
-    </SkeletonGroup>
+        </div>
+      </header>
+
+      <SkeletonGroup label="Loading platform telemetry">
+        <div
+          className="mt-2 flex flex-col overflow-hidden rounded-[12px]"
+          style={{
+            background: 'var(--surface-raised)',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--shadow-sm)',
+          }}
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between gap-3 px-4 py-3.5"
+              style={{ borderBottom: i === 3 ? undefined : '1px solid var(--border-subtle)' }}
+            >
+              <div className="flex items-center gap-3">
+                <span className="h-5 w-5 rounded-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] motion-reduce:animate-none motion-reduce:opacity-70" style={{ background: 'var(--surface-sunken)' }} />
+                <span
+                  aria-hidden
+                  className="h-4 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-chip motion-reduce:animate-none motion-reduce:opacity-70"
+                  style={{ width: [132, 118, 126, 108][i], background: 'var(--surface-sunken)' }}
+                />
+              </div>
+              <span
+                aria-hidden
+                className="h-4 w-14 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-chip motion-reduce:animate-none motion-reduce:opacity-70"
+                style={{ background: 'var(--surface-sunken)' }}
+              />
+            </div>
+          ))}
+        </div>
+      </SkeletonGroup>
+    </section>
   );
 }

@@ -305,37 +305,40 @@ export function QueueSkeleton() {
         <div
           key={i}
           className="rounded-[16px] px-6 py-5"
-          style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-raised)' }}
+          style={{ 
+            background: 'white', 
+            boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)' 
+          }}
         >
           <div className="flex items-center gap-3">
             <span
               aria-hidden
               className="size-6 shrink-0 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-full motion-reduce:animate-none motion-reduce:opacity-70"
-              style={{ background: 'var(--surface-sunken)' }}
+              style={{ background: 'var(--surface-inset)' }}
             />
             <span className="min-w-0 flex-1">
-              <SkeletonText width={[46, 38, 42][i]} />
+              <SkeletonText width={[46, 38, 42][i]} className="!bg-[var(--surface-inset)]" />
             </span>
             <span
               aria-hidden
               className="h-5 w-16 shrink-0 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-full motion-reduce:animate-none motion-reduce:opacity-70"
-              style={{ background: 'var(--surface-sunken)' }}
+              style={{ background: 'var(--surface-inset)' }}
             />
           </div>
           <div className="mt-3 grid gap-2 pl-[42px]">
-            <SkeletonText width={[94, 88, 91][i]} />
-            <SkeletonText width={[62, 71, 55][i]} />
+            <SkeletonText width={[94, 88, 91][i]} className="!bg-[var(--surface-inset)]" />
+            <SkeletonText width={[62, 71, 55][i]} className="!bg-[var(--surface-inset)]" />
           </div>
           <div className="mt-4 flex items-center gap-3 pl-[42px]">
             <span
               aria-hidden
               className="h-8 w-28 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-lg motion-reduce:animate-none motion-reduce:opacity-70"
-              style={{ background: 'var(--surface-sunken)' }}
+              style={{ background: 'var(--surface-inset)' }}
             />
             <span
               aria-hidden
               className="h-8 w-32 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-lg motion-reduce:animate-none motion-reduce:opacity-70"
-              style={{ background: 'var(--surface-sunken)' }}
+              style={{ background: 'var(--surface-inset)' }}
             />
           </div>
         </div>

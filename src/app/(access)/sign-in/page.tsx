@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { DemoDoors } from '@/components/access/DemoDoors';
 import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 import { ERROR_CODES, ERROR_MESSAGES, hueTokens, type ErrorCode } from '@/lib/errors';
-import { IconArrowRight, IconTerminal2, IconFingerprintScan } from '@tabler/icons-react';
 import { AuthShell } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { Field, PasswordField } from '@/components/primitives/Field';
@@ -64,60 +64,7 @@ export default async function SignInPage({
             ── Demo bypass. Rendered only where /api/demo would answer. ──
             These links set a session cookie without authenticating anyone.
           */}
-          {demoAccessEnabled() ? (
-            <div className="space-y-3.5 pt-2">
-              <div className="relative flex items-center justify-center">
-                <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="w-full border-t border-[var(--ink-200)]/60" />
-                </div>
-                <div className="relative flex justify-center text-[10px] font-mono uppercase tracking-wider">
-                  <span className="bg-white px-3 text-[var(--text-tertiary)]">
-                    Reviewer & Demo Mode
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid gap-2.5 sm:grid-cols-2">
-                <Link
-                  href="/api/demo?role=platform"
-                  className="group relative flex items-center justify-between rounded-2xl border border-[var(--ink-200)]/80 bg-white/50 p-2.5 transition-all hover:bg-white hover:border-[var(--ink-300)] hover:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.08)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="relative grid size-8 place-items-center rounded-xl bg-gradient-to-b from-[var(--ink-50)] to-[var(--ink-100)] border border-[var(--ink-200)]/50 text-[var(--ink-700)] shadow-sm overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-[var(--blue-500)]/10 to-transparent" />
-                      <IconTerminal2 size={16} stroke={1.5} className="relative z-10" />
-                    </span>
-                    <span className="text-[12.5px] font-medium text-[var(--text-primary)]">
-                      Admin Console
-                    </span>
-                  </div>
-                  <IconArrowRight
-                    size={14}
-                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--text-primary)]"
-                  />
-                </Link>
-
-                <Link
-                  href="/api/demo?role=tenant"
-                  className="group relative flex items-center justify-between rounded-2xl border border-[var(--ink-200)]/80 bg-white/50 p-2.5 transition-all hover:bg-white hover:border-[var(--ink-300)] hover:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.08)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="relative grid size-8 place-items-center rounded-xl bg-gradient-to-b from-[var(--ink-50)] to-[var(--ink-100)] border border-[var(--ink-200)]/50 text-[var(--ink-700)] shadow-sm overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-[var(--success-fg)]/10 to-transparent" />
-                      <IconFingerprintScan size={16} stroke={1.5} className="relative z-10" />
-                    </span>
-                    <span className="text-[12.5px] font-medium text-[var(--text-primary)]">
-                      Workspace Inbox
-                    </span>
-                  </div>
-                  <IconArrowRight
-                    size={14}
-                    className="text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--text-primary)]"
-                  />
-                </Link>
-              </div>
-            </div>
-          ) : null}
+          {demoAccessEnabled() ? <DemoDoors /> : null}
 
           <p className="text-center text-[12.5px] text-[var(--text-secondary)] pt-2">
             Don&apos;t have a workspace yet?{' '}

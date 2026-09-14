@@ -71,7 +71,7 @@ export function RecordRow({
         </div>
         {detail ? (
           <div
-            className="text-[13px] mt-1 leading-relaxed"
+            className="mt-1 text-[13px] leading-relaxed"
             style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
           >
             {detail}

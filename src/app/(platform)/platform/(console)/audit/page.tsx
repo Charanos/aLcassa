@@ -99,18 +99,18 @@ function VolumeSkeleton() {
     <section className="mb-8" aria-busy="true">
       <div className="mb-6 h-7" />
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
-        <Panel title="Actions per day">
+        <Panel title="Actions per day" variant="elevated">
           <div
-            className="h-[168px] w-full animate-pulse rounded-panel"
+            className="h-[168px] w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[12px] motion-reduce:animate-none motion-reduce:opacity-70"
             style={{ background: 'var(--surface-inset)' }}
           />
         </Panel>
-        <Panel title="In the window">
+        <Panel title="In the window" variant="elevated">
           <div className="grid gap-3">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="h-8 w-full animate-pulse rounded-panel"
+                className="h-8 w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[8px] motion-reduce:animate-none motion-reduce:opacity-70"
                 style={{ background: 'var(--surface-inset)' }}
               />
             ))}

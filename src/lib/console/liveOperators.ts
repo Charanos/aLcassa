@@ -2,7 +2,7 @@ import 'server-only';
 import { and, desc, eq, gte, isNull, sql } from 'drizzle-orm';
 import { platformAdmins, platformAuditLog, sessions, tenants, userProfiles } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
-import { withoutTenantContext } from '@/lib/db';
+import { withActorContext } from '@/lib/db';
 import { PLATFORM_CAPABILITIES, SECURITY_POLICY } from './data';
 import { avatarUrlFor } from '@/lib/storage/avatar';
 import { describeAgent } from './userAgent';
@@ -19,6 +19,16 @@ import type { Admin, AdminRole, AdminsModel, DeviceSession, ProfileModel } from 
  * query's ceiling, and whatever it excludes is counted and stated.
  */
 const SESSION_CAP = 40;
+
+/**
+ * How many of the operator's own audit rows the profile reads.
+ *
+ * Eighteen, against a panel that pages at six: three pages of genuine history,
+ * which is enough to recognise a week's work and far short of a log viewer. The
+ * audit screen is the log viewer, and the panel links to it. The FIGURE beside
+ * the panel counts the whole window, so this cap never understates the total.
+ */
+const ACTIVITY_CAP = 18;
 
 /**
  * The PEOPLE half of the console read model, against the real database.
@@ -126,7 +136,7 @@ export async function getLiveAdmins(): Promise<AdminsModel | null> {
   const now = new Date();
   const since = new Date(now.getTime() - WINDOW_MS);
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const rows = await tx
       .select({
         id: platformAdmins.id,
@@ -222,7 +232,7 @@ export async function getLiveProfile(): Promise<ProfileModel | null> {
      by both paths rather than smuggled from one into the other. */
   const now = new Date();
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const [me] = await tx
       .select({
         fullName: userProfiles.fullName,
@@ -317,6 +327,40 @@ export async function getLiveProfile(): Promise<ProfileModel | null> {
         ),
       );
 
+    /**
+     * The operator's own trail, newest first.
+     *
+     * ⚠ IT READS THE SAME TABLE THE COUNT ABOVE COUNTS, over the same window, so
+     * the panel and the figure beside it can never disagree — which is the
+     * failure the count alone invited: "412 by you" with no way to see them, and
+     * nothing to check it against.
+     *
+     * ⚠ `leftJoin` ON THE TENANT, NOT A SECOND QUERY. Most platform actions are
+     * workspace-targeted, and an action row naming a uuid rather than a customer
+     * is unreadable on the one screen an operator opens to recognise their own
+     * work. `target_tenant_id` is null for platform-wide actions and the join
+     * yields null with it, which the row renders as the absence it is.
+     */
+    const recent = await tx
+      .select({
+        id: platformAuditLog.id,
+        action: platformAuditLog.action,
+        reason: platformAuditLog.reason,
+        usedServiceRole: platformAuditLog.usedServiceRole,
+        occurredAt: platformAuditLog.occurredAt,
+        tenantName: tenants.name,
+      })
+      .from(platformAuditLog)
+      .leftJoin(tenants, eq(tenants.id, platformAuditLog.targetTenantId))
+      .where(
+        and(
+          eq(platformAuditLog.actorUserId, ctx.actorId),
+          gte(platformAuditLog.occurredAt, new Date(now.getTime() - WINDOW_MS)),
+        ),
+      )
+      .orderBy(desc(platformAuditLog.occurredAt))
+      .limit(ACTIVITY_CAP);
+
     const total = sessionTotal?.n ?? deviceSessions.length;
 
     return {
@@ -349,12 +393,23 @@ export async function getLiveProfile(): Promise<ProfileModel | null> {
       security: SECURITY_POLICY,
       sessions: deviceSessions,
       sessionsHidden: Math.max(0, total - deviceSessions.length),
+      activity: recent.map((row) => ({
+        id: row.id,
+        action: row.action,
+        target: row.tenantName,
+        reason: row.reason,
+        usedServiceRole: row.usedServiceRole,
+        when: agoLabel(row.occurredAt ? new Date(row.occurredAt) : null, now),
+      })),
+      activityTotal: actions30d[0]?.n ?? recent.length,
       facts: [
-        { label: 'Platform access granted', value: dateLabel(me.grantedOn ? new Date(me.grantedOn) : null) },
+        {
+          label: 'Platform access granted',
+          value: dateLabel(me.grantedOn ? new Date(me.grantedOn) : null),
+        },
         { label: 'Active sessions', value: String(total) },
         { label: 'Platform actions, 30 days', value: String(actions30d[0]?.n ?? 0) },
       ],
     } satisfies ProfileModel;
   });
 }
-

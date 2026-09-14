@@ -368,30 +368,30 @@ export function OperationsBandSkeleton() {
     <SkeletonGroup label="Loading operations" className="mb-10">
       <div className="mb-6 h-7" />
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
-        <Panel title="">
+        <Panel title="" variant="elevated">
           <div
-            className="h-[200px] w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-panel motion-reduce:animate-none motion-reduce:opacity-70"
-            style={{ background: 'var(--surface-sunken)' }}
+            className="h-[200px] w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[12px] motion-reduce:animate-none motion-reduce:opacity-70"
+            style={{ background: 'var(--surface-inset)' }}
           />
         </Panel>
         <div className="grid gap-5">
           {[0, 1].map((i) => (
-            <Panel key={i} title="">
+            <Panel key={i} title="" variant="elevated">
               <div className="grid gap-3 py-1">
-                <SkeletonText width={[86, 64][i] ?? 80} />
-                <SkeletonText width={[58, 76][i] ?? 60} />
+                <SkeletonText width={[86, 64][i] ?? 80} className="!bg-[var(--surface-inset)]" />
+                <SkeletonText width={[58, 76][i] ?? 60} className="!bg-[var(--surface-inset)]" />
               </div>
             </Panel>
           ))}
         </div>
       </div>
       <div className="mt-8">
-        <Panel title="">
+        <Panel title="" variant="elevated">
           <div className="grid gap-6 sm:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <div key={i} className="grid gap-2">
-                <SkeletonText width={[34, 28, 40][i] ?? 34} />
-                <SkeletonText width={[70, 82, 64][i] ?? 70} />
+                <SkeletonText width={[34, 28, 40][i] ?? 34} className="!bg-[var(--surface-inset)]" />
+                <SkeletonText width={[70, 82, 64][i] ?? 70} className="!bg-[var(--surface-inset)]" />
               </div>
             ))}
           </div>

@@ -1023,3 +1023,54 @@ and it dragged a third-party host into both `remotePatterns` and the CSP's
 
 **A placeholder must never require widening a security policy.** If it does, it is
 not a placeholder any more.
+
+---
+
+## 28. Icon containers: the tile and the pill
+
+**Added 14 Sep 2026.** Two components, one question, and the answer is never a
+matter of taste.
+
+### The rule
+
+| | `IconTile` | `IconPill` |
+| --- | --- | --- |
+| Shape | rounded square | circle |
+| Says | **this is a thing** | **this is a state** |
+| Ground | neutral ink gradient, lifted | tone tint at badge strength |
+| Colour | a ~12% diagonal wash | the tone itself |
+| Use for | a door, a surface, a device, a channel, a capability | healthy, warning, failing, enrolled |
+
+A circle with a green tint means *something is satisfactory*. A rounded square
+with a ground gradient is the visual language of an application icon, so the same
+glyph in a tile means *the thing itself*.
+
+Put the two side by side and the difference does real work: on the profile, a
+device row leads with a **tile** (a laptop is an object) and a security row leads
+with a **pill** (green there means enrolled). Using one shape for both would make
+"this is your MacBook" and "this is satisfactory" look like the same kind of
+claim.
+
+### The wash is not a fill
+
+A tile's ground stays neutral at every tone; the colour arrives as a ~12%
+gradient over it. That is what lets a row of four tiles read as a set of objects
+rather than a traffic-light panel — and it is why `tone="brand"` on a tile does
+**not** spend the accent budget in §4a. At this strength it is a tint on grey.
+
+### Brand marks pass their own colour
+
+`glyphColor` exists for one case: a mark this product does not own. WhatsApp's
+green, Instagram's magenta. §2 already exempts brand marks from the no-raw-colour
+rule, because rendering someone's logo in `--success-fg` is rendering a different
+logo.
+
+**A semantic glyph uses `tone`.** Reaching for `glyphColor` to get "a red icon"
+is the misuse the prop is named to prevent.
+
+### Never hand-roll either one
+
+This treatment shipped four times inline before it was a component — two sign-in
+pages and two card helpers in one illustration — at four sizes, four radii and
+four grounds. None could be reused because none was a component, and the best of
+the four was on the page a reviewer never saw first.

@@ -5,6 +5,7 @@ import { ProfileForm } from '@/components/console/profile/ProfileForm';
 import { SecurityList } from '@/components/console/profile/SecurityList';
 import { PreviewNotice } from '@/components/console/profile/PreviewNotice';
 import { SessionList } from '@/components/console/profile/SessionList';
+import { YourActivity } from '@/components/console/profile/YourActivity';
 
 /**
  * The signed-in operator's own profile. `Profile.dc.html`.
@@ -78,6 +79,7 @@ export function ProfilePanel({
           <>
             <SecurityList items={model.security} />
             <SessionList sessions={model.sessions} hidden={model.sessionsHidden} live={live} />
+            <YourActivity actions={model.activity} total={model.activityTotal} />
           </>
         }
         rail={

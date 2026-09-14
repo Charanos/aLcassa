@@ -1,16 +1,18 @@
 'use client';
 
 import {
-  IconBrandWhatsapp,
+  IconBrandWhatsappFilled,
   IconBrandInstagram,
-  IconBrandMessenger,
+  IconBrandMessengerFilled,
   IconMessageCircle,
   IconLock,
   IconActivity,
   IconKey,
   IconServerCog,
 } from '@tabler/icons-react';
+import type { Icon as TablerIcon } from '@tabler/icons-react';
 import React from 'react';
+import { IconTile } from '@/components/primitives/IconTile';
 
 export function AuthIllustration() {
   return (
@@ -125,16 +127,16 @@ export function AuthIllustration() {
         {/* INBOUND CHANNELS (Left) */}
         {/* Placed precisely at left 5% (50px on 1000px width), with 150px width -> Ends at 200px */}
         <div className="absolute top-[20%] left-[5%] -translate-y-1/2 w-[150px]">
-          <ChannelCard title="WhatsApp" icon={<IconBrandWhatsapp size={18} className="text-[#25D366]" />} />
+          <ChannelCard title="WhatsApp" icon={IconBrandWhatsappFilled} brand="#25D366" />
         </div>
         <div className="absolute top-[40%] left-[5%] -translate-y-1/2 w-[150px]">
-          <ChannelCard title="Instagram" icon={<IconBrandInstagram size={18} className="text-[#E1306C]" />} />
+          <ChannelCard title="Instagram" icon={IconBrandInstagram} brand="#E1306C" />
         </div>
         <div className="absolute top-[60%] left-[5%] -translate-y-1/2 w-[150px]">
-          <ChannelCard title="Messenger" icon={<IconBrandMessenger size={18} className="text-[#00B2FF]" />} />
+          <ChannelCard title="Messenger" icon={IconBrandMessengerFilled} brand="#00B2FF" />
         </div>
         <div className="absolute top-[80%] left-[5%] -translate-y-1/2 w-[150px]">
-          <ChannelCard title="Web Chat" icon={<IconMessageCircle size={18} className="text-[#F59E0B]" />} />
+          <ChannelCard title="Web Chat" icon={IconMessageCircle} brand="var(--amber-500)" />
         </div>
 
         {/* WORKSPACE HUB (Center) */}
@@ -175,19 +177,11 @@ export function AuthIllustration() {
         {/* OUTBOUND FEATURES (Right) */}
         {/* Placed precisely at right 5% (50px on 1000px width), with 180px width -> Left edge is 770px */}
         <div className="absolute top-[35%] right-[5%] -translate-y-1/2 w-[180px]">
-          <FeatureCard 
-            title="Assistant Rules" 
-            subtitle="Live in under 5s" 
-            icon={<IconActivity size={18} className="text-[var(--red-500)]" />} 
-          />
+          <FeatureCard title="Assistant Rules" subtitle="Live in under 5s" icon={IconActivity} tone="danger" />
         </div>
 
         <div className="absolute top-[65%] right-[5%] -translate-y-1/2 w-[180px]">
-          <FeatureCard 
-            title="API Credentials" 
-            subtitle="Shown once" 
-            icon={<IconKey size={18} className="text-[var(--amber-500)]" />} 
-          />
+          <FeatureCard title="API Credentials" subtitle="Shown once" icon={IconKey} tone="warning" />
         </div>
 
       </div>
@@ -195,30 +189,93 @@ export function AuthIllustration() {
   );
 }
 
-function ChannelCard({ title, icon }: { title: string; icon: React.ReactNode }) {
+/**
+ * ⚠ THE ICON BOX IN BOTH CARDS IS NOW `IconTile`, AND IT WAS HAND-ROLLED TWICE
+ * HERE BEFORE IT WAS HAND-ROLLED TWICE ON THE SIGN-IN PAGES.
+ *
+ * Four inline copies of the same idea — a rounded square holding a glyph, lifted
+ * off the surface — and all four had drifted: `p-2.5` here, `p-2` below,
+ * `size-8 rounded-xl` on one sign-in page, `size-6 rounded-md` on the other.
+ * None of them could be reused because none of them was a component.
+ *
+ * The tile is the right treatment for exactly what these cards hold: a CHANNEL
+ * and a CAPABILITY are objects, not statuses, which is the distinction
+ * `IconTile` exists to keep. So the illustration, the two sign-in doors and the
+ * profile's device list now draw the same tile, which is what makes the demo
+ * doors look like they belong to this product rather than to that one screen.
+ *
+ * ⚠ THE BRAND MARKS KEEP THEIR OWN COLOUR, via `glyphColor`. WhatsApp's green is
+ * not a decision this product gets to make — 03 §2 exempts brand marks for that
+ * reason. The two FEATURE tiles take a `tone` instead, because a key and an
+ * activity trace are semantic and belong inside the token system.
+ */
+function ChannelCard({
+  title,
+  icon,
+  brand,
+}: {
+  title: string;
+  icon: TablerIcon;
+  /** The channel's own mark colour. A brand value, not a palette choice. */
+  brand: string;
+}) {
   return (
-    <div className="group flex items-center gap-3.5 w-full rounded-[1.125rem] bg-white/80 p-2.5 shadow-sm ring-1 ring-black/5 backdrop-blur-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
-      <div className="rounded-[0.6rem] bg-white p-2.5 shrink-0 border border-[var(--ink-100)]/60 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)] transition-transform duration-300 group-hover:scale-105 group-hover:rotate-2">
-        {icon}
-      </div>
-      <div className="font-sans text-[13px] font-medium text-[var(--text-primary)] tracking-tight">
+    <div
+      className="group flex w-full items-center gap-3.5 rounded-[1.125rem] p-2.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      style={{
+        background: 'color-mix(in oklab, var(--surface-raised) 80%, transparent)',
+        boxShadow: 'var(--shadow-sm), inset 0 0 0 1px var(--border-subtle)',
+      }}
+    >
+      <IconTile
+        icon={icon}
+        glyphColor={brand}
+        size="lg"
+        className="transition-transform duration-300 group-hover:scale-105 group-hover:rotate-2 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-hover:rotate-0"
+      />
+      <div
+        className="text-[13px] tracking-tight"
+        style={{ color: 'var(--text-primary)', fontWeight: 500 }}
+      >
         {title}
       </div>
     </div>
   );
 }
 
-function FeatureCard({ title, subtitle, icon }: { title: string; subtitle: string; icon: React.ReactNode }) {
+function FeatureCard({
+  title,
+  subtitle,
+  icon,
+  tone,
+}: {
+  title: string;
+  subtitle: string;
+  icon: TablerIcon;
+  tone: 'danger' | 'warning';
+}) {
   return (
-    <div className="flex items-start gap-3 w-full rounded-[1.125rem] bg-white/80 p-3.5 shadow-sm ring-1 ring-black/5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-      <div className="shrink-0 mt-0.5 rounded-[0.6rem] bg-white p-2 border border-[var(--ink-100)]/60 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)]">
-        {icon}
-      </div>
+    <div
+      className="flex w-full items-start gap-3 rounded-[1.125rem] p-3.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      style={{
+        background: 'color-mix(in oklab, var(--surface-raised) 80%, transparent)',
+        boxShadow: 'var(--shadow-sm), inset 0 0 0 1px var(--border-subtle)',
+      }}
+    >
+      {/* The wash ties the tile to the glyph. Before, a coloured icon floated in
+          a white box, so the colour read as decoration rather than as meaning. */}
+      <IconTile icon={icon} tone={tone} size="lg" className="mt-0.5" />
       <div>
-        <div className="font-mono text-[9px] font-medium tracking-[0.1em] text-[var(--text-tertiary)] uppercase leading-tight mb-1">
+        <div
+          className="mb-1 font-mono text-[9px] leading-tight tracking-[0.1em] uppercase"
+          style={{ color: 'var(--text-tertiary)', fontWeight: 500 }}
+        >
           {title}
         </div>
-        <div className="font-sans text-[12px] text-[var(--text-secondary)] leading-snug font-medium">
+        <div
+          className="text-[12px] leading-snug"
+          style={{ color: 'var(--text-secondary)', fontWeight: 500 }}
+        >
           {subtitle}
         </div>
       </div>

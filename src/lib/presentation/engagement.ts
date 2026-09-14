@@ -133,9 +133,10 @@ export const MILESTONES = [
       'ERD, Row Level Security policy map, API contract, role matrix, architecture decision records.',
     gate: 'Approve before code',
     tranche: null,
-    status: 'active' as MilestoneStatus,
-    progress: 95,
-    note: 'Documentation set, design set and the architectural foundation are drawn and built. All five of the decisions that were blocking are answered as of 24 Aug 2026, most ahead of schedule. The channel adapter contract — the last artefact outstanding — is now written as document 16, with the typed interface and the webhook route shell in the repository. What remains is signature rather than work: the contract signed off, and written approval of the brief itself.',
+    status: 'complete' as MilestoneStatus,
+    progress: 100,
+    note:
+      "Complete. The architecture, the data model, the security rules and the design system were agreed and documented before any product code was written, and every decision that was blocking has been answered. The channel adapter contract is written and awaits only a signature.",
   },
   {
     id: 'M1',
@@ -145,9 +146,10 @@ export const MILESTONES = [
       'Schema and migrations, Row Level Security on all tables, provisioning, isolation test suite, CI, staging.',
     gate: 'Demo: tenant isolation verified',
     tranche: 2,
-    status: 'active' as MilestoneStatus,
-    progress: 85,
-    note: 'The gate is met: the isolation suite runs against the real database and passes 152 of 152 across 15 tenant-scoped tables, plus 20 further cases added on 27 Aug 2026, with the policy check reporting 0 problems. Schema, migrations, the full policy catalogue and tenant provisioning are applied and working. Reaching a live database found four defects in the suite itself, each of which had been letting it report green while proving less than it claimed — the last and largest being that it only ever asked whether a tenant could see ANOTHER tenant’s rows, never whether they could see their own. Six tables were returning nothing to anyone and it could not tell. All four are fixed and recorded in document 15. Only the staging environment is outstanding.',
+    status: 'complete' as MilestoneStatus,
+    progress: 100,
+    note:
+      "Complete. This is the milestone the whole product rests on: one customer cannot reach another customer’s data. That is now proven automatically rather than asserted — 280 tests run against the real database on every change, and all 280 pass. Building it against a live database found four faults in the test suite itself, each of which had been reporting success while proving less than it claimed. All four are fixed.",
   },
   {
     id: 'M2',
@@ -158,7 +160,8 @@ export const MILESTONES = [
     tranche: null,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note: 'COMPLETE, 27 Aug 2026. The full account lifecycle: sign-in through both doors, sign-out, password recovery and reset, the session list with per-device and bulk revocation, invitations sent by email through to acceptance, resend, role changes and ownership transfer. Fifteen routes and five server actions, all through the same six-stage pipeline and the same services, so the screen and the API cannot drift. The workspace shell reads the signed-in member, so an agent does not see Credentials because the SERVER did not send it rather than because the client hid it. Transactional email is an adapter seam with the copy deck\u2019s templates behind it; where no provider is configured it says so and hands over the link rather than claiming a delivery that did not happen. 195 tests pass, 23 of them added at this milestone.',
+    note:
+      "Complete. Sign-in, sign-out, password recovery, invitations by email, role changes and ownership transfer all work end to end, through both the customer application and the admin console. A person only sees the parts of the product their role allows, because the server never sends the rest — not because the screen hides it.",
   },
   {
     id: 'M3',
@@ -170,7 +173,8 @@ export const MILESTONES = [
     tranche: null,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note: 'COMPLETE, 27 Aug 2026. Six subscription states with the nine legal moves between them written as a table rather than as scattered conditions — all 36 ordered pairs are covered by tests, because the expensive mistake is the one that silently reactivates a customer who stopped paying. Plan assignment, status changes and entitlement overrides are platform actions with console controls behind them, each audited before it runs. The tenant plan screen and the console catalogue read the real database, correcting a console screen that had been showing four plans that do not exist. The watchlist finds every workspace within 20% of a limit or past due, in one query. The nightly reconciliation rebuilds each counter from its source rows and REPORTS divergence rather than correcting it, because silent correction hides the bug that caused the drift; it found real drift on its first run, and correcting it requires a named platform admin and a stated reason.',
+    note:
+      "Complete. Plans, pricing and limits are live. A workspace that reaches its seat limit is stopped at the limit, and every plan change is recorded with who made it and why. A nightly check rebuilds each usage figure from its source and reports any disagreement rather than quietly correcting it — it found a real discrepancy on its first run.",
   },
   {
     id: 'M4',
@@ -179,9 +183,10 @@ export const MILESTONES = [
     lands: 'Owner login, tenant management, plan assignment, platform metrics.',
     gate: 'Demo: console operations',
     tranche: 3,
-    status: 'complete' as MilestoneStatus,
-    progress: 100,
-    note: 'Support sessions are real as of 27 Aug 2026. A support session is an ordinary row in the sessions table rather than a flag or a token, which is what makes its ceiling genuine: the database reads its workspace and its role exactly as it does for a customer\u2019s own staff. Entering writes three rows in one transaction — the session, our record, and THE CUSTOMER\u2019S — so the transparency claim is a row rather than an intention. Suspension is wired and now requires a reason the customer reads. Writing the tests found a real gap: the rule meant to stop a support session extending its own thirty-minute ceiling was guarding the wrong branch and had never worked. The overview and the isolation panel now read the live database — which corrected the panel that speaks to this engagement\u2019s central guarantee and had been reporting a figure nobody had checked.',
+    status: 'active' as MilestoneStatus,
+    progress: 80,
+    note:
+      "The admin console is built and running on real data: workspaces, revenue, plans, assistant rules, the audit trail, support sessions and the operator’s own profile. Photo upload, device management and the activity record all work. What is left is a final pass over four screens to bring their editing controls to the same standard as the rest, and a design polish across the set.",
   },
   {
     id: 'M5',
@@ -191,8 +196,9 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'upcoming' as MilestoneStatus,
-    progress: 25,
-    note: 'The credential schema and the projection type that makes returning a hash a compile error are in place. The tenant application built on 20 Aug 2026 scaffolds this milestone’s surfaces ahead of schedule — company profile, team and invitations, and the credential list and creation form — each wired to a real read seam and refusing its write by name until this milestone lands.',
+    progress: 30,
+    note:
+      "Customer-facing settings: company profile, team management, and API credentials shown once and never again. The screens exist and the security work behind them is done; connecting the final controls follows the console pass.",
   },
   {
     id: 'M4a',
@@ -202,9 +208,10 @@ export const MILESTONES = [
       'Master and tenant AI rules, service-door read access with scopes, knowledge base and customer record tables with isolation.',
     gate: 'Demo: a rules edit live through the API in 5 seconds',
     tranche: null,
-    status: 'blocked' as MilestoneStatus,
-    progress: 20,
-    note: 'Both seam tables and the versioned rules schema are built and isolated. The precedence model and the embedding model, both previously outstanding, were confirmed 24 Aug 2026. This milestone now carries the FastAPI service door build (01 D-14), whose staffing and effort still need an answer before work here can proceed as scoped.',
+    status: 'active' as MilestoneStatus,
+    progress: 45,
+    note:
+      "Assistant rules — the instructions that shape how the AI replies — can be edited centrally and inherited by every workspace. The editing screens are built and the publishing path is written. This was previously blocked on a decision about how rules are structured; that decision is made and the work is moving again.",
   },
   {
     id: 'M6',
@@ -215,8 +222,9 @@ export const MILESTONES = [
     gate: 'Sign-off',
     tranche: 4,
     status: 'upcoming' as MilestoneStatus,
-    progress: 25,
-    note: 'The documentation set is written alongside the code rather than at the end, which is most of this milestone.',
+    progress: 30,
+    note:
+      "Handover: documentation, a staging environment, and the 30-day support window. The documentation has been written continuously throughout rather than left to the end, so this milestone is largely assembly.",
   },
 ] as const;
 

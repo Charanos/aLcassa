@@ -164,22 +164,24 @@ export function PortfolioBandSkeleton() {
       <div className="mb-6 h-7" />
       <div className="grid gap-5 lg:grid-cols-3">
         {[0, 1, 2].map((i) => (
-          <Panel key={i} title="">
+          <Panel key={i} title="" variant="elevated">
             <div className="grid gap-3 py-2">
-              <SkeletonText width={[64, 58, 70][i] ?? 64} />
-              <SkeletonText width={[92, 84, 88][i] ?? 90} />
-              <SkeletonText width={[46, 52, 40][i] ?? 46} />
-              <SkeletonText width={[78, 70, 82][i] ?? 78} />
+              <SkeletonText width={[64, 58, 70][i] ?? 64} className="!bg-[var(--surface-inset)]" />
+              <SkeletonText width={[92, 84, 88][i] ?? 90} className="!bg-[var(--surface-inset)]" />
+              <SkeletonText width={[46, 52, 40][i] ?? 46} className="!bg-[var(--surface-inset)]" />
+              <SkeletonText width={[78, 70, 82][i] ?? 78} className="!bg-[var(--surface-inset)]" />
             </div>
           </Panel>
         ))}
       </div>
       <div className="mt-5 grid gap-5 sm:grid-cols-2">
         {[0, 1].map((i) => (
-          <Panel key={i} title="">
+          <Panel key={i} title="" variant="elevated">
             <div className="grid gap-3 py-2">
-              <SkeletonText width={[38, 42][i] ?? 38} />
-              <SkeletonText width={100} />
+              <SkeletonText width={[64, 58][i] ?? 64} className="!bg-[var(--surface-inset)]" />
+              <SkeletonText width={[92, 84][i] ?? 90} className="!bg-[var(--surface-inset)]" />
+              <SkeletonText width={[46, 52][i] ?? 46} className="!bg-[var(--surface-inset)]" />
+              <SkeletonText width={[78, 70][i] ?? 78} className="!bg-[var(--surface-inset)]" />
             </div>
           </Panel>
         ))}

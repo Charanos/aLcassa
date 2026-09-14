@@ -462,3 +462,206 @@ design intent good, literals not.
 keeps its literal. A mask's colour is never painted — only its alpha channel is
 read — so tokenising it would imply a palette decision where none exists. It is
 the second documented exception to §2's no-raw-colour rule, after brand marks.
+
+---
+
+## 12. Seeding an account that can actually sign in
+
+**14 Sep 2026.** §10 made the half-signed-out state honest. This removes the
+reason it was being reached.
+
+### The gap
+
+`pnpm db:seed` wrote `user_profiles` and `platform_admins` rows for Brian and
+**never created an account he could authenticate as**. The application half of
+an identity existed; the Supabase half did not. So `signInWithPassword` had
+nothing to match, the platform cookie from a demo bypass got somebody into the
+console anyway, and every live reader fell through to the fixture.
+
+`src/db/seed/authAccounts.ts` writes the missing half.
+
+### Why SQL rather than `admin.auth.admin.createUser()`
+
+The eslint boundary permits the admin client in `src/db/seed/**`, so the API was
+available and was still wrong: `createUser` mints its own UUID, and
+`SEED_PLATFORM_ADMIN` is a **fixed** uuid that `tests/isolation/support-mode.test.ts`
+asserts against by value. An auth account at a different id would leave the
+profile row, the admin row and the isolation suite pointing one way while the
+thing that can sign in pointed another — the same class of split the whole fix
+exists to close.
+
+### The bug that made the first version fail on Supabase only
+
+`scripts/create-extensions.ts` runs `create extension if not exists pgcrypto`.
+On a Supabase project that is a **no-op** — pgcrypto is already installed, into
+the `extensions` schema rather than `public`, which is not on a direct
+connection's `search_path`. So unqualified `crypt(...)` raises *"function
+crypt(text, text) does not exist"*.
+
+On a plain Postgres the same statement really does create it, in `public`, where
+it resolves. **The identical seed worked locally and failed against the thing it
+was for.** `cryptSchema()` asks `pg_proc` instead of guessing.
+
+### Everything else that is asked rather than assumed
+
+| Thing | Why it is not assumed |
+| --- | --- |
+| `crypt`'s schema | above |
+| `auth.identities.provider_id` | the table gained a surrogate `id` and moved the provider key; both shapes ship |
+| The `auth.users` column list | deliberately small — only columns stable since 2021. Token columns are omitted rather than set to `''`: where they are NOT NULL they default to it, and naming them is how this breaks on the next rename |
+| A conflicting row on the email | `auth.users.email` is unique, so anyone who registered the address by hand would collide with a message naming the constraint and not the cause |
+
+### It verifies itself
+
+Three failure modes are silent from the seed's point of view — a hash the wrong
+algorithm produced, a missing identity row, an unconfirmed address — and all
+three end with a seed that prints ✓ and a sign-in page that says the password is
+wrong.
+
+`verifyAuthAccount()` re-runs GoTrue's own comparison plus the two conditions it
+checks alongside, and a failure **exits non-zero with the specific problem**.
+Reporting success without checking is the same defect this codebase keeps finding
+in its own actions: a write that could affect nothing, reported as done.
+
+### The production guard
+
+The seed can now write credentials, so it refuses to run under
+`NODE_ENV=production` without `SEED_ALLOW_PRODUCTION=1`. A documented password
+against a production database is not a seeding mistake, it is an open door. The
+override exists because a guard with no escape hatch gets commented out by the
+first person it inconveniences.
+
+### The demo data
+
+`src/db/seed/demoProfile.ts` seeds three devices and twelve platform actions for
+the operator. Not decoration: the live reader takes over the moment somebody
+signs in, and until now it correctly reported an empty account — so **signing in
+made the console worse to look at**, which is backwards for a demonstration, and
+nobody ever exercised the reader against realistic volume.
+
+Every row is shaped as the application would have written it. The user agents are
+real strings `describeAgent` parses (seeding the LABEL would yield "Unknown
+device" and prove nothing); `used_service_role` carries both values so the audit
+filter has something to filter; the action mix is what an owner actually does.
+
+---
+
+## 13. `IconTile`, and where it went
+
+The demo-mode doors carried a tile treatment — a rounded square, a lifted ink
+ground, a diagonal tone wash — that existed **four times inline and nowhere as a
+component**, having already drifted into four different designs of one idea:
+
+| Copy | What it was |
+| --- | --- |
+| `(access)/sign-in` | `size-8 rounded-xl`, gradient ground, tone wash, hover lift |
+| `(platform)/sign-in` | `size-6 rounded-md`, flat `--danger-bg`, no lift |
+| `AuthIllustration` · channel | `rounded-[0.6rem] bg-white p-2.5`, raw rgba shadow |
+| `AuthIllustration` · feature | the same, at `p-2` |
+
+The first is the best of them and it was the one a reviewer never saw, because a
+reviewer lands on the platform door.
+
+### The rule it encodes
+
+**`IconTile` is an object. `IconPill` is a state.**
+
+A circle carrying a tone tint at badge strength says *healthy / warning /
+failing*. A rounded square with a ground gradient is the visual language of an
+application icon, so a tile holding a terminal glyph reads as *the console*
+rather than as *something is green about the console*.
+
+That distinction decided every placement:
+
+| Placement | Which, and why |
+| --- | --- |
+| Both demo doors | tile — a door is a destination |
+| Profile · device rows | tile — a laptop is an object |
+| Profile · security rows | **pill, kept** — green there means enrolled, which is a state |
+| Illustration · channels | tile, with `glyphColor` for the brand mark |
+| Illustration · features | tile with a `tone`, so the wash ties the box to the glyph |
+
+### The tone is a wash, not a fill
+
+The ground stays neutral ink at every tone and the colour arrives as a ~12%
+diagonal gradient over it. That is what keeps a row of tiles reading as a set of
+objects rather than a traffic-light panel — and why using `brand` here does not
+spend the accent budget in 03 §4a: at this strength it is a tint on grey.
+
+### `glyphColor` is the brand-mark escape hatch
+
+WhatsApp's green is not a decision this product gets to make, and 03 §2 exempts
+brand marks for exactly that reason. A tile carrying a brand mark passes the
+brand's value; a tile carrying a semantic glyph uses `tone` and stays inside the
+token system. Reaching for `glyphColor` to get "a red icon" is the misuse it is
+named to prevent.
+
+---
+
+## 14. Depth: the operator's own record
+
+The rail said **"412 audit entries by you"** and offered no way to see them.
+
+That is the shape of gap this pass keeps finding — a figure with no handle — and
+here it was the most interesting fact on the screen. A reader who wanted to know
+*which* 412 had to leave for the audit log and construct a filter themselves, on
+the one screen whose entire premise is showing an operator their own footprint.
+
+`YourActivity` reads the same table the count counts, over the same window, so
+the panel and the figure beside it cannot disagree. It renders
+`used_service_role` because that is the single column an auditor filters on, and
+joins the tenant so a row names a customer rather than a uuid.
+
+**It is also the half of the accountability argument that was missing.**
+`LimitsCard` states the ceiling — what this admin cannot reach. This states the
+record — what they did reach. A security review asks both, and until now the
+profile answered only the first.
+
+---
+
+## 15. The demo bypass is off
+
+**14 Sep 2026.** `lib/auth/demoAccess.ts` was written with its own expiry
+condition in the header:
+
+> M2 is the milestone that stops it being reasonable. Once the resolvers in
+> `lib/auth/resolve.ts` are wired behind those screens, a cookie handed out by an
+> unauthenticated GET is the difference between a demo and an open door to the
+> owner console — and the link to it sits on the public sign-in page.
+
+The resolvers are wired and §12 gives the seed a real account. The bypass has
+stopped buying anything and kept all of its cost.
+
+### It was also the cause of §10
+
+The cookie `/api/demo` sets is the literal string
+`demo_platform_session_active` — not a session id, because there is no session.
+`middleware.ts` admits any request carrying the platform cookie, so that string
+got a reader into the console; every live reader then failed to resolve it and
+fell back to the fixture.
+
+**That is the half-signed-out state, and the bypass is where it came from.** The
+banner made it honest; removing the producer is better.
+
+### One lever, not three
+
+`demoAccessEnabled()` now returns true only for an explicit
+`ALLOW_DEMO_ACCESS=true` — the development default is gone. Because the API route
+already gates on the same function (and answers **404**, not 403, so a probe
+cannot confirm the bypass exists), flipping it closes the buttons on both
+sign-in pages *and* the route in one change.
+
+Hiding the buttons alone would have left `/api/demo?role=platform` working by
+direct URL, which is the half-measure this codebase exists to refuse.
+
+### Deleting it completely, later
+
+Four deletions, no other edits, nothing else imports any of them:
+
+1. `src/lib/auth/demoAccess.ts`
+2. `src/app/api/demo/route.ts`
+3. `src/components/access/DemoDoors.tsx`
+4. the `{demoAccessEnabled() ? <DemoDoors /> : null}` line in each sign-in page
+
+`DemoDoors` is the only consumer of `IconTile` that goes with it — the primitive
+stays, and is used by the auth illustration and the profile's device list.

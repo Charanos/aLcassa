@@ -35,8 +35,8 @@ export function AccessRail({
   facts: Array<{ label: string; value: string }>;
 }) {
   return (
-    <Panel 
-      title="Your access" 
+    <Panel
+      title="Your access"
       variant="elevated"
       action={
         <span
@@ -72,7 +72,7 @@ export function AccessRail({
             </span>
             <span className="w-full">
               <span
-                className="text-[14px] block"
+                className="block text-[14px]"
                 style={{
                   color: c.granted ? 'var(--text-primary)' : 'var(--text-tertiary)',
                   fontWeight: 500,
@@ -85,7 +85,7 @@ export function AccessRail({
                 {c.granted ? null : <span style={{ fontWeight: 400 }}> &mdash; not granted</span>}
               </span>
               <span
-                className="text-[13px] block mt-0.5 leading-relaxed"
+                className="mt-0.5 block text-[13px] leading-relaxed"
                 style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
               >
                 {c.detail}

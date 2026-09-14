@@ -12,7 +12,7 @@ import { describeAgent } from '@/lib/console/userAgent';
 import { sendEmail, sessionsRevokedEmail } from '@/modules/email';
 import { avatarUrlFor, deleteAvatarObject, uploadAvatar } from '@/lib/storage/avatar';
 import { MAX_AVATAR_BYTES, readableBytes, sniffImage } from '@/lib/storage/avatarRules';
-import { withoutTenantContext } from '@/lib/db';
+import { withActorContext } from '@/lib/db';
 import { ERROR_CODES, isAppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import { recordPlatformAction } from '@/modules/platform';
@@ -95,6 +95,28 @@ function refusal(error: unknown, fallback: string): ProfileActionResult<never> {
  */
 
 /**
+ * ⚠ EVERY ACTION IN THIS FILE RUNS UNDER `withActorContext`, AND SIX OF THEM
+ * USED `withoutTenantContext` — WHICH MADE ALL OF THEM SILENTLY IMPOSSIBLE.
+ *
+ * `withoutTenantContext` sets `app.actor_id` to the empty string. Every policy
+ * these writes have to satisfy keys on the actor:
+ *
+ *   `user_profiles_modify`        id = app.current_actor_id()
+ *   `platform_audit_log_insert`   a platform_admins row FOR that actor
+ *   `sessions_modify`             user_id = app.current_actor_id()
+ *
+ * With no actor, `current_actor_id()` is null, every predicate compares against
+ * null, and the UPDATE matched zero rows. The rename and the avatar upload both
+ * surfaced that as "Your profile record could not be found. Sign in again." —
+ * a message about a row that exists, telling somebody correctly signed in to
+ * sign in again. The audit inserts would have been refused outright.
+ *
+ * The right context for "a signed-in person writing their own rows" is the one
+ * that names them. `withoutTenantContext` is for reads that need no identity at
+ * all; there are none in this file.
+ */
+
+/**
  * Rename yourself.
  *
  * ⚠ IT WRITES `user_profiles`, NOT `auth.users`. 05 §2 states which is the
@@ -131,7 +153,7 @@ export async function updateConsoleProfileName(
      * that nonetheless resolved — a state worth a loud refusal rather than a
      * quiet success.
      */
-    const saved = await withoutTenantContext(ctx.requestId, async (tx) => {
+    const saved = await withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
       const rows = await tx
         .update(userProfiles)
         .set({ fullName: checked.name, updatedAt: new Date() })
@@ -230,7 +252,7 @@ export async function revokeConsoleSession(sessionId: string): Promise<ProfileAc
       };
     }
 
-    await withoutTenantContext(ctx.requestId, async (tx) => {
+    await withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
       await recordPlatformAction(tx, {
         actorUserId: ctx.actorId,
         actorLabel: ctx.actorLabel,
@@ -278,7 +300,7 @@ export async function revokeOtherConsoleSessions(): Promise<
        reported as a success carrying zero, and the toast says so. No audit row
        either way: a sweep that swept nothing is not an event. */
     if (revoked > 0) {
-      await withoutTenantContext(ctx.requestId, async (tx) => {
+      await withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
         await recordPlatformAction(tx, {
           actorUserId: ctx.actorId,
           actorLabel: ctx.actorLabel,
@@ -313,7 +335,7 @@ export async function revokeOtherConsoleSessions(): Promise<
      */
     if (revoked > 0) {
       try {
-        const [me] = await withoutTenantContext(ctx.requestId, async (tx) =>
+        const [me] = await withActorContext(ctx.actorId, ctx.requestId, async (tx) =>
           tx
             .select({ email: userProfiles.email, fullName: userProfiles.fullName })
             .from(userProfiles)
@@ -446,7 +468,7 @@ export async function updateConsoleAvatar(
      * has a failure mode where the account loses its avatar and the bytes are
      * already gone.
      */
-    const previous = await withoutTenantContext(ctx.requestId, async (tx) => {
+    const previous = await withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
       const [before] = await tx
         .select({ avatarPath: userProfiles.avatarPath })
         .from(userProfiles)
@@ -508,7 +530,7 @@ export async function removeConsoleAvatar(): Promise<ProfileActionResult> {
   try {
     const ctx = await currentPlatformSession();
 
-    const previous = await withoutTenantContext(ctx.requestId, async (tx) => {
+    const previous = await withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
       const [before] = await tx
         .select({ avatarPath: userProfiles.avatarPath })
         .from(userProfiles)

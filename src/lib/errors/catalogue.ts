@@ -64,6 +64,19 @@ export const ERROR_CODES = {
   RATE_LIMIT_EXCEEDED: 'rate_limit.exceeded',
   NOT_FOUND: 'not_found',
   INTERNAL: 'internal',
+  /**
+   * An upstream this request depends on could not be reached at all.
+   *
+   * ⚠ IT EXISTS BECAUSE ITS ABSENCE MADE THE SIGN-IN ROUTE LIE. Any failure
+   * from `signInWithPassword` was reported as `auth.invalid_credentials` —
+   * including a DNS failure against the identity provider. "That email and
+   * password do not match" is a confident, specific, WRONG claim to make when
+   * the truth is that nothing was checked, and it sent two people looking for a
+   * typo in a password for an afternoon.
+   *
+   * 503 rather than 500: the request was valid and may well succeed later.
+   */
+  UPSTREAM_UNAVAILABLE: 'upstream.unavailable',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
@@ -117,6 +130,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   [ERROR_CODES.RATE_LIMIT_EXCEEDED]: 429,
   [ERROR_CODES.NOT_FOUND]: 404,
   [ERROR_CODES.INTERNAL]: 500,
+  [ERROR_CODES.UPSTREAM_UNAVAILABLE]: 503,
 };
 
 /**
@@ -177,4 +191,6 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
     'That is a lot of requests in a short time. Wait a moment and try again.',
   [ERROR_CODES.NOT_FOUND]: 'That is not here, or you do not have access to it.',
   [ERROR_CODES.INTERNAL]: 'Something broke on our side. We have logged it.',
+  [ERROR_CODES.UPSTREAM_UNAVAILABLE]:
+    'We could not reach the service that checks this. Nothing was wrong with what you sent — try again shortly.',
 };

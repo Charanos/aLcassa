@@ -57,19 +57,21 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
         title="Security"
         note="You can see every workspace on the platform. These controls are the reason that is safe."
         align="right"
-        action={
-          <BandLink href="/platform/settings">Go to settings</BandLink>
-        }
+        action={<BandLink href="/platform/settings">Go to settings</BandLink>}
       />
 
       <div className="flex flex-col gap-4">
         {items.map((item) => {
           const Glyph = GLYPH[item.key];
           return (
-            <div 
-              key={item.key} 
-              className="rounded-xl border overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
-              style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)', boxShadow: 'var(--shadow-sm)' }}
+            <div
+              key={item.key}
+              className="overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
+              style={{
+                borderColor: 'var(--border-subtle)',
+                background: 'var(--surface-raised)',
+                boxShadow: 'var(--shadow-sm)',
+              }}
             >
               <RecordRow
                 glyph={
@@ -77,11 +79,18 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
                     <Glyph size={20} stroke={1.5} />
                   </RowGlyph>
                 }
-                label={<span className="text-[14px] font-medium text-black">{item.label}</span>}
+                label={
+                  <span
+                    className="text-[14px]"
+                    style={{ color: 'var(--text-primary)', fontWeight: 500 }}
+                  >
+                    {item.label}
+                  </span>
+                }
                 detail={item.detail}
                 note={
                   <p
-                    className="text-[13px] mt-1"
+                    className="mt-1 text-[13px]"
                     style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
                   >
                     {REASON[item.key]}
@@ -102,7 +111,10 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
       </div>
 
       <div className="mt-5 px-1">
-        <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}>
+        <p
+          className="text-[13px] leading-relaxed"
+          style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+        >
           This panel states the platform&rsquo;s policy, not the state of your account. None of the
           three is read from here, so nothing above is a claim about what you personally have
           enrolled.

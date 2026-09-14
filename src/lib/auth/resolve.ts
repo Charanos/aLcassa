@@ -6,7 +6,8 @@ import { platformAdmins, tenantMembers, tenants, userProfiles } from '@/db/schem
 import { withActorContext } from '@/lib/db';
 import { createResolvedContext } from '@/lib/db/context';
 import type { ResolvedContext, TenantRole } from '@/lib/db/context';
-import { AppError, ERROR_CODES } from '@/lib/errors';
+import { AppError, ERROR_CODES, isAppError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 import { createSupabaseServerClient } from './supabase/server';
 import { readSessionCookie, resolveSession } from './session';
 
@@ -204,12 +205,36 @@ export async function currentPlatformSession(requestId?: string): Promise<Resolv
   return resolvePlatformCore(headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null, id);
 }
 
-/** Null rather than throwing, for a console page that renders a sign-in
- *  prompt instead of an error. Same reasoning as `currentSessionOrNull`. */
+/**
+ * Null rather than throwing, for a console page that renders a sign-in prompt
+ * instead of an error. Same reasoning as `currentSessionOrNull`.
+ *
+ * ⚠ IT USED TO SWALLOW THE REASON ENTIRELY, AND THAT COST AN AFTERNOON.
+ *
+ * `catch { return null }` is the right CONTROL FLOW — a console page must not
+ * 500 because nobody is signed in — and it was also the reason a genuinely
+ * broken session was indistinguishable from an absent one. Every live reader
+ * returned null, every page fell back to its designed fixture, and the server
+ * logs said nothing at all. The only visible symptom was a console quietly
+ * showing somebody else's data.
+ *
+ * The resolver already knows exactly which of four stages failed and puts it in
+ * `AppError.internal` — `supabase.getUser`, `cookie`, `session`, `not_admin`.
+ * That detail was being thrown away one line after it was created.
+ *
+ * It logs at DEBUG, not warn: on a signed-out visitor this is the ordinary
+ * path, and a warning per anonymous page view is noise that gets filtered and
+ * then ignored. What matters is that the reason is RECOVERABLE when somebody
+ * goes looking, which it now is.
+ */
 export async function currentPlatformSessionOrNull(): Promise<ResolvedContext | null> {
   try {
     return await currentPlatformSession();
-  } catch {
+  } catch (error) {
+    logger.debug('no platform session resolved', {
+      stage: isAppError(error) ? error.internal : undefined,
+      reason: error instanceof Error ? error.message : String(error),
+    });
     return null;
   }
 }

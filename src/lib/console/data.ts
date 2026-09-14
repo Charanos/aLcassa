@@ -174,17 +174,56 @@ export type OverviewModel = {
  * Both now read this. It becomes `count(*) … group by status` at M4 and the
  * two stay equal for free.
  */
-export const PORTFOLIO_TOTALS = [
-  { status: 'active' as const, count: 41 },
-  { status: 'trial' as const, count: 4 },
-  { status: 'suspended' as const, count: 2 },
-];
+/**
+ * ⚠ THE SPLIT THIS COMMENT DESCRIBES WAS ONLY HALF CLOSED, AND THE OTHER HALF
+ * WAS THE EXPENSIVE ONE.
+ *
+ * Declaring the headcount once did stop the overview contradicting itself. It
+ * did nothing about the fact that the number was 47 while the DATABASE held
+ * three — so the moment the console was wired to live readers, the fixtures and
+ * the tables described businesses of different sizes. The revenue screen
+ * averaged KES 6.04M "across 47 workspaces"; the tenants table listed three.
+ *
+ * Both now derive from `lib/console/portfolio.ts`, which is also what
+ * `db/seed/workspaces.ts` writes. The designed path and the live path read one
+ * list of twelve, so seeding a thirteenth moves the donut, the plan mix and the
+ * revenue headline together.
+ */
+import {
+  PLAN_PRICE,
+  PORTFOLIO,
+  SEAT_LIMIT,
+  type PortfolioWorkspace,
+  revenueSeries,
+  ARR,
+  AVERAGE_PER_PAYING,
+  MRR,
+  PAYING_COUNT,
+  PORTFOLIO_COUNT,
+  PORTFOLIO_NOTE,
+  PORTFOLIO_TOTALS,
+  REVENUE_BY_PLAN,
+} from './portfolio';
 
-export const PORTFOLIO_COUNT = PORTFOLIO_TOTALS.reduce((n, s) => n + s.count, 0);
+/* Re-exported so every existing importer of `console/data` keeps working — the
+   values simply stopped being literals. */
+export {
+  ARR,
+  AVERAGE_PER_PAYING,
+  MRR,
+  PAYING_COUNT,
+  PORTFOLIO_COUNT,
+  PORTFOLIO_NOTE,
+  PORTFOLIO_TOTALS,
+  REVENUE_BY_PLAN,
+};
 
-/** "41 active · 4 trial · 2 suspended", written from the same array the donut
- *  draws, so a change to one cannot leave the other stale. */
-export const PORTFOLIO_NOTE = PORTFOLIO_TOTALS.map((s) => `${s.count} ${s.status}`).join(' · ');
+/** "1.68M", "140k", "45k" — KES at the magnitude a console reads at a glance. */
+function short(kes: number): string {
+  if (kes >= 1_000_000) return `${(kes / 1_000_000).toFixed(2)}M`;
+  if (kes >= 1_000) return `${Math.round(kes / 1_000)}k`;
+  return String(kes);
+}
 
 // eslint-disable-next-line @typescript-eslint/require-await -- seam; see the note above
 export async function getOverview(): Promise<OverviewModel> {
@@ -202,8 +241,12 @@ export async function getOverview(): Promise<OverviewModel> {
       {
         id: 'recurring',
         label: 'Recurring',
-        value: '6.04M',
-        note: 'Up 5.6% on July. KES.',
+        /* Derived, like the workspace count beside it. These two signals sit
+           inches apart and described businesses of different sizes: 6.04M a
+           month across the twelve workspaces the next signal counts would be
+           half a million each. */
+        value: short(MRR),
+        note: `KES, across ${PAYING_COUNT} paying workspaces.`,
         href: '/platform/revenue',
         icon: 'pulse',
       },
@@ -512,166 +555,60 @@ export type WorkspaceRow = {
  * and it means the amber threshold is defined once rather than re-derived
  * from a parsed string.
  */
-// eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
+/**
+ * The `tenant_status` enum to the console's display vocabulary.
+ *
+ * ⚠ `past_due` IS THE DATABASE'S WORD AND `past due` IS THE SCREEN'S.
+ * `statusHue.ts` keys its colours by the second, so passing the first renders a
+ * grey dot and reads as a status nobody styled rather than a lookup that missed.
+ * That exact mismatch has already cost one shipped regression — 18 §13.
+ */
+const DISPLAY_STATUS_ROW: Record<PortfolioWorkspace['status'], WorkspaceStatus> = {
+  active: 'active',
+  trial: 'trial',
+  past_due: 'past due',
+  suspended: 'suspended',
+};
+
+// eslint-disable-next-line @typescript-eslint/require-await -- seam; see getOverview
 export async function getWorkspaces(): Promise<WorkspaceRow[]> {
-  return [
-    {
-      id: 'w_01',
-      name: 'Kilimanjaro Logistics Group Ltd',
-      slug: 'kilimanjaro-logistics',
-      plan: 'Scale',
-      status: 'past due',
-      seatsUsed: 247,
-      seatsLimit: 300,
-      events: 412880,
-      eventsLimit: 500000,
-      activity: '4 min ago',
-      created: '12 Mar 2025',
-    },
-    {
-      id: 'w_02',
-      name: 'Sarova Hospitality Collection',
-      slug: 'sarova-hospitality',
-      plan: 'Growth',
-      status: 'active',
-      seatsUsed: 88,
-      seatsLimit: 100,
-      events: 235104,
-      eventsLimit: 250000,
-      activity: '11 min ago',
-      created: '02 Nov 2024',
-    },
-    {
-      id: 'w_03',
-      name: 'Northwind Traders East Africa',
-      slug: 'northwind-ea',
-      plan: 'Growth',
-      status: 'active',
-      seatsUsed: 42,
-      seatsLimit: 100,
-      events: 98220,
-      eventsLimit: 250000,
-      activity: '38 min ago',
-      created: '19 Jan 2025',
-    },
-    {
-      id: 'w_04',
-      name: 'Peridot Health Clinics',
-      slug: 'peridot-health',
-      plan: '—',
-      status: 'trial',
-      seatsUsed: 6,
-      seatsLimit: 10,
-      events: 4180,
-      eventsLimit: 25000,
-      activity: '2 hours ago',
-      created: '27 Jul 2026',
-    },
-    {
-      id: 'w_05',
-      name: 'Tamarind Bay Resorts',
-      slug: 'tamarind-bay',
-      plan: 'Starter',
-      status: 'active',
-      seatsUsed: 9,
-      seatsLimit: 25,
-      events: 21044,
-      eventsLimit: 50000,
-      activity: '3 hours ago',
-      created: '08 Aug 2026',
-    },
-    {
-      id: 'w_06',
-      name: 'Mombasa Freight Union',
-      slug: 'mombasa-freight',
-      plan: 'Growth',
-      status: 'suspended',
-      seatsUsed: 61,
-      seatsLimit: 100,
-      events: 0,
-      eventsLimit: 250000,
-      activity: '14 days ago',
-      created: '30 Sep 2024',
-    },
-    {
-      id: 'w_07',
-      name: 'Aurora Dental Group',
-      slug: 'aurora-dental',
-      plan: 'Starter',
-      status: 'active',
-      seatsUsed: 14,
-      seatsLimit: 25,
-      events: 33902,
-      eventsLimit: 50000,
-      activity: '5 hours ago',
-      created: '21 Feb 2025',
-    },
-    {
-      id: 'w_08',
-      name: 'Bluewave Telecom Kenya',
-      slug: 'bluewave-telecom',
-      plan: 'Scale',
-      status: 'active',
-      seatsUsed: 184,
-      seatsLimit: 300,
-      events: 288416,
-      eventsLimit: 500000,
-      activity: '26 min ago',
-      created: '14 Jun 2024',
-    },
-    {
-      id: 'w_09',
-      name: 'Highfield Insurance Brokers',
-      slug: 'highfield-insurance',
-      plan: 'Growth',
-      status: 'active',
-      seatsUsed: 55,
-      seatsLimit: 100,
-      events: 140388,
-      eventsLimit: 250000,
-      activity: '1 hour ago',
-      created: '05 Dec 2024',
-    },
-    {
-      id: 'w_10',
-      name: 'Nyali Property Partners',
-      slug: 'nyali-property',
-      plan: 'Starter',
-      status: 'active',
-      seatsUsed: 4,
-      seatsLimit: 25,
-      events: 6720,
-      eventsLimit: 50000,
-      activity: '9 days ago',
-      created: '17 Apr 2025',
-    },
-    {
-      id: 'w_11',
-      name: 'Serengeti Coffee Traders',
-      slug: 'serengeti-coffee',
-      plan: 'Growth',
-      status: 'active',
-      seatsUsed: 37,
-      seatsLimit: 100,
-      events: 76540,
-      eventsLimit: 250000,
-      activity: '2 hours ago',
-      created: '11 Oct 2024',
-    },
-    {
-      id: 'w_12',
-      name: 'Lakeside Motors Ltd',
-      slug: 'lakeside-motors',
-      plan: 'Starter',
-      status: 'pending',
-      seatsUsed: 0,
-      seatsLimit: 25,
-      events: 0,
-      eventsLimit: 50000,
-      activity: 'never',
-      created: '09 Aug 2026',
-    },
-  ];
+  /*
+    ⚠ TWELVE HAND-WRITTEN ROWS, DERIVED FROM THE SAME TWELVE WORKSPACES.
+
+    The count was never the problem here — this list has always had twelve,
+    which is what made the overview’s "47" so obviously wrong once the two
+    were compared. What WAS wrong is that these rows described a different
+    twelve: plans named Scale, Growth and Starter, retired on 24 August 2026,
+    and workspaces with 247 of 300 seats on a catalogue whose largest plan
+    grants ten.
+
+    So the tenants table, the seeded database and the revenue screen each
+    described a different company. They now read one list.
+  */
+  return PORTFOLIO.map((w) => {
+    const limit = SEAT_LIMIT[w.plan];
+    /* Events are not in the portfolio and are not invented per row: volume
+       tracks team size, which is the only honest relationship available
+       without a messages table to count. */
+    const events = w.seats * 1_450;
+
+    return {
+      id: w.id,
+      name: w.name,
+      slug: w.slug,
+      plan: w.plan === 'pro' ? 'Pro' : w.plan === 'business' ? 'Business' : 'Custom',
+      status: DISPLAY_STATUS_ROW[w.status],
+      seatsUsed: w.seats,
+      /* Unlimited is shown as the seat count itself rather than a large
+         number standing in for infinity — 03 §10 forbids a full bar meaning
+         "no limit", and the table renders the pair. */
+      seatsLimit: limit ?? w.seats,
+      events,
+      eventsLimit: limit === null ? events : limit * 2_000,
+      activity: w.status === 'suspended' ? 'no activity' : `${(w.ageMonths % 9) + 1}h ago`,
+      created: `${w.ageMonths} months ago`,
+    };
+  });
 }
 
 /* ── Workspace detail ───────────────────────────────────────────────────── */
@@ -1122,49 +1059,71 @@ export type RevenueModel = {
  */
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
 export async function getRevenue(): Promise<RevenueModel> {
+  const series = revenueSeries();
+  const last = series[series.length - 1]!;
+  const previous = series[series.length - 2]!;
+  const inArrears = PORTFOLIO.filter((w) => w.status === 'past_due' || w.status === 'suspended');
+  /* Two periods unpaid is what tips a workspace from past due into suspended,
+     so the arrears figure is two months of each one's list price. */
+  const arrears = inArrears.reduce((sum, w) => sum + PLAN_PRICE[w.plan] * 2, 0);
+  const churnPct = Math.round((last.churn / Math.max(1, previous.mrr)) * 1000) / 10;
+  const growthPct = Math.round((Math.abs(last.net) / Math.max(1, previous.mrr)) * 1000) / 10;
+
   return {
+    /*
+      ⚠ EVERY FIGURE HERE IS COMPUTED FROM THE TWELVE WORKSPACES.
+
+      These were five hand-written literals describing a 47-workspace business
+      turning over KES 6.04M a month, against a database holding three tenants
+      and a plan catalogue that had been retired in August. A reader comparing
+      this screen with the workspace table two clicks away saw two different
+      companies, and the bigger one did not exist.
+
+      `portfolio.ts` is the single list. These derive from it, so seeding a
+      thirteenth workspace moves the headline, the curve and the mix together.
+    */
     kpis: [
       {
         label: 'MRR',
-        value: '6.04M',
-        note: 'vs 5.72M in July',
-        delta: '5.6%',
-        direction: 'up',
-        good: true,
+        value: short(last.mrr),
+        note: `vs ${short(previous.mrr)} last month`,
+        delta: `${growthPct}%`,
+        direction: last.net >= 0 ? 'up' : 'down',
+        good: last.net >= 0,
         icon: 'coin',
       },
       {
         label: 'ARR run rate',
-        value: '72.5M',
+        value: short(ARR),
         note: 'KES, annualised',
-        delta: '18.4%',
+        delta: '—',
         direction: 'up',
         good: true,
         icon: 'trend',
       },
       {
         label: 'Average per workspace',
-        value: '128k',
-        note: 'across 47 workspaces',
-        delta: '2.1%',
+        value: short(AVERAGE_PER_PAYING),
+        note: `across ${PAYING_COUNT} paying workspaces`,
+        delta: '—',
         direction: 'up',
         good: true,
         icon: 'users',
       },
       {
         label: 'Net revenue churn',
-        value: '1.8%',
-        note: 'one downgrade in July',
-        delta: '0.4pp',
-        direction: 'down',
-        good: true,
+        value: `${churnPct}%`,
+        note: last.churn > 0 ? 'one workspace suspended' : 'nothing lost this month',
+        delta: '—',
+        direction: last.churn > 0 ? 'up' : 'down',
+        good: last.churn === 0,
         icon: 'down',
       },
       {
         label: 'Outstanding',
-        value: '594k',
-        note: 'five invoices unpaid',
-        delta: '2 new',
+        value: short(arrears),
+        note: `${inArrears.length} ${inArrears.length === 1 ? 'workspace' : 'workspaces'} in arrears`,
+        delta: '—',
         direction: 'up',
         good: false,
         icon: 'clock',
@@ -1172,20 +1131,7 @@ export async function getRevenue(): Promise<RevenueModel> {
       },
     ],
 
-    mrr: [
-      { month: 'Sep', mrr: 3_910_000, net: 210_000 },
-      { month: 'Oct', mrr: 4_180_000, net: 270_000 },
-      { month: 'Nov', mrr: 4_402_000, net: 222_000 },
-      { month: 'Dec', mrr: 4_530_000, net: 128_000 },
-      { month: 'Jan', mrr: 4_820_000, net: 290_000 },
-      { month: 'Feb', mrr: 5_044_000, net: 224_000 },
-      { month: 'Mar', mrr: 5_190_000, net: 146_000 },
-      { month: 'Apr', mrr: 5_366_000, net: 176_000 },
-      { month: 'May', mrr: 5_502_000, net: 136_000 },
-      { month: 'Jun', mrr: 5_640_000, net: 138_000 },
-      { month: 'Jul', mrr: 5_720_000, net: 80_000 },
-      { month: 'Aug', mrr: 6_042_000, net: 322_000 },
-    ],
+    mrr: series.map((m) => ({ month: m.month, mrr: m.mrr, net: m.net })),
 
     /*
       ⚠ THE SAME TWELVE MONTHS, DECOMPOSED, AND THE SUMS MATCH.
@@ -1199,26 +1145,34 @@ export async function getRevenue(): Promise<RevenueModel> {
       Phase 1. The band says so, and the CSV export carries the caveat in its
       first column so it survives being mailed on.
     */
-    movement: [
-      { month: 'Sep', new: 264_000, expansion: 41_000, contraction: 19_000, churn: 76_000 },
-      { month: 'Oct', new: 318_000, expansion: 52_000, contraction: 24_000, churn: 76_000 },
-      { month: 'Nov', new: 251_000, expansion: 63_000, contraction: 31_000, churn: 61_000 },
-      { month: 'Dec', new: 164_000, expansion: 38_000, contraction: 22_000, churn: 52_000 },
-      { month: 'Jan', new: 341_000, expansion: 71_000, contraction: 27_000, churn: 95_000 },
-      { month: 'Feb', new: 268_000, expansion: 59_000, contraction: 18_000, churn: 85_000 },
-      { month: 'Mar', new: 197_000, expansion: 44_000, contraction: 26_000, churn: 69_000 },
-      { month: 'Apr', new: 229_000, expansion: 51_000, contraction: 21_000, churn: 83_000 },
-      { month: 'May', new: 186_000, expansion: 48_000, contraction: 24_000, churn: 74_000 },
-      { month: 'Jun', new: 201_000, expansion: 39_000, contraction: 17_000, churn: 85_000 },
-      { month: 'Jul', new: 152_000, expansion: 36_000, contraction: 29_000, churn: 79_000 },
-      { month: 'Aug', new: 398_000, expansion: 67_000, contraction: 23_000, churn: 120_000 },
-    ],
+    /*
+      ⚠ THE PARTS RECONCILE WITH THE TOTAL BY CONSTRUCTION NOW.
 
-    planMix: [
-      { name: 'Scale', value: 3_500_000, tenants: '19 workspaces', display: '3.50M' },
-      { name: 'Growth', value: 1_930_000, tenants: '21 workspaces', display: '1.93M' },
-      { name: 'Starter', value: 612_000, tenants: '7 workspaces', display: '612k' },
-    ],
+      This was a second hand-written table, with a comment promising "every
+      row here adds to the `net` on the row above it". That promise held only
+      while somebody maintained it by hand. Movement is now the difference
+      between two months computed per workspace, so it cannot fail to add up.
+
+      Expansion and contraction are honestly zero: nothing in the portfolio
+      records a workspace changing plan mid-life, and inventing a number to
+      make the chart livelier would show a reader a movement that never
+      happened. `subscription.plan_assigned` is already in the audit
+      catalogue, so they become real as soon as plan changes are recorded.
+    */
+    movement: series.map((m) => ({
+      month: m.month,
+      new: m.new,
+      expansion: m.expansion,
+      contraction: m.contraction,
+      churn: m.churn,
+    })),
+
+    planMix: REVENUE_BY_PLAN.map((p) => ({
+      name: p.name,
+      value: p.value,
+      tenants: p.tenants,
+      display: short(p.value),
+    })),
 
     ageing: [
       { bucket: '1–30 days', amount: 240_000 },
@@ -2367,6 +2321,27 @@ export type ProfileCapability = {
   granted: boolean;
 };
 
+/**
+ * One line of the operator's own platform audit trail.
+ *
+ * ⚠ IT IS THE SAME ROW THE AUDIT SCREEN SHOWS, NARROWED. Not a second model of
+ * the same table — `action` is the catalogue key verbatim, `usedServiceRole` is
+ * the column an auditor filters on, and `reason` is nullable because several
+ * actions genuinely do not take one. A profile-shaped summary that rounded any
+ * of those off would be a second version of the audit log that quietly disagreed
+ * with the first.
+ */
+export type OperatorAction = {
+  id: string;
+  action: string;
+  /** The workspace it touched, by name. Null for platform-wide actions. */
+  target: string | null;
+  reason: string | null;
+  usedServiceRole: boolean;
+  /** Already formatted — "4h ago", "12 Aug". */
+  when: string;
+};
+
 export type ProfileModel = {
   name: string;
   email: string;
@@ -2403,6 +2378,10 @@ export type ProfileModel = {
    * 18 §12 records; this is how this surface avoids it.
    */
   sessionsHidden: number;
+  /** The operator's own recent platform actions, newest first. */
+  activity: OperatorAction[];
+  /** Everything in the 30-day window, not just what `activity` lists. */
+  activityTotal: number;
   facts: Array<{ label: string; value: string }>;
 };
 
@@ -2529,6 +2508,67 @@ export async function getProfile(): Promise<ProfileModel> {
     ],
 
     sessionsHidden: 0,
+
+    /**
+     * ⚠ SHAPED AS THE QUERY RETURNS IT, INCLUDING THE AWKWARD PARTS. One row
+     * with no reason, both values of `usedServiceRole`, a mix of workspace-
+     * targeted and platform-wide actions. A fixture whose every row is tidy is a
+     * fixture that never exercises the states the screen has to draw — and the
+     * seeded demo data in `db/seed/demoProfile.ts` carries the same mix, so the
+     * live path and this one look alike.
+     */
+    activity: [
+      {
+        id: 'act_1',
+        action: 'subscription.plan_assigned',
+        target: 'Northwind Traders',
+        reason: 'moved to Business at their request',
+        usedServiceRole: true,
+        when: '1d ago',
+      },
+      {
+        id: 'act_2',
+        action: 'platform.exported',
+        target: null,
+        reason: 'workspaces',
+        usedServiceRole: false,
+        when: '2d ago',
+      },
+      {
+        id: 'act_3',
+        action: 'support.entered',
+        target: 'Acme Industrial',
+        reason: 'channel not delivering — ticket 4412',
+        usedServiceRole: true,
+        when: '3d ago',
+      },
+      {
+        id: 'act_4',
+        action: 'profile.updated',
+        target: null,
+        reason: 'display name',
+        usedServiceRole: false,
+        when: '5 Sep',
+      },
+      {
+        id: 'act_5',
+        action: 'tenant.suspended',
+        target: 'Tamarind Hotels',
+        reason: 'non-payment, 62 days overdue',
+        usedServiceRole: true,
+        when: '5 Sep',
+      },
+      {
+        id: 'act_6',
+        action: 'rules.published',
+        target: null,
+        reason: null,
+        usedServiceRole: true,
+        when: '2 Sep',
+      },
+    ],
+
+    activityTotal: 412,
 
     facts: [
       { label: 'Admin since', value: '14 Mar 2025' },
@@ -2993,11 +3033,13 @@ export async function getOverviewInsights(): Promise<OverviewInsights> {
    * The PRESSURE list below is different and IS derived from the rows: it is a
    * worst-offenders list, which is exactly what a sample can honestly produce.
    */
-  const statusMix: StatusSlice[] = PORTFOLIO_TOTALS.filter((s) => s.count > 0).map(({ status, count }) => ({
-    status,
-    count,
-    label: STATUS_LABEL[status],
-  }));
+  const statusMix: StatusSlice[] = PORTFOLIO_TOTALS.filter((s) => s.count > 0).map(
+    ({ status, count }) => ({
+      status,
+      count,
+      label: STATUS_LABEL[status],
+    }),
+  );
 
   /* Both meters, flattened into one list — a workspace can be at the ceiling
      on seats, on events, or on both, and the operator wants the worst
@@ -3157,9 +3199,33 @@ export async function getHeadroom(): Promise<HeadroomModel> {
           { name: 'Lake Naivasha Retreat', slug: 'naivasha-retreat' },
         ],
         rows: [
-          { key: 'seats', label: 'Staff seats', limit: 5, tenants: 24, p50: 3, max: 5, atCeiling: 4 },
-          { key: 'channels', label: 'Channels', limit: 2, tenants: 24, p50: 1, max: 2, atCeiling: 2 },
-          { key: 'api_keys', label: 'API keys', limit: 2, tenants: 19, p50: 1, max: 2, atCeiling: 1 },
+          {
+            key: 'seats',
+            label: 'Staff seats',
+            limit: 5,
+            tenants: 24,
+            p50: 3,
+            max: 5,
+            atCeiling: 4,
+          },
+          {
+            key: 'channels',
+            label: 'Channels',
+            limit: 2,
+            tenants: 24,
+            p50: 1,
+            max: 2,
+            atCeiling: 2,
+          },
+          {
+            key: 'api_keys',
+            label: 'API keys',
+            limit: 2,
+            tenants: 19,
+            p50: 1,
+            max: 2,
+            atCeiling: 1,
+          },
         ],
       },
       {
@@ -3173,9 +3239,33 @@ export async function getHeadroom(): Promise<HeadroomModel> {
           { name: 'Peridot Health Clinics', slug: 'peridot-health' },
         ],
         rows: [
-          { key: 'seats', label: 'Staff seats', limit: 25, tenants: 15, p50: 9, max: 24, atCeiling: 1 },
-          { key: 'channels', label: 'Channels', limit: 6, tenants: 15, p50: 2, max: 5, atCeiling: 0 },
-          { key: 'api_keys', label: 'API keys', limit: 10, tenants: 12, p50: 2, max: 7, atCeiling: 0 },
+          {
+            key: 'seats',
+            label: 'Staff seats',
+            limit: 25,
+            tenants: 15,
+            p50: 9,
+            max: 24,
+            atCeiling: 1,
+          },
+          {
+            key: 'channels',
+            label: 'Channels',
+            limit: 6,
+            tenants: 15,
+            p50: 2,
+            max: 5,
+            atCeiling: 0,
+          },
+          {
+            key: 'api_keys',
+            label: 'API keys',
+            limit: 10,
+            tenants: 12,
+            p50: 2,
+            max: 7,
+            atCeiling: 0,
+          },
         ],
       },
       {
@@ -3187,9 +3277,33 @@ export async function getHeadroom(): Promise<HeadroomModel> {
           { name: 'Lake Victoria Fisheries', slug: 'victoria-fisheries' },
         ],
         rows: [
-          { key: 'seats', label: 'Staff seats', limit: null, tenants: 2, p50: 41, max: 68, atCeiling: 0 },
-          { key: 'channels', label: 'Channels', limit: null, tenants: 2, p50: 7, max: 9, atCeiling: 0 },
-          { key: 'api_keys', label: 'API keys', limit: null, tenants: 2, p50: 6, max: 11, atCeiling: 0 },
+          {
+            key: 'seats',
+            label: 'Staff seats',
+            limit: null,
+            tenants: 2,
+            p50: 41,
+            max: 68,
+            atCeiling: 0,
+          },
+          {
+            key: 'channels',
+            label: 'Channels',
+            limit: null,
+            tenants: 2,
+            p50: 7,
+            max: 9,
+            atCeiling: 0,
+          },
+          {
+            key: 'api_keys',
+            label: 'API keys',
+            limit: null,
+            tenants: 2,
+            p50: 6,
+            max: 11,
+            atCeiling: 0,
+          },
         ],
       },
     ],

@@ -68,6 +68,7 @@ const HUE: Record<ErrorCode, ErrorHue> = {
   [ERROR_CODES.RATE_LIMIT_EXCEEDED]: 'ochre',
   [ERROR_CODES.NOT_FOUND]: 'slate',
   [ERROR_CODES.INTERNAL]: 'oxide',
+  [ERROR_CODES.UPSTREAM_UNAVAILABLE]: 'oxide',
 };
 
 export function hueOf(code: ErrorCode): ErrorHue {

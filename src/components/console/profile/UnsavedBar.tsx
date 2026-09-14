@@ -109,7 +109,7 @@ export function UnsavedBar({
             style={{ background: 'var(--blue-500)' }}
           />
           <div
-            className="absolute -bottom-12 -right-12 h-[140px] w-[140px] rounded-full opacity-[0.15] blur-[40px]"
+            className="absolute -right-12 -bottom-12 h-[140px] w-[140px] rounded-full opacity-[0.15] blur-[40px]"
             style={{ background: 'var(--indigo-500)' }}
           />
 
@@ -153,7 +153,7 @@ export function UnsavedBar({
               onClick={onDiscard}
               disabled={pending}
               icon={<IconRotate size={16} aria-hidden />}
-              className="!rounded-full !text-[var(--ink-300)] font-medium hover:!bg-[color-mix(in_srgb,var(--ink-0)_10%,transparent)] hover:!text-[var(--ink-0)]"
+              className="!rounded-full font-medium !text-[var(--ink-300)] hover:!bg-[color-mix(in_srgb,var(--ink-0)_10%,transparent)] hover:!text-[var(--ink-0)]"
             >
               Discard
             </Button>

@@ -98,27 +98,30 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
     <div>
       {/* Summary strip */}
       <div
-        className="mb-5 flex flex-wrap items-center gap-4 rounded-panel border px-4 py-3"
-        style={{ background: 'var(--amber-100)', borderColor: 'color-mix(in oklab, var(--amber-500) 38%, var(--surface-base))' }}
+        className="mb-5 flex flex-wrap items-center gap-4 rounded-[16px] px-6 py-4"
+        style={{ 
+          background: 'white', 
+          boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)' 
+        }}
       >
-        <IconAlertTriangle size={16} style={{ color: 'var(--amber-500)', flexShrink: 0 }} />
-        <span className="t-compact text-[var(--amber-500)]">
-          <strong>{blockingCount} blocking</strong> — schema or policy changes that cannot wait for
+        <IconAlertTriangle size={18} style={{ color: 'var(--amber-500)', flexShrink: 0 }} />
+        <span className="t-compact text-[var(--text-secondary)]">
+          <strong className="text-[var(--amber-600)]">{blockingCount} blocking</strong> — schema or policy changes that cannot wait for
           a convenient moment.
         </span>
-        <span className="t-eyebrow ml-auto text-[var(--amber-500)] opacity-70">
+        <span className="t-eyebrow ml-auto text-[var(--text-tertiary)] opacity-70">
           {decisions.length} total
         </span>
       </div>
 
       {/* Filter tabs */}
       <div
-        className="mb-4 flex flex-wrap items-center gap-1 rounded-panel border p-1"
-        style={{ background: 'var(--surface-sunken)', borderColor: 'var(--ink-100)' }}
+        className="mb-4 flex flex-wrap items-center gap-1 rounded-[24px] p-2"
+        style={{ background: 'var(--surface-sunken)' }}
         role="tablist"
         aria-label="Filter decisions"
       >
-        <IconFilter size={13} style={{ color: 'var(--ink-300)', marginLeft: '4px' }} />
+        <IconFilter size={15} style={{ color: 'var(--ink-300)', marginLeft: '6px', marginRight: '4px' }} />
         {FILTERS.map((f) => {
           const count =
             f.key === 'all'
@@ -133,13 +136,13 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
               role="tab"
               aria-selected={activeFilter === f.key}
               onClick={() => setActiveFilter(f.key)}
-              className="t-eyebrow inline-flex items-center gap-1.5 rounded-chip px-3 py-1.5 transition-all duration-[var(--motion-fade)]"
+              className="t-eyebrow inline-flex items-center gap-1.5 rounded-full px-4 py-2 transition-all duration-[var(--motion-fade)]"
               style={
                 activeFilter === f.key
                   ? {
-                      background: 'var(--surface-raised)',
+                      background: 'white',
                       color: 'var(--blue-500)',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                      boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
                     }
                   : { color: 'var(--text-tertiary)' }
               }
@@ -185,10 +188,12 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
             <div
               key={decision.question}
               data-reveal
-              className="rounded-panel border transition-all duration-[var(--motion-standard)]"
+              className="rounded-[16px] transition-all duration-[var(--motion-standard)]"
               style={{
-                background: isBlocking ? 'var(--amber-100)' : 'var(--surface-raised)',
-                borderColor: isBlocking ? 'color-mix(in oklab, var(--amber-500) 38%, var(--surface-base))' : 'var(--border-subtle)',
+                background: 'white',
+                boxShadow: isBlocking
+                  ? '-3px -3px 12px color-mix(in oklab, var(--amber-500) 8%, transparent), 4px 5px 18px color-mix(in oklab, var(--amber-500) 8%, transparent), 0 0 0 1px color-mix(in oklab, var(--amber-500) 30%, var(--border-subtle) 70%), var(--shadow-sm)'
+                  : 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
               }}
             >
               {/* Row header — always visible */}
