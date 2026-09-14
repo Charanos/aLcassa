@@ -2,6 +2,7 @@ import 'server-only';
 import { and, eq, gt, isNull } from 'drizzle-orm';
 import { auditLog, sessions, tenants } from '@/db/schema';
 import { AUDIT_ACTIONS } from '@/lib/audit';
+import { breakGlassState } from './breakGlass';
 import { asService } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import type { PlatformActor } from './subscriptions';
@@ -105,6 +106,29 @@ export async function startSupportSession(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      /**
+       * ⚠ BREAK GLASS IS ENFORCED HERE, AND THIS IS THE ONLY PLACE IT NEEDS TO
+       *   BE. `internal/breakGlass.ts` has the full argument; the short version
+       *   is that a support session is the only thing the lock withholds, and a
+       *   session has to be minted before it can be used. Refuse the mint and
+       *   there is nothing for `withTenantContext` to widen, so the expensive
+       *   per-request check the obvious design would have added is unnecessary.
+       *
+       * It is inside the transaction, after the audit row: an attempt made
+       * while locked is itself worth recording, and `asService` has already
+       * written that this operator tried. The throw rolls the session insert
+       * back, not the record of the attempt's intent.
+       */
+      const glass = await breakGlassState(tx);
+      if (glass.locked) {
+        throw new AppError(ERROR_CODES.SUPPORT_NOT_PERMITTED, {
+          message: glass.reason
+            ? `Support access is locked platform-wide: "${glass.reason}" — locked by ${glass.by ?? 'a platform admin'}. Release it in Settings before entering a workspace.`
+            : 'Support access is locked platform-wide. Release it in Settings before entering a workspace.',
+          internal: { stage: 'break-glass', lockedBy: glass.by, lockedAt: glass.at },
+        });
+      }
+
       const [tenant] = await tx
         .select({ id: tenants.id, slug: tenants.slug, name: tenants.name })
         .from(tenants)

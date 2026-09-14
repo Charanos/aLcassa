@@ -31,10 +31,11 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
       {/* Desktop table */}
       <div className="hidden sm:block p-4">
         <div 
-          className="relative overflow-hidden rounded-[20px] bg-white"
+          className="relative overflow-hidden rounded-[20px]"
           style={{
+            background: 'var(--surface-raised)',
             border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
-            boxShadow: '0 8px 40px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset'
+            boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
           }}
         >
           <table className="w-full table-fixed border-collapse">

@@ -135,7 +135,7 @@ export default async function ConsoleOverviewPage() {
       <section
         className="relative mt-6 overflow-hidden rounded-[20px] shadow-2xl transition-all duration-300"
         style={{
-          background: '#060913', // Use solid dark navy token
+          background: 'var(--chrome-bg-base)',
           border: '1px solid rgba(255,255,255,0.08)',
           color: 'var(--invert-card-fg)',
           boxShadow: '0 20px 40px -10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.06)',
@@ -150,7 +150,7 @@ export default async function ConsoleOverviewPage() {
           />
           <div
             className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
-            style={{ background: 'var(--indigo-500)' }}
+            style={{ background: 'var(--blue-700)' }}
           />
 
           {/* Ultra-subtle, elegant mesh topology */}
@@ -231,7 +231,7 @@ export default async function ConsoleOverviewPage() {
                   style={{
                     fontWeight: 'inherit',
                     color: 'var(--accent-mark)',
-                    background: 'linear-gradient(90deg, #F97316 0%, #FB923C 100%)',
+                    background: 'linear-gradient(90deg, var(--accent-mark) 0%, var(--orange-300) 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                   }}

@@ -39,7 +39,7 @@ export default function ConsoleError({
         <div 
           className="flex flex-col items-center rounded-[16px] px-8 py-10 text-center relative overflow-hidden"
           style={{ 
-            background: 'white', 
+            background: 'var(--surface-raised)', 
             boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)' 
           }}
         >
@@ -50,7 +50,7 @@ export default function ConsoleError({
             <span
               className="grid size-12 place-items-center rounded-2xl"
               style={{ 
-                background: 'white',
+                background: 'var(--surface-raised)',
                 border: '1px solid var(--border-subtle)',
                 boxShadow: '0 4px 12px -2px rgba(239, 68, 68, 0.15)' 
               }}

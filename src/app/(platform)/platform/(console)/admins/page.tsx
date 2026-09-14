@@ -12,7 +12,7 @@ import {
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { IconHelpCircle } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
+import { ConsoleHeader, ConsolePage, Panel, ReasonNote } from '@/components/console/Surface';
 import { getAdmins, type AdminRole } from '@/lib/console/data';
 import { getLiveAdmins } from '@/lib/console/liveOperators';
 
@@ -117,13 +117,36 @@ export default async function AdminsPage() {
             Who can see every workspace on the platform. Keep this list short enough to name from
             memory.
           </p>
+          {/*
+            ⚠ THE REASON, ON THE SURFACE. 17 §6.4.
+
+            "Invite admin" is dead and said so only in a `title`, which a
+            keyboard or touch reader never reaches. It matters more here than on
+            most screens: a reader who cannot tell WHY the button is dead has no
+            way to know that the thing they came to do is possible by another
+            route, and will assume the platform cannot do it at all.
+          */}
+          <div className="mt-3 max-w-[64ch]">
+            <ReasonNote>
+              There is no invite flow for this list, and that is the design rather than a gap:
+              an invitation is scoped to a workspace, and platform access is not. Someone is
+              added here directly, by an existing platform admin, which keeps the grant a
+              deliberate act with a name against it.
+            </ReasonNote>
+          </div>
         </div>
         <button
           type="button"
           disabled
           title="Platform access is granted directly rather than invited: invitations are scoped to a workspace."
           className="t-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-          style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
+          style={{
+            opacity: 0.45,
+            cursor: 'not-allowed',
+            background: 'var(--blue-500)',
+            color: 'var(--text-inverse)',
+            fontWeight: 500,
+          }}
         >
           <IconUserPlus size={15} stroke={1.5} aria-hidden />
           Invite admin
@@ -352,7 +375,9 @@ export default async function AdminsPage() {
           {invitations.length > 0 ? (
             <p className="t-compact px-5 py-3.5" style={{ color: 'var(--text-tertiary)' }}>
               Invitations expire after seven days and can only be issued by an existing platform
-              admin.
+              admin. Revoking one early needs a record of who revoked it and when, and that
+              record does not exist yet &mdash; so the control is held rather than shipped
+              silently doing nothing. An invitation left alone still lapses on its own.
             </p>
           ) : null}
         </Panel>

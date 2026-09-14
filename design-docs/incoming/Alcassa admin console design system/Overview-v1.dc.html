@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1280px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="display: flex; align-items: flex-end; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
+    <div style="flex: 1; min-width: 0;">
+      <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">/platform</p>
+      <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Overview</h1>
+      <p style="margin: 8px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 62ch;">Thursday 10 August. Read this in five seconds, then act on it.</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; flex: 0 0 auto;">
+      <span style="display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px; border: 1px solid var(--border-subtle); border-radius: 9999px; background: var(--surface-raised); font: 400 12.5px/1 var(--font-ui); color: var(--text-secondary);">
+        <span style="width: 6px; height: 6px; border-radius: 50%; flex: 0 0 auto; background: var(--success-fg); animation: pulse-dot 2.4s ease-in-out infinite;"></span>
+        <span style="white-space: nowrap;">Refreshed 12s ago</span>
+      </span>
+      <button type="button" onClick="{{ goProvision }}" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: var(--blue-600);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+        Provision workspace
+      </button>
+    </div>
+  </div>
+
+  <section style="margin-top: 28px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+      <h2 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 27px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Needs attention</h2>
+      <span style="display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 8px; border-radius: 9999px; background: var(--accent-mark); color: #ffffff; font: 500 12.5px/1 var(--font-mono); font-variant-numeric: tabular-nums;">3</span>
+      <span style="flex: 1; height: 1px; background: var(--border-subtle);"></span>
+      <a href="#" onClick="{{ goTenants }}" style="flex: 0 0 auto; white-space: nowrap; font: 400 12.5px/1 var(--font-ui); color: var(--text-action);">All workspaces</a>
+    </div>
+
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <button type="button" onClick="{{ goDetail }}" style="display: flex; align-items: center; gap: 16px; width: 100%; padding: 16px 18px; border: none; border-bottom: 1px solid var(--border-subtle); background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-sunken);">
+        <span style="display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto; border-radius: 7px; background: var(--danger-bg); color: var(--danger-fg);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3l0 -8" /><path d="M3 10l18 0" /><path d="M7 15l.01 0" /><path d="M11 15l2 0" /></svg>
+        </span>
+        <span style="flex: 1; min-width: 0;">
+          <span style="display: block; font: 400 14px/1.4 var(--font-ui);">Kilimanjaro Logistics Group Ltd</span>
+          <span style="display: block; margin-top: 3px; font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Payment failed on the 4th. Invoice INV-2026-0841, KES 184,000.</span>
+        </span>
+        <span style="display: flex; align-items: center; gap: 8px; flex: 0 0 auto;">
+          <span style="white-space: nowrap; font: 500 12.5px/1 var(--font-mono); color: var(--danger-fg);">past due 6 days</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);" aria-hidden="true"><path d="M9 6l6 6l-6 6" /></svg>
+        </span>
+      </button>
+
+      <button type="button" onClick="{{ goDetail }}" style="display: flex; align-items: center; gap: 16px; width: 100%; padding: 16px 18px; border: none; border-bottom: 1px solid var(--border-subtle); background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-sunken);">
+        <span style="display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto; border-radius: 7px; background: var(--warning-bg); color: var(--warning-fg);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5" /></svg>
+        </span>
+        <span style="flex: 1; min-width: 0;">
+          <span style="display: block; font: 400 14px/1.4 var(--font-ui);">Sarova Hospitality Collection</span>
+          <span style="display: block; margin-top: 3px; font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Events this month against the Growth ceiling. Nineteen days left in the period.</span>
+        </span>
+        <span style="display: flex; align-items: center; gap: 12px; flex: 0 0 auto;">
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <span style="font: 500 12.5px/1 var(--font-mono); color: var(--text-primary);">94%</span>
+            <span style="display: block; width: 72px; height: 3px; border-radius: 2px; background: var(--surface-inset); overflow: hidden;">
+              <span style="display: block; width: 94%; height: 100%; background: var(--warning-fg);"></span>
+            </span>
+          </span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);" aria-hidden="true"><path d="M9 6l6 6l-6 6" /></svg>
+        </span>
+      </button>
+
+      <button type="button" onClick="{{ goDetail }}" style="display: flex; align-items: center; gap: 16px; width: 100%; padding: 16px 18px; border: none; background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-sunken);">
+        <span style="display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto; border-radius: 7px; background: var(--surface-inset); color: var(--text-secondary);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 7v5l3 3" /></svg>
+        </span>
+        <span style="flex: 1; min-width: 0;">
+          <span style="display: block; font: 400 14px/1.4 var(--font-ui);">Peridot Health Clinics</span>
+          <span style="display: block; margin-top: 3px; font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Trial ends Sunday. No plan assigned, and the owner has signed in twice this week.</span>
+        </span>
+        <span style="display: flex; align-items: center; gap: 8px; flex: 0 0 auto;">
+          <span style="font: 500 12.5px/1 var(--font-mono); color: var(--text-secondary);">3 days left</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);" aria-hidden="true"><path d="M9 6l6 6l-6 6" /></svg>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <section style="margin-top: 32px; display: grid; grid-template-columns: 1.35fr 1fr; gap: 20px; align-items: start;">
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+      <p style="margin: 0 0 18px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Platform at a glance</p>
+      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;">
+        <div style="padding-right: 12px;">
+          <p style="margin: 0; font: 400 31px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">47</p>
+          <p style="margin: 7px 0 0; font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary);">Workspaces</p>
+        </div>
+        <div style="padding-right: 12px;">
+          <p style="margin: 0; font: 400 31px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">41</p>
+          <p style="margin: 7px 0 0; font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary);">Active</p>
+        </div>
+        <div style="padding-right: 12px;">
+          <p style="margin: 0; font: 400 31px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">4</p>
+          <p style="margin: 7px 0 0; font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary);">Trial</p>
+        </div>
+        <div style="padding-right: 12px;">
+          <p style="margin: 0; font: 400 31px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">2</p>
+          <p style="margin: 7px 0 0; font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary);">Suspended</p>
+        </div>
+        <div>
+          <p style="margin: 0; font: 400 31px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">1</p>
+          <p style="margin: 7px 0 0; font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary);">Past due</p>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-subtle); display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+            <span style="font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary);">Requests today</span>
+            <span style="font: 400 16px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">128,402</span>
+          </div>
+          <svg viewBox="0 0 200 44" preserveAspectRatio="none" style="width: 100%; height: 44px; margin-top: 10px; display: block;" aria-hidden="true">
+            <polyline points="0,34 14,31 28,33 42,26 56,28 70,21 84,24 98,16 112,19 126,12 140,15 154,9 168,13 182,7 200,10" fill="none" stroke="var(--blue-500)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+            <span style="font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary);">Error rate</span>
+            <span style="font: 400 16px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">0.011%</span>
+          </div>
+          <svg viewBox="0 0 200 44" preserveAspectRatio="none" style="width: 100%; height: 44px; margin-top: 10px; display: block;" aria-hidden="true">
+            <polyline points="0,36 14,37 28,35 42,38 56,34 70,36 84,30 98,37 112,35 126,38 140,33 154,36 168,37 182,34 200,36" fill="none" stroke="var(--ink-400)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+
+      <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; gap: 28px;">
+        <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Errors <em style="font: 400 12.5px/1 var(--font-mono); color: var(--text-primary);">14</em></span>
+        <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">p95 <em style="font: 400 12.5px/1 var(--font-mono); color: var(--text-primary);">142ms</em></span>
+        <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Queue depth <em style="font: 400 12.5px/1 var(--font-mono); color: var(--text-primary);">0</em></span>
+      </div>
+    </div>
+
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 14px; border-bottom: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Recent platform activity</p>
+        <a href="#" onClick="{{ goAudit }}" style="font: 400 12.5px/1 var(--font-ui); color: var(--text-action);">Audit log</a>
+      </div>
+      <div>
+        <sc-for list="{{ recent }}" as="row" hint-placeholder-count="7">
+          <div style="display: flex; align-items: baseline; gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--border-subtle);">
+            <span style="font: 400 11px/1.5 var(--font-mono); color: var(--text-tertiary); flex: 0 0 auto;">{{ row.time }}</span>
+            <span style="flex: 1; min-width: 0;">
+              <span style="display: block; font: 400 12.5px/1.4 var(--font-mono); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ row.action }}</span>
+              <span style="display: block; font: 400 11px/1.4 var(--font-ui); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ row.target }}</span>
+            </span>
+            <span style="font: 400 11px/1.5 var(--font-mono); color: var(--text-tertiary); flex: 0 0 auto;">{{ row.actor }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-top: 32px;">
+    <p style="margin: 0 0 12px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">When the list is clear</p>
+    <div style="display: grid; place-items: center; padding: 40px 24px; border: 1px dashed var(--border-strong); border-radius: 12px; background: var(--surface-sunken);">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--success-fg);" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 12l2 2l4 -4" /></svg>
+      <p style="margin: 14px 0 0; font-family: var(--font-display); font-weight: 400; font-size: 21px; line-height: 1.18; letter-spacing: -0.008em; color: var(--text-primary);">Nothing needs attention</p>
+      <p style="margin: 6px 0 0; font: 400 13px/1.5 var(--font-ui); color: var(--text-secondary); text-align: center; max-width: 46ch;">No workspace is past due, near a limit, ending a trial, or suspended. Checked 12 seconds ago.</p>
+    </div>
+  </section>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}}">
+const RECENT = [
+  { time: '14:22:07', action: 'support_session.start', target: 'Sarova Hospitality Collection', actor: 'brian' },
+  { time: '13:58:44', action: 'tenant.plan_assign', target: 'Northwind Traders East Africa · Growth', actor: 'brian' },
+  { time: '13:12:19', action: 'ai_rules.master_update', target: 'version 24', actor: 'brian' },
+  { time: '11:47:02', action: 'plan.entitlement_change', target: 'Growth · events_per_month 250k → 300k', actor: 'brian' },
+  { time: '10:31:55', action: 'credential.revoke', target: 'Peridot Health Clinics · ak_live_9f2', actor: 'system' },
+  { time: '09:14:38', action: 'tenant.provision', target: 'Tamarind Bay Resorts', actor: 'brian' },
+  { time: '08:02:10', action: 'admin.grant', target: 'wanjiku@andishi.co.ke', actor: 'brian' }
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    const go = this.props.go || (() => {});
+    return {
+      recent: RECENT,
+      goTenants: (e) => { e.preventDefault(); go('tenants'); },
+      goAudit: (e) => { e.preventDefault(); go('audit'); },
+      goDetail: () => go('detail'),
+      goProvision: () => go('provision')
+    };
+  }
+}
+
+</script>
+</body>
+</html>

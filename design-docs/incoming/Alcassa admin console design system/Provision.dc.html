@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1060px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font: 400 12.5px/1 var(--font-ui);">
+    <a href="#" onClick="{{ goTenants }}" style="color: var(--text-secondary); white-space: nowrap;">Workspaces</a>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary); flex: 0 0 auto;" aria-hidden="true"><path d="M9 6l6 6l-6 6" /></svg>
+    <span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-tertiary);">new</span>
+  </nav>
+
+  <div style="margin-top: 14px; padding-bottom: 22px; border-bottom: 1px solid var(--border-subtle);">
+    <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Provision a workspace</h1>
+    <p style="margin: 8px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 66ch;">Four fields. The owner receives an invitation and sets their own password; you never see it.</p>
+  </div>
+
+  <div style="margin-top: 24px; display: grid; grid-template-columns: 1fr 300px; gap: 28px; align-items: start;">
+    <div style="display: grid; gap: 20px;">
+
+      <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+        <p style="margin: 0 0 18px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Identity</p>
+
+        <label style="display: block;">
+          <span style="display: block; margin-bottom: 6px; font: 500 12px/1.4 var(--font-ui); color: var(--text-primary);">Legal name</span>
+          <input type="text" value="{{ name }}" onInput="{{ onName }}" placeholder="Tamarind Bay Resorts Ltd" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset); font: 400 14px/1 var(--font-ui); color: var(--text-primary); outline: none;" />
+        </label>
+
+        <label style="display: block; margin-top: 16px;">
+          <span style="display: block; margin-bottom: 6px; font: 500 12px/1.4 var(--font-ui); color: var(--text-primary);">Slug</span>
+          <span style="display: flex; align-items: center; height: 38px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset); overflow: hidden;">
+            <span style="display: inline-flex; align-items: center; height: 100%; padding: 0 11px; background: var(--surface-sunken); border-right: 1px solid var(--border-subtle); font: 400 12.5px/1 var(--font-mono); color: var(--text-tertiary); white-space: nowrap;">alcassa.app /</span>
+            <input type="text" value="{{ slug }}" onInput="{{ onSlug }}" placeholder="tamarind-bay" style="flex: 1; min-width: 0; height: 100%; padding: 0 11px; border: none; background: transparent; font: 400 14px/1 var(--font-mono); color: var(--text-primary); outline: none;" />
+            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; flex: 0 0 auto; font: 400 12px/1 var(--font-ui); color: {{ slugInk }}; white-space: nowrap;">
+              <span style="display: grid; place-items: center; width: 14px; height: 14px;">{{ slugIcon }}</span>
+              {{ slugNote }}
+            </span>
+          </span>
+        </label>
+
+        <label style="display: block; margin-top: 16px;">
+          <span style="display: block; margin-bottom: 6px; font: 500 12px/1.4 var(--font-ui); color: var(--text-primary);">Owner email</span>
+          <input type="email" value="{{ email }}" onInput="{{ onEmail }}" placeholder="owner@tamarindbay.co.ke" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset); font: 400 14px/1 var(--font-mono); color: var(--text-primary); outline: none;" />
+          <span style="display: block; margin-top: 6px; font: 400 11.5px/1.45 var(--font-ui); color: var(--text-tertiary);">They receive an invitation valid for seven days and choose their own password.</span>
+        </label>
+      </div>
+
+      <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+        <p style="margin: 0 0 16px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Plan</p>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+          <sc-for list="{{ plans }}" as="p" hint-placeholder-count="4">
+            <button type="button" onClick="{{ p.pick }}" style="display: block; padding: 13px 14px 15px; border: 1px solid {{ p.border }}; border-radius: 7px; background: {{ p.bg }}; box-shadow: {{ p.lift }}; text-align: left; color: var(--text-primary);" style-hover="border-color: var(--border-strong);">
+              <span style="display: block; font: 500 13px/1.3 var(--font-ui); color: {{ p.nameInk }};">{{ p.name }}</span>
+              <span style="display: block; margin-top: 5px; font: 400 12px/1.3 var(--font-mono); color: var(--text-secondary);">{{ p.price }}</span>
+              <span style="display: block; margin-top: 9px; font: 400 11.5px/1.4 var(--font-ui); color: var(--text-tertiary);">{{ p.limit }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <label style="display: flex; align-items: flex-start; gap: 11px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+          <button type="button" onClick="{{ toggleTrial }}" role="switch" aria-checked="{{ trial }}" style="position: relative; width: 34px; height: 20px; flex: 0 0 auto; margin-top: 1px; border: none; border-radius: 9999px; background: {{ trialTrack }}; box-shadow: var(--neu-inset); transition: background 180ms cubic-bezier(0.2, 0, 0, 1);">
+            <span style="position: absolute; top: 2px; left: {{ trialThumb }}; width: 16px; height: 16px; border-radius: 50%; background: #ffffff; box-shadow: var(--shadow-sm); transition: left 180ms cubic-bezier(0.2, 0, 0, 1);"></span>
+          </button>
+          <span style="flex: 1;">
+            <span style="display: block; font: 400 13px/1.4 var(--font-ui); color: var(--text-primary);">Start with a 14-day trial</span>
+            <span style="display: block; margin-top: 3px; font: 400 12px/1.45 var(--font-ui); color: var(--text-tertiary);">No invoice is raised until the trial ends. The workspace appears under Trial on Overview.</span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div style="display: grid; gap: 16px; position: sticky; top: 24px;">
+      <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-sunken); padding: 18px 20px 20px;">
+        <p style="margin: 0 0 14px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">What happens on submit</p>
+        <div style="display: grid; gap: 12px;">
+          <sc-for list="{{ steps }}" as="st" hint-placeholder-count="5">
+            <div style="display: flex; gap: 11px; align-items: flex-start;">
+              <span style="display: grid; place-items: center; width: 20px; height: 20px; flex: 0 0 auto; border-radius: 9999px; background: var(--surface-raised); border: 1px solid var(--border-subtle); font: 500 10.5px/1 var(--font-mono); color: var(--text-tertiary);">{{ st.n }}</span>
+              <span style="flex: 1; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary);">{{ st.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <p style="margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--border-subtle); font: 400 11.5px/1.5 var(--font-ui); color: var(--text-tertiary);">Runs as one transaction. If any step fails, nothing is created.</p>
+      </div>
+
+      <button type="button" onClick="{{ submit }}" disabled="{{ disabled }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 9px; width: 100%; height: 40px; border: none; border-radius: 7px; background: {{ submitBg }}; color: {{ submitInk }}; font: 500 13.5px/1 var(--font-ui); cursor: {{ submitCursor }};">
+        <span style="display: grid; place-items: center; width: 16px; height: 16px;">{{ submitIcon }}</span>
+        {{ submitLabel }}
+      </button>
+      <p style="margin: 0; font: 400 11.5px/1.5 var(--font-ui); color: var(--text-tertiary); text-align: center;">{{ submitHint }}</p>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}}">
+const P = {
+  check: 'M5 12l5 5l9 -9',
+  x: 'M18 6l-12 12|M6 6l12 12',
+  plus: 'M12 5l0 14|M5 12l14 0',
+  spin: 'M12 3a9 9 0 1 0 9 9'
+};
+
+function icon(name, size) {
+  return React.createElement(
+    'svg',
+    { width: size || 14, height: size || 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    (P[name] || '').split('|').map((d, i) => React.createElement('path', { key: i, d }))
+  );
+}
+
+const PLANS = [
+  { key: 'starter', name: 'Starter', price: 'KES 46k', limit: '25 seats · 50k events' },
+  { key: 'growth', name: 'Growth', price: 'KES 92k', limit: '100 seats · 250k events' },
+  { key: 'scale', name: 'Scale', price: 'KES 184k', limit: '300 seats · 500k events' },
+  { key: 'custom', name: 'Custom', price: 'Negotiated', limit: 'Set overrides after' }
+];
+
+const TAKEN = ['sarova-hospitality', 'northwind-ea', 'peridot-health'];
+
+const STEPS = [
+  { n: '1', text: 'Workspace row created with Row Level Security policies bound to its id.' },
+  { n: '2', text: 'Plan entitlements resolved and snapshotted onto the workspace.' },
+  { n: '3', text: 'Owner account invited; no password is ever set by you.' },
+  { n: '4', text: 'Master AI rules propagated to the new workspace.' },
+  { n: '5', text: 'tenant.provision written to the audit log with your name.' }
+];
+
+class Component extends DCLogic {
+  state = { name: '', slug: '', email: '', plan: 'growth', trial: true, phase: 'idle' };
+
+  submit = () => {
+    if (this.state.phase !== 'idle') return;
+    this.setState({ phase: 'working' });
+    setTimeout(() => this.setState({ phase: 'done' }), 1800);
+  };
+
+  renderVals() {
+    const go = this.props.go || (() => {});
+    const s = this.state;
+    const slug = s.slug.trim();
+    const taken = TAKEN.includes(slug);
+    const ready = s.name.trim() && slug && !taken && /.+@.+\..+/.test(s.email);
+    const working = s.phase === 'working';
+    const done = s.phase === 'done';
+
+    return {
+      goTenants: (e) => { e.preventDefault(); go('tenants'); },
+
+      name: s.name,
+      onName: (e) => {
+        const v = e.target.value;
+        this.setState((p) => ({
+          name: v,
+          slug: p.slug && p.slugTouched ? p.slug : v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 28)
+        }));
+      },
+      slug: s.slug,
+      onSlug: (e) => this.setState({ slug: e.target.value, slugTouched: true }),
+      slugNote: !slug ? '' : taken ? 'taken' : 'available',
+      slugInk: !slug ? 'transparent' : taken ? 'var(--danger-fg)' : 'var(--success-fg)',
+      slugIcon: !slug ? null : icon(taken ? 'x' : 'check', 13),
+
+      email: s.email,
+      onEmail: (e) => this.setState({ email: e.target.value }),
+
+      plans: PLANS.map((p) => {
+        const on = s.plan === p.key;
+        return {
+          name: p.name,
+          price: p.price,
+          limit: p.limit,
+          border: on ? 'var(--blue-500)' : 'var(--border-subtle)',
+          bg: on ? 'var(--blue-50)' : 'var(--surface-raised)',
+          lift: on ? 'var(--neu-raised)' : 'none',
+          nameInk: on ? 'var(--blue-600)' : 'var(--text-primary)',
+          pick: () => this.setState({ plan: p.key })
+        };
+      }),
+
+      trial: s.trial,
+      trialTrack: s.trial ? 'var(--blue-500)' : 'var(--surface-inset)',
+      trialThumb: s.trial ? '16px' : '2px',
+      toggleTrial: () => this.setState((p) => ({ trial: !p.trial })),
+
+      steps: STEPS,
+
+      submit: this.submit,
+      disabled: !ready || working || done,
+      submitBg: done ? 'var(--success-fg)' : ready && !working ? 'var(--blue-500)' : 'var(--surface-inset)',
+      submitInk: done || (ready && !working) ? '#ffffff' : 'var(--text-disabled)',
+      submitCursor: ready && !working && !done ? 'pointer' : 'not-allowed',
+      submitIcon: icon(done ? 'check' : 'plus', 16),
+      submitLabel: working ? 'Provisioning' : done ? 'Workspace created' : 'Provision workspace',
+      submitHint: done ? 'Invitation sent. Redirecting to the workspace.' : working ? 'Running five steps in one transaction' : 'Typically completes in under two minutes'
+    };
+  }
+}
+
+</script>
+</body>
+</html>

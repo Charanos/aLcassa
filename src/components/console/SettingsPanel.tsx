@@ -13,6 +13,7 @@ import {
 import type { SettingsModel } from '@/lib/console/data';
 import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
 import { toggleBreakGlass } from '@/app/(platform)/platform/(console)/actions';
+import { useToast } from '@/components/primitives/Toast';
 import * as Switch from '@radix-ui/react-switch';
 
 /**
@@ -45,7 +46,21 @@ const TABS: Array<{ key: TabKey; label: string; icon: TablerIcon }> = [
   { key: 'developer', label: 'Developer', icon: IconCode },
 ];
 
-export function SettingsPanel({ model, initialTab }: { model: SettingsModel; initialTab: TabKey }) {
+export function SettingsPanel({
+  model,
+  initialTab,
+  lockedBy,
+  lockedAt,
+  lockedReason,
+}: {
+  model: SettingsModel;
+  initialTab: TabKey;
+  /* The lock is an audit EVENT now, so who/when/why travel with the state.
+     See `modules/platform/internal/breakGlass.ts`. */
+  lockedBy?: string | null;
+  lockedAt?: string | null;
+  lockedReason?: string | null;
+}) {
   const [tab, setTab] = useState<TabKey>(initialTab);
 
   const [platformName, setPlatformName] = useState(model.platformName);
@@ -267,7 +282,12 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
               </div>
             </section>
 
-            <BreakGlassPanel initialActive={model.breakGlassActive} />
+            <BreakGlassPanel
+              initialActive={model.breakGlassActive}
+              lockedBy={lockedBy}
+              lockedAt={lockedAt}
+              lockedReason={lockedReason}
+            />
           </>
         ) : null}
 
@@ -492,7 +512,13 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
                   disabled
                   title="Platform-level API keys are not a table. Credentials are scoped to a workspace."
                   className="t-compact h-[30px] rounded-panel px-3.5 whitespace-nowrap"
-                  style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
+                  style={{
+                    opacity: 0.45,
+                    cursor: 'not-allowed',
+                    background: 'var(--blue-500)',
+                    color: 'var(--text-inverse)',
+                    fontWeight: 500,
+                  }}
                 >
                   Create key
                 </button>
@@ -543,10 +569,25 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
                   </button>
                 </div>
               ))}
+              {/*
+                ⚠ THE STRIP CARRIES BOTH FACTS NOW.
+
+                "Create key" and "Revoke" were dead with their reason in a
+                `title` only, which 17 §6.4 does not accept — and this strip was
+                already sitting underneath them saying something adjacent. Two
+                sentences in the place a reader is already looking beats a
+                repeated chip beside each of the four rows.
+              */}
               <div className="px-5 py-3.5" style={{ background: 'var(--surface-sunken)' }}>
                 <p className="t-compact" style={{ color: 'var(--text-tertiary)' }}>
                   A key&rsquo;s value is shown once, at creation. The console stores a hash and
                   cannot recover it — not for you, not for support.
+                </p>
+                <p className="t-compact mt-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                  Issuing and revoking are held here because a credential belongs to the
+                  workspace that uses it: these are read-only copies of what each one holds, and
+                  the controls that change them sit on the workspace, where the change is
+                  recorded against the customer who owns it.
                 </p>
               </div>
             </section>
@@ -673,19 +714,50 @@ export function SettingsPanel({ model, initialTab }: { model: SettingsModel; ini
  * blast radius. Reversible by a second admin is why it stops at a plain
  * confirm rather than suspend's type-to-confirm gate.
  */
-function BreakGlassPanel({ initialActive }: { initialActive: boolean }) {
+function BreakGlassPanel({
+  initialActive,
+  lockedBy,
+  lockedAt,
+  lockedReason,
+}: {
+  initialActive: boolean;
+  lockedBy?: string | null;
+  lockedAt?: string | null;
+  lockedReason?: string | null;
+}) {
+  const pushToast = useToast();
   const [active, setActive] = useState(initialActive);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [reason, setReason] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   function submit() {
     setError(null);
     startTransition(async () => {
-      const result = await toggleBreakGlass({ lock: !active });
+      const result = await toggleBreakGlass({ lock: !active, reason });
       if (result.ok) {
-        setActive((a) => !a);
+        setActive(result.locked);
         setConfirmOpen(false);
+        setReason('');
+        /*
+          ⚠ THE TOAST REPORTS THE SIDE EFFECT, WHICH IS THE POINT OF THE
+          CONTROL. Engaging the lock revokes every open support session — a
+          colleague may have been inside a workspace a second ago — and a
+          confirmation that says only "locked" hides the thing the operator
+          most needs to know they just did.
+        */
+        pushToast({
+          tone: result.locked ? 'attention' : 'success',
+          title: result.locked
+            ? 'Support access locked platform-wide'
+            : 'Support access re-enabled',
+          description: result.locked
+            ? result.revoked > 0
+              ? `${result.revoked} open ${result.revoked === 1 ? 'session was' : 'sessions were'} ended immediately.`
+              : 'No sessions were open. New ones are refused until this is released.'
+            : 'Support sessions can be opened again, with the usual reason and 30-minute cap.',
+        });
       } else {
         setError(result.error);
       }
@@ -727,9 +799,38 @@ function BreakGlassPanel({ initialActive }: { initialActive: boolean }) {
             style={{ color: 'var(--text-secondary)', maxWidth: '62ch', textWrap: 'pretty' }}
           >
             {active
-              ? 'No admin, including you, can open a workspace until a second admin re-enables it.'
-              : 'Blocks every platform admin from entering any workspace until a second admin re-enables it. Use during a suspected credential compromise. Customers are notified in their own activity log.'}
+              ? 'No admin, including you, can open a workspace until this is released.'
+              : 'Blocks every platform admin from entering any workspace, and ends any session already open. Use during a suspected credential compromise. Customers see it in their own activity log.'}
           </p>
+          {/*
+            ⚠ WHO, WHEN AND WHY — WHICH THE OLD PANEL COULD NOT SHOW.
+
+            It rendered a boolean and nothing else, because a boolean was all
+            it had. The lock is now the latest audit event rather than a flag,
+            so the record and the state are the same row and this comes for
+            free: an operator arriving at a locked platform can see whose
+            decision it was and what it was about, rather than having to go and
+            search the log to find out whether it is safe to release.
+          */}
+          {active && lockedAt ? (
+            <p
+              className="t-caption mt-2 rounded-panel px-3 py-2"
+              style={{
+                background: 'var(--surface-sunken)',
+                color: 'var(--text-tertiary)',
+                maxWidth: '62ch',
+                textWrap: 'pretty',
+              }}
+            >
+              Locked by {lockedBy ?? 'a platform admin'} · {lockedAt}
+              {lockedReason ? (
+                <>
+                  <br />
+                  <span style={{ color: 'var(--text-secondary)' }}>&ldquo;{lockedReason}&rdquo;</span>
+                </>
+              ) : null}
+            </p>
+          ) : null}
         </span>
         <button
           type="button"
@@ -762,11 +863,52 @@ function BreakGlassPanel({ initialActive }: { initialActive: boolean }) {
             ? 'Platform admins will be able to open support sessions again, subject to the usual reason and 30-minute cap.'
             : 'This ends any open support session immediately and blocks new ones, for every admin, including you. It does not affect customer sign-ins.'
         }
+        details={
+          <div className="grid gap-1.5 border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
+            {/*
+              ⚠ REQUIRED IN BOTH DIRECTIONS, AND THE RELEASE IS THE ONE PEOPLE
+              SKIP. "We locked support at 14:02" with no matching account of
+              why it was safe to reopen at 15:40 is half a record, and the
+              missing half is the half a security review asks about.
+            */}
+            <label
+              htmlFor="break-glass-reason"
+              className="t-label"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {active ? 'Why it is safe to reopen' : 'What happened'} &middot; goes in the platform
+              log
+            </label>
+            <textarea
+              id="break-glass-reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={2}
+              placeholder={
+                active
+                  ? 'Credential rotated and the compromised session confirmed closed.'
+                  : 'Possible credential compromise on the support account; rotating now.'
+              }
+              className="rounded-panel border px-3 py-2"
+              style={{
+                borderColor: 'var(--border-subtle)',
+                background: 'var(--surface-raised)',
+                color: 'var(--text-primary)',
+                font: '400 var(--text-sm)/1.5 var(--font-ui)',
+              }}
+            />
+          </div>
+        }
         confirmLabel={active ? 'Re-enable access' : 'Lock the platform'}
         tone={active ? 'primary' : 'destructive'}
         loading={pending}
         error={error}
-        onConfirm={submit}
+        onConfirm={() => {
+          /* The server enforces the minimum too; this keeps the button honest
+             about whether pressing it can succeed. */
+          if (reason.trim().length >= 8) submit();
+          else setError(active ? "Say why it is safe to reopen." : "Say what happened.");
+        }}
       />
     </section>
   );
@@ -803,7 +945,7 @@ function Toggle({
         className="absolute top-0.5 size-4 rounded-full transition-[left]"
         style={{
           left: on ? 16 : 2,
-          background: '#ffffff',
+          background: 'var(--surface-raised)',
           boxShadow: 'var(--shadow-sm)',
           transitionDuration: 'var(--duration-base)',
         }}

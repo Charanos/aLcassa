@@ -13,7 +13,11 @@ import { logger } from '@/lib/logger';
 import {
   endSupportSession as revokeSupportSession,
   extendSupportSession,
+  breakGlassState,
+  previewSuspension,
   provisionTenant,
+  setBreakGlass,
+  type BreakGlassState,
   setTenantStatus,
   startSupportSession as mintSupportSession,
 } from '@/modules/platform';
@@ -25,6 +29,8 @@ import {
   type WorkspaceDetail,
 } from '@/lib/console/data';
 import { getLiveWorkspaceDetail, getLiveWorkspaces } from '@/lib/console/liveWorkspaces';
+import { getLivePlans } from '@/lib/console/live';
+import { withoutTenantContext } from '@/lib/db';
 
 /**
  * Console server actions.
@@ -268,12 +274,113 @@ export async function fetchProvisionOptions(): Promise<{
 }> {
   // The slug-uniqueness check must run against REAL slugs, or the modal
   // would accept a slug that already exists and fail at the insert.
-  const [options, live] = await Promise.all([getProvisionOptions(), getLiveWorkspaces()]);
+  const [designed, live, livePlans] = await Promise.all([
+    getProvisionOptions(),
+    getLiveWorkspaces(),
+    getLivePlans(),
+  ]);
   const workspaces = live ?? (await getWorkspaces());
+
+  /**
+   * ⚠ THE PLAN LIST CAME FROM A HARDCODED FIXTURE AND WAS THREE PLANS OUT OF
+   *   DATE. This is the bug behind "provisioning does not work".
+   *
+   * `getProvisionOptions` offered `starter`, `growth`, `scale` and `custom` at
+   * KES 46k/92k/184k. The product's plans are `pro`, `business` and `custom` —
+   * confirmed 24 Aug 2026, recorded in the schema comment on `plans.code`, and
+   * what the seed, `portfolio.ts` and every other console screen have used
+   * since. Three of the four choices named plans that have never existed, the
+   * default selection was one of them, and the prices beside them were wrong
+   * for the two that remained.
+   *
+   * Reading the catalogue here is the same "live first, designed fixture
+   * second" pattern every other reader on this surface already uses. The
+   * fixture stays as the fallback for the review bypass, where there is no
+   * session to resolve — and it has been corrected to the real codes, because a
+   * fallback that lies is how this drifted in the first place.
+   */
+  const options: ProvisionModel = livePlans
+    ? {
+        ...designed,
+        plans: livePlans.plans.map((plan, column) => ({
+          key: plan.key,
+          name: plan.name,
+          price: plan.price,
+          /* `EntitlementRow.values` is positionally aligned with `plans`, so
+             column `i` is this plan's value for each row. The first two are
+             the two a form field has room for. */
+          limit:
+            livePlans.rows
+              .slice(0, 2)
+              .map((r) => `${r.values[column] ?? '—'} ${r.label.toLowerCase()}`)
+              .join(' · ') || 'Set overrides after',
+        })),
+      }
+    : designed;
+
   return { options, existingSlugs: workspaces.map((w) => w.slug) };
 }
 
 /* ── Workspace suspension ─────────────────────────────────────────────────── */
+
+export type SuspensionImpact = {
+  slug: string;
+  name: string;
+  status: string;
+  activeMembers: number;
+  openSupportSessions: number;
+};
+
+export type FetchSuspensionImpactResult =
+  | { ok: true; impact: SuspensionImpact }
+  | { ok: false; error: string };
+
+/**
+ * What suspending this workspace would cost, read at the moment the dialog
+ * opens.
+ *
+ * ⚠ `previewSuspension` WAS AN AUDITED SERVICE WITH NO CALLER, AND THE DIALOG
+ *   IT WAS WRITTEN FOR WAS SHOWING NUMBERS FROM THE LAST PAGE RENDER.
+ *
+ * Two things were wrong with that, and the second is the one that matters.
+ *
+ * The staff count came down as a prop with the page, so a tab left open for
+ * twenty minutes confirmed against a figure from twenty minutes ago. Design
+ * sheet 05 asks the dialog to state consequences "in people"; people it
+ * counted a while back is a weaker claim than it looks.
+ *
+ * The real gap is the second count. A support session open inside a workspace
+ * means a colleague is IN THERE RIGHT NOW, and suspending underneath them
+ * drops what they were doing without either party being told why. Nothing on
+ * the old dialog could have said so — the number did not travel with the page,
+ * and it is the one figure that changes minute to minute. This is the service
+ * that computes it.
+ *
+ * It is a read that writes an audit row, deliberately: `asService` bypasses
+ * RLS to count across a tenant boundary, and 09 §2 wants every such crossing
+ * on the record even when it changed nothing. The service names itself
+ * "suspension preview, no change written" for whoever reads that log later.
+ */
+export async function fetchSuspensionImpact(
+  tenantId: string,
+): Promise<FetchSuspensionImpactResult> {
+  if (!tenantId) return { ok: false, error: 'Select a workspace.' };
+
+  try {
+    const ctx = await currentPlatformSession();
+    const impact = await previewSuspension(tenantId, {
+      userId: ctx.actorId,
+      label: ctx.actorLabel,
+      requestId: ctx.requestId,
+      ipAddress: ctx.ipAddress,
+    });
+    return { ok: true, impact };
+  } catch (error) {
+    if (isAppError(error)) return { ok: false, error: error.message };
+    logger.error('suspension preview failed', { error });
+    return { ok: false, error: 'The impact figures could not be read.' };
+  }
+}
 
 export type SuspendWorkspaceResult = { ok: true } | { ok: false; error: string };
 
@@ -357,35 +464,84 @@ export async function applyPlanChange(input: {
     return { ok: false, error: 'Nothing to apply — the pending change is incomplete.' };
   }
 
+  /**
+   * ⚠ THE REFUSAL THIS USED TO GIVE IS NOW FALSE, AND A FALSE REASON IS WORSE
+   *   THAN A BLUNT ONE. It said entitlement changes "are not wired until the
+   *   entitlements table lands". `plan_entitlements` has been in the schema all
+   *   along, and `modules/platform/internal/planCatalogue.ts` now writes to it.
+   *
+   * What is true is that THIS action cannot be the thing that does it. It
+   * takes a plan code, a field name and a target as loose strings, because it
+   * was built against the designed fixture's `pendingChange` shape — there is
+   * no entitlement id in it, so there is no row it could address without
+   * guessing. `setPlanLimit` takes the id, previews what the change would
+   * strand, and requires a reason for the log.
+   *
+   * So this stays a refusal, and says where the working path is rather than
+   * blaming a table that exists.
+   */
   return {
     ok: false,
     error:
-      'Entitlement changes write to the plan record and are not wired until the entitlements table lands. The request itself is valid — nothing else is blocking it.',
+      'This confirmation belongs to the designed plan table. Edit a limit from the headroom card for that plan — it addresses the entitlement directly and counts what the change would strand first.',
   };
 }
 
 /* ── Break glass ───────────────────────────────────────────────────────────── */
 
-export type ToggleBreakGlassResult = { ok: true } | { ok: false; error: string };
+export type ToggleBreakGlassResult =
+  | { ok: true; locked: boolean; revoked: number }
+  | { ok: false; error: string };
 
 /**
  * Lock or re-enable support-session access platform-wide.
  *
- * The real switch is `app.support_lock`, read by `withTenantContext` next to
- * `app.support_mode` — a client boolean cannot decide this any more than the
- * session banner can, per `session.ts`. That check does not exist yet, so
- * this refuses honestly rather than flipping local state and calling it
- * locked while every session guard remains none the wiser.
+ * ⚠ THIS REFUSED FOR A PHASE, AND THE REASON IT GAVE WAS A DESIGN THAT NEVER
+ *   NEEDED BUILDING. It said the real switch was `app.support_lock`, "read by
+ *   `withTenantContext` next to `app.support_mode`" — a per-request check, in
+ *   the hottest function in the system, for a control used perhaps twice a
+ *   year.
+ *
+ * It is enforced where sessions are MINTED instead, and the lock itself has no
+ * column: the most recent `support.lock_engaged` / `support.lock_released` row
+ * in the platform audit log IS the state. `modules/platform/internal/breakGlass.ts`
+ * has the full argument. No migration, no flag to drift, and the history —
+ * which is the only thing anyone ever actually asks of a break-glass control —
+ * comes free.
  */
-// Server Actions must be async; there is nothing to await until the write below is real.
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function toggleBreakGlass(input: { lock: boolean }): Promise<ToggleBreakGlassResult> {
-  return {
-    ok: false,
-    error: input.lock
-      ? 'The platform-wide lock writes to app.support_lock, which withTenantContext does not read yet. Nothing is currently enforcing this — flipping a local flag would be worse than refusing.'
-      : 'Re-enabling reads the same unwired flag. There is nothing active to release yet.',
-  };
+export async function toggleBreakGlass(input: {
+  lock: boolean;
+  reason: string;
+}): Promise<ToggleBreakGlassResult> {
+  try {
+    const ctx = await currentPlatformSession();
+    const result = await setBreakGlass(input, {
+      userId: ctx.actorId,
+      label: ctx.actorLabel,
+      requestId: ctx.requestId,
+      ipAddress: ctx.ipAddress,
+    });
+
+    // The banner, the settings screen and every support control read this.
+    revalidatePath('/platform', 'layout');
+    return { ok: true, locked: result.locked, revoked: result.revoked };
+  } catch (error) {
+    if (isAppError(error)) return { ok: false, error: error.message };
+    logger.error('break glass toggle failed', { error });
+    return { ok: false, error: 'The lock did not move. Nothing changed.' };
+  }
+}
+
+/**
+ * The current lock state, for the settings screen.
+ *
+ * Read through `withoutTenantContext` rather than `asService`: it is a read of
+ * the platform's own log by a platform admin, and routing it through the
+ * audited path would write a row every time somebody opened Settings.
+ */
+export async function fetchBreakGlassState(): Promise<BreakGlassState> {
+  const ctx = await currentPlatformSession();
+  return withoutTenantContext(ctx.requestId, (tx) => breakGlassState(tx));
 }
 
 /* ── Provisioning ─────────────────────────────────────────────────────────── */
@@ -422,6 +578,8 @@ export async function provisionWorkspace(input: {
   ownerEmail: string;
   ownerName?: string;
   trial: boolean;
+  /** `plans.code`. The dialog has always collected this and never sent it. */
+  planCode: string;
 }): Promise<ProvisionWorkspaceResult> {
   try {
     const ctx = await currentPlatformSession();
@@ -438,6 +596,7 @@ export async function provisionWorkspace(input: {
            the person never chose. */
         ownerName: input.ownerName?.trim() || input.ownerEmail.trim(),
         initialStatus: input.trial ? 'trial' : 'active',
+        planCode: input.planCode,
       },
       {
         userId: ctx.actorId,

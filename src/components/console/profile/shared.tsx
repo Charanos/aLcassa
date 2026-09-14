@@ -87,35 +87,12 @@ export function RecordRow({
 }
 
 /**
- * Why a control is dead, at full width, in the row it belongs to.
- *
- * ⚠ `InertControl` PUTS THE REASON IN `title=`, AND ITS OWN DOCUMENTATION SAYS
- * THAT IS NOT ENOUGH: "the reason is also rendered as text beside or beneath
- * the control by the caller. This component refuses to be the only carrier."
- *
- * The profile was the caller that did not. Three security controls shipped
- * greyed out with their explanation reachable only by hovering a mouse over
- * them — so a keyboard or touch reader got a dead button and no account of it,
- * which is 17 §6.4's requirement failed in the one place it most matters,
- * since these three are the SECURITY controls on the security panel.
+ * Re-exported so the profile's own call sites keep importing from the folder
+ * they live in. The definition moved to the surface vocabulary because the
+ * tenant tabs need the same note, and `BandLink` set the precedent: one
+ * definition in `Surface`, a re-export in the folder that first needed it.
  */
-export function ReasonNote({ children }: { children: React.ReactNode }) {
-  return (
-    <p
-      className="t-caption flex gap-2 rounded-panel px-3 py-2"
-      style={{
-        background: 'var(--surface-sunken)',
-        color: 'var(--text-tertiary)',
-        textWrap: 'pretty',
-      }}
-    >
-      <span aria-hidden style={{ color: 'var(--text-disabled)' }}>
-        ·
-      </span>
-      <span className="min-w-0">{children}</span>
-    </p>
-  );
-}
+export { ReasonNote } from '@/components/console/Surface';
 
 /**
  * The round glyph a record row leads with.

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1440px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="display: flex; align-items: flex-end; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
+    <div style="flex: 1; min-width: 0;">
+      <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">/platform/plans</p>
+      <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Plans</h1>
+      <p style="margin: 8px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 66ch;">Entitlements are data, not code. Editing a limit here changes what every workspace on that plan can do, on save.</p>
+    </div>
+    <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui); white-space: nowrap; flex: 0 0 auto;" style-hover="background: var(--blue-600);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+      New plan
+    </button>
+  </div>
+
+  <div style="margin-top: 22px; display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start;">
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+        <colgroup><col style="width: 30%;" /><col style="width: 17.5%;" /><col style="width: 17.5%;" /><col style="width: 17.5%;" /><col style="width: 17.5%;" /></colgroup>
+        <thead>
+          <tr>
+            <th style="text-align: left; padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-sunken); font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Entitlement</th>
+            <sc-for list="{{ planHeads }}" as="p" hint-placeholder-count="4">
+              <th style="text-align: left; padding: 14px 12px; border-bottom: 1px solid var(--border-subtle); border-left: 1px solid var(--border-subtle); background: {{ p.bg }}; vertical-align: top;">
+                <span style="display: block; font: 500 14px/1.3 var(--font-ui); color: var(--text-primary);">{{ p.name }}</span>
+                <span style="display: block; margin-top: 4px; font: 400 12.5px/1.3 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-secondary);">{{ p.price }}</span>
+                <span style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; height: 20px; padding: 0 8px; border-radius: 9999px; background: var(--surface-raised); border: 1px solid var(--border-subtle); font: 400 11px/1 var(--font-mono); color: var(--text-secondary); white-space: nowrap;">{{ p.tenants }}</span>
+              </th>
+            </sc-for>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-for list="{{ rows }}" as="row" hint-placeholder-count="8">
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td style="padding: 0 20px; height: 44px;">
+                <span style="display: flex; align-items: center; gap: 9px;">
+                  <span style="display: grid; place-items: center; width: 18px; height: 18px; flex: 0 0 auto; color: var(--text-tertiary);">{{ row.icon }}</span>
+                  <span style="font: 400 13px/1.3 var(--font-ui); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ row.label }}</span>
+                </span>
+              </td>
+              <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="4">
+                <td style="padding: 0 12px; height: 44px; border-left: 1px solid var(--border-subtle); background: {{ cell.bg }};">
+                  <span style="font: 400 12.5px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: {{ cell.ink }};">{{ cell.value }}</span>
+                </td>
+              </sc-for>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--surface-sunken); border-top: 1px solid var(--border-subtle);">
+        <p style="margin: 0; flex: 1; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary);">Two workspaces carry per-tenant overrides that win over these values.</p>
+        <button type="button" onClick="{{ openBlast }}" style="height: 32px; padding: 0 14px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 12.5px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--blue-600);">Save changes</button>
+      </div>
+    </div>
+
+    <div style="display: grid; gap: 20px;">
+      <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+        <div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--border-subtle);">
+          <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Distribution</p>
+        </div>
+        <div style="padding: 14px 12px 16px;">
+          <x-import component-from-global-scope="PlanTenantsChart" from="./charts.jsx" hint-size="100%,150px"></x-import>
+        </div>
+      </div>
+
+      <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-sunken); padding: 18px 20px 20px;">
+        <p style="margin: 0 0 12px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Blast radius</p>
+        <p style="margin: 0; font: 400 13px/1.55 var(--font-ui); color: var(--text-secondary);">Every plan edit states how many workspaces it touches before it commits, and names the ones that would be pushed over a limit by the change.</p>
+        <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: grid; gap: 10px;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+            <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Plans in use</span>
+            <span style="font: 400 12.5px/1.4 var(--font-mono); color: var(--text-primary);">3 of 4</span>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+            <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Custom overrides</span>
+            <span style="font: 400 12.5px/1.4 var(--font-mono); color: var(--text-primary);">2 workspaces</span>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+            <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Unassigned</span>
+            <span style="font: 400 12.5px/1.4 var(--font-mono); color: var(--text-primary);">4 on trial</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ blastOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 90; background: var(--surface-overlay); display: grid; place-items: center; padding: 24px; animation: overlay-in 120ms linear;">
+      <div role="dialog" aria-modal="true" style="width: 560px; max-width: 100%; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); overflow: hidden; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div style="padding: 24px 24px 20px;">
+          <p style="margin: 0 0 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Confirm plan change</p>
+          <h2 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 27px; line-height: 1.18; letter-spacing: -0.008em; color: var(--text-primary);">This affects 21 workspaces</h2>
+          <p style="margin: 12px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary);">Growth · events per month, <em style="font: 400 14px/1 var(--font-mono);">250,000 → 200,000</em>.</p>
+          <div style="margin-top: 16px; border: 1px solid var(--warning-fg); border-radius: 7px; background: var(--warning-bg); padding: 14px 16px;">
+            <p style="margin: 0 0 10px; font: 500 12.5px/1.4 var(--font-ui); color: var(--text-primary);">Two workspaces are already above the new limit:</p>
+            <div style="display: grid; gap: 7px;">
+              <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font: 400 12.5px/1.4 var(--font-ui);"><span>Sarova Hospitality Collection</span><span style="font-family: var(--font-mono);">235,104 used</span></span>
+              <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font: 400 12.5px/1.4 var(--font-ui);"><span>Highfield Insurance Brokers</span><span style="font-family: var(--font-mono);">—</span></span>
+            </div>
+          </div>
+          <p style="margin: 14px 0 0; font: 400 13px/1.5 var(--font-ui); color: var(--text-primary);">Their ingestion would begin rejecting immediately. Changes apply at the start of the next billing period unless you force them now.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-subtle); background: var(--surface-sunken);">
+          <span style="flex: 1; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary);">plan.entitlement_change</span>
+          <button type="button" onClick="{{ closeBlast }}" style="height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Cancel</button>
+          <button type="button" onClick="{{ closeBlast }}" style="height: 36px; padding: 0 16px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: var(--blue-600);">Apply next period</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}}">
+const P = {
+  seat: 'M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0|M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2',
+  bolt: 'M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11',
+  mail: 'M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10|M3 7l9 6l9 -6',
+  db: 'M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0|M4 6v6a8 3 0 0 0 16 0v-6|M4 12v6a8 3 0 0 0 16 0v-6',
+  key: 'M12.5 11a3 3 0 1 0 0 -6a3 3 0 0 0 0 6|M11 13l-6 6v2h3l6 -6',
+  bot: 'M9 11a1 1 0 1 0 2 0a1 1 0 0 0 -2 0|M13 11a1 1 0 1 0 2 0a1 1 0 0 0 -2 0|M4 9a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z|M12 3v4',
+  shield: 'M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3',
+  clock: 'M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0|M12 7v5l3 3'
+};
+
+function icon(name) {
+  return React.createElement(
+    'svg',
+    { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    (P[name] || '').split('|').map((d, i) => React.createElement('path', { key: i, d }))
+  );
+}
+
+const PLANS = [
+  { name: 'Trial', price: 'Free · 14 days', tenants: '4 workspaces' },
+  { name: 'Starter', price: 'KES 46,000', tenants: '7 workspaces' },
+  { name: 'Growth', price: 'KES 92,000', tenants: '21 workspaces' },
+  { name: 'Scale', price: 'KES 184,000', tenants: '19 workspaces' }
+];
+
+const ROWS = [
+  { label: 'Staff seats', icon: 'seat', values: ['10', '25', '100', '300'] },
+  { label: 'Events per month', icon: 'bolt', values: ['25,000', '50,000', '250,000', '500,000'] },
+  { label: 'Conversations', icon: 'mail', values: ['2,000', '8,000', '40,000', 'unlimited'] },
+  { label: 'Storage', icon: 'db', values: ['2 GB', '20 GB', '50 GB', '100 GB'] },
+  { label: 'API credentials', icon: 'key', values: ['1', '3', '10', '25'] },
+  { label: 'AI rule overrides', icon: 'bot', values: ['—', '5', '25', 'unlimited'] },
+  { label: 'Audit retention', icon: 'clock', values: ['7 days', '90 days', '1 year', '3 years'] },
+  { label: 'SSO and SCIM', icon: 'shield', values: ['—', '—', 'SSO', 'SSO + SCIM'] }
+];
+
+class Component extends DCLogic {
+  state = { blast: false };
+
+  renderVals() {
+    const tint = ['transparent', 'transparent', 'var(--surface-sunken)', 'transparent'];
+    return {
+      planHeads: PLANS.map((p, i) => ({ name: p.name, price: p.price, tenants: p.tenants, bg: tint[i] })),
+      rows: ROWS.map((r) => ({
+        label: r.label,
+        icon: icon(r.icon),
+        cells: r.values.map((v, i) => ({
+          value: v,
+          bg: tint[i],
+          ink: v === '—' ? 'var(--text-disabled)' : v === 'unlimited' ? 'var(--text-secondary)' : 'var(--text-primary)'
+        }))
+      })),
+      blastOpen: this.state.blast,
+      openBlast: () => this.setState({ blast: true }),
+      closeBlast: () => this.setState({ blast: false })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

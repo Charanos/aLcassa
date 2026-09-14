@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { ReasonNote } from '@/components/console/Surface';
 import {
   IconBrandWhatsapp,
   IconMail,
@@ -191,13 +192,26 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
           type="button"
           disabled
           title="The channel runtime is Phase 2. The adapter contract exists; nothing sits above it yet."
-          className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-white transition-all active:scale-95"
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
           style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
         >
           <IconPlus size={14} stroke={1.5} />
           Connect Channel
         </button>
       </div>
+
+      {/*
+        The reason all three controls on this tab are dead, stated once. Connect,
+        ping and configure carry it in `title=` as well; this is the copy a
+        keyboard or touch reader actually reaches.
+      */}
+      <ReasonNote>
+        Nothing on this tab can act yet. The channel runtime is Phase 2 &mdash; the adapter
+        contract is written and nothing sits above it &mdash; so connecting an endpoint and
+        pinging one are both waiting on the same work. A workspace&rsquo;s existing channel
+        settings are theirs to change; the platform reaches them through a logged support
+        session, not from here.
+      </ReasonNote>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {channels.map((ch, idx) => {
@@ -250,16 +264,16 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                     className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px] font-medium uppercase"
                     style={{
                       background: isHealthy
-                        ? 'rgba(16, 185, 129, 0.1)'
+                        ? 'var(--badge-success-bg)'
                         : isDisconnected
-                          ? 'rgba(239, 68, 68, 0.1)'
-                          : 'rgba(245, 158, 11, 0.1)',
+                          ? 'var(--badge-danger-bg)'
+                          : 'var(--badge-warning-bg)',
                       color: isHealthy
                         ? 'var(--success-fg)'
                         : isDisconnected
                           ? 'var(--danger-fg)'
                           : 'var(--warning-fg)',
-                      border: `1px solid ${isHealthy ? 'rgba(16, 185, 129, 0.25)' : isDisconnected ? 'rgba(239, 68, 68, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
+                      border: `1px solid ${isHealthy ? 'var(--badge-success-edge)' : isDisconnected ? 'var(--badge-danger-bg)' : 'var(--badge-warning-edge)'}`,
                     }}
                   >
                     {isDisconnected ? (

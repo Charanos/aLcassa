@@ -251,6 +251,19 @@ export function Panel({
   flush,
   accent,
   variant = 'default',
+  /**
+   * Under the body: the reason a control in the header is dead, a note, an
+   * error.
+   *
+   * ⚠ THIS IS NOT THE STANDFIRST THIS COMPONENT REFUSES. The paragraph below
+   * explains why a band's TITLE cannot take a sentence — a band that needs one
+   * to be understood has a visualisation that failed, and the fix is the
+   * visualisation. A footer is the opposite case: the band reads fine, and
+   * something in it is INERT. 17 §6.4 requires that reason to be on the
+   * surface, and `InertControl` says the same in its own words. A tooltip is
+   * not a surface, so the band needs somewhere to say it.
+   */
+  footer,
 }: {
   title?: string;
   action?: React.ReactNode;
@@ -258,6 +271,7 @@ export function Panel({
   flush?: boolean;
   accent?: 'live' | 'warning' | 'danger';
   variant?: 'default' | 'elevated' | 'flush-glass';
+  footer?: React.ReactNode;
 }) {
   const accentInk =
     accent === 'danger'
@@ -320,6 +334,10 @@ export function Panel({
         </div>
       ) : null}
       <div className={`${flush ? '' : 'px-1'} flex min-h-0 flex-1 flex-col`}>{children}</div>
+      {/* `mt-auto` so a footer in a band stretched by a taller sibling in the
+          same grid row still sits at the bottom, rather than floating under
+          short content with a gap beneath it. */}
+      {footer ? <div className={`mt-auto pt-4 ${flush ? 'px-5 pb-1' : 'px-1'}`}>{footer}</div> : null}
     </section>
   );
 }
@@ -392,8 +410,9 @@ export function SettingsSection({
 }) {
   return (
     <section
-      className="rounded-xl overflow-hidden bg-white"
+      className="rounded-xl overflow-hidden"
       style={{
+        background: 'var(--surface-raised)',
         border: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
       }}
@@ -584,6 +603,45 @@ export function InertControl({
     >
       {children}
     </button>
+  );
+}
+
+/**
+ * Why a control is dead, at full width, in the row it belongs to.
+ *
+ * ⚠ `InertControl` PUTS THE REASON IN `title=`, AND ITS OWN DOCUMENTATION SAYS
+ * THAT IS NOT ENOUGH: "the reason is also rendered as text beside or beneath
+ * the control by the caller. This component refuses to be the only carrier."
+ *
+ * The profile was the first caller that did not, and the tenant tabs were the
+ * next ten: controls shipped greyed out with their explanation reachable only
+ * by hovering a mouse, so a keyboard or touch reader got a dead button and no
+ * account of why. That is 17 §6.4 failed.
+ *
+ * ⚠ ONE NOTE PER GROUP, NOT ONE PER BUTTON. The ten inert controls across the
+ * tenant tabs carry three reasons between them — Phase 2 has no channel
+ * runtime, Phase 1 has no payment gateway, and anything reaching inside a
+ * workspace needs a logged support session. Repeating a sentence beside every
+ * button is noise a reader learns to skip, which fails the same requirement a
+ * second way. State it once, beside the group it governs, and say what to do
+ * INSTEAD — a reader who learns a button is dead and nothing else has been
+ * told half of it.
+ */
+export function ReasonNote({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      className="t-caption flex gap-2 rounded-panel px-3 py-2"
+      style={{
+        background: 'var(--surface-sunken)',
+        color: 'var(--text-tertiary)',
+        textWrap: 'pretty',
+      }}
+    >
+      <span aria-hidden style={{ color: 'var(--text-disabled)' }}>
+        ·
+      </span>
+      <span className="min-w-0">{children}</span>
+    </p>
   );
 }
 

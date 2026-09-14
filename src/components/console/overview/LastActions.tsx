@@ -138,7 +138,7 @@ function NoActionsYet() {
     <div
       className="mt-1 flex flex-col items-center text-center gap-4 rounded-[16px] px-6 py-10 relative overflow-hidden"
       style={{
-        background: 'white',
+        background: 'var(--surface-raised)',
         border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
         boxShadow: '0 8px 32px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset'
       }}

@@ -10,7 +10,7 @@ import {
 } from '@tabler/icons-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import type { WorkspaceDetail, WorkspaceStaff } from '@/lib/console/data';
-import { Panel } from '@/components/console/Surface';
+import { Panel, ReasonNote } from '@/components/console/Surface';
 
 export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceStaff[] }) {
   const [search, setSearch] = useState('');
@@ -65,7 +65,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
           </div>
           <div
             className="mt-2 h-1.5 w-full max-w-[200px] overflow-hidden rounded-full"
-            style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+            style={{ background: 'var(--chrome-hover)' }}
           >
             <div
               className="h-full rounded-full"
@@ -194,7 +194,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
               type="button"
               disabled
               title="Membership changes happen inside the workspace, through a logged support session."
-              className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-white transition-all active:scale-95"
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
               style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
             >
               <IconUserPlus size={14} stroke={1.5} />
@@ -202,6 +202,15 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
             </button>
           }
           flush
+          footer={
+            <ReasonNote>
+              Inviting, removing or re-roling a member happens inside the workspace, through a
+              logged support session &mdash; so the change lands in the customer&rsquo;s own
+              activity log with a name and a reason against it, rather than arriving from
+              outside with neither. What the platform changes directly is the seat ceiling,
+              which is a property of their plan and is on the billing tab.
+            </ReasonNote>
+          }
         >
           {/* Filter Bar */}
           <div
@@ -341,9 +350,9 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                           <span
                             className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[11px]"
                             style={{
-                              background: 'rgba(245, 158, 11, 0.1)',
+                              background: 'var(--badge-warning-bg)',
                               color: 'var(--warning-fg)',
-                              border: '1px solid rgba(245, 158, 11, 0.2)',
+                              border: '1px solid var(--badge-warning-edge)',
                             }}
                           >
                             <IconShieldLock size={12} stroke={1.5} />
@@ -369,9 +378,9 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                         style={{
                           background:
                             s.status === 'active'
-                              ? 'rgba(16, 185, 129, 0.1)'
+                              ? 'var(--badge-success-bg)'
                               : s.status === 'suspended'
-                                ? 'rgba(239, 68, 68, 0.1)'
+                                ? 'var(--badge-danger-bg)'
                                 : 'var(--surface-inset)',
                           color:
                             s.status === 'active'

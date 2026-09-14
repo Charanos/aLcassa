@@ -2603,10 +2603,34 @@ export type ProvisionModel = {
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
 export async function getProvisionOptions(): Promise<ProvisionModel> {
   return {
+    /**
+     * ⚠ THESE WERE `starter`, `growth` AND `scale`, WHICH HAVE NEVER EXISTED.
+     *
+     * The product's plans are `pro`, `business` and `custom` — confirmed
+     * 24 Aug 2026 and recorded on `plans.code` in the schema. This list was
+     * three names and two prices out of date, the provisioning modal's DEFAULT
+     * selection was `growth`, and the operator's choice was dropped before it
+     * reached the service anyway, so every workspace provisioned through it
+     * came out with no subscription at all.
+     *
+     * The modal now reads the live catalogue (see `fetchProvisionOptions`) and
+     * this is the fallback for the review bypass only. It is corrected rather
+     * than deleted because a fallback that lies is how the drift survived: a
+     * screen that looks plausible is never checked against the database.
+     */
     plans: [
-      { key: 'starter', name: 'Starter', price: 'KES 46k', limit: '25 seats · 50k events' },
-      { key: 'growth', name: 'Growth', price: 'KES 92k', limit: '100 seats · 250k events' },
-      { key: 'scale', name: 'Scale', price: 'KES 184k', limit: '300 seats · 500k events' },
+      {
+        key: 'pro',
+        name: 'Pro',
+        price: `KES ${(PLAN_PRICE.pro / 1000).toLocaleString('en-GB')}k`,
+        limit: '25 seats · 5 channels',
+      },
+      {
+        key: 'business',
+        name: 'Business',
+        price: `KES ${(PLAN_PRICE.business / 1000).toLocaleString('en-GB')}k`,
+        limit: '100 seats · 15 channels',
+      },
       { key: 'custom', name: 'Custom', price: 'Negotiated', limit: 'Set overrides after' },
     ],
 
@@ -3154,6 +3178,17 @@ export async function getOverviewInsights(): Promise<OverviewInsights> {
  */
 export type HeadroomRow = {
   key: string;
+  /**
+   * The `plan_entitlements` row this came from, present only on the LIVE
+   * model.
+   *
+   * ⚠ OPTIONAL BECAUSE THE FIXTURE HAS NO ROW TO POINT AT. The designed model
+   * is drawn, not read, so there is no id to give — and the limit editor keys
+   * off exactly that: no id, no edit control. A fixture that fabricated a uuid
+   * would put a live-looking write control on a screen full of invented
+   * numbers.
+   */
+  entitlementId?: string;
   label: string;
   /** NULL is unlimited. A limit that is not a number has no headroom to plot. */
   limit: number | null;

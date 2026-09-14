@@ -131,7 +131,7 @@ export function Pagination({ page, pageSize, total, onPage, noun, label }: Pagin
               aria-current={p === page ? 'page' : undefined}
               className={`grid size-8 cursor-pointer place-items-center rounded-[8px] transition-all duration-300 ${
                 p === page
-                  ? 'bg-white shadow-sm ring-1 ring-black/[0.04]'
+                  ? 'bg-[var(--surface-raised)] shadow-sm ring-1 ring-[var(--border-subtle)]'
                   : 'hover:bg-black/[0.03]'
               }`}
               style={{

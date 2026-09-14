@@ -1,5 +1,6 @@
 import { IconLock, IconLockOpen } from '@tabler/icons-react';
 import { Panel } from '../Surface';
+import { RuleEditor } from './RuleEditor';
 import type { MasterRuleField } from '@/lib/console/data';
 
 /**
@@ -26,12 +27,17 @@ import type { MasterRuleField } from '@/lib/console/data';
  *   the workspace decides alone. Rendering it as a disabled control would tell
  *   an operator the platform had made a choice it has not made.
  *
- * ⚠ IT IS READ-ONLY, AND SAYS SO. Publishing a version moves a pointer on an
- * append-only table and changes the floor every workspace inherits on the next
- * generated reply. That is an audited operation with a blast radius, not a
- * form submit, and it is not built yet. A textarea that accepted edits and
- * discarded them would be the settings panel's mistake on a screen where it
- * costs more.
+ * ⚠ IT WAS READ-ONLY AND SAID SO, AND THE SENTENCE IT SAID IT WITH WAS AN
+ *   ARGUMENT FOR BUILDING THIS PROPERLY RATHER THAN FOR NOT BUILDING IT:
+ *   "an audited operation with a blast radius, not a form submit."
+ *
+ * Every clause of that survived into `RuleEditor`. The publish appends a
+ * version rather than overwriting one, the change note is required, the audit
+ * row is written before the work, and the radius — all N workspaces, on their
+ * next generated reply — is on screen before the submit is reachable. What
+ * none of it justified was the platform owner being unable to change the rules
+ * he owns. The display below stays exactly as it was; the editing happens in a
+ * dialog, so this file is still a READER.
  */
 
 /** The two states, and what each one means to a workspace. */
@@ -92,9 +98,9 @@ function Field({ field }: { field: MasterRuleField }) {
         <div
           className="rounded-[16px] px-5 py-4 relative overflow-hidden"
           style={{
-            background: 'white',
+            background: 'var(--surface-raised)',
             border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
-            boxShadow: '0 8px 32px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset'
+            boxShadow: 'var(--shadow-md), var(--glass-highlight)'
           }}
         >
           <div className="absolute inset-y-0 left-0 w-1" style={{ background: authority.rule }} />
@@ -129,11 +135,14 @@ export function RuleFields({
   versionNumber,
   status,
   savedAt,
+  workspaceCount,
 }: {
   fields: MasterRuleField[];
   versionNumber: number;
   status: string;
   savedAt: string;
+  /** For the editor's blast-radius sentence. Read on the server, passed down. */
+  workspaceCount: number;
 }) {
   const floors = fields.filter((f) => f.locked).length;
   const set = fields.filter((f) => f.value.trim().length > 0).length;
@@ -143,11 +152,18 @@ export function RuleFields({
       title="The rule set"
       variant="elevated"
       action={
-        <span
-          className="whitespace-nowrap"
-          style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
-        >
-          v{versionNumber} · {status} · {savedAt}
+        <span className="flex items-center gap-3">
+          <span
+            className="whitespace-nowrap"
+            style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+          >
+            v{versionNumber} · {status} · {savedAt}
+          </span>
+          <RuleEditor
+            fields={fields}
+            versionNumber={versionNumber}
+            workspaceCount={workspaceCount}
+          />
         </span>
       }
     >
@@ -155,6 +171,50 @@ export function RuleFields({
         <span className="numeric">{set}</span> of {fields.length} fields carry a value;{' '}
         <span className="numeric">{floors}</span> of them are floors a workspace cannot loosen.
       </p>
+
+      {/*
+        ⚠ THE TWO WORDS THE CHIPS USE, DEFINED ON THE PAGE.
+
+        Each field carries a `floor` or `default` chip, and what those mean to a
+        workspace was written into a `title` attribute — so the distinction this
+        whole screen is built on was reachable by hovering a mouse over a badge,
+        and by nothing else. A reader on a keyboard, on a phone, or with a
+        screen reader got two words with no definition anywhere.
+
+        Stated once here rather than six times below: the chips repeat, the
+        meaning does not. The `title`s stay as an addition.
+      */}
+      <div
+        className="mb-5 flex flex-col gap-2 rounded-panel px-3.5 py-3 sm:flex-row sm:gap-6"
+        style={{ background: 'var(--surface-sunken)' }}
+      >
+        {(['locked', 'open'] as const).map((key) => {
+          const a = AUTHORITY[key];
+          const Icon = a.icon;
+          return (
+            <p key={key} className="t-caption flex items-start gap-2 sm:flex-1">
+              <Icon
+                size={12}
+                stroke={1.75}
+                aria-hidden
+                style={{ color: a.ink, marginTop: '2px', flexShrink: 0 }}
+              />
+              <span className="min-w-0" style={{ color: 'var(--text-tertiary)' }}>
+                <span
+                  style={{
+                    color: 'var(--text-secondary)',
+                    font: '500 10.5px/1 var(--font-mono)',
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  {a.label}
+                </span>{' '}
+                &mdash; {a.note}
+              </span>
+            </p>
+          );
+        })}
+      </div>
 
       <div className="grid">
         {fields.map((field) => (
@@ -166,10 +226,10 @@ export function RuleFields({
         className="t-caption mt-4 border-t pt-3.5"
         style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)', maxWidth: '72ch' }}
       >
-        Read-only here. Publishing a version moves a pointer on an append-only table and changes
-        what every workspace inherits on its next generated reply — an audited operation with a
-        blast radius, not a form submit. It is not built yet, and an editor that accepted changes
-        and discarded them would be worse than this.
+        Publishing appends a version and moves a pointer on an append-only table, so nothing is
+        overwritten and any earlier version is one click from being restored. It changes what every
+        workspace inherits on its next generated reply, which is why the change note is required
+        and why the whole operation lands in the platform log before it is applied.
       </p>
     </Panel>
   );

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1440px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="display: flex; align-items: flex-end; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
+    <div style="flex: 1; min-width: 0;">
+      <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">/platform/revenue</p>
+      <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Revenue</h1>
+      <p style="margin: 8px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 66ch;">What the platform earns, what it is owed, and which workspaces are worth calling this week.</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; flex: 0 0 auto;">
+      <div style="display: inline-flex; padding: 2px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-sunken); box-shadow: var(--neu-inset);">
+        <sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3">
+          <button type="button" onClick="{{ r.pick }}" style="height: 28px; padding: 0 12px; border: none; border-radius: 5px; background: {{ r.bg }}; color: {{ r.fg }}; box-shadow: {{ r.lift }}; font: {{ r.font }}; white-space: nowrap;">{{ r.label }}</button>
+        </sc-for>
+      </div>
+      <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--surface-inset);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <div style="margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 14px;">
+    <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
+      <div style="min-width: 0; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 16px 18px 17px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="display: grid; place-items: center; width: 22px; height: 22px; flex: 0 0 auto; border-radius: 5px; background: var(--surface-sunken); color: var(--text-tertiary);">{{ k.icon }}</span>
+          <span style="font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ k.label }}</span>
+        </div>
+        <p style="margin: 12px 0 0; font: 400 27px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: {{ k.ink }};">{{ k.value }}</p>
+        <div style="margin-top: 9px; display: flex; align-items: center; gap: 7px;">
+          <span style="display: inline-flex; align-items: center; gap: 3px; font: 400 11.5px/1 var(--font-mono); color: {{ k.deltaInk }};">{{ k.arrow }}{{ k.delta }}</span>
+          <span style="font: 400 11.5px/1.4 var(--font-ui); color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ k.note }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top: 20px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; align-items: start;">
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Monthly recurring revenue</p>
+        <span style="display: flex; align-items: center; gap: 14px;">
+          <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;"><span style="width: 10px; height: 2px; border-radius: 1px; background: var(--blue-500);"></span> MRR</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;"><span style="width: 8px; height: 8px; border-radius: 2px; background: var(--success-fg); opacity: 0.5;"></span> Net new</span>
+        </span>
+      </div>
+      <div style="padding: 18px 20px 20px;">
+        <x-import component-from-global-scope="MrrChart" from="./charts.jsx" hint-size="100%,260px"></x-import>
+      </div>
+    </div>
+
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Revenue by plan</p>
+      </div>
+      <div style="padding: 14px 20px 4px;">
+        <x-import component-from-global-scope="PlanMixChart" from="./charts.jsx" hint-size="100%,214px"></x-import>
+      </div>
+      <div style="padding: 4px 20px 18px;">
+        <sc-for list="{{ planMix }}" as="p" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border-subtle);">
+            <span style="width: 9px; height: 9px; border-radius: 2px; flex: 0 0 auto; background: {{ p.swatch }};"></span>
+            <span style="flex: 1; font: 400 12.5px/1.3 var(--font-ui); color: var(--text-primary);">{{ p.name }}</span>
+            <span style="font: 400 11.5px/1.3 var(--font-mono); color: var(--text-tertiary); white-space: nowrap;">{{ p.tenants }}</span>
+            <span style="font: 400 12.5px/1.3 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary); white-space: nowrap; min-width: 74px; text-align: right;">{{ p.value }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; align-items: start;">
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Invoice ageing</p>
+        <span style="font: 400 12px/1 var(--font-mono); color: var(--danger-fg); white-space: nowrap;">594k outstanding</span>
+      </div>
+      <div style="padding: 16px 20px 20px;">
+        <x-import component-from-global-scope="AgeingChart" from="./charts.jsx" hint-size="100%,214px"></x-import>
+      </div>
+    </div>
+
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Collection queue</p>
+        <span style="font: 400 12px/1 var(--font-ui); color: var(--text-tertiary); white-space: nowrap;">Sorted by days late</span>
+      </div>
+      <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+        <colgroup><col style="width: 34%;" /><col style="width: 18%;" /><col style="width: 16%;" /><col style="width: 16%;" /><col style="width: 16%;" /></colgroup>
+        <thead>
+          <tr style="background: var(--surface-sunken);">
+            <th style="text-align: left; padding: 0 20px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Workspace</th>
+            <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Invoice</th>
+            <th style="text-align: right; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Amount</th>
+            <th style="text-align: right; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Late</th>
+            <th style="text-align: right; padding: 0 20px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Attempts</th>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-for list="{{ collections }}" as="c" hint-placeholder-count="5">
+            <tr onClick="{{ c.open }}" style="height: 44px; cursor: pointer; border-bottom: 1px solid var(--border-subtle);" style-hover="background: var(--surface-sunken);">
+              <td style="padding: 0 20px; overflow: hidden;"><span style="display: block; font: 400 13px/1.3 var(--font-ui); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ c.name }}</span></td>
+              <td style="padding: 0 8px;"><span style="font: 400 12px/1 var(--font-mono); color: var(--text-secondary);">{{ c.invoice }}</span></td>
+              <td style="padding: 0 8px; text-align: right;"><span style="font: 400 12.5px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">{{ c.amount }}</span></td>
+              <td style="padding: 0 8px; text-align: right;"><span style="font: 400 12.5px/1 var(--font-mono); color: {{ c.lateInk }};">{{ c.late }}</span></td>
+              <td style="padding: 0 20px; text-align: right;"><span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-tertiary);">{{ c.attempts }}</span></td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+      <div style="padding: 12px 20px; background: var(--surface-sunken); border-top: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary);">Phase 1 reports on this queue; it does not charge cards. Retry hands the invoice to the finance operator with the failure reason attached.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}}">
+const P = {
+  coin: 'M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0 -18|M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1|M12 6v2m0 8v2',
+  trend: 'M3 17l6 -6l4 4l8 -8|M14 7l7 0l0 7',
+  users: 'M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0|M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2|M16 3.13a4 4 0 0 1 0 7.75',
+  clock: 'M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0|M12 7v5l3 3',
+  down: 'M3 7l6 6l4 -4l8 8|M14 17l7 0l0 -7'
+};
+
+function icon(name) {
+  return React.createElement(
+    'svg',
+    { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    (P[name] || '').split('|').map((d, i) => React.createElement('path', { key: i, d }))
+  );
+}
+
+const COLLECTIONS = [
+  { name: 'Kilimanjaro Logistics Group Ltd', invoice: 'INV-2026-0841', amount: '184,000', days: 6, attempts: '2 of 3' },
+  { name: 'Mombasa Freight Union', invoice: 'INV-2026-0688', amount: '62,000', days: 94, attempts: 'exhausted' },
+  { name: 'Highfield Insurance Brokers', invoice: 'INV-2026-0836', amount: '148,000', days: 4, attempts: '1 of 3' },
+  { name: 'Aurora Dental Group', invoice: 'INV-2026-0839', amount: '46,000', days: 2, attempts: '1 of 3' },
+  { name: 'Nyali Property Partners', invoice: 'INV-2026-0844', amount: '46,000', days: 1, attempts: '1 of 3' }
+];
+
+class Component extends DCLogic {
+  state = { range: '12 months' };
+
+  renderVals() {
+    const go = this.props.go || (() => {});
+    const s = this.state;
+
+    return {
+      ranges: ['3 months', '12 months', 'All time'].map((label) => {
+        const on = s.range === label;
+        return {
+          label,
+          bg: on ? 'var(--surface-raised)' : 'transparent',
+          fg: on ? 'var(--text-primary)' : 'var(--text-secondary)',
+          lift: on ? 'var(--neu-raised)' : 'none',
+          font: (on ? '500' : '400') + ' 12.5px/1 var(--font-ui)',
+          pick: () => this.setState({ range: label })
+        };
+      }),
+
+      kpis: [
+        { label: 'MRR', value: '6.04M', note: 'vs 5.72M in July', delta: '5.6%', arrow: '↑', deltaInk: 'var(--success-fg)', ink: 'var(--text-primary)', icon: icon('coin') },
+        { label: 'ARR run rate', value: '72.5M', note: 'KES, annualised', delta: '18.4%', arrow: '↑', deltaInk: 'var(--success-fg)', ink: 'var(--text-primary)', icon: icon('trend') },
+        { label: 'Average per workspace', value: '128k', note: 'across 47 workspaces', delta: '2.1%', arrow: '↑', deltaInk: 'var(--success-fg)', ink: 'var(--text-primary)', icon: icon('users') },
+        { label: 'Net revenue churn', value: '1.8%', note: 'one downgrade in July', delta: '0.4pp', arrow: '↓', deltaInk: 'var(--success-fg)', ink: 'var(--text-primary)', icon: icon('down') },
+        { label: 'Outstanding', value: '594k', note: 'five invoices unpaid', delta: '2 new', arrow: '↑', deltaInk: 'var(--danger-fg)', ink: 'var(--danger-fg)', icon: icon('clock') }
+      ],
+
+      planMix: [
+        { name: 'Scale', tenants: '19 workspaces', value: '3.50M', swatch: 'var(--blue-500)' },
+        { name: 'Growth', tenants: '21 workspaces', value: '1.93M', swatch: 'var(--blue-400)' },
+        { name: 'Starter', tenants: '7 workspaces', value: '612k', swatch: 'var(--ink-300)' }
+      ],
+
+      collections: COLLECTIONS.map((c) => ({
+        name: c.name,
+        invoice: c.invoice,
+        amount: c.amount,
+        attempts: c.attempts,
+        late: c.days + (c.days === 1 ? ' day' : ' days'),
+        lateInk: c.days > 60 ? 'var(--danger-fg)' : c.days > 5 ? 'var(--warning-fg)' : 'var(--text-secondary)',
+        open: () => go('detail')
+      }))
+    };
+  }
+}
+
+</script>
+</body>
+</html>

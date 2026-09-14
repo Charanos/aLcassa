@@ -4,6 +4,7 @@ import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { IconInfoCircle, IconUsers, IconKey, IconHash, IconCircleDot, IconSettings, type Icon as TablerIcon } from '@tabler/icons-react';
 import { type HeadroomRow, type HeadroomModel } from '@/lib/console/data';
+import { LimitEditor } from './LimitEditor';
 
 const PRESSURE_THRESHOLD = 90;
 
@@ -18,7 +19,18 @@ function pct(value: number, scale: number): number {
   return Math.max(0, Math.min(100, (value / scale) * 100));
 }
 
-function Row({ row }: { row: HeadroomRow }) {
+function Row({
+  row,
+  /**
+   * Only the expanded dialog passes this. The collapsed card is a TRIGGER —
+   * the whole thing is one button — so a second button inside it would be
+   * nested interactive content, which is both invalid and unclickable.
+   */
+  editablePlan,
+}: {
+  row: HeadroomRow;
+  editablePlan?: string;
+}) {
   const scale = scaleOf(row);
   const medianPct = pct(row.p50, scale);
   const maxPct = pct(row.max, scale);
@@ -35,21 +47,26 @@ function Row({ row }: { row: HeadroomRow }) {
   const maxInk = pressed ? 'var(--accent-mark)' : 'var(--blue-500)';
 
   return (
-    <div className="grid gap-2 py-4" style={{ borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+    <div className="grid gap-2 py-4" style={{ borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)', boxShadow: 'var(--glass-highlight)' }}>
       <div className="flex items-baseline justify-between gap-3">
         <span className="flex items-center gap-2.5 text-[13px] font-medium tracking-tight truncate" style={{ color: 'var(--text-primary)' }}>
           <Icon size={16} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
           {row.label}
         </span>
-        <span
-          className="shrink-0 whitespace-nowrap font-mono text-[11px]"
-          style={{ color: 'var(--text-tertiary)' }}
-        >
-          {row.tenants === 0
-            ? 'nothing reports this'
-            : unbounded
-              ? `median ${row.p50} · max ${row.max} · no limit`
-              : `median ${row.p50} · max ${row.max} of ${row.limit}`}
+        <span className="flex shrink-0 items-baseline gap-2">
+          <span
+            className="whitespace-nowrap font-mono text-[11px]"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
+            {row.tenants === 0
+              ? 'nothing reports this'
+              : unbounded
+                ? `median ${row.p50} · max ${row.max} · no limit`
+                : `median ${row.p50} · max ${row.max} of ${row.limit}`}
+          </span>
+          {editablePlan && row.entitlementId ? (
+            <LimitEditor row={row} planName={editablePlan} variant="inline" />
+          ) : null}
         </span>
       </div>
 
@@ -57,7 +74,7 @@ function Row({ row }: { row: HeadroomRow }) {
         className="relative h-2.5 w-full overflow-hidden rounded-full mt-1 mb-1"
         style={{
           background: 'var(--surface-sunken)',
-          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)',
+          boxShadow: 'var(--neu-inset)',
         }}
         role="img"
         aria-label={
@@ -70,7 +87,7 @@ function Row({ row }: { row: HeadroomRow }) {
       >
         <span
           className="absolute inset-y-0 left-0 rounded-full"
-          style={{ width: `${medianPct}%`, background: 'var(--blue-200)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4)' }}
+          style={{ width: `${medianPct}%`, background: 'var(--blue-200)', boxShadow: 'var(--glass-highlight)' }}
         />
         {row.tenants > 0 ? (
           <span
@@ -109,7 +126,7 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
           style={{
             background: 'var(--surface-raised)',
             border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-            boxShadow: '0 12px 40px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+            boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
           }}
         >
           <div className="flex items-center justify-between pb-2 w-full">
@@ -141,13 +158,18 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
             animation: 'overlay-in var(--duration-fast) linear',
           }}
         />
+        {/* Centring on the wrapper, not on a transform — `panel-in` ends at
+            `transform: none` and the reduced-motion block forces it with
+            `!important`, either of which cancels translate-based centring.
+            See `ProvisionWorkspaceDialog` for the full account. */}
+        <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
         <Dialog.Content
-          className="surface-glass-strong fixed top-1/2 left-1/2 z-[150] w-[880px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[32px]"
+          className="surface-glass-strong pointer-events-auto w-[880px] max-w-[92vw] overflow-hidden rounded-[32px]"
           style={{ animation: 'panel-in var(--duration-base) var(--ease-out)', border: '1px solid color-mix(in srgb, var(--border-subtle) 50%, transparent)' }}
         >
           <div className="flex items-center justify-between px-8 pt-8 pb-4">
             <div>
-              <p className="text-[11px] font-semibold tracking-[0.1em] uppercase mb-2" style={{ color: 'var(--text-tertiary)' }}>
+              <p className="text-[11px] font-medium tracking-[0.1em] uppercase mb-2" style={{ color: 'var(--text-tertiary)' }}>
                 Plan Headroom Details
               </p>
               <Dialog.Title asChild>
@@ -169,18 +191,18 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
           </div>
 
           <div className="px-8 pb-8 pt-2">
-            <div className="grid w-full rounded-[24px] p-6 mb-8" style={{ background: 'var(--surface-raised)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,1)' }}>
+            <div className="grid w-full rounded-[24px] p-6 mb-8" style={{ background: 'var(--surface-raised)', boxShadow: 'var(--shadow-lg), var(--glass-highlight)' }}>
               {plan.rows.map((row) => (
-                <Row key={row.key} row={row} />
+                <Row key={row.key} row={row} editablePlan={plan.name} />
               ))}
             </div>
 
             {plan.workspaces && plan.workspaces.length > 0 && (
               <div className="mb-8">
-                <h4 className="text-[11px] font-semibold tracking-[0.1em] uppercase mb-4" style={{ color: 'var(--text-tertiary)' }}>Assigned Workspaces</h4>
+                <h4 className="text-[11px] font-medium tracking-[0.1em] uppercase mb-4" style={{ color: 'var(--text-tertiary)' }}>Assigned Workspaces</h4>
                 <div className="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--border-subtle) transparent' }}>
                   {plan.workspaces.map((ws, i) => (
-                    <div key={i} className="flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition-colors hover:bg-black/5 cursor-default" style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)', border: '1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent)' }}>
+                    <div key={i} className="flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition-colors hover:bg-[var(--surface-inset)] cursor-default" style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)', border: '1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent)' }}>
                       {ws.name}
                     </div>
                   ))}
@@ -190,33 +212,43 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
 
             <div className="flex items-center justify-between border-t pt-6" style={{ borderColor: 'color-mix(in srgb, var(--border-subtle) 50%, transparent)' }}>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--surface-raised)', boxShadow: '0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--surface-raised)', boxShadow: 'var(--shadow-sm), var(--glass-highlight)' }}>
                   <IconInfoCircle size={20} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
                 </div>
                 <p className="text-[13px] leading-relaxed max-w-[32ch]" style={{ color: 'var(--text-secondary)' }}>
                   Median usage provides the typical footprint. The max line shows the absolute ceiling.
                 </p>
+                {/*
+                  ⚠ THE SENTENCE STAYS; THE DEAD BUTTON DOES NOT.
+
+                  "Manage limits" was disabled with this paragraph beside it, and
+                  the paragraph is correct — a limit belongs to the PLAN, and a
+                  ceiling for one customer is an override on that workspace. What
+                  it never justified was the platform owner being unable to
+                  change his own price list. It now reads as what it always was:
+                  which of the two things the control does, and where the other
+                  one lives.
+                */}
+                <p
+                  className="mt-3 text-[12px] leading-relaxed max-w-[36ch]"
+                  style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+                >
+                  A limit is a property of the plan, so changing one changes what every workspace on
+                  it is entitled to &mdash; the dialog counts them first. To lift a ceiling for a
+                  single customer instead, grant an override on that workspace.
+                </p>
               </div>
               <div className="flex items-center gap-3">
                 <Dialog.Close asChild>
-                  <button type="button" className="t-compact h-10 px-5 rounded-full transition-colors hover:bg-black/5" style={{ color: 'var(--text-secondary)' }}>
+                  <button type="button" className="t-compact h-10 px-5 rounded-full transition-colors hover:bg-[var(--surface-inset)]" style={{ color: 'var(--text-secondary)' }}>
                     Close
                   </button>
                 </Dialog.Close>
-                <button
-                  type="button"
-                  disabled
-                  title="Plan limits are configured centrally."
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-full px-5 text-[13px] font-medium transition-all whitespace-nowrap"
-                  style={{ background: 'var(--blue-500)', color: '#ffffff', opacity: 0.5, cursor: 'not-allowed' }}
-                >
-                  <IconSettings size={16} stroke={1.5} />
-                  Manage limits
-                </button>
               </div>
             </div>
           </div>
         </Dialog.Content>
+        </div>
       </Dialog.Portal>
     </Dialog.Root>
   );

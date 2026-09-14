@@ -105,7 +105,7 @@ export function ConsoleMobileNav({
         <div
           className="pointer-events-auto relative flex h-[62px] w-full max-w-[360px] items-center rounded-full px-1.5 select-none"
           style={{
-            background: 'linear-gradient(180deg, #131c3e 0%, #080d1e 100%)',
+            background: 'linear-gradient(180deg, var(--chrome-bg-navy) 0%, var(--chrome-bg-base) 100%)',
             border: '1px solid rgba(255, 255, 255, 0.10)',
             boxShadow:
               '0 16px 32px -8px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.07)',
@@ -131,13 +131,13 @@ export function ConsoleMobileNav({
                 /* Raised just past the capsule's top edge. Far enough to read
                    as elevated, not so far that it detaches from the bar. */
                 transform: 'translateY(-15px)',
-                background: 'linear-gradient(180deg, #2f6bff 0%, #1b4fe0 100%)',
+                background: 'linear-gradient(180deg, var(--blue-400) 0%, var(--blue-500) 100%)',
                 /* ⚠ THE RING IS THE WHOLE TRICK. Matching the capsule's top
                    colour makes the circle look seated in it, which is what
                    the old concave path was trying to fake by cutting a hole.
                    Where the circle rises above the bar the ring reads as a
                    deliberate dark outline — exactly the reference. */
-                border: '4px solid #131c3e',
+                border: '4px solid var(--chrome-bg-navy)',
                 boxShadow:
                   '0 8px 18px -4px rgba(27, 79, 224, 0.65), inset 0 1.5px 1px rgba(255, 255, 255, 0.28)',
               }}
@@ -151,7 +151,7 @@ export function ConsoleMobileNav({
               aria-hidden
               className="absolute bottom-[11px] size-[3.5px] rounded-full transition-all duration-200"
               style={{
-                background: isPaletteOpen ? '#38bdf8' : 'transparent',
+                background: isPaletteOpen ? 'var(--chrome-action)' : 'transparent',
                 boxShadow: isPaletteOpen ? '0 0 6px 0.5px rgba(56, 189, 248, 0.8)' : 'none',
               }}
             />
@@ -184,7 +184,7 @@ export function ConsoleMobileNav({
             aria-describedby={undefined}
             className="fixed inset-x-0 bottom-0 z-50 flex max-h-[86dvh] flex-col rounded-t-2xl md:hidden"
             style={{
-              background: '#0a1024',
+              background: 'var(--chrome-bg-raised)',
               borderTop: '1px solid rgba(255, 255, 255, 0.12)',
               color: 'var(--chrome-fg)',
               paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
@@ -199,7 +199,7 @@ export function ConsoleMobileNav({
           >
             {/* Sheet Handle */}
             <div className="flex justify-center pt-3 pb-1">
-              <div className="h-1 w-10 rounded-full bg-white/20" />
+              <div className="h-1 w-10 rounded-full bg-[var(--chrome-rule-strong)]" />
             </div>
 
             <div className="flex items-center justify-between px-4 py-2">
@@ -211,7 +211,7 @@ export function ConsoleMobileNav({
               </Dialog.Title>
               <Dialog.Close
                 aria-label="Close menu"
-                className="grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-white/10"
+                className="grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-active-bg)]"
                 style={{ color: 'var(--chrome-fg-muted)' }}
               >
                 <IconX size={18} stroke={1.5} />
@@ -239,7 +239,7 @@ export function ConsoleMobileNav({
                           className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors"
                           style={{
                             background: active ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-                            color: active ? '#ffffff' : 'var(--chrome-fg-muted)',
+                            color: active ? 'var(--chrome-fg)' : 'var(--chrome-fg-muted)',
                           }}
                         >
                           <Icon size={18} stroke={active ? 2.0 : 1.5} aria-hidden />
@@ -249,7 +249,7 @@ export function ConsoleMobileNav({
                               className="rounded-full px-2 py-0.5 font-mono text-[length:var(--text-xs)] font-medium"
                               style={{
                                 background: 'rgba(255, 255, 255, 0.12)',
-                                color: '#ffffff',
+                                color: 'var(--chrome-fg)',
                               }}
                             >
                               {item.badge}
@@ -293,7 +293,7 @@ export function ConsoleMobileNav({
 
               <Link
                 href="/"
-                className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-white/5"
+                className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-[var(--chrome-hover)]"
                 style={{ color: 'var(--chrome-fg-muted)' }}
               >
                 <IconArrowUpRight size={18} stroke={1.5} aria-hidden />
@@ -318,7 +318,7 @@ export function ConsoleMobileNav({
 
                 <Link
                   href="/platform/profile"
-                  className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-white/5"
+                  className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-[var(--chrome-hover)]"
                   style={{ color: 'var(--chrome-fg-muted)' }}
                 >
                   <IconUser size={18} stroke={1.5} aria-hidden />
@@ -367,7 +367,7 @@ function MobileTab({
           stroke={active ? 2.0 : 1.6}
           className="transition-all duration-200"
           style={{
-            color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
+            color: active ? 'var(--chrome-fg)' : 'var(--chrome-fg-muted)',
             transform: active ? 'scale(1.05)' : 'scale(1)',
           }}
           aria-hidden
@@ -378,7 +378,7 @@ function MobileTab({
       <span
         className="size-[3.5px] rounded-full transition-all duration-200"
         style={{
-          background: active ? '#38bdf8' : 'transparent',
+          background: active ? 'var(--chrome-action)' : 'transparent',
           boxShadow: active ? '0 0 6px 0.5px rgba(56, 189, 248, 0.8)' : 'none',
         }}
         aria-hidden
@@ -413,7 +413,7 @@ function MenuButton({
           stroke={isActive ? 2.0 : 1.6}
           className="transition-all duration-200"
           style={{
-            color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
+            color: isActive ? 'var(--chrome-fg)' : 'var(--chrome-fg-muted)',
             transform: isActive ? 'scale(1.05)' : 'scale(1)',
           }}
           aria-hidden
@@ -423,7 +423,7 @@ function MenuButton({
             aria-hidden
             className="absolute -top-0.5 -right-1 size-[5px] rounded-full"
             style={{
-              background: 'var(--accent-mark, #fa5505)',
+              background: 'var(--accent-mark)',
               boxShadow: '0 0 4px rgba(250, 85, 5, 0.6)',
             }}
           />
@@ -434,7 +434,7 @@ function MenuButton({
       <span
         className="size-[3.5px] rounded-full transition-all duration-200"
         style={{
-          background: isActive ? '#38bdf8' : 'transparent',
+          background: isActive ? 'var(--chrome-action)' : 'transparent',
           boxShadow: isActive ? '0 0 6px 0.5px rgba(56, 189, 248, 0.8)' : 'none',
         }}
         aria-hidden

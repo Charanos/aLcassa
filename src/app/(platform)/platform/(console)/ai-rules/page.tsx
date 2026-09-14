@@ -112,10 +112,11 @@ export default async function AiRulesPage() {
           versionNumber={doc.versionNumber}
           status={doc.status}
           savedAt={doc.savedAt}
+          workspaceCount={doc.workspaceCount}
         />
 
         <div className="sticky top-8 grid gap-4 self-start">
-          <VersionRail versions={doc.versions} />
+          <VersionRail versions={doc.versions} workspaceCount={doc.workspaceCount} />
           <InheritancePanel doc={doc} />
         </div>
       </div>

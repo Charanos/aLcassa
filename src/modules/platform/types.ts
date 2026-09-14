@@ -65,6 +65,27 @@ export const provisionTenantSchema = z.object({
   ownerName: z.string().min(1, 'A name is required.').max(120),
   /** `trial` is the entry state — 01 D-13 confirmed there is no free plan. */
   initialStatus: z.enum(['trial', 'active']).default('trial'),
+  /**
+   * The plan the workspace starts on, by `plans.code`.
+   *
+   * ⚠ THIS FIELD DID NOT EXIST, AND ITS ABSENCE IS WHY PROVISIONING NEVER
+   *   WORKED. The modal asked the operator to choose a plan, the action
+   *   dropped it on the floor, and `provisionTenant` inserted a tenant, its
+   *   settings, the owner profile and the membership — and no subscription
+   *   row. A workspace came out of it with no plan, therefore no entitlements,
+   *   therefore no seat ceiling, showing "—" on every plan column in the
+   *   console.
+   *
+   * The modal was promising otherwise in writing, in step 2 of its own list:
+   * "Plan entitlements resolved and snapshotted onto the workspace." Nothing
+   * resolved anything.
+   *
+   * It is a CODE rather than an id because that is what the operator's screen
+   * knows and what the seed, the fixtures and `portfolio.ts` all speak. The
+   * service resolves it to a row and refuses if there is no match, which is
+   * also the check that would have caught `growth`.
+   */
+  planCode: z.string().min(1, 'Choose a plan.'),
 });
 
 export type ProvisionTenantInput = z.infer<typeof provisionTenantSchema>;
@@ -73,7 +94,12 @@ export type ProvisionTenantResult =
   | { ok: true; tenantId: string; slug: string; ownerUserId: string }
   | {
       ok: false;
-      code: 'slug_taken' | 'owner_exists' | 'validation_failed' | 'provisioning_failed';
+      code:
+        | 'slug_taken'
+        | 'owner_exists'
+        | 'unknown_plan'
+        | 'validation_failed'
+        | 'provisioning_failed';
       message: string;
       details?: Array<{ field: string; message: string }>;
     };

@@ -63,7 +63,7 @@ export function BlastRadiusDialog({ change }: { change: PlansModel['pendingChang
         <button
           type="button"
           className="t-compact h-8 shrink-0 rounded-panel px-3.5 whitespace-nowrap"
-          style={{ background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
+          style={{ background: 'var(--blue-500)', color: 'var(--text-inverse)', fontWeight: 500 }}
         >
           Save changes
         </button>
@@ -77,8 +77,13 @@ export function BlastRadiusDialog({ change }: { change: PlansModel['pendingChang
             animation: 'overlay-in var(--duration-fast) linear',
           }}
         />
+        {/* Centring on the wrapper, not on a transform. `panel-in` ends at
+            `transform: none`, and the reduced-motion rule forces it with
+            `!important` — either cancels translate-based centring, the second
+            one permanently. See `ProvisionWorkspaceDialog`. */}
+        <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
         <Dialog.Content
-          className="surface-glass-strong fixed top-1/2 left-1/2 z-[150] w-[560px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-overlay"
+          className="surface-glass-strong pointer-events-auto w-[560px] max-w-[92vw] overflow-hidden rounded-overlay"
           style={{ animation: 'panel-in var(--duration-base) var(--ease-out)' }}
         >
           <div className="p-6">
@@ -194,7 +199,7 @@ export function BlastRadiusDialog({ change }: { change: PlansModel['pendingChang
                 height: 36,
                 border: 'none',
                 background: 'var(--blue-500)',
-                color: '#ffffff',
+                color: 'var(--text-inverse)',
                 fontWeight: 500,
                 opacity: pending ? 0.7 : 1,
               }}
@@ -203,6 +208,7 @@ export function BlastRadiusDialog({ change }: { change: PlansModel['pendingChang
             </button>
           </div>
         </Dialog.Content>
+        </div>
       </Dialog.Portal>
     </Dialog.Root>
   );

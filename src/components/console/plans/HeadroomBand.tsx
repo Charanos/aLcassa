@@ -67,10 +67,10 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
         className="mt-6 flex flex-col gap-2 rounded-[24px] p-5 sm:flex-row sm:items-center sm:gap-6"
         style={{
           background: 'var(--surface-sunken)',
-          boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+          boxShadow: 'var(--neu-inset)',
         }}
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--surface-raised)', boxShadow: '0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--surface-raised)', boxShadow: 'var(--shadow-sm), var(--glass-highlight)' }}>
           <IconInfoCircle size={20} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
         </div>
         <div className="flex-1">

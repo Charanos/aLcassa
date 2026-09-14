@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1440px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap;">
+    <div style="flex: 1 1 auto; min-width: max-content;">
+      <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">/platform/tenants</p>
+      <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Workspaces</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; flex: 0 0 auto;">
+      <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
+        Export
+      </button>
+      <button type="button" onClick="{{ goProvision }}" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: var(--blue-600);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+        Provision workspace
+      </button>
+    </div>
+  </div>
+
+  <div style="margin-top: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+    <span style="display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 4px 0 11px; border: 1px dashed var(--border-strong); border-radius: 9999px; background: var(--surface-sunken); max-width: 100%; flex-wrap: wrap;">
+      <span style="font: 500 10px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); white-space: nowrap; flex: 0 0 auto;">State</span>
+      <sc-for list="{{ stateTabs }}" as="t" hint-placeholder-count="5">
+        <button type="button" onClick="{{ t.pick }}" title="{{ t.title }}" style="height: 22px; padding: 0 9px; flex: 0 0 auto; border: none; border-radius: 9999px; background: {{ t.bg }}; color: {{ t.fg }}; font: {{ t.font }}; white-space: nowrap;">{{ t.label }}</button>
+      </sc-for>
+    </span>
+    <span style="font: 400 11.5px/1.4 var(--font-ui); color: var(--text-tertiary); white-space: nowrap;">Design review only · not shipped chrome</span>
+  </div>
+
+  <div style="margin-top: 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: var(--glass-highlight), var(--shadow-sm);">
+    <label style="display: flex; align-items: center; gap: 9px; flex: 1 1 280px; max-width: 380px; height: 34px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary); flex: 0 0 auto;" aria-hidden="true"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+      <input type="text" value="{{ query }}" onInput="{{ onQuery }}" placeholder="Name or slug" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: 400 13px/1 var(--font-ui); color: var(--text-primary);" />
+      <kbd style="font: 500 11px/1 var(--font-mono); color: var(--text-tertiary);">/</kbd>
+    </label>
+
+    <div style="display: flex; align-items: center; gap: 6px; padding-left: 4px;">
+      <span style="font: 500 11px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-right: 2px;">Status</span>
+      <sc-for list="{{ statusChips }}" as="chip" hint-placeholder-count="5">
+        <button type="button" onClick="{{ chip.toggle }}" style="display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid {{ chip.border }}; border-radius: 9999px; background: {{ chip.bg }}; color: {{ chip.fg }}; font: 400 12.5px/1 var(--font-ui);" style-hover="border-color: var(--border-strong);">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ chip.dot }};"></span>
+          {{ chip.label }}
+        </button>
+      </sc-for>
+    </div>
+
+    <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 11px; border: 1px solid var(--border-subtle); border-radius: 9999px; background: var(--surface-raised); color: var(--text-secondary); font: 400 12.5px/1 var(--font-ui);" style-hover="border-color: var(--border-strong);">
+      Plan
+      <span style="font: 500 11px/1 var(--font-mono); color: var(--text-tertiary);">all</span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6l6 -6" /></svg>
+    </button>
+
+    <button type="button" onClick="{{ toggleAttention }}" style="display: inline-flex; align-items: center; gap: 9px; height: 28px; padding: 0 4px 0 11px; border: 1px solid {{ attnBorder }}; border-radius: 9999px; background: {{ attnBg }}; color: {{ attnFg }}; font: 400 12.5px/1 var(--font-ui);">
+      Needs attention
+      <span style="display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 9999px; background: var(--accent-mark); color: #ffffff; font: 500 11px/1 var(--font-mono); font-variant-numeric: tabular-nums;">3</span>
+    </button>
+
+    <span style="margin-left: auto; display: flex; align-items: center; gap: 14px;">
+      <span style="font: 400 12.5px/1 var(--font-ui); color: var(--text-secondary);"><em style="font: 400 12.5px/1 var(--font-mono); color: var(--text-primary);">{{ count }}</em> of 47</span>
+      <span style="width: 1px; height: 18px; background: var(--border-subtle);"></span>
+      <button type="button" style="display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 10px; border: none; border-radius: 7px; background: transparent; color: var(--text-secondary); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M4 6l8 0" /><path d="M16 6l4 0" /><path d="M6 12a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M4 12l2 0" /><path d="M10 12l10 0" /><path d="M15 18a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M4 18l11 0" /><path d="M19 18l1 0" /></svg>
+        Last activity
+      </button>
+    </span>
+  </div>
+
+  <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+    <div style="margin-top: 16px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="height: 36px; background: var(--surface-sunken); border-bottom: 1px solid var(--border-subtle);"></div>
+      <x-import component-from-global-scope="Skeleton" from="./states.jsx" rows="{{ 9 }}" cols="{{ skeletonCols }}" hint-size="100%,400px"></x-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isFirstRun }}" hint-placeholder-val="{{ false }}">
+    <div style="margin-top: 16px;">
+      <x-import component-from-global-scope="EmptyFirstRun" from="./states.jsx" action-label="Provision the first workspace" on-action="{{ goProvision }}" secondary-label="Read the provisioning guide" hint-size="100%,320px"></x-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+    <div style="margin-top: 16px;">
+      <x-import component-from-global-scope="ErrorState" from="./states.jsx" on-retry="{{ retry }}" hint-size="100%,300px"></x-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isTable }}" hint-placeholder-val="{{ true }}">
+  <div style="margin-top: 16px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+      <colgroup>
+        <col style="width: 27%;" />
+        <col style="width: 8%;" />
+        <col style="width: 11%;" />
+        <col style="width: 13%;" />
+        <col style="width: 15%;" />
+        <col style="width: 11%;" />
+        <col style="width: 9%;" />
+        <col style="width: 6%;" />
+      </colgroup>
+      <thead>
+        <tr style="background: var(--surface-sunken);">
+          <th style="text-align: left; padding: 0 16px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Workspace</th>
+          <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Plan</th>
+          <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Status</th>
+          <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Seats</th>
+          <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Events this month</th>
+          <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Last activity</th>
+          <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Created</th>
+          <th style="border-bottom: 1px solid var(--border-subtle);"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <sc-for list="{{ rows }}" as="row" hint-placeholder-count="12">
+          <tr onMouseEnter="{{ row.enter }}" onMouseLeave="{{ row.leave }}" onClick="{{ row.open }}" style="height: var(--row-h); cursor: pointer; background: {{ row.bg }}; border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 0 16px; overflow: hidden;">
+              <span style="display: block; font: 400 13px/1.35 var(--font-ui); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ row.name }}</span>
+              <span style="display: block; font: 400 11px/1.35 var(--font-mono); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ row.slug }}</span>
+            </td>
+            <td style="padding: 0 8px;">
+              <span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-secondary);">{{ row.plan }}</span>
+            </td>
+            <td style="padding: 0 8px;">
+              <span style="display: inline-flex; align-items: center; gap: 7px;">
+                <span style="width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: {{ row.statusDot }};"></span>
+                <span style="font: 400 12.5px/1 var(--font-mono); color: {{ row.statusInk }};">{{ row.status }}</span>
+              </span>
+            </td>
+            <td style="padding: 0 8px;">
+              <span style="display: block; font: 400 12.5px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">{{ row.seats }}</span>
+              <span style="display: block; width: 100%; max-width: 84px; height: 2px; margin-top: 5px; border-radius: 2px; background: var(--surface-inset); overflow: hidden;">
+                <span style="display: block; height: 100%; width: {{ row.seatPct }}; background: {{ row.seatInk }};"></span>
+              </span>
+            </td>
+            <td style="padding: 0 8px;">
+              <span style="display: block; font: 400 12.5px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">{{ row.events }}</span>
+              <span style="display: block; width: 100%; max-width: 110px; height: 2px; margin-top: 5px; border-radius: 2px; background: var(--surface-inset); overflow: hidden;">
+                <span style="display: block; height: 100%; width: {{ row.eventPct }}; background: {{ row.eventInk }};"></span>
+              </span>
+            </td>
+            <td style="padding: 0 8px;">
+              <span style="font: 400 12.5px/1 var(--font-mono); color: {{ row.activityInk }};">{{ row.activity }}</span>
+            </td>
+            <td style="padding: 0 8px;">
+              <span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-tertiary);">{{ row.created }}</span>
+            </td>
+            <td style="padding: 0 12px 0 0; text-align: right;">
+              <span style="display: inline-flex; align-items: center; gap: 2px; opacity: {{ row.actionOpacity }}; transition: opacity 120ms cubic-bezier(0.2, 0, 0, 1);">
+                <button type="button" onClick="{{ row.session }}" title="Start support session" style="display: grid; place-items: center; width: 28px; height: 28px; border: none; border-radius: 7px; background: transparent; color: var(--text-secondary);" style-hover="background: var(--surface-inset); color: var(--text-action);">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
+                </button>
+                <button type="button" onClick="{{ row.menu }}" title="More" style="display: grid; place-items: center; width: 28px; height: 28px; border: none; border-radius: 7px; background: transparent; color: var(--text-secondary);" style-hover="background: var(--surface-inset); color: var(--text-primary);">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
+                </button>
+              </span>
+            </td>
+          </tr>
+        </sc-for>
+      </tbody>
+    </table>
+
+    <sc-if value="{{ isFiltered }}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 16px;">
+        <x-import component-from-global-scope="EmptyFiltered" from="./states.jsx" filters="{{ activeFilters }}" total="{{ 47 }}" on-clear="{{ clearFilters }}" hint-size="100%,280px"></x-import>
+      </div>
+    </sc-if>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; background: var(--surface-sunken); border-top: 1px solid var(--border-subtle);">
+      <span style="font: 400 12.5px/1 var(--font-ui); color: var(--text-secondary);">Showing <em style="font: 400 12.5px/1 var(--font-mono); color: var(--text-primary);">1–12</em> of <em style="font: 400 12.5px/1 var(--font-mono); color: var(--text-primary);">47</em></span>
+      <span style="display: flex; align-items: center; gap: 4px;">
+        <button type="button" style="display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-raised); color: var(--text-disabled);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6" /></svg></button>
+        <button type="button" style="display: grid; place-items: center; min-width: 30px; height: 30px; padding: 0 8px; border: 1px solid var(--blue-500); border-radius: 7px; background: var(--blue-50); color: var(--blue-600); font: 500 12.5px/1 var(--font-mono);">1</button>
+        <button type="button" style="display: grid; place-items: center; min-width: 30px; height: 30px; padding: 0 8px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-raised); color: var(--text-secondary); font: 400 12.5px/1 var(--font-mono);" style-hover="background: var(--surface-inset);">2</button>
+        <button type="button" style="display: grid; place-items: center; min-width: 30px; height: 30px; padding: 0 8px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-raised); color: var(--text-secondary); font: 400 12.5px/1 var(--font-mono);" style-hover="background: var(--surface-inset);">3</button>
+        <button type="button" style="display: grid; place-items: center; min-width: 30px; height: 30px; padding: 0 8px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-raised); color: var(--text-secondary); font: 400 12.5px/1 var(--font-mono);" style-hover="background: var(--surface-inset);">4</button>
+        <button type="button" style="display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-raised); color: var(--text-secondary);" style-hover="background: var(--surface-inset);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6" /></svg></button>
+      </span>
+    </div>
+  </div>
+  </sc-if>
+
+  <p style="margin: 14px 2px 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary); max-width: 82ch;">Usage renders as a number and a hairline. Forty rows of bar charts is a texture, not a reading. The meter turns amber at 90% of the resolved limit, which is the same threshold Overview uses to raise a workspace into Needs attention.</p>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}, &quot;startSession&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(tenantName: string) =&gt; void&quot;}}">
+const ROWS = [
+  { name: 'Kilimanjaro Logistics Group Ltd', slug: 'kilimanjaro-logistics', plan: 'Scale', status: 'past due', seatsUsed: 247, seatsLimit: 300, events: 412880, eventsLimit: 500000, activity: '4 min ago', created: '12 Mar 2025' },
+  { name: 'Sarova Hospitality Collection', slug: 'sarova-hospitality', plan: 'Growth', status: 'active', seatsUsed: 88, seatsLimit: 100, events: 235104, eventsLimit: 250000, activity: '11 min ago', created: '02 Nov 2024' },
+  { name: 'Northwind Traders East Africa', slug: 'northwind-ea', plan: 'Growth', status: 'active', seatsUsed: 42, seatsLimit: 100, events: 98220, eventsLimit: 250000, activity: '38 min ago', created: '19 Jan 2025' },
+  { name: 'Peridot Health Clinics', slug: 'peridot-health', plan: '—', status: 'trial', seatsUsed: 6, seatsLimit: 10, events: 4180, eventsLimit: 25000, activity: '2 hours ago', created: '27 Jul 2026' },
+  { name: 'Tamarind Bay Resorts', slug: 'tamarind-bay', plan: 'Starter', status: 'active', seatsUsed: 9, seatsLimit: 25, events: 21044, eventsLimit: 50000, activity: '3 hours ago', created: '08 Aug 2026' },
+  { name: 'Mombasa Freight Union', slug: 'mombasa-freight', plan: 'Growth', status: 'suspended', seatsUsed: 61, seatsLimit: 100, events: 0, eventsLimit: 250000, activity: '14 days ago', created: '30 Sep 2024' },
+  { name: 'Aurora Dental Group', slug: 'aurora-dental', plan: 'Starter', status: 'active', seatsUsed: 14, seatsLimit: 25, events: 33902, eventsLimit: 50000, activity: '5 hours ago', created: '21 Feb 2025' },
+  { name: 'Bluewave Telecom Kenya', slug: 'bluewave-telecom', plan: 'Scale', status: 'active', seatsUsed: 184, seatsLimit: 300, events: 288416, eventsLimit: 500000, activity: '26 min ago', created: '14 Jun 2024' },
+  { name: 'Highfield Insurance Brokers', slug: 'highfield-insurance', plan: 'Growth', status: 'active', seatsUsed: 55, seatsLimit: 100, events: 140388, eventsLimit: 250000, activity: '1 hour ago', created: '05 Dec 2024' },
+  { name: 'Nyali Property Partners', slug: 'nyali-property', plan: 'Starter', status: 'active', seatsUsed: 4, seatsLimit: 25, events: 6720, eventsLimit: 50000, activity: '9 days ago', created: '17 Apr 2025' },
+  { name: 'Serengeti Coffee Traders', slug: 'serengeti-coffee', plan: 'Growth', status: 'active', seatsUsed: 37, seatsLimit: 100, events: 76540, eventsLimit: 250000, activity: '2 hours ago', created: '11 Oct 2024' },
+  { name: 'Lakeside Motors Ltd', slug: 'lakeside-motors', plan: 'Starter', status: 'pending', seatsUsed: 0, seatsLimit: 25, events: 0, eventsLimit: 50000, activity: 'never', created: '09 Aug 2026' }
+];
+
+const STATUS = {
+  active: { dot: 'var(--success-fg)', ink: 'var(--text-primary)' },
+  trial: { dot: 'var(--blue-400)', ink: 'var(--text-primary)' },
+  'past due': { dot: 'var(--danger-fg)', ink: 'var(--danger-fg)' },
+  suspended: { dot: 'var(--ink-400)', ink: 'var(--text-secondary)' },
+  pending: { dot: 'var(--warning-fg)', ink: 'var(--text-secondary)' }
+};
+
+const CHIPS = ['active', 'trial', 'past due', 'suspended', 'pending'];
+
+function group(n) {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function meterInk(pct) {
+  if (pct >= 1) return 'var(--danger-fg)';
+  if (pct >= 0.9) return 'var(--warning-fg)';
+  return 'var(--blue-400)';
+}
+
+const STATES = [
+  { key: 'ready', label: 'Populated', title: 'The normal case' },
+  { key: 'loading', label: 'Loading', title: 'Skeleton matched to the real column widths' },
+  { key: 'first', label: 'First run', title: 'No workspace has ever been provisioned' },
+  { key: 'filtered', label: 'Filtered', title: 'Records exist; the filter hides them all' },
+  { key: 'error', label: 'Error', title: 'The request failed' }
+];
+
+class Component extends DCLogic {
+  state = { hovered: -1, query: '', attention: false, statuses: [], view: 'ready' };
+
+  renderVals() {
+    const go = this.props.go || (() => {});
+    const startSession = this.props.startSession || (() => {});
+    const s = this.state;
+    const q = s.query.trim().toLowerCase();
+
+    const filtered = ROWS.filter((r) => {
+      if (q && !(r.name.toLowerCase().includes(q) || r.slug.includes(q))) return false;
+      if (s.statuses.length && !s.statuses.includes(r.status)) return false;
+      if (s.attention && !(r.status === 'past due' || r.status === 'suspended' || r.events / r.eventsLimit >= 0.9)) return false;
+      return true;
+    });
+
+    /* The filtered-empty state is real, not a demo: it shows whenever the
+       live filter set excludes every row. The switcher can also force it. */
+    const emptyByFilter = filtered.length === 0 && s.view === 'ready';
+    const view = emptyByFilter ? 'filtered' : s.view;
+
+    const activeFilters = []
+      .concat(s.query.trim() ? ['search: ' + s.query.trim()] : [])
+      .concat(s.statuses.map((x) => 'status: ' + x))
+      .concat(s.attention ? ['needs attention'] : []);
+
+    return {
+      query: s.query,
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      count: filtered.length,
+
+      stateTabs: STATES.map((t) => {
+        const on = s.view === t.key;
+        return {
+          label: t.label,
+          title: t.title,
+          bg: on ? 'var(--surface-raised)' : 'transparent',
+          fg: on ? 'var(--text-primary)' : 'var(--text-tertiary)',
+          font: (on ? '500' : '400') + ' 11.5px/1 var(--font-ui)',
+          pick: () => this.setState({ view: t.key })
+        };
+      }),
+
+      isLoading: view === 'loading',
+      isFirstRun: view === 'first',
+      isError: view === 'error',
+      isFiltered: view === 'filtered',
+      isTable: view === 'ready' || view === 'filtered',
+      skeletonCols: [3, 1, 1.2, 1.4, 1.6, 1.2, 1, 0.6],
+      activeFilters: activeFilters.length ? activeFilters : ['status: suspended', 'plan: Scale'],
+      clearFilters: () => this.setState({ query: '', statuses: [], attention: false, view: 'ready' }),
+      retry: () => this.setState({ view: 'loading', hovered: -1 }),
+
+      statusChips: CHIPS.map((label) => {
+        const on = s.statuses.includes(label);
+        return {
+          label,
+          dot: STATUS[label].dot,
+          bg: on ? 'var(--blue-50)' : 'var(--surface-raised)',
+          border: on ? 'var(--blue-500)' : 'var(--border-subtle)',
+          fg: on ? 'var(--blue-600)' : 'var(--text-secondary)',
+          toggle: () => this.setState((p) => ({
+            statuses: p.statuses.includes(label) ? p.statuses.filter((x) => x !== label) : p.statuses.concat(label)
+          }))
+        };
+      }),
+
+      attnBg: s.attention ? 'var(--blue-50)' : 'var(--surface-raised)',
+      attnBorder: s.attention ? 'var(--blue-500)' : 'var(--border-subtle)',
+      attnFg: s.attention ? 'var(--blue-600)' : 'var(--text-secondary)',
+      toggleAttention: () => this.setState((p) => ({ attention: !p.attention })),
+
+      goProvision: () => go('provision'),
+
+      rows: (view === 'filtered' ? [] : filtered).map((r, i) => {
+        const seatPct = r.seatsUsed / r.seatsLimit;
+        const eventPct = r.events / r.eventsLimit;
+        const hovered = s.hovered === i;
+        return {
+          name: r.name,
+          slug: r.slug,
+          plan: r.plan,
+          status: r.status,
+          statusDot: STATUS[r.status].dot,
+          statusInk: STATUS[r.status].ink,
+          seats: r.seatsUsed + ' / ' + r.seatsLimit,
+          seatPct: Math.round(seatPct * 100) + '%',
+          seatInk: meterInk(seatPct),
+          events: group(r.events) + ' / ' + group(r.eventsLimit),
+          eventPct: Math.round(eventPct * 100) + '%',
+          eventInk: meterInk(eventPct),
+          activity: r.activity,
+          activityInk: r.activity === 'never' || r.activity.includes('day') ? 'var(--text-tertiary)' : 'var(--text-secondary)',
+          created: r.created,
+          bg: hovered ? 'var(--surface-sunken)' : 'transparent',
+          actionOpacity: hovered ? 1 : 0,
+          enter: () => this.setState({ hovered: i }),
+          leave: () => this.setState({ hovered: -1 }),
+          open: () => go('detail'),
+          session: (e) => { e.stopPropagation(); startSession(r.name); },
+          menu: (e) => e.stopPropagation()
+        };
+      })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

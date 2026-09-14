@@ -110,7 +110,7 @@ export function UnsavedBar({
           />
           <div
             className="absolute -right-12 -bottom-12 h-[140px] w-[140px] rounded-full opacity-[0.15] blur-[40px]"
-            style={{ background: 'var(--indigo-500)' }}
+            style={{ background: 'var(--blue-700)' }}
           />
 
           {/* Minimalist dot matrix overlay */}

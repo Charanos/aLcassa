@@ -15,7 +15,7 @@ export function ProvisionWorkspaceButton() {
         className="group relative inline-flex h-[36px] items-center justify-center gap-2 overflow-hidden rounded-full px-5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(56,182,255,0.3)] focus:outline-none focus:ring-2 focus:ring-[var(--blue-400)] focus:ring-offset-2 focus:ring-offset-[var(--surface-base)]"
         style={{
           background: 'linear-gradient(180deg, var(--blue-500) 0%, var(--blue-600) 100%)',
-          color: '#ffffff',
+          color: 'var(--text-inverse)',
           fontWeight: 600,
           boxShadow: 'inset 0 1px 0px rgba(255,255,255,0.25), 0 2px 10px rgba(56, 182, 255, 0.2)',
           textShadow: '0 1px 2px rgba(0,0,0,0.2)',

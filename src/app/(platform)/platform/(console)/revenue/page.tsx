@@ -10,7 +10,14 @@ import {
   IconUsers,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage, ExportLink, Panel, SectionHeading } from '@/components/console/Surface';
+import {
+  BandLink,
+  ConsoleHeader,
+  ConsolePage,
+  ExportLink,
+  Panel,
+  SectionHeading,
+} from '@/components/console/Surface';
 import { AgeingChart, MrrChart, PlanMixChart } from '@/components/console/Charts';
 import { CollectionQueueTable } from '@/components/console/CollectionQueueTable';
 import { getRevenue, type Kpi } from '@/lib/console/data';
@@ -76,16 +83,16 @@ export default async function RevenuePage() {
       <section
         className="relative mt-8 mb-12 overflow-hidden rounded-[20px] shadow-2xl transition-all duration-300"
         style={{
-          background: '#060913',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--chrome-bg-base)',
+          border: '1px solid var(--chrome-rule-strong)',
           color: 'var(--invert-card-fg)',
-          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.06)',
+          boxShadow: 'var(--shadow-lg), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 6%, transparent)',
         }}
       >
         {/* Premium Ambient Background Art */}
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none" aria-hidden="true">
           <div className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-[0.18] blur-[120px]" style={{ background: 'var(--blue-500)' }} />
-          <div className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]" style={{ background: 'var(--indigo-500)' }} />
+          <div className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]" style={{ background: 'var(--blue-700)' }} />
           
           <svg className="absolute inset-0 h-full w-full opacity-[0.4]" viewBox="0 0 1000 400" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
             <path d="M -100 250 C 200 350 400 50 700 150 S 1100 0 1200 100" stroke="url(#elegant-line-1)" strokeWidth="1.5" />
@@ -105,12 +112,12 @@ export default async function RevenuePage() {
             </defs>
           </svg>
 
-          <div className="absolute inset-0 opacity-[0.25]" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '32px 32px', maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)', WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)' }} />
+          <div className="absolute inset-0 opacity-[0.25]" style={{ backgroundImage: 'radial-gradient(color-mix(in oklab, var(--ink-0) 70%, transparent) 1px, transparent 1px)', backgroundSize: '32px 32px', maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)', WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)' }} />
         </div>
 
         {/* KPI Row (Signal Cards) */}
         <div className="relative z-10 px-8 pb-8 lg:px-12 lg:pb-12">
-          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.15)] to-transparent opacity-60 lg:left-12 lg:right-12" />
+          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-[var(--chrome-rule-strong)] to-transparent opacity-60 lg:left-12 lg:right-12" />
 
           <div className="grid w-full grid-cols-1 gap-6 pt-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 md:gap-8">
             {m.kpis.map((k, i) => {
@@ -122,14 +129,14 @@ export default async function RevenuePage() {
               return (
                 <div
                   key={k.label}
-                  className="group relative flex flex-col justify-between rounded-xl px-5 -m-5 py-3 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] cursor-default"
+                  className="group relative flex flex-col justify-between rounded-xl px-5 -m-5 py-3 transition-all duration-300 hover:bg-[var(--chrome-hover)] hover:shadow-[var(--glass-highlight)] cursor-default"
                 >
                   <div className="pointer-events-none absolute -bottom-6 right-3 z-0 text-[var(--invert-card-fg)] opacity-[0.08] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.14]">
                     <Icon size={120} stroke={1.5} aria-hidden />
                   </div>
 
                   {i < m.kpis.length - 1 && (
-                    <div className="pointer-events-none absolute -right-4 top-1/2 hidden h-16 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[rgba(255,255,255,0.1)] to-transparent xl:block" />
+                    <div className="pointer-events-none absolute -right-4 top-1/2 hidden h-16 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[var(--chrome-rule)] to-transparent xl:block" />
                   )}
 
                   <div className="relative z-10 mb-4 flex items-center justify-between">
@@ -147,9 +154,9 @@ export default async function RevenuePage() {
                       style={{
                         fontSize: '34px',
                         fontWeight: 300,
-                        color: isDanger ? '#fb7185' : 'var(--invert-card-fg)',
+                        color: isDanger ? 'var(--chrome-danger)' : 'var(--invert-card-fg)',
                         lineHeight: 1,
-                        textShadow: isDanger ? '0 4px 16px rgba(251,113,133,0.3)' : '0 4px 16px rgba(0,0,0,0.5)',
+                        textShadow: isDanger ? '0 4px 16px color-mix(in oklab, var(--chrome-danger) 30%, transparent)' : '0 4px 16px color-mix(in oklab, var(--chrome-bg-base) 50%, transparent)',
                         letterSpacing: '-0.03em',
                       }}
                     >
@@ -167,7 +174,7 @@ export default async function RevenuePage() {
                   >
                     <span
                       className="numeric inline-flex items-center gap-0.5 whitespace-nowrap"
-                      style={{ fontSize: 11, color: isPositive ? '#4ade80' : '#f87171' }}
+                      style={{ fontSize: 11, color: isPositive ? 'var(--chrome-success)' : 'var(--chrome-danger)' }}
                     >
                       <Arrow size={12} stroke={2.5} aria-hidden />
                       {k.delta}
@@ -198,11 +205,17 @@ export default async function RevenuePage() {
               <Legend swatch="var(--success-fg)">Net new</Legend>
             </span>
           }
+          footer={<BandLink href="/platform/tenants">The workspaces behind the figure</BandLink>}
         >
           <MrrChart data={m.mrr} />
         </Panel>
 
-        <Panel title="Revenue by plan" flush variant="elevated">
+        <Panel
+          title="Revenue by plan"
+          flush
+          variant="elevated"
+          footer={<BandLink href="/platform/plans">Plans and what they entitle</BandLink>}
+        >
           <div className="px-4 pt-3.5">
             <PlanMixChart data={m.planMix.map((p) => ({ name: p.name, value: p.value }))} />
           </div>
@@ -263,6 +276,26 @@ export default async function RevenuePage() {
               {m.outstanding} outstanding
             </span>
           }
+          /*
+            ⚠ THE LINK CARRIES THE FILTER, WHICH IS THE WHOLE POINT OF IT.
+
+            `BandLink`'s own documentation: "a band is a QUESTION, a
+            visualisation that answers it, and a route to the screen that owns
+            the follow-up. A reader who finishes a band and has nowhere to go
+            has been shown a fact rather than given a handle on it." Every band
+            on this page was a dead end.
+
+            A bare `/platform/tenants` would have been the weak version — this
+            band says some workspaces are behind, and the link would then ask
+            the operator to find them again by hand. `WorkspaceTable` seeds its
+            status chips from this parameter, so the link lands on exactly the
+            rows the chart is about.
+          */
+          footer={
+            <BandLink href="/platform/tenants?status=past+due">
+              The workspaces that are behind
+            </BandLink>
+          }
         >
           <div className="relative min-h-[220px] flex-1">
             <AgeingChart data={m.ageing} />
@@ -292,6 +325,11 @@ export default async function RevenuePage() {
               Phase 1 reports on this queue; it does not charge cards. <em>Retry</em> hands the
               invoice to the finance operator with the failure reason attached.
             </p>
+            <div className="mt-2 -ml-4">
+              <BandLink href="/platform/tenants?attention=1">
+                Every workspace needing attention
+              </BandLink>
+            </div>
           </div>
         </Panel>
       </div>

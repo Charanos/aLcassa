@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1440px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="display: flex; align-items: flex-end; gap: 24px;">
+    <div style="flex: 1; min-width: 0;">
+      <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">/platform/audit</p>
+      <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Audit log</h1>
+      <p style="margin: 8px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 68ch;">Append-only. Every platform mutation writes here in the same transaction that performs it, so an action that is missing from this log did not happen.</p>
+    </div>
+    <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui); white-space: nowrap; flex: 0 0 auto;" style-hover="background: var(--surface-inset);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
+      Export range
+    </button>
+  </div>
+
+  <div style="margin-top: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: var(--glass-highlight), var(--shadow-sm);">
+    <label style="display: flex; align-items: center; gap: 9px; flex: 1 1 260px; max-width: 340px; height: 34px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary); flex: 0 0 auto;" aria-hidden="true"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+      <input type="text" value="{{ query }}" onInput="{{ onQuery }}" placeholder="Action, actor, or target" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: 400 13px/1 var(--font-ui); color: var(--text-primary);" />
+    </label>
+    <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="5">
+      <button type="button" onClick="{{ k.toggle }}" style="display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 11px; border: 1px solid {{ k.border }}; border-radius: 9999px; background: {{ k.bg }}; color: {{ k.fg }}; font: 400 12.5px/1 var(--font-ui); white-space: nowrap;" style-hover="border-color: var(--border-strong);">
+        <span style="display: grid; place-items: center; width: 14px; height: 14px; flex: 0 0 auto;">{{ k.icon }}</span>
+        {{ k.label }}
+      </button>
+    </sc-for>
+    <span style="margin-left: auto; font: 400 12.5px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;"><em style="font: 400 12.5px/1 var(--font-mono); color: var(--text-primary);">{{ count }}</em> entries</span>
+  </div>
+
+  <div style="margin-top: 16px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+    <sc-for list="{{ entries }}" as="e" hint-placeholder-count="10">
+      <div style="border-bottom: 1px solid var(--border-subtle);">
+        <button type="button" onClick="{{ e.toggle }}" style="display: flex; align-items: center; gap: 14px; width: 100%; min-height: 44px; padding: 0 18px; border: none; background: {{ e.bg }}; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-sunken);">
+          <span style="display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 auto; border-radius: 6px; background: {{ e.chipBg }}; color: {{ e.chipInk }};">{{ e.icon }}</span>
+          <span style="font: 400 11.5px/1 var(--font-mono); color: var(--text-tertiary); flex: 0 0 auto; width: 128px;">{{ e.time }}</span>
+          <span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-primary); flex: 0 0 auto; width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ e.action }}</span>
+          <span style="flex: 1; min-width: 0; font: 400 13px/1.4 var(--font-ui); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ e.target }}</span>
+          <span style="display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;">
+            <span style="display: grid; place-items: center; width: 22px; height: 22px; border-radius: 9999px; background: var(--surface-inset); color: var(--text-secondary); font: 500 10px/1 var(--font-mono);">{{ e.initials }}</span>
+            <span style="font: 400 12px/1 var(--font-mono); color: var(--text-tertiary); width: 62px;">{{ e.actor }}</span>
+          </span>
+          <span style="display: grid; place-items: center; width: 18px; height: 18px; flex: 0 0 auto; color: var(--text-tertiary); transform: {{ e.caret }}; transition: transform 120ms cubic-bezier(0.2, 0, 0, 1);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6l6 -6" /></svg>
+          </span>
+        </button>
+
+        <sc-if value="{{ e.open }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 16px 18px 18px 58px; background: var(--surface-sunken); border-top: 1px solid var(--border-subtle);">
+            <div style="display: flex; gap: 28px; flex-wrap: wrap; margin-bottom: 14px;">
+              <span style="font: 400 12px/1.4 var(--font-ui); color: var(--text-secondary);">Request <em style="font: 400 12px/1 var(--font-mono); color: var(--text-primary);">{{ e.requestId }}</em></span>
+              <span style="font: 400 12px/1.4 var(--font-ui); color: var(--text-secondary);">IP <em style="font: 400 12px/1 var(--font-mono); color: var(--text-primary);">{{ e.ip }}</em></span>
+              <span style="font: 400 12px/1.4 var(--font-ui); color: var(--text-secondary);">Workspace <em style="font: 400 12px/1 var(--font-mono); color: var(--text-primary);">{{ e.tenantId }}</em></span>
+            </div>
+            <sc-if value="{{ e.hasDiff }}" hint-placeholder-val="{{ true }}">
+              <div style="border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-raised); overflow: hidden;">
+                <div style="display: grid; grid-template-columns: 200px 1fr 1fr; gap: 0; padding: 8px 14px; background: var(--surface-inset); border-bottom: 1px solid var(--border-subtle);">
+                  <span style="font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary);">Field</span>
+                  <span style="font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary);">Before</span>
+                  <span style="font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary);">After</span>
+                </div>
+                <sc-for list="{{ e.diff }}" as="d" hint-placeholder-count="2">
+                  <div style="display: grid; grid-template-columns: 200px 1fr 1fr; gap: 0; padding: 9px 14px; border-bottom: 1px solid var(--border-subtle);">
+                    <span style="font: 400 12px/1.4 var(--font-mono); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis;">{{ d.field }}</span>
+                    <span style="font: 400 12px/1.4 var(--font-mono); color: {{ d.beforeInk }};">{{ d.before }}</span>
+                    <span style="font: 400 12px/1.4 var(--font-mono); color: {{ d.afterInk }};">{{ d.after }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ e.hasReason }}" hint-placeholder-val="{{ false }}">
+              <p style="margin: 12px 0 0; padding: 11px 14px; border-left: 2px solid var(--accent-mark); background: var(--surface-raised); font: 400 12.5px/1.5 var(--font-ui); color: var(--text-primary);">{{ e.reason }}</p>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+
+    <div style="display: flex; align-items: center; justify-content: center; padding: 14px; background: var(--surface-sunken);">
+      <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">
+        Load older entries
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6l6 -6" /></svg>
+      </button>
+    </div>
+  </div>
+
+  <p style="margin: 14px 2px 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary); max-width: 84ch;">Redacted fields appear as changed without revealing either value. A credential rotation shows that the secret moved; it never shows the secret.</p>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}}">
+const P = {
+  tenant: 'M3 21l18 0|M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16|M9 8h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1',
+  plan: 'M13 5h8|M13 9h5|M13 15h8|M13 19h5|M3 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z',
+  session: 'M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6|M11 13l9 -9|M15 4h5v5',
+  admin: 'M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3',
+  rules: 'M14 3v4a1 1 0 0 0 1 1h4|M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2|M9 13l6 0|M9 17l6 0'
+};
+
+function icon(name, size) {
+  return React.createElement(
+    'svg',
+    { width: size || 15, height: size || 15, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    (P[name] || '').split('|').map((d, i) => React.createElement('path', { key: i, d }))
+  );
+}
+
+const KINDS = [
+  { key: 'tenant', label: 'Workspace' },
+  { key: 'plan', label: 'Plans' },
+  { key: 'session', label: 'Sessions' },
+  { key: 'rules', label: 'AI rules' },
+  { key: 'admin', label: 'Admins' }
+];
+
+const CHIP = {
+  tenant: ['var(--blue-50)', 'var(--blue-500)'],
+  plan: ['var(--surface-inset)', 'var(--text-secondary)'],
+  session: ['var(--orange-100)', 'var(--accent-mark-text)'],
+  rules: ['var(--surface-inset)', 'var(--text-secondary)'],
+  admin: ['var(--danger-bg)', 'var(--danger-fg)']
+};
+
+const ENTRIES = [
+  {
+    kind: 'session', time: '10 Aug 14:22:07', action: 'support_session.start',
+    target: 'Sarova Hospitality Collection', actor: 'brian', initials: 'BM',
+    requestId: 'req_7f21a9c04', ip: '196.201.214.88', tenantId: 'tnt_4c81b03fa9e2',
+    reason: 'Ticket 4829 · verifying a duplicated WhatsApp thread reported by their support lead.'
+  },
+  {
+    kind: 'plan', time: '10 Aug 13:58:44', action: 'tenant.plan_assign',
+    target: 'Northwind Traders East Africa · Starter → Growth', actor: 'brian', initials: 'BM',
+    requestId: 'req_7f21a88b1', ip: '196.201.214.88', tenantId: 'tnt_9a2f7c14d8b0',
+    diff: [
+      { field: 'plan_id', before: 'starter', after: 'growth' },
+      { field: 'entitlements.staff_seats', before: '25', after: '100' },
+      { field: 'entitlements.events_per_month', before: '50,000', after: '250,000' }
+    ]
+  },
+  {
+    kind: 'rules', time: '10 Aug 13:12:19', action: 'ai_rules.master_update',
+    target: 'Master rules · version 23 → 24', actor: 'brian', initials: 'BM',
+    requestId: 'req_7f21a4402', ip: '196.201.214.88', tenantId: '—',
+    diff: [
+      { field: 'escalation.threshold', before: '0.72', after: '0.68' },
+      { field: 'tone.directive', before: 'redacted', after: 'redacted', redacted: true }
+    ]
+  },
+  {
+    kind: 'plan', time: '10 Aug 11:47:02', action: 'plan.entitlement_change',
+    target: 'Growth · events_per_month', actor: 'brian', initials: 'BM',
+    requestId: 'req_7f219ff31', ip: '196.201.214.88', tenantId: '—',
+    diff: [{ field: 'entitlements.events_per_month', before: '250,000', after: '300,000' }]
+  },
+  {
+    kind: 'admin', time: '10 Aug 10:31:55', action: 'credential.revoke',
+    target: 'Peridot Health Clinics · ak_live_9f2', actor: 'system', initials: 'SY',
+    requestId: 'req_7f2198c07', ip: 'internal', tenantId: 'tnt_2d95e71a06c3',
+    diff: [{ field: 'credential.status', before: 'active', after: 'revoked' }, { field: 'credential.secret', before: 'redacted', after: 'redacted', redacted: true }]
+  },
+  {
+    kind: 'tenant', time: '10 Aug 09:14:38', action: 'tenant.provision',
+    target: 'Tamarind Bay Resorts', actor: 'brian', initials: 'BM',
+    requestId: 'req_7f2190a55', ip: '196.201.214.88', tenantId: 'tnt_6b40c92e17fa',
+    diff: [{ field: 'status', before: '—', after: 'active' }, { field: 'plan_id', before: '—', after: 'starter' }]
+  },
+  {
+    kind: 'admin', time: '10 Aug 08:02:10', action: 'admin.grant',
+    target: 'wanjiku@andishi.co.ke · platform_admin', actor: 'brian', initials: 'BM',
+    requestId: 'req_7f218b2d9', ip: '196.201.214.88', tenantId: '—',
+    diff: [{ field: 'role', before: 'none', after: 'platform_admin' }]
+  },
+  {
+    kind: 'session', time: '09 Aug 16:44:21', action: 'support_session.end',
+    target: 'Mombasa Freight Union · ended by customer', actor: 'j.otieno', initials: 'JO',
+    requestId: 'req_7f2104ba8', ip: '41.90.64.12', tenantId: 'tnt_11e7f4a03b95',
+    reason: 'Ended from the customer side after 8 minutes of a 30-minute window.'
+  },
+  {
+    kind: 'tenant', time: '09 Aug 15:20:03', action: 'tenant.suspend',
+    target: 'Mombasa Freight Union', actor: 'brian', initials: 'BM',
+    requestId: 'req_7f20f1c44', ip: '196.201.214.88', tenantId: 'tnt_11e7f4a03b95',
+    diff: [{ field: 'status', before: 'active', after: 'suspended' }],
+    reason: 'Non-payment after 90 days and three failed collection attempts. Finance approved.'
+  },
+  {
+    kind: 'rules', time: '09 Aug 11:08:37', action: 'ai_rules.propagate',
+    target: '47 workspaces · completed in 3.2s', actor: 'system', initials: 'SY',
+    requestId: 'req_7f20c8e10', ip: 'internal', tenantId: '—'
+  }
+];
+
+class Component extends DCLogic {
+  state = { open: 1, query: '', kinds: [] };
+
+  renderVals() {
+    const s = this.state;
+    const q = s.query.trim().toLowerCase();
+    const filtered = ENTRIES.filter((e) => {
+      if (s.kinds.length && !s.kinds.includes(e.kind)) return false;
+      if (!q) return true;
+      return (e.action + ' ' + e.target + ' ' + e.actor).toLowerCase().includes(q);
+    });
+
+    return {
+      query: s.query,
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      count: filtered.length,
+
+      kinds: KINDS.map((k) => {
+        const on = s.kinds.includes(k.key);
+        return {
+          label: k.label,
+          icon: icon(k.key, 13),
+          bg: on ? 'var(--blue-50)' : 'var(--surface-raised)',
+          border: on ? 'var(--blue-500)' : 'var(--border-subtle)',
+          fg: on ? 'var(--blue-600)' : 'var(--text-secondary)',
+          toggle: () => this.setState((p) => ({
+            kinds: p.kinds.includes(k.key) ? p.kinds.filter((x) => x !== k.key) : p.kinds.concat(k.key)
+          }))
+        };
+      }),
+
+      entries: filtered.map((e, i) => {
+        const open = s.open === i;
+        return {
+          time: e.time,
+          action: e.action,
+          target: e.target,
+          actor: e.actor,
+          initials: e.initials,
+          icon: icon(e.kind, 14),
+          chipBg: CHIP[e.kind][0],
+          chipInk: CHIP[e.kind][1],
+          bg: open ? 'var(--surface-sunken)' : 'transparent',
+          caret: open ? 'rotate(180deg)' : 'none',
+          open,
+          toggle: () => this.setState({ open: open ? -1 : i }),
+          requestId: e.requestId,
+          ip: e.ip,
+          tenantId: e.tenantId,
+          hasDiff: !!e.diff,
+          hasReason: !!e.reason,
+          reason: e.reason || '',
+          diff: (e.diff || []).map((d) => ({
+            field: d.field,
+            before: d.before,
+            after: d.after,
+            beforeInk: d.redacted ? 'var(--text-disabled)' : 'var(--danger-fg)',
+            afterInk: d.redacted ? 'var(--text-disabled)' : 'var(--success-fg)'
+          }))
+        };
+      })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

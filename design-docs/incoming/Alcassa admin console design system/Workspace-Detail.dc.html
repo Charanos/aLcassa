@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="padding: 22px 32px 0; max-width: 1440px; margin: 0 auto;">
+    <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font: 400 12.5px/1 var(--font-ui);">
+      <a href="#" onClick="{{ goTenants }}" style="color: var(--text-secondary); white-space: nowrap;">Workspaces</a>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary); flex: 0 0 auto;" aria-hidden="true"><path d="M9 6l6 6l-6 6" /></svg>
+      <span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-tertiary);">kilimanjaro-logistics</span>
+    </nav>
+
+    <div style="display: flex; align-items: flex-start; gap: 24px; margin-top: 14px;">
+      <div style="flex: 1; min-width: 0;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Kilimanjaro Logistics Group Ltd</h1>
+          <span style="display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 11px; border-radius: 9999px; background: var(--danger-bg); color: var(--danger-fg); font: 500 12px/1 var(--font-mono); letter-spacing: 0.04em; white-space: nowrap;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: 0 0 auto;"></span>
+            PAST DUE
+          </span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px; margin-top: 10px; flex-wrap: wrap;">
+          <span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-tertiary);">tnt_8f3a91c04b2e</span>
+          <span style="width: 1px; height: 14px; background: var(--border-subtle);"></span>
+          <span style="font: 400 12.5px/1 var(--font-ui); color: var(--text-secondary);">Scale · KES 184,000 / month</span>
+          <span style="width: 1px; height: 14px; background: var(--border-subtle);"></span>
+          <span style="font: 400 12.5px/1 var(--font-ui); color: var(--text-secondary);">Since 12 Mar 2025</span>
+          <span style="width: 1px; height: 14px; background: var(--border-subtle);"></span>
+          <span style="font: 400 12.5px/1 var(--font-ui); color: var(--text-secondary);">Last active 4 min ago</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; flex: 0 0 auto;">
+        <button type="button" onClick="{{ startSession }}" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--surface-inset);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
+          Support session
+        </button>
+        <button type="button" onClick="{{ openSuspend }}" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--danger-fg); font: 400 13px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--danger-bg); border-color: var(--danger-fg);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 9l6 6" /><path d="M15 9l-6 6" /></svg>
+          Suspend
+        </button>
+      </div>
+    </div>
+
+    <div role="tablist" style="display: flex; align-items: center; gap: 2px; margin-top: 22px; border-bottom: 1px solid var(--border-subtle);">
+      <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="6">
+        <button type="button" role="tab" onClick="{{ tab.go }}" style="position: relative; height: 38px; padding: 0 14px; border: none; background: transparent; color: {{ tab.fg }}; font: {{ tab.font }}; white-space: nowrap;" style-hover="color: var(--text-primary);">
+          {{ tab.label }}
+          <span style="position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; border-radius: 2px; background: {{ tab.mark }};"></span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="padding: 24px 32px 56px; max-width: 1440px; margin: 0 auto;">
+
+    <sc-if value="{{ isOverviewTab }}" hint-placeholder-val="{{ true }}">
+      <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start;">
+        <div style="display: grid; gap: 20px;">
+
+          <div style="border: 1px solid var(--danger-fg); border-radius: 12px; background: var(--danger-bg); padding: 18px 20px;">
+            <div style="display: flex; align-items: flex-start; gap: 14px;">
+              <span style="display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto; border-radius: 7px; background: var(--surface-raised); color: var(--danger-fg);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3l0 -8" /><path d="M3 10l18 0" /><path d="M7 15l.01 0" /><path d="M11 15l2 0" /></svg>
+              </span>
+              <div style="flex: 1; min-width: 0;">
+                <p style="margin: 0; font: 500 14px/1.4 var(--font-ui); color: var(--text-primary);">Payment failed six days ago</p>
+                <p style="margin: 5px 0 0; font: 400 13px/1.5 var(--font-ui); color: var(--text-secondary);">Invoice <em style="font: 400 13px/1 var(--font-mono);">INV-2026-0841</em> for KES 184,000 was declined on 4 August. Two retries have failed. Access continues until 18 August, then the workspace suspends automatically.</p>
+              </div>
+              <span style="display: grid; gap: 6px; flex: 0 0 auto;">
+                <button type="button" style="height: 30px; padding: 0 12px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 12.5px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--blue-600);">Retry charge</button>
+                <button type="button" style="height: 30px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--surface-inset);">View invoice</button>
+              </span>
+            </div>
+          </div>
+
+          <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+              <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Entitlements · Scale</p>
+              <span style="font: 400 12px/1 var(--font-ui); color: var(--text-tertiary); white-space: nowrap;">Resets in 19 days</span>
+            </div>
+            <div style="padding: 4px 20px 18px;">
+              <sc-for list="{{ meters }}" as="m" hint-placeholder-count="5">
+                <div style="display: grid; grid-template-columns: 168px 1fr 132px; gap: 16px; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--border-subtle);">
+                  <span style="display: flex; align-items: center; gap: 9px; min-width: 0;">
+                    <span style="display: grid; place-items: center; width: 20px; height: 20px; flex: 0 0 auto; color: var(--text-tertiary);">{{ m.icon }}</span>
+                    <span style="font: 400 13px/1.3 var(--font-ui); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ m.label }}</span>
+                  </span>
+                  <span style="display: block; position: relative; height: 6px; border-radius: 3px; background: var(--surface-inset); box-shadow: var(--neu-inset); overflow: hidden;">
+                    <span style="display: block; height: 100%; width: {{ m.pct }}; border-radius: 3px; background: {{ m.ink }};"></span>
+                  </span>
+                  <span style="text-align: right; white-space: nowrap;">
+                    <em style="font: 400 13px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: {{ m.valueInk }};">{{ m.value }}</em>
+                    <span style="font: 400 12px/1 var(--font-mono); color: var(--text-tertiary);"> {{ m.pctLabel }}</span>
+                  </span>
+                </div>
+              </sc-for>
+              <p style="margin: 14px 0 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary);">Overrides on this workspace take precedence over the plan. Two are set.</p>
+            </div>
+          </div>
+
+          <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+              <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Conversation volume · 30 days</p>
+              <span style="display: flex; align-items: center; gap: 14px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;">
+                  <span style="width: 8px; height: 8px; border-radius: 2px; background: var(--blue-500);"></span> Handled by AI
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;">
+                  <span style="width: 8px; height: 8px; border-radius: 2px; background: var(--ink-300);"></span> Escalated
+                </span>
+              </span>
+            </div>
+            <div style="padding: 18px 20px 20px;">
+              <x-import component-from-global-scope="VolumeChart" from="./charts.jsx" hint-size="100%,220px"></x-import>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; gap: 20px;">
+          <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 18px 20px 20px;">
+            <p style="margin: 0 0 16px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Subscription</p>
+            <div style="display: grid; gap: 13px;">
+              <sc-for list="{{ facts }}" as="f" hint-placeholder-count="6">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+                  <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary); white-space: nowrap;">{{ f.label }}</span>
+                  <span style="font: 400 12.5px/1.4 var(--font-mono); font-variant-numeric: tabular-nums; color: {{ f.ink }}; text-align: right;">{{ f.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <button type="button" onClick="{{ openPlanChange }}" style="width: 100%; height: 34px; margin-top: 18px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Change plan</button>
+          </div>
+
+          <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 18px 20px 20px;">
+            <p style="margin: 0 0 14px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Owner</p>
+            <div style="display: flex; align-items: center; gap: 11px;">
+              <span style="display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; border-radius: 9999px; background: var(--blue-50); color: var(--blue-500); font: 500 13px/1 var(--font-mono);">JM</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13px/1.35 var(--font-ui); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Joseph Mwaura</span>
+                <span style="display: block; font: 400 11.5px/1.35 var(--font-mono); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">j.mwaura@kilimanjaro.co.ke</span>
+              </span>
+            </div>
+            <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: grid; gap: 11px;">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+                <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Staff</span>
+                <span style="font: 400 12.5px/1.4 var(--font-mono); color: var(--text-primary);">247 of 300</span>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+                <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Admins</span>
+                <span style="font: 400 12.5px/1.4 var(--font-mono); color: var(--text-primary);">6</span>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+                <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">Channels</span>
+                <span style="font: 400 12.5px/1.4 var(--font-mono); color: var(--text-primary);">4 connected</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-sunken); padding: 18px 20px 20px;">
+            <p style="margin: 0 0 12px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Data residency</p>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--success-fg); flex: 0 0 auto;" aria-hidden="true"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" /><path d="M9 12l2 2l4 -4" /></svg>
+              <span style="font: 400 13px/1.4 var(--font-ui); color: var(--text-primary);">eu-central-1 · isolated by RLS</span>
+            </div>
+            <p style="margin: 10px 0 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary);">No console route can read this workspace's message bodies or credential values.</p>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isBillingTab }}" hint-placeholder-val="{{ false }}">
+      <div style="display: grid; gap: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 14px;">
+          <sc-for list="{{ billingStats }}" as="b" hint-placeholder-count="4">
+            <div style="min-width: 0; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 16px 18px 18px;">
+              <p style="margin: 0; font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary); white-space: nowrap;">{{ b.label }}</p>
+              <p style="margin: 10px 0 0; font: 400 27px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: {{ b.ink }};">{{ b.value }}</p>
+              <p style="margin: 8px 0 0; font: 400 11.5px/1.4 var(--font-ui); color: var(--text-tertiary);">{{ b.note }}</p>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+          <div style="padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+            <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Invoices</p>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+            <colgroup>
+              <col style="width: 20%;" /><col style="width: 16%;" /><col style="width: 18%;" /><col style="width: 16%;" /><col style="width: 16%;" /><col style="width: 14%;" />
+            </colgroup>
+            <thead>
+              <tr style="background: var(--surface-sunken);">
+                <th style="text-align: left; padding: 0 20px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Invoice</th>
+                <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Issued</th>
+                <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Period</th>
+                <th style="text-align: right; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Amount</th>
+                <th style="text-align: left; padding: 0 8px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Status</th>
+                <th style="text-align: right; padding: 0 20px; height: 36px; border-bottom: 1px solid var(--border-subtle); font: 500 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary);">Paid</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ invoices }}" as="inv" hint-placeholder-count="6">
+                <tr style="height: 44px; border-bottom: 1px solid var(--border-subtle);">
+                  <td style="padding: 0 20px;"><span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-primary);">{{ inv.id }}</span></td>
+                  <td style="padding: 0 8px;"><span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-secondary);">{{ inv.issued }}</span></td>
+                  <td style="padding: 0 8px;"><span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-tertiary);">{{ inv.period }}</span></td>
+                  <td style="padding: 0 8px; text-align: right;"><span style="font: 400 12.5px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">{{ inv.amount }}</span></td>
+                  <td style="padding: 0 8px;">
+                    <span style="display: inline-flex; align-items: center; gap: 7px;">
+                      <span style="width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: {{ inv.dot }};"></span>
+                      <span style="font: 400 12.5px/1 var(--font-mono); color: {{ inv.ink }};">{{ inv.status }}</span>
+                    </span>
+                  </td>
+                  <td style="padding: 0 20px; text-align: right;"><span style="font: 400 12.5px/1 var(--font-mono); color: var(--text-tertiary);">{{ inv.paid }}</span></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="margin: 0 2px; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary); max-width: 84ch;">Read-only against <em style="font: 400 12.5px/1 var(--font-mono);">subscriptions</em> and <em style="font: 400 12.5px/1 var(--font-mono);">invoices</em>. Gateway integration is out of Phase 1 scope, so Retry charge queues a request for the finance operator rather than moving money.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isStubTab }}" hint-placeholder-val="{{ false }}">
+      <div style="display: grid; place-items: center; padding: 72px 24px; border: 1px dashed var(--border-strong); border-radius: 12px; background: var(--surface-sunken);">
+        <p style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 21px; line-height: 1.18; color: var(--text-primary);">{{ stubLabel }}</p>
+        <p style="margin: 7px 0 0; font: 400 13px/1.5 var(--font-ui); color: var(--text-secondary); text-align: center; max-width: 54ch;">{{ stubNote }}</p>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ suspendOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 90; background: var(--surface-overlay); display: grid; place-items: center; padding: 24px; animation: overlay-in 120ms linear;">
+      <div role="dialog" aria-modal="true" style="width: 580px; max-width: 100%; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); overflow: hidden; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div style="padding: 24px 24px 20px;">
+          <p style="margin: 0 0 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--danger-fg);">Destructive</p>
+          <h2 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 27px; line-height: 1.18; letter-spacing: -0.008em; color: var(--text-primary);">Suspend Kilimanjaro Logistics</h2>
+          <p style="margin: 12px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 58ch;">Stated in numbers, because a suspension is felt by people who did not choose it:</p>
+          <ul style="margin: 16px 0 0; padding: 16px 0 0; list-style: none; display: grid; gap: 11px; border-top: 1px solid var(--border-subtle);">
+            <li style="display: flex; gap: 11px; align-items: flex-start; font: 400 13px/1.5 var(--font-ui);">
+              <span style="color: var(--danger-fg); font: 400 13px/1.5 var(--font-mono); flex: 0 0 auto;">247</span>
+              <span>staff lose access at their next request. Sessions are not waited out.</span>
+            </li>
+            <li style="display: flex; gap: 11px; align-items: flex-start; font: 400 13px/1.5 var(--font-ui);">
+              <span style="color: var(--danger-fg); font: 400 13px/1.5 var(--font-mono); flex: 0 0 auto;">1,284</span>
+              <span>open conversations stop receiving replies. Inbound messages queue but nothing sends.</span>
+            </li>
+            <li style="display: flex; gap: 11px; align-items: flex-start; font: 400 13px/1.5 var(--font-ui);">
+              <span style="color: var(--danger-fg); font: 400 13px/1.5 var(--font-mono); flex: 0 0 auto;">4</span>
+              <span>connected channels go quiet, including the WhatsApp number their customers reply to.</span>
+            </li>
+          </ul>
+          <p style="margin: 16px 0 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary);">Data is retained. Reactivation restores access immediately and is a single action.</p>
+
+          <label style="display: block; margin-top: 20px;">
+            <span style="display: block; margin-bottom: 6px; font: 500 11px/1.4 var(--font-ui); color: var(--text-primary);">Type <em style="font: 400 11px/1 var(--font-mono); color: var(--danger-fg);">kilimanjaro-logistics</em> to confirm</span>
+            <input type="text" value="{{ confirmText }}" onInput="{{ onConfirmInput }}" placeholder="kilimanjaro-logistics" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); font: 400 14px/1 var(--font-mono); color: var(--text-primary);" />
+          </label>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-subtle); background: var(--surface-sunken);">
+          <span style="flex: 1; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary);">tenant.suspend</span>
+          <button type="button" onClick="{{ closeSuspend }}" style="height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Cancel</button>
+          <button type="button" disabled="{{ suspendDisabled }}" style="height: 36px; padding: 0 16px; border: none; border-radius: 7px; background: {{ suspendBg }}; color: {{ suspendInk }}; font: 500 13px/1 var(--font-ui); cursor: {{ suspendCursor }};">Suspend workspace</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ planOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 90; background: var(--surface-overlay); display: grid; place-items: center; padding: 24px; animation: overlay-in 120ms linear;">
+      <div role="dialog" aria-modal="true" style="width: 560px; max-width: 100%; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); overflow: hidden; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div style="padding: 24px 24px 20px;">
+          <p style="margin: 0 0 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--warning-fg);">Downgrade</p>
+          <h2 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 27px; line-height: 1.18; letter-spacing: -0.008em; color: var(--text-primary);">Scale → Growth</h2>
+          <p style="margin: 12px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary);">This workspace currently exceeds two Growth limits.</p>
+          <div style="margin-top: 16px; border: 1px solid var(--warning-fg); border-radius: 7px; background: var(--warning-bg); padding: 14px 16px; display: grid; gap: 10px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font: 400 13px/1.4 var(--font-ui);">
+              <span>Staff seats</span>
+              <span style="font: 400 13px/1 var(--font-mono);">247 in use · 100 allowed</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font: 400 13px/1.4 var(--font-ui);">
+              <span>Events this month</span>
+              <span style="font: 400 13px/1 var(--font-mono);">412,880 used · 250,000 allowed</span>
+            </div>
+          </div>
+          <p style="margin: 14px 0 0; font: 400 13px/1.5 var(--font-ui); color: var(--text-primary);"><em>147 staff accounts</em> would be deactivated, oldest sign-in first, and event ingestion would reject for the rest of the period.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-subtle); background: var(--surface-sunken);">
+          <span style="flex: 1; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary);">tenant.plan_assign</span>
+          <button type="button" onClick="{{ closePlan }}" style="height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Keep Scale</button>
+          <button type="button" style="height: 36px; padding: 0 16px; border: none; border-radius: 7px; background: var(--red-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: #a81d30;">Downgrade anyway</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}, &quot;startSession&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(tenantName: string) =&gt; void&quot;}}">
+const P = {
+  seat: 'M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0|M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2|M16 3.13a4 4 0 0 1 0 7.75',
+  bolt: 'M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11',
+  db: 'M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0|M4 6v6a8 3 0 0 0 16 0v-6|M4 12v6a8 3 0 0 0 16 0v-6',
+  mail: 'M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10|M3 7l9 6l9 -6',
+  key: 'M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0|M15 9h.01'
+};
+
+function icon(name) {
+  return React.createElement(
+    'svg',
+    { width: 17, height: 17, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    (P[name] || '').split('|').map((d, i) => React.createElement('path', { key: i, d }))
+  );
+}
+
+const METERS = [
+  { label: 'Staff seats', icon: 'seat', used: 247, limit: 300, fmt: (n) => n },
+  { label: 'Events this month', icon: 'bolt', used: 412880, limit: 500000, fmt: group },
+  { label: 'Conversations', icon: 'mail', used: 18402, limit: 40000, fmt: group },
+  { label: 'Storage', icon: 'db', used: 34.2, limit: 100, fmt: (n) => n + ' GB' },
+  { label: 'API credentials', icon: 'key', used: 3, limit: 10, fmt: (n) => n }
+];
+
+const TABS = [
+  { key: 'overview', label: 'Overview' },
+  { key: 'billing', label: 'Billing' },
+  { key: 'staff', label: 'Staff', note: 'Roster with roles, last sign-in, and seat consumption. No credential value is reachable here.' },
+  { key: 'channels', label: 'Channels', note: 'WhatsApp, email, web widget and SMS connections, with health per channel and last inbound event.' },
+  { key: 'rules', label: 'AI rules', note: 'Master rules inherited from the platform, plus this workspace\u2019s own overrides and their propagation state.' },
+  { key: 'audit', label: 'Activity', note: 'This workspace\u2019s own audit trail, including every support session the platform team opened against it.' }
+];
+
+const INVOICES = [
+  { id: 'INV-2026-0841', issued: '04 Aug 2026', period: 'Aug 2026', amount: '184,000', status: 'failed', paid: '—' },
+  { id: 'INV-2026-0772', issued: '04 Jul 2026', period: 'Jul 2026', amount: '184,000', status: 'paid', paid: '05 Jul' },
+  { id: 'INV-2026-0698', issued: '04 Jun 2026', period: 'Jun 2026', amount: '184,000', status: 'paid', paid: '04 Jun' },
+  { id: 'INV-2026-0621', issued: '04 May 2026', period: 'May 2026', amount: '162,000', status: 'paid', paid: '06 May' },
+  { id: 'INV-2026-0544', issued: '04 Apr 2026', period: 'Apr 2026', amount: '162,000', status: 'paid', paid: '04 Apr' },
+  { id: 'INV-2026-0470', issued: '04 Mar 2026', period: 'Mar 2026', amount: '162,000', status: 'paid', paid: '09 Mar' }
+];
+
+function group(n) {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+class Component extends DCLogic {
+  state = { tab: 'overview', suspend: false, plan: false, confirm: '' };
+
+  renderVals() {
+    const go = this.props.go || (() => {});
+    const startSession = this.props.startSession || (() => {});
+    const s = this.state;
+    const stub = TABS.find((t) => t.key === s.tab && t.note);
+
+    return {
+      tabs: TABS.map((t) => {
+        const on = s.tab === t.key;
+        return {
+          label: t.label,
+          fg: on ? 'var(--text-primary)' : 'var(--text-secondary)',
+          font: (on ? '500' : '400') + ' 13px/1 var(--font-ui)',
+          mark: on ? 'var(--blue-500)' : 'transparent',
+          go: () => this.setState({ tab: t.key })
+        };
+      }),
+
+      isOverviewTab: s.tab === 'overview',
+      isBillingTab: s.tab === 'billing',
+      isStubTab: !!stub,
+      stubLabel: stub ? stub.label : '',
+      stubNote: stub ? stub.note : '',
+
+      goTenants: (e) => { e.preventDefault(); go('tenants'); },
+      startSession: () => startSession('Kilimanjaro Logistics Group Ltd'),
+
+      meters: METERS.map((m) => {
+        const pct = m.used / m.limit;
+        const ink = pct >= 1 ? 'var(--danger-fg)' : pct >= 0.9 ? 'var(--accent-mark)' : 'var(--blue-500)';
+        return {
+          label: m.label,
+          icon: icon(m.icon),
+          pct: Math.min(100, Math.round(pct * 100)) + '%',
+          pctLabel: '· ' + Math.round(pct * 100) + '%',
+          ink,
+          valueInk: pct >= 0.9 ? ink : 'var(--text-primary)',
+          value: m.fmt(m.used) + ' / ' + m.fmt(m.limit)
+        };
+      }),
+
+      facts: [
+        { label: 'Plan', value: 'Scale', ink: 'var(--text-primary)' },
+        { label: 'Billing period', value: 'Monthly', ink: 'var(--text-primary)' },
+        { label: 'Monthly value', value: 'KES 184,000', ink: 'var(--text-primary)' },
+        { label: 'Lifetime value', value: 'KES 2,806,000', ink: 'var(--text-primary)' },
+        { label: 'Next invoice', value: '04 Sep 2026', ink: 'var(--text-primary)' },
+        { label: 'Payment status', value: 'Failed · 6 days', ink: 'var(--danger-fg)' }
+      ],
+
+      billingStats: [
+        { label: 'Monthly recurring', value: '184,000', note: 'KES · Scale, monthly', ink: 'var(--text-primary)' },
+        { label: 'Lifetime value', value: '2.81M', note: 'KES across 17 invoices', ink: 'var(--text-primary)' },
+        { label: 'Outstanding', value: '184,000', note: 'One invoice, 6 days late', ink: 'var(--danger-fg)' },
+        { label: 'Collection rate', value: '94%', note: '16 of 17 paid on first attempt', ink: 'var(--text-primary)' }
+      ],
+
+      invoices: INVOICES.map((i) => ({
+        id: i.id,
+        issued: i.issued,
+        period: i.period,
+        amount: i.amount,
+        status: i.status,
+        paid: i.paid,
+        dot: i.status === 'paid' ? 'var(--success-fg)' : 'var(--danger-fg)',
+        ink: i.status === 'paid' ? 'var(--text-secondary)' : 'var(--danger-fg)'
+      })),
+
+      suspendOpen: s.suspend,
+      openSuspend: () => this.setState({ suspend: true, confirm: '' }),
+      closeSuspend: () => this.setState({ suspend: false }),
+      confirmText: s.confirm,
+      onConfirmInput: (e) => this.setState({ confirm: e.target.value }),
+      suspendDisabled: s.confirm.trim() !== 'kilimanjaro-logistics',
+      suspendBg: s.confirm.trim() === 'kilimanjaro-logistics' ? 'var(--red-500)' : 'var(--surface-inset)',
+      suspendInk: s.confirm.trim() === 'kilimanjaro-logistics' ? '#ffffff' : 'var(--text-disabled)',
+      suspendCursor: s.confirm.trim() === 'kilimanjaro-logistics' ? 'pointer' : 'not-allowed',
+
+      planOpen: s.plan,
+      openPlanChange: () => this.setState({ plan: true }),
+      closePlan: () => this.setState({ plan: false })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

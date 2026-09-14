@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   IconArrowsSort,
   IconChevronDown,
@@ -82,7 +83,13 @@ function nameInk(status: WorkspaceStatus): string {
   return INERT.has(status) ? 'var(--text-secondary)' : 'var(--text-primary)';
 }
 
-const STATUSES: WorkspaceStatus[] = ['active', 'trial', 'past due', 'suspended', 'pending'];
+/**
+ * The status set: what the chips offer, and what a `?status=` parameter may
+ * name. Derived from `STATUS_INK` rather than typed out again — a second
+ * hand-written list goes stale the first time a status is added, and it goes
+ * stale silently, since an unrecognised value is simply dropped.
+ */
+const STATUSES = Object.keys(STATUS_INK) as WorkspaceStatus[];
 
 const group = (n: number) => n.toLocaleString('en-GB');
 
@@ -151,9 +158,43 @@ export function WorkspaceTable({
    * The chip renders pressed, the count line reads "3 of 47", and Reset is
    * beside it — the state is legible and one click from cleared.
    */
+  /**
+   * ⚠ THE FILTER CAN BE ARRIVED AT, NOT ONLY BUILT.
+   *
+   * `?status=past+due` and `?attention=1` seed these on first render, which is
+   * what lets another screen SEND somebody here. Revenue's ageing band says
+   * "four workspaces are behind"; without this, the link under it drops the
+   * operator on all twelve rows to find those four by hand, and the band has
+   * handed them a fact rather than a handle on it.
+   *
+   * This is the URL seeding the CLIENT filter, not server-side filtering. The
+   * note at the top of `tenants/page.tsx` still stands: past roughly a thousand
+   * rows the filtering itself moves into the query. Until then the array filter
+   * is faster, and reading an initial value off the URL costs nothing.
+   *
+   * Read once, deliberately. These are the starting point of a filter the
+   * operator then owns — re-syncing to the URL on every change would fight
+   * them the moment they cleared a chip the link had set.
+   */
+  const params = useSearchParams();
+  const seeded = useRef(false);
+  const seed = seeded.current
+    ? null
+    : (() => {
+        seeded.current = true;
+        const raw = params.get('status');
+        const wanted = raw
+          ? raw
+              .split(',')
+              .map((s) => s.trim().toLowerCase())
+              .filter((s): s is WorkspaceStatus => STATUSES.includes(s as WorkspaceStatus))
+          : [];
+        return { statuses: wanted, attention: params.get('attention') === '1' };
+      })();
+
   const [query, setQuery] = useState('');
-  const [statuses, setStatuses] = useState<WorkspaceStatus[]>([]);
-  const [attention, setAttention] = useState(false);
+  const [statuses, setStatuses] = useState<WorkspaceStatus[]>(seed?.statuses ?? []);
+  const [attention, setAttention] = useState(seed?.attention ?? false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
@@ -282,10 +323,10 @@ export function WorkspaceTable({
       <div
         className="relative mt-6 flex flex-col overflow-hidden rounded-[20px] shadow-2xl transition-all duration-300 sm:flex-row"
         style={{
-          background: '#060913',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--chrome-bg-base)',
+          border: '1px solid var(--chrome-rule-strong)',
           color: 'var(--invert-card-fg)',
-          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.06)',
+          boxShadow: 'var(--shadow-lg), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 6%, transparent)',
         }}
       >
         {/* ── Premium Ambient Background Art ── */}
@@ -296,13 +337,13 @@ export function WorkspaceTable({
           />
           <div
             className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
-            style={{ background: 'var(--indigo-500)' }}
+            style={{ background: 'var(--blue-700)' }}
           />
           
           <div
             className="absolute inset-0 opacity-[0.25]"
             style={{
-              backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)',
+              backgroundImage: 'radial-gradient(color-mix(in oklab, var(--ink-0) 80%, transparent) 1px, transparent 1px)',
               backgroundSize: '32px 32px',
               maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
               WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
@@ -332,15 +373,15 @@ export function WorkspaceTable({
           <div
             className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
             style={{
-              background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
-              boxShadow: '1px 0 0 rgba(0,0,0,0.5)',
+              background: 'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              boxShadow: '1px 0 0 var(--chrome-bg-base)',
             }}
           />
           <div
             className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
             style={{
-              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
-              boxShadow: '0 1px 0 rgba(0,0,0,0.5)',
+              background: 'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              boxShadow: '0 1px 0 var(--chrome-bg-base)',
             }}
           />
         </div>
@@ -364,15 +405,15 @@ export function WorkspaceTable({
           <div
             className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
             style={{
-              background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
-              boxShadow: '1px 0 0 rgba(0,0,0,0.5)',
+              background: 'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              boxShadow: '1px 0 0 var(--chrome-bg-base)',
             }}
           />
           <div
             className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
             style={{
-              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
-              boxShadow: '0 1px 0 rgba(0,0,0,0.5)',
+              background: 'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              boxShadow: '0 1px 0 var(--chrome-bg-base)',
             }}
           />
         </div>
@@ -396,15 +437,15 @@ export function WorkspaceTable({
           <div
             className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
             style={{
-              background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
-              boxShadow: '1px 0 0 rgba(0,0,0,0.5)',
+              background: 'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              boxShadow: '1px 0 0 var(--chrome-bg-base)',
             }}
           />
           <div
             className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
             style={{
-              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
-              boxShadow: '0 1px 0 rgba(0,0,0,0.5)',
+              background: 'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              boxShadow: '0 1px 0 var(--chrome-bg-base)',
             }}
           />
         </div>
@@ -415,7 +456,7 @@ export function WorkspaceTable({
           style={{
             background:
               attentionCount > 0
-                ? 'radial-gradient(circle at top right, rgba(250, 85, 5, 0.08), transparent 75%)'
+                ? 'radial-gradient(circle at top right, color-mix(in oklab, var(--accent-mark) 10%, transparent), transparent 75%)'
                 : 'transparent',
           }}
         >
@@ -475,7 +516,7 @@ export function WorkspaceTable({
               font: '600 11px/1 var(--font-ui)',
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
-              boxShadow: attention ? '0 2px 8px rgba(0,0,0,0.04)' : '0 1px 2px rgba(0,0,0,0.04)',
+              boxShadow: attention ? 'var(--shadow-md)' : 'var(--shadow-sm)',
             }}
           >
             Needs attention
@@ -483,7 +524,7 @@ export function WorkspaceTable({
               className="numeric grid h-[20px] min-w-[20px] place-items-center rounded-full px-1.5 font-medium shadow-sm transition-colors duration-300"
               style={{
                 background: attention ? 'var(--amber-500)' : 'var(--amber-500)',
-                color: '#ffffff',
+                color: 'var(--text-inverse)',
                 fontSize: 10,
                 fontWeight: 700,
               }}
@@ -544,7 +585,7 @@ export function WorkspaceTable({
             style={{
               background: 'var(--surface-raised)',
               border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-              boxShadow: '0 12px 40px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+              boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
             }}
           >
             <table className="w-full border-collapse text-left">
@@ -552,7 +593,7 @@ export function WorkspaceTable({
                 <tr
                   style={{
                     background: 'var(--surface-sunken)',
-                    boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+                    boxShadow: 'var(--neu-inset)',
                   }}
                 >
                   <th
@@ -695,10 +736,10 @@ export function WorkspaceTable({
                       key={r.id}
                       {...grid.getRowProps(i)}
                       onClick={() => setDrawerRow(r)}
-                      className={`group relative cursor-pointer transition-all duration-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)] ${INERT.has(r.status) ? 'opacity-60 hover:opacity-100 hover:bg-[var(--surface-sunken)]' : 'hover:bg-[var(--surface-sunken)] hover:shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)]'}`}
+                      className={`group relative cursor-pointer transition-all duration-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)] ${INERT.has(r.status) ? 'opacity-60 hover:opacity-100 hover:bg-[var(--surface-sunken)]' : 'hover:bg-[var(--surface-sunken)] hover:shadow-[var(--neu-inset)]'}`}
                       style={{
                         borderTop: i === 0 ? 'none' : '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                        boxShadow: i === 0 ? 'none' : 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                        boxShadow: i === 0 ? 'none' : 'var(--glass-highlight)',
                       }}
                     >
                       {/* Workspace & Meta */}
@@ -708,7 +749,7 @@ export function WorkspaceTable({
                             className="relative flex size-10 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105"
                             style={{
                               background: 'var(--surface-raised)',
-                              boxShadow: 'inset 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.02)',
+                              boxShadow: 'inset 0 0 0 1px var(--border-subtle), var(--shadow-sm)',
                               color: 'var(--text-primary)',
                               font: '600 13px var(--font-ui)',
                             }}
@@ -898,7 +939,7 @@ export function WorkspaceTable({
                   style={{
                     background: 'var(--surface-raised)',
                     border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                    boxShadow: '0 12px 40px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+                    boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                   }}
                 >
                   <div
@@ -914,7 +955,7 @@ export function WorkspaceTable({
                         className="relative flex size-12 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105"
                         style={{
                           background: 'var(--surface-raised)',
-                          boxShadow: 'inset 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.02)',
+                          boxShadow: 'inset 0 0 0 1px var(--border-subtle), var(--shadow-sm)',
                           color: 'var(--text-primary)',
                           font: '600 15px var(--font-ui)',
                         }}
@@ -972,7 +1013,7 @@ export function WorkspaceTable({
                       className="mt-6 grid grid-cols-2 gap-5 rounded-2xl p-4"
                       style={{ 
                         background: 'var(--surface-sunken)',
-                        boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+                        boxShadow: 'var(--neu-inset)',
                       }}
                     >
                       <div>
@@ -1025,7 +1066,7 @@ export function WorkspaceTable({
                     className="relative z-10 flex h-11 w-full items-center justify-center gap-2 font-medium transition-colors hover:bg-[var(--surface-inset)] active:bg-[var(--surface-sunken)]"
                     style={{
                       borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                      boxShadow: 'var(--glass-highlight)',
                       background: 'var(--surface-raised)',
                       color: 'var(--text-secondary)',
                       fontSize: '14px',
@@ -1071,7 +1112,7 @@ export function WorkspaceTable({
                       style={{
                         border: p === page ? '1px solid var(--blue-500)' : '1px solid transparent',
                         background: p === page ? 'var(--blue-500)' : 'transparent',
-                        color: p === page ? '#ffffff' : 'var(--text-secondary)',
+                        color: p === page ? 'var(--text-inverse)' : 'var(--text-secondary)',
                       }}
                     >
                       {p}
@@ -1173,9 +1214,9 @@ function StatusBadge({ status }: { status: WorkspaceStatus }) {
       style={{
         border: `1px solid ${isPastDue ? 'var(--danger-fg)' : 'var(--border-subtle)'}`,
         background: isPastDue
-          ? 'var(--danger-bg, rgba(239, 68, 68, 0.08))'
+          ? 'var(--danger-bg, var(--badge-danger-bg))'
           : 'var(--surface-sunken)',
-        boxShadow: isPastDue ? 'inset 0 1px 2px rgba(0,0,0,0.02)' : 'var(--shadow-sm)',
+        boxShadow: isPastDue ? 'inset var(--shadow-sm)' : 'var(--shadow-sm)',
       }}
     >
       <span
@@ -1231,7 +1272,7 @@ function DetailedMeter({
           className="numeric rounded px-1.5 py-0.5 font-mono text-[10px] font-medium"
           style={{
             background: isHigh
-              ? 'var(--warning-bg, rgba(245, 158, 11, 0.12))'
+              ? 'var(--warning-bg, var(--badge-warning-bg))'
               : 'var(--surface-sunken)',
             color: isHigh ? ink : 'var(--text-secondary)',
             border: `1px solid ${isHigh ? ink : 'var(--border-subtle)'}`,
@@ -1251,7 +1292,7 @@ function DetailedMeter({
         style={{
           maxWidth: maxTrackWidth,
           background: 'var(--surface-sunken)',
-          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.08)',
+          boxShadow: 'var(--neu-inset)',
         }}
       >
         <div
