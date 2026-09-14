@@ -192,7 +192,7 @@ export function StartSessionDialog({
                 height: 36,
                 border: 'none',
                 background: 'var(--blue-500)',
-                color: '#ffffff',
+                color: 'var(--text-inverse)',
                 fontWeight: 500,
                 opacity: pending ? 0.75 : 1,
               }}

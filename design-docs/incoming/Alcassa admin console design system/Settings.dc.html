@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1180px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="padding-bottom: 22px; border-bottom: 1px solid var(--border-subtle);">
+    <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">/platform/settings</p>
+    <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Settings</h1>
+    <p style="margin: 8px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 68ch;">Platform-wide defaults. Everything here applies to all 47 workspaces unless a workspace overrides it.</p>
+  </div>
+
+  <div style="margin-top: 22px; display: grid; grid-template-columns: 188px minmax(0, 1fr); gap: 28px; align-items: start;">
+
+    <nav aria-label="Settings sections" style="position: sticky; top: 24px; display: grid; gap: 2px;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+        <button type="button" onClick="{{ t.go }}" style="position: relative; display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 11px; border: none; border-radius: 7px; background: {{ t.bg }}; color: {{ t.fg }}; font: {{ t.font }}; text-align: left;" style-hover="background: var(--surface-inset);">
+          <span style="position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; border-radius: 2px; background: {{ t.mark }};"></span>
+          <span style="display: grid; place-items: center; width: 16px; height: 16px; flex: 0 0 auto;">{{ t.icon }}</span>
+          <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ t.label }}</span>
+        </button>
+      </sc-for>
+    </nav>
+
+    <div style="display: grid; gap: 18px;">
+
+      <sc-if value="{{ isGeneral }}" hint-placeholder-val="{{ true }}">
+        <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+          <p style="margin: 0 0 18px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Platform identity</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <label style="display: block;">
+              <span style="display: block; margin-bottom: 6px; font: 500 12px/1.4 var(--font-ui); color: var(--text-primary);">Platform name</span>
+              <input type="text" value="{{ platformName }}" onInput="{{ onPlatformName }}" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset); font: 400 14px/1 var(--font-ui); color: var(--text-primary); outline: none;" />
+            </label>
+            <label style="display: block;">
+              <span style="display: block; margin-bottom: 6px; font: 500 12px/1.4 var(--font-ui); color: var(--text-primary);">Support address</span>
+              <input type="text" value="{{ supportEmail }}" onInput="{{ onSupportEmail }}" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset); font: 400 14px/1 var(--font-mono); color: var(--text-primary); outline: none;" />
+            </label>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+            <label style="display: block;">
+              <span style="display: block; margin-bottom: 6px; font: 500 12px/1.4 var(--font-ui); color: var(--text-primary);">Default currency</span>
+              <span style="display: flex; align-items: center; height: 38px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset);">
+                <span style="flex: 1; font: 400 14px/1 var(--font-mono); color: var(--text-primary);">KES · Kenyan shilling</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);" aria-hidden="true"><path d="M6 9l6 6l6 -6" /></svg>
+              </span>
+            </label>
+            <label style="display: block;">
+              <span style="display: block; margin-bottom: 6px; font: 500 12px/1.4 var(--font-ui); color: var(--text-primary);">Platform timezone</span>
+              <span style="display: flex; align-items: center; height: 38px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset);">
+                <span style="flex: 1; font: 400 14px/1 var(--font-mono); color: var(--text-primary);">Africa/Nairobi · EAT</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);" aria-hidden="true"><path d="M6 9l6 6l6 -6" /></svg>
+              </span>
+            </label>
+          </div>
+          <p style="margin: 14px 0 0; font: 400 11.5px/1.5 var(--font-ui); color: var(--text-tertiary);">Audit timestamps are stored in UTC regardless of this setting, and rendered in your local zone.</p>
+        </section>
+
+        <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+          <p style="margin: 0 0 6px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Appearance</p>
+          <p style="margin: 0 0 16px; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary);">Your own preference. It does not affect what customers see.</p>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 480px;">
+            <sc-for list="{{ themes }}" as="th" hint-placeholder-count="3">
+              <button type="button" onClick="{{ th.pick }}" style="display: block; padding: 12px; border: 1px solid {{ th.border }}; border-radius: 7px; background: {{ th.bg }}; box-shadow: {{ th.lift }}; text-align: left;">
+                <span style="display: block; height: 40px; border-radius: 4px; border: 1px solid var(--border-subtle); background: {{ th.swatch }}; overflow: hidden;">
+                  <span style="display: block; height: 12px; background: {{ th.swatchBar }};"></span>
+                </span>
+                <span style="display: block; margin-top: 9px; font: {{ th.font }}; color: {{ th.ink }};">{{ th.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isSecurity }}" hint-placeholder-val="{{ false }}">
+        <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+          <p style="margin: 0 0 6px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Access policy</p>
+          <p style="margin: 0 0 4px; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary);">These bind every platform admin, including you.</p>
+          <div style="display: grid;">
+            <sc-for list="{{ policies }}" as="p" hint-placeholder-count="5">
+              <div style="display: flex; align-items: flex-start; gap: 14px; padding: 15px 0; border-bottom: 1px solid var(--border-subtle);">
+                <button type="button" onClick="{{ p.toggle }}" role="switch" aria-checked="{{ p.on }}" style="position: relative; width: 34px; height: 20px; flex: 0 0 auto; margin-top: 1px; border: none; border-radius: 9999px; background: {{ p.track }}; box-shadow: var(--neu-inset); transition: background 180ms cubic-bezier(0.2, 0, 0, 1); cursor: {{ p.cursor }};">
+                  <span style="position: absolute; top: 2px; left: {{ p.thumb }}; width: 16px; height: 16px; border-radius: 50%; background: #ffffff; box-shadow: var(--shadow-sm); transition: left 180ms cubic-bezier(0.2, 0, 0, 1);"></span>
+                </button>
+                <span style="flex: 1; min-width: 0;">
+                  <span style="display: flex; align-items: center; gap: 9px;">
+                    <span style="font: 400 13.5px/1.4 var(--font-ui); color: {{ p.labelInk }};">{{ p.label }}</span>
+                    <sc-if value="{{ p.locked }}" hint-placeholder-val="{{ false }}">
+                      <span style="display: inline-flex; align-items: center; height: 19px; padding: 0 7px; flex: 0 0 auto; border-radius: 9999px; background: var(--surface-inset); font: 500 10px/1 var(--font-mono); letter-spacing: 0.08em; color: var(--text-tertiary); white-space: nowrap;">ENFORCED</span>
+                    </sc-if>
+                  </span>
+                  <span style="display: block; margin-top: 4px; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">{{ p.detail }}</span>
+                </span>
+                <sc-if value="{{ p.hasValue }}" hint-placeholder-val="{{ false }}">
+                  <span style="display: inline-flex; align-items: center; height: 28px; padding: 0 11px; flex: 0 0 auto; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-sunken); font: 400 12.5px/1 var(--font-mono); color: var(--text-primary); white-space: nowrap;">{{ p.value }}</span>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="border: 1px solid var(--danger-fg); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+          <div style="padding: 15px 22px 13px; background: var(--danger-bg); border-bottom: 1px solid var(--danger-fg);">
+            <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--danger-fg);">Break glass</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 16px; padding: 18px 22px 20px;">
+            <span style="flex: 1; min-width: 0;">
+              <p style="margin: 0; font: 400 13.5px/1.45 var(--font-ui); color: var(--text-primary);">Suspend all support-session access</p>
+              <p style="margin: 5px 0 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary); max-width: 62ch; text-wrap: pretty;">Blocks every platform admin from entering any workspace until a second admin re-enables it. Use during a suspected credential compromise. Customers are notified in their own activity log.</p>
+            </span>
+            <button type="button" style="height: 34px; padding: 0 15px; flex: 0 0 auto; border: 1px solid var(--danger-fg); border-radius: 7px; background: var(--surface-raised); color: var(--danger-fg); font: 500 13px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--danger-bg);">Lock the platform</button>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isNotifications }}" hint-placeholder-val="{{ false }}">
+        <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 84px 84px; gap: 0; padding: 14px 22px; background: var(--surface-sunken); border-bottom: 1px solid var(--border-subtle);">
+            <span style="font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Notify me when</span>
+            <span style="text-align: center; font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.08em; color: var(--text-tertiary);">CONSOLE</span>
+            <span style="text-align: center; font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.08em; color: var(--text-tertiary);">EMAIL</span>
+          </div>
+          <sc-for list="{{ notifications }}" as="n" hint-placeholder-count="6">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 84px 84px; gap: 0; align-items: center; padding: 13px 22px; border-bottom: 1px solid var(--border-subtle);">
+              <span style="min-width: 0; padding-right: 16px;">
+                <span style="display: block; font: 400 13px/1.4 var(--font-ui); color: var(--text-primary);">{{ n.label }}</span>
+                <span style="display: block; margin-top: 3px; font: 400 11.5px/1.45 var(--font-ui); color: var(--text-tertiary); text-wrap: pretty;">{{ n.detail }}</span>
+              </span>
+              <span style="display: grid; place-items: center;">
+                <button type="button" onClick="{{ n.toggleConsole }}" role="switch" aria-checked="{{ n.console }}" aria-label="Console notification" style="position: relative; width: 34px; height: 20px; border: none; border-radius: 9999px; background: {{ n.consoleTrack }}; box-shadow: var(--neu-inset); transition: background 180ms cubic-bezier(0.2, 0, 0, 1);">
+                  <span style="position: absolute; top: 2px; left: {{ n.consoleThumb }}; width: 16px; height: 16px; border-radius: 50%; background: #ffffff; box-shadow: var(--shadow-sm); transition: left 180ms cubic-bezier(0.2, 0, 0, 1);"></span>
+                </button>
+              </span>
+              <span style="display: grid; place-items: center;">
+                <button type="button" onClick="{{ n.toggleEmail }}" role="switch" aria-checked="{{ n.email }}" aria-label="Email notification" style="position: relative; width: 34px; height: 20px; border: none; border-radius: 9999px; background: {{ n.emailTrack }}; box-shadow: var(--neu-inset); transition: background 180ms cubic-bezier(0.2, 0, 0, 1);">
+                  <span style="position: absolute; top: 2px; left: {{ n.emailThumb }}; width: 16px; height: 16px; border-radius: 50%; background: #ffffff; box-shadow: var(--shadow-sm); transition: left 180ms cubic-bezier(0.2, 0, 0, 1);"></span>
+                </button>
+              </span>
+            </div>
+          </sc-for>
+          <div style="padding: 14px 22px; background: var(--surface-sunken);">
+            <p style="margin: 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary);">Incidents at SEV1 always page the on-call engineer regardless of these settings.</p>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isData }}" hint-placeholder-val="{{ false }}">
+        <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+          <p style="margin: 0 0 16px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Retention</p>
+          <div style="display: grid; gap: 14px;">
+            <sc-for list="{{ retention }}" as="r" hint-placeholder-count="4">
+              <div style="display: flex; align-items: center; gap: 16px; padding: 14px 16px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-sunken);">
+                <span style="flex: 1; min-width: 0;">
+                  <span style="display: block; font: 400 13px/1.4 var(--font-ui); color: var(--text-primary);">{{ r.label }}</span>
+                  <span style="display: block; margin-top: 3px; font: 400 12px/1.45 var(--font-ui); color: var(--text-secondary);">{{ r.detail }}</span>
+                </span>
+                <span style="display: inline-flex; align-items: center; height: 30px; padding: 0 12px; flex: 0 0 auto; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); font: 400 12.5px/1 var(--font-mono); color: var(--text-primary); white-space: nowrap;">{{ r.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin: 16px 0 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary); text-wrap: pretty;">Retention is a floor set by the plan, not a ceiling you can lower below it. Shortening a window never deletes existing records retroactively.</p>
+        </section>
+
+        <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+          <p style="margin: 0 0 6px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Export</p>
+          <p style="margin: 0 0 16px; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary);">Platform-level records only. Customer message bodies are never exportable from this console.</p>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <sc-for list="{{ exports }}" as="x" hint-placeholder-count="3">
+              <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--surface-inset);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
+                {{ x }}
+              </button>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isDeveloper }}" hint-placeholder-val="{{ false }}">
+        <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 22px 14px; border-bottom: 1px solid var(--border-subtle);">
+            <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Platform API keys</p>
+            <button type="button" style="height: 30px; padding: 0 13px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 12.5px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--blue-600);">Create key</button>
+          </div>
+          <sc-for list="{{ keys }}" as="k" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 16px; padding: 14px 22px; border-bottom: 1px solid var(--border-subtle);">
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13px/1.4 var(--font-ui); color: var(--text-primary);">{{ k.label }}</span>
+                <span style="display: block; margin-top: 3px; font: 400 11.5px/1.4 var(--font-mono); color: var(--text-tertiary);">{{ k.masked }}</span>
+              </span>
+              <span style="font: 400 12px/1 var(--font-mono); color: var(--text-tertiary); white-space: nowrap; flex: 0 0 auto;">{{ k.used }}</span>
+              <button type="button" style="height: 28px; padding: 0 11px; flex: 0 0 auto; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--danger-fg); font: 400 12px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--danger-bg); border-color: var(--danger-fg);">Revoke</button>
+            </div>
+          </sc-for>
+          <div style="padding: 14px 22px; background: var(--surface-sunken);">
+            <p style="margin: 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary);">A key's value is shown once, at creation. The console stores a hash and cannot recover it — not for you, not for support.</p>
+          </div>
+        </section>
+
+        <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+          <p style="margin: 0 0 16px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Webhooks</p>
+          <div style="display: grid; gap: 12px;">
+            <sc-for list="{{ hooks }}" as="w" hint-placeholder-count="2">
+              <div style="display: flex; align-items: center; gap: 14px; padding: 13px 16px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-sunken);">
+                <span style="width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: {{ w.dot }};"></span>
+                <span style="flex: 1; min-width: 0;">
+                  <span style="display: block; font: 400 12.5px/1.4 var(--font-mono); color: var(--text-primary); overflow-wrap: anywhere;">{{ w.url }}</span>
+                  <span style="display: block; margin-top: 3px; font: 400 11.5px/1.4 var(--font-ui); color: var(--text-tertiary);">{{ w.events }}</span>
+                </span>
+                <span style="font: 400 12px/1 var(--font-mono); color: {{ w.ink }}; white-space: nowrap; flex: 0 0 auto;">{{ w.status }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px 18px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: var(--glass-highlight), var(--shadow-sm); position: sticky; bottom: 16px;">
+        <span style="flex: 1; font: 400 12.5px/1.4 var(--font-ui); color: {{ dirtyInk }};">{{ dirtyNote }}</span>
+        <button type="button" onClick="{{ discard }}" style="height: 32px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--surface-inset);">Discard</button>
+        <button type="button" onClick="{{ save }}" style="height: 32px; padding: 0 16px; border: none; border-radius: 7px; background: {{ saveBg }}; color: {{ saveInk }}; font: 500 12.5px/1 var(--font-ui); white-space: nowrap; cursor: {{ saveCursor }};">{{ saveLabel }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}}">
+const P = {
+  sliders: 'M4 6h8m4 0h4|M4 12h4m4 0h8|M4 18h12m4 0h0|M12 4v4|M8 10v4|M16 16v4',
+  shield: 'M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3',
+  bell: 'M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6|M9 17v1a3 3 0 0 0 6 0v-1',
+  db: 'M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0|M4 6v6a8 3 0 0 0 16 0v-6|M4 12v6a8 3 0 0 0 16 0v-6',
+  code: 'M7 8l-4 4l4 4|M17 8l4 4l-4 4|M14 4l-4 16'
+};
+
+function icon(name) {
+  return React.createElement(
+    'svg',
+    { width: 15, height: 15, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    (P[name] || '').split('|').map((d, i) => React.createElement('path', { key: i, d }))
+  );
+}
+
+const TABS = [
+  { key: 'general', label: 'General', icon: 'sliders' },
+  { key: 'security', label: 'Security', icon: 'shield' },
+  { key: 'notifications', label: 'Notifications', icon: 'bell' },
+  { key: 'data', label: 'Data', icon: 'db' },
+  { key: 'developer', label: 'Developer', icon: 'code' }
+];
+
+const POLICIES = [
+  { key: 'mfa', label: 'Require two-factor for all platform admins', detail: 'An admin without MFA cannot sign in. Currently one admin would be locked out.', on: true, locked: true },
+  { key: 'reason', label: 'Require a reason for every support session', detail: 'The reason is written to the customer\u2019s own audit log and shown to them.', on: true, locked: true },
+  { key: 'cap', label: 'Support session length', detail: 'Hard expiry with no extension. A longer session must be started fresh, and logged again.', on: true, value: '30 minutes' },
+  { key: 'ip', label: 'Restrict console access by IP range', detail: 'Two ranges allowed. Sign-ins from elsewhere are refused before the password is checked.', on: false, value: '2 ranges' },
+  { key: 'idle', label: 'Sign out after inactivity', detail: 'Applies to the console only; an active support session still expires on its own clock.', on: true, value: '2 hours' }
+];
+
+const NOTIFICATIONS = [
+  { key: 'payment', label: 'A payment fails', detail: 'First failure, not each retry.', console: true, email: true },
+  { key: 'limit', label: 'A workspace crosses 90% of a limit', detail: 'Once per limit per period.', console: true, email: false },
+  { key: 'trial', label: 'A trial is three days from ending', detail: 'Only for trials with recent sign-in activity.', console: true, email: true },
+  { key: 'session', label: 'Another admin starts a support session', detail: 'Includes the reason they gave.', console: true, email: false },
+  { key: 'incident', label: 'An incident opens at SEV2 or above', detail: 'SEV1 always pages regardless.', console: true, email: true },
+  { key: 'admin', label: 'A platform admin is granted or revoked', detail: 'Cannot be disabled for owners.', console: true, email: true, locked: true }
+];
+
+class Component extends DCLogic {
+  state = {
+    tab: 'general', policies: {}, notify: {}, dirty: false, phase: 'idle',
+    platformName: 'aLcassa', supportEmail: 'support@alcassa.app'
+  };
+
+  touch = () => this.setState({ dirty: true, phase: 'idle' });
+
+  /* Controlled fields: state has to move with the DOM or React re-renders
+     revert the keystroke while the footer claims the edit was captured. */
+  bind = (key) => (e) => this.setState({ [key]: e.target.value, dirty: true, phase: 'idle' });
+
+  renderVals() {
+    const s = this.state;
+    const saved = s.phase === 'saved';
+    const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+
+    const track = (on) => (on ? 'var(--blue-500)' : 'var(--surface-inset)');
+    const thumb = (on) => (on ? '16px' : '2px');
+
+    return {
+      tabs: TABS.map((t) => {
+        const on = s.tab === t.key;
+        return {
+          label: t.label,
+          icon: icon(t.icon),
+          bg: on ? 'var(--surface-inset)' : 'transparent',
+          fg: on ? 'var(--text-primary)' : 'var(--text-secondary)',
+          font: (on ? '500' : '400') + ' 13px/1 var(--font-ui)',
+          mark: on ? 'var(--blue-500)' : 'transparent',
+          go: () => this.setState({ tab: t.key })
+        };
+      }),
+
+      isGeneral: s.tab === 'general',
+      isSecurity: s.tab === 'security',
+      isNotifications: s.tab === 'notifications',
+      isData: s.tab === 'data',
+      isDeveloper: s.tab === 'developer',
+
+      touch: this.touch,
+      platformName: s.platformName,
+      onPlatformName: this.bind('platformName'),
+      supportEmail: s.supportEmail,
+      onSupportEmail: this.bind('supportEmail'),
+
+      themes: [
+        { key: 'light', label: 'Light', swatch: '#fbfdf4', swatchBar: '#0c173b' },
+        { key: 'dark', label: 'Dark', swatch: '#040a20', swatchBar: '#f3f6fb' },
+        { key: 'system', label: 'System', swatch: 'linear-gradient(105deg, #fbfdf4 50%, #040a20 50%)', swatchBar: 'linear-gradient(105deg, #0c173b 50%, #f3f6fb 50%)' }
+      ].map((t) => {
+        const on = theme === t.key;
+        return {
+          label: t.label,
+          swatch: t.swatch,
+          swatchBar: t.swatchBar,
+          border: on ? 'var(--blue-500)' : 'var(--border-subtle)',
+          bg: on ? 'var(--blue-50)' : 'var(--surface-raised)',
+          lift: on ? 'var(--neu-raised)' : 'none',
+          ink: on ? 'var(--blue-600)' : 'var(--text-primary)',
+          font: (on ? '500' : '400') + ' 12.5px/1 var(--font-ui)',
+          pick: () => {
+            if (t.key === 'system') return;
+            document.documentElement.dataset.theme = t.key;
+            this.forceUpdate();
+          }
+        };
+      }),
+
+      policies: POLICIES.map((p) => {
+        const on = s.policies[p.key] === undefined ? p.on : s.policies[p.key];
+        return {
+          label: p.label,
+          detail: p.detail,
+          on,
+          locked: !!p.locked,
+          labelInk: on ? 'var(--text-primary)' : 'var(--text-tertiary)',
+          track: p.locked ? 'var(--ink-400)' : track(on),
+          thumb: thumb(on),
+          cursor: p.locked ? 'not-allowed' : 'pointer',
+          hasValue: !!p.value,
+          value: p.value || '',
+          toggle: () => {
+            if (p.locked) return;
+            this.setState((prev) => ({ policies: Object.assign({}, prev.policies, { [p.key]: !on }), dirty: true, phase: 'idle' }));
+          }
+        };
+      }),
+
+      notifications: NOTIFICATIONS.map((n) => {
+        const st = s.notify[n.key] || {};
+        const c = st.console === undefined ? n.console : st.console;
+        const e = st.email === undefined ? n.email : st.email;
+        const set = (patch) => this.setState((prev) => ({
+          notify: Object.assign({}, prev.notify, { [n.key]: Object.assign({ console: c, email: e }, patch) }),
+          dirty: true, phase: 'idle'
+        }));
+        return {
+          label: n.label,
+          detail: n.detail,
+          console: c,
+          email: e,
+          consoleTrack: n.locked ? 'var(--ink-400)' : track(c),
+          consoleThumb: thumb(c),
+          emailTrack: n.locked ? 'var(--ink-400)' : track(e),
+          emailThumb: thumb(e),
+          toggleConsole: () => { if (!n.locked) set({ console: !c }); },
+          toggleEmail: () => { if (!n.locked) set({ email: !e }); }
+        };
+      }),
+
+      retention: [
+        { label: 'Platform audit log', detail: 'Append-only. Cannot be shortened below the regulatory floor.', value: '3 years' },
+        { label: 'Support session records', detail: 'Reason, duration, and who ended it.', value: '3 years' },
+        { label: 'Health metrics', detail: 'Latency, throughput, and queue depth samples.', value: '90 days' },
+        { label: 'Suspended workspace data', detail: 'Retained so reactivation is a single action.', value: '12 months' }
+      ],
+
+      exports: ['Audit log · CSV', 'Revenue · CSV', 'Workspace roster · CSV'],
+
+      keys: [
+        { label: 'Billing reconciliation worker', masked: 'pk_live_4f2a ···· 91c0', used: 'used 4 min ago' },
+        { label: 'Status page publisher', masked: 'pk_live_9b17 ···· 3ade', used: 'used 2 hours ago' },
+        { label: 'Internal metrics scraper', masked: 'pk_live_02de ···· 77b4', used: 'never used' }
+      ],
+
+      hooks: [
+        { url: 'https://ops.andishi.co.ke/hooks/alcassa', events: 'tenant.provision · tenant.suspend · payment.failed', status: 'healthy', dot: 'var(--success-fg)', ink: 'var(--text-secondary)' },
+        { url: 'https://finance.andishi.co.ke/webhook/billing', events: 'invoice.paid · invoice.failed', status: '3 failures', dot: 'var(--warning-fg)', ink: 'var(--warning-fg)' }
+      ],
+
+      dirtyNote: saved ? 'Settings saved.' : s.dirty ? 'Unsaved changes on this page' : 'No changes',
+      dirtyInk: saved ? 'var(--success-fg)' : s.dirty ? 'var(--warning-fg)' : 'var(--text-tertiary)',
+      saveLabel: saved ? 'Saved' : 'Save settings',
+      saveBg: saved ? 'var(--success-fg)' : s.dirty ? 'var(--blue-500)' : 'var(--surface-inset)',
+      saveInk: saved || s.dirty ? '#ffffff' : 'var(--text-disabled)',
+      saveCursor: s.dirty ? 'pointer' : 'not-allowed',
+      save: () => {
+        if (!s.dirty) return;
+        this.setState({ phase: 'saved', dirty: false });
+        setTimeout(() => this.setState({ phase: 'idle' }), 2600);
+      },
+      discard: () => this.setState({
+        policies: {}, notify: {}, dirty: false, phase: 'idle',
+        platformName: 'aLcassa', supportEmail: 'support@alcassa.app'
+      })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

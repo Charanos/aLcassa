@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Switch from '@radix-ui/react-switch';
@@ -45,6 +45,37 @@ export function ProvisionWorkspaceDialog({
   const router = useRouter();
   const pushToast = useToast();
 
+  /**
+   * The panel, for the entrance tween.
+   *
+   * ⚠ A REF AND AN EFFECT, NOT AN INLINE CALLBACK REF. The callback ref this
+   * replaces re-ran on every render — React re-invokes one whenever its
+   * identity changes, and an inline arrow is a fresh function each time — so
+   * the dialog replayed its entrance on every keystroke in the form. The
+   * effect keys on `open`, which is the thing that should actually trigger it.
+   */
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open || !panelRef.current) return;
+    gsapSafe.fromTo(
+      panelRef.current,
+      { opacity: 0, y: 18, scale: 0.97 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.3,
+        ease: 'power3.out',
+        /* Hand `transform` back to CSS when the tween lands. The centring no
+           longer depends on it, but an element left carrying `translate(0,0)
+           scale(1)` still holds a compositor layer and a stacking context for
+           no reason. */
+        clearProps: 'transform',
+      },
+    );
+  }, [open]);
+
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [model, setModel] = useState<ProvisionModel | null>(null);
@@ -54,7 +85,10 @@ export function ProvisionWorkspaceDialog({
   const [slug, setSlug] = useState('');
   const [slugTouched, setSlugTouched] = useState(false);
   const [email, setEmail] = useState('');
-  const [plan, setPlan] = useState('growth');
+  /* Empty until the catalogue loads. No literal can be right here: the plan
+     set is a database table, and a default guessed in the client is how
+     `growth` survived for months after the plan it named was gone. */
+  const [plan, setPlan] = useState('');
   const [trial, setTrial] = useState(true);
   const [phase, setPhase] = useState<'idle' | 'working' | 'done'>('idle');
   /* Server-side refusals. `fieldError` names the input to mark when the server
@@ -72,6 +106,11 @@ export function ProvisionWorkspaceDialog({
         if (!live) return;
         setModel(options);
         setExistingSlugs(existingSlugs);
+        /* ⚠ THE DEFAULT COMES FROM THE CATALOGUE, NOT FROM A LITERAL. It was
+           `useState('growth')` — a plan this product has never had. A
+           hardcoded default silently stops matching the moment the catalogue
+           changes, and nothing fails until somebody presses submit. */
+        if (options.plans[0]) setPlan(options.plans[0].key);
         setLoading(false);
       })
       .catch(() => {
@@ -93,7 +132,8 @@ export function ProvisionWorkspaceDialog({
     setSlug('');
     setSlugTouched(false);
     setEmail('');
-    setPlan('growth');
+    /* Not reset to a literal — the load effect re-seeds it from the
+       catalogue that is about to arrive. */
     setTrial(true);
     setPhase('idle');
   }, [open]);
@@ -115,7 +155,11 @@ export function ProvisionWorkspaceDialog({
 
   const slugAvailable = slug !== '' && !taken.has(slug);
   const emailValid = /.+@.+\..+/.test(email);
-  const ready = name.trim() !== '' && slug !== '' && slugAvailable && emailValid;
+  /* `plan` is in the gate because it is a required field of the request now.
+     Without it the submit was reachable while the catalogue was still loading,
+     and the server would refuse on an empty plan code — a refusal the operator
+     could do nothing about except try again. */
+  const ready = name.trim() !== '' && slug !== '' && slugAvailable && emailValid && plan !== '';
   const working = phase === 'working';
   const done = phase === 'done';
 
@@ -148,6 +192,11 @@ export function ProvisionWorkspaceDialog({
       slug,
       ownerEmail: email.trim(),
       trial,
+      /* ⚠ THE CHOICE WAS COLLECTED AND NEVER SENT. Four fields went to the
+         server and the plan was not one of them, so `provisionTenant` had
+         nothing to resolve and wrote no subscription row — which is why a
+         workspace provisioned here came out with no plan at all. */
+      planCode: plan,
     });
 
     if (!result.ok) {
@@ -186,7 +235,7 @@ export function ProvisionWorkspaceDialog({
 
   /* ─────── shared input classes ─────── */
   const inputCls =
-    'w-full rounded-xl border border-[var(--ink-200)] bg-white px-4 py-3 outline-none transition-all duration-200 focus:border-[var(--blue-500)] focus:ring-2 focus:ring-[var(--blue-100)]';
+    'w-full rounded-xl border border-[var(--ink-200)] bg-[var(--surface-raised)] px-4 py-3 outline-none transition-all duration-200 focus:border-[var(--blue-500)] focus:ring-2 focus:ring-[var(--blue-100)]';
   const inputStyle = {
     font: '400 14px/1.5 var(--font-ui)',
     color: 'var(--text-primary)',
@@ -200,17 +249,37 @@ export function ProvisionWorkspaceDialog({
           className="fixed inset-0 z-[150]"
           style={{ background: 'var(--surface-overlay)', backdropFilter: 'blur(4px)' }}
         />
+        {/*
+          ⚠ THE CENTRING IS NOT A TRANSFORM, AND THAT IS THE WHOLE FIX.
+
+          This dialog rendered with its top-left corner at the middle of the
+          screen, running off the bottom edge. Two faults, compounding:
+
+          1. It centred itself with `-translate-x-1/2 -translate-y-1/2` while
+             GSAP animated `y` and `scale` on the same element. GSAP writes an
+             inline `transform`, and an inline transform REPLACES the classes
+             wholesale — it does not merge with them. The moment the tween
+             touched the element the centring was gone, and the end state
+             (`y: 0, scale: 1`) is `translate(0,0)`, so it never came back.
+             Reduced motion did not save it either: `gsapSafe` falls back to
+             `gsap.set`, which writes the same inline transform.
+
+          2. The tween was wired to an INLINE CALLBACK REF. React re-invokes a
+             callback ref whenever its identity changes, and an inline arrow is
+             a new function every render — so the entrance animation re-fired on
+             every keystroke in the form, re-applying the broken transform and
+             fading the dialog from 0 each time.
+
+          Rather than teach GSAP about the centring (`xPercent: -50`), the
+          centring moves off `transform` altogether: this grid wrapper owns
+          position, the panel owns transform, and no future animation on it can
+          decentre the dialog again. The wrapper is `pointer-events-none` so the
+          overlay underneath still takes the click-outside.
+        */}
+        <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
         <Dialog.Content
-          ref={(el) => {
-            if (el) {
-              gsapSafe.fromTo(
-                el,
-                { opacity: 0, y: 18, scale: 0.97 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: 'power3.out' },
-              );
-            }
-          }}
-          className="surface-glass-strong fixed top-1/2 left-1/2 z-[150] flex max-h-[88vh] w-[92vw] max-w-[920px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-3xl"
+          ref={panelRef}
+          className="surface-glass-strong pointer-events-auto flex max-h-[88vh] w-full max-w-[920px] flex-col overflow-hidden rounded-3xl"
         >
           {/* ── Header ─────────────────────────────────────────────── */}
           <div className="relative px-8 pb-5 pt-7">
@@ -328,7 +397,7 @@ export function ProvisionWorkspaceDialog({
                           ) : null}
                         </span>
                         <span
-                          className="flex h-[46px] items-center overflow-hidden rounded-xl border border-[var(--ink-200)] bg-white transition-all duration-200 focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-100)]"
+                          className="flex h-[46px] items-center overflow-hidden rounded-xl border border-[var(--ink-200)] bg-[var(--surface-raised)] transition-all duration-200 focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-100)]"
                           style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)' }}
                         >
                           <span
@@ -409,8 +478,8 @@ export function ProvisionWorkspaceDialog({
                             aria-pressed={on}
                             className={`relative flex flex-col rounded-2xl p-4 text-left transition-all duration-300 ${
                               on
-                                ? 'border-2 border-[var(--blue-500)] bg-white shadow-[0_12px_40px_-10px_rgba(4,58,225,0.12)] -translate-y-1'
-                                : 'border border-[var(--border-subtle)] bg-white/80 hover:bg-white hover:border-[var(--ink-200)] hover:shadow-md'
+                                ? 'border-2 border-[var(--blue-500)] bg-[var(--surface-raised)] shadow-[0_12px_40px_-10px_rgba(4,58,225,0.12)] -translate-y-1'
+                                : 'border border-[var(--border-subtle)] bg-[var(--surface-raised)]/80 hover:bg-[var(--surface-raised)] hover:border-[var(--ink-200)] hover:shadow-md'
                             }`}
                           >
                             <span
@@ -459,7 +528,7 @@ export function ProvisionWorkspaceDialog({
                           }}
                         >
                           <Switch.Thumb
-                            className="block size-[18px] rounded-full bg-white transition-transform"
+                            className="block size-[18px] rounded-full bg-[var(--surface-raised)] transition-transform"
                             style={{
                               transform: trial ? 'translateX(20px)' : 'translateX(2px)',
                               boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
@@ -594,7 +663,7 @@ export function ProvisionWorkspaceDialog({
                         : ready && !working
                           ? 'linear-gradient(180deg, var(--blue-500) 0%, var(--blue-600) 100%)'
                           : 'var(--surface-inset)',
-                      color: done || (ready && !working) ? '#ffffff' : 'var(--text-disabled)',
+                      color: done || (ready && !working) ? 'var(--text-inverse)' : 'var(--text-disabled)',
                       font: '600 13.5px/1 var(--font-ui)',
                       cursor: ready && !working && !done ? 'pointer' : 'not-allowed',
                       boxShadow:
@@ -635,6 +704,7 @@ export function ProvisionWorkspaceDialog({
             )}
           </div>
         </Dialog.Content>
+        </div>
       </Dialog.Portal>
     </Dialog.Root>
   );

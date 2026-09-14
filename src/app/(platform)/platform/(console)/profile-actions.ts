@@ -13,24 +13,44 @@ import { sendEmail, sessionsRevokedEmail } from '@/modules/email';
 import { avatarUrlFor, deleteAvatarObject, uploadAvatar } from '@/lib/storage/avatar';
 import { MAX_AVATAR_BYTES, readableBytes, sniffImage } from '@/lib/storage/avatarRules';
 import { withActorContext } from '@/lib/db';
-import { ERROR_CODES, isAppError } from '@/lib/errors';
+import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
+import { createSupabasePasswordVerifier } from '@/lib/auth/supabase/verifier';
+import { AppError, ERROR_CODES, isAppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import { recordPlatformAction } from '@/modules/platform';
 
 /**
  * The operator's own profile. 17 §6.3.
  *
- * ⚠ THESE ARE THE ONLY CONTROLS ON THAT SCREEN THAT COULD BE WIRED, and the
- * rest are inert with a reason rather than pretending.
+ * ⚠ THIS FILE'S HEADER USED TO CLAIM PASSWORD CHANGE COULD NOT BE BUILT. IT
+ *   WAS WRONG, AND THE ERROR IS WORTH LEAVING ON THE RECORD.
  *
- * Two-factor enrolment, password change and recovery codes all live in
- * Supabase's `auth.users`, behind the admin client that is lint-guarded to
- * `modules/platform` because it bypasses Row Level Security. Reaching it from
- * a console screen to redraw a checklist would widen that guard for a
- * convenience. Those three stay disabled and say why.
+ * It read: *"Two-factor enrolment, password change and recovery codes all live
+ * in Supabase's `auth.users`, behind the admin client that is lint-guarded to
+ * `modules/platform` because it bypasses Row Level Security."* That is true of
+ * exactly one of the three.
  *
- * The display name and the session list are ours, in our tables, and were
- * dead for no reason at all.
+ *   MFA ENROLMENT STATUS is a real block. Reading whether a factor exists means
+ *   the admin client, so the checklist cannot show it and does not pretend to.
+ *   Note that ENROLLING is a different operation and is not blocked — see the
+ *   security panel, where it is now a route rather than a dead button.
+ *
+ *   RECOVERY CODES are a real block for a better reason: nothing stores them
+ *   after enrolment, by design, so there is nothing for a screen to show.
+ *
+ *   PASSWORD CHANGE was never blocked. `supabase.auth.updateUser` acts on the
+ *   CALLER'S OWN session through the publishable key, bound by the same RLS as
+ *   every other read on this screen — `api/v1/auth/password/reset` had been
+ *   calling it for months. I grouped three controls by where their data lives
+ *   and stopped checking, then wrote a security rationale for the group. The
+ *   rationale ("a console that could set a password would be a way around the
+ *   proof") inverted the argument: re-authentication IS the proof, and it is a
+ *   stronger one than mailbox control, which is the thing an attacker takes
+ *   first.
+ *
+ * The lesson is not "check harder". It is that a disabled control with a
+ * confident paragraph beside it stops being re-examined, which makes a wrong
+ * reason more durable than no reason at all.
  */
 
 /**
@@ -58,6 +78,16 @@ export type ProfileActionResult<T = object> =
        * time. The caller renders a sign-in link instead.
        */
       signedOut?: true;
+      /**
+       * Which input was wrong, when the form has more than one.
+       *
+       * The single-field actions here do not need it — there is only one place
+       * the message could attach. The password form has three inputs, and a
+       * refusal that cannot say which one it means ("That is not your current
+       * password") floats above all three and reads as a verdict on the whole
+       * form.
+       */
+      field?: 'currentPassword' | 'password' | 'passwordConfirm';
     };
 
 /**
@@ -568,5 +598,140 @@ export async function removeConsoleAvatar(): Promise<ProfileActionResult> {
   } catch (error) {
     logger.error('console avatar could not be removed', { error });
     return refusal(error, 'That image could not be removed. Try again.');
+  }
+}
+
+/* ── Password ─────────────────────────────────────────────────────────────── */
+
+export type ChangePasswordResult = ProfileActionResult<{ signedOutDevices: number }>;
+
+/**
+ * Change your own password, from a signed-in session.
+ *
+ * ⚠ THIS WAS DISABLED, AND THE REASON I GAVE FOR IT WAS WRONG.
+ *
+ * The screen read: *"Password changes go through the recovery flow, which
+ * proves control of the address first. A console that could set a password for
+ * a signed-in session would be a way around that proof."* That is a
+ * rationalisation, and it inverts the actual security argument.
+ *
+ * Re-authentication IS the proof. Asking for the current password proves
+ * control of the ACCOUNT, which is a stronger claim than control of the
+ * mailbox — a mailbox is what an attacker compromises in order to run the
+ * recovery flow. Forcing an operator through email recovery to rotate a
+ * credential they already hold does not add a gate; it removes one and adds
+ * friction. Every product that handles this well does it this way.
+ *
+ * The other half of the old reasoning was a genuine confusion on my part:
+ * I wrote that this "lives in `auth.users`, behind the admin client that is
+ * lint-guarded". Reading enrolment STATUS does need that client. Changing your
+ * own password does not — `updateUser` acts on the caller's own session
+ * through the publishable key, bound by the same RLS as everything else, which
+ * `api/v1/auth/password/reset` has been doing all along.
+ *
+ * ⚠ THE OLD PASSWORD IS VERIFIED ON A THROWAWAY CLIENT. See
+ * `lib/auth/supabase/verifier.ts`: proving it on the cookie-bound server
+ * client would mint a new session and rotate the id out from under the request
+ * doing the proving — which is the id `revokeAllSessions` needs in order to
+ * spare this device.
+ *
+ * ⚠ EVERY OTHER DEVICE IS SIGNED OUT, AND THIS ONE IS NOT. A password change
+ * is what somebody does when they think a credential is exposed, so leaving
+ * other sessions alive would defeat the reason they came. Signing THIS one out
+ * too would be correct and unkind — it would drop them on a login screen
+ * mid-task — so the current session is spared explicitly and the count of what
+ * went is returned for the screen to state.
+ */
+export async function changeConsolePassword(input: {
+  currentPassword: string;
+  password: string;
+  passwordConfirm: string;
+}): Promise<ChangePasswordResult> {
+  // 02 §9. Length over composition: a 12-character passphrase beats
+  // `P@ssw0rd!`. Same rule as the reset route, deliberately — two different
+  // minimums for one credential is how a password policy stops meaning
+  // anything.
+  if (input.password.length < 12) {
+    return { ok: false, error: 'Use at least 12 characters.', field: 'password' };
+  }
+  if (input.password !== input.passwordConfirm) {
+    return { ok: false, error: 'Both passwords must match.', field: 'passwordConfirm' };
+  }
+  if (input.password === input.currentPassword) {
+    return {
+      ok: false,
+      error: 'That is the password you already have. Choose a different one.',
+      field: 'password',
+    };
+  }
+
+  try {
+    const ctx = await currentPlatformSession();
+
+    const supabase = await createSupabaseServerClient();
+    const { data: me } = await supabase.auth.getUser();
+    const email = me.user?.email;
+    if (!email) throw new AppError(ERROR_CODES.AUTH_SESSION_EXPIRED, { message: 'Signed out.' });
+
+    // ─ 1 · prove the old one, without touching the live session ─────────────
+    const verifier = createSupabasePasswordVerifier();
+    const proof = await verifier.auth.signInWithPassword({
+      email,
+      password: input.currentPassword,
+    });
+    if (proof.error) {
+      /* Deliberately not distinguishing "wrong password" from "rate limited"
+         to the caller by message alone — but this one IS the signed-in user,
+         so a precise field error is the right kindness rather than a leak. */
+      logger.warn('password change: re-authentication failed', {
+        actorId: ctx.actorId,
+        requestId: ctx.requestId,
+      });
+      return {
+        ok: false,
+        error: 'That is not your current password.',
+        field: 'currentPassword',
+      };
+    }
+    await verifier.auth.signOut({ scope: 'local' });
+
+    // ─ 2 · the credential ───────────────────────────────────────────────────
+    const updated = await supabase.auth.updateUser({ password: input.password });
+    if (updated.error) {
+      return { ok: false, error: updated.error.message, field: 'password' };
+    }
+
+    // ─ 3 · everything signed in under the old one, except this device ───────
+    const signedOutDevices = await revokeAllSessions(
+      ctx.actorId,
+      ctx.requestId,
+      'password changed',
+      ctx.sessionId ?? undefined,
+    );
+
+    // ─ 4 · the record ───────────────────────────────────────────────────────
+    await withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
+      await recordPlatformAction(tx, {
+        actorUserId: ctx.actorId,
+        actorLabel: ctx.actorLabel,
+        action: AUDIT_ACTIONS.PASSWORD_CHANGED,
+        entityType: 'user',
+        entityId: ctx.actorId,
+        /* What changed, never what it changed TO. A log that carries a
+           password, or any part of one, is worse than no log. */
+        reason:
+          signedOutDevices > 0
+            ? `password changed; ${signedOutDevices} other ${signedOutDevices === 1 ? 'session' : 'sessions'} revoked`
+            : 'password changed; no other sessions were open',
+        requestId: ctx.requestId,
+        ipAddress: ctx.ipAddress,
+      });
+    });
+
+    PROPAGATE();
+    return { ok: true, signedOutDevices };
+  } catch (error) {
+    logger.error('password change failed', { error });
+    return refusal(error, 'The password could not be changed. Nothing was saved.');
   }
 }

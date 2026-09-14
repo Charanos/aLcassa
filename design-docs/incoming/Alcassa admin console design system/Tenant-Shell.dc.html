@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./console-tokens.css">
+  <script type="importmap">{"imports": {"react": "./react-shim.js", "react-dom": "./react-dom-shim.js"}}</script>
+</helmet>
+
+<div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: var(--surface-base); color: var(--text-primary); font: 400 14px/1.55 var(--font-ui);">
+
+  <header style="flex: 0 0 auto; display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 14px 0 18px; background: {{ topBg }}; border-bottom: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm); position: relative; z-index: 30;">
+    <a href="#" onClick="{{ goHome }}" style="display: inline-flex; align-items: center; gap: 10px; color: var(--text-primary); text-decoration: none; flex: 0 0 auto;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-label="aLcassa" role="img">
+        <circle cx="6.6" cy="6.4" r="4.05" fill="var(--blue-500)"></circle>
+        <circle cx="17.4" cy="6.4" r="4.05" fill="var(--blue-500)"></circle>
+        <path d="M17.9 7.4a7.9 7.9 0 1 0 0 9.2" stroke="var(--blue-500)" stroke-width="4.6" stroke-linecap="round" fill="none"></path>
+        <circle cx="12" cy="12" r="2.35" fill="var(--blue-500)"></circle>
+      </svg>
+      <span style="font: 500 19px/1 var(--font-ui); letter-spacing: -0.015em;">aLcassa</span>
+    </a>
+
+    <span style="width: 1px; height: 22px; background: var(--border-subtle); flex: 0 0 auto;"></span>
+
+    <div style="position: relative; flex: 0 1 auto; min-width: 0;">
+      <button type="button" onClick="{{ toggleSwitcher }}" style="display: inline-flex; align-items: center; gap: 9px; max-width: 100%; min-width: 0; height: 34px; padding: 0 9px 0 7px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui); box-shadow: var(--shadow-sm);" style-hover="border-color: var(--border-strong);">
+        <span style="display: grid; place-items: center; width: 22px; height: 22px; border-radius: 5px; background: var(--blue-50); color: var(--blue-500); font: 500 10px/1 var(--font-mono);">KL</span>
+        <span style="flex: 0 1 auto; min-width: 3ch; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Kilimanjaro Logistics</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);" aria-hidden="true"><path d="M6 9l6 6l6 -6"></path></svg>
+      </button>
+
+      <sc-if value="{{ switcherOpen }}" hint-placeholder-val="{{ false }}">
+        <div onPointerDown="{{ stop }}" style="position: absolute; top: 42px; left: 0; width: 320px; padding: 6px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); z-index: 60; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+          <p style="margin: 8px 10px 6px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Your workspaces</p>
+          <sc-for list="{{ workspaces }}" as="w" hint-placeholder-count="3">
+            <button type="button" onClick="{{ w.pick }}" style="display: flex; width: 100%; align-items: center; gap: 10px; padding: 9px 10px; border: none; border-radius: 7px; background: {{ w.bg }}; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-inset);">
+              <span style="display: grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; background: var(--blue-50); color: var(--blue-500); font: 500 11px/1 var(--font-mono);">{{ w.initials }}</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13px/1.3 var(--font-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ w.name }}</span>
+                <span style="display: block; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary);">{{ w.role }}</span>
+              </span>
+              <span style="width: 16px; height: 16px; color: var(--blue-500);">{{ w.check }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <button type="button" onClick="{{ openPalette }}" style="display: flex; align-items: center; gap: 9px; flex: 1 1 120px; min-width: 0; max-width: 340px; height: 34px; padding: 0 8px 0 10px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-sunken); color: var(--text-tertiary); font: 400 13px/1 var(--font-ui); text-align: left;" style-hover="border-color: var(--border-strong); color: var(--text-secondary);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path><path d="M21 21l-6 -6"></path></svg>
+      <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Search conversations, contacts, settings</span>
+      <kbd style="display: inline-flex; align-items: center; flex: 0 0 auto; height: 20px; padding: 0 6px; border: 1px solid var(--border-subtle); border-radius: 4px; font: 500 11px/1 var(--font-mono); color: var(--text-tertiary);">⌘K</kbd>
+    </button>
+
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 6px; flex: 0 0 auto;">
+      <div style="position: relative;">
+        <button type="button" onClick="{{ toggleNew }}" style="display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px 0 11px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui); box-shadow: var(--shadow-sm);" style-hover="background: var(--blue-600);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5l0 14"></path><path d="M5 12l14 0"></path></svg>
+          New
+        </button>
+        <sc-if value="{{ newOpen }}" hint-placeholder-val="{{ false }}">
+          <div onPointerDown="{{ stop }}" style="position: absolute; top: 42px; right: 0; width: 246px; padding: 6px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); z-index: 60; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+            <sc-for list="{{ newItems }}" as="n" hint-placeholder-count="4">
+              <button type="button" onClick="{{ n.run }}" style="display: flex; align-items: center; gap: 11px; width: 100%; height: 36px; padding: 0 10px; border: none; border-radius: 7px; background: transparent; text-align: left; color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">
+                <span style="display: grid; place-items: center; width: 16px; height: 16px; flex: 0 0 auto; color: var(--text-secondary);">{{ n.icon }}</span>
+                {{ n.label }}
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="position: relative;">
+        <button type="button" onClick="{{ toggleNotices }}" aria-label="Notifications" style="position: relative; display: grid; place-items: center; width: 34px; height: 34px; border: none; border-radius: 7px; background: {{ noticesBg }}; color: var(--text-secondary);" style-hover="background: var(--surface-inset); color: var(--text-primary);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path><path d="M9 17v1a3 3 0 0 0 6 0v-1"></path></svg>
+          <span style="position: absolute; top: 7px; right: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--orange-400);"></span>
+        </button>
+        <sc-if value="{{ noticesOpen }}" hint-placeholder-val="{{ false }}">
+          <div onPointerDown="{{ stop }}" style="position: absolute; top: 42px; right: 0; width: 366px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); z-index: 60; overflow: hidden; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--border-subtle);">
+              <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Notifications</p>
+              <button type="button" style="border: none; background: transparent; padding: 0; font: 400 12px/1 var(--font-ui); color: var(--text-action);">Mark all read</button>
+            </div>
+            <sc-for list="{{ notices }}" as="n" hint-placeholder-count="3">
+              <button type="button" onClick="{{ n.open }}" style="display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 13px 16px; border: none; border-bottom: 1px solid var(--border-subtle); background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-inset);">
+                <span style="display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 auto; border-radius: 6px; background: {{ n.chipBg }}; color: {{ n.chipInk }};">{{ n.icon }}</span>
+                <span style="flex: 1; min-width: 0;">
+                  <span style="display: block; font: 400 13px/1.4 var(--font-ui);">{{ n.title }}</span>
+                  <span style="display: block; margin-top: 2px; font: 400 11.5px/1.45 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">{{ n.body }}</span>
+                </span>
+                <span style="font: 400 11px/1.5 var(--font-mono); color: var(--text-tertiary); flex: 0 0 auto;">{{ n.time }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+
+      <button type="button" onClick="{{ goHelp }}" aria-label="Help and docs" style="display: grid; place-items: center; width: 34px; height: 34px; border: none; border-radius: 7px; background: transparent; color: var(--text-secondary);" style-hover="background: var(--surface-inset); color: var(--text-primary);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path><path d="M12 16v.01"></path><path d="M12 13a2 2 0 0 0 .914 -3.782a2 2 0 1 0 -2.914 1.782"></path></svg>
+      </button>
+
+      <button type="button" onClick="{{ toggleTheme }}" aria-label="Toggle colour theme" style="display: grid; place-items: center; width: 34px; height: 34px; border: none; border-radius: 7px; background: transparent; color: var(--text-secondary);" style-hover="background: var(--surface-inset); color: var(--text-primary);">
+        {{ themeIcon }}
+      </button>
+
+      <span style="width: 1px; height: 22px; margin: 0 4px; background: var(--border-subtle);"></span>
+
+      <div style="position: relative;">
+        <button type="button" onClick="{{ toggleAccount }}" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px 0 4px; border: none; border-radius: 7px; background: {{ accountBg }}; color: var(--text-primary);" style-hover="background: var(--surface-inset);">
+          <span style="display: grid; place-items: center; width: 26px; height: 26px; border-radius: 9999px; background: var(--blue-50); color: var(--blue-500); font: 500 11px/1 var(--font-mono);">AW</span>
+          <span style="font: 400 12.5px/1 var(--font-ui); display: {{ nameDisplay }};">Aisha W.</span>
+        </button>
+        <sc-if value="{{ accountOpen }}" hint-placeholder-val="{{ false }}">
+          <div onPointerDown="{{ stop }}" style="position: absolute; top: 42px; right: 0; width: 258px; padding: 6px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); z-index: 60; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="display: flex; align-items: center; gap: 11px; padding: 10px 10px 12px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 6px;">
+              <span style="display: grid; place-items: center; width: 34px; height: 34px; flex: 0 0 auto; border-radius: 9999px; background: var(--blue-50); color: var(--blue-500); font: 500 12px/1 var(--font-mono);">AW</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13px/1.35 var(--font-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Aisha Wanjiku</span>
+                <span style="display: block; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">workspace_admin</span>
+              </span>
+            </div>
+            <sc-for list="{{ accountItems }}" as="a" hint-placeholder-count="4">
+              <button type="button" onClick="{{ a.go }}" style="display: flex; align-items: center; gap: 11px; width: 100%; height: 34px; padding: 0 10px; border: none; border-radius: 7px; background: transparent; text-align: left; color: {{ a.ink }}; font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">
+                <span style="display: grid; place-items: center; width: 16px; height: 16px; flex: 0 0 auto;">{{ a.icon }}</span>
+                {{ a.label }}
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </header>
+
+  <div style="flex: 1 1 auto; display: flex; min-height: 0;">
+    <nav aria-label="Workspace navigation" style="flex: 0 0 auto; width: {{ railW }}; display: flex; flex-direction: column; background: {{ railBg }}; border-right: 1px solid var(--border-subtle); transition: width 180ms cubic-bezier(0.2, 0, 0, 1); position: relative; z-index: 20;">
+      <div style="flex: 1 1 auto; overflow-y: auto; padding: 14px 10px 8px;">
+        <sc-for list="{{ navGroups }}" as="group" hint-placeholder-count="4">
+          <div style="margin-bottom: 18px;">
+            <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+              <p style="margin: 0 0 7px 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">{{ group.label }}</p>
+            </sc-if>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <sc-for list="{{ group.items }}" as="item" hint-placeholder-count="4">
+                <button type="button" onClick="{{ item.go }}" title="{{ item.label }}" aria-current="{{ item.current }}" style="position: relative; display: flex; align-items: center; gap: 11px; width: 100%; height: 36px; padding: 0 10px; border: none; border-radius: 7px; background: {{ item.bg }}; color: {{ item.fg }}; font: 400 13px/1 var(--font-ui); text-align: left;" style-hover="background: var(--surface-inset);">
+                  <span style="position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; border-radius: 2px; background: {{ item.mark }};"></span>
+                  <span style="display: grid; place-items: center; width: 18px; height: 18px; flex: 0 0 auto;">{{ item.icon }}</span>
+                  <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+                    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.label }}</span>
+                  </sc-if>
+                  <sc-if value="{{ item.badge }}" hint-placeholder-val="{{ false }}">
+                    <span style="display: inline-grid; place-items: center; min-width: 20px; height: 18px; padding: 0 6px; border-radius: 9999px; background: {{ item.badgeBg }}; color: {{ item.badgeInk }}; font: 500 11px/1 var(--font-mono);">{{ item.badge }}</span>
+                  </sc-if>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ showUsage }}" hint-placeholder-val="{{ true }}">
+        <div style="flex: 0 0 auto; padding: 10px; border-top: 1px solid var(--border-subtle);">
+          <div style="padding: 11px 12px 12px; border: 1px solid var(--border-subtle); border-radius: 9px; background: var(--surface-sunken);">
+            <p style="margin: 0 0 8px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary);">
+              Growth plan
+              <span style="font: 400 11px/1 var(--font-mono); letter-spacing: 0; text-transform: none; color: var(--warning-fg);">94%</span>
+            </p>
+            <div style="height: 5px; border-radius: 9999px; background: var(--surface-inset); overflow: hidden;">
+              <div style="width: 94%; height: 100%; border-radius: 9999px; background: var(--warning-fg);"></div>
+            </div>
+            <p style="margin: 8px 0 0; font: 400 11.5px/1.45 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">470,300 of 500,000 events. 19 days left in this period.</p>
+            <button type="button" onClick="{{ goBilling }}" style="margin-top: 9px; width: 100%; height: 30px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Review plan</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="flex: 0 0 auto; padding: 8px 10px 10px;">
+        <button type="button" onClick="{{ toggleCollapse }}" style="display: flex; align-items: center; gap: 10px; width: 100%; height: 32px; padding: 0 10px; border: none; border-radius: 7px; background: transparent; color: var(--text-tertiary); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--surface-inset); color: var(--text-primary);">
+          <span style="display: grid; place-items: center; width: 18px; height: 18px; flex: 0 0 auto;">{{ collapseIcon }}</span>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+            <span>Collapse</span>
+            <kbd style="margin-left: auto; font: 500 11px/1 var(--font-mono); color: var(--text-tertiary);">⌘B</kbd>
+          </sc-if>
+        </button>
+      </div>
+    </nav>
+
+    <main style="flex: 1 1 auto; min-width: 0; overflow-y: auto; background: var(--surface-base);">
+
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+        <div style="padding: 26px 30px 40px; max-width: 1320px;">
+          <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 22px;">
+            <div>
+              <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Today · Thursday 3 September</p>
+              <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums;">Good morning, Aisha</h1>
+              <p style="margin: 10px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 62ch; text-wrap: pretty;">Four channels are live and the agent handled 68% of inbound messages overnight. Eleven conversations are waiting on a person.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" onClick="{{ goReports }}" style="height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Open reports</button>
+              <button type="button" onClick="{{ goInbox }}" style="display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 15px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: var(--blue-600);">Go to inbox</button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(212px, 1fr)); gap: 14px; margin-bottom: 20px;">
+            <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+              <div style="padding: 16px 18px 15px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm);">
+                <p style="margin: 0 0 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary);">{{ s.label }}</p>
+                <p style="margin: 0; display: flex; align-items: baseline; gap: 9px;">
+                  <span style="font-family: var(--font-display); font-weight: 400; font-size: 27px; line-height: 1.1; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums;">{{ s.value }}</span>
+                  <span style="display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px 0 5px; border-radius: 9999px; background: {{ s.deltaBg }}; color: {{ s.deltaInk }}; font: 400 11.5px/1 var(--font-mono);">
+                    <span style="display: grid; place-items: center; width: 13px; height: 13px;">{{ s.trend }}</span>
+                    {{ s.delta }}
+                  </span>
+                </p>
+                <div style="margin-top: 12px; height: 26px;">{{ s.spark }}</div>
+                <p style="margin: 9px 0 0; font: 400 12px/1.45 var(--font-ui); color: var(--text-secondary);">{{ s.note }}</p>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="margin-bottom: 20px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 20px 13px; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap;">
+              <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Conversation volume · 30 days</p>
+              <span style="display: flex; align-items: center; gap: 16px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;">
+                  <span style="width: 9px; height: 2px; border-radius: 2px; background: var(--blue-500);"></span>
+                  Handled by the agent
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;">
+                  <span style="width: 9px; height: 2px; border-radius: 2px; background: var(--ink-300);"></span>
+                  Reached a person
+                </span>
+              </span>
+            </div>
+            <div style="padding: 18px 20px 20px;">
+              <x-import component-from-global-scope="VolumeChart" from="./charts.jsx" hint-size="100%,220px"></x-import>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.95fr); gap: 16px; align-items: start;">
+            <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 20px 13px; border-bottom: 1px solid var(--border-subtle);">
+                <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Needs a person</p>
+                <button type="button" onClick="{{ goInbox }}" style="border: none; background: transparent; padding: 0; font: 400 12.5px/1 var(--font-ui); color: var(--text-action);">All 11</button>
+              </div>
+              <sc-for list="{{ queue }}" as="q" hint-placeholder-count="5">
+                <button type="button" onClick="{{ goInbox }}" style="display: flex; align-items: center; gap: 14px; width: 100%; padding: 13px 20px; border: none; border-bottom: 1px solid var(--border-subtle); background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-sunken);">
+                  <span style="display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 9999px; background: var(--surface-inset); color: var(--text-secondary); font: 500 11px/1 var(--font-mono);">{{ q.initials }}</span>
+                  <span style="flex: 1; min-width: 0;">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                      <span style="font: 400 13.5px/1.3 var(--font-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ q.name }}</span>
+                      <span style="display: inline-flex; align-items: center; gap: 5px; padding: 0 7px; height: 19px; border-radius: 9999px; background: var(--surface-inset); color: var(--text-secondary); font: 400 11px/19px var(--font-mono); flex: 0 0 auto;">{{ q.channel }}</span>
+                    </span>
+                    <span style="display: block; margin-top: 3px; font: 400 12.5px/1.45 var(--font-ui); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ q.snippet }}</span>
+                  </span>
+                  <span style="flex: 0 0 auto; text-align: right;">
+                    <span style="display: block; font: 400 12px/1.3 var(--font-mono); color: {{ q.waitInk }};">{{ q.wait }}</span>
+                    <span style="display: block; margin-top: 3px; font: 400 11px/1.3 var(--font-ui); color: var(--text-tertiary);">{{ q.reason }}</span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+
+            <div style="display: grid; gap: 16px;">
+              <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px 13px; border-bottom: 1px solid var(--border-subtle);">
+                  <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Channels</p>
+                  <button type="button" onClick="{{ goChannels }}" style="border: none; background: transparent; padding: 0; font: 400 12.5px/1 var(--font-ui); color: var(--text-action);">Manage</button>
+                </div>
+                <sc-for list="{{ channels }}" as="c" hint-placeholder-count="4">
+                  <div style="display: flex; align-items: center; gap: 11px; padding: 11px 18px; border-bottom: 1px solid var(--border-subtle);">
+                    <span style="display: grid; place-items: center; width: 28px; height: 28px; flex: 0 0 auto; border-radius: 7px; background: var(--surface-sunken); color: var(--text-secondary);">{{ c.glyph }}</span>
+                    <span style="flex: 1; min-width: 0;">
+                      <span style="display: block; font: 400 13px/1.35 var(--font-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ c.label }}</span>
+                      <span style="display: block; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ c.detail }}</span>
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; font: 400 11.5px/1.3 var(--font-mono); color: {{ c.ink }};">
+                      <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ c.dot }};"></span>
+                      {{ c.state }}
+                    </span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="padding: 16px 18px 18px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm);">
+                <p style="margin: 0 0 14px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">This period</p>
+                <sc-for list="{{ meters }}" as="m" hint-placeholder-count="3">
+                  <div style="margin-bottom: 14px;">
+                    <p style="margin: 0 0 7px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font: 400 12.5px/1.3 var(--font-ui);">
+                      <span>{{ m.label }}</span>
+                      <span style="font: 400 12px/1.3 var(--font-mono); color: var(--text-secondary);">{{ m.text }}</span>
+                    </p>
+                    <div style="height: 5px; border-radius: 9999px; background: var(--surface-inset); overflow: hidden;">
+                      <div style="width: {{ m.pct }}; height: 100%; border-radius: 9999px; background: {{ m.fill }};"></div>
+                    </div>
+                  </div>
+                </sc-for>
+                <button type="button" onClick="{{ goUsage }}" style="width: 100%; height: 32px; margin-top: 4px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Usage detail</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isInbox }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 26px 30px 40px; max-width: 1320px;">
+          <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 18px;">
+            <div>
+              <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Inbox</p>
+              <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums;">Conversations</h1>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" style="height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Filters</button>
+              <button type="button" onClick="{{ toggleNew }}" style="height: 36px; padding: 0 15px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: var(--blue-600);">Start a conversation</button>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;">
+            <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+              <button type="button" onClick="{{ t.pick }}" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid {{ t.border }}; border-radius: 9999px; background: {{ t.bg }}; color: {{ t.fg }}; font: 400 13px/1 var(--font-ui);" style-hover="border-color: var(--border-strong);">
+                {{ t.label }}
+                <span style="font: 400 11.5px/1 var(--font-mono); color: {{ t.countInk }};">{{ t.count }}</span>
+              </button>
+            </sc-for>
+          </div>
+
+          <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+            <div style="display: grid; grid-template-columns: 34px minmax(0, 1.7fr) 116px minmax(0, 1fr) 96px 92px; align-items: center; gap: 14px; padding: 11px 20px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-sunken); font: 500 11px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary);">
+              <span></span>
+              <span>Contact</span>
+              <span>Channel</span>
+              <span>Assignee</span>
+              <span>Waiting</span>
+              <span>Status</span>
+            </div>
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+              <button type="button" onClick="{{ r.open }}" style="display: grid; grid-template-columns: 34px minmax(0, 1.7fr) 116px minmax(0, 1fr) 96px 92px; align-items: center; gap: 14px; width: 100%; padding: 0 20px; height: var(--row-h); border: none; border-bottom: 1px solid var(--border-subtle); background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-sunken);">
+                <span style="display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9999px; background: var(--surface-inset); color: var(--text-secondary); font: 500 10.5px/1 var(--font-mono);">{{ r.initials }}</span>
+                <span style="min-width: 0;">
+                  <span style="display: block; font: 400 13.5px/1.3 var(--font-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ r.name }}</span>
+                  <span style="display: block; font: 400 12px/1.4 var(--font-ui); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ r.snippet }}</span>
+                </span>
+                <span style="font: 400 12px/1.3 var(--font-mono); color: var(--text-secondary);">{{ r.channel }}</span>
+                <span style="font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ r.assignee }}</span>
+                <span style="font: 400 12px/1.3 var(--font-mono); color: {{ r.waitInk }};">{{ r.wait }}</span>
+                <span style="display: inline-flex; align-items: center; justify-content: center; height: 21px; padding: 0 9px; border-radius: 9999px; background: {{ r.stateBg }}; color: {{ r.stateInk }}; font: 400 11px/21px var(--font-mono);">{{ r.state }}</span>
+              </button>
+            </sc-for>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px; background: var(--surface-sunken);">
+              <span style="font: 400 12px/1 var(--font-mono); color: var(--text-tertiary);">{{ rowCount }} of 1,284 open</span>
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" style="height: 30px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-secondary); font: 400 12.5px/1 var(--font-ui);">Previous</button>
+                <button type="button" style="height: 30px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Next</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isAgent }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; min-height: 100%;">
+          <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 30px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-raised); position: sticky; top: 0; z-index: 5;">
+            <span style="display: inline-flex; align-items: center; gap: 8px; height: 24px; padding: 0 10px; border-radius: 9999px; background: var(--warning-bg); color: var(--warning-fg); font: 400 11.5px/1 var(--font-mono);">Draft v9 · unpublished</span>
+            <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">3 changes since v8, published by Aisha on 28 Aug</span>
+            <span style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+              <button type="button" style="height: 34px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Discard draft</button>
+              <button type="button" style="height: 34px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Compare with v8</button>
+              <button type="button" style="height: 34px; padding: 0 15px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: var(--blue-600);">Publish to all channels</button>
+            </span>
+          </div>
+
+          <div style="flex: 1 1 auto; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr); align-items: start; gap: 0;">
+            <div style="padding: 24px 30px 40px; border-right: 1px solid var(--border-subtle);">
+              <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em;">What your agent is told</h1>
+              <p style="margin: 11px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 62ch; text-wrap: pretty;">Read top to bottom, this is the whole instruction set. Platform rules come first and you cannot edit them — your own instructions are read after, and cannot contradict them.</p>
+
+              <p style="margin: 26px 0 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Inherited from the platform · read-only</p>
+              <div style="display: grid; gap: 8px;">
+                <sc-for list="{{ inherited }}" as="r" hint-placeholder-count="3">
+                  <div style="display: flex; gap: 13px; padding: 14px 16px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--surface-sunken);">
+                    <span style="display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 auto; border-radius: 7px; background: var(--surface-inset); color: var(--text-tertiary);">{{ r.icon }}</span>
+                    <span style="flex: 1; min-width: 0;">
+                      <span style="display: block; font: 500 13px/1.4 var(--font-ui);">{{ r.title }}</span>
+                      <span style="display: block; margin-top: 4px; font: 400 13px/1.55 var(--font-mono); color: var(--text-secondary); text-wrap: pretty;">{{ r.body }}</span>
+                    </span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <p style="margin: 26px 0 10px; display: flex; align-items: center; gap: 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">
+                Your instructions
+                <span style="flex: 1; height: 1px; background: var(--border-subtle);"></span>
+              </p>
+              <div style="display: grid; gap: 8px;">
+                <sc-for list="{{ ownRules }}" as="r" hint-placeholder-count="3">
+                  <div style="padding: 14px 16px; border: 1px solid {{ r.border }}; border-radius: 10px; background: var(--surface-raised); box-shadow: var(--shadow-sm);">
+                    <p style="margin: 0 0 8px; display: flex; align-items: center; gap: 10px;">
+                      <span style="font: 500 13px/1.4 var(--font-ui);">{{ r.title }}</span>
+                      <sc-if value="{{ r.changed }}" hint-placeholder-val="{{ false }}">
+                        <span style="display: inline-flex; align-items: center; height: 19px; padding: 0 8px; border-radius: 9999px; background: var(--warning-bg); color: var(--warning-fg); font: 400 11px/19px var(--font-mono);">edited</span>
+                      </sc-if>
+                      <span style="margin-left: auto; font: 400 11px/1 var(--font-mono); color: var(--text-tertiary);">{{ r.words }}</span>
+                    </p>
+                    <p style="margin: 0; font: 400 13px/1.6 var(--font-mono); color: var(--text-primary); text-wrap: pretty;">{{ r.body }}</p>
+                  </div>
+                </sc-for>
+              </div>
+              <button type="button" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; height: 34px; padding: 0 13px 0 11px; border: 1px dashed var(--border-strong); border-radius: 8px; background: transparent; color: var(--text-secondary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset); color: var(--text-primary);">
+                {{ plusIcon }} Add an instruction block
+              </button>
+            </div>
+
+            <div style="padding: 24px 26px 40px; display: grid; gap: 18px;">
+              <div>
+                <p style="margin: 0 0 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Always hand to a person</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 7px;">
+                  <sc-for list="{{ escalations }}" as="e" hint-placeholder-count="5">
+                    <span style="display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 6px 0 11px; border: 1px solid var(--border-subtle); border-radius: 9999px; background: var(--surface-raised); font: 400 12.5px/1 var(--font-ui);">
+                      {{ e.label }}
+                      <button type="button" aria-label="Remove" style="display: grid; place-items: center; width: 17px; height: 17px; border: none; border-radius: 9999px; background: var(--surface-inset); color: var(--text-tertiary); font: 400 11px/1 var(--font-mono);" style-hover="background: var(--danger-bg); color: var(--danger-fg);">×</button>
+                    </span>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+                <div style="padding: 14px 16px 12px; border-bottom: 1px solid var(--border-subtle);">
+                  <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Replay against this draft</p>
+                  <p style="margin: 8px 0 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">Twelve real conversations from last week, answered again by the draft. Nothing is sent.</p>
+                </div>
+                <sc-for list="{{ replays }}" as="c" hint-placeholder-count="3">
+                  <div style="padding: 13px 16px; border-bottom: 1px solid var(--border-subtle);">
+                    <p style="margin: 0 0 7px; display: flex; align-items: center; gap: 8px;">
+                      <span style="font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary);">{{ c.contact }}</span>
+                      <span style="margin-left: auto; display: inline-flex; align-items: center; gap: 6px; height: 20px; padding: 0 8px; border-radius: 9999px; background: {{ c.chipBg }}; color: {{ c.chipInk }}; font: 400 11px/20px var(--font-mono);">{{ c.verdict }}</span>
+                    </p>
+                    <p style="margin: 0 0 8px; padding-left: 11px; border-left: 2px solid var(--border-subtle); font: 400 13px/1.5 var(--font-ui); color: var(--text-primary); text-wrap: pretty;">{{ c.question }}</p>
+                    <p style="margin: 0; padding-left: 11px; border-left: 2px solid var(--blue-300); font: 400 13px/1.5 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">{{ c.answer }}</p>
+                  </div>
+                </sc-for>
+                <div style="padding: 12px 16px; background: var(--surface-sunken);">
+                  <button type="button" style="width: 100%; height: 32px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Replay 12 more</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isChannels }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 26px 30px 40px; max-width: 1180px;">
+          <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Settings</p>
+          <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em;">Channels</h1>
+          <p style="margin: 11px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 62ch; text-wrap: pretty;">Four connections are live. If one of these goes quiet your customers hear nothing back, so each card states its own last inbound event rather than a shared green tick.</p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; margin-top: 22px;">
+            <sc-for list="{{ connections }}" as="c" hint-placeholder-count="4">
+              <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+                <div style="height: 3px; background: {{ c.stripe }};"></div>
+                <div style="padding: 16px 18px 14px;">
+                  <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <span style="display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 auto; border-radius: 10px; background: var(--surface-sunken); color: var(--text-secondary);">{{ c.glyph }}</span>
+                    <span style="flex: 1; min-width: 0;">
+                      <span style="display: block; font: 500 15px/1.35 var(--font-ui);">{{ c.name }}</span>
+                      <span style="display: block; font: 400 12px/1.45 var(--font-mono); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ c.address }}</span>
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; height: 22px; padding: 0 9px; border-radius: 9999px; background: {{ c.chipBg }}; color: {{ c.chipInk }}; font: 400 11px/22px var(--font-mono);">{{ c.state }}</span>
+                  </div>
+
+                  <sc-if value="{{ c.problem }}" hint-placeholder-val="{{ false }}">
+                    <p style="margin: 13px 0 0; padding: 10px 12px; border-radius: 8px; background: var(--warning-bg); color: var(--warning-fg); font: 400 12.5px/1.5 var(--font-ui); text-wrap: pretty;">{{ c.problem }}</p>
+                  </sc-if>
+
+                  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 15px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+                    <sc-for list="{{ c.facts }}" as="fact" hint-placeholder-count="3">
+                      <span>
+                        <span style="display: block; font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary);">{{ fact.k }}</span>
+                        <span style="display: block; margin-top: 5px; font: 400 13px/1.3 var(--font-mono); color: {{ fact.ink }};">{{ fact.v }}</span>
+                      </span>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; padding: 11px 18px; border-top: 1px solid var(--border-subtle); background: var(--surface-sunken);">
+                  <span style="flex: 1; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary);">{{ c.route }}</span>
+                  <button type="button" style="height: 30px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">{{ c.action }}</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <p style="margin: 30px 0 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Not connected</p>
+          <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); overflow: hidden;">
+            <sc-for list="{{ connectors }}" as="k" hint-placeholder-count="3">
+              <div style="display: flex; align-items: center; gap: 13px; padding: 13px 18px; border-bottom: 1px solid var(--border-subtle);">
+                <span style="display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; background: var(--surface-sunken); color: var(--text-tertiary);">{{ k.glyph }}</span>
+                <span style="flex: 1; min-width: 0;">
+                  <span style="display: block; font: 400 13.5px/1.35 var(--font-ui);">{{ k.name }}</span>
+                  <span style="display: block; font: 400 12px/1.45 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">{{ k.note }}</span>
+                </span>
+                <button type="button" disabled="{{ k.locked }}" style="flex: 0 0 auto; height: 30px; padding: 0 12px; border: 1px solid {{ k.btnBorder }}; border-radius: 7px; background: var(--surface-raised); color: {{ k.btnInk }}; font: 400 12.5px/1 var(--font-ui);">{{ k.action }}</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 26px 30px 40px; max-width: 1240px;">
+          <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+            <div>
+              <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Settings</p>
+              <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em;">Team &amp; roles</h1>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" style="height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Export roster</button>
+              <button type="button" style="height: 36px; padding: 0 15px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: var(--blue-600);">Invite people</button>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; padding: 14px 18px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--shadow-sm);">
+            <span style="display: block;">
+              <span style="display: block; font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary);">Seats</span>
+              <span style="display: block; margin-top: 6px; font: 400 15px/1 var(--font-mono);">247 <span style="color: var(--text-tertiary);">of 300</span></span>
+            </span>
+            <span style="flex: 1 1 220px; min-width: 160px;">
+              <span style="display: flex; height: 8px; border-radius: 9999px; background: var(--surface-inset); overflow: hidden;">
+                <span style="width: 78%; background: var(--blue-400);"></span>
+                <span style="width: 4%; background: var(--blue-200);"></span>
+              </span>
+              <span style="display: flex; gap: 16px; margin-top: 8px; font: 400 11.5px/1 var(--font-ui); color: var(--text-secondary);">
+                <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 2px; background: var(--blue-400);"></span>234 active</span>
+                <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 2px; background: var(--blue-200);"></span>13 invited, not signed in</span>
+                <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 2px; background: var(--surface-inset);"></span>53 free</span>
+              </span>
+            </span>
+            <span style="font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary); max-width: 30ch; text-wrap: pretty;">Nine invites are older than 14 days. Revoking them returns the seats immediately.</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(340px, 1fr); gap: 16px; margin-top: 16px; align-items: start;">
+            <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+              <div style="display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-bottom: 1px solid var(--border-subtle);">
+                <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Roster</p>
+                <span style="margin-left: auto; font: 400 12px/1 var(--font-mono); color: var(--text-tertiary);">showing 6 of 247</span>
+              </div>
+              <sc-for list="{{ members }}" as="m" hint-placeholder-count="6">
+                <div style="display: flex; align-items: center; gap: 13px; padding: 12px 18px; border-bottom: 1px solid var(--border-subtle);">
+                  <span style="display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto; border-radius: 9999px; background: {{ m.avBg }}; color: {{ m.avInk }}; font: 500 11px/1 var(--font-mono);">{{ m.initials }}</span>
+                  <span style="flex: 1; min-width: 0;">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                      <span style="font: 400 13.5px/1.35 var(--font-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ m.name }}</span>
+                      <sc-if value="{{ m.pending }}" hint-placeholder-val="{{ false }}">
+                        <span style="display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 9999px; background: var(--surface-inset); color: var(--text-secondary); font: 400 10.5px/18px var(--font-mono);">invited</span>
+                      </sc-if>
+                    </span>
+                    <span style="display: block; font: 400 11.5px/1.45 var(--font-mono); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ m.email }}</span>
+                  </span>
+                  <span style="flex: 0 0 auto; width: 104px; font: 400 12.5px/1.3 var(--font-ui); color: var(--text-secondary);">{{ m.role }}</span>
+                  <span style="flex: 0 0 auto; width: 92px; text-align: right; font: 400 11.5px/1.3 var(--font-mono); color: var(--text-tertiary);">{{ m.seen }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+              <div style="padding: 13px 18px 12px; border-bottom: 1px solid var(--border-subtle);">
+                <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">What each role can reach</p>
+                <p style="margin: 8px 0 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">Spelled out, not implied. A dash means no access at all.</p>
+              </div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 46px 46px 46px 46px; align-items: center; gap: 8px; padding: 10px 18px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-sunken);">
+                <span></span>
+                <sc-for list="{{ roleCols }}" as="col" hint-placeholder-count="4">
+                  <span style="text-align: center; font: 500 10px/1.2 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary);">{{ col.short }}</span>
+                </sc-for>
+              </div>
+              <sc-for list="{{ matrix }}" as="row" hint-placeholder-count="7">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) 46px 46px 46px 46px; align-items: center; gap: 8px; padding: 10px 18px; border-bottom: 1px solid var(--border-subtle);">
+                  <span style="font: 400 12.5px/1.4 var(--font-ui);">{{ row.label }}</span>
+                  <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="4">
+                    <span style="display: grid; place-items: center; height: 22px;">
+                      <span style="display: grid; place-items: center; min-width: 22px; height: 20px; padding: 0 6px; border-radius: 9999px; background: {{ cell.bg }}; color: {{ cell.ink }}; font: 400 10.5px/1 var(--font-mono);">{{ cell.text }}</span>
+                    </span>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isUsage }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 26px 30px 40px; max-width: 1140px;">
+          <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Insights</p>
+          <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em;">Usage &amp; limits</h1>
+
+          <div style="display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-top: 20px; padding: 18px 20px; border: 1px solid var(--warning-fg); border-radius: 12px; background: var(--warning-bg);">
+            <span style="display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto; border-radius: 9px; background: var(--surface-raised); color: var(--warning-fg);">{{ alertIcon }}</span>
+            <span style="flex: 1 1 380px; min-width: 0;">
+              <span style="display: block; font: 500 15px/1.4 var(--font-ui); color: var(--warning-fg);">At this rate you reach the events cap on 22 September, eight days before the period ends.</span>
+              <span style="display: block; margin-top: 6px; font: 400 13px/1.55 var(--font-ui); color: var(--text-primary); text-wrap: pretty;">When the cap is reached, inbound messages still arrive and queue — nothing sends until the period rolls over or the plan changes. 1,284 open conversations would stop receiving replies.</span>
+            </span>
+            <span style="display: flex; gap: 8px; flex: 0 0 auto;">
+              <button type="button" style="height: 34px; padding: 0 13px; border: 1px solid var(--warning-fg); border-radius: 7px; background: transparent; color: var(--warning-fg); font: 400 13px/1 var(--font-ui);">Set an alert</button>
+              <button type="button" onClick="{{ goBilling }}" style="height: 34px; padding: 0 14px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: var(--blue-600);">Review plan</button>
+            </span>
+          </div>
+
+          <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 26px 0 12px;">
+            <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Growth plan · 1–30 September</p>
+            <span style="font: 400 12.5px/1 var(--font-ui); color: var(--text-secondary);">Day 22 of 30 · 73% of the period elapsed</span>
+          </div>
+
+          <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+            <sc-for list="{{ entitlements }}" as="e" hint-placeholder-count="5">
+              <div style="padding: 17px 20px 18px; border-bottom: 1px solid var(--border-subtle);">
+                <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
+                  <span style="display: inline-flex; align-items: center; gap: 9px; font: 400 14px/1.3 var(--font-ui);">
+                    <span style="display: grid; place-items: center; width: 18px; height: 18px; color: var(--text-tertiary);">{{ e.icon }}</span>
+                    {{ e.label }}
+                  </span>
+                  <span style="margin-left: auto; font: 400 13px/1.3 var(--font-mono); color: var(--text-primary);">{{ e.used }} <span style="color: var(--text-tertiary);">/ {{ e.limit }}</span></span>
+                  <span style="width: 52px; text-align: right; font: 400 13px/1.3 var(--font-mono); color: {{ e.ink }};">{{ e.pctText }}</span>
+                </div>
+                <div style="position: relative; height: 10px; margin-top: 11px; border-radius: 9999px; background: var(--surface-inset); overflow: hidden;">
+                  <div style="width: {{ e.pct }}; height: 100%; border-radius: 9999px; background: {{ e.fill }};"></div>
+                </div>
+                <div style="position: relative; height: 15px; margin-top: 2px;">
+                  <span style="position: absolute; left: 73%; top: 0; width: 1px; height: 9px; background: var(--border-strong);"></span>
+                  <span style="position: absolute; left: 73%; top: 0; transform: translateX(-50%); margin-top: 11px; font: 400 10px/1 var(--font-mono); color: var(--text-tertiary); white-space: nowrap;">pace</span>
+                </div>
+                <p style="margin: 12px 0 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">{{ e.note }}</p>
+              </div>
+            </sc-for>
+            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 20px; background: var(--surface-sunken);">
+              <span style="font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary);">Anything above your entitlement is refused, never billed as overage.</span>
+              <button type="button" style="margin-left: auto; height: 30px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Download this period as CSV</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isStub }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 26px 30px 40px; max-width: 900px;">
+          <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">{{ stubGroup }}</p>
+          <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums;">{{ stubTitle }}</h1>
+          <p style="margin: 12px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 62ch; text-wrap: pretty;">{{ stubBlurb }}</p>
+          <div style="margin-top: 22px; padding: 18px 20px 20px; border: 1px dashed var(--border-strong); border-radius: 12px; background: var(--surface-sunken);">
+            <p style="margin: 0 0 12px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Planned for this screen</p>
+            <ul style="margin: 0; padding: 0; list-style: none; display: grid; gap: 9px;">
+              <sc-for list="{{ stubPlan }}" as="p" hint-placeholder-count="3">
+                <li style="display: flex; gap: 10px; align-items: flex-start; font: 400 13.5px/1.5 var(--font-ui); color: var(--text-primary);">
+                  <span style="margin-top: 7px; width: 4px; height: 4px; flex: 0 0 auto; border-radius: 50%; background: var(--text-tertiary);"></span>
+                  <span style="text-wrap: pretty;">{{ p.text }}</span>
+                </li>
+              </sc-for>
+            </ul>
+          </div>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{ paletteOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closePalette }}" style="position: fixed; inset: 0; z-index: 80; background: var(--surface-overlay); display: flex; justify-content: center; padding-top: 12vh; animation: overlay-in 120ms linear;">
+      <div onClick="{{ stop }}" style="width: 620px; max-width: calc(100vw - 32px); max-height: 62vh; display: flex; flex-direction: column; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); overflow: hidden; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border-subtle);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);" aria-hidden="true"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path><path d="M21 21l-6 -6"></path></svg>
+          <input type="text" value="{{ paletteQuery }}" onInput="{{ onPaletteInput }}" ref="{{ paletteRef }}" placeholder="Jump to a screen, a contact, or an action" style="flex: 1; border: none; outline: none; background: transparent; font: 400 16px/1.4 var(--font-ui); color: var(--text-primary);">
+          <kbd style="height: 20px; padding: 0 6px; border: 1px solid var(--border-subtle); border-radius: 4px; font: 500 11px/20px var(--font-mono); color: var(--text-tertiary);">ESC</kbd>
+        </div>
+        <div style="flex: 1; overflow-y: auto; padding: 6px;">
+          <sc-for list="{{ paletteResults }}" as="hit" hint-placeholder-count="6">
+            <button type="button" onClick="{{ hit.run }}" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 10px; border: none; border-radius: 7px; background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-inset);">
+              <span style="display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 auto; border-radius: 6px; background: var(--surface-sunken); color: var(--text-secondary);">{{ hit.icon }}</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13px/1.3 var(--font-ui);">{{ hit.label }}</span>
+                <span style="display: block; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary);">{{ hit.hint }}</span>
+              </span>
+              <span style="font: 400 11px/1 var(--font-mono); letter-spacing: 0.06em; color: var(--text-tertiary);">{{ hit.kind }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 900}, &quot;chrome&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Both white&quot;, &quot;Tinted rail&quot;, &quot;Tinted topbar&quot;], &quot;default&quot;: &quot;Both white&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Chrome&quot;}, &quot;showUsage&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Chrome&quot;}}">
+const ICON = {
+  home: 'M5 12l-2 0l9 -9l9 9l-2 0|M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7|M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6',
+  inbox: 'M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12|M4 13h3l3 3h4l3 -3h3',
+  contacts: 'M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0|M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2|M16 3.13a4 4 0 0 1 0 7.75|M21 21v-2a4 4 0 0 0 -3 -3.85',
+  megaphone: 'M18 8a3 3 0 0 1 0 6|M10 8v11a1 1 0 0 1 -1 1h-1a1 1 0 0 1 -1 -1v-5|M12 8l4.524 -3.77a.9 .9 0 0 1 1.476 .692v12.156a.9 .9 0 0 1 -1.476 .692l-4.524 -3.77h-8a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h8',
+  agent: 'M6 6a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -4|M12 2v2|M9 12v9|M15 12v9|M5 16l4 -2|M15 14l4 2|M9 18h6|M10 8v.01|M14 8v.01',
+  route: 'M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0|M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4|M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5',
+  template: 'M8 9h8|M8 13h6|M9 18h-3a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-3l-3 3l-3 -3',
+  book: 'M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12|M19 16h-12a2 2 0 0 0 -2 2|M9 8h6',
+  chart: 'M4 19l16 0|M4 15l4 -6l4 2l4 -5l4 4',
+  gauge: 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0|M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0|M13.41 10.59l2.59 -2.59|M7 12a5 5 0 0 1 5 -5',
+  plug: 'M7 12l5 5l-1.5 1.5a3.536 3.536 0 1 1 -5 -5l1.5 -1.5|M17 12l-5 -5l1.5 -1.5a3.536 3.536 0 1 1 5 5l-1.5 1.5|M3 21l2.5 -2.5|M18.5 5.5l2.5 -2.5|M10 11l-2 2|M13 14l-2 2',
+  team: 'M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0|M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1|M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0|M17 10h2a2 2 0 0 1 2 2v1|M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0|M3 13v-1a2 2 0 0 1 2 -2h2',
+  card: 'M3 8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3l0 -8|M3 10l18 0|M7 15l.01 0|M11 15l2 0',
+  history: 'M12 8l0 4l2 2|M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5',
+  sliders: 'M12 6a2 2 0 1 0 4 0a2 2 0 1 0 -4 0|M4 6l8 0|M16 6l4 0|M6 12a2 2 0 1 0 4 0a2 2 0 1 0 -4 0|M4 12l2 0|M10 12l10 0|M15 18a2 2 0 1 0 4 0a2 2 0 1 0 -4 0|M4 18l11 0|M19 18l1 0',
+  key: 'M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0|M15 9h.01',
+  check: 'M5 12l5 5l10 -10',
+  whatsapp: 'M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9|M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1',
+  mail: 'M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10|M3 7l9 6l9 -6',
+  www: 'M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4|M11.5 3a16.989 16.989 0 0 0 -1.826 4|M12.5 3a16.989 16.989 0 0 1 1.828 4|M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4|M11.5 21a16.989 16.989 0 0 1 -1.826 -4|M12.5 21a16.989 16.989 0 0 0 1.828 -4|M2 10l1 4l1.5 -4l1.5 4l1 -4|M17 10l1 4l1.5 -4l1.5 4l1 -4|M9.5 10l1 4l1.5 -4l1.5 4l1 -4',
+  sms: 'M11 3h10v8h-3l-4 2v-2h-3l0 -8|M15 16v4a1 1 0 0 1 -1 1h-8a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1h2|M10 18v.01',
+  up: 'M3 17l6 -6l4 4l8 -8|M14 7l7 0l0 7',
+  down: 'M3 7l6 6l4 -4l8 8|M21 10l0 7l-7 0',
+  plus: 'M12 5l0 14|M5 12l14 0',
+  alert: 'M12 9v4|M10.4 3.6l-8.1 13.5a1.9 1.9 0 0 0 1.6 2.9h16.2a1.9 1.9 0 0 0 1.6 -2.9l-8.1 -13.5a1.9 1.9 0 0 0 -3.3 0|M12 16h.01',
+  file: 'M14 3v4a1 1 0 0 0 1 1h4|M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2|M9 17h6|M9 13h6',
+  sun: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0|M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7',
+  moon: 'M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008',
+  left: 'M15 6l-6 6l6 6',
+  right: 'M9 6l6 6l-6 6',
+  user: 'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0|M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2',
+  bell: 'M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6|M9 17v1a3 3 0 0 0 6 0v-1',
+  logout: 'M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2|M9 12h12l-3 -3|M18 15l3 -3'
+};
+
+function icon(name, size) {
+  const d = ICON[name] || '';
+  return React.createElement('svg', {
+    width: size || 18, height: size || 18, viewBox: '0 0 24 24', fill: 'none',
+    stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round',
+    strokeLinejoin: 'round', 'aria-hidden': true
+  }, d.split('|').map((p, i) => React.createElement('path', { key: i, d: p })));
+}
+
+const NAV = [
+  { key: 'home', label: 'Home', icon: 'home', group: 'Workspace', route: '/w/kilimanjaro' },
+  { key: 'inbox', label: 'Inbox', icon: 'inbox', group: 'Workspace', route: '/w/kilimanjaro/inbox', badge: '11', tone: 'alert',
+    plan: [] },
+  { key: 'contacts', label: 'Contacts', icon: 'contacts', group: 'Workspace', route: '/w/kilimanjaro/contacts',
+    blurb: 'Every person who has ever written in, unified across WhatsApp, email, SMS and the web widget.',
+    plan: ['Searchable table with segment filters, tags, consent state and last contact.', 'A contact drawer holding the full cross-channel history and custom fields.', 'CSV import and export, with a preview of what will be created versus merged.'] },
+  { key: 'broadcasts', label: 'Broadcasts', icon: 'megaphone', group: 'Workspace', route: '/w/kilimanjaro/broadcasts', badge: '2', tone: 'plain',
+    blurb: 'Outbound sends to a segment, on the channels that allow them.',
+    plan: ['Composer with a template picker, audience count and per-channel cost estimate.', 'Scheduling, throttling and a hard stop against the events limit.', 'Delivery report per send: delivered, read, replied, failed, opted out.'] },
+  { key: 'agent', label: 'AI agent', icon: 'agent', group: 'Automation', route: '/w/kilimanjaro/agent',
+    blurb: 'The instructions your agent answers with, inside the master rules the platform sets.',
+    plan: ['Editable workspace instructions, with inherited platform rules shown read-only.', 'Tone, escalation thresholds, and which topics must always reach a person.', 'A sandbox to replay real past conversations against a draft before publishing.'] },
+  { key: 'playbooks', label: 'Playbooks', icon: 'route', group: 'Automation', route: '/w/kilimanjaro/playbooks',
+    blurb: 'Deterministic routing and follow-up: what happens on a trigger, in order.',
+    plan: ['Trigger, condition and action list per playbook, with a dry-run count.', 'Business-hours routing, round-robin assignment and SLA timers.', 'Version history with who changed what, and a one-click revert.'] },
+  { key: 'templates', label: 'Templates', icon: 'template', group: 'Automation', route: '/w/kilimanjaro/templates',
+    blurb: 'Reusable message bodies, including the WhatsApp templates Meta has to approve.',
+    plan: ['Approval state per template with the rejection reason spelled out.', 'Variable slots with sample values and a live preview per channel.', 'Usage count so dead templates are visible and removable.'] },
+  { key: 'knowledge', label: 'Knowledge', icon: 'book', group: 'Automation', route: '/w/kilimanjaro/knowledge',
+    blurb: 'The documents the agent is allowed to answer from.',
+    plan: ['Source list with last-indexed time, size and index health.', 'Per-source scoping, so a price sheet can be internal-only.', 'Answer coverage: questions the agent could not ground in any source.'] },
+  { key: 'reports', label: 'Reports', icon: 'chart', group: 'Insights', route: '/w/kilimanjaro/reports',
+    blurb: 'Volume, response time, resolution and satisfaction over a period you choose.',
+    plan: ['Volume by channel and hour, with first-reply and full-resolution medians.', 'AI containment against human handoffs, and where handoffs cluster.', 'Per-agent and per-team leaderboards, plus scheduled email exports.'] },
+  { key: 'usage', label: 'Usage & limits', icon: 'gauge', group: 'Insights', route: '/w/kilimanjaro/usage',
+    blurb: 'What this workspace has consumed against the entitlements on its plan.',
+    plan: ['Events, conversations, seats, storage and API credentials, each with a burn line.', 'A projection of the overage date at the current rate.', 'Threshold alerts at 80 and 95 percent, sent to billing contacts.'] },
+  { key: 'channels', label: 'Channels', icon: 'plug', group: 'Settings', route: '/w/kilimanjaro/settings/channels',
+    blurb: 'The four connections your customers actually reply to.',
+    plan: ['Per-channel health, last inbound event and reconnect flow.', 'WhatsApp number, display name and quality rating from Meta.', 'Web widget snippet, domains allowlist and appearance.'] },
+  { key: 'team', label: 'Team & roles', icon: 'team', group: 'Settings', route: '/w/kilimanjaro/settings/team',
+    blurb: 'Who works in this workspace, and what each of them can reach.',
+    plan: ['Roster with role, last sign-in, seat consumption and pending invites.', 'Role matrix: admin, supervisor, agent, analyst — permissions listed, not implied.', 'Enforced SSO and session length, when the plan includes them.'] },
+  { key: 'billing', label: 'Billing & plan', icon: 'card', group: 'Settings', route: '/w/kilimanjaro/settings/billing',
+    blurb: 'Your plan, your invoices, and what happens if a payment fails.',
+    plan: ['Current plan with entitlements, next renewal, and upgrade or downgrade paths.', 'Invoice history with downloadable PDFs and the M-Pesa or card method on file.', 'A plain statement of the grace period and what stops when it ends.'] },
+  { key: 'activity', label: 'Activity log', icon: 'history', group: 'Settings', route: '/w/kilimanjaro/settings/activity',
+    blurb: 'Everything that happened in this workspace, including support sessions the platform team opened against it.',
+    plan: ['Filterable trail by actor, category and date, exportable as CSV.', 'Support sessions shown with the reason the platform admin typed, and a button to end one.', 'Retention window stated per plan, with no silent truncation.'] },
+  { key: 'workspace', label: 'Workspace', icon: 'sliders', group: 'Settings', route: '/w/kilimanjaro/settings/general',
+    blurb: 'Name, locale, business hours and the data rules this workspace runs under.',
+    plan: ['Display name, logo, time zone, languages and business-hours calendar.', 'Data retention and deletion requests, with the legal contact on record.', 'API credentials and webhooks — created and revoked here, never re-displayed.'] }
+];
+
+const GROUPS = ['Workspace', 'Automation', 'Insights', 'Settings'];
+
+const INHERITED = [
+  { icon: 'shield', title: 'Never state a delivery date the tracking system has not confirmed',
+    body: 'If tracking has no ETA, say so and offer to have a person confirm. Platform rule v24.' },
+  { icon: 'shield', title: 'No pricing outside the published rate card',
+    body: 'Quotes, discounts and waivers always reach a person. Platform rule v24.' },
+  { icon: 'shield', title: 'Personal data is never repeated back in full',
+    body: 'ID numbers, card details and phone numbers are masked after the last four characters.' }
+];
+
+const OWN_RULES = [
+  { title: 'Voice', changed: true, words: '84 words',
+    body: 'Answer in the language the customer wrote in — Swahili, English, or a mix. Short sentences. Never more than two questions in one reply.' },
+  { title: 'What we actually do', changed: false, words: '211 words',
+    body: 'Sea and road freight, Mombasa and Nairobi, into Uganda, Rwanda and eastern DRC. We do not do air freight or personal courier, and should say so plainly rather than offering an alternative.' },
+  { title: 'Claims', changed: true, words: '96 words',
+    body: 'Damage or shortage: collect the container number and photographs, confirm the claim window is 7 days from arrival, then hand to a person. Never estimate a settlement.' }
+];
+
+const ESCALATIONS = [
+  'A quote is requested', 'A claim is opened', 'Refunds or credit notes',
+  'The customer asks twice', 'Any legal or regulatory question',
+  'Words suggesting distress', 'The agent has no grounded answer'
+];
+
+const REPLAYS = [
+  { contact: 'Joseph Mutiso · WhatsApp', verdict: 'now escalates', tone: 'good',
+    question: 'Two pallets are missing from the manifest, what happens now?',
+    answer: 'Draft: collects the container number, states the 7-day claim window, and hands to a person without estimating a settlement.' },
+  { contact: 'Ruth Njeri · Email', verdict: 'unchanged', tone: 'plain',
+    question: 'Can you re-issue the invoice with our new KRA PIN?',
+    answer: 'Draft: confirms the PIN format and routes to billing, same as v8.' },
+  { contact: 'Alex Ochieng · Web widget', verdict: 'worse', tone: 'warn',
+    question: 'Agent said 3 days, the tracking page says 8. Which is right?',
+    answer: 'Draft: answers 8 days from tracking but drops the apology and the offer to confirm with a person. Reads curt.' }
+];
+
+const CONNECTIONS = [
+  { name: 'WhatsApp Business', address: '+254 711 0•••', glyph: 'whatsapp', state: 'Connected', tone: 'good',
+    route: 'meta · waba_4471', action: 'Manage',
+    facts: [['Last inbound', '40 seconds ago', 'plain'], ['30-day volume', '14,208', 'plain'], ['Quality', 'High', 'good']] },
+  { name: 'Email', address: 'support@kilimanjaro.co.ke', glyph: 'mail', state: 'Connected', tone: 'good',
+    route: 'imap · verified 12 Aug', action: 'Manage',
+    facts: [['Last inbound', '6 minutes ago', 'plain'], ['30-day volume', '3,164', 'plain'], ['SPF / DKIM', 'Passing', 'good']] },
+  { name: 'Web widget', address: 'kilimanjaro.co.ke, track.kilimanjaro.co.ke', glyph: 'www', state: 'Connected', tone: 'good',
+    route: 'snippet · 2 domains allowed', action: 'Appearance',
+    facts: [['Last inbound', '2 minutes ago', 'plain'], ['30-day volume', '1,902', 'plain'], ['Widget version', 'Current', 'good']] },
+  { name: 'SMS', address: 'Africa\u2019s Talking · sender KLG', glyph: 'sms', state: 'Degraded', tone: 'warn',
+    route: 'africastalking · api key rotated 3 Sep', action: 'Diagnose',
+    problem: '14 sends rejected in the last hour: the sender ID is pending re-approval with Safaricom. Inbound still works.',
+    facts: [['Last inbound', '11 minutes ago', 'plain'], ['Failed sends', '14', 'warn'], ['Sender ID', 'Pending', 'warn']] }
+];
+
+const CONNECTORS = [
+  { name: 'Instagram direct', glyph: 'megaphone', note: 'One Instagram business account per workspace.', locked: false },
+  { name: 'Telegram', glyph: 'template', note: 'Bot-based, useful for logistics partners rather than retail customers.', locked: false },
+  { name: 'Voice · inbound call notes', glyph: 'sms', note: 'Scale plan only. Transcribes calls into the same conversation thread.', locked: true }
+];
+
+const MEMBERS = [
+  { initials: 'AW', name: 'Aisha Wanjiku', email: 'aisha@kilimanjaro.co.ke', role: 'Admin', seen: '4 min ago', tone: 'blue' },
+  { initials: 'PK', name: 'Peter Kamau', email: 'peter@kilimanjaro.co.ke', role: 'Supervisor', seen: '18 min ago', tone: 'plain' },
+  { initials: 'GA', name: 'Grace Achieng', email: 'grace@kilimanjaro.co.ke', role: 'Agent', seen: '1 hour ago', tone: 'plain' },
+  { initials: 'SM', name: 'Samuel Mbugua', email: 'samuel@kilimanjaro.co.ke', role: 'Agent', seen: '3 days ago', tone: 'plain' },
+  { initials: 'LN', name: 'Lydia Nyambura', email: 'lydia@kilimanjaro.co.ke', role: 'Analyst', seen: 'Never', tone: 'plain', pending: true },
+  { initials: 'JO', name: 'James Otieno', email: 'james@partner.co.tz', role: 'Agent', seen: 'Never', tone: 'plain', pending: true }
+];
+
+const ROLE_COLS = [{ short: 'Adm' }, { short: 'Sup' }, { short: 'Agt' }, { short: 'Ana' }];
+
+const MATRIX = [
+  ['Reply in the inbox', 'yes', 'yes', 'yes', 'no'],
+  ['Reassign and escalate', 'yes', 'yes', 'own', 'no'],
+  ['Edit agent instructions', 'yes', 'draft', 'no', 'no'],
+  ['Send broadcasts', 'yes', 'yes', 'no', 'no'],
+  ['See contact phone numbers', 'yes', 'yes', 'mask', 'mask'],
+  ['Reports and exports', 'yes', 'yes', 'own', 'yes'],
+  ['Channels and API keys', 'yes', 'no', 'no', 'no'],
+  ['Billing and plan', 'yes', 'no', 'no', 'no'],
+  ['Invite and remove people', 'yes', 'no', 'no', 'no']
+];
+
+const ENTITLEMENTS = [
+  { label: 'Events', icon: 'gauge', used: '470,300', limit: '500,000', pct: 94, tone: 'warn',
+    note: 'Running 21 points ahead of the period pace. Broadcasts on 12 and 18 September account for most of the gap.' },
+  { label: 'Conversations', icon: 'inbox', used: '18,402', limit: '40,000', pct: 46, tone: 'good',
+    note: 'Comfortably inside the entitlement, and tracking below pace.' },
+  { label: 'Staff seats', icon: 'team', used: '247', limit: '300', pct: 82, tone: 'good',
+    note: '13 of those seats belong to invites that have never been used.' },
+  { label: 'Storage', icon: 'book', used: '34.2 GB', limit: '100 GB', pct: 34, tone: 'good',
+    note: 'Attachments and call transcripts. Retention is 24 months on this plan.' },
+  { label: 'API credentials', icon: 'key', used: '3', limit: '10', pct: 30, tone: 'good',
+    note: 'Two are used by the tracking site, one by the finance export job.' }
+];
+
+const STATS = [
+  { label: 'Open conversations', value: '128', delta: '+12', tone: 'warn', dir: 'up', note: '11 waiting on a person',
+    series: [96, 104, 99, 112, 108, 121, 116, 128] },
+  { label: 'Median first reply', value: '1m 42s', delta: '−18s', tone: 'good', dir: 'down', note: 'Target is under 3 minutes',
+    series: [148, 142, 139, 131, 126, 118, 112, 102] },
+  { label: 'Handled by the agent', value: '68%', delta: '+4pt', tone: 'good', dir: 'up', note: '412 of 606 since midnight',
+    series: [58, 60, 59, 62, 64, 63, 66, 68] },
+  { label: 'Satisfaction', value: '4.6', delta: '−0.1', tone: 'warn', dir: 'down', note: '214 ratings this week',
+    series: [4.8, 4.8, 4.7, 4.7, 4.75, 4.7, 4.65, 4.6] }
+];
+
+/** Resolve a token to its computed value, the way charts.jsx does. */
+function token(name, fallback) {
+  if (typeof window === 'undefined') return fallback;
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name);
+  return (v && v.trim()) || fallback;
+}
+
+/** Inline sparkline: eight days of the tile's own series, area plus line. */
+function spark(series, stroke) {
+  const w = 132, h = 26, pad = 1.5;
+  const lo = Math.min.apply(null, series);
+  const hi = Math.max.apply(null, series);
+  const span = hi - lo || 1;
+  const pts = series.map((v, i) => [
+    (i / (series.length - 1)) * w,
+    pad + (1 - (v - lo) / span) * (h - pad * 2)
+  ]);
+  const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const last = pts[pts.length - 1];
+  return React.createElement('svg', {
+    width: '100%', height: h, viewBox: '0 0 ' + w + ' ' + h,
+    preserveAspectRatio: 'none', fill: 'none', 'aria-hidden': true,
+    style: { display: 'block', overflow: 'visible' }
+  }, [
+    React.createElement('path', {
+      key: 'a', d: line + ' L' + w + ' ' + h + ' L0 ' + h + ' Z',
+      fill: stroke, fillOpacity: 0.09, stroke: 'none'
+    }),
+    React.createElement('path', {
+      key: 'l', d: line, stroke: stroke, strokeWidth: 1.5,
+      strokeLinecap: 'round', strokeLinejoin: 'round'
+    }),
+    React.createElement('circle', {
+      key: 'd', cx: last[0], cy: last[1], r: 2, fill: stroke
+    })
+  ]);
+}
+
+const QUEUE = [
+  { initials: 'JM', name: 'Joseph Mutiso', channel: 'WhatsApp', snippet: 'The container arrived but two pallets are missing from the manifest.', wait: '18m', reason: 'Escalated', hot: true },
+  { initials: 'RN', name: 'Ruth Njeri', channel: 'Email', snippet: 'Can you re-issue the invoice with our new KRA PIN?', wait: '12m', reason: 'Unassigned', hot: true },
+  { initials: 'AO', name: 'Alex Ochieng', channel: 'Web widget', snippet: 'Agent said 3 days, the tracking page says 8. Which one is right?', wait: '7m', reason: 'Agent unsure', hot: false },
+  { initials: 'FK', name: 'Fatuma Kassim', channel: 'WhatsApp', snippet: 'Need a quote for 40ft Mombasa to Kampala, refrigerated.', wait: '5m', reason: 'Unassigned', hot: false },
+  { initials: 'DW', name: 'David Waweru', channel: 'SMS', snippet: 'Stop sending me updates for order 88412.', wait: '3m', reason: 'Opt-out', hot: false }
+];
+
+const CHANNELS = [
+  { label: 'WhatsApp Business', detail: '+254 711 0•••  ·  quality: high', glyph: 'whatsapp', state: 'Connected', tone: 'good' },
+  { label: 'Email', detail: 'support@kilimanjaro.co.ke', glyph: 'mail', state: 'Connected', tone: 'good' },
+  { label: 'Web widget', detail: 'kilimanjaro.co.ke', glyph: 'www', state: 'Connected', tone: 'good' },
+  { label: 'SMS', detail: 'Africa\u2019s Talking  ·  14 rejected sends', glyph: 'sms', state: 'Degraded', tone: 'warn' }
+];
+
+const METERS = [
+  { label: 'Events', text: '470,300 / 500,000', pct: 94, tone: 'warn' },
+  { label: 'Conversations', text: '18,402 / 40,000', pct: 46, tone: 'good' },
+  { label: 'Staff seats', text: '247 / 300', pct: 82, tone: 'good' }
+];
+
+const ROWS = [
+  { initials: 'JM', name: 'Joseph Mutiso', snippet: 'The container arrived but two pallets are missing.', channel: 'WhatsApp', assignee: 'Escalated to you', wait: '18m', state: 'Escalated', tone: 'danger' },
+  { initials: 'RN', name: 'Ruth Njeri', snippet: 'Can you re-issue the invoice with our new KRA PIN?', channel: 'Email', assignee: 'Unassigned', wait: '12m', state: 'Waiting', tone: 'warn' },
+  { initials: 'AO', name: 'Alex Ochieng', snippet: 'Agent said 3 days, tracking says 8.', channel: 'Web widget', assignee: 'Peter K.', wait: '7m', state: 'Open', tone: 'plain' },
+  { initials: 'FK', name: 'Fatuma Kassim', snippet: 'Quote for 40ft Mombasa to Kampala, refrigerated.', channel: 'WhatsApp', assignee: 'Unassigned', wait: '5m', state: 'Waiting', tone: 'warn' },
+  { initials: 'DW', name: 'David Waweru', snippet: 'Stop sending me updates for order 88412.', channel: 'SMS', assignee: 'AI agent', wait: '3m', state: 'Open', tone: 'plain' },
+  { initials: 'SM', name: 'Sylvia Mwende', snippet: 'Confirmed, thank you for the quick turnaround.', channel: 'WhatsApp', assignee: 'Grace A.', wait: '—', state: 'Resolved', tone: 'good' },
+  { initials: 'BK', name: 'Brian Kiptoo', snippet: 'Where do I find the customs paperwork?', channel: 'Web widget', assignee: 'AI agent', wait: '—', state: 'Resolved', tone: 'good' },
+  { initials: 'NM', name: 'Njeri Maina', snippet: 'Following up on last week\u2019s claim.', channel: 'Email', assignee: 'Peter K.', wait: '2h', state: 'Snoozed', tone: 'plain' }
+];
+
+const TABS = [
+  { key: 'all', label: 'All open', count: '1,284' },
+  { key: 'mine', label: 'Assigned to me', count: '9' },
+  { key: 'unassigned', label: 'Unassigned', count: '26' },
+  { key: 'escalated', label: 'Escalated', count: '3' },
+  { key: 'agent', label: 'Agent handling', count: '1,246' }
+];
+
+const WORKSPACES = [
+  { name: 'Kilimanjaro Logistics', initials: 'KL', role: 'workspace_admin' },
+  { name: 'Kilimanjaro Freight (staging)', initials: 'KF', role: 'agent' },
+  { name: 'Tsavo Movers', initials: 'TM', role: 'analyst' }
+];
+
+const NOTICES = [
+  { kind: 'warning', title: '94% of your events limit', body: '19 days left in this period. Review the plan before it caps.', time: '2h', key: 'usage' },
+  { kind: 'danger', title: 'SMS channel degraded', body: 'Africa\u2019s Talking rejected 14 sends in the last hour.', time: '40m', key: 'channels' },
+  { kind: 'plain', title: 'Template approved', body: '"Delivery delay · EN" cleared Meta review.', time: '1d', key: 'templates' }
+];
+
+const NOTICE_INK = {
+  danger: ['var(--danger-bg)', 'var(--danger-fg)'],
+  warning: ['var(--warning-bg)', 'var(--warning-fg)'],
+  plain: ['var(--surface-inset)', 'var(--text-secondary)']
+};
+
+const STATE_INK = {
+  danger: ['var(--danger-bg)', 'var(--danger-fg)'],
+  warn: ['var(--warning-bg)', 'var(--warning-fg)'],
+  good: ['var(--success-bg)', 'var(--success-fg)'],
+  plain: ['var(--surface-inset)', 'var(--text-secondary)']
+};
+
+class Component extends DCLogic {
+  state = {
+    screen: 'home',
+    theme: 'light',
+    collapsed: false,
+    narrow: false,
+    switcherOpen: false,
+    noticesOpen: false,
+    accountOpen: false,
+    newOpen: false,
+    paletteOpen: false,
+    paletteQuery: '',
+    tab: 'all',
+    workspace: 'Kilimanjaro Logistics'
+  };
+
+  componentDidMount() {
+    document.documentElement.dataset.theme = this.state.theme;
+    document.documentElement.style.setProperty('--row-h', '52px');
+    this.onKey = (e) => {
+      const k = (e.key || '').toLowerCase();
+      if ((e.metaKey || e.ctrlKey) && k === 'k') {
+        e.preventDefault();
+        this.setState((s) => ({ paletteOpen: !s.paletteOpen, paletteQuery: '' }));
+      }
+      if ((e.metaKey || e.ctrlKey) && k === 'b') {
+        e.preventDefault();
+        this.setState((s) => ({ collapsed: !s.collapsed }));
+      }
+      if (e.key === 'Escape') {
+        this.setState({ paletteOpen: false, switcherOpen: false, noticesOpen: false, accountOpen: false, newOpen: false });
+      }
+    };
+    window.addEventListener('keydown', this.onKey);
+    this.onClickAway = () => this.setState({ switcherOpen: false, noticesOpen: false, accountOpen: false, newOpen: false });
+    window.addEventListener('pointerdown', this.onClickAway, true);
+    this.onResize = () => {
+      const narrow = window.innerWidth < 1040;
+      if (narrow !== this.state.narrow) this.setState({ narrow });
+    };
+    this.onResize();
+    window.addEventListener('resize', this.onResize);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKey);
+    window.removeEventListener('pointerdown', this.onClickAway, true);
+    window.removeEventListener('resize', this.onResize);
+  }
+
+  go = (key) => this.setState({
+    screen: key, paletteOpen: false, switcherOpen: false,
+    noticesOpen: false, accountOpen: false, newOpen: false
+  });
+
+  open = (setter) => (e) => {
+    if (e) e.stopPropagation();
+    this.setState(setter);
+  };
+
+  renderVals() {
+    const s = this.state;
+    const expanded = !s.collapsed;
+    const chrome = this.props.chrome || 'Both white';
+    const raised = 'var(--surface-raised)';
+    const tinted = 'var(--surface-sunken)';
+
+    const navGroups = GROUPS.map((label) => ({
+      label,
+      items: NAV.filter((x) => x.group === label).map((x) => {
+        const active = s.screen === x.key;
+        const badgeTone = x.tone === 'alert'
+          ? ['var(--danger-bg)', 'var(--danger-fg)']
+          : ['var(--surface-inset)', 'var(--text-secondary)'];
+        return {
+          label: x.label,
+          icon: icon(x.icon, 18),
+          badge: x.badge && expanded ? x.badge : null,
+          badgeBg: badgeTone[0],
+          badgeInk: badgeTone[1],
+          current: active ? 'page' : null,
+          bg: active ? 'var(--blue-50)' : 'transparent',
+          fg: active ? 'var(--text-action)' : 'var(--text-secondary)',
+          mark: active ? 'var(--blue-500)' : 'transparent',
+          go: () => this.go(x.key)
+        };
+      })
+    }));
+
+    const q = s.paletteQuery.trim().toLowerCase();
+    const paletteResults = NAV
+      .map((x) => ({ label: x.label, hint: x.route, kind: 'SCREEN', icon: icon(x.icon, 16), key: x.key }))
+      .concat([
+        { label: 'Start a conversation', hint: 'inbox · compose', kind: 'ACTION', icon: icon('plus', 16), key: 'inbox' },
+        { label: 'Invite a teammate', hint: 'settings · team', kind: 'ACTION', icon: icon('team', 16), key: 'team' },
+        { label: 'Create an API credential', hint: 'settings · workspace', kind: 'ACTION', icon: icon('key', 16), key: 'workspace' }
+      ])
+      .filter((h) => !q || h.label.toLowerCase().includes(q) || h.hint.toLowerCase().includes(q))
+      .map((h) => Object.assign({}, h, { run: () => this.go(h.key) }));
+
+    const current = NAV.find((x) => x.key === s.screen) || NAV[0];
+    const isBuilt = ['home', 'inbox', 'agent', 'channels', 'team', 'usage'].indexOf(s.screen) >= 0;
+
+    return {
+      expanded,
+      railW: s.collapsed ? '60px' : '248px',
+      topBg: chrome === 'Tinted topbar' ? tinted : raised,
+      railBg: chrome === 'Tinted rail' ? tinted : raised,
+      showUsage: this.props.showUsage ?? true,
+      nameDisplay: s.narrow ? 'none' : 'inline',
+      navGroups,
+      collapseIcon: icon(s.collapsed ? 'right' : 'left', 16),
+      themeIcon: icon(s.theme === 'dark' ? 'sun' : 'moon', 18),
+      toggleCollapse: () => this.setState((p) => ({ collapsed: !p.collapsed })),
+      toggleTheme: () => {
+        const theme = s.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+        this.setState({ theme });
+      },
+
+      isHome: s.screen === 'home',
+      isInbox: s.screen === 'inbox',
+      isAgent: s.screen === 'agent',
+      isChannels: s.screen === 'channels',
+      isTeam: s.screen === 'team',
+      isUsage: s.screen === 'usage',
+      isStub: !isBuilt,
+
+      plusIcon: icon('plus', 15),
+      alertIcon: icon('alert', 18),
+
+      inherited: INHERITED.map((r) => Object.assign({}, r, { icon: icon('key', 14) })),
+      ownRules: OWN_RULES.map((r) => Object.assign({}, r, {
+        border: r.changed ? 'var(--blue-200)' : 'var(--border-subtle)'
+      })),
+      escalations: ESCALATIONS.map((label) => ({ label })),
+      replays: REPLAYS.map((c) => Object.assign({}, c, {
+        chipBg: STATE_INK[c.tone === 'good' ? 'good' : c.tone === 'warn' ? 'warn' : 'plain'][0],
+        chipInk: STATE_INK[c.tone === 'good' ? 'good' : c.tone === 'warn' ? 'warn' : 'plain'][1]
+      })),
+
+      connections: CONNECTIONS.map((c) => ({
+        name: c.name,
+        address: c.address,
+        glyph: icon(c.glyph, 20),
+        state: c.state,
+        problem: c.problem || null,
+        route: c.route,
+        action: c.action,
+        stripe: c.tone === 'good' ? 'var(--success-fg)' : 'var(--warning-fg)',
+        chipBg: STATE_INK[c.tone][0],
+        chipInk: STATE_INK[c.tone][1],
+        facts: c.facts.map((t) => ({
+          k: t[0], v: t[1],
+          ink: t[2] === 'warn' ? 'var(--warning-fg)' : t[2] === 'good' ? 'var(--success-fg)' : 'var(--text-primary)'
+        }))
+      })),
+      connectors: CONNECTORS.map((k) => ({
+        name: k.name,
+        note: k.note,
+        glyph: icon(k.glyph, 16),
+        locked: k.locked || null,
+        action: k.locked ? 'Scale plan' : 'Connect',
+        btnBorder: k.locked ? 'var(--border-subtle)' : 'var(--border-strong)',
+        btnInk: k.locked ? 'var(--text-disabled)' : 'var(--text-primary)'
+      })),
+
+      members: MEMBERS.map((m) => Object.assign({}, m, {
+        pending: m.pending || null,
+        avBg: m.tone === 'blue' ? 'var(--blue-50)' : 'var(--surface-inset)',
+        avInk: m.tone === 'blue' ? 'var(--blue-500)' : 'var(--text-secondary)'
+      })),
+      roleCols: ROLE_COLS,
+      matrix: MATRIX.map((row) => ({
+        label: row[0],
+        cells: row.slice(1).map((v) => {
+          const map = {
+            yes: ['var(--success-bg)', 'var(--success-fg)', 'yes'],
+            no: ['transparent', 'var(--text-disabled)', '—'],
+            own: ['var(--blue-50)', 'var(--text-action)', 'own'],
+            draft: ['var(--blue-50)', 'var(--text-action)', 'draft'],
+            mask: ['var(--warning-bg)', 'var(--warning-fg)', 'mask']
+          }[v];
+          return { bg: map[0], ink: map[1], text: map[2] };
+        })
+      })),
+
+      entitlements: ENTITLEMENTS.map((e) => ({
+        label: e.label,
+        icon: icon(e.icon, 17),
+        used: e.used,
+        limit: e.limit,
+        pct: e.pct + '%',
+        pctText: e.pct + '%',
+        note: e.note,
+        ink: e.tone === 'warn' ? 'var(--warning-fg)' : 'var(--text-secondary)',
+        fill: e.tone === 'warn' ? 'var(--warning-fg)' : 'var(--blue-400)'
+      })),
+      stubGroup: current.group,
+      stubTitle: current.label,
+      stubBlurb: current.blurb || '',
+      stubPlan: (current.plan || []).map((text, i) => ({ text, key: i })),
+
+      stats: STATS.map((x) => {
+        const good = x.tone === 'good';
+        const ink = good ? 'var(--success-fg)' : 'var(--warning-fg)';
+        return {
+          label: x.label,
+          value: x.value,
+          delta: x.delta,
+          note: x.note,
+          deltaInk: ink,
+          deltaBg: good ? 'var(--success-bg)' : 'var(--warning-bg)',
+          trend: icon(x.dir === 'up' ? 'up' : 'down', 13),
+          spark: spark(x.series, token(good ? '--success-fg' : '--warning-fg', good ? '#3f7d53' : '#b7791f'))
+        };
+      }),
+      queue: QUEUE.map((x) => Object.assign({}, x, {
+        waitInk: x.hot ? 'var(--danger-fg)' : 'var(--text-secondary)'
+      })),
+      channels: CHANNELS.map((x) => ({
+        label: x.label,
+        detail: x.detail,
+        state: x.state,
+        glyph: icon(x.glyph, 16),
+        dot: x.tone === 'good' ? 'var(--success-fg)' : 'var(--warning-fg)',
+        ink: x.tone === 'good' ? 'var(--success-fg)' : 'var(--warning-fg)'
+      })),
+      meters: METERS.map((x) => ({
+        label: x.label,
+        text: x.text,
+        pct: x.pct + '%',
+        fill: x.tone === 'warn' ? 'var(--warning-fg)' : 'var(--blue-400)'
+      })),
+
+      tabs: TABS.map((t) => {
+        const on = s.tab === t.key;
+        return {
+          label: t.label,
+          count: t.count,
+          bg: on ? 'var(--blue-50)' : 'var(--surface-raised)',
+          fg: on ? 'var(--text-action)' : 'var(--text-secondary)',
+          border: on ? 'var(--blue-200)' : 'var(--border-subtle)',
+          countInk: on ? 'var(--text-action)' : 'var(--text-tertiary)',
+          pick: () => this.setState({ tab: t.key })
+        };
+      }),
+      rows: ROWS.map((r) => Object.assign({}, r, {
+        waitInk: r.state === 'Escalated' ? 'var(--danger-fg)' : 'var(--text-secondary)',
+        stateBg: STATE_INK[r.tone][0],
+        stateInk: STATE_INK[r.tone][1],
+        open: () => this.go('inbox')
+      })),
+      rowCount: String(ROWS.length),
+
+      workspaces: WORKSPACES.map((w) => ({
+        name: w.name,
+        initials: w.initials,
+        role: w.role,
+        bg: w.name === s.workspace ? 'var(--surface-sunken)' : 'transparent',
+        check: w.name === s.workspace ? icon('check', 16) : null,
+        pick: () => this.setState({ workspace: w.name, switcherOpen: false })
+      })),
+      switcherOpen: s.switcherOpen,
+      toggleSwitcher: this.open((p) => ({ switcherOpen: !p.switcherOpen, noticesOpen: false, accountOpen: false, newOpen: false })),
+
+      newOpen: s.newOpen,
+      toggleNew: this.open((p) => ({ newOpen: !p.newOpen, noticesOpen: false, accountOpen: false, switcherOpen: false })),
+      newItems: [
+        { label: 'Conversation', icon: icon('inbox', 15), run: () => this.go('inbox') },
+        { label: 'Contact', icon: icon('contacts', 15), run: () => this.go('contacts') },
+        { label: 'Broadcast', icon: icon('megaphone', 15), run: () => this.go('broadcasts') },
+        { label: 'Playbook', icon: icon('route', 15), run: () => this.go('playbooks') },
+        { label: 'Invite a teammate', icon: icon('team', 15), run: () => this.go('team') }
+      ],
+
+      noticesOpen: s.noticesOpen,
+      noticesBg: s.noticesOpen ? 'var(--surface-inset)' : 'transparent',
+      toggleNotices: this.open((p) => ({ noticesOpen: !p.noticesOpen, accountOpen: false, newOpen: false, switcherOpen: false })),
+      notices: NOTICES.map((n) => ({
+        title: n.title,
+        body: n.body,
+        time: n.time,
+        chipBg: NOTICE_INK[n.kind][0],
+        chipInk: NOTICE_INK[n.kind][1],
+        icon: icon(n.kind === 'plain' ? 'file' : 'alert', 14),
+        open: () => this.go(n.key)
+      })),
+
+      accountOpen: s.accountOpen,
+      accountBg: s.accountOpen ? 'var(--surface-inset)' : 'transparent',
+      toggleAccount: this.open((p) => ({ accountOpen: !p.accountOpen, noticesOpen: false, newOpen: false, switcherOpen: false })),
+      accountItems: [
+        { label: 'Your profile', icon: icon('user', 15), ink: 'var(--text-primary)', go: () => this.go('workspace') },
+        { label: 'Notification preferences', icon: icon('bell', 15), ink: 'var(--text-primary)', go: () => this.go('workspace') },
+        { label: 'Workspace settings', icon: icon('sliders', 15), ink: 'var(--text-primary)', go: () => this.go('workspace') },
+        { label: 'Sign out', icon: icon('logout', 15), ink: 'var(--danger-fg)', go: () => this.setState({ accountOpen: false }) }
+      ],
+
+      goHome: (e) => { e.preventDefault(); this.go('home'); },
+      goInbox: () => this.go('inbox'),
+      goReports: () => this.go('reports'),
+      goChannels: () => this.go('channels'),
+      goUsage: () => this.go('usage'),
+      goBilling: () => this.go('billing'),
+      goHelp: () => this.go('knowledge'),
+
+      paletteOpen: s.paletteOpen,
+      openPalette: () => this.setState({ paletteOpen: true, paletteQuery: '' }),
+      closePalette: () => this.setState({ paletteOpen: false }),
+      paletteQuery: s.paletteQuery,
+      onPaletteInput: (e) => this.setState({ paletteQuery: e.target.value }),
+      paletteRef: (el) => { if (el) el.focus(); },
+      paletteResults,
+      stop: (e) => e.stopPropagation()
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -543,3 +543,185 @@ different column from the one the rename writes.
 detail. Settings is next in line and is now cheap: eight of its hand-rolled
 sections are the `SettingsSection` primitive this pass extracted, so that pass is
 a deletion rather than a redesign.
+
+## 13. Frank's four surfaces, hardened · 14 Sep 2026
+
+Tenants/workspaces, revenue, plans and AI rules — the four the front-end pass
+built — taken to the same standard as overview and profile. Type-check only
+throughout; no build, no lint.
+
+**§6.2 · the services that had no caller.** Two were wired this round.
+`SubscriptionControls` mounts the plan and status writes on the billing tab, and
+runs its preview on plan SELECTION rather than on confirm, so stranded
+entitlements are visible before the confirm button is reachable at all.
+
+`previewSuspension` was the second, and it mattered more than its absence
+suggested. The suspend dialog is the console's best idea — consequences stated
+in people rather than "are you sure?" — and it was reading those people from a
+prop that travelled down with the page. A tab left open confirmed against a
+number from whenever the tab was opened. Worse, a prop cannot carry the one
+figure that changes minute to minute: **whether somebody is inside the workspace
+on a support session right now**. Suspending underneath a colleague drops what
+they were doing and tells neither party why. Both suspend paths — the header
+control and the drawer — now read the impact from the database when the dialog
+opens, show the open-session count as a warning ABOVE the consequence list
+rather than as a fourth bullet in it, and say plainly which figures are on
+screen. A failed preview degrades the dialog; it never blocks it.
+
+The drawer also completed a suspension **in silence** — dialog closed, no toast,
+status chip unchanged until revalidation. The most destructive action in the
+console, evidenced by its own absence. It confirms now, in the header path's
+words.
+
+**§6.4 · honestly disabled, finished.** Ten controls across the five tenant tabs
+carried their reason in `title=` only, as the profile's three had. `ReasonNote`
+— extracted on the profile for exactly this — moved into `Surface` beside
+`InertControl`, which is the component whose own documentation demands a
+caller-side carrier; `profile/shared.tsx` re-exports it, the way
+`overview/shared.tsx` does for `BandLink`. `Panel` gained a `footer` to hold it,
+documented as NOT the standfirst it deliberately refuses: a band that needs a
+sentence to be understood has a failed visualisation, while a band with an inert
+control has a requirement.
+
+**One note per group, not one per button.** The ten controls carry three reasons
+between them. A sentence repeated beside each is noise a reader learns to skip,
+which fails the requirement a second way.
+
+Two surfaces outside the four were in the same state and were closed with it:
+the admins roster (invite, revoke) and the platform API key list (create,
+revoke).
+
+**Bands that went nowhere.** Revenue had four visualisations and not one route
+out — every band a dead end, against the rule `BandLink` states in its own
+header. They route now, and the ageing band routes with its filter:
+`WorkspaceTable` seeds its status chips from `?status=` and `?attention=`, read
+once on mount so the operator owns the filter afterwards. A bare link to the
+workspace list would have asked them to find the late four by hand, having just
+been shown that there are four.
+
+**`--indigo-500` was never defined.** Four ambient glows referenced it — console
+overview, workspaces, revenue, the unsaved bar — so all four rendered with no
+background at all. A token violation (tokens.css: *"No purple, violet, or
+indigo"*) that was also a silent no-op. Likewise `#38bdf8`, Tailwind's sky-400,
+serving as the mobile nav's active indicator: a fourth hue on a slab whose point
+is that it carries one.
+
+**Token census.** Roughly 130 raw values resolved across the console. The
+surviving hexes are `Charts.tsx`'s `FALLBACK` map, which is deliberate — the
+charts read the CSS variables at runtime and need literals when
+`getComputedStyle` cannot resolve them.
+
+**Left open, deliberately.** `ConsoleShell` and `ConsoleMobileNav` still hold
+roughly ninety raw `rgba()` shadow and hairline recipes. They are console chrome
+rather than any of the four surfaces, they are shadows rather than colours, and
+sweeping them without a build or a visual pass days before a presentation trades
+a real risk for a cosmetic gain. It is a bounded, separate pass.
+
+## 14. What Brian is actually allowed to do · 14 Sep 2026
+
+Dennis, on the console: *"what the actual fuck is brian allowed to do if he
+cant even change his own password?!"* That is a fair hit, and §13 above is part
+of why — a pass that made every dead control explain itself politely also made
+the dead controls harder to notice.
+
+The failure mode is worth naming, because it is not laziness. Controls got
+grouped by where their data happened to live, the group got one confident
+security paragraph, and then nobody looked again. A wrong reason is more
+durable than no reason: no reason invites a question, and a well-written wrong
+one closes it.
+
+### Three things the owner can now do
+
+**Change his own password.** The screen said password changes must go through
+email recovery, *"because a console that could set a password for a signed-in
+session would be a way around that proof."* That inverts the argument.
+Re-authentication IS the proof, and a stronger one — mailbox control is what an
+attacker acquires in order to RUN the recovery flow. The second half of the old
+reasoning was a plain error on my part: I wrote that this needed the
+RLS-bypassing admin client. `supabase.auth.updateUser` acts on the caller's own
+session through the publishable key, and `api/v1/auth/password/reset` had been
+calling it for months.
+
+It asks for the current password, verifies it on a throwaway client so the live
+session id is not rotated out from under the request, signs out every OTHER
+device and spares this one, and records `password.changed` with the count —
+never the value.
+
+**Edit and publish the master AI rules.** The screen said publishing is *"an
+audited operation with a blast radius, not a form submit"*, which is an argument
+about HOW rather than WHETHER. Every clause of it survived: the publish appends
+a version and moves a pointer, the change note is required, the audit row lands
+before the work, and the radius is on screen before the submit is reachable.
+Rollback is wired too — the rail could always SHOW the history and had no
+control that used it, which made the append-only design a claim rather than a
+capability.
+
+**Change plan limits.** The "Manage limits" button was disabled beside a correct
+paragraph: a limit belongs to the plan, and a ceiling for one customer is an
+override. Both true; neither a reason the owner cannot change his own price
+list. The dialog now counts what the change affects and, crucially, how many
+workspaces are ALREADY above a proposed ceiling — a figure the headroom bars
+cannot give, since a median and a maximum are not a count against a number
+somebody has just typed.
+
+### The modal that rendered half off-screen
+
+Two bugs compounding, and the second is a whole class.
+
+`ProvisionWorkspaceDialog` centred itself with `-translate-x-1/2
+-translate-y-1/2` while GSAP animated `y` and `scale` on the same element. An
+inline transform REPLACES the classes rather than merging, and the tween's end
+state is `translate(0,0)` — so the centring went at first paint and never came
+back. The animation was also wired to an inline callback ref, which React
+re-invokes on every render, so it replayed on every keystroke in the form.
+
+Then the same collision, twice more, from the other direction: `panel-in` ends
+at `transform: none`, and the reduced-motion block forces `transform: none
+!important` — which decentres `BlastRadiusDialog` and `HeadroomPlanCard`
+visibly during the animation and PERMANENTLY for anyone who has asked for less
+motion.
+
+The fix at all three is the same and is not to teach the animation about the
+centring: a `fixed inset-0 grid place-items-center` wrapper owns position, the
+panel owns transform. The rule is now written into the keyframe's own comment,
+so the next dialog cannot rediscover it.
+
+### Skeletons
+
+Overview and profile already had bespoke skeletons; the four surfaces from §13
+were standing in for their layouts with generic parts, which 03 §15 rules out
+for a reason — a skeleton of the wrong shape is a layout shift with extra
+steps, and costs more than none, because the reader has started reading before
+the page jumps.
+
+Revenue was the worst: four small tiles and two blocks where the screen has a
+~300px dark slab, two section headings at `mt-24 mb-12` each, a movement band
+and two different chart grids. The page roughly tripled in height on arrival.
+
+Four new primitives cover what the console is actually made of — `SkeletonRibbon`
+(and it is DARK, because a light stand-in for the inverted slab flashes a third
+of the viewport), `SkeletonFilterBar`, `SkeletonTable` (a table in one container,
+not a stack of free-standing cards), and `SkeletonSectionHeading`.
+
+### What is still honestly disabled
+
+Twelve controls, in four groups, and none of them is a password-shaped mistake:
+
+- **Phase 2 has no channel runtime** (3). The adapter contract exists and
+  nothing sits above it.
+- **Phase 1 has no payment gateway** (1). The console reports the debt; the
+  finance operator collects.
+- **Reaching inside a workspace needs a logged support session** (6). This one
+  is a deliberate isolation boundary rather than missing work, and it is the
+  claim that makes the whole console defensible in a security review.
+- **Not a platform-level record** (2). Platform admin invitations and
+  platform-level API keys are scoped to a workspace by design.
+
+### Left open, needing a decision rather than an implementation
+
+`toggleBreakGlass` still refuses. The platform-wide support lock has nowhere to
+live: `platform_admins.can_enter_support_mode` is per-admin, and using it as the
+global switch would destroy each admin's own setting on unlock. The gate itself
+belongs in `startSupportSession` rather than in `withTenantContext` — refuse the
+grant and no session exists to carry support mode — which makes it a small
+change once the storage question is answered. That question is Brian's.

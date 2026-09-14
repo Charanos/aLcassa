@@ -11,7 +11,9 @@ import {
   getWorkspaceRules,
   getWorkspaceActivity,
   PORTFOLIO_COUNT,
+  getPlans,
 } from '@/lib/console/data';
+import { getLivePlans } from '@/lib/console/live';
 import { startSupportSession } from '../../actions';
 
 import { OverviewTab } from '@/components/console/tenant/OverviewTab';
@@ -54,7 +56,13 @@ export default async function WorkspaceDetailPage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const [{ id }, { tab }] = await Promise.all([params, searchParams]);
-  const w = await getWorkspaceDetail(id);
+  /* The catalogue the plan-change control offers. Live first, designed second —
+     the same seam every other read on this page uses, so the control lists the
+     plans that actually exist rather than a hardcoded three. */
+  const [w, catalogue] = await Promise.all([
+    getWorkspaceDetail(id),
+    getLivePlans().then((live) => live ?? getPlans()),
+  ]);
 
   if (!w) notFound();
 
@@ -188,7 +196,12 @@ export default async function WorkspaceDetailPage({
 
       {/* Tab Contents */}
       {active === 'overview' ? <OverviewTab w={w} /> : null}
-      {active === 'billing' ? <BillingTab w={w} /> : null}
+      {active === 'billing' ? (
+        <BillingTab
+          w={w}
+          plans={catalogue.plans.map((p) => ({ code: p.key, name: p.name }))}
+        />
+      ) : null}
       {active === 'staff' ? <StaffTab w={w} staff={await getWorkspaceStaff(w.slug)} /> : null}
       {active === 'channels' ? <ChannelsTab channels={await getWorkspaceChannels(w.slug)} /> : null}
       {active === 'rules' ? <RulesTab rules={await getWorkspaceRules(w.slug)} workspaceCount={PORTFOLIO_COUNT} /> : null}

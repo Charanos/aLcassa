@@ -172,9 +172,9 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
         <div
           className="flex flex-col items-start justify-between gap-4 rounded-xl p-5 sm:flex-row"
           style={{
-            border: `1px solid ${w.status === 'past due' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+            border: `1px solid ${w.status === 'past due' ? 'var(--badge-danger-edge)' : 'var(--badge-warning-edge)'}`,
             background:
-              w.status === 'past due' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(245, 158, 11, 0.05)',
+              w.status === 'past due' ? 'var(--badge-danger-bg)' : 'var(--badge-warning-bg)',
           }}
         >
           <div className="flex items-start gap-3.5">
@@ -182,7 +182,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
               className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg"
               style={{
                 background:
-                  w.status === 'past due' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                  w.status === 'past due' ? 'var(--badge-danger-bg)' : 'var(--badge-warning-bg)',
                 color: w.status === 'past due' ? 'var(--danger-fg)' : 'var(--warning-fg)',
               }}
               aria-hidden
@@ -199,6 +199,30 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
               >
                 {w.alert.body}
               </p>
+              {/*
+                ⚠ THE REASON, AND DELIBERATELY NOT A `ReasonNote`.
+
+                Every other inert control on these tabs states its reason in the
+                shared note, which draws on `--surface-sunken`. This banner
+                already carries a danger or warning tint, so a grey chip inside
+                it would read as a foreign element rather than as the banner
+                continuing to speak. Same requirement, banner's own voice.
+              */}
+              {w.status === 'past due' && (
+                <p
+                  className="mt-2 text-xs"
+                  style={{
+                    color: 'var(--text-tertiary)',
+                    maxWidth: '64ch',
+                    textWrap: 'pretty',
+                  }}
+                >
+                  Charging a card is not something this console does &mdash; there is no payment
+                  gateway in Phase 1. It reports what is owed and records every change against
+                  the account; collection is the finance operator&rsquo;s, and the invoice
+                  history behind it is one click away.
+                </p>
+              )}
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2 sm:self-center">
@@ -207,7 +231,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 type="button"
                 disabled
                 title="There is no payment gateway in Phase 1. A past-due invoice is handed to the finance operator."
-                className="h-8.5 rounded-lg px-3.5 text-xs font-medium text-white transition-all active:scale-95"
+                className="h-8.5 rounded-lg px-3.5 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
                 style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
               >
                 Retry Charge

@@ -92,23 +92,69 @@ export function ProfileSkeleton() {
           </div>
         </CardBones>
 
-        {/* Security */}
-        <CardBones>
-          <Bar w={16} h={15} />
-          <Bar w={68} h={12} r={4} />
-          <div className="mt-5 grid gap-5">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="flex items-start gap-4">
-                <Bar w="32px" h={32} r={999} />
+        {/*
+          Security.
+
+          ⚠ THREE THINGS HAD DRIFTED FROM THE REAL LIST, all in the same
+          direction — the skeleton was drawn against an older `SecurityList`
+          and stayed still while that component changed underneath it.
+
+          The rows are BORDERED CARDS in a `gap-4` column, not flat rows in one
+          card; the glyph is 40px, not 32; and the middle control is now
+          "Change password", which is a real button with an icon at roughly
+          twice the width of the two inert ones beside it. Drawing all three at
+          82px put the wrong one in the reader's eye for the whole load.
+
+          The heading is `SectionHeading align="right"`, which is a rule with a
+          right-aligned title over it rather than a card header — the last
+          difference, and the one that was moving the rows down by ~20px.
+        */}
+        <div className="grid gap-4">
+          <div>
+            <div
+              aria-hidden
+              className="mb-6 h-px w-full bg-gradient-to-l from-[var(--border-strong)]/40 to-transparent"
+            />
+            <div className="flex flex-col items-end">
+              <Bar w="132px" h={26} r={8} />
+              <div className="mt-2.5 flex justify-end">
+                <Bar w="300px" h={13} r={4} />
+              </div>
+            </div>
+          </div>
+
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="rounded-xl px-6 py-4"
+              style={{
+                background: 'var(--surface-sunken)',
+                border: '1px solid var(--border-subtle)',
+              }}
+            >
+              <div className="flex items-start gap-4">
+                <Bar w="40px" h={40} r={999} />
                 <div className="grid flex-1 gap-2">
                   <SkeletonText width={[44, 22, 34][i]} />
                   <SkeletonText width={[88, 76, 82][i]} />
+                  {/* Only the two inert rows carry a reason paragraph; the
+                      password row's control replaced its own. */}
+                  {i !== 1 ? <SkeletonText width={[70, 0, 64][i]} /> : null}
                 </div>
-                <Bar w="82px" h={32} r={10} />
+                {/* 152px for the live "Change password" button, 82 for the
+                    two disabled ones. */}
+                <Bar w={i === 1 ? '152px' : '82px'} h={34} r={10} />
               </div>
-            ))}
+            </div>
+          ))}
+
+          <div className="px-1">
+            <SkeletonText width={94} />
+            <div className="mt-1.5">
+              <SkeletonText width={62} />
+            </div>
           </div>
-        </CardBones>
+        </div>
       </div>
 
       {/* Rail */}

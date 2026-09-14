@@ -665,7 +665,7 @@ export function ConsoleShell({
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:rounded-lg focus:px-4 focus:py-2.5"
         style={{
           background: 'var(--blue-500)',
-          color: '#ffffff',
+          color: 'var(--chrome-fg)',
           font: '500 13px/1 var(--font-ui)',
         }}
       >
@@ -1430,7 +1430,7 @@ export function ConsoleShell({
                               background: active
                                 ? 'var(--blue-500)'
                                 : 'rgba(255, 255, 255, 0.08)',
-                              color: active ? '#ffffff' : 'var(--chrome-fg)',
+                              color: active ? 'var(--chrome-fg)' : 'var(--chrome-fg)',
                               border: active ? '1px solid var(--blue-400)' : '1px solid rgba(255, 255, 255, 0.1)',
                               font: '500 10px/1 var(--font-mono)',
                               transition:
@@ -1808,7 +1808,7 @@ export function ConsoleShell({
                * where it is looked at.
                */
               maxHeight: '70dvh',
-              background: '#ffffff',
+              background: 'var(--surface-raised)',
               color: 'var(--text-primary)',
               border: '1px solid rgba(0,0,0,0.06)',
               boxShadow: '0 32px 64px -16px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.02)',
@@ -1903,7 +1903,7 @@ export function ConsoleShell({
               <kbd
                 className="flex h-5 items-center justify-center rounded-[4px] px-1.5"
                 style={{
-                  background: 'linear-gradient(to bottom, #ffffff, #fafafa)',
+                  background: 'linear-gradient(to bottom, var(--surface-raised), var(--surface-sunken))',
                   border: '1px solid rgba(0,0,0,0.1)',
                   boxShadow: '0 1px 1px rgba(0,0,0,0.05)',
                   font: '500 10px/1 var(--font-mono)',
@@ -1974,7 +1974,7 @@ export function ConsoleShell({
                           className="flex items-center justify-center rounded-[6px] border px-2 py-[3px] text-[11px] font-medium transition-colors group-hover:border-[var(--blue-200)] group-hover:bg-[var(--blue-50)] group-hover:text-[var(--blue-600)]"
                           style={{
                             borderColor: 'rgba(0,0,0,0.06)',
-                            background: '#fcfcfc',
+                            background: 'var(--surface-sunken)',
                             color: 'var(--text-tertiary)'
                           }}
                         >

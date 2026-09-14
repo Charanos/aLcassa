@@ -12,7 +12,7 @@ import {
   IconDownload,
 } from '@tabler/icons-react';
 import type { AuditEntry } from '@/lib/console/data';
-import { Panel } from '@/components/console/Surface';
+import { Panel, ReasonNote } from '@/components/console/Surface';
 
 export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
   const [search, setSearch] = useState('');
@@ -25,13 +25,13 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
       case 'session':
         return { Icon: IconUser, bg: 'var(--blue-50)', color: 'var(--blue-500)' };
       case 'plan':
-        return { Icon: IconListDetails, bg: 'rgba(16, 185, 129, 0.1)', color: 'var(--success-fg)' };
+        return { Icon: IconListDetails, bg: 'var(--badge-success-bg)', color: 'var(--success-fg)' };
       case 'rules':
-        return { Icon: IconRobot, bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' };
+        return { Icon: IconRobot, bg: 'var(--badge-info-bg)', color: 'var(--blue-500)' };
       case 'tenant':
-        return { Icon: IconBuilding, bg: 'rgba(245, 158, 11, 0.1)', color: 'var(--warning-fg)' };
+        return { Icon: IconBuilding, bg: 'var(--badge-warning-bg)', color: 'var(--warning-fg)' };
       case 'admin':
-        return { Icon: IconSettings, bg: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger-fg)' };
+        return { Icon: IconSettings, bg: 'var(--badge-danger-bg)', color: 'var(--danger-fg)' };
       default:
         return { Icon: IconHistory, bg: 'var(--surface-inset)', color: 'var(--text-secondary)' };
     }
@@ -207,6 +207,15 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
           </button>
         }
         flush
+        footer={
+          <ReasonNote>
+            This is the platform&rsquo;s own record of what it did to this workspace. The
+            workspace&rsquo;s internal log &mdash; what their people did inside it &mdash; is
+            reachable only through a logged support session, and export follows the same route,
+            so a copy of a customer&rsquo;s activity is never taken without a trace of who took
+            it.
+          </ReasonNote>
+        }
       >
         {/* Filter Controls */}
         <div

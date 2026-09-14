@@ -79,16 +79,43 @@ export default async function PlansPage() {
         ]}
         title="Plans"
         actions={
-          <button
-            type="button"
-            disabled
-            title="A new plan is a catalogue and entitlement change, applied as a migration in Phase 1."
-            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl px-5 text-[13px] font-semibold whitespace-nowrap transition-all"
-            style={{ opacity: 0.5, cursor: 'not-allowed', background: 'var(--surface-sunken)', color: 'var(--text-secondary)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02), inset 0 0 0 1px var(--border-subtle)' }}
-          >
-            <IconPlus size={16} stroke={1.5} aria-hidden />
-            New plan
-          </button>
+          /*
+            ⚠ THE REASON IS BESIDE THE CONTROL, NOT INSIDE ITS `title`.
+
+            It was a tooltip, which is the third instance of this defect found in
+            this pass and the one 17 §6.4 is most specific about: a reader on a
+            keyboard, on a touch screen, or using a screen reader got a dead
+            button and no account of it. The explanation now sits under the
+            heading where everyone reads it, and the button keeps `title` as an
+            addition rather than as the carrier.
+
+            (A plain comment, not `{/* … *\/}` — this is already inside an
+            attribute expression, and a JSX comment container there is a syntax
+            error rather than a comment.)
+          */
+          <div className="flex flex-col items-end gap-1.5">
+            <button
+              type="button"
+              disabled
+              title="A new plan is a catalogue and entitlement change, applied as a migration in Phase 1."
+              className="inline-flex h-10 shrink-0 cursor-not-allowed items-center gap-2 rounded-xl px-5 text-[13px] font-medium whitespace-nowrap"
+              style={{
+                background: 'var(--surface-sunken)',
+                color: 'var(--text-disabled)',
+                boxShadow: 'inset 0 0 0 1px var(--border-subtle)',
+              }}
+            >
+              <IconPlus size={16} stroke={1.5} aria-hidden />
+              New plan
+            </button>
+            <p
+              className="t-caption max-w-[34ch] text-right"
+              style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+            >
+              A plan is a catalogue and entitlement change, applied as a migration in Phase 1 —
+              not something this screen can write.
+            </p>
+          </div>
         }
       />
       <p className="t-body -mt-3 mb-8" style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}>
@@ -102,7 +129,7 @@ export default async function PlansPage() {
           style={{
             background: 'var(--surface-raised)',
             border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-            boxShadow: '0 12px 40px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+            boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
           }}
         >
           {/* The one horizontal scroller in the console. See the header note. */}
@@ -125,7 +152,7 @@ export default async function PlansPage() {
                     style={{
                       background: 'var(--surface-sunken)',
                       color: 'var(--text-tertiary)',
-                      boxShadow: 'inset 0 -1px 0 rgba(255,255,255,0.5)',
+                      boxShadow: 'var(--glass-highlight)',
                       borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                     }}
                   >
@@ -138,16 +165,16 @@ export default async function PlansPage() {
                       className="px-4 py-5 text-left align-top relative"
                       style={{
                         background: 'var(--surface-sunken)',
-                        boxShadow: 'inset 0 -1px 0 rgba(255,255,255,0.5)',
+                        boxShadow: 'var(--glass-highlight)',
                         borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                       }}
                     >
                       {/* Vertical Engraved Separator */}
                       <div className="absolute inset-y-0 left-0 w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)]" />
-                      <div className="absolute inset-y-0 left-px w-px bg-[rgba(255,255,255,0.5)]" />
+                      <div className="absolute inset-y-0 left-px w-px bg-[color-mix(in_oklab,var(--ink-0)_70%,transparent)]" />
                       
                       <span
-                        className="block text-sm font-semibold tracking-tight"
+                        className="block text-sm font-medium tracking-tight"
                         style={{ color: 'var(--text-primary)' }}
                       >
                         {p.name}
@@ -161,12 +188,12 @@ export default async function PlansPage() {
                       {/* The tenant count sits in the column head on purpose:
                           it is the blast radius of every cell beneath it. */}
                       <span
-                        className="mt-3 inline-flex items-center rounded-full px-2 py-1 font-mono text-[9px] font-bold tracking-wide uppercase"
+                        className="mt-3 inline-flex items-center rounded-full px-2 py-1 font-mono text-[9px] font-medium tracking-wide uppercase"
                         style={{
                           background: 'var(--surface-raised)',
                           color: 'var(--text-secondary)',
                           border: '1px solid var(--border-subtle)',
-                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                          boxShadow: 'var(--glass-highlight)',
                         }}
                       >
                         {p.tenants}
@@ -186,7 +213,7 @@ export default async function PlansPage() {
                         style={{
                           height: 52,
                           borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                          boxShadow: 'inset 0 -1px 0 rgba(255,255,255,0.5)',
+                          boxShadow: 'var(--glass-highlight)',
                         }}
                       >
                         <span className="flex items-center gap-3">
@@ -212,12 +239,12 @@ export default async function PlansPage() {
                           style={{
                             height: 52,
                             borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                            boxShadow: 'inset 0 -1px 0 rgba(255,255,255,0.5)',
+                            boxShadow: 'var(--glass-highlight)',
                           }}
                         >
                           {/* Vertical Engraved Separator */}
                           <div className="absolute inset-y-0 left-0 w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)]" />
-                          <div className="absolute inset-y-0 left-px w-px bg-[rgba(255,255,255,0.5)]" />
+                          <div className="absolute inset-y-0 left-px w-px bg-[color-mix(in_oklab,var(--ink-0)_70%,transparent)]" />
 
                           <span
                             className="font-mono text-[13px] font-medium"
@@ -251,15 +278,36 @@ export default async function PlansPage() {
             }}
           >
             <p className="flex-1 text-[13px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
-              {m.overrides} workspaces carry per-tenant overrides that win over these values.
+              {m.overrides} workspaces carry per-tenant overrides that win over these values.{' '}
+              {m.pendingChange.plan
+                ? null
+                : 'Limits are edited on the headroom card for each plan, below.'}
             </p>
-            <BlastRadiusDialog change={m.pendingChange} />
+            {/*
+              ⚠ THE BUTTON ONLY EXISTS WHEN THERE IS SOMETHING TO SAVE.
+
+              It rendered unconditionally. On the live path `pendingChange` is
+              deliberately empty — `live.ts` refuses to fabricate a pending edit
+              nobody has made — so "Save changes" opened a confirmation reading
+              "This affects 0 workspaces", with a blank plan, a blank field and
+              an arrow between two empty strings, and then refused on submit
+              because the plan was empty. A live control that opens a dialog
+              full of blanks is worse than a disabled one: the operator has to
+              do the work to find out nothing was there.
+
+              The edit it was reaching for is real now and lives on the headroom
+              cards below, where each limit row has its own control and the
+              preview counts what the change would strand. This stays for the
+              designed fixture, which does carry a pending change and is what
+              the dialog was drawn against.
+            */}
+            {m.pendingChange.plan ? <BlastRadiusDialog change={m.pendingChange} /> : null}
           </div>
         </div>
 
         <div className="grid gap-6 sm:gap-12">
           <section className="flex flex-col gap-5 pt-4">
-            <h2 className="text-[10px] font-semibold tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+            <h2 className="text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
               Distribution
             </h2>
             <div className="flex flex-col gap-4">
@@ -273,7 +321,7 @@ export default async function PlansPage() {
                 aria-label={m.plans.map((p) => `${p.name} ${p.count}`).join(', ')}
                 style={{
                   background: 'var(--surface-sunken)',
-                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)',
+                  boxShadow: 'var(--neu-inset)',
                 }}
               >
                 {m.plans.map((p, i) => (
@@ -288,7 +336,7 @@ export default async function PlansPage() {
                         'var(--blue-500)',
                         'var(--blue-800)',
                       ][i],
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
+                      boxShadow: 'var(--glass-highlight)',
                     }}
                   />
                 ))}
@@ -306,7 +354,7 @@ export default async function PlansPage() {
                           'var(--blue-500)',
                           'var(--blue-800)',
                         ][i],
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4)',
+                        boxShadow: 'var(--glass-highlight)',
                       }}
                     />
                     <span className="text-[13px] font-medium tracking-tight flex-1" style={{ color: 'var(--text-primary)' }}>
@@ -325,10 +373,10 @@ export default async function PlansPage() {
             className="flex flex-col gap-4 rounded-[24px] py-6 px-5"
             style={{
               background: 'var(--surface-sunken)',
-              boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+              boxShadow: 'var(--neu-inset)',
             }}
           >
-            <p className="text-[10px] font-semibold tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+            <p className="text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
               Blast radius
             </p>
             <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
@@ -340,7 +388,7 @@ export default async function PlansPage() {
               style={{ borderColor: 'color-mix(in srgb, var(--border-subtle) 30%, transparent)' }}
             >
               {/* Horizontal Engraved line overlay */}
-              <div className="absolute inset-x-0 top-0 h-px bg-[rgba(255,255,255,0.6)]" />
+              <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)]" />
 
               {(
                 [

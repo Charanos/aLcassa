@@ -1,10 +1,14 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { IconCircleX, IconExternalLink } from '@tabler/icons-react';
+import { IconCircleX, IconExternalLink, IconAlertTriangle } from '@tabler/icons-react';
 import { StartSessionDialog } from './StartSessionDialog';
 import { DestructiveConfirm } from '@/components/primitives/ConfirmDialog';
-import { suspendWorkspace } from '@/app/(platform)/platform/(console)/actions';
+import {
+  fetchSuspensionImpact,
+  suspendWorkspace,
+  type SuspensionImpact,
+} from '@/app/(platform)/platform/(console)/actions';
 import { useToast } from '@/components/primitives/Toast';
 import type { ConsoleWorkspace } from './types';
 
@@ -24,8 +28,22 @@ import type { ConsoleWorkspace } from './types';
  *       4   channels go quiet, including the WhatsApp number
  *
  * An operator who reads that and proceeds has genuinely decided. An operator
- * who reads "are you sure?" has only clicked. The counts come from the read
- * model rather than the component, so they cannot drift into being wrong.
+ * who reads "are you sure?" has only clicked.
+ *
+ * ⚠ THE COUNTS ARE READ WHEN THE DIALOG OPENS, NOT WHEN THE PAGE RENDERED.
+ *
+ * They used to arrive as a prop with the page, which made the whole idea
+ * weaker than it reads: a tab left open over lunch confirmed against figures
+ * from before lunch. Worse, the prop could not carry the one number that
+ * actually changes minute to minute — whether a colleague is INSIDE the
+ * workspace on a support session right now. Suspending underneath them drops
+ * what they were doing and tells neither of them why.
+ *
+ * So the dialog asks the server on open (`fetchSuspensionImpact` →
+ * `previewSuspension`, audited), and the prop stays as the value shown while
+ * that read is in flight. The confirm is reachable throughout: a slow or
+ * failed preview must not block a suspension somebody needs to make, and the
+ * dialog says plainly which figures it is showing.
  *
  * Type-to-confirm on the slug is the second gate. It exists because suspend
  * sits next to "Support session" in the header, and the cost of a misclick is
@@ -50,6 +68,32 @@ export function WorkspaceActions({
   const [suspendError, setSuspendError] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const [pending, startTransition] = useTransition();
+
+  /**
+   * `null` while the preview is in flight or has failed — the rendered figures
+   * fall back to the props, and the dialog says so. A failed preview is a
+   * degraded dialog, never a blocked one.
+   */
+  const [live, setLive] = useState<SuspensionImpact | null>(null);
+  const [previewState, setPreviewState] = useState<'idle' | 'loading' | 'done' | 'failed'>('idle');
+
+  function openSuspend() {
+    setSuspendError(null);
+    setSuspendOpen(true);
+    setLive(null);
+    setPreviewState('loading');
+    void fetchSuspensionImpact(workspace.id).then((r) => {
+      if (r.ok) {
+        setLive(r.impact);
+        setPreviewState('done');
+      } else {
+        setPreviewState('failed');
+      }
+    });
+  }
+
+  const staffCount = live?.activeMembers ?? impact.staff;
+  const openSessions = live?.openSupportSessions ?? 0;
 
   function submitSuspend(typed: string) {
     setSuspendError(null);
@@ -92,10 +136,7 @@ export function WorkspaceActions({
         </button>
         <button
           type="button"
-          onClick={() => {
-            setSuspendError(null);
-            setSuspendOpen(true);
-          }}
+          onClick={openSuspend}
           className="t-compact inline-flex h-[34px] items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors"
           style={{
             border: '1px solid var(--border-strong)',
@@ -140,11 +181,47 @@ export function WorkspaceActions({
         consequence="Stated in numbers, because a suspension is felt by people who did not choose it."
         details={
           <>
+            {/*
+              ⚠ THE OPEN-SESSION WARNING SITS ABOVE THE COUNTS, NOT AMONG THEM.
+
+              Everything in the list below is a consequence the operator INTENDS
+              — that is what suspending means. This one is not: it says somebody
+              is inside the workspace at this moment and is about to be cut off
+              mid-task, which is a reason to wait ninety seconds rather than a
+              cost of proceeding. Buried as a fourth bullet it reads as more of
+              the same and gets skimmed with the rest.
+            */}
+            {openSessions > 0 ? (
+              <div
+                className="mt-4 flex items-start gap-3 rounded-panel px-3.5 py-3"
+                style={{
+                  background: 'var(--badge-warning-bg)',
+                  border: '1px solid var(--badge-warning-edge)',
+                }}
+              >
+                <IconAlertTriangle
+                  size={16}
+                  stroke={1.5}
+                  style={{ color: 'var(--warning-fg)', marginTop: '1px', flexShrink: 0 }}
+                  aria-hidden
+                />
+                <p className="t-compact" style={{ color: 'var(--text-primary)' }}>
+                  {openSessions === 1
+                    ? 'A support session is open inside this workspace right now.'
+                    : `${openSessions} support sessions are open inside this workspace right now.`}{' '}
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    Whoever is in there loses their session the moment this lands, mid-task and
+                    without being told why. Ending it first costs a minute.
+                  </span>
+                </p>
+              </div>
+            ) : null}
+
             <ul
               className="grid list-none gap-2.5 border-t p-0 pt-4"
               style={{ borderColor: 'var(--border-subtle)' }}
             >
-              <Impact n={impact.staff}>
+              <Impact n={staffCount}>
                 staff lose access at their next request. Sessions are not waited out.
               </Impact>
               <Impact n={impact.conversations}>
@@ -155,6 +232,24 @@ export function WorkspaceActions({
               </Impact>
               <li className="t-compact mt-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Data is retained. Reactivation restores access immediately and is a single action.
+              </li>
+              {/*
+                ⚠ THE DIALOG SAYS WHICH FIGURES IT IS SHOWING.
+
+                A confirmation built on counts has to be honest about where they
+                came from, or the idea eats itself: an operator who learns once
+                that the numbers can be stale stops reading them, and then the
+                gate is "are you sure?" wearing a list.
+              */}
+              <li
+                className="t-caption mt-0.5"
+                style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+              >
+                {previewState === 'loading'
+                  ? 'Checking these against the database…'
+                  : previewState === 'failed'
+                    ? 'These are the figures from when this page loaded — the live check did not come back. Reload before relying on them.'
+                    : 'Read from the database just now.'}
               </li>
             </ul>
 

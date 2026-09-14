@@ -621,6 +621,11 @@ export async function getLiveHeadroom(): Promise<HeadroomModel | null> {
     */
     const agg = await tx
       .select({
+        /* The row the limit editor writes to. Selected and grouped by id so
+           the aggregate stays one row per (plan, entitlement) — `id` is the
+           primary key of the very table being grouped, so it adds nothing to
+           the grouping and everything to what the console can then do. */
+        entitlementId: planEntitlements.id,
         planId: planEntitlements.planId,
         key: planEntitlements.key,
         label: planEntitlements.displayName,
@@ -640,6 +645,7 @@ export async function getLiveHeadroom(): Promise<HeadroomModel | null> {
         ),
       )
       .groupBy(
+        planEntitlements.id,
         planEntitlements.planId,
         planEntitlements.key,
         planEntitlements.displayName,
@@ -683,6 +689,7 @@ export async function getLiveHeadroom(): Promise<HeadroomModel | null> {
           rows: agg
           .filter((a) => a.planId === p.id)
           .map((a) => ({
+            entitlementId: a.entitlementId,
             key: a.key,
             label: a.label,
             limit: a.limitValue,

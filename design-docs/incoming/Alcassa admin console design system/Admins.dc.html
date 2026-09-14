@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1180px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="display: flex; align-items: flex-end; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
+    <div style="flex: 1; min-width: 0;">
+      <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">/platform/admins</p>
+      <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Admins</h1>
+      <p style="margin: 8px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 64ch;">Who can see every workspace on the platform. Keep this list short enough to name from memory.</p>
+    </div>
+    <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui); white-space: nowrap; flex: 0 0 auto;" style-hover="background: var(--blue-600);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M16 19h6" /><path d="M19 16v6" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4" /></svg>
+      Invite admin
+    </button>
+  </div>
+
+  <div style="margin-top: 22px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+    <sc-for list="{{ admins }}" as="a" hint-placeholder-count="4">
+      <div style="display: flex; align-items: center; gap: 16px; padding: 15px 20px; border-bottom: 1px solid var(--border-subtle);" style-hover="background: var(--surface-sunken);">
+        <span style="display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 auto; border-radius: 9999px; background: {{ a.avatarBg }}; color: {{ a.avatarInk }}; font: 500 13px/1 var(--font-mono);">{{ a.initials }}</span>
+        <span style="flex: 1.4; min-width: 0;">
+          <span style="display: flex; align-items: center; gap: 9px;">
+            <span style="font: 400 14px/1.35 var(--font-ui); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ a.name }}</span>
+            <sc-if value="{{ a.isYou }}" hint-placeholder-val="{{ false }}">
+              <span style="display: inline-flex; align-items: center; height: 19px; padding: 0 7px; border-radius: 9999px; background: var(--surface-inset); font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.06em; color: var(--text-secondary); flex: 0 0 auto;">YOU</span>
+            </sc-if>
+          </span>
+          <span style="display: block; margin-top: 3px; font: 400 12px/1.35 var(--font-mono); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ a.email }}</span>
+        </span>
+        <span style="flex: 0 0 auto; width: 132px;">
+          <span style="display: inline-flex; align-items: center; gap: 7px; height: 24px; padding: 0 10px; border-radius: 9999px; background: {{ a.roleBg }}; color: {{ a.roleInk }}; font: 500 11.5px/1 var(--font-mono); letter-spacing: 0.02em; white-space: nowrap;">
+            <span style="display: grid; place-items: center; width: 13px; height: 13px; flex: 0 0 auto;">{{ a.roleIcon }}</span>
+            {{ a.role }}
+          </span>
+        </span>
+        <span style="flex: 0 0 auto; width: 150px;">
+          <span style="display: block; font: 400 12.5px/1.35 var(--font-ui); color: var(--text-secondary);">{{ a.lastSeen }}</span>
+          <span style="display: block; margin-top: 2px; font: 400 11px/1.35 var(--font-mono); color: var(--text-tertiary);">{{ a.sessions }}</span>
+        </span>
+        <span style="flex: 0 0 auto; display: flex; align-items: center; gap: 10px;">
+          <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 11.5px/1 var(--font-mono); color: {{ a.mfaInk }}; white-space: nowrap;">
+            <span style="display: grid; place-items: center; width: 14px; height: 14px; flex: 0 0 auto;">{{ a.mfaIcon }}</span>
+            {{ a.mfa }}
+          </span>
+          <button type="button" style="display: grid; place-items: center; width: 30px; height: 30px; border: none; border-radius: 7px; background: transparent; color: var(--text-tertiary);" style-hover="background: var(--surface-inset); color: var(--text-primary);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
+          </button>
+        </span>
+      </div>
+    </sc-for>
+
+    <div style="display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--surface-sunken);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary); flex: 0 0 auto;" aria-hidden="true"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" /></svg>
+      <p style="margin: 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary);">Platform admins bypass no Row Level Security policy. They gain workspace access only through a logged support session.</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;">
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Pending invitations</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border-subtle);">
+        <span style="display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto; border-radius: 9999px; border: 1px dashed var(--border-strong); color: var(--text-tertiary);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M3 7l9 6l9 -6" /></svg>
+        </span>
+        <span style="flex: 1; min-width: 0;">
+          <span style="display: block; font: 400 13px/1.35 var(--font-mono); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">d.kimani@andishi.co.ke</span>
+          <span style="display: block; margin-top: 2px; font: 400 11.5px/1.35 var(--font-ui); color: var(--text-tertiary);">Sent 2 days ago · expires in 5</span>
+        </span>
+        <button type="button" style="height: 28px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-secondary); font: 400 12px/1 var(--font-ui); white-space: nowrap; flex: 0 0 auto;" style-hover="background: var(--surface-inset);">Revoke</button>
+      </div>
+      <div style="padding: 14px 20px;">
+        <p style="margin: 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary);">Invitations expire after seven days and can only be issued by an existing platform admin.</p>
+      </div>
+    </div>
+
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Role capabilities</p>
+      </div>
+      <div style="padding: 6px 20px 16px;">
+        <sc-for list="{{ caps }}" as="c" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
+            <span style="flex: 1; font: 400 12.5px/1.4 var(--font-ui); color: var(--text-primary);">{{ c.label }}</span>
+            <span style="display: grid; place-items: center; width: 60px; color: {{ c.ownerInk }};">{{ c.owner }}</span>
+            <span style="display: grid; place-items: center; width: 60px; color: {{ c.adminInk }};">{{ c.admin }}</span>
+          </div>
+        </sc-for>
+        <div style="display: flex; align-items: center; gap: 12px; padding-top: 10px;">
+          <span style="flex: 1;"></span>
+          <span style="display: grid; place-items: center; width: 60px; font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.08em; color: var(--text-tertiary);">OWNER</span>
+          <span style="display: grid; place-items: center; width: 60px; font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.08em; color: var(--text-tertiary);">ADMIN</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}}">
+const P = {
+  crown: 'M12 6l4 6l5 -4l-2 10h-14l-2 -10l5 4z',
+  shield: 'M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3',
+  lock: 'M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z|M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0|M8 11v-4a4 4 0 1 1 8 0v4',
+  warn: 'M12 9v4|M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0|M12 16h.01',
+  check: 'M5 12l5 5l9 -9',
+  dash: 'M5 12l14 0'
+};
+
+function icon(name, size) {
+  return React.createElement(
+    'svg',
+    { width: size || 13, height: size || 13, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    (P[name] || '').split('|').map((d, i) => React.createElement('path', { key: i, d }))
+  );
+}
+
+const ADMINS = [
+  { name: 'Brian Mwangi', email: 'brian@andishi.co.ke', initials: 'BM', role: 'owner', lastSeen: 'Active now', sessions: '2 sessions today', mfa: true, isYou: true },
+  { name: 'Wanjiku Kariuki', email: 'wanjiku@andishi.co.ke', initials: 'WK', role: 'platform_admin', lastSeen: '2 hours ago', sessions: '1 session today', mfa: true, isYou: false },
+  { name: 'Joseph Otieno', email: 'j.otieno@andishi.co.ke', initials: 'JO', role: 'platform_admin', lastSeen: 'Yesterday', sessions: '3 sessions this week', mfa: true, isYou: false },
+  { name: 'Amina Hassan', email: 'a.hassan@andishi.co.ke', initials: 'AH', role: 'support', lastSeen: '6 days ago', sessions: 'no sessions', mfa: false, isYou: false }
+];
+
+const ROLE = {
+  owner: ['var(--blue-50)', 'var(--blue-600)', 'crown'],
+  platform_admin: ['var(--surface-inset)', 'var(--text-secondary)', 'shield'],
+  support: ['var(--surface-inset)', 'var(--text-tertiary)', 'lock']
+};
+
+const CAPS = [
+  { label: 'Provision and suspend workspaces', owner: true, admin: true },
+  { label: 'Start support sessions', owner: true, admin: true },
+  { label: 'Edit plans and entitlements', owner: true, admin: false },
+  { label: 'Edit master AI rules', owner: true, admin: true },
+  { label: 'Grant and revoke admins', owner: true, admin: false }
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      admins: ADMINS.map((a) => ({
+        name: a.name,
+        email: a.email,
+        initials: a.initials,
+        isYou: a.isYou,
+        role: a.role,
+        roleBg: ROLE[a.role][0],
+        roleInk: ROLE[a.role][1],
+        roleIcon: icon(ROLE[a.role][2]),
+        avatarBg: a.isYou ? 'var(--blue-50)' : 'var(--surface-inset)',
+        avatarInk: a.isYou ? 'var(--blue-500)' : 'var(--text-secondary)',
+        lastSeen: a.lastSeen,
+        sessions: a.sessions,
+        mfa: a.mfa ? 'MFA on' : 'MFA off',
+        mfaInk: a.mfa ? 'var(--success-fg)' : 'var(--warning-fg)',
+        mfaIcon: icon(a.mfa ? 'lock' : 'warn', 13)
+      })),
+      caps: CAPS.map((c) => ({
+        label: c.label,
+        owner: icon(c.owner ? 'check' : 'dash', 15),
+        admin: icon(c.admin ? 'check' : 'dash', 15),
+        ownerInk: c.owner ? 'var(--success-fg)' : 'var(--text-disabled)',
+        adminInk: c.admin ? 'var(--success-fg)' : 'var(--text-disabled)'
+      }))
+    };
+  }
+}
+
+</script>
+</body>
+</html>

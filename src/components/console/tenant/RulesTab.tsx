@@ -3,7 +3,7 @@
 import React from 'react';
 import { IconLock, IconPencil, IconRefresh, IconShieldCheck, IconPlus } from '@tabler/icons-react';
 import type { WorkspaceRule } from '@/lib/console/data';
-import { Panel } from '@/components/console/Surface';
+import { Panel, ReasonNote } from '@/components/console/Surface';
 
 /**
  * ⚠ THE COUNT ARRIVES AS A PROP, AND THAT IS NOT A STYLE PREFERENCE.
@@ -238,12 +238,21 @@ export function RulesTab({
               type="button"
               disabled
               title="A workspace’s own AI rules are edited in their console. The platform sets the floor, at /platform/ai-rules."
-              className="inline-flex h-7.5 items-center gap-1 rounded-lg px-2.5 text-xs font-medium text-white transition-all active:scale-95"
+              className="inline-flex h-7.5 items-center gap-1 rounded-lg px-2.5 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
               style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
             >
               <IconPlus size={13} stroke={1.5} />
               Add Override
             </button>
+          }
+          footer={
+            <ReasonNote>
+              An override belongs to the workspace that set it, so adding, editing or resetting
+              one is a change made inside their console through a logged support session. What
+              the platform does own is the floor every workspace inherits, and that is editable
+              &mdash; at <span style={{ color: 'var(--text-secondary)' }}>Platform &rsaquo; AI
+              Rules</span>, where a change lands on all {workspaceCount} at once.
+            </ReasonNote>
           }
         >
           <div className="flex flex-col gap-3.5">

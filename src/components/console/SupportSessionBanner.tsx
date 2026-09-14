@@ -80,7 +80,7 @@ export function SupportSessionBanner({
            4.74:1. 03 §4 draws this line explicitly and the support banner is
            the component it names. */
         background: 'var(--orange-500)',
-        color: '#ffffff',
+        color: 'var(--chrome-fg)',
         animation: 'banner-in var(--duration-base) var(--ease-standard)',
       }}
     >
@@ -138,7 +138,7 @@ export function SupportSessionBanner({
             height: 28,
             border: '1px solid rgba(255,255,255,0.55)',
             background: 'rgba(255,255,255,0.12)',
-            color: '#ffffff',
+            color: 'var(--chrome-fg)',
             opacity: pending ? 0.7 : 1,
           }}
         >

@@ -1,4 +1,5 @@
 import { Panel } from '../Surface';
+import { RestoreVersion } from './RestoreVersion';
 import type { MasterRuleVersion } from '@/lib/console/data';
 
 /**
@@ -21,7 +22,14 @@ import type { MasterRuleVersion } from '@/lib/console/data';
  * A 2px rail rather than a dot: a version is a position in a sequence, and a
  * rail reads as one.
  */
-export function VersionRail({ versions }: { versions: MasterRuleVersion[] }) {
+export function VersionRail({
+  versions,
+  workspaceCount,
+}: {
+  versions: MasterRuleVersion[];
+  workspaceCount: number;
+}) {
+  const live = versions.find((v) => v.current);
   return (
     <Panel
       title="Version history"
@@ -78,6 +86,23 @@ export function VersionRail({ versions }: { versions: MasterRuleVersion[] }) {
                 {v.status} · {v.savedAt}
               </span>
             </span>
+            {/*
+              ⚠ ONLY ON A PUBLISHED VERSION THAT IS NOT ALREADY LIVE.
+
+              Restoring the live version is a no-op dressed as an action, and
+              pointing the platform at a DRAFT would publish something nobody
+              chose to publish through a control labelled "restore" — the
+              service refuses that too, but an affordance that exists only to
+              be refused is not an affordance.
+            */}
+            {!v.current && v.status === 'published' && live ? (
+              <RestoreVersion
+                versionId={v.id}
+                versionNumber={v.versionNumber}
+                currentVersionNumber={live.versionNumber}
+                workspaceCount={workspaceCount}
+              />
+            ) : null}
           </div>
         ))}
       </div>
@@ -92,8 +117,9 @@ export function VersionRail({ versions }: { versions: MasterRuleVersion[] }) {
           rather than one, which is a second query and a second shape — real
           work rather than a control to switch on.
         */}
-        Nothing is ever overwritten. Comparing two versions side by side is not built; the reader
-        fetches only the published set today.
+        Nothing is ever overwritten, so restoring an earlier version is a pointer move and is
+        itself reversible. Comparing two versions side by side is not built; the reader fetches
+        only the published set today.
       </p>
     </Panel>
   );

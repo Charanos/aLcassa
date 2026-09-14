@@ -306,7 +306,7 @@ export function QueueSkeleton() {
           key={i}
           className="rounded-[16px] px-6 py-5"
           style={{ 
-            background: 'white', 
+            background: 'var(--surface-raised)', 
             boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)' 
           }}
         >

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
 import { SettingsPanel } from '@/components/console/SettingsPanel';
 import { getSettings, PORTFOLIO_COUNT } from '@/lib/console/data';
+import { fetchBreakGlassState } from '../actions';
 
 export const metadata: Metadata = { title: 'Settings' };
 
@@ -25,7 +26,17 @@ export default async function SettingsPage({
 }: {
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const [model, { tab }] = await Promise.all([getSettings(), searchParams]);
+  /* ⚠ THE LOCK IS READ LIVE, NOT TAKEN FROM THE FIXTURE.
+     `getSettings().breakGlassActive` is a hardcoded `false`. It always was —
+     which was harmless while the control refused to do anything, and is a
+     correctness bug the moment the control works: an operator arriving at a
+     locked platform would have been shown "Suspend all support-session
+     access" and a button offering to do what had already been done. */
+  const [model, { tab }, glass] = await Promise.all([
+    getSettings(),
+    searchParams,
+    fetchBreakGlassState(),
+  ]);
 
   const initialTab = TAB_KEYS.includes(tab as (typeof TAB_KEYS)[number])
     ? (tab as (typeof TAB_KEYS)[number])
@@ -42,7 +53,21 @@ export default async function SettingsPage({
       </div>
 
       <div className="mt-5">
-        <SettingsPanel model={model} initialTab={initialTab} />
+        <SettingsPanel
+          model={{ ...model, breakGlassActive: glass.locked }}
+          initialTab={initialTab}
+          lockedBy={glass.by}
+          lockedAt={
+            glass.at
+              ? new Intl.DateTimeFormat("en-GB", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                  timeZone: "Africa/Nairobi",
+                }).format(glass.at)
+              : null
+          }
+          lockedReason={glass.reason}
+        />
       </div>
     </ConsolePage>
   );

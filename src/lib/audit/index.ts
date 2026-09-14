@@ -59,6 +59,16 @@ export const AUDIT_ACTIONS = {
   RULES_ROLLED_BACK: 'rules.rolled_back',
 
   SUBSCRIPTION_PLAN_ASSIGNED: 'subscription.plan_assigned',
+  /**
+   * A ceiling on the plan CATALOGUE changed — not one workspace's entitlement,
+   * but what every workspace on that plan is entitled to.
+   *
+   * ⚠ DISTINCT FROM `subscription.plan_assigned`, WHICH MOVES ONE CUSTOMER
+   * BETWEEN PLANS. This moves the plan underneath all of them at once, so a
+   * log conflating the two could not answer "why did forty workspaces get more
+   * seats on Tuesday" — the likeliest question ever to be asked of this table.
+   */
+  PLAN_LIMIT_CHANGED: 'plan.limit_changed',
   SUBSCRIPTION_STATUS_CHANGED: 'subscription.status_changed',
   SUBSCRIPTION_OVERRIDE_GRANTED: 'subscription.override_granted',
 
@@ -79,11 +89,46 @@ export const AUDIT_ACTIONS = {
    * were real.
    */
   SUPPORT_EXTENDED: 'support.extended',
+  /**
+   * Break glass: support access suspended platform-wide, and released again.
+   *
+   * ⚠ THESE TWO EVENTS ARE THE STATE. THERE IS NO `is_locked` COLUMN ANYWHERE,
+   *   AND THAT IS THE DESIGN RATHER THAN A SHORTCUT.
+   *
+   * A boolean somewhere would answer "is it locked" and nothing else. The
+   * questions actually asked of a break-glass control are "who locked it",
+   * "when", "why", and "how long were we dark" — every one of which is a
+   * question about HISTORY, and every one of which a flag answers by pointing
+   * at an audit table that would have to be kept in step with it by hand.
+   *
+   * So the most recent of these two rows IS the lock. The state cannot drift
+   * from its own record, because they are the same row; the history is
+   * intrinsic rather than bolted on; and it needed no migration, which is why
+   * a control that had been inert for a phase could be wired in an afternoon.
+   *
+   * The cost is a query, and it is charged in the right place: the check runs
+   * when a support session is MINTED, not on every read, so it is once per
+   * session rather than once per request.
+   */
+  SUPPORT_LOCK_ENGAGED: 'support.lock_engaged',
+  SUPPORT_LOCK_RELEASED: 'support.lock_released',
   /** A read of the session record. Audited because it is a service-role call,
    *  and distinct because it is not a visit. */
   SUPPORT_SESSION_READ: 'support.session_read',
 
   SESSION_REVOKED: 'session.revoked',
+  /**
+   * A credential changed by the person it belongs to, from a signed-in
+   * session, having re-proved the old one.
+   *
+   * ⚠ DISTINCT FROM A RESET, WHICH IS NOT THE SAME EVENT. A reset is driven
+   * from an email link by someone who could NOT produce the old password, and
+   * it is the shape an account takeover has. A change is made by a session
+   * that already re-authenticated. Recording both as one action makes the
+   * question this log exists to answer — "was that recovery flow me?" —
+   * unanswerable, so the two stay apart.
+   */
+  PASSWORD_CHANGED: 'password.changed',
   AUDIT_EXPORTED: 'audit.exported',
   /**
    * A platform-level CSV leaving the product: the workspace roster, revenue,

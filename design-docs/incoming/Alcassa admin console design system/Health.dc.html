@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1440px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="display: flex; align-items: flex-end; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
+    <div style="flex: 1; min-width: 0;">
+      <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">/platform/health</p>
+      <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Health</h1>
+    </div>
+    <span style="display: inline-flex; align-items: center; gap: 9px; height: 32px; padding: 0 13px; border: 1px solid var(--success-fg); border-radius: 9999px; background: var(--success-bg); flex: 0 0 auto;">
+      <span style="width: 7px; height: 7px; border-radius: 50%; background: var(--success-fg); flex: 0 0 auto; animation: pulse-dot 2.4s ease-in-out infinite;"></span>
+      <span style="font: 500 12.5px/1 var(--font-ui); color: var(--success-fg); white-space: nowrap;">All systems operational</span>
+    </span>
+  </div>
+
+  <div style="margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px;">
+    <sc-for list="{{ services }}" as="s" hint-placeholder-count="4">
+      <div style="min-width: 0; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 16px 18px 17px;">
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <span style="display: grid; place-items: center; width: 24px; height: 24px; flex: 0 0 auto; border-radius: 6px; background: {{ s.chipBg }}; color: {{ s.chipInk }};">{{ s.icon }}</span>
+          <span style="flex: 1; font: 400 13px/1.3 var(--font-ui); color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ s.name }}</span>
+          <span style="width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: {{ s.dot }};"></span>
+        </div>
+        <p style="margin: 13px 0 0; font: 400 21px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary);">{{ s.metric }}</p>
+        <p style="margin: 7px 0 0; font: 400 11.5px/1.4 var(--font-ui); color: var(--text-tertiary);">{{ s.note }}</p>
+        <div style="display: flex; gap: 2px; margin-top: 13px;">
+          <sc-for list="{{ s.bars }}" as="b" hint-placeholder-count="30">
+            <span style="flex: 1; height: 18px; border-radius: 1px; background: {{ b.ink }};" title="{{ b.title }}"></span>
+          </sc-for>
+        </div>
+        <p style="margin: 8px 0 0; font: 400 11px/1 var(--font-mono); color: var(--text-tertiary);">30 days · {{ s.uptime }}</p>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top: 20px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+      <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Response latency · 48 hours</p>
+      <span style="display: flex; align-items: center; gap: 14px;">
+        <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;"><span style="width: 10px; height: 2px; background: var(--blue-300);"></span> p50</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;"><span style="width: 10px; height: 2px; background: var(--blue-500);"></span> p95</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--font-ui); color: var(--text-secondary); white-space: nowrap;"><span style="width: 10px; height: 2px; background: var(--ink-300);"></span> p99</span>
+      </span>
+    </div>
+    <div style="padding: 18px 20px 20px;">
+      <x-import component-from-global-scope="LatencyChart" from="./charts.jsx" hint-size="100%,240px"></x-import>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: start;">
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Throughput and errors · today</p>
+        <span style="font: 400 12px/1 var(--font-mono); color: var(--danger-fg); white-space: nowrap;">spike at 17:00</span>
+      </div>
+      <div style="padding: 18px 20px 20px;">
+        <x-import component-from-global-scope="ThroughputChart" from="./charts.jsx" hint-size="100%,200px"></x-import>
+      </div>
+    </div>
+
+    <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+      <div style="padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+        <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Background queues</p>
+      </div>
+      <div style="padding: 6px 20px 16px;">
+        <sc-for list="{{ queues }}" as="q" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border-subtle);">
+            <span style="flex: 1; min-width: 0; font: 400 12.5px/1.3 var(--font-mono); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ q.name }}</span>
+            <span style="font: 400 12px/1 var(--font-ui); color: var(--text-tertiary); white-space: nowrap;">{{ q.rate }}</span>
+            <span style="display: inline-grid; place-items: center; min-width: 34px; height: 22px; padding: 0 8px; border-radius: 9999px; background: {{ q.bg }}; color: {{ q.ink }}; font: 500 11.5px/1 var(--font-mono); font-variant-numeric: tabular-nums;">{{ q.depth }}</span>
+          </div>
+        </sc-for>
+        <p style="margin: 12px 0 0; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-tertiary);">Depth is jobs waiting, not jobs failed. A queue above 50 for more than five minutes pages the on-call engineer.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+    <div style="padding: 16px 20px 14px; border-bottom: 1px solid var(--border-subtle);">
+      <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Recent incidents</p>
+    </div>
+    <sc-for list="{{ incidents }}" as="i" hint-placeholder-count="3">
+      <div style="display: flex; align-items: flex-start; gap: 14px; padding: 15px 20px; border-bottom: 1px solid var(--border-subtle);">
+        <span style="display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 auto; border-radius: 6px; background: {{ i.bg }}; color: {{ i.ink }}; font: 500 10px/1 var(--font-mono); letter-spacing: 0.04em;">{{ i.sev }}</span>
+        <span style="flex: 1; min-width: 0;">
+          <span style="display: block; font: 400 13px/1.4 var(--font-ui); color: var(--text-primary);">{{ i.title }}</span>
+          <span style="display: block; margin-top: 3px; font: 400 12px/1.4 var(--font-ui); color: var(--text-secondary);">{{ i.detail }}</span>
+        </span>
+        <span style="flex: 0 0 auto; text-align: right;">
+          <span style="display: block; font: 400 11.5px/1.4 var(--font-mono); color: var(--text-tertiary); white-space: nowrap;">{{ i.when }}</span>
+          <span style="display: block; margin-top: 3px; font: 400 11.5px/1.4 var(--font-mono); color: {{ i.ink }}; white-space: nowrap;">{{ i.status }}</span>
+        </span>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}}">
+const P = {
+  api: 'M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z|M8 10l2 2l-2 2|M13 14h3',
+  db: 'M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0|M4 6v6a8 3 0 0 0 16 0v-6|M4 12v6a8 3 0 0 0 16 0v-6',
+  bot: 'M9 11a1 1 0 1 0 2 0a1 1 0 0 0 -2 0|M13 11a1 1 0 1 0 2 0a1 1 0 0 0 -2 0|M4 9a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z|M12 3v4',
+  wa: 'M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9|M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1'
+};
+
+function icon(name) {
+  return React.createElement(
+    'svg',
+    { width: 15, height: 15, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    (P[name] || '').split('|').map((d, i) => React.createElement('path', { key: i, d }))
+  );
+}
+
+function bars(dips) {
+  return Array.from({ length: 30 }, (_, i) => {
+    const dip = dips[i];
+    return {
+      ink: dip === 2 ? 'var(--danger-fg)' : dip === 1 ? 'var(--warning-fg)' : 'var(--success-fg)',
+      title: dip ? 'Degraded' : 'Operational'
+    };
+  });
+}
+
+const SERVICES = [
+  { name: 'API', icon: 'api', metric: '142ms', note: 'p95 across all routes', uptime: '99.98%', dips: { 17: 1 } },
+  { name: 'Database', icon: 'db', metric: '11ms', note: 'mean query time', uptime: '100%', dips: {} },
+  { name: 'AI inference', icon: 'bot', metric: '1.9s', note: 'mean completion', uptime: '99.82%', dips: { 8: 2, 9: 1, 22: 1 } },
+  { name: 'Channel gateway', icon: 'wa', metric: '99.4%', note: 'delivery success', uptime: '99.91%', dips: { 14: 1 } }
+];
+
+const QUEUES = [
+  { name: 'inbound.ingest', depth: 0, rate: '412/min' },
+  { name: 'ai.completion', depth: 3, rate: '88/min' },
+  { name: 'outbound.dispatch', depth: 0, rate: '374/min' },
+  { name: 'audit.write', depth: 12, rate: '96/min' },
+  { name: 'billing.reconcile', depth: 61, rate: '4/min' }
+];
+
+const INCIDENTS = [
+  { sev: 'SEV2', title: 'Elevated AI completion latency', detail: 'Upstream provider degraded for 34 minutes. Escalations queued; no messages lost.', when: '02 Aug, 14:12', status: 'resolved', bg: 'var(--warning-bg)', ink: 'var(--warning-fg)' },
+  { sev: 'SEV3', title: 'WhatsApp template sync delayed', detail: 'Template approval polling backed off after rate limiting. Two workspaces affected.', when: '27 Jul, 09:40', status: 'resolved', bg: 'var(--surface-inset)', ink: 'var(--text-secondary)' },
+  { sev: 'SEV1', title: 'Read replica failover', detail: 'Primary lost for 6 minutes. Automatic failover held; writes queued and drained.', when: '11 Jul, 03:22', status: 'resolved', bg: 'var(--danger-bg)', ink: 'var(--danger-fg)' }
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      services: SERVICES.map((s) => ({
+        name: s.name,
+        icon: icon(s.icon),
+        metric: s.metric,
+        note: s.note,
+        uptime: s.uptime,
+        bars: bars(s.dips),
+        dot: Object.keys(s.dips).length ? 'var(--warning-fg)' : 'var(--success-fg)',
+        chipBg: 'var(--surface-sunken)',
+        chipInk: 'var(--text-secondary)'
+      })),
+      queues: QUEUES.map((q) => ({
+        name: q.name,
+        rate: q.rate,
+        depth: q.depth,
+        bg: q.depth > 50 ? 'var(--warning-bg)' : q.depth > 0 ? 'var(--surface-inset)' : 'var(--success-bg)',
+        ink: q.depth > 50 ? 'var(--warning-fg)' : q.depth > 0 ? 'var(--text-secondary)' : 'var(--success-fg)'
+      })),
+      incidents: INCIDENTS
+    };
+  }
+}
+
+</script>
+</body>
+</html>

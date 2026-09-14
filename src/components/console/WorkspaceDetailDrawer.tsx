@@ -23,8 +23,10 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import {
+  fetchSuspensionImpact,
   fetchWorkspaceDetail,
   suspendWorkspace,
+  type SuspensionImpact,
 } from '@/app/(platform)/platform/(console)/actions';
 import type { WorkspaceDetail, WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
 import Link from 'next/link';
@@ -61,31 +63,31 @@ const STATUS_CONFIG: Record<
   active: {
     dot: 'var(--success-fg)',
     label: 'Active',
-    bg: 'rgba(16, 185, 129, 0.08)',
+    bg: 'var(--badge-success-bg)',
     text: 'var(--success-fg)',
   },
   trial: {
     dot: 'var(--blue-400)',
     label: 'Trial',
-    bg: 'rgba(56, 189, 248, 0.08)',
+    bg: 'var(--badge-info-bg)',
     text: 'var(--blue-400)',
   },
   'past due': {
     dot: 'var(--danger-fg)',
     label: 'Past due',
-    bg: 'rgba(239, 68, 68, 0.08)',
+    bg: 'var(--badge-danger-bg)',
     text: 'var(--danger-fg)',
   },
   suspended: {
     dot: 'var(--ink-400)',
     label: 'Suspended',
-    bg: 'rgba(148, 163, 184, 0.1)',
+    bg: 'var(--surface-inset)',
     text: 'var(--text-tertiary)',
   },
   pending: {
     dot: 'var(--warning-fg)',
     label: 'Pending',
-    bg: 'rgba(245, 158, 11, 0.08)',
+    bg: 'var(--badge-warning-bg)',
     text: 'var(--warning-fg)',
   },
 };
@@ -145,6 +147,31 @@ export function WorkspaceDetailDrawer({
   const [suspendError, setSuspendError] = useState<string | null>(null);
   const [suspendReason, setSuspendReason] = useState('');
   const [suspendPending, startSuspendTransition] = useTransition();
+  /**
+   * The live impact read, fetched when the dialog opens rather than travelling
+   * down with `detail`. See `WorkspaceActions` for why — the short version is
+   * that a drawer can sit open for a long time, and the count of support
+   * sessions currently INSIDE the workspace cannot come from a prop at all.
+   */
+  const [suspendLive, setSuspendLive] = useState<SuspensionImpact | null>(null);
+  const [suspendPreview, setSuspendPreview] = useState<'idle' | 'loading' | 'done' | 'failed'>(
+    'idle',
+  );
+
+  function openSuspend() {
+    setSuspendError(null);
+    setSuspendOpen(true);
+    setSuspendLive(null);
+    setSuspendPreview('loading');
+    void fetchSuspensionImpact(row.id).then((r) => {
+      if (r.ok) {
+        setSuspendLive(r.impact);
+        setSuspendPreview('done');
+      } else {
+        setSuspendPreview('failed');
+      }
+    });
+  }
 
   /* Fetch details via Server Action */
   useEffect(() => {
@@ -234,6 +261,21 @@ export function WorkspaceDetailDrawer({
       if (result.ok) {
         setSuspendOpen(false);
         setSuspendReason('');
+        /*
+          ⚠ THIS DRAWER USED TO SUSPEND A CUSTOMER IN SILENCE.
+
+          The dialog closed and nothing else happened — no toast, and the status
+          chip behind it does not move until the route revalidates, so the only
+          evidence of the most destructive action in the console was its own
+          absence. The header path (`WorkspaceActions`) confirmed properly; this
+          one, reachable from the same table one click further in, did not. Same
+          action, same words.
+        */
+        pushToast({
+          tone: 'success',
+          title: `${row.name} is suspended`,
+          description: 'Their team keeps read access and can still fix the cause.',
+        });
       } else {
         setSuspendError(result.error);
       }
@@ -256,7 +298,7 @@ export function WorkspaceDetailDrawer({
         className="fixed inset-0"
         style={{
           zIndex: 90,
-          background: 'rgba(0, 0, 0, 0.4)',
+          background: 'var(--surface-overlay)',
           backdropFilter: 'blur(4px)',
           WebkitBackdropFilter: 'blur(4px)',
         }}
@@ -273,7 +315,7 @@ export function WorkspaceDetailDrawer({
         style={{
           background: 'var(--surface-raised)',
           borderLeft: '1px solid var(--border-strong)',
-          boxShadow: '-8px 0 32px -8px rgba(0, 0, 0, 0.4)',
+          boxShadow: 'var(--shadow-lg)',
         }}
       >
         {/* ── 1 · Header Surface ─────────────────────────────────────── */}
@@ -303,7 +345,7 @@ export function WorkspaceDetailDrawer({
                 className="relative flex size-14 shrink-0 items-center justify-center rounded-full text-sm font-medium transition-transform duration-300 hover:scale-105"
                 style={{
                   background: 'var(--surface-raised)',
-                  boxShadow: 'inset 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.02)',
+                  boxShadow: 'inset 0 0 0 1px var(--border-subtle), var(--shadow-sm)',
                   color: 'var(--text-primary)',
                   font: '600 16px var(--font-ui)',
                 }}
@@ -463,10 +505,7 @@ export function WorkspaceDetailDrawer({
 
               <button
                 type="button"
-                onClick={() => {
-                  setSuspendError(null);
-                  setSuspendOpen(true);
-                }}
+                onClick={openSuspend}
                 className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-3 transition-all duration-150 active:scale-95"
                 style={{
                   border: '1px solid var(--border-subtle)',
@@ -495,7 +534,7 @@ export function WorkspaceDetailDrawer({
             className="mt-6 flex items-center gap-1 rounded-2xl p-1.5"
             style={{
               background: 'var(--surface-sunken)',
-              boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+              boxShadow: 'var(--neu-inset)',
             }}
           >
             {[
@@ -515,7 +554,7 @@ export function WorkspaceDetailDrawer({
                     background: isActive ? 'var(--surface-base)' : 'transparent',
                     color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
                     boxShadow: isActive
-                      ? '0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8)'
+                      ? 'var(--shadow-sm), var(--glass-highlight)'
                       : 'none',
                   }}
                 >
@@ -556,9 +595,9 @@ export function WorkspaceDetailDrawer({
                   style={{
                     background:
                       row.status === 'past due'
-                        ? 'rgba(239, 68, 68, 0.06)'
-                        : 'rgba(245, 158, 11, 0.06)',
-                    border: `1px solid ${row.status === 'past due' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
+                        ? 'var(--badge-danger-bg)'
+                        : 'var(--badge-warning-bg)',
+                    border: `1px solid ${row.status === 'past due' ? 'var(--badge-danger-edge)' : 'var(--badge-warning-edge)'}`,
                   }}
                 >
                   <IconAlertTriangle
@@ -613,7 +652,7 @@ export function WorkspaceDetailDrawer({
                         style={{
                           background: 'var(--surface-raised)',
                           border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                          boxShadow: '0 8px 24px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+                          boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                         }}
                       >
                         <span
@@ -643,14 +682,14 @@ export function WorkspaceDetailDrawer({
                     style={{
                       background: 'var(--surface-raised)',
                       border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+                      boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                     }}
                   >
                     <div
                       className="px-5 py-4"
                       style={{
                         background: 'var(--surface-sunken)',
-                        boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+                        boxShadow: 'var(--neu-inset)',
                       }}
                     >
                       <span className="text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
@@ -668,7 +707,7 @@ export function WorkspaceDetailDrawer({
                             className="flex items-center justify-between px-5 py-4"
                             style={{
                               borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                              boxShadow: 'var(--glass-highlight)',
                             }}
                           >
                             <span
@@ -696,7 +735,7 @@ export function WorkspaceDetailDrawer({
                             className="flex items-center justify-between px-5 py-4"
                             style={{
                               borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                              boxShadow: 'var(--glass-highlight)',
                             }}
                           >
                             <span
@@ -728,7 +767,7 @@ export function WorkspaceDetailDrawer({
                     style={{
                       background: 'var(--surface-raised)',
                       border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+                      boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                     }}
                   >
                     <div className="flex items-center gap-3">
@@ -736,7 +775,7 @@ export function WorkspaceDetailDrawer({
                         className="flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-medium"
                         style={{
                           background: 'var(--surface-raised)',
-                          boxShadow: 'inset 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.02)',
+                          boxShadow: 'inset 0 0 0 1px var(--border-subtle), var(--shadow-sm)',
                           color: 'var(--text-primary)',
                         }}
                       >
@@ -756,7 +795,7 @@ export function WorkspaceDetailDrawer({
                     </div>
                     <span
                       className="rounded-full px-2.5 py-1 text-[9px] font-medium tracking-[0.1em] uppercase"
-                      style={{ background: 'var(--surface-inset)', color: 'var(--text-tertiary)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)' }}
+                      style={{ background: 'var(--surface-inset)', color: 'var(--text-tertiary)', boxShadow: 'var(--glass-highlight)' }}
                     >
                       Primary Administrator
                     </span>
@@ -782,7 +821,7 @@ export function WorkspaceDetailDrawer({
                           style={{
                             background: 'var(--surface-raised)',
                             border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                            boxShadow: '0 8px 24px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+                            boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                           }}
                         >
                           <div className="mb-4 flex items-center justify-between">
@@ -791,7 +830,7 @@ export function WorkspaceDetailDrawer({
                                 className="rounded-xl p-2"
                                 style={{
                                   background: 'var(--surface-sunken)',
-                                  boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+                                  boxShadow: 'var(--neu-inset)',
                                 }}
                               >
                                 <Icon
@@ -829,7 +868,7 @@ export function WorkspaceDetailDrawer({
                                       ? 'var(--warning-bg)'
                                       : 'var(--surface-inset)',
                                   color: pct >= NEAR_LIMIT ? color : 'var(--text-secondary)',
-                                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                                  boxShadow: 'var(--glass-highlight)',
                                 }}
                               >
                                 {Math.round(pct * 100)}%
@@ -842,7 +881,7 @@ export function WorkspaceDetailDrawer({
                             className="h-2.5 w-full overflow-hidden rounded-full"
                             style={{
                               background: 'var(--surface-sunken)',
-                              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)',
+                              boxShadow: 'var(--neu-inset)',
                             }}
                           >
                             <div
@@ -891,9 +930,9 @@ export function WorkspaceDetailDrawer({
                         className="flex flex-col justify-between rounded-[20px] p-4 transition-all duration-300 hover:-translate-y-px"
                         style={{
                           background:
-                            s.tone === 'danger' ? 'rgba(239, 68, 68, 0.05)' : 'var(--surface-raised)',
-                          border: `2px solid ${s.tone === 'danger' ? 'rgba(239, 68, 68, 0.25)' : 'color-mix(in srgb, var(--border-subtle) 30%, transparent)'}`,
-                          boxShadow: '0 8px 24px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+                            s.tone === 'danger' ? 'var(--badge-danger-bg)' : 'var(--surface-raised)',
+                          border: `2px solid ${s.tone === 'danger' ? 'var(--badge-danger-edge)' : 'color-mix(in srgb, var(--border-subtle) 30%, transparent)'}`,
+                          boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                         }}
                       >
                         <span
@@ -940,7 +979,7 @@ export function WorkspaceDetailDrawer({
                         style={{
                           background: 'var(--surface-raised)',
                           border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                          boxShadow: '0 12px 40px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+                          boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                         }}
                       >
                         {detail.invoices.map((inv, index) => (
@@ -950,10 +989,10 @@ export function WorkspaceDetailDrawer({
                             style={{
                               background:
                                 inv.status === 'failed'
-                                  ? 'rgba(239, 68, 68, 0.03)'
+                                  ? 'var(--badge-danger-bg)'
                                   : 'transparent',
                               borderTop: index > 0 ? '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)' : 'none',
-                              boxShadow: index > 0 ? 'inset 0 1px 0 rgba(255,255,255,0.5)' : 'none',
+                              boxShadow: index > 0 ? 'var(--glass-highlight)' : 'none',
                             }}
                           >
                             <div className="flex items-center gap-4">
@@ -961,7 +1000,7 @@ export function WorkspaceDetailDrawer({
                                 className="rounded-xl p-2"
                                 style={{
                                   background: 'var(--surface-sunken)',
-                                  boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+                                  boxShadow: 'var(--neu-inset)',
                                 }}
                               >
                                 <IconFileText
@@ -999,14 +1038,14 @@ export function WorkspaceDetailDrawer({
                                 style={{
                                   background:
                                     inv.status === 'paid'
-                                      ? 'rgba(16, 185, 129, 0.1)'
-                                      : 'rgba(239, 68, 68, 0.1)',
+                                      ? 'var(--badge-success-bg)'
+                                      : 'var(--badge-danger-bg)',
                                   color:
                                     inv.status === 'paid'
                                       ? 'var(--success-fg)'
                                       : 'var(--danger-fg)',
-                                  border: `1px solid ${inv.status === 'paid' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-                                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                                  border: `1px solid ${inv.status === 'paid' ? 'var(--badge-success-edge)' : 'var(--badge-danger-edge)'}`,
+                                  boxShadow: 'var(--glass-highlight)',
                                 }}
                               >
                                 {inv.status === 'paid' ? (
@@ -1045,7 +1084,7 @@ export function WorkspaceDetailDrawer({
                     style={{
                       background: 'var(--surface-raised)',
                       border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+                      boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                     }}
                   >
                     <h3 className="text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
@@ -1069,10 +1108,10 @@ export function WorkspaceDetailDrawer({
                       <div className="px-2 py-4 sm:py-0 sm:px-6 relative">
                         {/* Desktop vertical engraved separator */}
                         <div className="absolute inset-y-0 left-0 hidden w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
-                        <div className="absolute inset-y-0 left-px hidden w-px bg-[rgba(255,255,255,0.6)] sm:block" />
+                        <div className="absolute inset-y-0 left-px hidden w-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] sm:block" />
                         {/* Mobile horizontal engraved separator */}
                         <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:hidden" />
-                        <div className="absolute inset-x-0 top-px h-px bg-[rgba(255,255,255,0.6)] sm:hidden" />
+                        <div className="absolute inset-x-0 top-px h-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] sm:hidden" />
                         
                         <span
                           className="text-[11px] font-medium tracking-wide"
@@ -1090,10 +1129,10 @@ export function WorkspaceDetailDrawer({
                       <div className="px-2 pt-4 sm:pt-0 sm:px-6 relative">
                         {/* Desktop vertical engraved separator */}
                         <div className="absolute inset-y-0 left-0 hidden w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
-                        <div className="absolute inset-y-0 left-px hidden w-px bg-[rgba(255,255,255,0.6)] sm:block" />
+                        <div className="absolute inset-y-0 left-px hidden w-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] sm:block" />
                         {/* Mobile horizontal engraved separator */}
                         <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:hidden" />
-                        <div className="absolute inset-x-0 top-px h-px bg-[rgba(255,255,255,0.6)] sm:hidden" />
+                        <div className="absolute inset-x-0 top-px h-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] sm:hidden" />
                         
                         <span
                           className="text-[11px] font-medium tracking-wide"
@@ -1117,14 +1156,14 @@ export function WorkspaceDetailDrawer({
                     style={{
                       background: 'var(--surface-raised)',
                       border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
+                      boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                     }}
                   >
                     <div
                       className="flex size-11 shrink-0 items-center justify-center rounded-full"
                       style={{
                         background: 'var(--surface-raised)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05), inset 0 0 0 1px var(--border-subtle), inset 0 2px 4px rgba(255,255,255,0.8)',
+                        boxShadow: 'var(--shadow-md), inset 0 0 0 1px var(--border-subtle), var(--glass-highlight)',
                       }}
                     >
                       <IconWorld
@@ -1145,7 +1184,7 @@ export function WorkspaceDetailDrawer({
                             background: 'var(--success-bg)',
                             color: 'var(--success-fg)',
                             border: '1px solid var(--success-fg)',
-                            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                            boxShadow: 'var(--glass-highlight)',
                           }}
                         >
                           RLS Isolated
@@ -1211,10 +1250,10 @@ export function WorkspaceDetailDrawer({
             <button
               type="button"
               onClick={() => setSessionOpen(true)}
-              className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-4 text-xs font-medium text-white transition-all active:scale-95"
+              className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-4 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
               style={{
                 background: 'var(--blue-500)',
-                boxShadow: '0 2px 8px rgba(14, 165, 233, 0.25)',
+                boxShadow: '0 2px 8px color-mix(in oklab, var(--blue-500) 25%, transparent)',
               }}
             >
               <IconPlayerPlay size={13} stroke={1.5} aria-hidden />
@@ -1259,13 +1298,40 @@ export function WorkspaceDetailDrawer({
           consequence="Stated in numbers, because a suspension is felt by people who did not choose it."
           details={
             <>
+              {/* The warning that is not a consequence. See `WorkspaceActions`. */}
+              {(suspendLive?.openSupportSessions ?? 0) > 0 ? (
+                <div
+                  className="mt-4 flex items-start gap-3 rounded-panel px-3.5 py-3"
+                  style={{
+                    background: 'var(--badge-warning-bg)',
+                    border: '1px solid var(--badge-warning-edge)',
+                  }}
+                >
+                  <IconAlertTriangle
+                    size={16}
+                    stroke={1.5}
+                    style={{ color: 'var(--warning-fg)', marginTop: '1px', flexShrink: 0 }}
+                    aria-hidden
+                  />
+                  <p className="t-compact" style={{ color: 'var(--text-primary)' }}>
+                    {suspendLive?.openSupportSessions === 1
+                      ? 'A support session is open inside this workspace right now.'
+                      : `${suspendLive?.openSupportSessions} support sessions are open inside this workspace right now.`}{' '}
+                    <span style={{ color: 'var(--text-secondary)' }}>
+                      Whoever is in there loses their session the moment this lands, mid-task and
+                      without being told why. Ending it first costs a minute.
+                    </span>
+                  </p>
+                </div>
+              ) : null}
+
               <ul
                 className="grid list-none gap-2.5 border-t p-0 pt-4"
                 style={{ borderColor: 'var(--border-subtle)' }}
               >
                 {[
                   [
-                    detail.impact.staff,
+                    suspendLive?.activeMembers ?? detail.impact.staff,
                     'staff lose access at their next request. Sessions are not waited out.',
                   ],
                   [
@@ -1293,6 +1359,17 @@ export function WorkspaceDetailDrawer({
                 ))}
                 <li className="t-compact mt-1.5" style={{ color: 'var(--text-secondary)' }}>
                   Data is retained. Reactivation restores access immediately and is a single action.
+                </li>
+                {/* A confirmation built on counts has to say where they came from. */}
+                <li
+                  className="t-caption mt-0.5"
+                  style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+                >
+                  {suspendPreview === 'loading'
+                    ? 'Checking these against the database…'
+                    : suspendPreview === 'failed'
+                      ? 'These are the figures from when this drawer opened — the live check did not come back. Reload before relying on them.'
+                      : 'Read from the database just now.'}
                 </li>
               </ul>
 

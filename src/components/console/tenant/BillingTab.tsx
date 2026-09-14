@@ -12,8 +12,16 @@ import {
 import { Panel } from '@/components/console/Surface';
 import { useRovingGrid } from '@/hooks/useRovingGrid';
 import type { WorkspaceDetail } from '@/lib/console/data';
+import { SubscriptionControls } from '@/components/console/tenant/SubscriptionControls';
 
-export function BillingTab({ w }: { w: WorkspaceDetail }) {
+export function BillingTab({
+  w,
+  plans,
+}: {
+  w: WorkspaceDetail;
+  /** The live catalogue, so the plan-change control offers plans that exist. */
+  plans: Array<{ code: string; name: string }>;
+}) {
   const [filter, setFilter] = useState<'all' | 'paid' | 'failed'>('all');
 
   const filteredInvoices = w.invoices.filter((inv) => {
@@ -105,9 +113,20 @@ export function BillingTab({ w }: { w: WorkspaceDetail }) {
         <div
           className="relative flex-1 p-5 sm:p-6 sm:px-8"
           style={{
+            /*
+              ⚠ THE CHROME TIER, NOT THE BADGE TIER — THIS GLOW SITS ON THE
+              INVERTED SLAB.
+
+              The token sweep first mapped this to `--badge-danger-edge`, which
+              was wrong in a way that would have looked merely muddy: the badge
+              tokens are mixed against `--surface-raised`, a LIGHT ground, so on
+              a dark slab they wash out towards the page colour rather than
+              glowing. 03 §23 — the chrome inverts against the page, not against
+              a theme, so anything drawn on it reads Tier 4.
+            */
             background:
               w.status === 'past due'
-                ? 'radial-gradient(circle at top right, rgba(239, 68, 68, 0.15), transparent 75%)'
+                ? 'radial-gradient(circle at top right, color-mix(in oklab, var(--chrome-danger) 18%, transparent), transparent 75%)'
                 : 'transparent',
           }}
         >
@@ -258,7 +277,7 @@ export function BillingTab({ w }: { w: WorkspaceDetail }) {
                       className="group transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
                       style={{
                         background:
-                          inv.status === 'failed' ? 'rgba(239, 68, 68, 0.02)' : 'transparent',
+                          inv.status === 'failed' ? 'var(--badge-danger-bg)' : 'transparent',
                       }}
                     >
                       <td className="px-5 py-3.5">
@@ -300,10 +319,10 @@ export function BillingTab({ w }: { w: WorkspaceDetail }) {
                           style={{
                             background:
                               inv.status === 'paid'
-                                ? 'rgba(16, 185, 129, 0.1)'
-                                : 'rgba(239, 68, 68, 0.1)',
+                                ? 'var(--badge-success-bg)'
+                                : 'var(--badge-danger-bg)',
                             color: inv.status === 'paid' ? 'var(--success-fg)' : 'var(--danger-fg)',
-                            border: `1px solid ${inv.status === 'paid' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+                            border: `1px solid ${inv.status === 'paid' ? 'var(--badge-success-edge)' : 'var(--badge-danger-bg)'}`,
                           }}
                         >
                           {inv.status === 'paid' ? (
@@ -370,39 +389,68 @@ export function BillingTab({ w }: { w: WorkspaceDetail }) {
               </div>
             </div>
 
+            {/*
+              ⚠ THE SUBSCRIPTION CONTROLS THAT WERE MISSING ENTIRELY.
+
+              `assignPlan`, `changeSubscriptionStatus`, `grantOverride` and
+              `previewPlanChange` are built, tested and audited in
+              `modules/platform`, with server-action wrappers already written —
+              and nothing called them. An operator could read that a workspace
+              was on Pro and had no way to move it, on the screen that exists to
+              manage that workspace. 17 §6.2.
+            */}
+            <div className="mt-4">
+              <SubscriptionControls
+                tenantId={w.id}
+                workspace={w.name}
+                currentPlan={w.plan}
+                status={w.status}
+                plans={plans}
+              />
+            </div>
+
+            {/*
+              ⚠ THE REASONS MOVED OUT OF `title=`. Both of these are correctly
+              disabled — there is no payment gateway in Phase 1 — and both put
+              their explanation in a tooltip, so a keyboard or touch reader got
+              two dead buttons and no account of why. 17 §6.4 asks for the reason
+              on the SURFACE, and 18 §6 records the same lesson twice already.
+            */}
             <div className="mt-4 flex flex-col gap-2">
               <button
                 type="button"
                 disabled
-                title="There is no payment gateway in Phase 1. The console reports on billing; it does not charge."
-                className="inline-flex h-8.5 w-full items-center justify-center gap-1.5 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+                className="inline-flex h-8.5 w-full cursor-not-allowed items-center justify-center gap-1.5 rounded-lg text-xs font-medium"
                 style={{
-                  opacity: 0.45,
-                  cursor: 'not-allowed',
-                  border: '1px solid var(--border-strong)',
-                  background: 'var(--surface-raised)',
-                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--surface-sunken)',
+                  color: 'var(--text-disabled)',
                 }}
               >
                 <IconRefresh size={13} stroke={1.5} />
-                Update Payment Method
+                Update payment method
               </button>
               <button
                 type="button"
                 disabled
-                title="There is no payment gateway in Phase 1, so there are no issued invoices to statement."
-                className="inline-flex h-8.5 w-full items-center justify-center gap-1.5 rounded-lg text-xs font-medium"
+                className="inline-flex h-8.5 w-full cursor-not-allowed items-center justify-center gap-1.5 rounded-lg text-xs font-medium"
                 style={{
-                  opacity: 0.45,
-                  cursor: 'not-allowed',
                   border: '1px solid var(--border-subtle)',
-                  background: 'transparent',
-                  color: 'var(--text-secondary)',
+                  background: 'var(--surface-sunken)',
+                  color: 'var(--text-disabled)',
                 }}
               >
                 <IconDownload size={13} stroke={1.5} />
-                Download Tax Statement (KRA)
+                Download tax statement (KRA)
               </button>
+              <p
+                className="t-caption mt-1"
+                style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+              >
+                Neither is available in Phase 1: there is no payment gateway behind this console. It
+                reports on billing and records what changed — it does not charge a card or issue an
+                invoice, so there is no statement to produce.
+              </p>
             </div>
           </Panel>
 

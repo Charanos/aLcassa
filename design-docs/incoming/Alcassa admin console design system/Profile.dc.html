@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="padding: 28px 32px 56px; max-width: 1060px; margin: 0 auto; font: 400 14px/1.55 var(--font-ui); color: var(--text-primary);">
+
+  <div style="padding-bottom: 22px; border-bottom: 1px solid var(--border-subtle);">
+    <p style="margin: 0 0 8px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">/platform/profile</p>
+    <h1 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 35px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Your profile</h1>
+  </div>
+
+  <div style="margin-top: 24px; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 26px; align-items: start;">
+    <div style="display: grid; gap: 18px;">
+
+      <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+        <p style="margin: 0 0 18px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Identity</p>
+
+        <div style="display: flex; align-items: center; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
+          <span style="display: grid; place-items: center; width: 56px; height: 56px; flex: 0 0 auto; border-radius: 9999px; background: var(--blue-50); color: var(--blue-500); font: 500 19px/1 var(--font-mono);">BM</span>
+          <div style="flex: 1; min-width: 0;">
+            <p style="margin: 0; font: 400 13px/1.45 var(--font-ui); color: var(--text-secondary);">Initials are generated from your name. The console shows no photographs, so an avatar can never leak a face into a screenshot.</p>
+          </div>
+        </div>
+
+        <label style="display: block; margin-top: 18px;">
+          <span style="display: block; margin-bottom: 6px; font: 500 12px/1.4 var(--font-ui); color: var(--text-primary);">Full name</span>
+          <input type="text" value="{{ name }}" onInput="{{ onName }}" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); box-shadow: var(--neu-inset); font: 400 14px/1 var(--font-ui); color: var(--text-primary); outline: none;" />
+          <span style="display: block; margin-top: 6px; font: 400 11.5px/1.45 var(--font-ui); color: var(--text-tertiary);">Appears beside every action you take in customer audit logs.</span>
+        </label>
+
+        <label style="display: block; margin-top: 16px;">
+          <span style="display: block; margin-bottom: 6px; font: 500 12px/1.4 var(--font-ui); color: var(--text-primary);">Email</span>
+          <span style="display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 12px; border: 1px solid var(--border-subtle); border-radius: 4px; background: var(--surface-sunken);">
+            <span style="flex: 1; min-width: 0; font: 400 14px/1 var(--font-mono); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">brian@andishi.co.ke</span>
+            <span style="display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; font: 400 11.5px/1 var(--font-mono); color: var(--success-fg); white-space: nowrap;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5l9 -9" /></svg>
+              verified
+            </span>
+          </span>
+          <span style="display: block; margin-top: 6px; font: 400 11.5px/1.45 var(--font-ui); color: var(--text-tertiary);">Changing this requires another platform admin to approve the change.</span>
+        </label>
+
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border-subtle);">
+          <span style="flex: 1; font: 400 12px/1.4 var(--font-ui); color: {{ dirtyInk }};">{{ dirtyNote }}</span>
+          <button type="button" onClick="{{ save }}" style="height: 34px; padding: 0 16px; border: none; border-radius: 7px; background: {{ saveBg }}; color: {{ saveInk }}; font: 500 13px/1 var(--font-ui); cursor: {{ saveCursor }};">{{ saveLabel }}</button>
+        </div>
+      </section>
+
+      <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 20px 22px 22px;">
+        <p style="margin: 0 0 6px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Security</p>
+        <p style="margin: 0 0 18px; font: 400 12.5px/1.5 var(--font-ui); color: var(--text-secondary);">You can see every workspace on the platform. These controls are the reason that is safe.</p>
+
+        <div style="display: grid; gap: 12px;">
+          <sc-for list="{{ security }}" as="sec" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid {{ sec.border }}; border-radius: 7px; background: {{ sec.bg }};">
+              <span style="display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 7px; background: var(--surface-raised); color: {{ sec.ink }}; border: 1px solid var(--border-subtle);">{{ sec.icon }}</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13.5px/1.4 var(--font-ui); color: var(--text-primary);">{{ sec.label }}</span>
+                <span style="display: block; margin-top: 3px; font: 400 12px/1.45 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">{{ sec.detail }}</span>
+              </span>
+              <button type="button" style="height: 30px; padding: 0 13px; flex: 0 0 auto; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: {{ sec.actionInk }}; font: 400 12.5px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--surface-inset);">{{ sec.action }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 22px 14px; border-bottom: 1px solid var(--border-subtle);">
+          <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Active sessions</p>
+          <button type="button" style="height: 28px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--danger-fg); font: 400 12px/1 var(--font-ui); white-space: nowrap;" style-hover="background: var(--danger-bg); border-color: var(--danger-fg);">Sign out everywhere</button>
+        </div>
+        <sc-for list="{{ sessions }}" as="ses" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 14px; padding: 13px 22px; border-bottom: 1px solid var(--border-subtle);">
+            <span style="width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: {{ ses.dot }};"></span>
+            <span style="flex: 1; min-width: 0;">
+              <span style="display: block; font: 400 13px/1.4 var(--font-ui); color: var(--text-primary);">{{ ses.device }}</span>
+              <span style="display: block; margin-top: 2px; font: 400 11.5px/1.4 var(--font-mono); color: var(--text-tertiary);">{{ ses.meta }}</span>
+            </span>
+            <span style="font: 400 12px/1 var(--font-ui); color: {{ ses.ink }}; white-space: nowrap; flex: 0 0 auto;">{{ ses.when }}</span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+
+    <div style="display: grid; gap: 16px; position: sticky; top: 24px;">
+      <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); box-shadow: var(--glass-highlight), var(--shadow-sm); padding: 18px 20px 20px;">
+        <p style="margin: 0 0 14px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Your access</p>
+        <span style="display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 11px; border-radius: 9999px; background: var(--blue-50); color: var(--blue-600); font: 500 11.5px/1 var(--font-mono); letter-spacing: 0.02em;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6l4 6l5 -4l-2 10h-14l-2 -10l5 4z" /></svg>
+          owner
+        </span>
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: grid; gap: 11px;">
+          <sc-for list="{{ facts }}" as="f" hint-placeholder-count="4">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font: 400 12.5px/1.4 var(--font-ui); color: var(--text-secondary);">{{ f.label }}</span>
+              <span style="font: 400 12.5px/1.4 var(--font-mono); color: var(--text-primary); text-align: right;">{{ f.value }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-sunken); padding: 18px 20px 20px;">
+        <p style="margin: 0 0 12px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">What you cannot do</p>
+        <p style="margin: 0; font: 400 12.5px/1.55 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">Read a customer's message bodies, see credential values, or act inside a workspace. A support session grants sight, never a master key.</p>
+        <a href="#" onClick="{{ goSessions }}" style="display: inline-block; margin-top: 12px; font: 400 12.5px/1 var(--font-ui); color: var(--text-action);">Your session history</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;go&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;(screen: string) =&gt; void&quot;}}">
+const P = {
+  lock: 'M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z|M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0|M8 11v-4a4 4 0 1 1 8 0v4',
+  key: 'M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0|M15 9h.01',
+  device: 'M4 4h16v12h-16z|M4 20h16|M9 16v4|M15 16v4'
+};
+
+function icon(name) {
+  return React.createElement(
+    'svg',
+    { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    (P[name] || '').split('|').map((d, i) => React.createElement('path', { key: i, d }))
+  );
+}
+
+class Component extends DCLogic {
+  state = { name: 'Brian Mwangi', dirty: false, phase: 'idle' };
+
+  renderVals() {
+    const go = this.props.go || (() => {});
+    const s = this.state;
+    const saved = s.phase === 'saved';
+
+    return {
+      name: s.name,
+      onName: (e) => this.setState({ name: e.target.value, dirty: true, phase: 'idle' }),
+
+      dirtyNote: saved ? 'Saved.' : s.dirty ? 'Unsaved changes' : 'No changes',
+      dirtyInk: saved ? 'var(--success-fg)' : s.dirty ? 'var(--warning-fg)' : 'var(--text-tertiary)',
+      saveLabel: saved ? 'Saved' : 'Save changes',
+      saveBg: saved ? 'var(--success-fg)' : s.dirty ? 'var(--blue-500)' : 'var(--surface-inset)',
+      saveInk: saved || s.dirty ? '#ffffff' : 'var(--text-disabled)',
+      saveCursor: s.dirty ? 'pointer' : 'not-allowed',
+      save: () => {
+        if (!s.dirty) return;
+        this.setState({ phase: 'saved', dirty: false });
+        setTimeout(() => this.setState({ phase: 'idle' }), 2600);
+      },
+
+      security: [
+        {
+          label: 'Two-factor authentication', detail: 'Authenticator app, added 14 March 2025. Required for every platform admin.',
+          action: 'Regenerate codes', icon: icon('lock'),
+          bg: 'var(--success-bg)', border: 'var(--success-fg)', ink: 'var(--success-fg)', actionInk: 'var(--text-primary)'
+        },
+        {
+          label: 'Password', detail: 'Changed 62 days ago. There is no rotation requirement; length beats churn.',
+          action: 'Change', icon: icon('key'),
+          bg: 'var(--surface-raised)', border: 'var(--border-subtle)', ink: 'var(--text-secondary)', actionInk: 'var(--text-primary)'
+        },
+        {
+          label: 'Recovery codes', detail: 'Eight of ten remaining. Two were consumed during the July replica failover.',
+          action: 'View', icon: icon('key'),
+          bg: 'var(--surface-raised)', border: 'var(--border-subtle)', ink: 'var(--text-secondary)', actionInk: 'var(--text-primary)'
+        }
+      ],
+
+      sessions: [
+        { device: 'MacBook Pro · Chrome 141', meta: 'Nairobi, KE · 196.201.214.88', when: 'This device', dot: 'var(--success-fg)', ink: 'var(--success-fg)' },
+        { device: 'iPhone 16 · Safari', meta: 'Nairobi, KE · 41.90.64.12', when: '3 hours ago', dot: 'var(--ink-400)', ink: 'var(--text-secondary)' },
+        { device: 'Windows · Edge 129', meta: 'Mombasa, KE · 105.163.2.41', when: '6 days ago', dot: 'var(--ink-300)', ink: 'var(--text-tertiary)' }
+      ],
+
+      facts: [
+        { label: 'Admin since', value: '14 Mar 2025' },
+        { label: 'Support sessions', value: '9 this month' },
+        { label: 'Last sign-in', value: 'Today 08:41' },
+        { label: 'Audit entries', value: '412 by you' }
+      ],
+
+      goSessions: (e) => { e.preventDefault(); go('sessions'); }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

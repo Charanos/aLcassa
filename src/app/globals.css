@@ -610,7 +610,26 @@
 }
 
 /* Popovers, the palette and dialogs. 4px of rise plus a hair of scale, which
- * is what makes a panel read as arriving from the control that opened it. */
+ * is what makes a panel read as arriving from the control that opened it.
+ *
+ * ⚠ THIS ANIMATION OWNS `transform`, SO THE ELEMENT IT RUNS ON MUST NOT USE
+ *   `transform` FOR ANYTHING ELSE — CENTRING ESPECIALLY.
+ *
+ * `transform` is a single property: an animation that sets it REPLACES whatever
+ * the element's classes put there, it does not merge. Three dialogs centred
+ * themselves with `-translate-x-1/2 -translate-y-1/2` and ran this on the same
+ * element, so each one rendered with its top-left corner at the middle of the
+ * screen — visibly, for the duration of the animation, and PERMANENTLY under
+ * reduced motion, where the block below forces `transform: none !important`.
+ *
+ * The fix at every call site is the same and it is not to teach the animation
+ * about the centring: wrap the panel in
+ *
+ *     <div class="pointer-events-none fixed inset-0 grid place-items-center p-4">
+ *
+ * and let the wrapper own position while the panel owns transform. Nothing
+ * added to this keyframe later can then decentre anything.
+ */
 @keyframes panel-in {
   from {
     opacity: 0;

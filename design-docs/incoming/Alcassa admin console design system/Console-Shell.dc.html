@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./console-tokens.css">
+  <script type="importmap">{"imports": {"react": "./react-shim.js", "react-dom": "./react-dom-shim.js"}}</script>
+</helmet>
+
+<div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: var(--surface-base); color: var(--text-primary); font: 400 14px/1.55 var(--font-ui);">
+
+  <sc-if value="{{ sessionActive }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="flex: 0 0 auto; display: flex; align-items: center; gap: 20px; padding: 0 16px 0 20px; height: 44px; background: #ce4300; color: #ffffff; animation: banner-in 180ms cubic-bezier(0.2, 0, 0, 1);">
+      <span style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"></path><path d="M11 11a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path><path d="M12 12l0 2.5"></path></svg>
+        <span style="font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase;">Support session</span>
+      </span>
+      <span style="font: 400 14px/1 var(--font-ui);">Read-only in <em style="font-weight: 500;">{{ sessionTenant }}</em></span>
+      <span style="width: 1px; height: 18px; background: rgba(255, 255, 255, 0.3);"></span>
+      <span style="font: 400 12.5px/1 var(--font-ui); color: rgba(255, 255, 255, 0.86); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 32ch;">{{ sessionReason }}</span>
+      <span style="margin-left: auto; display: inline-flex; align-items: center; gap: 10px;">
+        <span style="font: 400 11px/1 var(--font-ui); color: rgba(255, 255, 255, 0.8);">Ends in</span>
+        <span style="font: 500 16px/1 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0.02em;">{{ sessionClock }}</span>
+        <button type="button" onClick="{{ endSession }}" style="display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 7px; background: rgba(255, 255, 255, 0.12); color: #ffffff; font: 500 12.5px/1 var(--font-ui);" style-hover="background: #ffffff; color: #ce4300;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"></path><path d="M9 12h12l-3 -3"></path><path d="M18 15l3 -3"></path></svg>
+          Exit session
+        </button>
+      </span>
+    </div>
+  </sc-if>
+
+  <header style="flex: 0 0 auto; display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 12px 0 16px; background: var(--chrome-bg); color: var(--chrome-fg); border-bottom: 1px solid var(--chrome-rule); box-shadow: var(--chrome-highlight); position: relative; z-index: 30;">
+    <a href="#" onClick="{{ goOverview }}" style="display: inline-flex; align-items: center; gap: 10px; color: var(--chrome-fg); text-decoration: none; flex: 0 0 auto;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-label="aLcassa" role="img">
+        <circle cx="6.6" cy="6.4" r="4.05" fill="var(--chrome-action)"></circle>
+        <circle cx="17.4" cy="6.4" r="4.05" fill="var(--chrome-action)"></circle>
+        <path d="M17.9 7.4a7.9 7.9 0 1 0 0 9.2" stroke="var(--chrome-action)" stroke-width="4.6" stroke-linecap="round" fill="none"></path>
+        <circle cx="12" cy="12" r="2.35" fill="var(--chrome-action)"></circle>
+      </svg>
+      <span style="font: 500 19px/1 var(--font-ui); letter-spacing: -0.015em; color: var(--chrome-fg);">aLcassa</span>
+    </a>
+
+    
+
+    <span style="width: 1px; height: 22px; background: var(--chrome-rule); flex: 0 0 auto;"></span>
+
+    <div style="position: relative; flex: 0 0 auto;">
+      <button type="button" onClick="{{ toggleSwitcher }}" style="display: inline-flex; align-items: center; gap: 9px; height: 34px; padding: 0 10px 0 8px; border: 1px solid var(--chrome-rule); border-radius: 7px; background: var(--chrome-hover); color: var(--chrome-fg); font: 400 13px/1 var(--font-ui);" style-hover="border-color: var(--chrome-rule-strong);">
+        <span style="display: grid; place-items: center; width: 20px; height: 20px; border-radius: 5px; background: var(--chrome-active-bg); color: var(--chrome-action); font: 500 10px/1 var(--font-mono);">◎</span>
+        <span style="white-space: nowrap;">Switch into workspace</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--chrome-fg-muted);" aria-hidden="true"><path d="M6 9l6 6l6 -6"></path></svg>
+      </button>
+
+      <sc-if value="{{ switcherOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; top: 42px; left: 0; width: 380px; padding: 6px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); z-index: 60; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+          <p style="margin: 8px 10px 6px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Recent workspaces</p>
+          <sc-for list="{{ switcherRows }}" as="row" hint-placeholder-count="4">
+            <button type="button" onClick="{{ row.open }}" style="display: flex; width: 100%; align-items: center; gap: 10px; padding: 9px 10px; border: none; border-radius: 7px; background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-inset);">
+              <span style="display: grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; background: var(--blue-50); color: var(--blue-500); font: 500 11px/1 var(--font-mono);">{{ row.initials }}</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13px/1.3 var(--font-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ row.name }}</span>
+                <span style="display: block; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary);">{{ row.slug }}</span>
+              </span>
+              <span style="font: 400 11px/1 var(--font-mono); color: var(--text-tertiary);">{{ row.plan }}</span>
+            </button>
+          </sc-for>
+          <p style="margin: 6px 10px 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle); font: 400 12.5px/1.45 var(--font-ui); color: var(--text-secondary);">Selecting a workspace opens a confirmation. It never navigates straight in.</p>
+        </div>
+      </sc-if>
+    </div>
+
+    <button type="button" onClick="{{ openPalette }}" style="display: flex; align-items: center; gap: 9px; flex: 1 1 auto; max-width: 320px; height: 34px; padding: 0 8px 0 10px; border: 1px solid var(--chrome-rule); border-radius: 7px; background: transparent; color: var(--chrome-fg-muted); font: 400 13px/1 var(--font-ui); text-align: left;" style-hover="border-color: var(--chrome-rule-strong); color: var(--chrome-fg);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path><path d="M21 21l-6 -6"></path></svg>
+      <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Search or jump to</span>
+      <kbd style="display: inline-flex; align-items: center; gap: 2px; height: 20px; padding: 0 6px; border: 1px solid var(--chrome-rule-strong); border-radius: 4px; font: 500 11px/1 var(--font-mono); color: var(--chrome-fg-muted);">⌘K</kbd>
+    </button>
+
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
+      
+
+      <div style="position: relative;">
+      <button type="button" onClick="{{ toggleNotices }}" aria-label="Notifications" style="position: relative; display: grid; place-items: center; width: 34px; height: 34px; border: none; border-radius: 7px; background: {{ noticesBg }}; color: var(--chrome-fg-muted);" style-hover="background: var(--chrome-hover); color: var(--chrome-fg);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path><path d="M9 17v1a3 3 0 0 0 6 0v-1"></path></svg>
+        <span style="position: absolute; top: 7px; right: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--chrome-action);"></span>
+      </button>
+
+      <sc-if value="{{ noticesOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; top: 42px; right: 0; width: 372px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); z-index: 60; overflow: hidden; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--border-subtle);">
+            <p style="margin: 0; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Notifications</p>
+            <button type="button" style="border: none; background: transparent; padding: 0; font: 400 12px/1 var(--font-ui); color: var(--text-action);">Mark all read</button>
+          </div>
+          <sc-for list="{{ notices }}" as="n" hint-placeholder-count="4">
+            <button type="button" onClick="{{ n.open }}" style="display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 13px 16px; border: none; border-bottom: 1px solid var(--border-subtle); background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-inset);">
+              <span style="display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 auto; border-radius: 6px; background: {{ n.chipBg }}; color: {{ n.chipInk }};">{{ n.icon }}</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13px/1.4 var(--font-ui); color: var(--text-primary);">{{ n.title }}</span>
+                <span style="display: block; margin-top: 2px; font: 400 11.5px/1.45 var(--font-ui); color: var(--text-secondary); text-wrap: pretty;">{{ n.body }}</span>
+              </span>
+              <span style="font: 400 11px/1.5 var(--font-mono); color: var(--text-tertiary); flex: 0 0 auto;">{{ n.time }}</span>
+            </button>
+          </sc-for>
+          <div style="padding: 11px 16px; background: var(--surface-sunken);">
+            <button type="button" onClick="{{ goNotificationSettings }}" style="border: none; background: transparent; padding: 0; font: 400 12px/1 var(--font-ui); color: var(--text-action);">Notification settings</button>
+          </div>
+        </div>
+      </sc-if>
+      </div>
+
+      <button type="button" onClick="{{ toggleTheme }}" aria-label="Toggle colour theme" style="display: grid; place-items: center; width: 34px; height: 34px; border: none; border-radius: 7px; background: transparent; color: var(--chrome-fg-muted);" style-hover="background: var(--chrome-hover); color: var(--chrome-fg);">
+        {{ themeIcon }}
+      </button>
+
+      <span style="width: 1px; height: 22px; margin: 0 6px; background: var(--chrome-rule);"></span>
+
+      <div style="position: relative;">
+        <button type="button" onClick="{{ toggleAccount }}" style="display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px 0 4px; border: none; border-radius: 7px; background: {{ accountBg }}; color: var(--chrome-fg);" style-hover="background: var(--chrome-hover);">
+          <span style="display: grid; place-items: center; width: 26px; height: 26px; border-radius: 9999px; background: var(--chrome-active-bg); color: var(--chrome-action); font: 500 11px/1 var(--font-mono);">BM</span>
+          <span style="font: 400 12.5px/1 var(--font-ui);">Brian M.</span>
+        </button>
+
+        <sc-if value="{{ accountOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; top: 42px; right: 0; width: 254px; padding: 6px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); z-index: 60; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="display: flex; align-items: center; gap: 11px; padding: 10px 10px 12px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 6px;">
+              <span style="display: grid; place-items: center; width: 34px; height: 34px; flex: 0 0 auto; border-radius: 9999px; background: var(--blue-50); color: var(--blue-500); font: 500 12px/1 var(--font-mono);">BM</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13px/1.35 var(--font-ui); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Brian Mwangi</span>
+                <span style="display: block; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">brian@andishi.co.ke</span>
+              </span>
+            </div>
+            <sc-for list="{{ accountItems }}" as="a" hint-placeholder-count="3">
+              <button type="button" onClick="{{ a.go }}" style="display: flex; align-items: center; gap: 11px; width: 100%; height: 34px; padding: 0 10px; border: none; border-radius: 7px; background: transparent; text-align: left; color: {{ a.ink }}; font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">
+                <span style="display: grid; place-items: center; width: 16px; height: 16px; flex: 0 0 auto;">{{ a.icon }}</span>
+                {{ a.label }}
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </header>
+
+  <div style="flex: 1 1 auto; display: flex; min-height: 0;">
+    <nav aria-label="Platform navigation" style="flex: 0 0 auto; width: var(--nav-w); display: flex; flex-direction: column; background: var(--chrome-bg); border-right: 1px solid var(--chrome-rule); transition: width 180ms cubic-bezier(0.2, 0, 0, 1); position: relative; z-index: 20;">
+      <div style="flex: 1 1 auto; overflow-y: auto; padding: 16px 10px 8px;">
+        <sc-for list="{{ navGroups }}" as="group" hint-placeholder-count="2">
+          <div style="margin-bottom: 20px;">
+            <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+              <p style="margin: 0 0 8px 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--chrome-fg-faint);">{{ group.label }}</p>
+            </sc-if>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <sc-for list="{{ group.items }}" as="item" hint-placeholder-count="4">
+                <button type="button" onClick="{{ item.go }}" title="{{ item.label }}" style="position: relative; display: flex; align-items: center; gap: 11px; width: 100%; height: 36px; padding: 0 10px; border: none; border-radius: 7px; background: {{ item.bg }}; color: {{ item.fg }}; box-shadow: {{ item.lift }}; font: 400 13px/1 var(--font-ui); text-align: left;" style-hover="background: var(--chrome-hover);">
+                  <span style="position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; border-radius: 2px; background: {{ item.mark }};"></span>
+                  <span style="display: grid; place-items: center; width: 18px; height: 18px; flex: 0 0 auto;">{{ item.icon }}</span>
+                  <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+                    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.label }}</span>
+                  </sc-if>
+                  <sc-if value="{{ item.badge }}" hint-placeholder-val="{{ false }}">
+                    <span style="display: inline-grid; place-items: center; min-width: 20px; height: 18px; padding: 0 6px; border-radius: 9999px; background: var(--chrome-rule-strong); color: var(--chrome-fg); font: 500 11px/1 var(--font-mono);">{{ item.badge }}</span>
+                  </sc-if>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="flex: 0 0 auto; padding: 10px; border-top: 1px solid var(--chrome-rule);">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 7px; background: var(--chrome-hover); box-shadow: var(--chrome-highlight);">
+          <span style="display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 9999px; background: var(--chrome-active-bg); color: var(--chrome-action); font: 500 11px/1 var(--font-mono);">BM</span>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+            <span style="flex: 1; min-width: 0;">
+              <span style="display: block; font: 400 12.5px/1.3 var(--font-ui); color: var(--chrome-fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Brian Mwangi</span>
+              <span style="display: block; font: 400 11px/1.4 var(--font-mono); color: var(--chrome-fg-faint);">platform_admin</span>
+            </span>
+          </sc-if>
+        </div>
+        <button type="button" onClick="{{ toggleCollapse }}" style="display: flex; align-items: center; gap: 10px; width: 100%; height: 32px; margin-top: 6px; padding: 0 10px; border: none; border-radius: 7px; background: transparent; color: var(--chrome-fg-faint); font: 400 12.5px/1 var(--font-ui);" style-hover="background: var(--chrome-hover); color: var(--chrome-fg);">
+          <span style="display: grid; place-items: center; width: 18px; height: 18px; flex: 0 0 auto;">{{ collapseIcon }}</span>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+            <span>Collapse</span>
+            <kbd style="margin-left: auto; font: 500 11px/1 var(--font-mono); color: var(--chrome-fg-faint);">⌘B</kbd>
+          </sc-if>
+        </button>
+      </div>
+    </nav>
+
+    <main style="flex: 1 1 auto; min-width: 0; overflow-y: auto; background: var(--surface-base);">
+      <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+        <dc-import name="Overview" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isWorkspaces }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Workspaces" go="{{ go }}" start-session="{{ startSessionFor }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Workspace-Detail" go="{{ go }}" start-session="{{ startSessionFor }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isProvision }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Provision" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isRevenue }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Revenue" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isPlans }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Plans" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isRules }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="AI-Rules" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isHealth }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Health" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isAudit }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Audit-Log" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isSessions }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Support-Sessions" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isAdmins }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Admins" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Settings" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+      <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Profile" go="{{ go }}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{ paletteOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closePalette }}" style="position: fixed; inset: 0; z-index: 80; background: var(--surface-overlay); display: flex; justify-content: center; padding-top: 12vh; animation: overlay-in 120ms linear;">
+      <div onClick="{{ stop }}" style="width: 620px; max-width: calc(100vw - 32px); max-height: 62vh; display: flex; flex-direction: column; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); overflow: hidden; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border-subtle);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);" aria-hidden="true"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path><path d="M21 21l-6 -6"></path></svg>
+          <input type="text" value="{{ paletteQuery }}" onInput="{{ onPaletteInput }}" ref="{{ paletteRef }}" placeholder="Jump to a screen, a workspace, or an action" style="flex: 1; border: none; outline: none; background: transparent; font: 400 16px/1.4 var(--font-ui); color: var(--text-primary);">
+          <kbd style="height: 20px; padding: 0 6px; border: 1px solid var(--border-subtle); border-radius: 4px; font: 500 11px/20px var(--font-mono); color: var(--text-tertiary);">ESC</kbd>
+        </div>
+        <div style="flex: 1; overflow-y: auto; padding: 6px;">
+          <sc-for list="{{ paletteResults }}" as="hit" hint-placeholder-count="6">
+            <button type="button" onClick="{{ hit.run }}" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 10px; border: none; border-radius: 7px; background: transparent; text-align: left; color: var(--text-primary);" style-hover="background: var(--surface-inset);">
+              <span style="display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 auto; border-radius: 6px; background: var(--surface-sunken); color: var(--text-secondary);">{{ hit.icon }}</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font: 400 13px/1.3 var(--font-ui);">{{ hit.label }}</span>
+                <span style="display: block; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary);">{{ hit.hint }}</span>
+              </span>
+              <span style="font: 400 11px/1 var(--font-mono); letter-spacing: 0.06em; color: var(--text-tertiary);">{{ hit.kind }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ startDialogOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 90; background: var(--surface-overlay); display: grid; place-items: center; padding: 24px; animation: overlay-in 120ms linear;">
+      <div role="dialog" aria-modal="true" style="width: 560px; max-width: 100%; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); box-shadow: var(--shadow-lg), var(--glass-highlight); overflow: hidden; animation: panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1);">
+        <div style="padding: 24px 24px 20px;">
+          <p style="margin: 0 0 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary);">Support session</p>
+          <h2 style="margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 27px; line-height: 1.18; letter-spacing: -0.008em; font-variant-numeric: oldstyle-nums; color: var(--text-primary);">Enter {{ pendingTenant }}</h2>
+          <p style="margin: 12px 0 0; font: 400 14px/1.55 var(--font-ui); color: var(--text-secondary); max-width: 56ch;">You will see this workspace under the same Row Level Security rules its own staff work under. Not a master key.</p>
+
+          <ul style="margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+            <li style="display: flex; gap: 10px; align-items: flex-start; font: 400 13px/1.5 var(--font-ui); color: var(--text-primary);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary); margin-top: 2px; flex: 0 0 auto;" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path><path d="M12 7v5l3 3"></path></svg>
+              <span>Read-only, and it expires after <em>30 minutes</em>. There is no extension.</span>
+            </li>
+            <li style="display: flex; gap: 10px; align-items: flex-start; font: 400 13px/1.5 var(--font-ui); color: var(--text-primary);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary); margin-top: 2px; flex: 0 0 auto;" aria-hidden="true"><path d="M12 8l0 4l2 2"></path><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path></svg>
+              <span>Written to <em>the customer's own activity log</em>, with your name and this reason. They can read it, and they can end the session themselves.</span>
+            </li>
+          </ul>
+
+          <label style="display: block; margin-top: 20px;">
+            <span style="display: block; margin-bottom: 6px; font: 500 11px/1.4 var(--font-ui); letter-spacing: 0.01em; color: var(--text-primary);">Reason <span style="color: var(--text-tertiary); font-weight: 400;">· required, and the customer reads it</span></span>
+            <input type="text" value="{{ pendingReason }}" onInput="{{ onReasonInput }}" placeholder="Ticket 4829 · verifying a duplicated WhatsApp thread" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-raised); font: 400 14px/1 var(--font-ui); color: var(--text-primary);">
+          </label>
+          <sc-if value="{{ reasonError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin: 8px 0 0; display: flex; align-items: center; gap: 7px; font: 400 12.5px/1.45 var(--font-ui); color: var(--danger-fg);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto;" aria-hidden="true"><path d="M12 9v4"></path><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"></path><path d="M12 16h.01"></path></svg>
+              A reason is required. It lands in the customer's audit log, so write it for them.
+            </p>
+          </sc-if>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border-subtle); background: var(--surface-sunken);">
+          <span style="flex: 1; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary);">support_session.start</span>
+          <button type="button" onClick="{{ closeStartDialog }}" style="height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-raised); color: var(--text-primary); font: 400 13px/1 var(--font-ui);" style-hover="background: var(--surface-inset);">Cancel</button>
+          <button type="button" onClick="{{ confirmSession }}" style="display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; border: none; border-radius: 7px; background: var(--blue-500); color: #ffffff; font: 500 13px/1 var(--font-ui);" style-hover="background: var(--blue-600);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16l13 -8l-13 -8"></path></svg>
+            Start 30-minute session
+          </button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 900}}">
+const ICON = {
+  dashboard: 'M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1|M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1|M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1|M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1',
+  building: 'M3 21l18 0|M9 8l1 0|M9 12l1 0|M9 16l1 0|M14 8l1 0|M14 12l1 0|M14 16l1 0|M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16',
+  list: 'M13 5h8|M13 9h5|M13 15h8|M13 19h5|M3 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4|M3 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4',
+  file: 'M14 3v4a1 1 0 0 0 1 1h4|M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2|M9 9l1 0|M9 13l6 0|M9 17l6 0',
+  pulse: 'M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5',
+  history: 'M12 8l0 4l2 2|M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5',
+  users: 'M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0|M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2|M16 3.13a4 4 0 0 1 0 7.75|M21 21v-2a4 4 0 0 0 -3 -3.85',
+  shield: 'M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3|M11 11a1 1 0 1 0 2 0a1 1 0 1 0 -2 0|M12 12l0 2.5',
+  plus: 'M12 5l0 14|M5 12l14 0',
+  sun: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0|M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7',
+  moon: 'M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008',
+  left: 'M15 6l-6 6l6 6',
+  right: 'M9 6l6 6l-6 6',
+  alert: 'M12 9v4|M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0|M12 16h.01',
+  key: 'M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0|M15 9h.01',
+  coin: 'M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0 -18|M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1|M12 6v2m0 8v2',
+  sliders: 'M4 6h8m4 0h4|M4 12h4m4 0h8|M4 18h12m4 0h0|M12 4v4|M8 10v4|M16 16v4',
+  user: 'M8 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0|M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2',
+  logout: 'M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2|M9 12h12l-3 -3|M18 15l3 -3'
+};
+
+function icon(name, size) {
+  const d = ICON[name] || '';
+  return React.createElement(
+    'svg',
+    {
+      width: size || 18, height: size || 18, viewBox: '0 0 24 24', fill: 'none',
+      stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round',
+      strokeLinejoin: 'round', 'aria-hidden': true
+    },
+    d.split('|').map((p, i) => React.createElement('path', { key: i, d: p }))
+  );
+}
+
+const SCREENS = [
+  { key: 'overview', label: 'Overview', icon: 'dashboard', group: 'Platform', route: '/platform' },
+  { key: 'tenants', label: 'Workspaces', icon: 'building', group: 'Platform', route: '/platform/tenants', badge: 47 },
+  { key: 'plans', label: 'Plans', icon: 'list', group: 'Platform', route: '/platform/plans' },
+  { key: 'revenue', label: 'Revenue', icon: 'coin', group: 'Platform', route: '/platform/revenue' },
+  { key: 'rules', label: 'Master rules', icon: 'file', group: 'Platform', route: '/platform/ai-rules' },
+  { key: 'health', label: 'Health', icon: 'pulse', group: 'Operations', route: '/platform/health' },
+  { key: 'audit', label: 'Audit log', icon: 'history', group: 'Operations', route: '/platform/audit' },
+  { key: 'sessions', label: 'Support sessions', icon: 'users', group: 'Operations', route: '/platform/support-sessions', badge: 1 },
+  { key: 'admins', label: 'Admins', icon: 'shield', group: 'Operations', route: '/platform/admins' },
+  { key: 'settings', label: 'Settings', icon: 'sliders', group: 'Operations', route: '/platform/settings' }
+];
+
+const NOTICES = [
+  { kind: 'danger', title: 'Payment failed', body: 'Kilimanjaro Logistics · KES 184,000 declined', time: '6d', key: 'detail' },
+  { kind: 'warning', title: '94% of the events limit', body: 'Sarova Hospitality · 19 days left in the period', time: '2h', key: 'detail' },
+  { kind: 'plain', title: 'Trial ends Sunday', body: 'Peridot Health Clinics · no plan assigned', time: '5h', key: 'tenants' },
+  { kind: 'plain', title: 'Master rules propagated', body: 'Version 24 reached 47 workspaces in 3.1s', time: '1d', key: 'rules' }
+];
+
+const NOTICE_INK = {
+  danger: ['var(--danger-bg)', 'var(--danger-fg)'],
+  warning: ['var(--warning-bg)', 'var(--warning-fg)'],
+  plain: ['var(--surface-inset)', 'var(--text-secondary)']
+};
+
+const EXTRA = [
+  { key: 'provision', label: 'Provision a workspace', icon: 'plus', hint: '/platform/tenants/new', kind: 'ACTION' },
+  { key: 'detail', label: 'Kilimanjaro Logistics Group Ltd', icon: 'building', hint: '/platform/tenants/kilimanjaro-logistics', kind: 'WORKSPACE' },
+  { key: 'revenue', label: 'Collection queue', icon: 'coin', hint: '/platform/revenue', kind: 'ACTION' },
+  { key: 'profile', label: 'Your profile', icon: 'user', hint: '/platform/profile', kind: 'ACCOUNT' }
+];
+
+const TENANTS = [
+  { name: 'Kilimanjaro Logistics Group Ltd', slug: 'kilimanjaro-logistics', plan: 'Scale', initials: 'KL' },
+  { name: 'Sarova Hospitality Collection', slug: 'sarova-hospitality', plan: 'Growth', initials: 'SH' },
+  { name: 'Northwind Traders East Africa', slug: 'northwind-ea', plan: 'Growth', initials: 'NT' },
+  { name: 'Peridot Health Clinics', slug: 'peridot-health', plan: 'Starter', initials: 'PH' }
+];
+
+class Component extends DCLogic {
+  state = {
+    screen: 'overview',
+    theme: 'light',
+    density: 'compact',
+    collapsed: false,
+    switcherOpen: false,
+    noticesOpen: false,
+    accountOpen: false,
+    paletteOpen: false,
+    paletteQuery: '',
+    startTenant: null,
+    reason: '',
+    reasonError: false,
+    session: null,
+    secondsLeft: 1800
+  };
+
+  componentDidMount() {
+    document.documentElement.dataset.theme = this.state.theme;
+    this.onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        this.setState((s) => ({ paletteOpen: !s.paletteOpen, paletteQuery: '' }));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        this.toggleCollapse();
+      }
+      if (e.key === 'Escape') this.setState({ paletteOpen: false, switcherOpen: false, noticesOpen: false, accountOpen: false });
+    };
+    window.addEventListener('keydown', this.onKey);
+    this.tick = setInterval(() => {
+      if (this.state.session) {
+        this.setState((s) => ({ secondsLeft: Math.max(0, s.secondsLeft - 1) }));
+      }
+    }, 1000);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKey);
+    clearInterval(this.tick);
+  }
+
+  setDensity(density) {
+    const h = density === 'dense' ? '36px' : '44px';
+    const p = density === 'dense' ? '6px' : '10px';
+    document.documentElement.style.setProperty('--row-h', h);
+    document.documentElement.style.setProperty('--row-pad', p);
+    this.setState({ density });
+  }
+
+  toggleCollapse() {
+    this.setState((s) => {
+      const collapsed = !s.collapsed;
+      document.documentElement.style.setProperty('--nav-w', collapsed ? '60px' : '248px');
+      return { collapsed };
+    });
+  }
+
+  go = (key) => this.setState({ screen: key, paletteOpen: false, switcherOpen: false, noticesOpen: false, accountOpen: false });
+
+  clock() {
+    const s = this.state.secondsLeft;
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const expanded = !s.collapsed;
+    const q = s.paletteQuery.trim().toLowerCase();
+
+    const navGroups = ['Platform', 'Operations'].map((label) => ({
+      label,
+      items: SCREENS.filter((x) => x.group === label).map((x) => {
+        const active = s.screen === x.key;
+        return {
+          label: x.label,
+          icon: icon(x.icon, 18),
+          badge: x.badge && expanded ? String(x.badge) : null,
+          bg: active ? 'var(--chrome-active-bg)' : 'transparent',
+          fg: active ? 'var(--chrome-fg)' : 'var(--chrome-fg-muted)',
+          mark: active ? 'var(--chrome-action)' : 'transparent',
+          lift: active ? 'var(--chrome-neu)' : 'none',
+          go: () => this.go(x.key)
+        };
+      })
+    }));
+
+    const all = SCREENS.map((x) => ({
+      label: x.label, hint: x.route, kind: 'SCREEN', icon: icon(x.icon, 16), key: x.key
+    })).concat(EXTRA.map((x) => ({
+      label: x.label, hint: x.hint, kind: x.kind, icon: icon(x.icon, 16), key: x.key
+    })));
+
+    const paletteResults = all
+      .filter((h) => !q || h.label.toLowerCase().includes(q) || h.hint.toLowerCase().includes(q))
+      .map((h) => Object.assign({}, h, { run: () => this.go(h.key) }));
+
+    return {
+      expanded,
+      navGroups,
+      collapseIcon: icon(s.collapsed ? 'right' : 'left', 16),
+      themeIcon: icon(s.theme === 'dark' ? 'sun' : 'moon', 18),
+
+      isOverview: s.screen === 'overview',
+      isWorkspaces: s.screen === 'tenants',
+      isDetail: s.screen === 'detail',
+      isProvision: s.screen === 'provision',
+      isPlans: s.screen === 'plans',
+      isRules: s.screen === 'rules',
+      isHealth: s.screen === 'health',
+      isAudit: s.screen === 'audit',
+      isSessions: s.screen === 'sessions',
+      isAdmins: s.screen === 'admins',
+      isRevenue: s.screen === 'revenue',
+      isSettings: s.screen === 'settings',
+      isProfile: s.screen === 'profile',
+
+      noticesOpen: s.noticesOpen,
+      noticesBg: s.noticesOpen ? 'var(--chrome-hover)' : 'transparent',
+      toggleNotices: () => this.setState((p) => ({ noticesOpen: !p.noticesOpen, accountOpen: false })),
+      notices: NOTICES.map((n) => ({
+        title: n.title,
+        body: n.body,
+        time: n.time,
+        chipBg: NOTICE_INK[n.kind][0],
+        chipInk: NOTICE_INK[n.kind][1],
+        icon: icon(n.kind === 'plain' ? 'file' : 'alert', 14),
+        open: () => this.setState({ screen: n.key, noticesOpen: false })
+      })),
+      goNotificationSettings: () => this.setState({ screen: 'settings', noticesOpen: false }),
+
+      accountOpen: s.accountOpen,
+      accountBg: s.accountOpen ? 'var(--chrome-hover)' : 'transparent',
+      toggleAccount: () => this.setState((p) => ({ accountOpen: !p.accountOpen, noticesOpen: false })),
+      accountItems: [
+        { label: 'Your profile', icon: icon('user', 15), ink: 'var(--text-primary)', go: () => this.setState({ screen: 'profile', accountOpen: false }) },
+        { label: 'Settings', icon: icon('sliders', 15), ink: 'var(--text-primary)', go: () => this.setState({ screen: 'settings', accountOpen: false }) },
+        { label: 'Sign out', icon: icon('logout', 15), ink: 'var(--danger-fg)', go: () => this.setState({ accountOpen: false }) }
+      ],
+
+
+      go: this.go,
+      goOverview: (e) => { e.preventDefault(); this.go('overview'); },
+      stop: (e) => e.stopPropagation(),
+
+      toggleCollapse: () => this.toggleCollapse(),
+      toggleTheme: () => {
+        const theme = s.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+        this.setState({ theme });
+      },
+
+      switcherOpen: s.switcherOpen,
+      toggleSwitcher: () => this.setState((p) => ({ switcherOpen: !p.switcherOpen })),
+      switcherRows: TENANTS.map((t) => Object.assign({}, t, {
+        open: () => this.setState({ switcherOpen: false, startTenant: t.name, reason: '', reasonError: false })
+      })),
+
+      paletteOpen: s.paletteOpen,
+      openPalette: () => this.setState({ paletteOpen: true, paletteQuery: '' }),
+      closePalette: () => this.setState({ paletteOpen: false }),
+      paletteQuery: s.paletteQuery,
+      onPaletteInput: (e) => this.setState({ paletteQuery: e.target.value }),
+      paletteRef: (el) => { if (el) el.focus(); },
+      paletteResults,
+
+      startDialogOpen: !!s.startTenant,
+      pendingTenant: s.startTenant || '',
+      pendingReason: s.reason,
+      reasonError: s.reasonError,
+      onReasonInput: (e) => this.setState({ reason: e.target.value, reasonError: false }),
+      closeStartDialog: () => this.setState({ startTenant: null, reasonError: false }),
+      startSessionFor: (name) => this.setState({ startTenant: name, reason: '', reasonError: false }),
+      confirmSession: () => {
+        if (!s.reason.trim()) { this.setState({ reasonError: true }); return; }
+        this.setState({ session: { tenant: s.startTenant, reason: s.reason.trim() }, startTenant: null, secondsLeft: 1800 });
+      },
+
+      sessionActive: !!s.session,
+      sessionTenant: s.session ? s.session.tenant : '',
+      sessionReason: s.session ? s.session.reason : '',
+      sessionClock: this.clock(),
+      endSession: () => this.setState({ session: null, secondsLeft: 1800 })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

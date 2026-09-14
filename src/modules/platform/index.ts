@@ -83,3 +83,14 @@ export type { ProvisionTenantInput, ProvisionTenantResult } from './types';
  * writer rather than a flag on it.
  */
 export { recordPlatformAction } from './internal/audit';
+export { publishMasterRules, rollbackMasterRules, type MasterRulesInput } from './internal/masterRules';
+export {
+  previewPlanLimitChange,
+  setPlanLimit,
+  type PlanLimitImpact,
+} from './internal/planCatalogue';
+export {
+  breakGlassState,
+  setBreakGlass,
+  type BreakGlassState,
+} from './internal/breakGlass';

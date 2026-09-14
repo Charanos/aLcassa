@@ -31,7 +31,10 @@
     "check:deps": "tsx scripts/check-phantom-deps.ts",
     "db:extensions": "tsx scripts/create-extensions.ts",
     "db:app-role": "tsx scripts/create-app-role.ts",
-    "db:check-admin": "tsx scripts/check-admin-account.ts"
+    "db:check-admin": "tsx scripts/check-admin-account.ts",
+    "db:check-provisioning": "tsx scripts/check-provisioning.ts",
+    "db:check-provision-write": "tsx scripts/check-provision-write.ts",
+    "db:check-break-glass": "tsx scripts/check-break-glass.ts"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

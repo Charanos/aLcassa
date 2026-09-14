@@ -1,9 +1,16 @@
 import 'server-only';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService } from '@/lib/db/serviceClient';
 import { createSupabaseAdminClient } from '@/lib/auth/supabase/admin';
-import { tenantMembers, tenantSettings, tenants, userProfiles } from '@/db/schema';
+import {
+  plans,
+  subscriptions,
+  tenantMembers,
+  tenantSettings,
+  tenants,
+  userProfiles,
+} from '@/db/schema';
 import {
   provisionTenantSchema,
   type ProvisionTenantInput,
@@ -62,7 +69,7 @@ export async function provisionTenant(
     };
   }
 
-  const { name, slug, ownerEmail, ownerName, initialStatus } = parsed.data;
+  const { name, slug, ownerEmail, ownerName, initialStatus, planCode } = parsed.data;
   const admin = createSupabaseAdminClient();
 
   // ── 1 · The auth user, before the transaction ──────────────────────────
@@ -148,6 +155,63 @@ export async function provisionTenant(
           invitedBy: actor.userId,
         });
 
+        /**
+         * ⚠ THE SUBSCRIPTION. THIS WAS MISSING ENTIRELY, AND IT IS THE STEP
+         *   THE MODAL HAS BEEN PROMISING IN WRITING SINCE IT SHIPPED.
+         *
+         * Without it a provisioned workspace has no plan row, so every
+         * entitlement resolves to nothing: no seat ceiling, no channel
+         * ceiling, "—" in the plan column of the workspace list, and an
+         * entitlement guard with no number to compare against. It is the one
+         * row that makes a tenant a CUSTOMER rather than an empty shell.
+         *
+         * It is resolved from the code inside the transaction rather than
+         * taken on trust from the caller: a code with no matching row throws,
+         * the tenant insert rolls back, and the invited auth user is cleaned
+         * up by the compensation below. That is the check that would have
+         * caught `growth` — a plan the provisioning modal offered for months
+         * and which has never existed in this product.
+         */
+        const [plan] = await tx
+          .select({ id: plans.id, trialDays: plans.trialDays })
+          .from(plans)
+          .where(and(eq(plans.code, planCode), eq(plans.isActive, true)))
+          .limit(1);
+
+        if (!plan) throw new UnknownPlanError(planCode);
+
+        /**
+         * The period. A trial ends when the plan says it does; an active
+         * workspace starts a month from now.
+         *
+         * ⚠ NO GATEWAY MEANS NOBODY RENEWS THIS AUTOMATICALLY. 08 §1: the
+         * payment stub columns stay null through Phase 1. The dates are real
+         * and the renewal is a human — which is exactly what the revenue
+         * screen's collection queue is for — so writing a period that has
+         * already expired, or none at all, would put every new workspace into
+         * that queue on day one.
+         */
+        const now = new Date();
+        const periodEnd = new Date(now);
+        periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+        const trialEndsAt =
+          initialStatus === 'trial' && plan.trialDays > 0
+            ? new Date(now.getTime() + plan.trialDays * 24 * 60 * 60 * 1000)
+            : null;
+
+        await tx.insert(subscriptions).values({
+          tenantId: tenant.id,
+          planId: plan.id,
+          /* The subscription's status tracks the tenant's entry state: a
+             workspace provisioned as `trial` has a trialing subscription, not
+             an active one billing from day zero. */
+          status: initialStatus === 'trial' ? 'trialing' : 'active',
+          currentPeriodStart: now,
+          currentPeriodEnd: trialEndsAt ?? periodEnd,
+          trialEndsAt,
+        });
+
         return tenant.id;
       },
     );
@@ -169,6 +233,15 @@ export async function provisionTenant(
       };
     }
 
+    if (error instanceof UnknownPlanError) {
+      return {
+        ok: false,
+        code: 'unknown_plan',
+        message: `There is no active plan with the code "${error.code}". Reload the page — the plan list it was drawn from is out of date.`,
+        details: [{ field: 'planCode', message: 'Not an active plan.' }],
+      };
+    }
+
     return {
       ok: false,
       code: 'provisioning_failed',
@@ -176,6 +249,21 @@ export async function provisionTenant(
         ? 'Provisioning failed and nothing was created. Try again.'
         : `Provisioning failed, and the part-created account for ${ownerEmail} could not be removed automatically. It must be deleted by hand before retrying.`,
     };
+  }
+}
+
+/**
+ * Thrown when the plan code has no matching active row.
+ *
+ * ⚠ IT IS A DISTINCT ERROR BECAUSE IT NAMES A DIFFERENT FIELD. A workspace
+ * refused for an unknown plan and one refused for a taken slug are two
+ * different corrections, and a single 'provisioning failed' would send the
+ * operator to re-type the name.
+ */
+class UnknownPlanError extends Error {
+  constructor(readonly code: string) {
+    super(`unknown_plan:${code}`);
+    this.name = 'UnknownPlanError';
   }
 }
 
