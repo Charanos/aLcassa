@@ -146,7 +146,7 @@ function ChartTooltip({
         {suffix}
       </div>
       {datum.note ? (
-        <div className="t-caption mt-0.5" style={{ color: 'var(--ink-tertiary)' }}>
+        <div className="t-caption mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
           {datum.note}
         </div>
       ) : null}
@@ -418,14 +418,14 @@ export function ProportionDonut({
                 boxShadow: `inset 0 0 0 1px ${segment.ink}`,
               }}
             />
-            <span className="t-caption flex-1 text-[var(--ink-secondary)]">{segment.label}</span>
+            <span className="t-caption flex-1 text-[var(--text-secondary)]">{segment.label}</span>
             <span
-              className="t-data text-[var(--ink-primary)] tabular-nums"
+              className="t-data text-[var(--text-primary)] tabular-nums"
               style={{ fontSize: '12px' }}
             >
               {segment.value}
             </span>
-            <span className="t-caption w-9 text-right text-[var(--ink-tertiary)]">
+            <span className="t-caption w-9 text-right text-[var(--text-tertiary)]">
               {Math.round((segment.value / total) * 100)}%
             </span>
           </li>
@@ -483,9 +483,9 @@ export function StackedMeter({
                 boxShadow: `inset 0 0 0 1px ${segment.fill}`,
               }}
             />
-            <span className="t-caption text-[var(--ink-secondary)]">{segment.label}</span>
+            <span className="t-caption text-[var(--text-secondary)]">{segment.label}</span>
             <span
-              className="t-data text-[var(--ink-primary)] tabular-nums"
+              className="t-data text-[var(--text-primary)] tabular-nums"
               style={{ fontSize: '12px' }}
             >
               {segment.value}

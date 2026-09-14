@@ -160,17 +160,48 @@ export async function touchSession(
   });
 }
 
+/**
+ * End one session.
+ *
+ * ⚠ IT RETURNS WHETHER IT ACTUALLY ENDED ANYTHING, AND IT USED TO RETURN
+ * `void`.
+ *
+ * The update matches on id alone, so an id belonging to somebody else, an id
+ * that does not exist, and an id already revoked all produced the same outcome
+ * as a successful revocation: zero rows, no error, and a caller free to report
+ * success. The console's device list did exactly that — press "End session",
+ * see no error, watch the row stay where it was.
+ *
+ * That is the same class of defect as a save that writes nothing and says
+ * "Saved.", and it is worse here, because the reader pressing it believes they
+ * have just locked somebody out.
+ *
+ * ⚠ THE `user_id` PREDICATE IS BELT AND BRACES, NOT THE GUARD. `sessions_modify`
+ * admits only `user_id = app.current_actor_id()` (02_identity.sql), so a
+ * foreign id was already matching nothing. The predicate is here so the
+ * restriction is legible in the query a reader is looking at, rather than
+ * known only to whoever has read the policy file.
+ */
 export async function revokeSession(
   sessionId: string,
   userId: string,
   requestId: string,
   reason: string,
-): Promise<void> {
-  await withActorContext(userId, requestId, async (tx) => {
-    await tx
+): Promise<number> {
+  return withActorContext(userId, requestId, async (tx) => {
+    const rows = await tx
       .update(sessions)
       .set({ revokedAt: new Date(), revokedReason: reason })
-      .where(and(eq(sessions.id, sessionId), isNull(sessions.revokedAt)));
+      .where(
+        and(
+          eq(sessions.id, sessionId),
+          eq(sessions.userId, userId),
+          isNull(sessions.revokedAt),
+        ),
+      )
+      .returning({ id: sessions.id });
+
+    return rows.length;
   });
 }
 

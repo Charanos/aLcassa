@@ -3,12 +3,30 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
-import { IconMenu2, IconX, IconChevronLeft, IconChevronRight, IconBell } from '@tabler/icons-react';
+import {
+  IconMenu2,
+  IconX,
+  IconChevronLeft,
+  IconChevronRight,
+  IconBell,
+  IconHelpCircle,
+} from '@tabler/icons-react';
 import { Mark } from '@/components/brand/Mark';
 import { IconButton } from '@/components/primitives/IconButton';
 import { TenantSwitcher, type TenantSummary } from './TenantSwitcher';
 import { CommandTrigger } from './CommandTrigger';
 import { AdminProfileCard, type AdminProfile } from './AdminProfileCard';
+import { PlanMeterCard, type PlanMeter } from './PlanMeterCard';
+import {
+  AccountMenu,
+  NewMenu,
+  NotificationsMenu,
+  WorkspaceSwitcher,
+  type AccountSummary,
+  type NewAction,
+  type ShellNotification,
+  type WorkspaceSummary,
+} from './TenantHeader';
 import { BoundaryFrame, type SupportModeState } from '@/components/domain/BoundaryFrame';
 
 export type NavItem = {
@@ -32,10 +50,31 @@ export type AppShellProps = {
   /** Platform console only — powers the tenant switcher in the topbar. */
   tenants?: TenantSummary[];
   onTenantSelect?: (tenant: TenantSummary) => void;
-  /** Sidebar footer identity. */
+  /** Sidebar footer identity. Platform console only — the tenant shell puts
+   *  identity in the header and gives the sidebar foot to `planMeter`. */
   adminProfile?: AdminProfile;
   notificationCount?: number;
   onCommandPaletteOpen?: () => void;
+  /*
+   * ── Tenant shell, all optional ──────────────────────────────────────
+   * Everything below is drawn by `Tenant-Shell.dc.html` and rendered ONLY
+   * when supplied, so the platform console — which has its own
+   * `Console-Shell` design — is untouched by their existence. Passing none
+   * of them yields exactly the header this shell had before they were added.
+   */
+  /** Workspaces the reader belongs to. One entry renders as a plain label. */
+  workspaces?: WorkspaceSummary[];
+  /** The header's "New" menu. Omitted or empty renders no button. */
+  newActions?: NewAction[];
+  /** Populates the notifications dropdown. Without it the bell stays a plain
+   *  count-only button, which is what the platform console still uses. */
+  notifications?: ShellNotification[];
+  /** Header account menu. */
+  account?: AccountSummary;
+  /** Plan-pressure card pinned to the foot of the sidebar. */
+  planMeter?: PlanMeter;
+  /** Help destination. Omitted renders no help control. */
+  helpHref?: string;
   /**
    * 03 §8 · 06 §6. Null outside support mode — the frame renders nothing.
    * Server-driven from `/v1/me`'s `supportMode` object once M2 lands the
@@ -69,6 +108,12 @@ export function AppShell({
   adminProfile = DEFAULT_PROFILE,
   notificationCount = 0,
   onCommandPaletteOpen,
+  workspaces,
+  newActions,
+  notifications,
+  account,
+  planMeter,
+  helpHref,
   supportMode = null,
   // ⚠ DEFAULTS TO 'production' — i.e. inert — ON PURPOSE. BoundaryFrame's own
   // spec shows the slate STAGING frame for every environment string except
@@ -91,6 +136,7 @@ export function AppShell({
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [mounted, setMounted] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [sidebarHovered, setSidebarHovered] = useState(false);
 
   // Mobile sheet state
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -128,6 +174,41 @@ export function AppShell({
     setMobileOpen(false);
   }, [pathname]);
 
+  /* The tenant shell's own controls. Guarded on `!isPlatform` as well as on
+     the payload, so handing the console a tenant prop by accident cannot put
+     a workspace switcher next to its tenant switcher. */
+  const showWorkspaceSwitcher = !isPlatform && Boolean(workspaces && workspaces.length > 0);
+
+  /*
+   * The current-item treatment: a tint plus a 2px rule on the leading edge,
+   * which is how BOTH `Tenant-Shell` and `Console-Shell` mark it. Only the
+   * palette differs — the tenant's chrome is white and takes `--blue-50`
+   * behind `--text-action`; a dark chrome would take the `--chrome-*` tier.
+   *
+   * ⚠ THE PLATFORM ARM IS UNREACHED TODAY AND IS KEPT ONLY BECAUSE
+   * `application` IS PART OF THIS COMPONENT'S PUBLIC SHAPE. The platform
+   * console does not render this shell at all — it has its own `ConsoleShell`
+   * — so the sole live consumer is the tenant layout. Anyone who does light
+   * up `application="platform"` gets the inverted-solid treatment this
+   * component has always had rather than an untested navy-on-navy tint, and
+   * should port the mark properly with `Console-Shell` open beside them.
+   */
+  const navActive = isPlatform
+    ? {
+        item: 'bg-[var(--text-primary)] font-medium text-[var(--surface-base)] shadow-sm',
+        icon: 'text-[var(--surface-base)]',
+        badge: 'bg-[var(--surface-base)] text-[var(--text-primary)]',
+        dot: 'var(--surface-base)',
+        mark: null as string | null,
+      }
+    : {
+        item: 'bg-[var(--blue-50)] font-medium text-[var(--text-action)]',
+        icon: 'text-[var(--text-action)]',
+        badge: 'bg-[var(--blue-500)] text-white',
+        dot: 'var(--blue-500)',
+        mark: 'var(--blue-500)' as string | null,
+      };
+
   /*
    * ⚠ NO `data-theme` STAMP ANY MORE. This used to flip the sidebar to the
    * opposite theme of the page. The product ships one theme, so there is no
@@ -156,13 +237,13 @@ export function AppShell({
         return (
           <div key={group.label} data-slot="nav-group" className="flex flex-col">
             {/* Group Label / Separator */}
-            {!collapsed || isMobile ? (
-              <h2 className="t-eyebrow mb-1.5 px-2.5 text-[10px] tracking-widest text-[var(--ink-tertiary)] uppercase opacity-50 select-none">
+            {!collapsed || sidebarHovered || isMobile ? (
+              <h2 className="t-eyebrow mb-1.5 px-2.5 text-[10px] tracking-widest text-[var(--text-tertiary)] uppercase opacity-50 select-none">
                 {group.label}
               </h2>
             ) : (
               groupIndex > 0 && (
-                <div className="mx-auto my-1.5 h-px w-5 bg-[var(--rule-soft)] opacity-40" />
+                <div className="mx-auto my-1.5 h-px w-5 bg-[var(--ink-100)] opacity-40" />
               )
             )}
 
@@ -183,40 +264,55 @@ export function AppShell({
                       aria-current={active ? 'page' : undefined}
                       data-slot="nav-item"
                       data-active={active}
-                      className={`group relative flex items-center rounded-lg text-left transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-[var(--focus)] focus-visible:ring-offset-1 focus-visible:outline-none ${
+                      className={`group relative flex items-center rounded-lg text-left transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:outline-none ${
                         active
-                          ? 'bg-[var(--ink-primary)] font-medium text-[var(--surface-page)] shadow-sm'
-                          : 'bg-transparent text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink-primary)]'
+                          ? navActive.item
+                          : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-inset)] hover:text-[var(--text-primary)]'
                       } ${
-                        collapsed && !isMobile
+                        collapsed && !sidebarHovered && !isMobile
                           ? 'mx-auto h-10 w-10 justify-center p-0'
                           : 'h-10 gap-3 px-3'
                       } `}
                     >
+                      {/*
+                        The design marks the current item with a 2px rule on
+                        the leading edge as well as a tint — a second, non-
+                        colour signal, so "where am I" survives a tint that a
+                        reader cannot distinguish from the idle background.
+                      */}
+                      {active && navActive.mark ? (
+                        <span
+                          aria-hidden
+                          className="absolute top-2 bottom-2 left-0 w-0.5 rounded-full"
+                          style={{ background: navActive.mark }}
+                        />
+                      ) : null}
+
                       {/* Icon */}
                       <span
                         aria-hidden
                         className={`relative flex shrink-0 items-center justify-center transition-colors duration-200 ${
                           active
-                            ? 'text-[var(--surface-page)]'
-                            : 'text-[var(--ink-tertiary)] group-hover:text-[var(--ink-primary)]'
+                            ? navActive.icon
+                            : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'
                         }`}
                       >
                         {item.icon}
 
                         {/* Micro badge in collapsed mode */}
-                        {collapsed && !isMobile && item.badge ? (
+                        {collapsed && !sidebarHovered && !isMobile && item.badge ? (
                           <span
                             aria-hidden
-                            className={`absolute -top-1 -right-1 size-2.5 rounded-full ring-2 ring-[var(--surface-page)] ${
-                              active ? 'bg-[var(--surface-page)]' : 'bg-[var(--ink-primary)]'
-                            }`}
+                            className="absolute -top-1 -right-1 size-2.5 rounded-full ring-2 ring-[var(--surface-base)]"
+                            style={{
+                              background: active ? navActive.dot : 'var(--text-primary)',
+                            }}
                           />
                         ) : null}
                       </span>
 
                       {/* Expanded label & details */}
-                      {(!collapsed || isMobile) && (
+                      {(!collapsed || sidebarHovered || isMobile) && (
                         <>
                           <span className="t-compact flex-1 truncate tracking-wide">
                             {item.label}
@@ -226,8 +322,8 @@ export function AppShell({
                             <span
                               className={`t-eyebrow flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-normal transition-colors ${
                                 active
-                                  ? 'bg-[var(--surface-page)] text-[var(--ink-primary)]'
-                                  : 'bg-[var(--ink-primary)] text-[var(--surface-page)]'
+                                  ? navActive.badge
+                                  : 'bg-[var(--text-primary)] text-[var(--surface-base)]'
                               }`}
                             >
                               {item.badge > 99 ? '99+' : item.badge}
@@ -238,19 +334,19 @@ export function AppShell({
                     </Link>
 
                     {/* Floating Tooltip in Collapsed Rail Mode */}
-                    {collapsed && !isMobile && isHovered && (
+                    {collapsed && !sidebarHovered && !isMobile && isHovered && (
                       <div
                         role="tooltip"
                         className="pointer-events-none absolute top-1/2 left-[calc(100%+10px)] z-50 flex -translate-y-1/2 items-center gap-2 rounded-md border px-2.5 py-1.5 whitespace-nowrap shadow-md"
                         style={{
                           background: 'var(--surface-panel)',
-                          borderColor: 'var(--rule-base)',
-                          color: 'var(--ink-primary)',
+                          borderColor: 'var(--border-subtle)',
+                          color: 'var(--text-primary)',
                         }}
                       >
                         <span className="t-compact font-medium">{item.label}</span>
                         {item.badge ? (
-                          <span className="t-eyebrow rounded-sm bg-[var(--ink-primary)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--surface-page)]">
+                          <span className="t-eyebrow rounded-sm bg-[var(--text-primary)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--surface-base)]">
                             {item.badge}
                           </span>
                         ) : null}
@@ -280,13 +376,9 @@ export function AppShell({
       style={{
         ['--row-height' as string]: isPlatform ? 'var(--row-compact)' : 'var(--row-comfortable)',
         // 03 §8: "It is NOT an overlay. Layout insets to accommodate it, so
-        // nothing is ever hidden beneath it." The frame's own elements are
-        // `position: fixed` and take no space themselves — this is that inset.
-        // Support mode reserves both edges (its title block AND its exit
-        // control); staging reserves only the top, since it has no exit
-        // button to make room for at the bottom.
+        // nothing is ever hidden beneath it.
+        // Support mode reserves the top edge for the banner.
         paddingTop: frameActive ? 28 : undefined,
-        paddingBottom: supportMode?.active ? 28 : undefined,
       }}
     >
       {frameActive ? (
@@ -308,7 +400,7 @@ export function AppShell({
         }}
       >
         <button
-          className="-ml-1.5 flex cursor-pointer items-center justify-center rounded-chip p-2 text-[var(--ink-secondary)] transition-colors hover:bg-[var(--surface-hover)] md:hidden"
+          className="-ml-1.5 flex cursor-pointer items-center justify-center rounded-chip p-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-inset)] md:hidden"
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation menu"
         >
@@ -318,20 +410,27 @@ export function AppShell({
         {/* TitleBlock */}
         <Link
           href={isPlatform ? '/platform' : '/app'}
-          className="flex shrink-0 items-center gap-3 focus-visible:outline-2 focus-visible:outline-[var(--focus)]"
+          className="flex shrink-0 items-center gap-3 focus-visible:outline-2 focus-visible:outline-[var(--border-focus)]"
         >
           <Mark size={20} tone="brand" />
-          <span data-slot="title-block" className="hidden items-baseline gap-2 sm:flex">
-            <span className="t-eyebrow opacity-70">{titleBlock.label}</span>
-            <span className="t-chip text-[var(--ink-primary)]">{titleBlock.value}</span>
-            {titleBlock.revision ? (
-              <span className="t-eyebrow opacity-50">{titleBlock.revision}</span>
-            ) : null}
-          </span>
+          {/*
+            The switcher already names the workspace, so the title block would
+            print it a second time three centimetres away. When the tenant
+            shell has a switcher the block collapses to the mark alone.
+          */}
+          {showWorkspaceSwitcher ? null : (
+            <span data-slot="title-block" className="hidden items-baseline gap-2 sm:flex">
+              <span className="t-eyebrow opacity-70">{titleBlock.label}</span>
+              <span className="t-chip text-[var(--text-primary)]">{titleBlock.value}</span>
+              {titleBlock.revision ? (
+                <span className="t-eyebrow opacity-50">{titleBlock.revision}</span>
+              ) : null}
+            </span>
+          )}
         </Link>
 
         {/* Separator */}
-        <div className="mx-1 h-5 w-px shrink-0 bg-[var(--rule-strong)] opacity-20" />
+        <div className="mx-1 h-5 w-px shrink-0 bg-[var(--border-strong)] opacity-20" />
 
         {/* Tenant Switcher (platform only) */}
         {isPlatform && tenants && tenants.length > 0 && (
@@ -340,30 +439,77 @@ export function AppShell({
           </div>
         )}
 
+        {/* Workspace switcher (tenant only) */}
+        {showWorkspaceSwitcher ? (
+          <div className="hidden min-w-0 sm:block">
+            <WorkspaceSwitcher workspaces={workspaces!} />
+          </div>
+        ) : null}
+
         {/* Command Trigger */}
         <div className="ml-1 hidden max-w-xs flex-1 md:block">
           <CommandTrigger onOpen={onCommandPaletteOpen} />
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1.5">
           {headerActions}
-          <IconButton
-            aria-label={
-              notificationCount > 0 ? `${notificationCount} unread notifications` : 'Notifications'
-            }
-            title="Notifications"
-          >
-            <span className="relative">
-              <IconBell size={16} stroke={1.5} />
-              {notificationCount > 0 && (
-                <span
-                  aria-hidden
-                  className="absolute -top-1 -right-1 size-1.5 rounded-full"
-                  style={{ background: 'var(--ochre-solid)' }}
-                />
-              )}
-            </span>
-          </IconButton>
+
+          {newActions && newActions.length > 0 ? (
+            <div className="hidden sm:block">
+              <NewMenu actions={newActions} />
+            </div>
+          ) : null}
+
+          {/*
+            With a payload the bell becomes a real menu; without one it stays
+            the count-only button the platform console still renders. The old
+            control was a dead end either way — it had no click handler at all,
+            so the dot announced unread mail the reader could not open.
+          */}
+          {notifications ? (
+            <NotificationsMenu notifications={notifications} unread={notificationCount} />
+          ) : (
+            <IconButton
+              aria-label={
+                notificationCount > 0 ? `${notificationCount} unread notifications` : 'Notifications'
+              }
+              title="Notifications"
+            >
+              <span className="relative">
+                <IconBell size={16} stroke={1.5} />
+                {notificationCount > 0 && (
+                  <span
+                    aria-hidden
+                    className="absolute -top-1 -right-1 size-1.5 rounded-full"
+                    style={{ background: 'var(--amber-500)' }}
+                  />
+                )}
+              </span>
+            </IconButton>
+          )}
+
+          {helpHref ? (
+            <Link
+              href={helpHref}
+              aria-label="Help and docs"
+              title="Help and docs"
+              className="hidden size-[34px] cursor-pointer place-items-center rounded-chip transition-colors hover:bg-[var(--surface-inset)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] sm:grid"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              <IconHelpCircle size={18} stroke={1.5} aria-hidden />
+            </Link>
+          ) : null}
+
+          {account ? (
+            <>
+              <span
+                aria-hidden
+                className="mx-1 h-5 w-px shrink-0"
+                style={{ background: 'var(--border-strong)', opacity: 0.2 }}
+              />
+              <AccountMenu account={account} />
+            </>
+          ) : null}
         </div>
       </header>
 
@@ -372,9 +518,11 @@ export function AppShell({
         <nav
           data-slot="sidebar"
           aria-label={isPlatform ? 'Platform navigation' : 'Workspace navigation'}
+          onMouseEnter={() => setSidebarHovered(true)}
+          onMouseLeave={() => setSidebarHovered(false)}
           className="relative hidden shrink-0 flex-col border-r transition-[width] duration-200 ease-out select-none md:flex"
           style={{
-            width: mounted && collapsed ? 'var(--nav-rail-width)' : 'var(--nav-width)',
+            width: mounted && collapsed && !sidebarHovered ? 'var(--nav-rail-width)' : 'var(--nav-width)',
             background: chromeBg,
             borderColor: chromeRule,
           }}
@@ -382,7 +530,7 @@ export function AppShell({
           {/* Elegant Collapse Toggle */}
           <button
             onClick={toggleCollapse}
-            className="group absolute top-6 -right-3.5 z-40 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-[var(--rule-base)] text-[var(--ink-secondary)] shadow-sm transition-all duration-200 hover:border-[var(--rule-strong)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink-primary)] focus-visible:ring-2 focus-visible:ring-[var(--focus)] focus-visible:outline-none"
+            className="group absolute top-6 -right-3.5 z-40 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-[var(--border-subtle)] text-[var(--text-secondary)] shadow-sm transition-all duration-200 hover:border-[var(--border-strong)] hover:bg-[var(--surface-inset)] hover:text-[var(--text-primary)] focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:outline-none"
             style={{ background: chromeBg }}
             title={collapsed ? 'Expand sidebar (Cmd+B)' : 'Collapse sidebar (Cmd+B)'}
             aria-label="Toggle sidebar collapse"
@@ -405,8 +553,20 @@ export function AppShell({
           {/* Navigation Groups */}
           {renderNavGroups(false)}
 
-          {/* Footer Identity Card */}
-          <AdminProfileCard profile={adminProfile} collapsed={mounted && collapsed} />
+          {/*
+            Sidebar foot. The tenant shell spends it on plan pressure and puts
+            identity in the header, per the design; the console keeps its
+            identity card, because Brian's own account IS the console's
+            anchor and it has no plan of its own to run out of.
+          */}
+          {planMeter ? (
+            <PlanMeterCard
+              meter={planMeter}
+              collapsed={mounted && collapsed && !sidebarHovered}
+            />
+          ) : (
+            <AdminProfileCard profile={adminProfile} collapsed={mounted && collapsed} />
+          )}
         </nav>
 
         {/* MOBILE SLIDE-OVER */}
@@ -414,7 +574,7 @@ export function AppShell({
           <div className="fixed inset-0 z-50 flex md:hidden">
             <div
               className="fixed inset-0 transition-opacity"
-              style={{ background: 'var(--scrim)' }}
+              style={{ background: 'var(--surface-overlay)' }}
               onClick={() => setMobileOpen(false)}
               aria-hidden="true"
             />
@@ -440,12 +600,23 @@ export function AppShell({
                 </IconButton>
               </div>
               {isPlatform && tenants && tenants.length > 0 && (
-                <div className="border-b p-3" style={{ borderColor: 'var(--rule-soft)' }}>
+                <div className="border-b p-3" style={{ borderColor: 'var(--ink-100)' }}>
                   <TenantSwitcher tenants={tenants} onSelect={onTenantSelect} />
                 </div>
               )}
+              {/* The header hides the switcher below `sm`, so the sheet is
+                  the only way to change workspace on a phone. */}
+              {showWorkspaceSwitcher ? (
+                <div className="border-b p-3" style={{ borderColor: 'var(--ink-100)' }}>
+                  <WorkspaceSwitcher workspaces={workspaces!} />
+                </div>
+              ) : null}
               {renderNavGroups(true)}
-              <AdminProfileCard profile={adminProfile} collapsed={false} />
+              {planMeter ? (
+                <PlanMeterCard meter={planMeter} collapsed={false} />
+              ) : (
+                <AdminProfileCard profile={adminProfile} collapsed={false} />
+              )}
             </nav>
           </div>
         )}

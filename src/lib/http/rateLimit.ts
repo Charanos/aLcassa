@@ -135,4 +135,15 @@ export const RATE_LIMITS = {
   invitationRead: { bucket: 'invitation:read', limit: 20, windowSeconds: 60 },
   /** Accepting creates an account, so it is the tightest of the five. */
   invitationAccept: { bucket: 'invitation:accept', limit: 5, windowSeconds: 300 },
+  /**
+   * Registration creates a TENANT — four rows and an outbound mail — from an
+   * unauthenticated request, which makes it the most expensive thing the
+   * public can ask this application to do. Three per five minutes is a
+   * generous allowance for a person mistyping a password and a poor one for
+   * anybody enumerating workspace names.
+   */
+  signUp: { bucket: 'auth:sign-up', limit: 3, windowSeconds: 300 },
+  /** Resending confirmation is us delivering somebody's mail for them, so it
+   *  is held to the same bar as the forgot-password send. */
+  verifyEmailResend: { bucket: 'auth:verify-resend', limit: 3, windowSeconds: 300 },
 } as const satisfies Record<string, RateLimitRule>;

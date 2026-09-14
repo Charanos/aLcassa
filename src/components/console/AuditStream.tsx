@@ -64,10 +64,27 @@ const KIND_META: Record<AuditKind, { label: string; icon: TablerIcon; bg: string
 
 const KINDS = Object.keys(KIND_META) as AuditKind[];
 
+/** How many entries render before the reader asks for more. */
+const PAGE = 25;
+
 export function AuditStream({ entries }: { entries: AuditEntry[] }) {
   const [query, setQuery] = useState('');
   const [kinds, setKinds] = useState<AuditKind[]>([]);
   const [open, setOpen] = useState<string | null>(entries[1]?.id ?? null);
+  /**
+   * ⚠ THE PAGE SIZE IS A DISPLAY LIMIT, NOT A QUERY LIMIT, and saying so
+   * matters because the control used to do nothing at all.
+   *
+   * Every entry the reader is allowed to see is already here — the read is
+   * bounded server-side and the filters run over the whole set, so the count
+   * above the list is honest whatever is currently rendered. This only decides
+   * how much of it is on screen, which is what keeps a long log from costing a
+   * thousand rows of layout on first paint.
+   *
+   * When the log outgrows one read this becomes a cursor and the control
+   * fetches. Until then, pretending it fetches would be the lie.
+   */
+  const [shown, setShown] = useState(PAGE);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -164,7 +181,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
           boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
         }}
       >
-        {filtered.map((e, i) => {
+        {filtered.slice(0, shown).map((e, i) => {
           const meta = KIND_META[e.kind];
           const Icon = meta.icon;
           const isOpen = open === e.id;
@@ -369,15 +386,22 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
           >
             <button
               type="button"
-              className="t-compact inline-flex h-8 items-center gap-2 rounded-panel px-3.5"
+              onClick={() => setShown((n) => n + PAGE)}
+              disabled={shown >= filtered.length}
+              className="t-compact inline-flex h-8 items-center gap-2 rounded-panel px-3.5 transition-colors hover:bg-[var(--surface-inset)]"
               style={{
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',
-                color: 'var(--text-primary)',
+                color: shown >= filtered.length ? 'var(--text-disabled)' : 'var(--text-primary)',
+                cursor: shown >= filtered.length ? 'default' : undefined,
               }}
             >
-              Load older entries
-              <IconChevronDown size={14} stroke={1.5} aria-hidden />
+              {shown >= filtered.length
+                ? `All ${filtered.length} shown`
+                : `Show ${Math.min(PAGE, filtered.length - shown)} older`}
+              {shown >= filtered.length ? null : (
+                <IconChevronDown size={14} stroke={1.5} aria-hidden />
+              )}
             </button>
           </div>
         )}

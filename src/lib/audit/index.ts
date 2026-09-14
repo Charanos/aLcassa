@@ -25,6 +25,16 @@ import { redact } from '@/lib/logger';
  */
 export const AUDIT_ACTIONS = {
   TENANT_PROVISIONED: 'tenant.provisioned',
+  /**
+   * A workspace the platform did not create. Distinct from
+   * `tenant.provisioned` ON PURPOSE — the actor on that row is a platform
+   * admin who chose to create it, and the actor on this one is the member of
+   * the public who registered. Folding the two would make "how many
+   * workspaces did we open ourselves this quarter" unanswerable, and would
+   * put an unauthenticated caller's id in a column every other row reads as
+   * "a platform admin did this".
+   */
+  TENANT_SELF_REGISTERED: 'tenant.self_registered',
   TENANT_SUSPENDED: 'tenant.suspended',
   TENANT_REACTIVATED: 'tenant.reactivated',
   TENANT_SETTINGS_UPDATED: 'tenant.settings_updated',
@@ -75,6 +85,19 @@ export const AUDIT_ACTIONS = {
 
   SESSION_REVOKED: 'session.revoked',
   AUDIT_EXPORTED: 'audit.exported',
+  /**
+   * A platform-level CSV leaving the product: the workspace roster, revenue,
+   * or the audit log itself.
+   *
+   * ⚠ DISTINCT FROM `audit.exported`, WHICH NAMES ONLY THE LOG. The console's
+   * one export route serves three resources, so reusing that action would
+   * record a revenue export as an audit export and make "who took the roster"
+   * unanswerable. The resource travels in `reason`.
+   *
+   * It is here rather than as a literal at the call site because that is the
+   * rule this catalogue exists to enforce — and the export route had broken it.
+   */
+  PLATFORM_EXPORTED: 'platform.exported',
 
   /** 06 §9. The one table where READS are audited, not only writes. */
   CUSTOMER_RECORD_READ: 'customer_record.read',

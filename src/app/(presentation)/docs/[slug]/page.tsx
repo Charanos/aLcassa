@@ -48,10 +48,10 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
   const all = clientDocs();
 
   return (
-    <div style={{ background: 'var(--surface-page)' }}>
+    <div style={{ background: 'var(--surface-base)' }}>
       <header
         className="sticky top-0 z-30 border-b"
-        style={{ background: 'var(--surface-page)', borderColor: 'var(--rule-base)' }}
+        style={{ background: 'var(--surface-base)', borderColor: 'var(--border-subtle)' }}
       >
         <div
           className="mx-auto flex h-14 items-center gap-4 px-5 md:px-8"
@@ -59,19 +59,19 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
         >
           <Link href="/project-tracker" className="flex items-center gap-2.5">
             <Mark size={20} />
-            <span className="t-chip text-[var(--ink-primary)]">aLcassa</span>
+            <span className="t-chip text-[var(--text-primary)]">aLcassa</span>
           </Link>
 
           <Link
             href="/project-tracker#documents"
-            className="t-eyebrow ml-2 flex items-center gap-1.5 text-[var(--ink-tertiary)] hover:text-[var(--copper-ink)]"
+            className="t-eyebrow ml-2 flex items-center gap-1.5 text-[var(--text-tertiary)] hover:text-[var(--blue-500)]"
           >
             <IconArrowNarrowLeft size={14} stroke={1.5} aria-hidden />
             Documentation set
           </Link>
 
           <div className="ml-auto flex items-center gap-3">
-            <span className="t-eyebrow hidden text-[var(--ink-faint)] md:block">
+            <span className="t-eyebrow hidden text-[var(--ink-300)] md:block">
               Document {doc.n}
             </span>
           </div>
@@ -89,7 +89,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
           aria-label="Documentation set"
           className="sticky top-20 hidden h-fit w-56 shrink-0 self-start py-10 lg:block"
         >
-          <h2 className="t-eyebrow text-[var(--ink-faint)]">Documents</h2>
+          <h2 className="t-eyebrow text-[var(--ink-300)]">Documents</h2>
           <ul className="mt-3 grid gap-0.5">
             {all.map((entry) => {
               const current = entry.slug === slug;
@@ -98,13 +98,13 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
                   <Link
                     href={`/docs/${entry.slug}`}
                     aria-current={current ? 'page' : undefined}
-                    className="t-caption flex gap-2 rounded-chip px-2 py-1.5 transition-colors duration-[var(--motion-fade)] hover:bg-[var(--surface-hover)]"
+                    className="t-caption flex gap-2 rounded-chip px-2 py-1.5 transition-colors duration-[var(--motion-fade)] hover:bg-[var(--surface-inset)]"
                     style={{
-                      color: current ? 'var(--copper-ink)' : 'var(--ink-secondary)',
-                      background: current ? 'var(--copper-tint)' : undefined,
+                      color: current ? 'var(--blue-500)' : 'var(--text-secondary)',
+                      background: current ? 'var(--blue-50)' : undefined,
                     }}
                   >
-                    <span className="t-data shrink-0 text-[var(--ink-faint)]">{entry.n}</span>
+                    <span className="t-data shrink-0 text-[var(--ink-300)]">{entry.n}</span>
                     <span className="min-w-0">{entry.title}</span>
                   </Link>
                 </li>
@@ -115,17 +115,17 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
 
         <main id="main" className="min-w-0 flex-1 py-10">
           <div className="flex items-baseline gap-3">
-            <span className="t-eyebrow text-[var(--copper-ink)]">{doc.source}</span>
-            <span className="t-eyebrow text-[var(--ink-faint)]">{doc.band}</span>
+            <span className="t-eyebrow text-[var(--blue-500)]">{doc.source}</span>
+            <span className="t-eyebrow text-[var(--ink-300)]">{doc.band}</span>
           </div>
           <p
-            className="t-lede mt-3 text-[var(--ink-secondary)]"
+            className="t-lede mt-3 text-[var(--text-secondary)]"
             style={{ maxWidth: 'var(--measure-prose)' }}
           >
             {doc.settles}
           </p>
 
-          <hr className="my-8 border-0 border-t" style={{ borderColor: 'var(--rule-strong)' }} />
+          <hr className="my-8 border-0 border-t" style={{ borderColor: 'var(--border-strong)' }} />
 
           <article>
             <Markdown source={source} />
@@ -134,23 +134,23 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
           <nav
             aria-label="Adjacent documents"
             className="mt-14 flex flex-wrap gap-3 border-t pt-6"
-            style={{ borderColor: 'var(--rule-strong)' }}
+            style={{ borderColor: 'var(--border-strong)' }}
           >
             {previous ? (
               <Link
                 href={`/docs/${previous.slug}`}
-                className="t-compact flex flex-1 items-center gap-3 rounded-panel border p-4 transition-colors duration-[var(--motion-fade)] hover:border-[var(--copper-rule)] hover:bg-[var(--copper-tint)]"
-                style={{ borderColor: 'var(--rule-base)', minWidth: '240px' }}
+                className="t-compact flex flex-1 items-center gap-3 rounded-panel border p-4 transition-colors duration-[var(--motion-fade)] hover:border-[var(--blue-200)] hover:bg-[var(--blue-50)]"
+                style={{ borderColor: 'var(--border-subtle)', minWidth: '240px' }}
               >
                 <IconArrowLeft
                   size={16}
                   stroke={1.5}
                   aria-hidden
-                  className="text-[var(--ink-faint)]"
+                  className="text-[var(--ink-300)]"
                 />
                 <span>
-                  <span className="t-eyebrow block text-[var(--ink-faint)]">Previous</span>
-                  <span className="text-[var(--ink-primary)]">
+                  <span className="t-eyebrow block text-[var(--ink-300)]">Previous</span>
+                  <span className="text-[var(--text-primary)]">
                     {previous.n} · {previous.title}
                   </span>
                 </span>
@@ -160,12 +160,12 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
             {next ? (
               <Link
                 href={`/docs/${next.slug}`}
-                className="t-compact flex flex-1 items-center justify-end gap-3 rounded-panel border p-4 text-right transition-colors duration-[var(--motion-fade)] hover:border-[var(--copper-rule)] hover:bg-[var(--copper-tint)]"
-                style={{ borderColor: 'var(--rule-base)', minWidth: '240px' }}
+                className="t-compact flex flex-1 items-center justify-end gap-3 rounded-panel border p-4 text-right transition-colors duration-[var(--motion-fade)] hover:border-[var(--blue-200)] hover:bg-[var(--blue-50)]"
+                style={{ borderColor: 'var(--border-subtle)', minWidth: '240px' }}
               >
                 <span>
-                  <span className="t-eyebrow block text-[var(--ink-faint)]">Next</span>
-                  <span className="text-[var(--ink-primary)]">
+                  <span className="t-eyebrow block text-[var(--ink-300)]">Next</span>
+                  <span className="text-[var(--text-primary)]">
                     {next.n} · {next.title}
                   </span>
                 </span>
@@ -173,7 +173,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
                   size={16}
                   stroke={1.5}
                   aria-hidden
-                  className="text-[var(--ink-faint)]"
+                  className="text-[var(--ink-300)]"
                 />
               </Link>
             ) : null}

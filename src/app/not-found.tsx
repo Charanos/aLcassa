@@ -31,32 +31,60 @@ export default function NotFound() {
   return (
     <main
       id="main"
-      className="mx-auto flex min-h-dvh flex-col items-center justify-center px-6 text-center"
-      style={{ background: 'var(--surface-page)', maxWidth: '480px' }}
+      className="mx-auto flex min-h-dvh flex-col items-center justify-center px-6"
     >
-      <Mark size={28} />
-
-      <p
-        className="t-data mt-8 tabular-nums"
-        style={{ color: 'var(--copper-ink)', fontSize: '13px' }}
+      <div 
+        className="w-full max-w-[440px] rounded-[24px] p-2"
+        style={{ background: 'var(--surface-sunken)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)' }}
       >
-        404
-      </p>
+        <div 
+          className="flex flex-col items-center rounded-[16px] px-8 py-10 text-center relative overflow-hidden"
+          style={{ 
+            background: 'white', 
+            boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)' 
+          }}
+        >
+          {/* Subtle blue glow at the top */}
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[var(--blue-50)] to-transparent opacity-50" />
 
-      <h1 className="t-title mt-3 text-[var(--ink-primary)]">That is not here.</h1>
+          <div className="relative mb-6">
+            <span
+              className="grid size-12 place-items-center rounded-2xl"
+              style={{ 
+                background: 'white',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.15)' 
+              }}
+            >
+              <Mark size={22} />
+            </span>
+          </div>
 
-      <p className="t-body mt-3 text-[var(--ink-secondary)]">
-        Or you do not have access to it. There is no way to tell which from this page, and that is
-        deliberate.
-      </p>
+          <p
+            className="relative font-mono text-[12px] font-medium tracking-wider mb-3 uppercase"
+            style={{ color: 'var(--blue-500)' }}
+          >
+            404 Not Found
+          </p>
 
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <Button asChild variant="primary" size="lg">
-          <Link href="/">Go home</Link>
-        </Button>
-        <Button asChild variant="secondary" size="lg">
-          <Link href="/sign-in">Sign in</Link>
-        </Button>
+          <h1 className="relative text-[20px] font-medium tracking-tight text-[var(--text-primary)]">
+            That is not here.
+          </h1>
+
+          <p className="relative mt-2.5 text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            Or you do not have access to it. There is no way to tell which from this page, and that is
+            deliberate.
+          </p>
+
+          <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3 w-full">
+            <Button asChild variant="primary" size="md">
+              <Link href="/">Go home</Link>
+            </Button>
+            <Button asChild variant="secondary" size="md">
+              <Link href="/sign-in">Sign in</Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </main>
   );

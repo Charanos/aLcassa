@@ -11,10 +11,10 @@ export type TenantSummary = {
 };
 
 const STATUS_DOT: Record<TenantSummary['status'], string> = {
-  active: 'var(--verdigris-solid)',
-  trial: 'var(--copper-solid)',
-  past_due: 'var(--ochre-solid)',
-  suspended: 'var(--oxide-solid)',
+  active: 'var(--green-500)',
+  trial: 'var(--blue-500)',
+  past_due: 'var(--amber-500)',
+  suspended: 'var(--red-500)',
 };
 
 /**
@@ -86,31 +86,31 @@ export function TenantSwitcher({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="group flex h-9 cursor-pointer items-center gap-2.5 rounded-chip border pr-2.5 pl-2 transition-colors duration-150 ease-out hover:border-[var(--rule-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+        className="group flex h-9 cursor-pointer items-center gap-2.5 rounded-chip border pr-2.5 pl-2 transition-colors duration-150 ease-out hover:border-[var(--border-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
         style={{
           background: 'var(--surface-sunken)',
-          borderColor: open ? 'var(--rule-strong)' : 'var(--rule-base)',
+          borderColor: open ? 'var(--border-strong)' : 'var(--border-subtle)',
         }}
       >
         <span
           aria-hidden
           className="flex size-5 items-center justify-center rounded-sm"
-          style={{ background: 'var(--copper-tint)', color: 'var(--copper-ink)' }}
+          style={{ background: 'var(--blue-50)', color: 'var(--blue-500)' }}
         >
           <IconBuilding size={12} stroke={2} />
         </span>
         <span className="flex flex-col items-start leading-none">
-          <span className="t-eyebrow mb-0.5 text-[9px] text-[var(--ink-tertiary)] opacity-50">
+          <span className="t-eyebrow mb-0.5 text-[9px] text-[var(--text-tertiary)] opacity-50">
             Workspace
           </span>
-          <span className="t-compact max-w-36 truncate font-medium text-[var(--ink-primary)]">
+          <span className="t-compact max-w-36 truncate font-medium text-[var(--text-primary)]">
             {filtered[0]?.name ?? 'Select workspace'}
           </span>
         </span>
         <IconChevronDown
           size={14}
           stroke={1.75}
-          className={`ml-0.5 text-[var(--ink-tertiary)] transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
+          className={`ml-0.5 text-[var(--text-tertiary)] transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
@@ -121,26 +121,26 @@ export function TenantSwitcher({
           className="absolute top-[calc(100%+6px)] left-0 z-50 w-80 overflow-hidden rounded-md border"
           style={{
             background: 'var(--surface-raised)',
-            borderColor: 'var(--rule-base)',
+            borderColor: 'var(--border-subtle)',
             boxShadow: 'var(--shadow-overlay)',
           }}
         >
           <div
             className="flex items-center gap-2 border-b px-3"
-            style={{ borderColor: 'var(--rule-base)', height: 'var(--row-comfortable)' }}
+            style={{ borderColor: 'var(--border-subtle)', height: 'var(--row-comfortable)' }}
           >
-            <IconSearch size={14} stroke={1.75} className="shrink-0 text-[var(--ink-tertiary)]" />
+            <IconSearch size={14} stroke={1.75} className="shrink-0 text-[var(--text-tertiary)]" />
             <input
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Find a workspace…"
-              className="t-compact w-full bg-transparent text-[var(--ink-primary)] outline-none placeholder:text-[var(--ink-tertiary)]"
+              className="t-compact w-full bg-transparent text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
             />
             <kbd
-              className="t-eyebrow shrink-0 rounded-sm border px-1.5 py-0.5 text-[var(--ink-tertiary)]"
-              style={{ borderColor: 'var(--rule-base)' }}
+              className="t-eyebrow shrink-0 rounded-sm border px-1.5 py-0.5 text-[var(--text-tertiary)]"
+              style={{ borderColor: 'var(--border-subtle)' }}
             >
               esc
             </kbd>
@@ -148,7 +148,7 @@ export function TenantSwitcher({
 
           <ul className="max-h-72 overflow-y-auto py-1">
             {filtered.length === 0 && (
-              <li className="t-caption px-3 py-4 text-center text-[var(--ink-tertiary)]">
+              <li className="t-caption px-3 py-4 text-center text-[var(--text-tertiary)]">
                 No workspace matches “{query}”
               </li>
             )}
@@ -165,7 +165,7 @@ export function TenantSwitcher({
                   }}
                   className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left transition-colors duration-100"
                   style={{
-                    background: i === highlight ? 'var(--surface-hover)' : 'transparent',
+                    background: i === highlight ? 'var(--surface-inset)' : 'transparent',
                   }}
                 >
                   <span
@@ -173,17 +173,17 @@ export function TenantSwitcher({
                     className="size-1.5 shrink-0 rounded-full"
                     style={{ background: STATUS_DOT[tenant.status] }}
                   />
-                  <span className="t-compact flex-1 truncate text-[var(--ink-primary)]">
+                  <span className="t-compact flex-1 truncate text-[var(--text-primary)]">
                     {tenant.name}
                   </span>
-                  <span className="t-eyebrow shrink-0 text-[var(--ink-tertiary)] opacity-50">
+                  <span className="t-eyebrow shrink-0 text-[var(--text-tertiary)] opacity-50">
                     {tenant.plan}
                   </span>
                   {i === highlight && (
                     <IconCircleCheck
                       size={14}
                       stroke={1.75}
-                      className="shrink-0 text-[var(--copper-ink)]"
+                      className="shrink-0 text-[var(--blue-500)]"
                     />
                   )}
                 </button>

@@ -65,10 +65,10 @@ function deriveCategory(d: Decision): Category {
 }
 
 const CATEGORY_META: Record<Category, { label: string; icon: TablerIcon; color: string }> = {
-  schema: { label: 'Schema', icon: IconDatabase, color: 'var(--copper-ink)' },
-  architecture: { label: 'Architecture', icon: IconServerBolt, color: 'var(--slate-ink)' },
-  compliance: { label: 'Compliance', icon: IconCheck, color: 'var(--verdigris-ink)' },
-  ai: { label: 'AI / Rules', icon: IconBrain, color: 'var(--ochre-ink)' },
+  schema: { label: 'Schema', icon: IconDatabase, color: 'var(--blue-500)' },
+  architecture: { label: 'Architecture', icon: IconServerBolt, color: 'var(--ink-600)' },
+  compliance: { label: 'Compliance', icon: IconCheck, color: 'var(--green-500)' },
+  ai: { label: 'AI / Rules', icon: IconBrain, color: 'var(--amber-500)' },
 };
 
 type FilterKey = 'all' | 'blocking' | Category;
@@ -98,27 +98,30 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
     <div>
       {/* Summary strip */}
       <div
-        className="mb-5 flex flex-wrap items-center gap-4 rounded-panel border px-4 py-3"
-        style={{ background: 'var(--ochre-tint)', borderColor: 'var(--ochre-rule)' }}
+        className="mb-5 flex flex-wrap items-center gap-4 rounded-[16px] px-6 py-4"
+        style={{ 
+          background: 'white', 
+          boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)' 
+        }}
       >
-        <IconAlertTriangle size={16} style={{ color: 'var(--ochre-ink)', flexShrink: 0 }} />
-        <span className="t-compact text-[var(--ochre-ink)]">
-          <strong>{blockingCount} blocking</strong> — schema or policy changes that cannot wait for
+        <IconAlertTriangle size={18} style={{ color: 'var(--amber-500)', flexShrink: 0 }} />
+        <span className="t-compact text-[var(--text-secondary)]">
+          <strong className="text-[var(--amber-600)]">{blockingCount} blocking</strong> — schema or policy changes that cannot wait for
           a convenient moment.
         </span>
-        <span className="t-eyebrow ml-auto text-[var(--ochre-ink)] opacity-70">
+        <span className="t-eyebrow ml-auto text-[var(--text-tertiary)] opacity-70">
           {decisions.length} total
         </span>
       </div>
 
       {/* Filter tabs */}
       <div
-        className="mb-4 flex flex-wrap items-center gap-1 rounded-panel border p-1"
-        style={{ background: 'var(--surface-sunken)', borderColor: 'var(--rule-soft)' }}
+        className="mb-4 flex flex-wrap items-center gap-1 rounded-[24px] p-2"
+        style={{ background: 'var(--surface-sunken)' }}
         role="tablist"
         aria-label="Filter decisions"
       >
-        <IconFilter size={13} style={{ color: 'var(--ink-faint)', marginLeft: '4px' }} />
+        <IconFilter size={15} style={{ color: 'var(--ink-300)', marginLeft: '6px', marginRight: '4px' }} />
         {FILTERS.map((f) => {
           const count =
             f.key === 'all'
@@ -133,23 +136,23 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
               role="tab"
               aria-selected={activeFilter === f.key}
               onClick={() => setActiveFilter(f.key)}
-              className="t-eyebrow inline-flex items-center gap-1.5 rounded-chip px-3 py-1.5 transition-all duration-[var(--motion-fade)]"
+              className="t-eyebrow inline-flex items-center gap-1.5 rounded-full px-4 py-2 transition-all duration-[var(--motion-fade)]"
               style={
                 activeFilter === f.key
                   ? {
-                      background: 'var(--surface-raised)',
-                      color: 'var(--copper-ink)',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                      background: 'white',
+                      color: 'var(--blue-500)',
+                      boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
                     }
-                  : { color: 'var(--ink-tertiary)' }
+                  : { color: 'var(--text-tertiary)' }
               }
             >
               {f.label}
               <span
                 className="rounded-full px-1.5 py-px"
                 style={{
-                  background: activeFilter === f.key ? 'var(--copper-tint)' : 'var(--surface-page)',
-                  color: activeFilter === f.key ? 'var(--copper-ink)' : 'var(--ink-faint)',
+                  background: activeFilter === f.key ? 'var(--blue-50)' : 'var(--surface-base)',
+                  color: activeFilter === f.key ? 'var(--blue-500)' : 'var(--ink-300)',
                   fontSize: '10px',
                   fontVariantNumeric: 'tabular-nums',
                 }}
@@ -166,9 +169,9 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
         {filtered.length === 0 && (
           <div
             className="rounded-panel border px-5 py-8 text-center"
-            style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-sunken)' }}
+            style={{ borderColor: 'var(--ink-100)', background: 'var(--surface-sunken)' }}
           >
-            <span className="t-compact text-[var(--ink-faint)]">
+            <span className="t-compact text-[var(--ink-300)]">
               No decisions in this category.
             </span>
           </div>
@@ -185,38 +188,40 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
             <div
               key={decision.question}
               data-reveal
-              className="rounded-panel border transition-all duration-[var(--motion-standard)]"
+              className="rounded-[16px] transition-all duration-[var(--motion-standard)]"
               style={{
-                background: isBlocking ? 'var(--ochre-tint)' : 'var(--surface-raised)',
-                borderColor: isBlocking ? 'var(--ochre-rule)' : 'var(--rule-base)',
+                background: 'white',
+                boxShadow: isBlocking
+                  ? '-3px -3px 12px color-mix(in oklab, var(--amber-500) 8%, transparent), 4px 5px 18px color-mix(in oklab, var(--amber-500) 8%, transparent), 0 0 0 1px color-mix(in oklab, var(--amber-500) 30%, var(--border-subtle) 70%), var(--shadow-sm)'
+                  : 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
               }}
             >
               {/* Row header — always visible */}
               <button
                 onClick={() => setExpandedId(isExpanded ? null : decision.question)}
-                className="flex w-full items-start gap-3 px-5 py-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+                className="flex w-full items-start gap-3 px-5 py-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
                 aria-expanded={isExpanded}
               >
                 {/* Severity icon */}
                 <span className="mt-0.5 shrink-0">
                   {isBlocking ? (
-                    <IconAlertTriangle size={16} style={{ color: 'var(--ochre-ink)' }} />
+                    <IconAlertTriangle size={16} style={{ color: 'var(--amber-500)' }} />
                   ) : (
-                    <IconPointer size={16} style={{ color: 'var(--slate-ink)' }} />
+                    <IconPointer size={16} style={{ color: 'var(--ink-600)' }} />
                   )}
                 </span>
 
                 <span className="min-w-0 flex-1">
                   {/* Title row */}
                   <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <span className="t-panel text-[var(--ink-primary)]">{decision.question}</span>
+                    <span className="t-panel text-[var(--text-primary)]">{decision.question}</span>
                     {/* Category pill */}
                     <span
                       className="t-eyebrow inline-flex items-center gap-1 rounded-chip px-2 py-0.5"
                       style={{
-                        background: 'var(--surface-page)',
+                        background: 'var(--surface-base)',
                         color: catMeta.color,
-                        border: '1px solid var(--rule-soft)',
+                        border: '1px solid var(--ink-100)',
                       }}
                     >
                       <CatIcon size={10} />
@@ -226,13 +231,13 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
                     <span
                       className="t-eyebrow rounded-chip px-2 py-0.5"
                       style={{
-                        background: isBlocking ? 'var(--ochre-solid)' : 'var(--slate-tint)',
-                        color: isBlocking ? 'var(--ink-inverse)' : 'var(--slate-ink)',
+                        background: isBlocking ? 'var(--amber-500)' : 'var(--ink-50)',
+                        color: isBlocking ? 'var(--text-inverse)' : 'var(--ink-600)',
                       }}
                     >
                       {isBlocking ? `Blocks ${decision.blocks}` : 'Proposal'}
                     </span>
-                    <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
+                    <span className="t-eyebrow ml-auto text-[var(--text-tertiary)]">
                       {decision.when}
                     </span>
                   </span>
@@ -240,7 +245,7 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
                   {/* Collapsed summary */}
                   {!isExpanded && (
                     <span
-                      className="t-caption mt-1 block text-[var(--ink-secondary)]"
+                      className="t-caption mt-1 block text-[var(--text-secondary)]"
                       style={{ maxWidth: 'var(--measure-prose)' }}
                     >
                       {decision.detail.slice(0, 110)}
@@ -250,7 +255,7 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
                 </span>
 
                 {/* Expand chevron */}
-                <span className="ml-2 shrink-0 text-[var(--ink-faint)]">
+                <span className="ml-2 shrink-0 text-[var(--ink-300)]">
                   {isExpanded ? <IconChevronUp size={15} /> : <IconChevronDown size={15} />}
                 </span>
               </button>
@@ -259,10 +264,10 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
               {isExpanded && (
                 <div
                   className="border-t px-5 pt-4 pb-5"
-                  style={{ borderColor: isBlocking ? 'var(--ochre-rule)' : 'var(--rule-soft)' }}
+                  style={{ borderColor: isBlocking ? 'color-mix(in oklab, var(--amber-500) 38%, var(--surface-base))' : 'var(--ink-100)' }}
                 >
                   <p
-                    className="t-compact text-[var(--ink-secondary)]"
+                    className="t-compact text-[var(--text-secondary)]"
                     style={{ maxWidth: 'var(--measure-prose)' }}
                   >
                     {decision.detail}
@@ -270,14 +275,14 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
 
                   <div className="mt-4 flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-1.5">
-                      <IconClock size={13} style={{ color: 'var(--ink-faint)' }} />
-                      <span className="t-caption text-[var(--ink-tertiary)]">
+                      <IconClock size={13} style={{ color: 'var(--ink-300)' }} />
+                      <span className="t-caption text-[var(--text-tertiary)]">
                         Due: {decision.when}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <IconTag size={13} style={{ color: 'var(--ink-faint)' }} />
-                      <span className="t-caption text-[var(--ink-tertiary)]">
+                      <IconTag size={13} style={{ color: 'var(--ink-300)' }} />
+                      <span className="t-caption text-[var(--text-tertiary)]">
                         Drawn and specified in {decision.where}
                       </span>
                     </div>

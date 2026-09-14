@@ -28,6 +28,12 @@ const HUE: Record<ErrorCode, ErrorHue> = {
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 'ochre',
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]: 'oxide',
 
+  /* OCHRE: the reader retypes an address or follows the sign-in link and
+     continues. OXIDE would say 'nothing you can do', which is untrue. */
+  [ERROR_CODES.SIGNUP_EMAIL_TAKEN]: 'ochre',
+  /* OXIDE: self-registration being closed is a decision, not a retry. */
+  [ERROR_CODES.SIGNUP_DISABLED]: 'oxide',
+
   [ERROR_CODES.TENANT_SUSPENDED]: 'oxide',
   [ERROR_CODES.TENANT_NOT_FOUND]: 'slate',
 
@@ -62,6 +68,7 @@ const HUE: Record<ErrorCode, ErrorHue> = {
   [ERROR_CODES.RATE_LIMIT_EXCEEDED]: 'ochre',
   [ERROR_CODES.NOT_FOUND]: 'slate',
   [ERROR_CODES.INTERNAL]: 'oxide',
+  [ERROR_CODES.UPSTREAM_UNAVAILABLE]: 'oxide',
 };
 
 export function hueOf(code: ErrorCode): ErrorHue {
@@ -69,9 +76,9 @@ export function hueOf(code: ErrorCode): ErrorHue {
 }
 
 const HUE_TOKENS: Record<ErrorHue, { fg: string; bg: string; rule: string }> = {
-  ochre: { fg: 'var(--ochre-ink)', bg: 'var(--warning-bg)', rule: 'var(--warning-fg)' },
-  oxide: { fg: 'var(--oxide-ink)', bg: 'var(--oxide-tint)', rule: 'var(--oxide-rule)' },
-  slate: { fg: 'var(--slate-ink)', bg: 'var(--surface-sunken)', rule: 'var(--border-subtle)' },
+  ochre: { fg: 'var(--amber-500)', bg: 'var(--warning-bg)', rule: 'var(--warning-fg)' },
+  oxide: { fg: 'var(--red-500)', bg: 'var(--red-100)', rule: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))' },
+  slate: { fg: 'var(--ink-600)', bg: 'var(--surface-sunken)', rule: 'var(--border-subtle)' },
 };
 
 /** The three tokens a component needs to render a code in its hue, without

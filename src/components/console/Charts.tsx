@@ -104,16 +104,16 @@ function useTokens(): Tokens {
 function Panel({ label, value, t }: { label: string; value: string; t: Tokens }) {
   return (
     <div
-      className="rounded-chip px-3 py-2"
+      className="flex flex-col gap-1 overflow-hidden rounded-[10px] px-3.5 py-2.5"
       style={{
-        background: `color-mix(in srgb, ${t.surface} 85%, transparent)`,
-        backdropFilter: 'blur(12px)',
-        border: `1px solid ${t.rule}`,
-        boxShadow: 'var(--shadow-md)',
+        background: 'color-mix(in srgb, var(--surface-raised) 75%, transparent)',
+        backdropFilter: 'blur(20px) saturate(1.2)',
+        border: '1px solid color-mix(in srgb, var(--border-subtle) 60%, transparent)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.1)',
       }}
     >
-      <div style={{ font: '400 11px/1.4 var(--font-ui)', color: t.muted }}>{label}</div>
-      <div className="numeric mt-0.5" style={{ fontSize: 'var(--text-sm)', color: t.text }}>
+      <div className="font-mono text-[10.5px] font-medium tracking-wide uppercase" style={{ color: t.muted }}>{label}</div>
+      <div className="font-mono text-[13.5px] font-medium tracking-[-0.01em]" style={{ color: t.text }}>
         {value}
       </div>
     </div>
@@ -132,16 +132,16 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
   const t = useTokens();
 
   return (
-    <div style={{ height: 260 }}>
+    <div style={{ height: 340 }}>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
           <defs>
             <linearGradient id="mrr-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={t.blue500} stopOpacity={0.16} />
-              <stop offset="100%" stopColor={t.blue500} stopOpacity={0} />
+              <stop offset="0%" stopColor={t.ink400} stopOpacity={0.15} />
+              <stop offset="100%" stopColor={t.surface} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid stroke={t.rule} strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid stroke="color-mix(in srgb, var(--border-subtle) 40%, transparent)" vertical={false} />
           <XAxis
             dataKey="month"
             tick={{ ...AXIS, fill: t.muted }}
@@ -176,10 +176,10 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
           <Line
             type="monotone"
             dataKey="mrr"
-            stroke={t.blue500}
+            stroke={t.text}
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 3, fill: t.blue500, stroke: t.surface, strokeWidth: 2 }}
+            activeDot={{ r: 3, fill: t.text, stroke: t.surface, strokeWidth: 2 }}
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -194,7 +194,8 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
  */
 export function PlanMixChart({ data }: { data: Array<{ name: string; value: number }> }) {
   const t = useTokens();
-  const ramp = [t.blue500, t.blue400, t.ink300];
+  // Premium palette: Primary ink, accent blue, disabled gray
+  const ramp = [t.text, t.blue500, t.muted];
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
@@ -205,11 +206,11 @@ export function PlanMixChart({ data }: { data: Array<{ name: string; value: numb
             data={data}
             dataKey="value"
             nameKey="name"
-            innerRadius="58%"
+            innerRadius="60%"
             outerRadius="86%"
-            paddingAngle={2}
-            stroke={t.surface}
-            strokeWidth={2}
+            paddingAngle={4}
+            cornerRadius={4}
+            stroke="none"
           >
             {data.map((d, i) => (
               <Cell key={d.name} fill={ramp[i % ramp.length]} />
@@ -252,9 +253,9 @@ export function LatencyChart({
   const t = useTokens();
 
   return (
-    <div style={{ height: 240 }}>
+    <div className="absolute inset-0">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+        <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={t.rule} strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="t"
@@ -285,9 +286,30 @@ export function LatencyChart({
               );
             }}
           />
-          <Line type="monotone" dataKey="p99" stroke={t.ink300} strokeWidth={1.5} dot={false} />
-          <Line type="monotone" dataKey="p95" stroke={t.blue500} strokeWidth={2} dot={false} />
-          <Line type="monotone" dataKey="p50" stroke={t.blue200} strokeWidth={1.5} dot={false} />
+          <Line 
+            type="monotone" 
+            dataKey="p99" 
+            stroke={t.ink300} 
+            strokeWidth={1.5} 
+            dot={false} 
+            style={{ filter: 'drop-shadow(0px 3px 6px rgba(0,0,0,0.1))' }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="p95" 
+            stroke={t.blue500} 
+            strokeWidth={2.5} 
+            dot={false} 
+            style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.15))' }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="p50" 
+            stroke={t.blue200} 
+            strokeWidth={1.5} 
+            strokeDasharray="4 4" 
+            dot={false} 
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -378,10 +400,11 @@ export function ThroughputChart({
  */
 export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: number }> }) {
   const t = useTokens();
-  const ink = [t.blue200, t.blue400, t.warning, t.danger];
+  // Neutral escalating to danger
+  const ink = [t.ink300, t.ink400, t.warning, t.danger];
 
   return (
-    <div style={{ height: 214 }}>
+    <div className="absolute inset-0">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
@@ -402,7 +425,7 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
             tick={{ ...AXIS, fill: t.muted }}
             axisLine={false}
             tickLine={false}
-            width={72}
+            width={90}
           />
           <Tooltip
             cursor={{ fill: t.rule, fillOpacity: 0.3 }}
@@ -414,13 +437,457 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
               );
             }}
           />
-          <Bar dataKey="amount" radius={[0, 3, 3, 0]} barSize={18}>
+          <Bar dataKey="amount" radius={[0, 4, 4, 0]} maxBarSize={24}>
             {data.map((d, i) => (
               <Cell key={d.bucket} fill={ink[i % ink.length]} />
             ))}
           </Bar>
         </ComposedChart>
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+/* ── Workspace status mix ────────────────────────────────────────────────
+ * A donut over the portfolio: how many workspaces are active, on trial, past
+ * due, suspended.
+ *
+ * ⚠ THIS IS THE ONE CHART ON THE CONSOLE THAT USES SEMANTIC HUES RATHER THAN
+ * THE SINGLE-HUE RAMP, AND THE EXCEPTION IS DELIBERATE.
+ *
+ * The note at the top of this file is right: plan mix is CATEGORIES, and
+ * categories get a ramp because colour there carries no meaning and a six-hue
+ * set failed a colour-blindness check. Status is not categories. `past due`
+ * and `suspended` already have hues everywhere else in this product — 03 §14
+ * fixes them as ochre and oxide — and drawing them in blue-400 and ink-300
+ * here would be the console saying one thing in its table and another in its
+ * chart about the same tenant.
+ *
+ * The rule that makes it safe is the one the badge taxonomy already states:
+ * HUE IS NEVER ALONE. Every slice is named in the legend beside it with its
+ * count, so the chart is fully readable with no colour at all — which is the
+ * actual test, and the reason the ramp exists in the first place.
+ */
+/*
+ * The donut's five status colours, resolved. They mirror `statusHue.ts`,
+ * which is where the shared definition lives — see that file for why a client
+ * module cannot be the single source for a server component.
+ */
+export function StatusMixChart({
+  data,
+}: {
+  data: Array<{ label: string; count: number; status: string }>;
+}) {
+  const t = useTokens();
+  const total = data.reduce((sum, d) => sum + d.count, 0);
+
+  /* The same five meanings as STATUS_HUE above, resolved to real values —
+     an SVG presentation attribute does not reliably resolve var(). 03 §24. */
+  const hue: Record<string, string> = {
+    active: t.success,
+    trial: t.blue400,
+    'past due': t.warning,
+    suspended: t.danger,
+    pending: t.ink300,
+  };
+
+  return (
+    <div className="w-full h-full min-h-[180px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="count"
+            nameKey="label"
+            innerRadius="70%"
+            outerRadius="90%"
+            paddingAngle={4}
+            strokeWidth={0}
+            cornerRadius={6}
+          >
+            {data.map((d) => (
+              <Cell key={d.status} fill={hue[d.status] ?? t.ink300} />
+            ))}
+          </Pie>
+          <Tooltip
+            content={({ active, payload }) => {
+              if (!active || !payload?.length) return null;
+              const d = payload[0];
+              const v = (d?.value as number) ?? 0;
+              return (
+                <Panel
+                  t={t}
+                  label={String(d?.name ?? '')}
+                  value={`${v} of ${total} · ${Math.round((v / total) * 100)}%`}
+                />
+              );
+            }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+/* ── Portfolio growth ────────────────────────────────────────────────────
+ * Workspaces opened against workspaces closed, with the net as a line.
+ *
+ * ⚠ CLOSED IS DRAWN NEGATIVE, NOT AS A SECOND POSITIVE BAR. Two bars growing
+ * upward from a shared baseline invite the eye to compare their heights, which
+ * is the wrong question — nobody asks "were more opened than closed" and stops
+ * there. Mirroring them around zero makes the answer the SHAPE: bars above the
+ * line are the business growing, bars below are it shrinking, and the net line
+ * tracks where the two land. That reads at a glance and survives greyscale,
+ * because the sign is carried by position rather than by colour.
+ */
+export function GrowthChart({
+  data,
+}: {
+  data: Array<{ month: string; opened: number; closed: number; net: number }>;
+}) {
+  const t = useTokens();
+  const mirrored = data.map((d) => ({ ...d, closedDown: -d.closed }));
+
+  return (
+    <div className="absolute inset-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={mirrored} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
+          <CartesianGrid stroke={t.rule} vertical={false} />
+          <XAxis
+            dataKey="month"
+            tickLine={false}
+            axisLine={false}
+            tick={{ fill: t.muted, fontSize: 11 }}
+          />
+          <YAxis tickLine={false} axisLine={false} tick={{ fill: t.muted, fontSize: 11 }} />
+          <Tooltip
+            cursor={{ fill: `color-mix(in srgb, ${t.ink300} 18%, transparent)` }}
+            content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null;
+              const row = payload[0]?.payload as
+                | { opened: number; closed: number; net: number }
+                | undefined;
+              if (!row) return null;
+              return (
+                <Panel
+                  t={t}
+                  label={String(label)}
+                  value={`+${row.opened} opened · −${row.closed} closed · net ${
+                    row.net >= 0 ? '+' : ''
+                  }${row.net}`}
+                />
+              );
+            }}
+          />
+          <Bar dataKey="opened" fill={t.blue500} radius={[4, 4, 0, 0]} maxBarSize={24} />
+          <Bar dataKey="closedDown" fill={t.ink300} radius={[0, 0, 4, 4]} maxBarSize={24} />
+          <Line
+            type="monotone"
+            dataKey="net"
+            stroke={t.blue200}
+            strokeWidth={2.5}
+            style={{ filter: 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.1))' }}
+            dot={false}
+            /* The net is a running read, not a category — it gets the lightest
+               weight of the same hue so it sits behind the bars rather than
+               competing with them. */
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+/* ── Platform audit volume ───────────────────────────────────────────────
+ * Thirty days, one bar a day, stacked into three meanings.
+ *
+ * ⚠ `serviceRole` IS ITS OWN SERIES BECAUSE IT IS THE QUESTION AN AUDITOR
+ * ASKS. Every platform audit row carries `used_service_role` precisely so that
+ * "when did we bypass Row Level Security, and why" is one filter rather than a
+ * reconstruction. Folding it into a total hides the only series on the chart
+ * anybody would investigate.
+ *
+ * ⚠ THE STACK IS ORDERED BY CONSEQUENCE, not by size: routine at the base,
+ * support visits above it, service-role bypasses on top. A stacked bar reads
+ * from the baseline up, so the segment that matters most sits where the eye
+ * finishes rather than where it starts, and the top edge of the bypass band is
+ * readable across the whole month as a line.
+ *
+ * The three segments are one hue's ramp plus the accent for the bypass band.
+ * §24: identity rests on the legend and the axis, not on colour alone.
+ */
+export function AuditVolumeChart({
+  data,
+}: {
+  data: Array<{ day: string; total: number; serviceRole: number; support: number }>;
+}) {
+  const t = useTokens();
+
+  const series = data.map((d) => ({
+    day: d.day,
+    /* Routine is what is LEFT once the two named kinds are taken out, so the
+       stack sums to the total rather than double-counting a row that is both
+       a support action and a service-role call. */
+    routine: Math.max(0, d.total - d.serviceRole - d.support),
+    support: d.support,
+    serviceRole: d.serviceRole,
+    total: d.total,
+  }));
+
+  const busiest = series.length > 0 ? series.reduce((a, b) => (b.total > a.total ? b : a)) : null;
+
+  return (
+    <div>
+      <ResponsiveContainer width="100%" height={168}>
+        <ComposedChart data={series} margin={{ top: 8, right: 4, bottom: 0, left: -18 }}>
+          <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
+          <XAxis
+            dataKey="day"
+            tick={{ ...AXIS, fill: t.muted }}
+            tickLine={false}
+            axisLine={{ stroke: t.rule }}
+            interval="preserveStartEnd"
+            minTickGap={28}
+            tickFormatter={(v: string) => v.slice(8)}
+          />
+          <YAxis
+            tick={{ ...AXIS, fill: t.muted }}
+            tickLine={false}
+            axisLine={false}
+            allowDecimals={false}
+            width={34}
+          />
+          <Tooltip
+            cursor={{ fill: `color-mix(in srgb, ${t.ink300} 22%, transparent)` }}
+            content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null;
+              const row = payload[0]?.payload as (typeof series)[number] | undefined;
+              if (!row) return null;
+              return (
+                <div
+                  className="rounded-chip px-3 py-2"
+                  style={{
+                    background: `color-mix(in srgb, ${t.surface} 88%, transparent)`,
+                    backdropFilter: 'blur(12px)',
+                    border: `1px solid ${t.rule}`,
+                    boxShadow: 'var(--shadow-md)',
+                  }}
+                >
+                  <div style={{ font: '400 11px/1.4 var(--font-mono)', color: t.muted }}>
+                    {String(label)}
+                  </div>
+                  <div
+                    className="numeric mt-0.5"
+                    style={{ fontSize: 'var(--text-sm)', color: t.text }}
+                  >
+                    {row.total} {row.total === 1 ? 'action' : 'actions'}
+                  </div>
+                  <div
+                    className="mt-1 grid gap-0.5"
+                    style={{ font: '400 11px/1.5 var(--font-mono)', color: t.muted }}
+                  >
+                    <span>{row.routine} routine</span>
+                    <span>{row.support} in a support session</span>
+                    <span style={{ color: row.serviceRole > 0 ? t.warning : t.muted }}>
+                      {row.serviceRole} bypassed RLS
+                    </span>
+                  </div>
+                </div>
+              );
+            }}
+          />
+          <Bar dataKey="routine" stackId="a" fill={t.blue200} radius={[0, 0, 0, 0]} />
+          <Bar dataKey="support" stackId="a" fill={t.blue400} radius={[0, 0, 0, 0]} />
+          <Bar dataKey="serviceRole" stackId="a" fill={t.warning} radius={[2, 2, 0, 0]} />
+        </ComposedChart>
+      </ResponsiveContainer>
+
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+        <Swatch colour={t.blue200}>routine</Swatch>
+        <Swatch colour={t.blue400}>support session</Swatch>
+        <Swatch colour={t.warning}>bypassed RLS</Swatch>
+        {busiest ? (
+          <span
+            className="ml-auto whitespace-nowrap"
+            style={{ font: '400 11px/1 var(--font-mono)', color: t.muted }}
+          >
+            busiest {busiest.day.slice(5)} · {busiest.total}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/** A legend dot. Identity rests here rather than on the colour alone. §24. */
+function Swatch({ colour, children }: { colour: string; children: React.ReactNode }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 whitespace-nowrap"
+      style={{ font: '400 11.5px/1 var(--font-ui)', color: 'var(--text-secondary)' }}
+    >
+      <span
+        aria-hidden
+        className="size-2 shrink-0 rounded-[2px]"
+        style={{ background: colour }}
+      />
+      {children}
+    </span>
+  );
+}
+
+/* ── MRR movement ────────────────────────────────────────────────────────
+ * The decomposition the level chart cannot show.
+ *
+ * ⚠ "MRR ROSE 4%" AND "MRR ROSE 4% WHILE CHURN DOUBLED" ARE THE SAME LINE ON
+ * THE CHART ABOVE, AND OPPOSITE BUSINESSES.
+ *
+ * A level series answers "how are we doing". It cannot answer "why", and the
+ * why is where the decisions are: growth carried by new logos is a marketing
+ * result, growth carried by expansion is a product result, and flat growth
+ * hiding heavy churn replaced by heavy acquisition is a leaking bucket that
+ * looks identical from the outside.
+ *
+ * ⚠ LOSSES ARE DRAWN DOWNWARD, and the data does NOT carry negative numbers.
+ * Contraction and churn are positive magnitudes in the read model — a sign
+ * convention stored in data is one every call site has to remember, and the
+ * first place that forgets renders churn as growth. The negation happens here,
+ * once, where the axis is.
+ *
+ * ⚠ THE ZERO LINE IS DRAWN SOLID. A mirrored chart without an explicit
+ * baseline invites reading the top of the loss stack as the baseline, which
+ * inverts the whole reading.
+ */
+export function MovementChart({
+  data,
+}: {
+  data: Array<{
+    month: string;
+    new: number;
+    expansion: number;
+    contraction: number;
+    churn: number;
+  }>;
+}) {
+  const t = useTokens();
+
+  const series = data.map((d) => ({
+    month: d.month,
+    gained: d.new,
+    expanded: d.expansion,
+    /* Negated for the axis only. See the header note. */
+    contracted: -d.contraction,
+    churned: -d.churn,
+    net: d.new + d.expansion - d.contraction - d.churn,
+  }));
+
+  const fmt = (n: number) => `${n < 0 ? '−' : ''}${Math.abs(Math.round(n / 1000))}k`;
+
+  return (
+    <div className="absolute inset-0 flex flex-col">
+      <div className="min-h-0 flex-1">
+        <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={series} margin={{ top: 8, right: 4, bottom: 0, left: -8 }} stackOffset="sign">
+          <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
+          <XAxis
+            dataKey="month"
+            tick={{ ...AXIS, fill: t.muted }}
+            tickLine={false}
+            axisLine={{ stroke: t.rule }}
+          />
+          <YAxis
+            tick={{ ...AXIS, fill: t.muted }}
+            tickLine={false}
+            axisLine={false}
+            width={46}
+            tickFormatter={fmt}
+          />
+          <Tooltip
+            cursor={{ fill: `color-mix(in srgb, ${t.ink300} 18%, transparent)` }}
+            content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null;
+              const row = payload[0]?.payload as (typeof series)[number] | undefined;
+              if (!row) return null;
+              return (
+                <div
+                  className="rounded-chip px-3 py-2"
+                  style={{
+                    background: `color-mix(in srgb, ${t.surface} 88%, transparent)`,
+                    backdropFilter: 'blur(12px)',
+                    border: `1px solid ${t.rule}`,
+                    boxShadow: 'var(--shadow-md)',
+                  }}
+                >
+                  <div style={{ font: '400 11px/1.4 var(--font-mono)', color: t.muted }}>
+                    {String(label)}
+                  </div>
+                  <div
+                    className="numeric mt-0.5"
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: row.net >= 0 ? t.success : t.danger,
+                    }}
+                  >
+                    {row.net >= 0 ? '+' : '−'}
+                    {Math.abs(Math.round(row.net / 1000))}k net
+                  </div>
+                  <div
+                    className="mt-1 grid gap-0.5"
+                    style={{ font: '400 11px/1.5 var(--font-mono)', color: t.muted }}
+                  >
+                    <span>new {fmt(row.gained)}</span>
+                    <span>expansion {fmt(row.expanded)}</span>
+                    <span>contraction {fmt(row.contracted)}</span>
+                    <span>churn {fmt(row.churned)}</span>
+                  </div>
+                </div>
+              );
+            }}
+          />
+          {/* The zero line, explicit. */}
+          <Line
+            type="linear"
+            dataKey={() => 0}
+            stroke={t.rule}
+            strokeWidth={1}
+            dot={false}
+            activeDot={false}
+            isAnimationActive={false}
+            legendType="none"
+          />
+          <Bar dataKey="gained" stackId="m" fill={t.blue500} radius={[2, 2, 0, 0]} />
+          <Bar dataKey="expanded" stackId="m" fill={t.blue200} radius={[0, 0, 0, 0]} />
+          <Bar dataKey="contracted" stackId="m" fill={t.ink300} radius={[0, 0, 0, 0]} />
+          <Bar dataKey="churned" stackId="m" fill={t.danger} radius={[0, 0, 2, 2]} />
+          <Line
+            type="monotone"
+            dataKey="net"
+            stroke={t.text}
+            strokeWidth={1.5}
+            dot={false}
+            isAnimationActive={false}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+      </div>
+
+      <div className="mt-2 shrink-0 flex flex-wrap items-center gap-x-4 gap-y-1.5 pb-1">
+        <Swatch colour={t.blue500}>new</Swatch>
+        <Swatch colour={t.blue200}>expansion</Swatch>
+        <Swatch colour={t.ink300}>contraction</Swatch>
+        <Swatch colour={t.danger}>churn</Swatch>
+        <span
+          className="inline-flex items-center gap-1.5 whitespace-nowrap"
+          style={{ font: '400 11.5px/1 var(--font-ui)', color: 'var(--text-secondary)' }}
+        >
+          <span
+            aria-hidden
+            className="shrink-0"
+            style={{ width: 10, height: 2, borderRadius: 2, background: t.text }}
+          />
+          net
+        </span>
+      </div>
     </div>
   );
 }

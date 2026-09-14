@@ -189,8 +189,10 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
         </div>
         <button
           type="button"
+          disabled
+          title="The channel runtime is Phase 2. The adapter contract exists; nothing sits above it yet."
           className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-white transition-all active:scale-95"
-          style={{ background: 'var(--blue-500)' }}
+          style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
         >
           <IconPlus size={14} stroke={1.5} />
           Connect Channel
@@ -364,20 +366,27 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
+                    disabled
+                    title="The channel runtime is Phase 2. There is nothing to ping."
                     className="h-7.5 rounded-lg px-2.5 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
                     style={{
+                      opacity: 0.45,
+                      cursor: 'not-allowed',
                       border: '1px solid var(--border-subtle)',
                       background: 'var(--surface-raised)',
                       color: 'var(--text-secondary)',
                     }}
-                    title="Ping channel connection"
                   >
                     <IconRefresh size={13} stroke={1.5} />
                   </button>
                   <button
                     type="button"
+                    disabled
+                    title="A workspace’s channel settings belong to the workspace, reachable through a support session."
                     className="h-7.5 rounded-lg px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
                     style={{
+                      opacity: 0.45,
+                      cursor: 'not-allowed',
                       border: '1px solid var(--border-strong)',
                       background: 'var(--surface-raised)',
                       color: 'var(--text-primary)',

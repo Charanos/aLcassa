@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import type { Metadata } from 'next';
-import { IconInfoCircle } from '@tabler/icons-react';
-import { AuthShell, TenantAside } from '@/components/access/AuthShell';
+import { IconShieldCheck } from '@tabler/icons-react';
+import { AuthShell } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
 import { NewPasswordFields } from '@/components/access/NewPasswordFields';
 
@@ -17,36 +18,45 @@ export default async function ResetPasswordPage({
   const { token } = await searchParams;
 
   return (
-    <AuthShell eyebrow="Workspace" title="Choose a new password" aside={<TenantAside />}>
+    <AuthShell
+      title="Set new password"
+      lede="Enter a strong, unique password to secure your workspace account."
+      footer={
+        <p className="text-center text-[12.5px] text-[var(--text-secondary)]">
+          Remembered your password?{' '}
+          <Link
+            href="/sign-in"
+            className="font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] underline underline-offset-4 transition-colors"
+          >
+            Return to sign in
+          </Link>
+        </p>
+      }
+    >
       <form className="grid gap-4" method="post" action="/api/v1/auth/password/reset">
         <input type="hidden" name="token" value={token ?? ''} />
 
-        {/*
-          The meter shows the SAME rules POST /v1/auth/password/reset enforces.
-          Until now the only way to discover the twelve-character minimum or
-          the match requirement was to submit and be refused.
-        */}
         <NewPasswordFields confirmName="passwordConfirm" />
 
-        <div
-          className="flex gap-2.5 rounded-chip border p-3"
-          style={{
-            background: 'var(--surface-sunken)',
-            borderColor: 'var(--border-subtle)',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          <IconInfoCircle
+        <div className="flex items-start gap-2.5 rounded-xl border border-[var(--ink-200)]/80 bg-[var(--ink-50)]/50 p-3 text-[12px] text-[var(--text-secondary)] shadow-2xs">
+          <IconShieldCheck
             size={16}
-            stroke={1.5}
+            stroke={2}
             aria-hidden
-            className="mt-px shrink-0 text-warning"
+            className="mt-0.5 shrink-0 text-[var(--success-fg)]"
           />
-          <p className="t-caption">Setting a new password signs you out everywhere else.</p>
+          <p className="leading-relaxed">
+            Setting a new password will immediately revoke and sign out all other active sessions across devices.
+          </p>
         </div>
 
-        <Button type="submit" variant="primary" size="lg" className="mt-1 w-full">
-          Set new password
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="mt-1 w-full font-medium shadow-sm hover:shadow-md cursor-pointer"
+        >
+          Update password & sign in
         </Button>
       </form>
     </AuthShell>

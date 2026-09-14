@@ -1,9 +1,12 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { IconArrowRight } from '@tabler/icons-react';
-import { AuthShell, TenantAside } from '@/components/access/AuthShell';
+import { IconArrowRight, IconCheck } from '@tabler/icons-react';
+import { ERROR_CODES, ERROR_MESSAGES, hueTokens, type ErrorCode } from '@/lib/errors';
+import { AuthShell } from '@/components/access/AuthShell';
 import { Button } from '@/components/primitives/Button';
-import { Field, PasswordField } from '@/components/primitives/Field';
+import { Field } from '@/components/primitives/Field';
+import { NewPasswordFields } from '@/components/access/NewPasswordFields';
+import { WorkspaceJourney } from '@/components/access/WorkspaceJourney';
 import { WorkspaceSlugPreview } from '@/components/access/WorkspaceSlugPreview';
 
 export const metadata: Metadata = {
@@ -11,89 +14,143 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+
+  const knownCode = error && error in ERROR_MESSAGES ? (error as ErrorCode) : null;
+  const errorMessage = error
+    ? knownCode
+      ? ERROR_MESSAGES[knownCode]
+      : 'Something went wrong. Try again.'
+    : null;
+  const tone = hueTokens(knownCode ?? ERROR_CODES.INTERNAL);
+  const emailTaken = knownCode === ERROR_CODES.SIGNUP_EMAIL_TAKEN;
+
   return (
     <AuthShell
-      eyebrow="Workspace"
-      title="Create your workspace"
-      lede="One account for your business, with room for your team from the first day."
-      aside={<TenantAside />}
+      lede="One dedicated tenant enclave for your organization, with room for your entire team."
+      cardMaxWidth="max-w-[640px]"
+      aside={<WorkspaceJourney current="create" />}
       footer={
-        <p className="t-caption" style={{ color: 'var(--text-tertiary)' }}>
+        <p className="text-center text-[12px] text-[var(--text-secondary)]">
           Already have a workspace?{' '}
           <Link
             href="/sign-in"
-            className="text-[var(--text-action)] underline underline-offset-2 transition-opacity hover:opacity-80"
+            className="font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] underline underline-offset-4 transition-colors"
           >
             Sign in
           </Link>
         </p>
       }
     >
-      <form className="grid gap-4" method="post" action="/api/v1/auth/sign-up">
-        <Field label="Your name" name="fullName" autoComplete="name" required />
+      <form className="space-y-0" method="post" action="/api/v1/auth/sign-up">
+        {errorMessage ? (
+          <div
+            role="alert"
+            className="mb-5 rounded-xl border px-3.5 py-2.5 text-[12.5px] leading-relaxed"
+            style={{ color: tone.fg, background: tone.bg, borderColor: tone.rule }}
+          >
+            {errorMessage}
+            {emailTaken ? (
+              <>
+                {' '}
+                <Link href="/sign-in" className="font-medium underline underline-offset-2">
+                  Sign in
+                </Link>{' '}
+                or{' '}
+                <Link href="/forgot-password" className="font-medium underline underline-offset-2">
+                  reset your password
+                </Link>
+                .
+              </>
+            ) : null}
+          </div>
+        ) : null}
 
-        <WorkspaceSlugPreview />
+        {/* Row 1: Name + Email */}
+        <div className="grid grid-cols-2 gap-x-4 mb-4">
+          <Field
+            label="Your full name"
+            name="fullName"
+            autoComplete="name"
+            required
+            placeholder="e.g. Wanjiru Maina"
+          />
+          <Field
+            label="Work email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            placeholder="you@company.co.ke"
+          />
+        </div>
 
-        <Field
-          label="Email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          placeholder="you@company.co.ke"
-        />
+        {/* Row 2: Workspace slug */}
+        <div className="mb-4">
+          <WorkspaceSlugPreview />
+        </div>
 
-        <PasswordField
-          label="Password"
-          name="password"
-          autoComplete="new-password"
-          required
-          minLength={12}
-          helper="At least 12 characters."
-        />
+        {/* Row 3: Password */}
+        <div className="mb-5">
+          <NewPasswordFields label="Account password" showConfirm={false} />
+        </div>
 
-        <Button type="submit" variant="accent" size="lg" className="mt-2 w-full gap-2">
+        {/* Trust signals */}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mb-5">
+          {[
+            'Starts on a free trial',
+            'No card required',
+            'You are the workspace owner',
+          ].map((line) => (
+            <span
+              key={line}
+              className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--text-secondary)]"
+            >
+              <IconCheck
+                size={12}
+                stroke={3}
+                aria-hidden
+                className="shrink-0"
+                style={{ color: 'var(--success-fg)' }}
+              />
+              {line}
+            </span>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <Button
+          type="submit"
+          variant="accent"
+          size="lg"
+          className="w-full gap-2 font-medium shadow-sm hover:shadow-md cursor-pointer"
+        >
           <span>Create workspace</span>
-          <IconArrowRight size={16} />
+          <IconArrowRight size={15} />
         </Button>
 
-        <p className="t-caption mt-1" style={{ color: 'var(--text-tertiary)' }}>
-          By creating a workspace you agree to the{' '}
+        <p className="text-center text-[11px] leading-relaxed text-[var(--text-tertiary)] mt-3">
+          By continuing, you agree to our{' '}
           <Link
             href="/legal/terms"
-            className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-2 transition-colors"
           >
-            terms of service
+            Terms of Service
           </Link>{' '}
-          and the{' '}
+          and{' '}
           <Link
             href="/legal/privacy"
-            className="text-[var(--text-action)] underline underline-offset-2 hover:opacity-80"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-2 transition-colors"
           >
-            privacy notice
+            Privacy Notice
           </Link>
           .
         </p>
-
-        {/* Security Assurance Ticker */}
-        <div
-          className="t-micro mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-4"
-          style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}
-        >
-          <span className="flex items-center gap-1.5">
-            <span className="size-1 rounded-full" style={{ background: 'var(--success-fg)' }} />{' '}
-            POSTGRES RLS
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="size-1 rounded-full" style={{ background: 'var(--accent-mark)' }} />{' '}
-            ARGON2 HASHED
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="size-1 rounded-full" style={{ background: 'var(--blue-500)' }} />{' '}
-            MULTI-TENANT RBAC
-          </span>
-        </div>
       </form>
     </AuthShell>
   );

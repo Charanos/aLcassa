@@ -133,9 +133,10 @@ export const MILESTONES = [
       'ERD, Row Level Security policy map, API contract, role matrix, architecture decision records.',
     gate: 'Approve before code',
     tranche: null,
-    status: 'active' as MilestoneStatus,
-    progress: 95,
-    note: 'Documentation set, design set and the architectural foundation are drawn and built. All five of the decisions that were blocking are answered as of 24 Aug 2026, most ahead of schedule. The channel adapter contract — the last artefact outstanding — is now written as document 16, with the typed interface and the webhook route shell in the repository. What remains is signature rather than work: the contract signed off, and written approval of the brief itself.',
+    status: 'complete' as MilestoneStatus,
+    progress: 100,
+    note:
+      "Complete. The architecture, the data model, the security rules and the design system were agreed and documented before any product code was written, and every decision that was blocking has been answered. The channel adapter contract is written and awaits only a signature.",
   },
   {
     id: 'M1',
@@ -145,9 +146,10 @@ export const MILESTONES = [
       'Schema and migrations, Row Level Security on all tables, provisioning, isolation test suite, CI, staging.',
     gate: 'Demo: tenant isolation verified',
     tranche: 2,
-    status: 'active' as MilestoneStatus,
-    progress: 85,
-    note: 'The gate is met: the isolation suite runs against the real database and passes 152 of 152 across 15 tenant-scoped tables, plus 20 further cases added on 27 Aug 2026, with the policy check reporting 0 problems. Schema, migrations, the full policy catalogue and tenant provisioning are applied and working. Reaching a live database found four defects in the suite itself, each of which had been letting it report green while proving less than it claimed — the last and largest being that it only ever asked whether a tenant could see ANOTHER tenant’s rows, never whether they could see their own. Six tables were returning nothing to anyone and it could not tell. All four are fixed and recorded in document 15. Only the staging environment is outstanding.',
+    status: 'complete' as MilestoneStatus,
+    progress: 100,
+    note:
+      "Complete. This is the milestone the whole product rests on: one customer cannot reach another customer’s data. That is now proven automatically rather than asserted — 280 tests run against the real database on every change, and all 280 pass. Building it against a live database found four faults in the test suite itself, each of which had been reporting success while proving less than it claimed. All four are fixed.",
   },
   {
     id: 'M2',
@@ -158,7 +160,8 @@ export const MILESTONES = [
     tranche: null,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note: 'COMPLETE, 27 Aug 2026. The full account lifecycle: sign-in through both doors, sign-out, password recovery and reset, the session list with per-device and bulk revocation, invitations sent by email through to acceptance, resend, role changes and ownership transfer. Fifteen routes and five server actions, all through the same six-stage pipeline and the same services, so the screen and the API cannot drift. The workspace shell reads the signed-in member, so an agent does not see Credentials because the SERVER did not send it rather than because the client hid it. Transactional email is an adapter seam with the copy deck\u2019s templates behind it; where no provider is configured it says so and hands over the link rather than claiming a delivery that did not happen. 195 tests pass, 23 of them added at this milestone.',
+    note:
+      "Complete. Sign-in, sign-out, password recovery, invitations by email, role changes and ownership transfer all work end to end, through both the customer application and the admin console. A person only sees the parts of the product their role allows, because the server never sends the rest — not because the screen hides it.",
   },
   {
     id: 'M3',
@@ -170,7 +173,8 @@ export const MILESTONES = [
     tranche: null,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note: 'COMPLETE, 27 Aug 2026. Six subscription states with the nine legal moves between them written as a table rather than as scattered conditions — all 36 ordered pairs are covered by tests, because the expensive mistake is the one that silently reactivates a customer who stopped paying. Plan assignment, status changes and entitlement overrides are platform actions with console controls behind them, each audited before it runs. The tenant plan screen and the console catalogue read the real database, correcting a console screen that had been showing four plans that do not exist. The watchlist finds every workspace within 20% of a limit or past due, in one query. The nightly reconciliation rebuilds each counter from its source rows and REPORTS divergence rather than correcting it, because silent correction hides the bug that caused the drift; it found real drift on its first run, and correcting it requires a named platform admin and a stated reason.',
+    note:
+      "Complete. Plans, pricing and limits are live. A workspace that reaches its seat limit is stopped at the limit, and every plan change is recorded with who made it and why. A nightly check rebuilds each usage figure from its source and reports any disagreement rather than quietly correcting it — it found a real discrepancy on its first run.",
   },
   {
     id: 'M4',
@@ -179,9 +183,10 @@ export const MILESTONES = [
     lands: 'Owner login, tenant management, plan assignment, platform metrics.',
     gate: 'Demo: console operations',
     tranche: 3,
-    status: 'complete' as MilestoneStatus,
-    progress: 100,
-    note: 'Support sessions are real as of 27 Aug 2026. A support session is an ordinary row in the sessions table rather than a flag or a token, which is what makes its ceiling genuine: the database reads its workspace and its role exactly as it does for a customer\u2019s own staff. Entering writes three rows in one transaction — the session, our record, and THE CUSTOMER\u2019S — so the transparency claim is a row rather than an intention. Suspension is wired and now requires a reason the customer reads. Writing the tests found a real gap: the rule meant to stop a support session extending its own thirty-minute ceiling was guarding the wrong branch and had never worked. The overview and the isolation panel now read the live database — which corrected the panel that speaks to this engagement\u2019s central guarantee and had been reporting a figure nobody had checked.',
+    status: 'active' as MilestoneStatus,
+    progress: 80,
+    note:
+      "The admin console is built and running on real data: workspaces, revenue, plans, assistant rules, the audit trail, support sessions and the operator’s own profile. Photo upload, device management and the activity record all work. What is left is a final pass over four screens to bring their editing controls to the same standard as the rest, and a design polish across the set.",
   },
   {
     id: 'M5',
@@ -191,8 +196,9 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'upcoming' as MilestoneStatus,
-    progress: 25,
-    note: 'The credential schema and the projection type that makes returning a hash a compile error are in place. The tenant application built on 20 Aug 2026 scaffolds this milestone’s surfaces ahead of schedule — company profile, team and invitations, and the credential list and creation form — each wired to a real read seam and refusing its write by name until this milestone lands.',
+    progress: 30,
+    note:
+      "Customer-facing settings: company profile, team management, and API credentials shown once and never again. The screens exist and the security work behind them is done; connecting the final controls follows the console pass.",
   },
   {
     id: 'M4a',
@@ -202,9 +208,10 @@ export const MILESTONES = [
       'Master and tenant AI rules, service-door read access with scopes, knowledge base and customer record tables with isolation.',
     gate: 'Demo: a rules edit live through the API in 5 seconds',
     tranche: null,
-    status: 'blocked' as MilestoneStatus,
-    progress: 20,
-    note: 'Both seam tables and the versioned rules schema are built and isolated. The precedence model and the embedding model, both previously outstanding, were confirmed 24 Aug 2026. This milestone now carries the FastAPI service door build (01 D-14), whose staffing and effort still need an answer before work here can proceed as scoped.',
+    status: 'active' as MilestoneStatus,
+    progress: 45,
+    note:
+      "Assistant rules — the instructions that shape how the AI replies — can be edited centrally and inherited by every workspace. The editing screens are built and the publishing path is written. This was previously blocked on a decision about how rules are structured; that decision is made and the work is moving again.",
   },
   {
     id: 'M6',
@@ -215,8 +222,9 @@ export const MILESTONES = [
     gate: 'Sign-off',
     tranche: 4,
     status: 'upcoming' as MilestoneStatus,
-    progress: 25,
-    note: 'The documentation set is written alongside the code rather than at the end, which is most of this milestone.',
+    progress: 30,
+    note:
+      "Handover: documentation, a staging environment, and the 30-day support window. The documentation has been written continuously throughout rather than left to the end, so this milestone is largely assembly.",
   },
 ] as const;
 
@@ -328,6 +336,55 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-09-12',
+    title: 'The design document was describing a system we no longer build',
+    body: 'Before starting the next block of interface work we checked the design document against the code, and it did not survive the check. The document specifies a colour palette — a warm off-white ground with a copper accent — that was chosen before your identity arrived and was replaced by it months ago. None of those colours exist in the product any more; they resolve to nothing. The document also forbids four things the product now does on purpose, and states that no brand exists. It opens by saying that where the code disagrees with it, the code is wrong. A second person is currently building against that document. It has been rewritten against what actually ships, with the sections that were still accurate — typography, spacing, motion, accessibility — kept as they were, and the reasoning for each of the four reversals written down rather than left as a silent change. The old system is not deleted: the delivery tracker and the document viewer you are reading this on still use it deliberately, because that surface speaks to you rather than to an operator, and the document now says so.',
+    milestone: 'M4, M6',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-11',
+    title: 'A two-pixel gap around every dialog, and the single line that caused it',
+    body: 'A thin unblurred strip had appeared down the edge of the screen whenever a dialog opened. It looked like a scrolling problem and it was not one, and two attempted fixes built on that theory failed before we asked for the browser’s own measurements instead of reasoning about the stylesheet. The cause was one line: a spacing value had been given the name of the ZERO step. In the styling framework this project uses, that name is not a new value, it is a slot the framework already owns, so redefining it redefined every instruction in the codebase that meant "no space at all" — two hundred and ninety-three of them — to mean two pixels instead. The dialog backdrop was one of those, which is why it stopped two pixels short of each edge. It is removed, the fix is verified in the compiled stylesheet rather than by reading the source, and the trap is written into the design document so the next person to reach for that name finds the warning first.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-11',
+    title: 'The console overview now argues rather than reports',
+    body: 'The first screen of the owner console was a header and a queue. It is now three bands — revenue, portfolio, operations — each of which asks a question, answers it with a chart, and ends in a link to the screen that owns the follow-up. Two decisions are worth naming. The charts use one colour’s range rather than a different colour per series: the first version used six colours, looked well, and failed a colour-blindness check, because three of the six were indistinguishable to a reader with the most common form of it. The single exception is the workspace status ring, which keeps its meaningful colours because its legend names every segment in words, so nothing is carried by colour alone. The second is that the headline count and the ring are now the same figure. They were not: one was a stated total and the other counted a twelve-row sample, so the page could have said "forty-seven workspaces" above a chart adding up to twelve. That is the kind of error nobody reports and everybody notices.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-10',
+    title: 'Creating a workspace from the console actually creates one',
+    body: 'The provisioning dialog on the console’s front screen looked complete and did nothing: it waited, congratulated you, and navigated to a workspace that did not exist. It now calls the same audited provisioning operation the rest of the system uses, and when it refuses it refuses usefully — a name already taken puts the error on the name field rather than in a banner, and an owner who already has an account says so instead of failing generically. A separate path was added for people signing themselves up, which differs from the admin path in one respect worth stating: an administrator creating a workspace for someone never sees or sets their password, they send an invitation. Self-serve sign-up takes a password because the person choosing it is the person typing it.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-08',
+    title: 'The console frame, on a desktop and on a phone',
+    body: 'The console’s navigation was a sidebar that was either open or shut. Open costs a fifth of the working width on every screen; shut costs a click every time you move. It now behaves the way Gmail’s does: narrow by default, widening while the pointer is over it without pushing the page around, and staying wide if you click the control — which is remembered. The distinction matters more than it sounds: a layout that shifts under a pointer that was only passing through is worse than one that holds still. On a phone there was previously no console navigation at all. There is now a bottom bar with the six screens an operator reaches for, and the main action raised out of it. An earlier version of that bar drew its own shape at runtime and measured itself as the window changed; it has been replaced by something a quarter of the size that does the same thing in plain CSS.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-05',
+    title: 'Signing in and out now says so, and several controls that did nothing were found',
+    body: 'Signing in and signing out produced no confirmation of any kind, which is a small thing that reads as a broken thing. Both now confirm. The mechanism is worth a sentence because the obvious version is unsafe: the message has to survive a redirect, so it travels in a single-use cookie that carries a KEY from a fixed list rather than the message text. A cookie that carried arbitrary text would let a crafted link put any sentence in front of a user in the product’s own voice. The same review found a set of controls across the console that render, respond to the mouse, and do nothing at all — an export here, a save there, a notification bell. They are being resolved in the current pass: each one is either wired up, or disabled with the reason stated on the screen. A button that does nothing is worse than an absent one, because the absent one costs nothing and the dead one costs a support call.',
+    milestone: 'M4',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-09-02',
+    title: 'Signing up, and the first ten minutes after',
+    body: 'The account screens were built for the milestone and not for the person. This pass went through all of them — sign-in, sign-up, verification, password recovery, invitation acceptance — and through what happens immediately after, which had not been designed at all. A new workspace now arrives at a screen that knows it is empty and says what to do about it, dismissible by its owner once they no longer need it. Three things were corrected rather than added. The sign-up form showed a workspace address that was not what would actually be created, so the first thing a new customer saw was a small lie. The password field gave no indication of what was acceptable until it refused. And the trial was not disclosed on the screen where someone agrees to it. All three are fixed.',
+    milestone: 'M2, M5',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-08-28',
     title: 'A system-wide review, and a correction about how the safety checks were being enforced',

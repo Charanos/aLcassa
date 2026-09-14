@@ -1,9 +1,11 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { IconDownload } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
+import { ConsoleHeader, ConsolePage, ExportLink, Panel } from '@/components/console/Surface';
 import { AuditStream } from '@/components/console/AuditStream';
-import { getAuditEntries } from '@/lib/console/data';
-import { getLiveAuditEntries } from '@/lib/console/liveWorkspaces';
+import { VolumeBand } from '@/components/console/audit/VolumeBand';
+import { getAuditEntries, getAuditVolume } from '@/lib/console/data';
+import { getLiveAuditEntries, getLiveAuditVolume } from '@/lib/console/liveWorkspaces';
 
 export const metadata: Metadata = { title: 'Audit log' };
 
@@ -16,6 +18,23 @@ export const metadata: Metadata = { title: 'Audit log' };
  * `withAudit()` and the append-only policy — no UPDATE, no DELETE — and it is
  * worth stating on the surface, because a log a reader is not sure is complete
  * is a log they will not rely on in a dispute.
+ *
+ * ⚠ THE VOLUME BAND HAS ITS OWN SUSPENSE BOUNDARY, and that is the reason it
+ * is a separate async component rather than a tidiness preference.
+ *
+ * `09 §8` commits to panels streaming independently. The stream is why somebody
+ * opened this page; the thirty-day aggregate is context. They are two queries,
+ * and the aggregate is the expensive one — a `generate_series` joined against
+ * every audit row in the window. Awaiting both before the first byte would make
+ * the answer wait on the context. So the band reads inside its own boundary and
+ * the stream paints as soon as it is ready.
+ *
+ * ⚠ THE TWO SECTIONS DO NOT SHARE FILTER STATE, which is a stated limit rather
+ * than an oversight. Brushing the histogram to scope the stream needs both
+ * inside one client boundary, which would push the whole page — every entry
+ * included — into the browser. The stream already filters by kind and by free
+ * text, which covers what a brush would select. If the brush is wanted later it
+ * is a client parent around both, not a tweak to either.
  */
 export default async function AuditPage() {
   /**
@@ -35,18 +54,16 @@ export default async function AuditPage() {
             it, so an action that is missing from this log did not happen.
           </p>
         </div>
-        <button
-          type="button"
-          className="t-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap"
-          style={{
-            border: '1px solid var(--border-strong)',
-            background: 'var(--surface-raised)',
-            color: 'var(--text-primary)',
-          }}
-        >
+        <ExportLink resource="audit">
           <IconDownload size={15} stroke={1.5} aria-hidden />
-          Export range
-        </button>
+          Export
+        </ExportLink>
+      </div>
+
+      <div className="mt-7">
+        <Suspense fallback={<VolumeSkeleton />}>
+          <VolumeSection />
+        </Suspense>
       </div>
 
       <AuditStream entries={entries} />
@@ -56,5 +73,50 @@ export default async function AuditPage() {
         shows that the secret moved; it never shows the secret.
       </p>
     </ConsolePage>
+  );
+}
+
+/**
+ * The band's own async component.
+ *
+ * ⚠ SUSPENSE NEEDS SOMETHING THAT SUSPENDS. A boundary wrapped around an
+ * already-awaited value boundaries nothing: the await would have happened in
+ * the parent, the fallback would never render, and the page would still wait.
+ * Moving the read in here is what actually lets the stream paint first.
+ */
+async function VolumeSection() {
+  const points = (await getLiveAuditVolume()) ?? (await getAuditVolume());
+  return <VolumeBand points={points} />;
+}
+
+/**
+ * ⚠ THE SKELETON IS THE BAND'S SHAPE, NOT A SPINNER. `03 §15`: an opacity
+ * pulse at the size of the thing arriving, so nothing below it jumps when the
+ * real band lands.
+ */
+function VolumeSkeleton() {
+  return (
+    <section className="mb-8" aria-busy="true">
+      <div className="mb-6 h-7" />
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
+        <Panel title="Actions per day" variant="elevated">
+          <div
+            className="h-[168px] w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[12px] motion-reduce:animate-none motion-reduce:opacity-70"
+            style={{ background: 'var(--surface-inset)' }}
+          />
+        </Panel>
+        <Panel title="In the window" variant="elevated">
+          <div className="grid gap-3">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="h-8 w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[8px] motion-reduce:animate-none motion-reduce:opacity-70"
+                style={{ background: 'var(--surface-inset)' }}
+              />
+            ))}
+          </div>
+        </Panel>
+      </div>
+    </section>
   );
 }

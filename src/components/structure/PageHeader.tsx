@@ -10,7 +10,7 @@ type PageHeaderProps = {
 
 export function PageHeader({ title, description, breadcrumbs, actions }: PageHeaderProps) {
   return (
-    <div className="mb-8 border-b border-[var(--rule-base)] pb-6">
+    <div className="mb-8 border-b border-[var(--border-subtle)] pb-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="flex flex-col gap-2">
           {breadcrumbs && breadcrumbs.length > 0 && (
@@ -18,10 +18,10 @@ export function PageHeader({ title, description, breadcrumbs, actions }: PageHea
               <Breadcrumb items={breadcrumbs} />
             </div>
           )}
-          <h1 className="t-title text-[var(--ink-primary)]">{title}</h1>
+          <h1 className="t-title text-[var(--text-primary)]">{title}</h1>
           {description && (
             <p
-              className="t-body text-[var(--ink-secondary)]"
+              className="t-body text-[var(--text-secondary)]"
               style={{ maxWidth: 'var(--measure-body)' }}
             >
               {description}

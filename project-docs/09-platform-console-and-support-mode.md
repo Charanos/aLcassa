@@ -203,3 +203,67 @@ Nothing is hidden. That transparency should be stated in the marketing copy and 
 | Health page, all panels | under 2s, panels stream independently |
 
 Grids virtualise above 100 rows. Every panel on the overview and health pages has its own Suspense boundary, so a slow metrics query never holds up the attention band.
+
+---
+
+## 9. The console shell, as built
+
+**Added 12 Sep 2026.** §1 describes the console's posture and §2 its surfaces. This section describes the frame both sit inside, which was rebuilt between 1 and 12 Sep and is not what the earlier sections assume.
+
+### The rail has three states, not two
+
+A collapse control that toggles between "open" and "shut" forces a choice a person does not want to make: open costs 248px of working width on every screen, shut costs a click every time they navigate. Gmail's answer is the right one and this is it.
+
+| State | Trigger | Width | Reflows content |
+| --- | --- | --- | --- |
+| `collapsed` | Default | 60px | — |
+| `peeking` | Pointer enters the rail | 248px, overlaid | **No** |
+| `locked` | The collapse control is clicked | 248px | **Yes**, and persisted |
+
+Peek overlays rather than reflows, deliberately. A layout that moves under a pointer that was only crossing the rail on its way somewhere else is worse than one that stays still. Lock reflows and persists, because a person who clicked the control meant it.
+
+`Escape` closes a peek and returns focus to whatever opened it. The header closes its own menus on blur.
+
+### The rail floats
+
+12px inset from the chrome edge, 20px radius, 60px collapsed and 248px open. These are the four numbers the shell and the mobile navigation share, and they are constants in one place because they drifted twice when they were not.
+
+It reads as an object standing on the page rather than a panel ruled into it. That is the one place the radius ceiling in `03 §20` is exceeded on purpose.
+
+### Mobile is not read-only
+
+`§1` says "mobile read-only". That was true when it was written and is no longer the posture. Below `md` the rail is replaced by a bottom bar carrying the six surfaces an operator reaches for on a phone, with the primary action raised out of the bar as a ringed circle — the ring being the chrome ground itself, so the control reads as punched through the bar rather than sitting on it.
+
+What a phone cannot do is unchanged and is a matter of the operations themselves, not the navigation: support-mode entry still wants a desktop, and the data grid still wants width.
+
+### The command palette
+
+`Cmd/Ctrl + K`. A combobox with the full ARIA contract — `role="combobox"`, `aria-expanded`, `aria-activedescendant` — arrow keys to traverse, `Enter` to run, `Escape` to close and return focus.
+
+It remains the accessible route to any action buried in a toolbar, which is a commitment in `03 §17` rather than a convenience.
+
+### Flash across a redirect
+
+Sign-in, sign-out and workspace creation all end in a `303`, and a toast cannot survive one in component state. A single-use cookie carries a **key from a closed catalogue** — never a message string — and is burned before the toast fires. A closed catalogue means an open redirect cannot be turned into an arbitrary message in the product's own voice.
+
+---
+
+## 10. Surface inventory
+
+Current as of 12 Sep 2026. `17 §1` carries the density and wiring audit for each of these.
+
+| Route | Reads | Notes |
+| --- | --- | --- |
+| `/platform` | live | The banded reference surface |
+| `/platform/tenants` | live | Client-side filtering; reversal point stated at ~1,000 rows |
+| `/platform/tenants/[id]` | live | Six tabs |
+| `/platform/tenants/new` | live | Provisioning, real server action |
+| `/platform/revenue` | designed | No gateway in Phase 1; the screen says so |
+| `/platform/health` | designed, isolation live | Isolation is live because it is answerable and it is the guarantee |
+| `/platform/plans` | live | The catalogue and the entitlement matrix |
+| `/platform/admins` | designed | `platform_admins` exists and is unread. `17 §5` |
+| `/platform/audit` | live | Append-only |
+| `/platform/ai-rules` | designed | Versions table exists and is unsurfaced. `17 §5` |
+| `/platform/support-sessions` | live | |
+| `/platform/settings` | designed | No platform-settings table. Deferred, `17 §10` |
+| `/platform/profile` | designed | |

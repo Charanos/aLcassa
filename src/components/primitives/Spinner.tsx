@@ -23,7 +23,7 @@ export function Spinner({ size = 'md', label = 'Loading' }: SpinnerProps) {
         stroke={1.5}
         aria-hidden
         className="animate-spin motion-reduce:animate-none"
-        style={{ color: 'var(--copper-solid)', animationDuration: '900ms' }}
+        style={{ color: 'var(--blue-500)', animationDuration: '900ms' }}
       />
       <span className="visually-hidden">{label}</span>
     </span>
@@ -39,7 +39,7 @@ export function InlineLoader({ label = 'Loading' }: { label?: string }) {
   return (
     <div role="status" aria-busy="true" className="flex items-center gap-2.5">
       <Spinner size="sm" label="" />
-      <span className="t-compact text-[var(--ink-tertiary)]">{label}</span>
+      <span className="t-compact text-[var(--text-tertiary)]">{label}</span>
     </div>
   );
 }

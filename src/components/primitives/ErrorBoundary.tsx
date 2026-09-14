@@ -61,19 +61,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       this.props.fallback ?? (
         <div
           className="rounded-panel border p-5 text-center"
-          style={{ borderColor: 'var(--oxide-rule)', background: 'var(--oxide-tint)' }}
+          style={{ borderColor: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))', background: 'var(--red-100)' }}
         >
           <IconAlertTriangle
             size={20}
             stroke={1.5}
             aria-hidden
             className="mx-auto"
-            style={{ color: 'var(--oxide-ink)' }}
+            style={{ color: 'var(--red-500)' }}
           />
-          <p className="t-compact mt-2" style={{ color: 'var(--oxide-ink)' }}>
+          <p className="t-compact mt-2" style={{ color: 'var(--red-500)' }}>
             {this.props.label ? `${this.props.label} did not load.` : 'This did not load.'}
           </p>
-          <p className="t-caption mt-1 text-[var(--ink-tertiary)]">
+          <p className="t-caption mt-1 text-[var(--text-tertiary)]">
             The rest of the page is unaffected.
           </p>
           <Button variant="secondary" size="sm" className="mt-4" onClick={this.reset}>

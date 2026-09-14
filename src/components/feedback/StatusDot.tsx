@@ -9,10 +9,10 @@ export type StatusDotProps = {
 export function StatusDot({ status, label, size = 'sm' }: StatusDotProps) {
   const sizeClass = size === 'sm' ? 'w-2 h-2' : 'w-2.5 h-2.5';
 
-  let bgClass = 'bg-[var(--graphite-solid)]';
-  if (status === 'operational') bgClass = 'bg-[var(--verdigris-solid)]';
-  if (status === 'degraded') bgClass = 'bg-[var(--ochre-solid)]';
-  if (status === 'down') bgClass = 'bg-[var(--oxide-solid)]';
+  let bgClass = 'bg-[var(--ink-500)]';
+  if (status === 'operational') bgClass = 'bg-[var(--green-500)]';
+  if (status === 'degraded') bgClass = 'bg-[var(--amber-500)]';
+  if (status === 'down') bgClass = 'bg-[var(--red-500)]';
 
   const dot = (
     <div
@@ -27,7 +27,7 @@ export function StatusDot({ status, label, size = 'sm' }: StatusDotProps) {
   return (
     <div className="flex items-center gap-2">
       {dot}
-      <span className="t-compact text-[var(--ink-secondary)]">{label}</span>
+      <span className="t-compact text-[var(--text-secondary)]">{label}</span>
     </div>
   );
 }

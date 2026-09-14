@@ -192,8 +192,10 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
           action={
             <button
               type="button"
+              disabled
+              title="Membership changes happen inside the workspace, through a logged support session."
               className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-white transition-all active:scale-95"
-              style={{ background: 'var(--blue-500)' }}
+              style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
             >
               <IconUserPlus size={14} stroke={1.5} />
               Invite Member
@@ -395,9 +397,10 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                     <td className="px-3 py-3.5 text-right">
                       <button
                         type="button"
+                        disabled
+                        title="Membership changes happen inside the workspace, through a logged support session."
                         className="rounded-md p-1 transition-colors hover:bg-[var(--surface-inset)]"
-                        style={{ color: 'var(--text-tertiary)' }}
-                        title="Member actions"
+                        style={{ opacity: 0.45, cursor: 'not-allowed', color: 'var(--text-tertiary)' }}
                       >
                         <IconDotsVertical size={14} stroke={1.5} />
                       </button>

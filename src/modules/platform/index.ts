@@ -21,6 +21,22 @@ installPlatformAuditWriter();
 export { provisionTenant } from './internal/provisioning';
 
 /**
+ * IA §3 · `/sign-up`. The public registration path. It lives in this module
+ * for one reason: it creates a tenant, and creating a tenant is a service-role
+ * operation because there is no tenant yet for a context to resolve to. The
+ * import guard in `eslint.config.mjs` keeps that reach inside this boundary.
+ *
+ * See `internal/selfServeSignUp.ts` for why it is NOT `provisionTenant` with
+ * an extra argument.
+ */
+export {
+  selfServeSignUp,
+  selfServeSignUpSchema,
+  type SelfServeSignUpInput,
+  type SelfServeSignUpResult,
+} from './internal/selfServeSignUp';
+
+/**
  * 08 §7 · 08 §9. Subscription administration. Every one of these is a
  * service-role call, audited before it runs — see the file for why they are
  * on this side of the module boundary rather than in `modules/subscriptions`.
@@ -60,3 +76,10 @@ export type { TenantStatus } from './internal/tenancy';
 export { provisionTenantSchema, slugSchema, RESERVED_SLUGS } from './types';
 
 export type { ProvisionTenantInput, ProvisionTenantResult } from './types';
+
+/**
+ * 05 §9. A platform action that did not bypass Row Level Security — an export,
+ * for instance. See the file for why it is separate from the `asService`
+ * writer rather than a flag on it.
+ */
+export { recordPlatformAction } from './internal/audit';

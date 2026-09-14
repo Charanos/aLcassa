@@ -1979,3 +1979,929 @@ The first version of that scan matched `from '…'` inside comments and string
 literals, and reported `not signed in` and `99.82% because it wobbles every
 third day` as missing packages. It is anchored to line-initial import
 statements now: a checker that cries wolf is a checker somebody switches off.
+
+---
+
+## C44 · Document 03 specified a design system that no longer exists
+
+**12 Sep 2026. The document was wrong; it has been rewritten.**
+
+`03-design-system.md` opens with *"this document is the authority on every
+visual decision. If code disagrees with this file, the code is wrong."* It then
+specified, in §2, a palette that is defined nowhere in the codebase:
+`--copper-*`, `--graphite-*`, `--sheet-*` and a full `[data-theme='dark']`
+inversion. None of them resolve. `tokens.css` states in its own header that the
+client identity handoff *"supersedes the previous token system in full"*, and it
+does — the shipped system is `--brand-blue #043AE1` on `--brand-cream #FBFDF4`
+with `--brand-orange #FA5505` as a budgeted accent, one theme, no inversion.
+
+Four further contradictions, all of them cases where the document forbade
+something the product ships deliberately:
+
+| §20 forbade | The product ships | Resolution |
+| --- | --- | --- |
+| Gradients | The chrome tier's navy-into-obsidian sweep | Permitted on the chrome tier only |
+| Glassmorphism | `--glass-*`, on layered surfaces | Permitted, budget of three composited |
+| Shadows on cards | `--shadow-sm` on panels | Permitted; `--shadow-lg` reserved for overlays |
+| Radius above 6px | The floating rail at 20px | Permitted for objects, not for ruled panels |
+
+§22 stated *"there is no brand"* and specified a placeholder mark in
+`--copper-600`. The identity exists and `docs/BRAND.md` is its authority.
+
+Four passages also carried a find-replace artefact from the Conduit → aLcassa
+rename — "the copper aLcassa", "a aLcassa passing through a boundary" — in `03`
+and in `13`.
+
+**What was kept.** §5 to §19 and §21 were reviewed and retained; their token
+names were swept onto the shipped semantic tokens. The typography system, the
+one-weight rule, the space and radius scales, motion, the component tiers,
+forms, the data grid, accessibility and print were all still accurate.
+
+**What was added.** §4a (the accent budget) and §4b (the tenant accent's four
+surfaces) exist because `globals.css` already cited both by those numbers and
+neither section existed. §23 (the chrome tier), §24 (the chart contract) and
+§25 (scroll surfaces) document behaviour that was built and undocumented.
+
+**What is NOT drift.** The copper-on-vellum vocabulary survives in the
+presentation tier — the delivery tracker and the document viewer — because that
+surface addresses the client rather than an operator, and the drafting-document
+voice is correct for it. The tone names there are labels mapped onto current
+tokens; no superseded token is resolved. The document now says so rather than
+leaving it to look like a leftover.
+
+---
+
+## C45 · `--spacing-0: 2px` redefined the zero step across 293 usages
+
+**11 Sep 2026. The line is removed.**
+
+In Tailwind v4 an `@theme` key is a slot in a namespace the framework owns, not
+a variable being declared. `--spacing-0: 2px` therefore redefined the **zero
+step** of the spacing scale and every utility built from it: 45 `inset-0`, 148
+`p-0`/`m-0`, 85 `top/left/right/bottom-0`, 13 `gap-0`. All 293 were written to
+mean nothing and rendered 2px.
+
+It presented as a 2px unblurred strip on every side of every modal backdrop,
+which reads as a scroll-lock or containing-block problem and is neither. Two
+fixes built on that theory — a `fixed inset-0` shell root, and an `html`
+background — were wrong and were reverted. The cause was found in one look at
+the computed box model the user supplied.
+
+Verified in the **built** CSS (`.inset-0{inset:0}`, no `-0` utility emitting
+2px), not by reading the source. The trap and its four rules are now `03 §19`.
+
+`--s-0: 2px` in the Tier 0 compat block is NOT the same defect and stays: it is
+a plain custom property aliased by nothing. The defect was mapping a compat
+name into a Tailwind namespace.
+
+---
+
+## C46 · Two components named `Badge`, on two grounds
+
+**12 Sep 2026. Both kept, both documented.**
+
+`components/feedback/Badge.tsx` carries the closed `tone` set from `03 §14` and
+renders on the cream page. `components/primitives/Badge.tsx`, added during the
+interface pass, takes an open `intent` and renders on the chrome tier.
+
+They are not duplicates: the chrome tier needs lightened status steps for the
+same reason `--chrome-action` is white rather than `--blue-500` — the page's
+muted status inks are unreadable on obsidian. The new one arrived carrying six
+hardcoded hex values, which is the defect `tokens.css` names in its own header.
+Those are now `--chrome-{success,warning,danger,info,brand}` plus badge and
+pill surface tokens, and the component reads them through `color-mix` so the
+rim and glow tints are tokens too.
+
+The naming collision is real and is the residual risk: two components named
+`Badge` distinguished only by import path. Renaming one is a coordination
+decision rather than a technical one, and is carried forward rather than taken
+unilaterally while a second agent is editing the same tree.
+
+---
+
+## C47 · The console's AI rules screen was drawn against a model the schema does not implement
+
+**12 Sep 2026. The schema wins; the screen changes shape in `17 §7`.**
+
+`RulesModel` in `lib/console/data.ts` describes three groups of boolean
+toggles, each with a `locked` flag, an `on` state and a per-group `authority`
+of enforced / floor / default.
+
+`master_ai_rule_versions.content` is a `RulesDocument`: six fields, five of
+them prose and one a list — `tone`, `responseGuidelines`, `businessInformation`,
+`escalationInstructions`, `prohibitedTopics`, `customInstructions`. There are no
+toggles and no groups. The **tenant-side** editor already speaks this
+vocabulary, with per-field lock and provenance.
+
+So the console and the tenant application were describing the same rule set in
+two incompatible shapes, and only one of them matches the table.
+
+**Resolution.** `getLiveMasterRules()` returns the document, its version number
+and status, and up to twenty historical versions. The console page is rewritten
+in Stage 3 to render fields rather than toggles, which also brings it into line
+with the tenant editor — the same rules described the same way on both sides of
+the inheritance boundary, which was the point of the feature.
+
+**What is genuinely lost.** The toggle model carried an idea the document does
+not: that `locked` and `on` are different properties, so a safety floor renders
+on a neutral track rather than as an enabled switch somebody could believe they
+turned on. That distinction is kept — it becomes a locked FIELD rather than a
+locked toggle, and `MasterRuleField.locked` carries it.
+
+**What was already wrong and is now visible.** The fixture reported version 24
+propagating to 47 workspaces, and `foundation.ts` claimed
+"locked-versus-enabled toggles, real-time propagation to 47 workspaces" as a
+built item. Publishing moves a pointer on an append-only table; it is not
+propagation, and the toggles were never built. Both are corrected.
+
+---
+
+## C48 · `platform_admins` has no role column, and no owner flag
+
+**12 Sep 2026. The roster reports what the table holds.**
+
+The admins screen was drawn against `AdminRole = 'owner' | 'platform_admin' |
+'support'`. The table carries no role: it has `display_name` and three
+capability booleans — `can_suspend_tenants`, `can_edit_master_rules`,
+`can_enter_support_mode` — and `resolvePlatformCore` gives every platform admin
+`role: 'owner'` in the RLS context regardless.
+
+`getLiveAdmins()` therefore **derives** a label from the capabilities and says
+so: full capability is `platform_admin`, anything narrower is `support`.
+
+**`owner` is never derived.** The available shortcut is to call the earliest row
+the owner. The earliest row is the earliest row. Treating creation order as
+authority is the same shape of defect that put "18 of 18 tables protected" on
+the isolation panel when the real figure was fifteen, on a screen read for the
+same reason this one is.
+
+Three further fields have no source and are reported as absent rather than
+filled:
+
+| Field | Why | Rendered as |
+| --- | --- | --- |
+| `mfa` | Lives in `auth.users`, behind the admin client, which is lint-guarded because it bypasses RLS | `null` → "MFA unknown", in tertiary ink, never amber |
+| `grantedBy` | Not stored | `—` |
+| Pending invitations | `invitations` is tenant-scoped and cannot express platform access | An empty panel that states why |
+
+`mfa` changed from `boolean` to `boolean | null` for this. Rendering unknown as
+"off" would put an amber warning against a colleague who may well have it on,
+and an amber chip on a security screen is a figure somebody acts on.
+
+---
+
+## C49 · The dead-control census, and what it actually found
+
+**12 Sep 2026. 29 reported, 25 real, 0 remaining.**
+
+Four of the twenty-nine were false positives: Radix `Trigger asChild` and
+`Close asChild` wrappers, where the handler sits on the parent rather than on
+the button. The census script now looks up one line before reporting.
+
+**`17 §6.2` was optimistic and is corrected here.** The plan estimated twelve
+controls that could simply call an existing audited operation, on the strength
+of `setTenantStatus`, `assignPlan`, `grantOverride` and the rest being built.
+They are built, and they are already wired — through `WorkspaceActions` and
+`subscription-actions.ts`. The dead controls on the tenant tabs are different
+operations, and most of them are ones the console **should not** perform:
+
+| Control | Why it is not wired |
+| --- | --- |
+| Invite Member, Member actions | Membership changes happen inside the workspace, through a logged support session. `09 §4` |
+| Configure channel, Reset override | Same ceiling: a change inside a customer's workspace |
+| Export a workspace's activity | Same ceiling, and more sharply — this is their log |
+| Add/Edit AI rule override | A workspace's own rules are theirs. The platform sets the floor, on `/platform/ai-rules` |
+| Connect channel, Ping channel | The channel runtime is Phase 2. The adapter contract exists; nothing sits above it |
+| Retry Charge, Update payment, Tax statement | No payment gateway in Phase 1. Revenue already states this |
+| Invite admin, Revoke invitation | `invitations` is tenant-scoped. Platform access is granted directly |
+| New plan | Catalogue and entitlement changes are migrations in Phase 1 |
+| Create/Revoke platform API key | Platform-level credentials are not a table |
+
+Each of these is now `disabled` with the reason on the control. **The stated
+reason is the part that makes it acceptable**: a greyed-out button with no
+explanation is a dead control that has also stopped admitting it.
+
+**What was wired:**
+
+- **Four export buttons → one route.** `/api/platform/export/[resource]`, a
+  closed catalogue, admin-gated, audited with `usedServiceRole: false` because
+  it reads through RLS like anything else. `recordPlatformAction` is new and is
+  the only other function permitted to write `platform_audit_log`.
+- **Profile.** Renaming yourself, ending one session, ending every session but
+  this one. Three real writes on a screen that had none.
+- **Audit stream.** "Load older entries" now reveals more of the set it already
+  holds, and says how many remain. The label no longer implies a fetch.
+
+**One control was REMOVED rather than disabled.** The per-admin kebab menu: a
+menu with nothing in it is the case a disabled state cannot rescue, because the
+affordance itself is the promise. The row now shows the date access was
+granted, which is the fact a reader of an access register wants.
+
+### Two fake saves, both corrected
+
+Neither was in the census, because both had handlers. They were worse than the
+dead buttons.
+
+`ProfilePanel.save()` set "Saved." on a timer and wrote nothing. It now calls a
+server action and reports what happened.
+
+`SettingsPanel.save()` did the same, on a page whose own lede warns that a typo
+there reaches every workspace's customers. Platform settings have no store
+(`17 §10.3`, deferred), so the control is now disabled and the footer says
+"Not yet saved anywhere" instead of turning green. **Being told a change landed
+and finding the old value later is worse than a button that does nothing**, and
+on this page it is worse by a wide margin.
+
+### C47 addendum · the toggle model is deleted, not left unreferenced
+
+**12 Sep 2026.** `RulesEditor.tsx` (517 lines), and `Rule`, `RuleGroup`,
+`RulesModel` and `getMasterRules()` in `lib/console/data.ts` (167 lines), are
+removed.
+
+Leaving them in place was the tempting option: the editor is careful work, it
+renders well, and deleting it costs something. It was the wrong option. A read
+model for a shape the database does not have is not dead code, it is a **trap**
+— the next person who needs master rules finds a complete-looking model with a
+matching component and builds against it, and discovers the mismatch after the
+work rather than before it. Git history keeps both.
+
+The distinction worth preserving from the toggle model survived the change:
+`locked` and "has a value" are different properties. A locked field is a floor
+a workspace may tighten and never loosen; an empty field means the platform
+says nothing and the workspace decides alone. Rendering an empty field as
+"off" would claim the platform had made a choice it has not made.
+`rules/RuleFields.tsx` carries both states and the reasoning.
+
+Two figures on the inheritance panel also went, and their absence is the
+point. "Workspace overrides: 12 active" and "conflicts blocked: 4 this month"
+were drawn numbers with no source. Overrides become countable once tenant rule
+rows exist; blocked conflicts are **not counted anywhere at all** — the
+rejection happens at save time in the tenant's own console and nothing records
+it. The screen that explains the platform's authority over a customer's
+assistant is the worst place in the product to invent a figure, so it now says
+they are not counted.
+
+---
+
+## C50 · The overview's queue and rail, refined · 12 Sep 2026
+
+The first section taken through `18`, the refinement playbook — which was written
+by doing this and records what the work actually needed.
+
+### `StatusBadge` held colour; it now reads tokens
+
+Forty-five raw Tailwind palette classes and twenty-one `rgba()` literals, one
+set per tone per ground. The cost was not tidiness: it put a **second green in
+the product**. A badge reading "healthy" in Tailwind's emerald, beside a meter
+reading healthy in `--success-fg`, is two greens for one meaning.
+
+Six tones now resolve through Tier-3 `--badge-*`, themselves derived from the
+semantic scale. **The appearance changed and the direction is the point** —
+Tailwind's emerald, rose and amber are more saturated than this product's muted
+status scale, so the badges sit down slightly against the cream ground, which is
+the identity rather than a regression. A hotter register is now `--badge-tint`
+and `--badge-edge`, two numbers, rather than a rewrite.
+
+The icon stroke went from 2.2 to 1.75. At the system's weight ceiling of 500, a
+2.2 glyph was the loudest thing in a 20px chip.
+
+### `PlatformTelemetry` invented its own data
+
+A `METRIC_SPECS` map held every service's title, SLA target, gauge ratio and four
+detail rows — "p50 latency 44ms", "Edge cluster NBO-1", "Twilio SMS Gateway
+99.1%". None had a source. Three defects travelled with it:
+
+| Defect | Consequence |
+| --- | --- |
+| Keyed by the vital's `label` | Renaming a service silently dropped its whole spec |
+| Live reader returns `vitals: []` | A signed-in operator saw an **empty rail with no empty state**, while the review bypass saw four detailed services |
+| `rgba(73,128,252,.1)`, `#c084fc`, `text-emerald-500` | Raw colour, including a second green in the footer |
+
+`Vital` went from three fields to eleven, shaped as a probe would return it. The
+fixture holds the designed values; `lib/observability` fills the same shape at M6
+and the component does not change.
+
+**The footer is derived rather than declared.** It read "9 consecutive days
+incident-free · 99.98% composite SLA" — neither figure had a source. It now
+counts the vitals it was handed, which is a smaller claim, a true one, and one
+that cannot drift from the rows above it.
+
+Two accessibility defects went with the rewrite. Collapsed details used
+`max-h-0 opacity-0`, leaving four services' rows in the accessibility tree and
+the tab order — `hidden` now, which also removes the 120px clip. And the value
+was `v.value.split(' ')[0]`, which mangles any value containing a space; the
+figure and its unit are two fields, set at two sizes.
+
+### `LastActions` was ninety inline lines in `page.tsx`
+
+Extracted to its own server component, tokenised, and given the empty state it
+never had. A platform on its first day has done nothing; an empty panel with no
+words on the one surface whose claim is "an action missing from this log did not
+happen" reads as a failure to load.
+
+### The disabled reason truncated, twice
+
+Shipped inline beside the button to keep card heights equal. At the real column
+width it cut mid-sentence — "No payment gateway in Phase 1 — this reports, it
+does …" — and a `title` does not rescue it: a reader without a pointer gets
+nothing.
+
+**Uniform row height was the wrong thing to protect.** The cards already vary
+with how their prose wraps. The reason moved onto its own line with the card's
+full width, and the fixture's sentences were restored to their full length.
+
+### Typography, recorded late
+
+Both non-display faces changed during the front-end pass and `03 §5` still named
+the old ones. **UI: Libertinus Sans → DM Sans** — a book companion is not drawn
+for a 12px interface label, and the interface wants two weights where Libertinus
+Sans has one. **Data: Fira Code → Lilex** — both have tabular figures, but Fira
+Code's terminal drawing reads as "code editor" beside a book serif, and mono
+carries every timestamp, audit action, count, slug and meta line on the screen.
+The weight ceiling of 500 is unchanged and is why either swap was safe.
+
+---
+
+## C51 · The outstanding card, and a label that was false · 13 Sep 2026
+
+The revenue band's debt card, taken through `18`. Four defects, one of them in
+the data rather than the drawing.
+
+### "Oldest active debt" was not the oldest debt
+
+The card labelled `collections[0]` as the oldest. `collections[0]` is
+Kilimanjaro at **6 days**; Mombasa Freight sits further down at **94**.
+
+The order was right and the label was wrong. The list is ordered by what is
+worth chasing, and Mombasa is suspended with its collection attempts exhausted —
+a write-off decision rather than a call to make. The heading now reads **"Worth
+chasing first"**, which is what the ordering actually means.
+
+### "2 of 3 / 3"
+
+`Collection.attempts` is already the phrase `"2 of 3"`. The component appended
+`/ 3` to it. Visible on screen; the model says it once now.
+
+### Money with no unit
+
+`outstanding: '594k'` and `amount: '184,000'` named no currency anywhere. In a
+product priced in KES whose operator also reads USD invoices, that is a figure
+somebody can misread by two orders of magnitude. `RevenueModel` carries
+`currency` once — on the model rather than per amount, because the platform
+bills in one currency (`07 §1`) and repeating it per row is how two rows come
+to disagree.
+
+### The amount was a gradient that faded to invisible
+
+The headline figure was drawn with `background-clip: text` and
+`-webkit-text-fill-color: transparent`, fading white to 20% white. Three things
+wrong at once: it read as **disabled** on the most important number on the card,
+its tail failed contrast outright, and with no fallback the figure renders
+**invisible** wherever the clip is unsupported. A number nobody can read is not
+a style. It is solid `--chrome-fg` now.
+
+### Also
+
+The **invoice number was in the model and was not drawn** — the one string an
+operator quotes on the phone. The tile borrowed the hero's blue bloom and dot
+grid, spending the hero's signature twice on one page and tinting a card about
+unpaid money in the colour this system uses for *interactive*; it is one
+danger-tinted bloom now, no grid. Raw white alphas throughout became chrome
+tokens. The footer pairs became a `dl`. The `animate-ping` got its
+`motion-reduce` guard.
+
+### The stack
+
+Four of the five outstanding invoices were invisible until somebody opened
+Revenue. The card now shows the head expanded with the rest receding beneath it
+as collapsed pills, and a tail link for any past three.
+
+It **recedes downward, not upward**. The reference this was drawn from stacks
+collapsed cards above the expanded one, which reads as a menu and is right where
+they are alternatives. These are a queue in priority order, so reading order and
+priority order have to agree.
+
+**No new hue.** The reference is violet; blue is interactive here, orange is the
+accent, and the status inks carry state. The pills stay neutral because they are
+not the alarm.
+
+The deck is an affordance, not a structure: `ol`/`li` underneath in the same
+order, so the visual hierarchy and the read order cannot disagree. Server
+component — the narrowing, depth and hover lift are CSS and nothing hydrates.
+
+---
+
+## C52 · The debt deck's motion, and what the promotion broke · 13 Sep 2026
+
+The stacked card got a GSAP Flip interaction during the front-end pass: clicking
+a collapsed pill promotes it to face-up. The affordance is good — it inspects
+another debt without leaving the page — and three things about it needed work.
+
+### The motion read as clanky, and it was four separate causes
+
+| Cause | Effect |
+| --- | --- |
+| `duration: 0.5` | A ~90px move finishing noticeably after the click that caused it |
+| `ease: 'power3.out'` | Front-loads almost all the distance then crawls — the card appeared to arrive and keep settling |
+| `absolute: true` | Lifted every card out of flow, so the container collapsed mid-flight and the content below jumped twice |
+| `zIndex: 50` on all targets | Flattened their relative layering exactly while they crossed, which is when layering matters most |
+
+Plus `nested: true`, which walks a subtree per target and had no nested Flip
+containers to find, and an inline `scale()` on the flip target itself — a second
+author of the same property, which is why cards visibly snapped to size at the
+end of the move.
+
+Now 340ms, `power2.out`, no `absolute`, no `zIndex` tween, no `nested`, and the
+scale moved onto the pill so the flip target carries position only. It is also
+routed through `prefersReducedMotion` — the DOM has already re-rendered by the
+time the effect runs, so returning early leaves the reader on the correct end
+state instantly rather than on a shortened animation. `13 §2`.
+
+### The promotion made the heading lie
+
+The label says **"Worth chasing first"**. After a click it sat above whatever
+card was last selected, which is not the head of the queue.
+
+Rather than weaken the label into something vague, the deck now admits when it
+is not showing the top of the queue and offers the way back — a **"Top of
+queue"** control that appears only when the face-up card is not
+`collections[0]`. The pills keep their priority order throughout: promotion
+moves one card to the front and leaves the rest in their original relative
+order, so only which card is face-up ever changes.
+
+### Regressions restored
+
+The hero's blue bloom and dot grid had returned to the tile, along with
+`#060913`, five raw white alphas, `--danger-fg` on the near-black ground, and
+`hover:scale-[1.01]` on a card containing a 42px numeral — which resamples the
+figure on every frame and visibly softens it. All back to chrome tokens, one
+danger-tinted bloom, no scale. The file's own header still claimed it was a
+server component that ships no JavaScript; it is a client component now and says
+so, including what that costs.
+
+### Section sweep
+
+Both charts in the band plot money and neither named a currency. The unit now
+sits **on the panel, once** — prefixing every tick would produce "KES 0.0M ·
+KES 2.0M · KES 4.0M", four repetitions of a constant in the one place a reader
+scans for differences. The plan-mix figures carry it inline because they are
+prose rather than an axis.
+
+Also: `hover:bg-black/[0.015]` on the plan-mix rows became `--surface-sunken`
+like every other hover in the console, and the ageing copy lost "statistically"
+and a second-person "your cash flow" that did not match the console's voice.
+
+---
+
+## C53 · The overview's last two bands · 13 Sep 2026
+
+Portfolio and Operations through `18`, with no front-end pass in front of them.
+Both were already token-clean, so the findings were structural.
+
+### Two capacity meters that had begun to diverge
+
+The portfolio band held **two near-identical forty-line blocks** — seats and
+events. Seats drew in `--blue-400`, events in `--success-fg`, for no reason
+either meter could state: both show capacity consumed, and green does not mean
+"events".
+
+The duplication's cost is not the lines. It is that the next threshold change or
+accessibility fix lands in one and not the other, and nobody notices until the
+two disagree on screen about what "full" looks like.
+
+One `CapacityMeter` now, with **one encoding shared across all three capacity
+displays in the band** — blue in use, `--warning-fg` at `PRESSURE_THRESHOLD`,
+`--danger-fg` past 100. A series coloured by which metric it is rather than by
+how it is doing spends a meaning on nothing.
+
+It also gained the state it never had: a limit of zero produced **"NaN%"** and a
+bar of unknown width. An unbounded ceiling reads as a figure now, not a fault.
+
+### Three lists truncated silently
+
+Pressure rows at five, queues at four, both dropped the rest with no count. A
+platform with nine workspaces at a ceiling looked exactly like one with five —
+on the panel whose entire job is reporting pressure. Each now names what it is
+hiding and links to the surface that shows it all.
+
+### Bars told screen readers nothing
+
+Limit bars, capacity meters and pressure rows were all two divs — a track and a
+fill — with `aria-hidden` on the track, which actively removes the only figure a
+reader might have got. They are `role="meter"` now, with the value, the bounds,
+and a label naming **what the percentage is a percentage of**.
+
+### Empty states, where there had been none
+
+Seven added across the two bands. Two are worth naming because their copy is the
+design:
+
+- **"No support session has been opened"** is the best reading on that panel, not
+  an absence. This is an accountability ledger; an empty one means the platform
+  has not been inside a customer's workspace, which is the outcome the feature
+  exists to make visible.
+- **"Every workspace has headroom"** reads its threshold from
+  `PRESSURE_THRESHOLD` rather than restating it as prose, so the sentence and the
+  rows above it cannot drift apart.
+
+### The "designed" label moved onto the panels
+
+Three panels in Operations plot probe data that does not exist in Phase 1. A
+single note at the top of a section is read once and scrolled past; the label
+sits in each panel's action slot now, beside the figure at the moment somebody
+reads it.
+
+### Loading no longer grows the page
+
+`loading.tsx` skeletoned the header, signals, queue and rail, then the page
+**grew by three more bands** when the data landed — a scroll position that moves
+under the reader on every load. Both bands export a skeleton mirroring their own
+grid.
+
+### One thing done wrong and reverted in the same pass
+
+Removing an unused icon import, an `export const QUEUE_ICON = IconStack2` was
+briefly added to keep the import "used" — a fudge that turns a lint error into a
+public API. The import was deleted properly instead. Recorded in `18 §12`
+because it is an easy reflex.
+
+---
+
+## C54 · The portfolio band's refinement pass · 13 Sep 2026
+
+### The legend's dots went grey, and nothing caught it
+
+Consolidating the five status colours into one shared map put that map in
+`Charts.tsx` — a `'use client'` module — and imported it into a **server**
+component. React replaces every export of a client module with a
+client-reference proxy, so each lookup returned `undefined` and fell through to
+the neutral default.
+
+It typechecked, linted, built and rendered wrong. The legend is the only reason
+`03 §24` permits that donut semantic hues rather than a one-hue ramp, so the
+chart was in breach and nothing said so.
+
+`src/components/console/statusHue.ts` carries the map now, with **neither**
+directive. `18 §13` carries the general rule: the `server-only` direction fails
+the build, the `'use client'` direction fails silently.
+
+### The queue depth bars were fabricated
+
+`width: active ? '75%' : '100%'` — a depth of 61 and a depth of 3 drew the same
+bar, and an **empty queue drew a full one**, which is backwards. That is the
+"number with no source" defect wearing a proportion, and a bar is worse than a
+wrong figure because it looks derived.
+
+`Queue` carries no ceiling, so no absolute proportion exists to draw. The bars
+are now relative to the **deepest queue on screen** — which is computable, and
+is also the question the panel exists to answer: which one is backing up. When
+every queue is empty, no bar is drawn.
+
+### Eight weight-ceiling violations
+
+`03 §5` sets the ceiling at 500 with deliberately no bold; `font-medium` is
+600. Ten instances across the section, in figures, labels and micro-caps. All to
+`font-medium`. Hierarchy here comes from size, family switch, colour and case —
+that is the constraint the whole type system is built on.
+
+### A white wash over the end of two meters
+
+`bg-gradient-to-l from-white/60` sat over the last four pixels of the capacity
+meter and the pressure bars — lightening exactly the end a reader measures
+against, as a raw value, duplicated in two files.
+
+### A hover state on a row that does nothing
+
+The legend rows carried a background change on hover, which promises a click.
+The workspace table filters client side and reads no status from the URL, so a
+link would have landed on an unfiltered list — the dead-control defect
+(`17 §6.4`) wearing a row instead of a button. The rows are inert and now look
+it.
+
+### And the panel that ended in a void
+
+"At the ceiling" sits in a three-column grid that stretches every card to the
+tallest. With one workspace at a ceiling it ended in a large empty space, which
+reads as a panel that failed to finish loading. It carries the denominator now —
+"the other 46 workspaces have headroom" — the same move the queue makes, for the
+same reason: one row against 47 means something different from one against 3.
+
+The legend also gained the share percentage. A ring shows that active dominates;
+it cannot show that it is 87%, and the count alone made a reader divide against
+a total printed in the panel title.
+
+---
+
+## C55 · Closing the overview · 13 Sep 2026
+
+The last band refined, and a sweep across everything the page now carries.
+
+### The carding decision was never written down
+
+`Panel`'s own comment read *"the uncarded console section · replaces the
+traditional nested white card"*. The overview had been carded for days. Every
+band in this pass was refined against a document describing the opposite of what
+shipped, and nobody — including this pass — noticed until it was pointed out.
+
+`03 §26` now carries the decision and its reasoning: **a hairline between two
+sections looks exactly like a hairline inside one.** On a single-subject screen
+that costs nothing. On a briefing screen with five bands of unrelated subjects it
+costs the reader the ability to tell where one ends. `default` stays the console
+default; `elevated` is the overview's exception; `flush-glass` is for a panel on
+an already-tinted ground.
+
+§20's shadow reversal now points at §26, and `18 §14` adds the decision to the
+playbook as a step that must be settled **before** states, since empty and
+loading states inherit the container's treatment.
+
+### "Over the last 30 days" was not
+
+The latency panel's new prose claimed a 30-day window. `HealthModel.latency` is
+**24 hourly points** — one day. Corrected, and rewritten to say what the chart is
+for: the tail is what pages somebody, and a mean hides it.
+
+### The export action was invented at the call site
+
+The export route wrote `action: 'platform.exported'` as a bare string while
+`AUDIT_ACTIONS` is a closed catalogue whose own comment warns that inventing a
+string at a call site is how a trail becomes unqueryable. My own earlier work.
+
+It is `AUDIT_ACTIONS.PLATFORM_EXPORTED` now — a real entry, distinct from
+`audit.exported` on purpose: the one route serves three resources, so reusing the
+log's action would record a revenue export as an audit export and make "who took
+the roster" unanswerable. The resource travels in `reason`.
+
+### The shared surface had never been censused
+
+`Surface.tsx` is imported by every console screen and carried eight raw values —
+four white alphas in the segmented control, two shadows, a text shadow and a
+black hover. All tokenised. Three more `bg-white` grounds in the operations band
+went with them.
+
+### Weight ceiling, again
+
+Two more `font-medium` reintroduced during the last pass. `03 §5` caps at 500.
+The section is clear.
+
+### Final state of the overview
+
+| Check | Result |
+| --- | --- |
+| Raw colour, 14 files | **0** |
+| Weight-ceiling violations | **0** |
+| Handler-less controls, whole console | **0** |
+| Every band: empty, loading, heavy states | **present** |
+| Every band skeleton mirrors its own grid | **yes** |
+| Responsive | `lg:` for band splits, `sm:` for sub-grids, every two-column grid `minmax(0,…)`, no fixed widths |
+| Audited from this page | plan change, provisioning, support session entry and exit — both logs, same transaction |
+
+`notices` remains the one literal in the console chrome: there is no
+notifications table, and the layout says so rather than inventing one.
+
+---
+
+## C56 · The profile gains a real photograph, and the shell loses a stranger's
+
+**13 Sep 2026.** `05 §2` names `user_profiles.avatar_path` and nothing ever wrote
+to it. `07 §3`'s `PATCH /v1/me` has always accepted it. The console meanwhile
+rendered one hardcoded Unsplash photograph of a real person, in three places, as
+the signed-in administrator — and the profile card carried a sentence claiming
+the console "shows no photographs" as though that were a security posture.
+
+**Added:** an `avatars` bucket (public-read, random per-upload paths), storage RLS
+in `db/policies/08_storage.sql` admitting writes only under
+`platform/<auth.uid()>/`, `updateConsoleAvatar` and `removeConsoleAvatar`, a
+browser-side crop/downscale/EXIF-strip pipeline, and `Avatar src` with initials as
+the fallback.
+
+**Removed:** all three Unsplash renders. The CSP and `remotePatterns` now also
+name this deployment's own storage origin, derived from
+`NEXT_PUBLIC_SUPABASE_URL` so each environment admits only its own.
+
+Both avatar actions audit as `profile.updated` with the reason column carrying
+`avatar replaced` / `avatar removed`, matching the rename's `display name`. No new
+catalogue entry: `05 §9` keeps the action list short and "what changed" is the
+reason column's job.
+
+Full design in **19**.
+
+---
+
+## C57 · A profile change now reaches the chrome
+
+Two independent defects meant a rename landed in the database and nowhere a
+reader could see it.
+
+`revalidatePath(path)` revalidates the **page segment only**, and the sidebar
+identity card and top-bar account control live in the console **layout**. And
+`getLiveConsoleChrome` read `platform_admins.display_name`, while the rename
+writes `user_profiles.full_name` — deliberately, per the rule that an admin does
+not rewrite their own entry in the access register.
+
+Now: `revalidatePath('/platform', 'layout')` from one `PROPAGATE()` helper, and
+the chrome's precedence matches the profile screen and the roster — profile name,
+then roster label, then the session's own label.
+
+---
+
+## C58 · Expired sessions were listed as live
+
+`getLiveProfile` filtered on `revoked_at is null` and not on expiry, so a
+timed-out session appeared under "Devices currently signed into this account".
+On the one screen that answers *is something else signed in as me*, that
+manufactures an intruder out of a laptop nobody has used since Tuesday.
+
+`listActiveSessions` in `lib/auth/session.ts` has always carried
+`expires_at > now()`. The two readers now agree. `04 §6` is unchanged; this was
+one reader disagreeing with it.
+
+---
+
+## C59 · `revokeSession` reports whether it revoked anything
+
+It returned `void` and matched on session id alone, so a stale id, an id
+belonging to someone else, and an already-revoked row all produced zero rows, no
+error, and a caller free to report success — which the console did.
+
+Now returns a count. Zero is a refusal with its own message, and **no audit row is
+written**, because recording `session.revoked` for a revocation that revoked
+nothing puts a false event into the log `09 §7` promises is accurate.
+
+A `user_id` predicate was added alongside. `sessions_modify` already restricted
+this to the account holder; the predicate makes the restriction legible in the
+query rather than only in the policy file.
+
+---
+
+## C60 · The security checklist stops asserting things it never read
+
+`getLiveProfile` passed the designed fixture's `security` array straight through,
+so the **live** screen told a real operator "Authenticator app, added 14 March
+2025", "Changed 62 days ago", "Eight of ten remaining. Two were consumed during
+the July replica failover."
+
+None of those had been read. All three facts live in `auth.users`, behind the
+admin client lint-guarded to `modules/platform`.
+
+`SECURITY_POLICY` is now a named export shared by both paths, every item carries
+`measured: false`, and the card states once that it describes the platform's
+policy rather than the state of this account.
+
+Related: `ProfileModel.emailVerified` becomes `boolean | null`. The live reader
+answered a hard `false`, which renders identically to an address that was
+genuinely never confirmed — opposite claims. `null` renders as "not checked here",
+following `Admin.mfa`'s "MFA unknown" precedent from C31.
+
+---
+
+## C61 · The access rail shows the grants, not a label derived from them
+
+`getLiveProfile` selected `can_suspend_tenants`, `can_edit_master_rules` and
+`can_enter_support_mode` and used all three only to collapse into a role name.
+`05 §4` chose per-capability booleans over a role enum precisely so an admin's
+ceiling could be stated exactly.
+
+The rail now lists all three, and shows a **withheld** grant rather than omitting
+it: a capability that disappears when not granted cannot be distinguished from one
+the product does not have.
+
+---
+
+## C62 · A session sweep sends a security notice
+
+`sessionsRevokedEmail`, the sixth template in `modules/email` and the first
+addressed to an operator rather than a customer.
+
+The value is not the confirmation — the operator pressed the button. It is the
+second reader: somebody who receives this and did not do it has learned their
+account is compromised, through the only channel that reaches a person not
+currently looking at the console. It is the one action on the profile with that
+property, which is why it is the only one that mails.
+
+Best-effort and never fails the revocation: the sessions are already ended and
+the audit row already written, and turning "we could not reach your mailbox" into
+"signing out your devices failed" would be a false report of a security action
+that succeeded.
+
+---
+
+## C63 · The console could render designed data as a real account
+
+**14 Sep 2026.** `middleware.ts` admits any request holding the platform cookie;
+the live readers need a resolvable Supabase auth session as well. When the cookie
+outlived the token — an ordinary expiry — `getLiveProfile()` returned null,
+`?? getProfile()` did its job, and the profile rendered the designed fixture with
+no indication of it: a name, an "Admin since 14 Mar 2025", three invented devices,
+an address marked verified. Every control then failed on click with an auth error.
+
+The seam is right and nothing downstream knew which reader had answered. `live` is
+now part of the page's state, `PreviewNotice` states that the data is designed and
+links to sign-in with `?next=`, and every write control is inert with a stated
+reason rather than failing after the fact.
+
+**This is latent on every console surface that can write** — tenants, settings,
+AI rules, tenant detail — and each should carry `live` the same way. Added to
+18 §9's checklist under TRUTH.
+
+---
+
+## C64 · `AppError.internal` was reaching the operator
+
+Three catch blocks in `profile-actions.ts` appended
+`(Stage: ${JSON.stringify(error.internal)})` to the message shown on screen.
+`lib/errors` documents that field as "detail that goes to the log and never to
+the client"; it carries the auth resolver's stage names, the door, and the
+identity provider's own error codes.
+
+All six catches now route through one `refusal()` helper: internals stay in
+`logger.error`, and `AUTH_SESSION_EXPIRED` becomes its own outcome with
+`signedOut: true`, so the interface offers a sign-in link rather than a retry
+that would fail identically every time.
+
+---
+
+## C65 · The seed creates an account that can sign in
+
+**14 Sep 2026.** `pnpm db:seed` wrote `user_profiles` and `platform_admins` rows
+for the platform admin and never created the Supabase `auth.users` record behind
+them — so `signInWithPassword` had nothing to match, and the console was only
+ever reachable through the demo bypass.
+
+`src/db/seed/authAccounts.ts` writes the auth user and its email identity at the
+**fixed** `SEED_PLATFORM_ADMIN` uuid, which is why it is SQL rather than
+`admin.createUser()` — that mints its own id, and the isolation suite asserts
+against this one by value.
+
+It resolves `crypt`'s schema from `pg_proc` rather than assuming: Supabase
+installs pgcrypto into `extensions`, which is not on a direct connection's
+`search_path`, so the first version worked on a plain Postgres and failed on the
+thing it was for. It then **verifies** the credentials round-trip and exits
+non-zero with the specific problem if they do not.
+
+The seed refuses to run under `NODE_ENV=production` without
+`SEED_ALLOW_PRODUCTION=1`: it now writes a documented password.
+
+Credentials: `brian@alcassa.co.ke`, overridable via `SEED_ADMIN_EMAIL` /
+`SEED_ADMIN_PASSWORD`. The address moved off `.example` (RFC 2606, reserved so it
+can never resolve) because a row backing a real account needs a reachable inbox
+for recovery.
+
+`src/db/seed/demoProfile.ts` seeds three devices and twelve platform actions, so
+the live reader shows the same shape as the designed fixture instead of an empty
+account — signing in previously made the console worse to look at.
+
+Full design in **19 §12**.
+
+---
+
+## C66 · `IconTile`, and the four inline copies it replaced
+
+The demo doors' icon treatment existed four times inline — two sign-in pages and
+both card helpers in `AuthIllustration` — in four different sizes, radii and
+grounds, and nowhere as a component.
+
+One primitive now, plus the rule it encodes: **a tile is an object, a pill is a
+state.** So device rows get tiles and security rows keep their pills; channels
+get tiles with `glyphColor` for the brand mark; features get tiles with a `tone`.
+
+`glyphColor` is the brand-mark exception 03 §2 already allows — a channel's own
+green is not a palette choice. Recorded in **19 §13**, and in **03 §27** for the
+avatar's own sibling rule.
+
+---
+
+## C67 · The profile shows the operator their own record
+
+The access rail carried "412 audit entries by you" with no route to them, on the
+one screen whose premise is showing an operator their own footprint.
+
+`YourActivity` reads the same table over the same window as that count, so the
+two cannot disagree; renders `used_service_role`, the one column an auditor
+filters on; and joins the tenant so a row names a customer rather than a uuid.
+
+It is the half of the accountability argument `LimitsCard` was missing — the
+ceiling and the record, rather than the ceiling alone.
+
+---
+
+## C68 · The demo bypass is off by default
+
+`lib/auth/demoAccess.ts` returned true whenever `NODE_ENV === 'development'`, so
+`/api/demo` — which sets a session cookie without authenticating anyone — was
+live on every local run, with links to it on both public sign-in pages.
+
+Its own header named the condition that would end this: the resolvers being
+wired. They are, and C65 gives the seed an account that genuinely signs in.
+
+It now requires an explicit `ALLOW_DEMO_ACCESS=true`. The route already gated on
+the same function and answers 404 rather than 403, so one change closes the
+buttons and the route together — hiding the buttons alone would have left the
+URL working.
+
+**It was also the cause of C63.** The cookie it hands out is a literal string
+rather than a session id, so it got a reader past the middleware and resolved to
+nothing, which is precisely the state where the console rendered designed data as
+somebody's real account.
+
+Not deleted: a review deployment may want it, and the removal is four file
+deletions recorded in 19 §15.

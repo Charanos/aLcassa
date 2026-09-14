@@ -17,6 +17,10 @@ export const ERROR_CODES = {
   AUTH_EMAIL_UNVERIFIED: 'auth.email_unverified',
   AUTH_NO_MEMBERSHIP: 'auth.no_membership',
 
+  // ─ Self-serve registration ─
+  SIGNUP_EMAIL_TAKEN: 'signup.email_taken',
+  SIGNUP_DISABLED: 'signup.disabled',
+
   // ─ Tenancy ─
   TENANT_SUSPENDED: 'tenant.suspended',
   TENANT_NOT_FOUND: 'tenant.not_found',
@@ -60,6 +64,19 @@ export const ERROR_CODES = {
   RATE_LIMIT_EXCEEDED: 'rate_limit.exceeded',
   NOT_FOUND: 'not_found',
   INTERNAL: 'internal',
+  /**
+   * An upstream this request depends on could not be reached at all.
+   *
+   * ⚠ IT EXISTS BECAUSE ITS ABSENCE MADE THE SIGN-IN ROUTE LIE. Any failure
+   * from `signInWithPassword` was reported as `auth.invalid_credentials` —
+   * including a DNS failure against the identity provider. "That email and
+   * password do not match" is a confident, specific, WRONG claim to make when
+   * the truth is that nothing was checked, and it sent two people looking for a
+   * typo in a password for an afternoon.
+   *
+   * 503 rather than 500: the request was valid and may well succeed later.
+   */
+  UPSTREAM_UNAVAILABLE: 'upstream.unavailable',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
@@ -78,6 +95,9 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   [ERROR_CODES.AUTH_SESSION_EXPIRED]: 401,
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 403,
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]: 403,
+
+  [ERROR_CODES.SIGNUP_EMAIL_TAKEN]: 409,
+  [ERROR_CODES.SIGNUP_DISABLED]: 503,
 
   [ERROR_CODES.TENANT_SUSPENDED]: 403,
   [ERROR_CODES.TENANT_NOT_FOUND]: 404,
@@ -110,6 +130,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   [ERROR_CODES.RATE_LIMIT_EXCEEDED]: 429,
   [ERROR_CODES.NOT_FOUND]: 404,
   [ERROR_CODES.INTERNAL]: 500,
+  [ERROR_CODES.UPSTREAM_UNAVAILABLE]: 503,
 };
 
 /**
@@ -125,6 +146,14 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 'Confirm your email before continuing.',
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]:
     'Your account is not attached to a workspace. If you were invited, use the link in your invitation email. Otherwise get in touch.',
+
+  /* Names the way out rather than the failure. Someone who already has an
+     account and tried to register again does not need to be told 'taken' —
+     they need the sign-in link, which the sign-up page renders beside this. */
+  [ERROR_CODES.SIGNUP_EMAIL_TAKEN]:
+    'That email already has an account. Sign in instead, or reset your password if you have forgotten it.',
+  [ERROR_CODES.SIGNUP_DISABLED]:
+    'New workspaces are not open for self-registration right now. Get in touch and we will set yours up.',
 
   [ERROR_CODES.TENANT_SUSPENDED]:
     'This workspace is suspended. You can still see everything here; changes are paused until this is resolved. Get in touch to resolve it.',
@@ -162,4 +191,6 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
     'That is a lot of requests in a short time. Wait a moment and try again.',
   [ERROR_CODES.NOT_FOUND]: 'That is not here, or you do not have access to it.',
   [ERROR_CODES.INTERNAL]: 'Something broke on our side. We have logged it.',
+  [ERROR_CODES.UPSTREAM_UNAVAILABLE]:
+    'We could not reach the service that checks this. Nothing was wrong with what you sent — try again shortly.',
 };

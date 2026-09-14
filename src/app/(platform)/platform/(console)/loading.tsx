@@ -3,9 +3,12 @@ import {
   SkeletonGroup,
   SkeletonHeader,
   SkeletonMetric,
-  SkeletonRow,
-  SkeletonPanel,
 } from '@/components/primitives/Skeleton';
+import { QueueSkeleton } from '@/components/console/overview/YourQueue';
+import { PlatformTelemetrySkeleton } from '@/components/console/overview/PlatformTelemetry';
+import { LastActionsSkeleton } from '@/components/console/overview/LastActions';
+import { PortfolioBandSkeleton } from '@/components/console/overview/PortfolioBand';
+import { OperationsBandSkeleton } from '@/components/console/overview/OperationsBand';
 
 /**
  * Overview's loading state. Mirrors the real layout: a header, the inverted
@@ -26,17 +29,34 @@ export default function OverviewLoading() {
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[1.9fr_1fr]">
-          <div className="flex flex-col gap-2.5">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonRow key={i} />
-            ))}
-          </div>
+          {/*
+            ⚠ THE QUEUE'S OWN SKELETON, NOT A GENERIC ROW. 03 §15 requires
+            identical dimensions to the real thing, and a queue card is a
+            three-line article with a badge and two controls — nothing like the
+            data-grid row this used to draw. A skeleton of the wrong shape is a
+            layout shift with extra steps.
+          */}
+          <QueueSkeleton />
+          {/*
+            ⚠ THE RAIL'S OWN SKELETONS TOO. Two generic panels were standing in
+            for a four-row telemetry table and a five-row audit tail — the same
+            wrong-shape problem the queue had, on the column beside it.
+          */}
           <div className="flex flex-col gap-4">
-            <SkeletonPanel lines={4} />
-            <SkeletonPanel lines={3} />
+            <PlatformTelemetrySkeleton />
+            <LastActionsSkeleton />
           </div>
         </div>
       </SkeletonGroup>
+
+      {/*
+        ⚠ THE LOWER BANDS SKELETON TOO. Without them the page painted its header,
+        signals, queue and rail at full height and then GREW by three more bands
+        when the data landed — a scroll position that moves under the reader on
+        every load. Each band mirrors its own grid.
+      */}
+      <PortfolioBandSkeleton />
+      <OperationsBandSkeleton />
     </ConsolePage>
   );
 }

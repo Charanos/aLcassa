@@ -23,9 +23,9 @@ import { useEffect, useState } from 'react';
  *
  *  1. It is NOT an overlay. Layout insets to accommodate it, so nothing is ever
  *     hidden beneath it. See `--boundary-width` and the padding on <body>.
- *  2. It is `--copper-600` IN BOTH THEMES. The only element in the system that
- *     does not change with theme, because a safety signal should look identical
- *     everywhere.
+ *  2. It is `--support-banner-bg` IN EVERY WORKSPACE, and deliberately outside
+ *     the tenant accent system. A workspace that picked a warm accent must not
+ *     be able to make the support frame blend into its own chrome. 03 §8.
  *  3. It is SERVER-DRIVEN from the `supportMode` object on `/v1/me`, never from
  *     a query parameter. A frame that could be suppressed by editing a URL
  *     would be worthless. 07 §3.
@@ -64,8 +64,8 @@ export type BoundaryFrameProps = {
   onExit: () => void;
 };
 
-const COPPER = '#A6572A'; // literal on purpose: identical in both themes
-const SLATE = '#4B6588';
+const ORANGE = 'var(--support-banner-bg)'; // Solid orange for support mode
+const SLATE = 'var(--ink-500)'; // Slate for staging
 
 function useCountdown(expiresAt: string | undefined): { label: string; secondsLeft: number } {
   const [now, setNow] = useState(() => Date.now());
@@ -87,81 +87,58 @@ function useCountdown(expiresAt: string | undefined): { label: string; secondsLe
 
 export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFrameProps) {
   const { label, secondsLeft } = useCountdown(supportMode?.expiresAt);
+  const expired = secondsLeft === 0;
 
   const isStaging = environment !== 'production' && !supportMode?.active;
   const isSupport = Boolean(supportMode?.active);
 
   if (!isSupport && !isStaging) return null;
 
-  const colour = isSupport ? COPPER : SLATE;
-
-  // 03 §8 · 09 §3. Ochre below five minutes, oxide below one. The countdown is
-  // the one place in the frame where colour changes, and it changes because the
-  // session is about to end rather than because something is wrong.
-  const countdownColour =
-    secondsLeft < 60 ? 'var(--oxide-ink)' : secondsLeft < 300 ? 'var(--ochre-ink)' : colour;
-
-  const expired = isSupport && secondsLeft === 0;
+  const colour = isSupport ? ORANGE : SLATE;
+  const fgColor = isSupport ? 'var(--support-banner-fg)' : 'var(--ink-0)';
 
   return (
     <>
-      {/* The four edges. `position: fixed` with `pointer-events: none` on the
-          edges themselves, so the frame never intercepts a click meant for the
-          interface it surrounds. Only the two controls take pointer events. */}
+      {/* THE BANNER. A solid, unmissable banner at the top of the viewport.
+          Pushes content down via AppShell's padding-top. */}
       <div
-        data-slot="boundary-frame"
+        data-slot="boundary-banner"
         data-mode={isSupport ? 'support' : 'staging'}
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-40"
-        style={{ border: `var(--boundary-width) solid ${colour}` }}
-      />
-
-      {/* TOP TITLE BLOCK. Set into a BREAK in the frame line, the way a
-          drawing's title interrupts its border. Centred. */}
-      <div
-        data-slot="boundary-title-block"
-        className="t-chip pointer-events-none fixed top-0 left-1/2 z-50 -translate-x-1/2"
+        className="fixed top-0 left-0 right-0 z-50 flex h-[28px] items-center justify-center px-4 font-mono text-[11px] font-medium tracking-widest text-white shadow-md transition-colors"
         style={{
-          background: 'var(--surface-page)',
-          color: colour,
-          padding: '2px 12px',
-          borderLeft: `var(--boundary-width) solid ${colour}`,
-          borderRight: `var(--boundary-width) solid ${colour}`,
-          borderBottom: `1px solid ${colour}`,
+          background: colour,
+          color: fgColor,
         }}
       >
-        {isSupport && supportMode ? (
-          <>
-            SUPPORT MODE · {supportMode.tenantName.toUpperCase()} ·{' '}
-            <span style={{ color: countdownColour }}>{expired ? 'SESSION ENDED' : label}</span>
-          </>
-        ) : (
-          'STAGING'
-        )}
+        <div className="flex-1" />
+        <div className="flex items-center gap-2 text-center">
+          {isSupport && supportMode ? (
+            <>
+              <span className="opacity-90">SUPPORT MODE</span>
+              <span className="opacity-50">·</span>
+              <span className="font-medium">{supportMode.tenantName.toUpperCase()}</span>
+              <span className="opacity-50">·</span>
+              <span className={expired ? 'animate-pulse text-white' : 'opacity-90'}>
+                {expired ? 'SESSION ENDED' : label}
+              </span>
+            </>
+          ) : (
+            'STAGING'
+          )}
+        </div>
+        
+        <div className="flex flex-1 justify-end">
+          {isSupport ? (
+            <button
+              type="button"
+              onClick={onExit}
+              className="rounded-sm bg-white/20 px-3 py-0.5 text-[10px] font-medium hover:bg-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              {expired ? 'RECONNECT' : 'EXIT'}
+            </button>
+          ) : null}
+        </div>
       </div>
-
-      {/* BOTTOM EDGE · the exit control, set in symmetrically. One click
-          returns to the platform view. */}
-      {isSupport ? (
-        <button
-          type="button"
-          data-slot="boundary-exit"
-          onClick={onExit}
-          className="t-chip fixed bottom-0 left-1/2 z-50 -translate-x-1/2 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2"
-          style={{
-            background: 'var(--surface-page)',
-            color: colour,
-            padding: '3px 14px',
-            minHeight: 'var(--hit-target)',
-            borderLeft: `var(--boundary-width) solid ${colour}`,
-            borderRight: `var(--boundary-width) solid ${colour}`,
-            borderTop: `1px solid ${colour}`,
-            outlineColor: colour,
-          }}
-        >
-          {expired ? 'SESSION ENDED · SWITCH IN AGAIN' : 'EXIT'}
-        </button>
-      ) : null}
 
       {/* 03 §17. A live region, because entering and leaving support mode is
           exactly the kind of context change a screen reader user must be told
@@ -188,13 +165,13 @@ export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFram
 export function SupportSessionReceipt({ state }: { state: SupportModeState }) {
   const rows: Array<{ key: string; value: string; tone?: string }> = [
     { key: 'Acting as', value: state.platformAdminName },
-    { key: 'Role resolved', value: 'support · read only', tone: 'var(--copper-ink)' },
+    { key: 'Role resolved', value: 'support · read only', tone: 'var(--blue-500)' },
     { key: 'tenant_id resolved', value: state.resolvedTenantId },
     { key: 'Reason recorded', value: state.reason ?? 'none given' },
     {
       key: 'Writes so far',
       value: String(state.writesSoFar),
-      tone: state.writesSoFar === 0 ? 'var(--verdigris-ink)' : 'var(--ochre-ink)',
+      tone: state.writesSoFar === 0 ? 'var(--green-500)' : 'var(--amber-500)',
     },
   ];
 
@@ -202,14 +179,14 @@ export function SupportSessionReceipt({ state }: { state: SupportModeState }) {
     <section
       data-slot="support-receipt"
       aria-label="Support session"
-      className="rounded-panel border border-[var(--rule-base)] bg-[var(--surface-raised)] p-5"
+      className="rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5"
     >
-      <h2 className="t-micro text-[var(--ink-tertiary)]">Session</h2>
+      <h2 className="t-micro text-[var(--text-tertiary)]">Session</h2>
       <dl className="mt-3 grid gap-2">
         {rows.map((row) => (
           <div key={row.key} className="flex items-baseline justify-between gap-4">
-            <dt className="t-caption text-[var(--ink-secondary)]">{row.key}</dt>
-            <dd className="t-data text-right" style={{ color: row.tone ?? 'var(--ink-primary)' }}>
+            <dt className="t-caption text-[var(--text-secondary)]">{row.key}</dt>
+            <dd className="t-data text-right" style={{ color: row.tone ?? 'var(--text-primary)' }}>
               {row.value}
             </dd>
           </div>

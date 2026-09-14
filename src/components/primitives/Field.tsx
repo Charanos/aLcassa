@@ -38,7 +38,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
 
   return (
     <div data-slot="field" className="grid">
-      <label htmlFor={id} className="t-label mb-1.5 text-[var(--ink-secondary)]">
+      <label htmlFor={id} className="t-label mb-1.5 text-[var(--text-secondary)]">
         {label}
       </label>
 
@@ -52,10 +52,10 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
           aria-describedby={(helper ?? error) ? helperId : undefined}
           className={[
             'field-sunken',
-            't-body w-full rounded-chip border px-3 text-[var(--ink-primary)] transition-[border-color,background-color] duration-[var(--motion-fade)]',
-            'placeholder:text-[var(--ink-tertiary)]',
-            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]',
-            'disabled:cursor-not-allowed disabled:bg-[var(--disabled-surface)] disabled:text-[var(--disabled-ink)]',
+            't-body w-full rounded-chip border px-3 text-[var(--text-primary)] transition-[border-color,background-color] duration-[var(--motion-fade)]',
+            'placeholder:text-[var(--text-tertiary)]',
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]',
+            'disabled:cursor-not-allowed disabled:bg-[var(--ink-50)] disabled:text-[var(--text-disabled)]',
             affordance ? 'pr-11' : '',
             className,
           ]
@@ -63,8 +63,8 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
             .join(' ')}
           style={{
             minHeight: 'var(--control-lg)',
-            background: invalid ? 'var(--oxide-tint)' : 'var(--surface-sunken)',
-            borderColor: invalid ? 'var(--oxide-ink)' : 'var(--rule-base)',
+            background: invalid ? 'var(--red-100)' : 'var(--surface-sunken)',
+            borderColor: invalid ? 'var(--red-500)' : 'var(--border-subtle)',
           }}
           {...props}
         />
@@ -78,7 +78,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
       <p
         id={helperId}
         className="t-caption mt-1.5 flex min-h-[18px] items-start gap-1.5"
-        style={{ color: invalid ? 'var(--oxide-ink)' : 'var(--ink-tertiary)' }}
+        style={{ color: invalid ? 'var(--red-500)' : 'var(--text-tertiary)' }}
       >
         {invalid ? (
           <IconAlertTriangle size={13} stroke={1.5} aria-hidden className="mt-px shrink-0" />
@@ -111,7 +111,7 @@ export const PasswordField = forwardRef<HTMLInputElement, Omit<FieldProps, 'type
             onClick={() => setVisible((value) => !value)}
             aria-label={visible ? 'Hide password' : 'Show password'}
             aria-pressed={visible}
-            className="grid size-8 place-items-center rounded-chip text-[var(--ink-tertiary)] transition-colors duration-[var(--motion-fade)] hover:text-[var(--ink-primary)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus)]"
+            className="grid size-8 place-items-center rounded-chip text-[var(--text-tertiary)] transition-colors duration-[var(--motion-fade)] hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--border-focus)]"
           >
             {visible ? (
               <IconEyeOff size={16} stroke={1.5} aria-hidden />

@@ -46,106 +46,99 @@ export const MILESTONE_STATUS: Record<
 
 export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
   return (
-    <ol className="relative grid gap-3" data-reveal-group>
-      {/* The spine, hidden below md where the layout collapses and it would be
-          a stray vertical line beside nothing. */}
-      <span
-        aria-hidden
-        className="absolute top-6 bottom-6 left-[7px] hidden w-px md:block"
-        style={{ background: 'var(--rule-base)' }}
-      />
+    <div
+      className="overflow-hidden rounded-[24px]"
+      style={{
+        background: 'white',
+        boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
+      }}
+      data-reveal-group
+    >
+      <ol className="flex flex-col">
+        {milestones.map((milestone) => {
+          const status = MILESTONE_STATUS[milestone.status];
 
-      {milestones.map((milestone) => {
-        const status = MILESTONE_STATUS[milestone.status];
-
-        return (
-          <li key={milestone.id} data-reveal className="relative md:pl-9">
-            <span
-              aria-hidden
-              className="absolute top-7 left-0 hidden size-[15px] rounded-full border-2 md:block"
-              style={{
-                background:
-                  milestone.status === 'upcoming'
-                    ? 'var(--surface-page)'
-                    : `var(--${status.tone}-tint)`,
-                borderColor: `var(--${status.tone}-rule)`,
-              }}
-            />
-
-            <article
-              className="rounded-panel border p-5 transition-[border-color,transform] duration-[var(--motion-fade)] hover:-translate-y-px hover:border-[var(--rule-strong)]"
-              style={{
-                background: 'var(--surface-raised)',
-                borderColor: 'var(--rule-base)',
-                boxShadow: 'var(--shadow-card)',
-              }}
+          return (
+            <li
+              key={milestone.id}
+              data-reveal
+              className="grid gap-4 border-b p-6 last:border-b-0 md:grid-cols-[200px_1fr] md:gap-8 lg:grid-cols-[240px_1fr]"
+              style={{ borderColor: 'var(--ink-100)' }}
             >
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-                <span className="t-data" style={{ color: `var(--${status.tone}-ink)` }}>
-                  {milestone.id}
+              {/* Left Column: Metadata */}
+              <div className="flex flex-col items-start gap-3 md:pt-0.5">
+                <span className="t-data text-[var(--text-tertiary)]">
+                  Week {milestone.week}
                 </span>
-                <h3 className="t-panel text-[var(--ink-primary)]">{milestone.name}</h3>
-                <StatusChip tone={status.tone} icon={status.icon}>
-                  {status.label}
-                </StatusChip>
-                <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
-                  week {milestone.week}
-                </span>
-              </div>
-
-              <p
-                className="t-compact mt-2 text-[var(--ink-secondary)]"
-                style={{ maxWidth: 'var(--measure-prose)' }}
-              >
-                {milestone.lands}
-              </p>
-
-              <div className="mt-4 flex items-center gap-3">
-                <div
-                  className="h-1.5 flex-1 overflow-hidden rounded-chip"
-                  role="progressbar"
-                  aria-valuenow={milestone.progress}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label={`${milestone.name} progress`}
-                  style={{ background: 'var(--surface-sunken)' }}
-                >
-                  <span
-                    data-progress-bar
-                    data-value={milestone.progress}
-                    className="block h-full rounded-chip"
-                    style={{
-                      width: `${milestone.progress}%`,
-                      background: `var(--${status.tone}-ink)`,
-                    }}
-                  />
-                </div>
-                <span
-                  className="t-data shrink-0 text-[var(--ink-secondary)] tabular-nums"
-                  style={{ fontSize: '12px' }}
-                >
-                  {milestone.progress}%
-                </span>
-              </div>
-
-              <p className="t-caption mt-3 text-[var(--ink-tertiary)]">{milestone.note}</p>
-
-              <div
-                className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-3"
-                style={{ borderColor: 'var(--rule-soft)' }}
-              >
-                <span className="t-eyebrow text-[var(--ink-tertiary)]">Gate</span>
-                <span className="t-compact text-[var(--ink-primary)]">{milestone.gate}</span>
-                {milestone.tranche ? (
-                  <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
-                    Releases tranche {milestone.tranche}
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusChip tone={status.tone} icon={status.icon} size="sm">
+                    {status.label}
+                  </StatusChip>
+                  <span className="t-data text-[13px]" style={{ color: `var(--${status.tone}-ink)` }}>
+                    {milestone.id}
                   </span>
-                ) : null}
+                </div>
               </div>
-            </article>
-          </li>
-        );
-      })}
-    </ol>
+
+              {/* Right Column: Content */}
+              <div>
+                <h3 className="t-panel text-[var(--text-primary)]">{milestone.name}</h3>
+
+                <p className="t-compact mt-2.5 leading-relaxed text-[var(--text-secondary)]">
+                  {milestone.lands}
+                </p>
+
+                <div className="mt-4 flex items-center gap-3">
+                  <div
+                    className="h-1.5 flex-1 overflow-hidden rounded-chip"
+                    role="progressbar"
+                    aria-valuenow={milestone.progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${milestone.name} progress`}
+                    style={{ background: 'var(--surface-sunken)' }}
+                  >
+                    <span
+                      data-progress-bar
+                      data-value={milestone.progress}
+                      className="block h-full rounded-chip transition-all duration-500"
+                      style={{
+                        width: `${milestone.progress}%`,
+                        background: `var(--${status.tone}-ink)`,
+                      }}
+                    />
+                  </div>
+                  <span
+                    className="t-data shrink-0 tabular-nums text-[var(--text-secondary)]"
+                    style={{ fontSize: '12px' }}
+                  >
+                    {milestone.progress}%
+                  </span>
+                </div>
+
+                {milestone.note ? (
+                  <p className="t-caption mt-4 leading-relaxed text-[var(--text-tertiary)]">
+                    {milestone.note}
+                  </p>
+                ) : null}
+
+                <div
+                  className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-4"
+                  style={{ borderColor: 'var(--ink-100)' }}
+                >
+                  <span className="t-eyebrow text-[var(--text-tertiary)]">Gate</span>
+                  <span className="t-compact text-[var(--text-primary)]">{milestone.gate}</span>
+                  {milestone.tranche ? (
+                    <span className="t-eyebrow ml-auto text-[var(--text-tertiary)]">
+                      Releases tranche {milestone.tranche}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }

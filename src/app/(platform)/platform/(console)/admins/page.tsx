@@ -3,7 +3,6 @@ import {
   IconAlertTriangle,
   IconCheck,
   IconCrown,
-  IconDotsVertical,
   IconLock,
   IconMail,
   IconMinus,
@@ -12,8 +11,10 @@ import {
   IconUserPlus,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
+import { IconHelpCircle } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
 import { getAdmins, type AdminRole } from '@/lib/console/data';
+import { getLiveAdmins } from '@/lib/console/liveOperators';
 
 export const metadata: Metadata = { title: 'Admins' };
 
@@ -55,11 +56,41 @@ const ROLE_META: Record<AdminRole, { label: string; bg: string; ink: string; ico
   },
 };
 
-/** The signed-in operator. Comes from the session once M2 lands. */
+/**
+ * The signed-in operator, in the FIXTURE only.
+ *
+ * The live roster marks itself: `getLiveAdmins` sets `you` from the session,
+ * because the reader knows who is asking and this constant cannot.
+ */
 const CURRENT_ADMIN_ID = 'ad_1';
 
+/**
+ * ⚠ THREE STATES, NOT TWO, AND THE THIRD IS THE ONE THAT MATTERS.
+ *
+ * MFA off is AMBER — a gap to close rather than a breach, since the account is
+ * legitimate and the operator can fix it today. Colouring it as danger beside
+ * a role chip would read as "this person is compromised".
+ *
+ * MFA UNKNOWN is neither. Enrolment lives in `auth.users`, behind the admin
+ * client that is lint-guarded because it bypasses Row Level Security, so the
+ * live reader returns null rather than widening that guard for a status chip.
+ * Rendering an unknown as "off" would put an amber warning against a colleague
+ * who may well have it switched on — a figure somebody would act on, invented.
+ */
+const MFA_CHIP: Record<'on' | 'off' | 'unknown', { label: string; ink: string; icon: TablerIcon }> =
+  {
+    on: { label: 'MFA on', ink: 'var(--success-fg)', icon: IconLock },
+    off: { label: 'MFA off', ink: 'var(--warning-fg)', icon: IconAlertTriangle },
+    unknown: { label: 'MFA unknown', ink: 'var(--text-tertiary)', icon: IconHelpCircle },
+  };
+
 export default async function AdminsPage() {
-  const { admins, invitations, capabilities } = await getAdmins();
+  /**
+   * Live first, designed fixture second — the pattern every other wired
+   * surface uses. The fixture stays reachable behind the review bypass, where
+   * there is no session for the live reader to resolve.
+   */
+  const { admins, invitations, capabilities } = (await getLiveAdmins()) ?? (await getAdmins());
 
   return (
     <ConsolePage>
@@ -89,8 +120,10 @@ export default async function AdminsPage() {
         </div>
         <button
           type="button"
+          disabled
+          title="Platform access is granted directly rather than invited: invitations are scoped to a workspace."
           className="t-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-          style={{ background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
+          style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)', color: '#ffffff', fontWeight: 500 }}
         >
           <IconUserPlus size={15} stroke={1.5} aria-hidden />
           Invite admin
@@ -109,7 +142,9 @@ export default async function AdminsPage() {
         {admins.map((a) => {
           const role = ROLE_META[a.role];
           const RoleIcon = role.icon;
-          const you = a.id === CURRENT_ADMIN_ID;
+          /* The live reader knows who is asking; the fixture cannot, so it
+             falls back to the drawn roster's first row. */
+          const you = a.you ?? a.id === CURRENT_ADMIN_ID;
           return (
             <div
               key={a.id}
@@ -191,34 +226,40 @@ export default async function AdminsPage() {
               </span>
 
               <span className="flex shrink-0 items-center gap-2.5">
+                {(() => {
+                  /* See MFA_CHIP. Three states, and null is not false. */
+                  const mfa = MFA_CHIP[a.mfa === null ? 'unknown' : a.mfa ? 'on' : 'off'];
+                  const MfaIcon = mfa.icon;
+                  return (
+                    <span
+                      className="inline-flex items-center gap-1.5 whitespace-nowrap"
+                      style={{ font: '400 11.5px/1 var(--font-mono)', color: mfa.ink }}
+                    >
+                      <MfaIcon size={13} stroke={1.5} aria-hidden />
+                      {mfa.label}
+                    </span>
+                  );
+                })()}
                 {/*
-                  MFA off is AMBER, not red. It is a gap to close rather than a
-                  breach — the account still exists legitimately and the
-                  operator can fix it today. Colouring it as danger next to a
-                  role chip would read as "this person is compromised".
+                  ⚠ THE ROW MENU IS REMOVED RATHER THAN DISABLED. 17 §6.4.
+
+                  A kebab that opens nothing is the one dead control a disabled
+                  state cannot rescue: there is no action behind it to name, so
+                  a greyed dot with a tooltip is still an affordance promising a
+                  menu that does not exist. This roster is an access REGISTER
+                  rather than a management surface — the footer two rows down
+                  already says so — and access is granted directly in Phase 1.
+
+                  The date it was granted is the fact a reader wants here, and
+                  it is now on the row.
                 */}
                 <span
-                  className="inline-flex items-center gap-1.5 whitespace-nowrap"
-                  style={{
-                    font: '400 11.5px/1 var(--font-mono)',
-                    color: a.mfa ? 'var(--success-fg)' : 'var(--warning-fg)',
-                  }}
+                  className="shrink-0 whitespace-nowrap"
+                  style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                  title="When platform access was granted"
                 >
-                  {a.mfa ? (
-                    <IconLock size={13} stroke={1.5} aria-hidden />
-                  ) : (
-                    <IconAlertTriangle size={13} stroke={1.5} aria-hidden />
-                  )}
-                  {a.mfa ? 'MFA on' : 'MFA off'}
+                  {a.grantedOn}
                 </span>
-                <button
-                  type="button"
-                  aria-label={`Manage ${a.name}`}
-                  className="grid size-[30px] place-items-center rounded-panel transition-colors hover:bg-[var(--surface-inset)]"
-                  style={{ color: 'var(--text-tertiary)' }}
-                >
-                  <IconDotsVertical size={16} stroke={1.5} aria-hidden />
-                </button>
               </span>
             </div>
           );
@@ -245,6 +286,25 @@ export default async function AdminsPage() {
       {/* ── Invitations + capabilities ───────────────────────────────── */}
       <div className="mt-5 grid items-start gap-5 lg:grid-cols-2">
         <Panel title="Pending invitations" flush>
+          {/*
+            ⚠ EMPTY HERE IS A FACT ABOUT THE SCHEMA, NOT ABOUT TODAY.
+
+            `invitations` is tenant-scoped: every row carries a tenant id and a
+            member role, so the table cannot express "invite someone to the
+            platform". The drawn version of this panel shows two pending
+            invitations that no query can ever return. An empty panel that says
+            "none pending" would be a different and untrue claim, so it says
+            what is actually so.
+          */}
+          {invitations.length === 0 ? (
+            <p
+              className="t-compact px-5 py-4"
+              style={{ color: 'var(--text-tertiary)', maxWidth: '52ch' }}
+            >
+              Platform admin invitations are not yet a record. Invitations are scoped to a
+              workspace, so access to the console is granted directly rather than invited.
+            </p>
+          ) : null}
           {invitations.map((inv) => (
             <div
               key={inv.email}
@@ -274,8 +334,12 @@ export default async function AdminsPage() {
               </span>
               <button
                 type="button"
+                disabled
+                title="Platform admin invitations are not a record. Nothing here can be revoked."
                 className="t-caption h-7 shrink-0 rounded-panel px-2.5 whitespace-nowrap transition-colors"
                 style={{
+                  opacity: 0.45,
+                  cursor: 'not-allowed',
                   border: '1px solid var(--border-strong)',
                   background: 'var(--surface-raised)',
                   color: 'var(--text-secondary)',
@@ -285,10 +349,12 @@ export default async function AdminsPage() {
               </button>
             </div>
           ))}
-          <p className="t-compact px-5 py-3.5" style={{ color: 'var(--text-tertiary)' }}>
-            Invitations expire after seven days and can only be issued by an existing platform
-            admin.
-          </p>
+          {invitations.length > 0 ? (
+            <p className="t-compact px-5 py-3.5" style={{ color: 'var(--text-tertiary)' }}>
+              Invitations expire after seven days and can only be issued by an existing platform
+              admin.
+            </p>
+          ) : null}
         </Panel>
 
         <Panel title="Role capabilities" flush>

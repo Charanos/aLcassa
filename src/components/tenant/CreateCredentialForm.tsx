@@ -54,14 +54,14 @@ export function CreateCredentialForm() {
       />
 
       <fieldset className="grid gap-2">
-        <legend className="t-label mb-1 text-[var(--ink-secondary)]">Scopes</legend>
+        <legend className="t-label mb-1 text-[var(--text-secondary)]">Scopes</legend>
         {SCOPES.map((s) => (
           <label
             key={s.value}
             className="flex cursor-pointer items-center gap-3 rounded-panel border p-3"
             style={{
-              borderColor: scopes.includes(s.value) ? 'var(--copper-ink)' : 'var(--rule-base)',
-              background: scopes.includes(s.value) ? 'var(--copper-tint)' : 'var(--surface-raised)',
+              borderColor: scopes.includes(s.value) ? 'var(--blue-500)' : 'var(--border-subtle)',
+              background: scopes.includes(s.value) ? 'var(--blue-50)' : 'var(--surface-raised)',
             }}
           >
             <input
@@ -69,7 +69,7 @@ export function CreateCredentialForm() {
               checked={scopes.includes(s.value)}
               onChange={() => toggleScope(s.value)}
             />
-            <span className="t-body text-[var(--ink-primary)]">{s.label}</span>
+            <span className="t-body text-[var(--text-primary)]">{s.label}</span>
           </label>
         ))}
       </fieldset>
@@ -78,7 +78,7 @@ export function CreateCredentialForm() {
         <p
           role="alert"
           className="t-compact flex items-start gap-1.5"
-          style={{ color: 'var(--oxide-ink)' }}
+          style={{ color: 'var(--red-500)' }}
         >
           <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
           {error}
@@ -87,7 +87,7 @@ export function CreateCredentialForm() {
 
       <div
         className="flex items-center gap-3 border-t pt-5"
-        style={{ borderColor: 'var(--rule-soft)' }}
+        style={{ borderColor: 'var(--ink-100)' }}
       >
         <Button type="submit" variant="primary" loading={pending} disabled={!ready || pending}>
           Create credential

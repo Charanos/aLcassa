@@ -187,7 +187,7 @@ export function WorkspaceActions({
                 placeholder="Payment overdue since 12 August; invoices sent 1 and 8 August."
                 className="rounded-panel border px-3 py-2"
                 style={{
-                  borderColor: 'var(--rule-base)',
+                  borderColor: 'var(--border-subtle)',
                   background: 'var(--surface-raised)',
                   color: 'var(--text-primary)',
                   font: '400 var(--text-sm)/1.5 var(--font-ui)',

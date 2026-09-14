@@ -73,7 +73,7 @@ export function SegmentedControl<T extends string>({
       aria-label={label}
       onKeyDown={onKeyDown}
       className="inline-flex rounded-chip border p-0.5"
-      style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-sunken)' }}
+      style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
     >
       {options.map((option) => {
         const on = option.value === value;
@@ -85,10 +85,10 @@ export function SegmentedControl<T extends string>({
             aria-checked={on}
             tabIndex={on ? 0 : -1}
             onClick={() => onChange(option.value)}
-            className="t-chip flex items-center gap-2 rounded-chip px-3 transition-colors duration-[var(--motion-fade)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus)]"
+            className="t-chip flex items-center gap-2 rounded-chip px-3 transition-colors duration-[var(--motion-fade)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--border-focus)]"
             style={{
               minHeight: '32px',
-              color: on ? (option.tone ?? 'var(--ink-primary)') : 'var(--ink-tertiary)',
+              color: on ? (option.tone ?? 'var(--text-primary)') : 'var(--text-tertiary)',
               background: on ? 'var(--surface-raised)' : 'transparent',
               boxShadow: on ? 'var(--shadow-card)' : 'none',
             }}
@@ -146,11 +146,11 @@ export function Checkbox({
       />
       <span
         aria-hidden
-        className="grid size-[18px] shrink-0 place-items-center rounded-chip border transition-colors duration-[var(--motion-fade)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--focus)]"
+        className="grid size-[18px] shrink-0 place-items-center rounded-chip border transition-colors duration-[var(--motion-fade)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--border-focus)]"
         style={{
-          borderColor: checked || indeterminate ? 'var(--copper-ink)' : 'var(--rule-base)',
-          background: checked || indeterminate ? 'var(--copper-solid)' : 'var(--surface-raised)',
-          color: 'var(--ink-inverse)',
+          borderColor: checked || indeterminate ? 'var(--blue-500)' : 'var(--border-subtle)',
+          background: checked || indeterminate ? 'var(--blue-500)' : 'var(--surface-raised)',
+          color: 'var(--text-inverse)',
         }}
       >
         {checked ? (
@@ -162,14 +162,14 @@ export function Checkbox({
 
       <span
         className="t-compact select-none"
-        style={{ color: checked ? (tone ?? 'var(--ink-primary)') : 'var(--ink-secondary)' }}
+        style={{ color: checked ? (tone ?? 'var(--text-primary)') : 'var(--text-secondary)' }}
       >
         {label}
       </span>
 
       {count !== undefined ? (
         <span
-          className="t-data text-[var(--ink-tertiary)] tabular-nums"
+          className="t-data text-[var(--text-tertiary)] tabular-nums"
           style={{ fontSize: '12px' }}
         >
           {count}
@@ -204,7 +204,7 @@ export function Select<T extends string>({
     <div className="flex items-center gap-2">
       <label
         htmlFor={id}
-        className={hideLabel ? 'visually-hidden' : 't-eyebrow text-[var(--ink-tertiary)]'}
+        className={hideLabel ? 'visually-hidden' : 't-eyebrow text-[var(--text-tertiary)]'}
       >
         {label}
       </label>
@@ -213,10 +213,10 @@ export function Select<T extends string>({
           id={id}
           value={value}
           onChange={(event) => onChange(event.target.value as T)}
-          className="t-compact cursor-pointer appearance-none rounded-chip border py-0 pr-8 pl-3 text-[var(--ink-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+          className="t-compact cursor-pointer appearance-none rounded-chip border py-0 pr-8 pl-3 text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
           style={{
             minHeight: '34px',
-            borderColor: 'var(--rule-base)',
+            borderColor: 'var(--border-subtle)',
             background: 'var(--surface-raised)',
           }}
         >
@@ -230,7 +230,7 @@ export function Select<T extends string>({
           size={14}
           stroke={1.5}
           aria-hidden
-          className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[var(--ink-tertiary)]"
+          className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[var(--text-tertiary)]"
         />
       </div>
     </div>
@@ -259,13 +259,13 @@ export function SortHeader({
       scope="col"
       aria-sort={active ? (direction === 'asc' ? 'ascending' : 'descending') : 'none'}
       className="border-b p-0 text-left"
-      style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-sunken)', width }}
+      style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)', width }}
     >
       <button
         type="button"
         onClick={onSort}
-        className="t-micro flex w-full items-center gap-1.5 px-4 py-3 text-left transition-colors duration-[var(--motion-fade)] hover:text-[var(--copper-ink)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--focus)]"
-        style={{ color: active ? 'var(--copper-ink)' : 'var(--ink-tertiary)' }}
+        className="t-micro flex w-full items-center gap-1.5 px-4 py-3 text-left transition-colors duration-[var(--motion-fade)] hover:text-[var(--blue-500)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--border-focus)]"
+        style={{ color: active ? 'var(--blue-500)' : 'var(--text-tertiary)' }}
       >
         {label}
         {active ? (

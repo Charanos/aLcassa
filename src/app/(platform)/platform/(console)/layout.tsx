@@ -7,9 +7,10 @@ import type {
   ConsoleWorkspace,
 } from '@/components/console/types';
 import { getConsoleChrome, resolveSupportSession } from '@/lib/console/session';
-import { getIsolationStatus } from '@/lib/console/data';
+import { getIsolationStatus, PORTFOLIO_COUNT } from '@/lib/console/data';
 import { getLiveIsolationStatus } from '@/lib/console/live';
-import { endSupportSession, setNavState, startSupportSession } from './actions';
+import { getLiveConsoleChrome } from '@/lib/console/liveChrome';
+import { endSupportSession, startSupportSession } from './actions';
 
 /**
  * 02 §6 · 09 §1. The platform console. Brian's workspace, and the one interface
@@ -34,7 +35,10 @@ const navigation: ConsoleNavGroup[] = [
     label: 'Platform',
     items: [
       { href: '/platform', label: 'Overview', icon: 'dashboard' },
-      { href: '/platform/tenants', label: 'Workspaces', icon: 'building', badge: 47 },
+      /* One count, derived once. It was typed here, in the settings lede, in
+         the rules tab and in four comments; five places to be wrong about how
+         many customers the business has. */
+      { href: '/platform/tenants', label: 'Workspaces', icon: 'building', badge: PORTFOLIO_COUNT },
       { href: '/platform/plans', label: 'Plans', icon: 'list' },
       { href: '/platform/revenue', label: 'Revenue', icon: 'coin' },
       { href: '/platform/ai-rules', label: 'Master rules', icon: 'file' },
@@ -58,18 +62,21 @@ const navigation: ConsoleNavGroup[] = [
 ];
 
 /*
- * ⚠ PLACEHOLDER DATA, AND IT IS MARKED AS SUCH ON PURPOSE.
+ * ⚠ THESE ARE NOW THE FALLBACK, NOT THE SOURCE — EXCEPT `notices`.
  *
- * These three constants are the seam where M1 and M4 will connect. Each is
- * shaped exactly as the query that replaces it will return, so swapping them
- * is a function call and not a refactor:
+ * `workspaces` and `account` are served live by `getLiveConsoleChrome()`
+ * below and these literals render only when there is no platform session,
+ * which in practice means the review deployment's demo cookie. The switcher
+ * needed it most: it lists workspaces to SWITCH INTO, so a fixture there was
+ * offering a door to somewhere that does not exist.
  *
- *   workspaces →  dbAsService.select(...).from(tenants).orderBy(lastSeenAt)
- *                 A platform record operation, and one of the few legitimate
- *                 service-role reads: the console owner is listing tenants,
- *                 not reading tenant business data. 11 §6 rule 3.
- *   notices    →  a platform notifications query, once that table exists.
- *   account    →  the resolved platform admin session.
+ *   workspaces →  live: recent tenants joined to their plan. DONE.
+ *   account    →  live: the resolved platform admin. DONE.
+ *   notices    →  a platform notifications query, ONCE THAT TABLE EXISTS.
+ *                 It does not. There is no notifications table anywhere in
+ *                 `src/db/schema`, which is also why the bell's "Mark all
+ *                 read" control was removed rather than wired — there is no
+ *                 read flag to set. This is the last fixture in the shell.
  *
  * They are deliberately NOT faked deeper in the component tree. Keeping the
  * fixtures at the boundary means the shell below has never seen anything but
@@ -136,7 +143,7 @@ const notices: ConsoleNotice[] = [
     id: 'n_4',
     kind: 'plain',
     title: 'Master rules propagated',
-    body: 'Version 24 reached 47 workspaces in 3.1s',
+    body: `Version 24 reached ${PORTFOLIO_COUNT} workspaces in 3.1s`,
     time: '1d',
     href: '/platform/ai-rules',
   },
@@ -156,24 +163,55 @@ export default async function PlatformLayout({ children }: { children: React.Rea
    * it here precisely so it is not something to go and check; a number
    * somebody typed in would defeat that.
    */
-  const [chrome, session, live] = await Promise.all([
+  const [chrome, session, live, liveChrome] = await Promise.all([
     getConsoleChrome(),
     resolveSupportSession(),
     getLiveIsolationStatus(),
+    getLiveConsoleChrome(),
   ]);
   const isolation = live ?? (await getIsolationStatus());
+
+  /*
+   * ⚠ TWO OF THE THREE FIXTURES ABOVE ARE NOW A FALLBACK RATHER THAN THE
+   * SOURCE. `getLiveConsoleChrome` returns the real switcher list and the
+   * real signed-in admin, or `null` when there is no platform session — the
+   * review deployment's demo cookie — in which case the designed values below
+   * still render and nothing breaks. Same contract as `getLiveIsolationStatus`
+   * directly above.
+   *
+   * `notices` has no live form and stays a literal: there is no notifications
+   * table in the schema to query. It is the last fixture in this shell.
+   */
+  /**
+   * ⚠ `??` WAS THE WRONG OPERATOR FOR THE SWITCHER, AND THE BUG ONLY APPEARED
+   * ONCE THE READER STARTED WORKING.
+   *
+   * An empty array is not nullish, so the moment `getLiveConsoleChrome` returned
+   * `{ workspaces: [], … }` the fallback stopped firing and the switcher went
+   * blank. And it returns empty for a structural reason rather than an
+   * incidental one: the workspace list is a CROSS-TENANT read, `tenants_select`
+   * admits only rows the reader is a member of, and a platform admin is a member
+   * of none. That is the isolation guarantee, not a fault — the sanctioned path
+   * for this list is `asService`, recorded in 21 §2.
+   *
+   * Until then: a length check rather than a null check, so an empty live answer
+   * falls back to the designed list instead of offering a menu with no doors in
+   * it. The ACCOUNT half is genuinely live now, because it reads the operator's
+   * own rows under their own actor context.
+   */
+  const switcherWorkspaces = liveChrome?.workspaces?.length ? liveChrome.workspaces : workspaces;
+  const signedInAccount = liveChrome?.account ?? account;
 
   return (
     <ConsoleShell
       navigation={navigation}
-      workspaces={workspaces}
+      workspaces={switcherWorkspaces}
       notices={notices}
-      account={account}
+      account={signedInAccount}
       nav={chrome.nav}
       density={chrome.density}
       session={session}
       isolation={isolation}
-      onNavStateChange={setNavState}
       onStartSession={startSupportSession}
       onEndSession={endSupportSession}
     >

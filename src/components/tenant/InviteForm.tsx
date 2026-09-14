@@ -70,9 +70,9 @@ export function InviteForm({
         <p
           className="t-compact rounded-chip border px-3.5 py-2.5"
           style={{
-            borderColor: 'var(--ochre-rule)',
-            background: 'var(--ochre-tint)',
-            color: 'var(--ochre-ink)',
+            borderColor: 'color-mix(in oklab, var(--amber-500) 38%, var(--surface-base))',
+            background: 'var(--amber-100)',
+            color: 'var(--amber-500)',
           }}
         >
           {seatsRemaining} {seatsRemaining === 1 ? 'seat' : 'seats'} left
@@ -92,14 +92,14 @@ export function InviteForm({
       />
 
       <fieldset className="grid gap-2">
-        <legend className="t-label mb-1 text-[var(--ink-secondary)]">Role</legend>
+        <legend className="t-label mb-1 text-[var(--text-secondary)]">Role</legend>
         {ROLES.map((r) => (
           <label
             key={r.value}
             className="flex cursor-pointer items-start gap-3 rounded-panel border p-3.5 transition-colors"
             style={{
-              borderColor: role === r.value ? 'var(--copper-ink)' : 'var(--rule-base)',
-              background: role === r.value ? 'var(--copper-tint)' : 'var(--surface-raised)',
+              borderColor: role === r.value ? 'var(--blue-500)' : 'var(--border-subtle)',
+              background: role === r.value ? 'var(--blue-50)' : 'var(--surface-raised)',
             }}
           >
             <input
@@ -111,8 +111,8 @@ export function InviteForm({
               className="mt-0.5"
             />
             <span>
-              <span className="t-body block font-medium text-[var(--ink-primary)]">{r.label}</span>
-              <span className="t-caption block text-[var(--ink-tertiary)]">{r.detail}</span>
+              <span className="t-body block font-medium text-[var(--text-primary)]">{r.label}</span>
+              <span className="t-caption block text-[var(--text-tertiary)]">{r.detail}</span>
             </span>
           </label>
         ))}
@@ -123,9 +123,9 @@ export function InviteForm({
           role="status"
           className="t-compact grid gap-2 rounded-panel border px-3.5 py-3"
           style={{
-            borderColor: 'var(--ochre-rule)',
-            background: 'var(--ochre-tint)',
-            color: 'var(--ochre-ink)',
+            borderColor: 'color-mix(in oklab, var(--amber-500) 38%, var(--surface-base))',
+            background: 'var(--amber-100)',
+            color: 'var(--amber-500)',
           }}
         >
           <span>{notice}</span>
@@ -144,7 +144,7 @@ export function InviteForm({
         <p
           role="alert"
           className="t-compact flex items-start gap-1.5"
-          style={{ color: 'var(--oxide-ink)' }}
+          style={{ color: 'var(--red-500)' }}
         >
           <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
           {error}
@@ -153,7 +153,7 @@ export function InviteForm({
 
       <div
         className="flex items-center gap-3 border-t pt-5"
-        style={{ borderColor: 'var(--rule-soft)' }}
+        style={{ borderColor: 'var(--ink-100)' }}
       >
         <Button type="submit" variant="primary" loading={pending} disabled={!emailValid || pending}>
           Send invitation

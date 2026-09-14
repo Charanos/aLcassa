@@ -30,7 +30,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                 {isLast || isTruncated || !item.href ? (
                   <span
                     className={`t-compact ${
-                      isLast ? 'text-[var(--ink-primary)]' : 'text-[var(--ink-tertiary)]'
+                      isLast ? 'text-[var(--text-primary)]' : 'text-[var(--text-tertiary)]'
                     }`}
                     aria-current={isLast ? 'page' : undefined}
                   >
@@ -39,14 +39,14 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                 ) : (
                   <Link
                     href={item.href}
-                    className="t-compact text-[var(--ink-tertiary)] transition-colors hover:text-[var(--copper-ink)]"
+                    className="t-compact text-[var(--text-tertiary)] transition-colors hover:text-[var(--blue-500)]"
                   >
                     {item.label}
                   </Link>
                 )}
               </li>
               {!isLast && (
-                <li aria-hidden="true" className="t-compact text-[var(--ink-faint)] select-none">
+                <li aria-hidden="true" className="t-compact text-[var(--ink-300)] select-none">
                   /
                 </li>
               )}

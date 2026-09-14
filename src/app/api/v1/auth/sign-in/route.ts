@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { isPlatformAdmin, membershipsFor } from '@/lib/auth/resolve';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
 import { AppError, ERROR_CODES } from '@/lib/errors';
+import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
 import { readRequestBody, wantsJson } from '@/lib/http/body';
 import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
@@ -103,6 +104,48 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
        * `auth.account_locked` is surfaced from its response rather than
        * counted a second time here — two counters that disagree are worse
        * than one.
+       */
+      /**
+       * ⚠ "THE PROVIDER WAS UNREACHABLE" IS NOT "YOUR PASSWORD IS WRONG", AND
+       * THIS ROUTE USED TO SAY IT WAS.
+       *
+       * Every failure from `signInWithPassword` became
+       * `auth.invalid_credentials`. That includes the case where supabase-js
+       * never got an HTTP response at all — a DNS failure, a dead project, an
+       * outage — because it surfaces network faults as an error OBJECT rather
+       * than by throwing.
+       *
+       * The result is the most confidently wrong message this codebase can
+       * produce: "that email and password do not match", stated about
+       * credentials nothing has checked. It cost two rounds of hunting a typo
+       * in a password that was correct, against a Supabase project whose
+       * hostname had stopped resolving.
+       *
+       * `AuthRetryableFetchError` is the class supabase-js uses for exactly
+       * this, and a status of 0 or absent means no response was received. Both
+       * are treated as upstream, which answers 503 and says so.
+       */
+      const unreachable =
+        error?.name === 'AuthRetryableFetchError' || (error != null && !error.status);
+
+      if (unreachable) {
+        log.error('sign-in could not reach the identity provider', {
+          reason: error?.message,
+          name: error?.name,
+        });
+        throw new AppError(ERROR_CODES.UPSTREAM_UNAVAILABLE, {
+          internal: { stage: 'supabase.signInWithPassword', reason: error?.message },
+        });
+      }
+
+      /**
+       * ⚠ ONE MESSAGE FOR "NO SUCH ACCOUNT" AND FOR "WRONG PASSWORD".
+       *
+       * Distinguishing them turns this endpoint into an account-existence
+       * oracle: an attacker learns which addresses are registered here and
+       * moves on to credential stuffing with a shortlist. That conflation is
+       * deliberate and stays — it is only the UNREACHABLE case above that had
+       * no business being folded in with it.
        */
       const locked = error?.status === 429;
       log.warn('sign-in refused', { locked, reason: error?.message });
@@ -221,6 +264,16 @@ function respond(input: {
     input.cookie.value,
     sessionCookieOptions(input.cookie.expiresAt),
   );
+
+  /*
+   * The greeting, for the document navigation only. A JSON caller gets an
+   * envelope it can act on however it likes and has no page to toast onto —
+   * setting the cookie there would arm a notice for whatever the API client's
+   * user happens to load next, which is somebody else's screen.
+   */
+  if (!input.asJson) {
+    response.cookies.set(FLASH_COOKIE, 'signed_in', FLASH_COOKIE_OPTIONS);
+  }
 
   return response;
 }

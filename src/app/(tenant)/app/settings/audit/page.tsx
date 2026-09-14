@@ -16,14 +16,14 @@ import type { TenantAuditKind } from '@/lib/tenant/data';
 export const metadata: Metadata = { title: 'Activity' };
 
 const KIND_META: Record<TenantAuditKind, { icon: TablerIcon; ink: string; tint: string }> = {
-  member: { icon: IconUsers, ink: 'var(--graphite-ink)', tint: 'var(--graphite-tint)' },
-  credential: { icon: IconKey, ink: 'var(--graphite-ink)', tint: 'var(--graphite-tint)' },
-  rules: { icon: IconFileText, ink: 'var(--graphite-ink)', tint: 'var(--graphite-tint)' },
-  settings: { icon: IconBuilding, ink: 'var(--graphite-ink)', tint: 'var(--graphite-tint)' },
+  member: { icon: IconUsers, ink: 'var(--ink-500)', tint: 'var(--ink-100)' },
+  credential: { icon: IconKey, ink: 'var(--ink-500)', tint: 'var(--ink-100)' },
+  rules: { icon: IconFileText, ink: 'var(--ink-500)', tint: 'var(--ink-100)' },
+  settings: { icon: IconBuilding, ink: 'var(--ink-500)', tint: 'var(--ink-100)' },
   // 03 §14: support-mode action is the one audit entry rendered in copper —
   // the only hue reserved for the owner's own guarantee being visible in the
   // log the same way any other action is.
-  support: { icon: IconEye, ink: 'var(--copper-ink)', tint: 'var(--copper-tint)' },
+  support: { icon: IconEye, ink: 'var(--blue-500)', tint: 'var(--blue-50)' },
 };
 
 /** `/app/settings/audit`. Owner and admin. The tenant's own log — filtered
@@ -52,7 +52,7 @@ export default async function AuditSettingsPage() {
       ) : (
         <ul
           className="overflow-hidden rounded-panel border"
-          style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+          style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' }}
           role="list"
         >
           {model.entries.map((entry) => {
@@ -62,7 +62,7 @@ export default async function AuditSettingsPage() {
               <li
                 key={entry.id}
                 className="flex items-start gap-3 border-t px-4 py-3.5 first:border-t-0"
-                style={{ borderColor: 'var(--rule-soft)' }}
+                style={{ borderColor: 'var(--ink-100)' }}
               >
                 <span
                   className="grid size-7 shrink-0 place-items-center rounded-panel"
@@ -72,12 +72,12 @@ export default async function AuditSettingsPage() {
                   <Icon size={14} stroke={1.5} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="t-body block text-[var(--ink-primary)]">
+                  <span className="t-body block text-[var(--text-primary)]">
                     <span className="font-medium">{entry.actor}</span> {entry.action}{' '}
-                    <span className="text-[var(--ink-secondary)]">{entry.target}</span>
+                    <span className="text-[var(--text-secondary)]">{entry.target}</span>
                   </span>
                 </span>
-                <span className="t-data shrink-0 text-[var(--ink-tertiary)]">{entry.time}</span>
+                <span className="t-data shrink-0 text-[var(--text-tertiary)]">{entry.time}</span>
               </li>
             );
           })}

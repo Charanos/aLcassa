@@ -57,16 +57,16 @@ export function CredentialReveal({
     <div
       data-slot="credential-reveal"
       className="overflow-hidden rounded-panel"
-      style={{ background: 'var(--surface-sunken)', borderLeft: '3px solid var(--copper-ink)' }}
+      style={{ background: 'var(--surface-sunken)', borderLeft: '3px solid var(--blue-500)' }}
     >
       <div className="p-5">
-        <p className="t-label text-[var(--ink-tertiary)]">{name}</p>
+        <p className="t-label text-[var(--text-tertiary)]">{name}</p>
         <p
           className="t-code mt-2 rounded-chip border p-3 break-all"
           style={{
-            borderColor: 'var(--rule-base)',
+            borderColor: 'var(--border-subtle)',
             background: 'var(--surface-raised)',
-            color: 'var(--ink-primary)',
+            color: 'var(--text-primary)',
           }}
         >
           {secret}
@@ -90,9 +90,9 @@ export function CredentialReveal({
           role="alert"
           className="t-compact mt-4 flex items-start gap-2 rounded-chip border px-3.5 py-2.5"
           style={{
-            borderColor: 'var(--ochre-rule)',
-            background: 'var(--ochre-tint)',
-            color: 'var(--ochre-ink)',
+            borderColor: 'color-mix(in oklab, var(--amber-500) 38%, var(--surface-base))',
+            background: 'var(--amber-100)',
+            color: 'var(--amber-500)',
           }}
         >
           <IconAlertTriangle size={15} stroke={1.5} className="mt-px shrink-0" aria-hidden />
@@ -103,7 +103,7 @@ export function CredentialReveal({
 
       <div
         className="flex items-center justify-end border-t px-5 py-3.5"
-        style={{ borderColor: 'var(--rule-base)' }}
+        style={{ borderColor: 'var(--border-subtle)' }}
       >
         <Button variant="primary" disabled={!acknowledged} onClick={onConfirm}>
           I have saved this

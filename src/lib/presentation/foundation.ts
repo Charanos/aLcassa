@@ -443,9 +443,9 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'Console',
-    what: 'Master AI rules: locked-versus-enabled toggles, real-time propagation to 47 workspaces',
+    what: 'Master AI rules: the versioned singleton, append-only history, and a publish that moves a pointer rather than restoring data',
     state: 'built',
-    evidence: 'src/components/console/RulesEditor.tsx',
+    evidence: 'src/components/console/rules/',
     milestone: 'M4a',
   },
   {
@@ -464,9 +464,9 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'Console',
-    what: "Profile: the signed-in operator's own identity, security, sessions, and access ceiling",
+    what: "Profile: the operator's own identity — photo upload, rename, live device sessions with revocation, capability grants, and the access ceiling",
     state: 'built',
-    evidence: 'src/components/console/ProfilePanel.tsx',
+    evidence: 'src/components/console/profile/',
     milestone: 'M4, M2',
   },
   {
@@ -640,6 +640,76 @@ export const FOUNDATION: FoundationItem[] = [
     state: 'built',
     evidence: 'src/app/(tenant)/app/',
     milestone: 'M2, M5',
+  },
+
+  // ── The interface pass, 1–12 Sep 2026. ────────────────────────────────────
+  // Everything below was built after M4 closed. None of it changes what the
+  // system does; all of it changes whether a person can work the system
+  // without being told how. It is listed separately rather than folded into
+  // the entries above because a reviewer asking "what moved this fortnight?"
+  // deserves an answer they can point at.
+  {
+    area: 'Console',
+    what: 'Console shell: a rail with three states — collapsed, peeking on hover, locked open — with the lock persisted and focus returned on Escape',
+    state: 'built',
+    evidence: 'src/components/console/ConsoleShell.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Mobile console navigation: a bottom bar for the six surfaces an operator uses on a phone, with the primary action raised out of it',
+    state: 'built',
+    evidence: 'src/components/console/ConsoleMobileNav.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Overview bands: revenue, portfolio and operations, each a question, a chart that answers it, and a link to the surface that owns the follow-up',
+    state: 'built',
+    evidence: 'src/components/console/OverviewBands.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Console',
+    what: 'Workspace provisioning from the console: a real server action behind the dialog, mapping a taken slug and an existing owner back onto the field that caused them',
+    state: 'built',
+    evidence: 'src/app/(platform)/platform/(console)/actions.ts',
+    milestone: 'M4',
+  },
+  {
+    area: 'System',
+    what: 'Self-serve sign-up: a sibling of admin provisioning that takes a password and starts the tenant on trial, where the admin path invites and never sees one',
+    state: 'built',
+    evidence: 'src/modules/platform/internal/selfServeSignUp.ts',
+    milestone: 'M2',
+  },
+  {
+    area: 'System',
+    what: 'Flash messages across a redirect: a single-use cookie carrying a KEY from a closed catalogue rather than a string, burned before the toast fires',
+    state: 'built',
+    evidence: 'src/lib/flash.ts',
+    milestone: 'M2',
+  },
+  {
+    area: 'System',
+    what: 'Workspace onboarding state, dismissible by its owner and readable through the same API as every other tenant read',
+    state: 'built',
+    evidence: 'src/lib/tenant/onboarding.ts',
+    milestone: 'M5',
+  },
+  {
+    area: 'Design system',
+    what: 'Chart layer on Recharts, with tokens resolved to real values before they reach an SVG presentation attribute and a one-hue ramp for ordered series',
+    state: 'built',
+    evidence: 'src/components/console/Charts.tsx',
+    milestone: 'M4',
+  },
+  {
+    area: 'Design system',
+    what: 'Chrome tier tokens for status, badge and icon pill, so the slab’s lightened palette is declared once rather than typed into each component',
+    state: 'built',
+    evidence: 'src/app/tokens.css',
+    milestone: 'M4',
   },
 ];
 

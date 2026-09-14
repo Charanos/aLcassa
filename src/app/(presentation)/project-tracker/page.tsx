@@ -1,636 +1,356 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import {
-  IconAlertTriangle,
-  IconClockHour3,
-  IconPointer,
+  IconArrowRight,
+  IconBuildingSkyscraper,
+  IconCreditCard,
+  IconLock,
+  IconRobot,
   IconShieldCheck,
-  IconShieldExclamation,
-  type Icon as TablerIcon,
+  IconUsers,
 } from '@tabler/icons-react';
-import { Mark } from '@/components/brand/Mark';
-import {
-  Fact,
-  Panel,
-  SheetSection,
-  StatTile,
-  StatusChip,
-  Well,
-  type Tone,
-} from '@/components/presentation/Sheet';
-import { DataList, type Column } from '@/components/presentation/DataList';
-import { DocCard } from '@/components/presentation/DocCard';
-import { TrackerHeader } from '@/components/presentation/TrackerHeader';
-import { TrackerMotion } from '@/components/presentation/TrackerMotion';
-import { TrackerDashboardHero } from '@/components/presentation/TrackerDashboardHero';
-import { InteractiveDecisionMatrix } from '@/components/presentation/InteractiveDecisionMatrix';
-import { Timeline, MILESTONE_STATUS } from '@/components/presentation/Timeline';
-import { FoundationExplorer } from '@/components/presentation/FoundationExplorer';
-import { ProgressLine } from '@/components/presentation/Charts';
-import { CommandPalette, type Command } from '@/components/presentation/CommandPalette';
-import { ErrorBoundary } from '@/components/primitives/ErrorBoundary';
-import {
-  CLIENT_INPUTS,
-  COMPLIANCE,
-  DEFINITION_OF_DONE,
-  ENGAGEMENT,
-  MILESTONES,
-  OUT_OF_SCOPE,
-  REQUIREMENTS,
-  UPDATES,
-  type ComplianceState,
-} from '@/lib/presentation/engagement';
-import { DESIGN_SHEETS, OPEN_DECISIONS, PROJECT_DOCS } from '@/lib/presentation/documents';
-import { FOUNDATION, FOUNDATION_SUMMARY, STACK } from '@/lib/presentation/foundation';
+import { IconTile } from '@/components/primitives/IconTile';
+import { MilestoneBoard } from '@/components/presentation/MilestoneBoard';
+import { COMMERCIAL, ENGAGEMENT, MILESTONES, OUT_OF_SCOPE } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Project tracker · aLcassa · Phase 1' },
-  description:
-    'Live delivery tracker for the aLcassa platform foundation: milestones, gates, compliance, the documentation set and the design set.',
-  robots: { index: false, follow: false },
+  title: 'Project tracker · aLcassa',
+  description: 'Where the aLcassa platform build has reached.',
 };
 
 /**
- * THE PROJECT TRACKER.
+ * THE PROJECT TRACKER, REBUILT FOR THE PERSON WHO COMMISSIONED THE WORK.
  *
- * The client-facing record of where delivery stands: what moved since the last
- * look, which gate is next, which decisions are blocking, and where the
- * compliance obligations sit. The marketing page from 02 §2 is at `/`.
+ * ⚠ IT REPLACED A PAGE WRITTEN FOR ENGINEERS, AND THAT WAS THE WHOLE PROBLEM.
  *
- * WHAT IS DELIBERATELY ABSENT.
+ * The previous version carried eleven sections — a foundation explorer, a
+ * decision matrix, a compliance grid, a document library, a design-system tour —
+ * and every one of them was accurate. None of them answered the question a
+ * client opens this page with: **where are we, and is anything stuck.**
  *
- *   The commercial terms. Fee and payment schedule are agreed between Ian and
- *   Brian directly. The tranche TRIGGERS are shown, because a trigger is a
- *   milestone gate and knowing which gate releases which tranche is useful to
- *   both sides; the amounts are not.
+ * A reader had to pass through a policy catalogue and an architecture decision
+ * record to find out that four milestones are finished. That is not a
+ * presentation; it is an audit trail with a hero image.
  *
- *   Document 01. It opens "internal working document, not client-facing". It is
- *   filtered by the `audience` flag in documents.ts AND refused at its URL,
- *   because a filter that only hides a link is not a control.
+ * ⚠ WHAT WAS CUT, AND WHY IT IS NOT LOST. The engineering detail moved to where
+ * somebody who wants it will actually look — the numbered documents, which are
+ * linked at the foot. This page now carries five things: how far along the work
+ * is, what a person can use today, what is left, what it costs, and what was
+ * deliberately excluded. Everything else was a second way of saying one of
+ * those.
+ *
+ * ⚠ IT READS THE SAME DATA AS BEFORE. `MILESTONES`, `COMMERCIAL` and
+ * `OUT_OF_SCOPE` are unchanged structures; only the milestone NOTES were
+ * rewritten, from engineering prose into four sentences a client can act on.
+ * Nothing here is a second copy of a number kept in step by hand.
  */
 
-const SECTIONS = [
-  { id: 'status', label: 'Status' },
-  { id: 'updates', label: 'Updates' },
-  { id: 'timeline', label: 'Timeline' },
-  { id: 'foundation', label: 'Foundation' },
-  { id: 'decisions', label: 'Decisions' },
-  { id: 'compliance', label: 'Compliance' },
-  { id: 'scope', label: 'Scope' },
-  { id: 'done', label: 'Done' },
-  { id: 'documents', label: 'Documents' },
-  { id: 'design', label: 'Design' },
+/** What somebody can open and use today. Written as capabilities, not modules. */
+const WORKING_TODAY = [
+  {
+    icon: IconShieldCheck,
+    tone: 'success' as const,
+    title: 'Customer separation, proven',
+    body: 'One customer cannot reach another customer’s data, and it is checked automatically on every change rather than trusted.',
+  },
+  {
+    icon: IconUsers,
+    tone: 'info' as const,
+    title: 'Accounts and teams',
+    body: 'Sign-in, password recovery, invitations by email, roles and ownership transfer — across both the customer application and the admin console.',
+  },
+  {
+    icon: IconCreditCard,
+    tone: 'info' as const,
+    title: 'Plans and limits',
+    body: 'Pricing tiers, seat and channel limits enforced at the limit, and every plan change recorded with who made it and why.',
+  },
+  {
+    icon: IconBuildingSkyscraper,
+    tone: 'info' as const,
+    title: 'The admin console',
+    body: 'Workspaces, revenue, plans, the activity record, support sessions and the operator’s own profile — running on real data.',
+  },
+  {
+    icon: IconRobot,
+    tone: 'warning' as const,
+    title: 'Assistant rules',
+    body: 'Central instructions that shape how the AI replies, inherited by every workspace. Editing is built; publishing is in progress.',
+  },
+  {
+    icon: IconLock,
+    tone: 'neutral' as const,
+    title: 'Customer settings',
+    body: 'Company profile, team management and API credentials. Screens exist and the security work is done; the final controls follow.',
+  },
 ];
 
-const COMPLIANCE_TONE: Record<ComplianceState, { icon: TablerIcon; tone: Tone; label: string }> = {
-  met: { icon: IconShieldCheck, tone: 'verdigris', label: 'Met' },
-  partial: { icon: IconClockHour3, tone: 'ochre', label: 'In progress' },
-  open: { icon: IconShieldExclamation, tone: 'slate', label: 'Phase 2' },
-  flagged: { icon: IconAlertTriangle, tone: 'oxide', label: 'Needs you' },
-};
-
-const UPDATE_TONE: Record<string, { tone: Tone; label: string; icon: TablerIcon }> = {
-  delivery: { tone: 'verdigris', label: 'Delivered', icon: IconShieldCheck },
-  decision: { tone: 'slate', label: 'Decision', icon: IconPointer },
-  blocker: { tone: 'ochre', label: 'Blocker', icon: IconAlertTriangle },
-};
-
 export default function ProjectTrackerPage() {
-  const clientDocs = PROJECT_DOCS.filter((doc) => doc.audience === 'client');
-  const blocking = OPEN_DECISIONS.filter((d) => d.severity === 'blocking');
-
-  const overall = Math.round(
+  const complete = MILESTONES.filter((m) => m.status === 'complete').length;
+  const percent = Math.round(
     MILESTONES.reduce((sum, m) => sum + m.progress, 0) / MILESTONES.length,
   );
-  const complianceMet = COMPLIANCE.filter((c) => c.state === 'met').length;
-  const complianceNeedsYou = COMPLIANCE.filter((c) => c.state === 'flagged').length;
-
-  const commands: Command[] = [
-    ...SECTIONS.map((s) => ({
-      id: `section-${s.id}`,
-      label: s.label,
-      group: 'Sections' as const,
-      href: `#${s.id}`,
-    })),
-    ...clientDocs.map((doc) => ({
-      id: `doc-${doc.slug}`,
-      label: doc.title,
-      hint: doc.n,
-      group: 'Documents' as const,
-      href: `/docs/${doc.slug}`,
-    })),
-    ...DESIGN_SHEETS.map((sheet) => ({
-      id: `sheet-${sheet.slug}`,
-      label: sheet.title,
-      hint: sheet.n,
-      group: 'Design sheets' as const,
-      href: `/design/${sheet.slug}.html`,
-      external: true,
-    })),
-    { id: 'action-product', label: 'Open the product surface', group: 'Actions', href: '/' },
-  ];
-
-  /**
-   * Milestone progress as a SEQUENCE rather than a set of categories: M0
-   * genuinely precedes M1, which precedes M2, in a way "Data model" and
-   * "API" as areas do not precede each other. The line's x-axis label is the
-   * short id, since eight full names side by side would collide; the full
-   * name and status are what the tooltip is for.
-   */
-  const milestoneChart = MILESTONES.map((m) => ({
-    label: m.id,
-    value: m.progress,
-    note: `${m.name} · ${MILESTONE_STATUS[m.status].label}`,
-  }));
-
-  const requirementColumns: Array<Column<(typeof REQUIREMENTS)[number]>> = [
-    {
-      key: 'n',
-      header: '#',
-      width: '52px',
-      mono: true,
-      hideOnCard: true,
-      cell: (row) => String(row.n).padStart(2, '0'),
-    },
-    {
-      key: 'requirement',
-      header: 'Your requirement',
-      width: '24%',
-      primary: true,
-      cell: (row) => row.requirement,
-    },
-    { key: 'delivery', header: 'What we deliver', muted: true, cell: (row) => row.delivery },
-    {
-      key: 'milestone',
-      header: 'Milestone',
-      width: '116px',
-      mono: true,
-      muted: true,
-      cell: (row) => row.milestone,
-    },
-  ];
-
-  const inputColumns: Array<Column<(typeof CLIENT_INPUTS)[number]>> = [
-    { key: 'item', header: 'Item', primary: true, cell: (row) => row.item },
-    {
-      key: 'when',
-      header: 'When',
-      width: '150px',
-      mono: true,
-      muted: true,
-      cell: (row) => row.when,
-    },
-    {
-      key: 'blocks',
-      header: 'Blocks',
-      width: '160px',
-      mono: true,
-      muted: true,
-      cell: (row) => row.blocking,
-    },
-    { key: 'status', header: 'Status', width: '220px', muted: true, cell: (row) => row.status },
-  ];
 
   return (
-    <div style={{ background: 'var(--surface-page)' }}>
-      <TrackerMotion />
-      <CommandPalette commands={commands} />
-      <TrackerHeader sections={SECTIONS} />
+    <main
+      id="main"
+      className="mx-auto w-full px-5 py-14 pb-24 md:px-8"
+      style={{ maxWidth: '1080px', color: 'var(--text-primary)' }}
+    >
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <header className="mb-14">
+        <p
+          className="mb-3 font-mono text-[11px] uppercase"
+          style={{ color: 'var(--text-tertiary)', letterSpacing: '0.2em', fontWeight: 500 }}
+        >
+          {ENGAGEMENT.studio} · {ENGAGEMENT.phase}
+        </p>
 
-      <main id="main" className="mx-auto px-5 py-12 pb-28 md:px-8" style={{ maxWidth: '1280px' }}>
-        <TrackerDashboardHero
-          client={ENGAGEMENT.client}
-          projectLead={ENGAGEMENT.projectLead}
-          briefVersion={ENGAGEMENT.briefVersion}
-          briefDate={ENGAGEMENT.briefDate}
-          overallProgress={overall}
-          blockingCount={blocking.length}
-          complianceCount={complianceMet}
-        />
+        <h1
+          className="display display-lg tracking-tight"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          aLcassa
+        </h1>
 
-        <div className="mt-16 grid gap-16 md:mt-24 md:gap-24">
-          {/* ═══ 1 · STATUS ══════════════════════════════════════════════ */}
-          <SheetSection
-            id="status"
-            n="1.0"
-            title="Where delivery stands"
-            lede="Progress against a milestone is a judgement rather than a task count, because a derived percentage would look more precise and mean less."
-            aside="Live"
-          >
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-reveal-group>
-              <StatTile
-                label="Overall progress"
-                value={overall}
-                suffix="%"
-                tone="var(--copper-ink)"
-                note="Mean across all eight milestones"
-              />
-              <StatTile
-                label="Built and verifiable"
-                value={FOUNDATION_SUMMARY.built}
-                suffix={` / ${String(FOUNDATION_SUMMARY.total)}`}
-                tone="var(--verdigris-ink)"
-                note="Openable in the repository today"
-              />
-              <StatTile
-                label="Blocking decisions"
-                value={blocking.length}
-                tone="var(--ochre-ink)"
-                note="Three are due in week one"
-              />
-              <StatTile
-                label="Compliance met"
-                value={complianceMet}
-                suffix={` / ${String(COMPLIANCE.length)}`}
-                tone={complianceNeedsYou > 0 ? 'var(--oxide-ink)' : 'var(--verdigris-ink)'}
-                note={
-                  complianceNeedsYou > 0
-                    ? `${String(complianceNeedsYou)} item needs a decision from you`
-                    : 'Nothing outstanding'
-                }
-              />
-            </div>
+        <p
+          className="t-body mt-4 max-w-[62ch]"
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
+        >
+          A multi-tenant messaging platform for {ENGAGEMENT.client}, built by {ENGAGEMENT.team} over{' '}
+          {ENGAGEMENT.duration}. This page is the honest state of the work — updated as it
+          changes, not written for a meeting.
+        </p>
 
-            <div className="mt-4 grid gap-4 lg:grid-cols-3" data-reveal-group>
-              <Panel interactive>
-                <h3 className="t-panel text-[var(--ink-primary)]">Isolation is the product</h3>
-                <p className="t-compact mt-2 text-[var(--ink-secondary)]">
-                  Everything else here is ordinary SaaS engineering. The thing being paid for, and
-                  the thing that ends a business if it fails once, is that one tenant can never read
-                  another. It is enforced in the database rather than the application, tested on
-                  every change, and gated at two milestones.
-                </p>
-              </Panel>
+        {/*
+          ⚠ THREE FIGURES, NOT TWELVE. An earlier hero carried eight statistics
+          including a count of documents written, which measures effort rather
+          than progress. These are the three a client would ask for out loud.
+        */}
+        <dl className="mt-10 grid gap-4 sm:grid-cols-3">
+          <Figure label="Overall progress" value={`${percent}%`} note="across all milestones" />
+          <Figure
+            label="Milestones complete"
+            value={`${complete} of ${MILESTONES.length}`}
+            note="each ends in a demonstration"
+          />
+          <Figure label="Fee" value={COMMERCIAL.totalFee} note="fixed, in four tranches" />
+        </dl>
+      </header>
 
-              <Panel interactive>
-                <h3 className="t-panel text-[var(--ink-primary)]">
-                  The owner is bound by the same rules
-                </h3>
-                <p className="t-compact mt-2 text-[var(--ink-secondary)]">
-                  The organization switcher does not use the key that bypasses security. It mints a
-                  scoped support session, so the same policies that protect a tenant apply to the
-                  person looking in. That is a genuine ceiling rather than a courtesy, and the
-                  tenant can see and end every session.
-                </p>
-              </Panel>
+      {/* ── Where we are ─────────────────────────────────────────────────── */}
+      <Section
+        id="milestones"
+        title="Where we are"
+        standfirst="Every milestone ends in something you can watch working. Nothing here is marked complete on the strength of a document."
+      >
+        <MilestoneBoard />
+      </Section>
 
-              <Panel interactive>
-                <h3 className="t-panel text-[var(--ink-primary)]">Documentation has a pass mark</h3>
-                <p className="t-compact mt-2 text-[var(--ink-secondary)]">
-                  A developer who has never seen the repository clones it and runs it locally in
-                  under thirty minutes, following the README alone. That test is run with a real
-                  person and the result is reported whether or not it flatters us.
-                </p>
-              </Panel>
-            </div>
-          </SheetSection>
-
-          {/* ═══ 2 · UPDATES ═════════════════════════════════════════════ */}
-          <SheetSection
-            id="updates"
-            n="2.0"
-            title="What has moved"
-            lede="Newest first. If an entry needs a paragraph it is a document rather than an update, and it will be linked from here instead."
-            aside={`${String(UPDATES.length)} entries`}
-          >
-            <ol className="grid gap-3" data-reveal-group>
-              {UPDATES.map((update) => {
-                const tone = UPDATE_TONE[update.kind] ?? UPDATE_TONE.delivery;
-                if (!tone) return null;
-
-                return (
-                  <li key={update.title}>
-                    <Panel tone={tone.tone} reveal>
-                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-                        <span className="t-data text-[var(--ink-tertiary)]">{update.date}</span>
-                        <h3 className="t-panel text-[var(--ink-primary)]">{update.title}</h3>
-                        <StatusChip tone={tone.tone} icon={tone.icon} size="sm">
-                          {tone.label}
-                        </StatusChip>
-                        <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
-                          {update.milestone}
-                        </span>
-                      </div>
-                      <p
-                        className="t-compact mt-2 text-[var(--ink-secondary)]"
-                        style={{ maxWidth: 'var(--measure-prose)' }}
-                      >
-                        {update.body}
-                      </p>
-                    </Panel>
-                  </li>
-                );
-              })}
-            </ol>
-          </SheetSection>
-
-          {/* ═══ 3 · TIMELINE ════════════════════════════════════════════ */}
-          <SheetSection
-            id="timeline"
-            n="3.0"
-            title="Milestones and gates"
-            lede="A gate is a demonstrated behaviour shown running, not a status report. Each payment trigger is therefore something you can verify yourself rather than take on trust."
-            aside="Brief section 04"
-          >
-            <Panel className="mb-6" reveal>
-              <h3 className="t-micro mb-3 text-[var(--ink-tertiary)]">Progress by milestone</h3>
-              <ErrorBoundary label="The milestone chart">
-                <ProgressLine data={milestoneChart} suffix="%" height={260} />
-              </ErrorBoundary>
-            </Panel>
-
-            <Timeline milestones={MILESTONES} />
-
-            <Panel className="mt-6" tone="slate">
-              <p className="t-compact text-[var(--ink-secondary)]">
-                Error tracking, log aggregation and database metrics are switched on during week 2
-                rather than during hardening, because instrumentation is only useful with history
-                behind it. Two senior developers hold the engagement for its full duration: one owns
-                everything touching isolation and the database, the other everything touching
-                interface and identity. That split is deliberate. Isolation is the risk, and one
-                person holding it end to end is more reliable than two people each half-knowing it.
-              </p>
-            </Panel>
-          </SheetSection>
-
-          {/* ═══ 4 · FOUNDATION ══════════════════════════════════════════ */}
-          <SheetSection
-            id="foundation"
-            n="4.0"
-            title="What already exists"
-            lede="An honest account of the repository as it stands. Built can be opened during the walkthrough; scaffolded means a real file with a real contract and no logic above it; planned is a milestone commitment and nothing more."
-            aside="This repository"
-          >
-            <ErrorBoundary label="The foundation explorer">
-              <FoundationExplorer items={FOUNDATION} />
-            </ErrorBoundary>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2" data-reveal-group>
-              {STACK.map((entry) => (
-                <Panel key={entry.layer} reveal interactive>
-                  <div className="flex flex-wrap items-baseline justify-between gap-3">
-                    <h3 className="t-micro text-[var(--ink-tertiary)]">{entry.layer}</h3>
-                    <span className="t-data text-[var(--copper-ink)]">{entry.choice}</span>
-                  </div>
-                  <p className="t-compact mt-2 text-[var(--ink-secondary)]">{entry.why}</p>
-                </Panel>
-              ))}
-            </div>
-          </SheetSection>
-
-          <SheetSection
-            id="decisions"
-            n="5.0"
-            title="Open decisions"
-            lede="Five of the original seven questions are answered as of 24 August 2026, most of them ahead of schedule. The support role answer opened one narrower question of its own, listed below in its place. Two remain as originally drawn, both proposals rather than anything blocking."
-            aside={`${String(blocking.length)} blocking`}
-          >
-            <InteractiveDecisionMatrix decisions={[...OPEN_DECISIONS]} />
-
-            <div className="mt-6" data-reveal>
-              <h3 className="t-micro mb-3 text-[var(--ink-tertiary)]">What we need from you</h3>
-              <DataList
-                rows={[...CLIENT_INPUTS]}
-                columns={inputColumns}
-                rowKey={(row) => row.item}
-                caption="Client inputs and what each blocks"
-              />
-            </div>
-          </SheetSection>
-
-          {/* ═══ 6 · COMPLIANCE ══════════════════════════════════════════ */}
-          <SheetSection
-            id="compliance"
-            n="6.0"
-            title="Compliance and data protection"
-            lede="Tracked rather than asserted. Under the Kenyan Data Protection Act 2019 you are a processor for your tenants and they are controllers for their own customers, which is a relationship that needs to exist in writing before your first paying customer."
-            aside={`${String(complianceMet)} of ${String(COMPLIANCE.length)} met`}
-          >
-            <div className="grid gap-3" data-reveal-group>
-              {COMPLIANCE.map((item) => {
-                const spec = COMPLIANCE_TONE[item.state];
-
-                return (
-                  <Panel key={item.area} tone={spec.tone} reveal>
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-                      <h3 className="t-panel text-[var(--ink-primary)]">{item.area}</h3>
-                      <StatusChip tone={spec.tone} icon={spec.icon} size="sm">
-                        {spec.label}
-                      </StatusChip>
-                      <span className="t-eyebrow ml-auto text-[var(--ink-tertiary)]">
-                        {item.reference}
-                      </span>
-                    </div>
-
-                    <p
-                      className="t-compact mt-2 text-[var(--ink-primary)]"
-                      style={{ maxWidth: 'var(--measure-prose)' }}
-                    >
-                      {item.obligation}
-                    </p>
-
-                    <dl className="mt-4 grid gap-4 md:grid-cols-2">
-                      <Well>
-                        <dt className="t-eyebrow text-[var(--ink-tertiary)]">In place</dt>
-                        <dd className="t-caption mt-1.5 text-[var(--ink-secondary)]">
-                          {item.evidence}
-                        </dd>
-                      </Well>
-                      {item.outstanding ? (
-                        <Well>
-                          <dt className="t-eyebrow text-[var(--ink-tertiary)]">Outstanding</dt>
-                          <dd className="t-caption mt-1.5 text-[var(--ink-secondary)]">
-                            {item.outstanding}
-                          </dd>
-                        </Well>
-                      ) : null}
-                    </dl>
-                  </Panel>
-                );
-              })}
-            </div>
-          </SheetSection>
-
-          {/* ═══ 7 · SCOPE ═══════════════════════════════════════════════ */}
-          <SheetSection
-            id="scope"
-            n="7.0"
-            title="Scope, mapped one to one"
-            lede="Your ten requirements in the order they will be built rather than the order they were sent, each with what it delivers and where it lands."
-            aside="Brief section 02"
-          >
-            <div data-reveal>
-              <DataList
-                rows={[...REQUIREMENTS]}
-                columns={requirementColumns}
-                rowKey={(row) => String(row.n)}
-                caption="Requirements mapped to delivery and milestone"
-              />
-            </div>
-
-            <Panel className="mt-4" tone="ochre">
-              <h3 className="t-micro text-[var(--ochre-ink)]">
-                Explicitly out of scope for Phase 1
-              </h3>
-              <p className="t-caption mt-2 text-[var(--ink-tertiary)]">
-                Deliberate exclusions rather than oversights. Each one is cheaper to build on top of
-                a finished foundation than alongside one.
-              </p>
-              <ul className="mt-3 grid gap-2 md:grid-cols-2">
-                {OUT_OF_SCOPE.map((item) => (
-                  <li key={item} className="t-compact flex gap-2 text-[var(--ink-secondary)]">
-                    <span aria-hidden className="text-[var(--ink-faint)]">
-                      ·
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-          </SheetSection>
-
-          {/* ═══ 8 · DEFINITION OF DONE ══════════════════════════════════ */}
-          <SheetSection
-            id="done"
-            n="8.0"
-            title="Definition of done"
-            lede="Phase 1 is complete when all of the following hold. Each one is verifiable rather than a matter of opinion, and each has a test that proves it."
-            aside="Brief section 05"
-          >
-            <ol className="grid gap-2 md:grid-cols-2" data-reveal-group>
-              {DEFINITION_OF_DONE.map((condition, index) => (
-                <li
-                  key={condition}
-                  data-reveal
-                  className="flex items-baseline gap-3 rounded-panel border p-4"
-                  style={{
-                    borderColor: 'var(--rule-base)',
-                    background: 'var(--surface-raised)',
-                    boxShadow: 'var(--shadow-card)',
-                  }}
-                >
-                  <span className="t-data shrink-0 text-[var(--copper-ink)] tabular-nums">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span className="t-compact text-[var(--ink-secondary)]">{condition}</span>
-                </li>
-              ))}
-            </ol>
-
-            <p
-              className="t-caption mt-4 text-[var(--ink-tertiary)]"
-              style={{ maxWidth: 'var(--measure-prose)' }}
+      {/* ── What works today ─────────────────────────────────────────────── */}
+      <Section
+        id="working"
+        title="What works today"
+        standfirst="Capabilities you can open and use, rather than components that exist."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          {WORKING_TODAY.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-overlay p-5"
+              style={{
+                background: 'var(--surface-raised)',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-sm)',
+              }}
             >
-              Conditions 6 and 8 are the two that turn a promise into a measurement. Both are
-              reported honestly whether or not the number flatters us.
-            </p>
-          </SheetSection>
-
-          {/* ═══ 9 · DOCUMENTS ═══════════════════════════════════════════ */}
-          <SheetSection
-            id="documents"
-            n="9.0"
-            title="The documentation set"
-            lede="Requirement 7 is treated as a deliverable with its own acceptance test rather than as something written in the last week. These render from the same markdown files the team edits, so they cannot go stale."
-            aside={`${String(clientDocs.length)} documents`}
-          >
-            <div className="grid gap-3 md:grid-cols-2" data-reveal-group>
-              {clientDocs.map((doc) => (
-                <DocCard
-                  key={doc.slug}
-                  n={doc.n}
-                  title={doc.title}
-                  settles={doc.settles}
-                  source={doc.source}
-                  href={`/docs/${doc.slug}`}
-                  band={doc.band}
-                />
-              ))}
+              <IconTile icon={item.icon} tone={item.tone} size="lg" />
+              <h3
+                className="mt-4 text-[15px]"
+                style={{ color: 'var(--text-primary)', fontWeight: 500 }}
+              >
+                {item.title}
+              </h3>
+              <p
+                className="t-compact mt-1.5"
+                style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
+              >
+                {item.body}
+              </p>
             </div>
-
-            <Panel className="mt-4" tone="copper">
-              <p className="t-compact text-[var(--ink-secondary)]">
-                Start with{' '}
-                <Link
-                  href="/docs/06-tenancy-and-isolation"
-                  className="text-[var(--copper-ink)] underline decoration-[var(--copper-rule)] underline-offset-2"
-                >
-                  06 · Tenancy and isolation
-                </Link>{' '}
-                if you read only one. It states the guarantee precisely, sets out the ten-case test
-                suite that proves it, and explains why support mode is a scoped session rather than
-                a bypass. Everything else in the set is ordinary engineering by comparison.
-              </p>
-            </Panel>
-          </SheetSection>
-
-          {/* ═══ 10 · DESIGN ═════════════════════════════════════════════ */}
-          <SheetSection
-            id="design"
-            n="10.0"
-            title="The design set"
-            lede="Fourteen sheets at 1440 wide. Sheets 01 to 04 are the system and specify both themes with every contrast ratio measured. Sheets 05 to 11 are screens. Sheets 12 to 14 are behaviour and handover."
-            aside="14 sheets"
-          >
-            <Panel className="mb-4">
-              <p className="t-compact text-[var(--ink-secondary)]">
-                The aesthetic, stated once. This product is infrastructure, and its whole job is
-                holding boundaries: between tenants, between roles, between what a credential may
-                read and what it may not. Infrastructure that holds looks like a technical drawing.
-                The material vocabulary is aLcassa and patina: copper carries current between places
-                without being the current, and oxidises to verdigris as evidence it has been
-                working. Six hues, one meaning each. One weight of type, because a technical drawing
-                has no bold either. Tinted surfaces instead of shadows.
-              </p>
-              <p className="t-caption mt-3 text-[var(--ink-tertiary)]">
-                The page you are reading is drawn in that system. Press the theme control in the
-                header to see the second half of it.
-              </p>
-            </Panel>
-
-            <div className="grid gap-3 md:grid-cols-2" data-reveal-group>
-              {DESIGN_SHEETS.map((sheet) => (
-                <DocCard
-                  key={sheet.slug}
-                  n={sheet.n}
-                  title={sheet.title}
-                  settles={sheet.settles}
-                  source={sheet.source}
-                  href={`/design/${sheet.slug}.html`}
-                  band={sheet.band}
-                  external
-                />
-              ))}
-            </div>
-          </SheetSection>
+          ))}
         </div>
+      </Section>
 
-        {/* ═══ TITLE BLOCK, FOOT ═════════════════════════════════════════ */}
-        <footer className="mt-20 border-t pt-6" style={{ borderColor: 'var(--rule-strong)' }}>
-          <div className="flex flex-wrap items-start justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <Mark size={20} />
-              <div>
-                <div className="t-chip text-[var(--ink-primary)]">aLcassa</div>
-                <div className="t-caption text-[var(--ink-tertiary)]">
-                  {ENGAGEMENT.studio} · {ENGAGEMENT.studioLocation}
-                </div>
+      {/* ── Commercial ───────────────────────────────────────────────────── */}
+      <Section
+        id="commercial"
+        title="Payment schedule"
+        standfirst={`${COMMERCIAL.totalFee} total, released against milestones rather than against time spent.`}
+      >
+        <div
+          className="overflow-hidden rounded-overlay"
+          style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-subtle)' }}
+        >
+          {COMMERCIAL.tranches.map((t, i) => {
+            const milestone = MILESTONES.find((m) => m.tranche === t.n);
+            const released = milestone?.status === 'complete';
+            return (
+              <div
+                key={t.n}
+                className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-4"
+                style={{
+                  borderTop: i === 0 ? undefined : '1px solid var(--border-subtle)',
+                }}
+              >
+                <span
+                  className="numeric shrink-0"
+                  style={{ font: '500 13px/1 var(--font-mono)', color: 'var(--text-primary)' }}
+                >
+                  {t.amount}
+                </span>
+                <span
+                  className="shrink-0"
+                  style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                >
+                  {t.share}
+                </span>
+                <span
+                  className="t-compact min-w-0 flex-1"
+                  style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
+                >
+                  {t.trigger}
+                </span>
+                {/* Only the tranches tied to a completed milestone are marked —
+                    tranche 1 is on signature and has no milestone to read. */}
+                {released ? (
+                  <span
+                    className="shrink-0"
+                    style={{ font: '500 11.5px/1 var(--font-mono)', color: 'var(--success-fg)' }}
+                  >
+                    EARNED
+                  </span>
+                ) : null}
               </div>
-            </div>
+            );
+          })}
+        </div>
+      </Section>
 
-            <dl className="flex flex-wrap gap-8">
-              <Fact k="Prepared by" v={ENGAGEMENT.projectLead} />
-              <Fact k="Commercial" v="Ian" />
-              <Fact k="Design lock" v="M0 · week 1" />
-            </dl>
-          </div>
+      {/* ── Out of scope ─────────────────────────────────────────────────── */}
+      <Section
+        id="scope"
+        title="Deliberately not included"
+        standfirst="Phase 1 exclusions. Listed so there is no discovery later about what was never agreed."
+      >
+        <ul className="grid gap-2.5">
+          {OUT_OF_SCOPE.map((item) => (
+            <li
+              key={item}
+              className="t-compact flex gap-3"
+              style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
+            >
+              <span aria-hidden style={{ color: 'var(--text-disabled)' }}>
+                &mdash;
+              </span>
+              <span className="min-w-0">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </Section>
 
-          <p className="t-caption mt-6 text-[var(--ink-tertiary)]">
-            Commercial in confidence. aLcassa is the codename for the design system and this
-            document set, not a proposed product name.
-          </p>
-        </footer>
-      </main>
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      <footer
+        className="mt-16 border-t pt-8"
+        style={{ borderColor: 'var(--border-subtle)' }}
+      >
+        <p className="t-compact" style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}>
+          Brief {ENGAGEMENT.briefVersion}, {ENGAGEMENT.briefDate}. Project lead{' '}
+          {ENGAGEMENT.projectLead}, {ENGAGEMENT.studio}, {ENGAGEMENT.studioLocation}.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Door href="/platform" label="Admin console" />
+          <Door href="/app" label="Workspace inbox" />
+        </div>
+      </footer>
+    </main>
+  );
+}
+
+/** One hero figure. Term before value, so a screen reader pairs them correctly. */
+function Figure({ label, value, note }: { label: string; value: string; note: string }) {
+  return (
+    <div
+      className="rounded-overlay px-5 py-4"
+      style={{ background: 'var(--surface-sunken)', border: '1px solid var(--border-subtle)' }}
+    >
+      <dt
+        className="font-mono text-[10.5px] uppercase"
+        style={{ color: 'var(--text-tertiary)', letterSpacing: '0.14em', fontWeight: 500 }}
+      >
+        {label}
+      </dt>
+      <dd
+        className="numeric mt-2 text-[28px] leading-none"
+        style={{ color: 'var(--text-primary)', fontWeight: 500, letterSpacing: '-0.02em' }}
+      >
+        {value}
+      </dd>
+      <dd className="t-caption mt-1.5" style={{ color: 'var(--text-tertiary)' }}>
+        {note}
+      </dd>
     </div>
+  );
+}
+
+function Section({
+  id,
+  title,
+  standfirst,
+  children,
+}: {
+  id: string;
+  title: string;
+  standfirst: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className="mb-14 scroll-mt-8">
+      <div className="mb-6">
+        <h2 className="display display-md tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          {title}
+        </h2>
+        <p
+          className="t-body mt-2 max-w-[62ch]"
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
+        >
+          {standfirst}
+        </p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Door({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="t-compact group inline-flex h-10 items-center gap-2 rounded-chip px-4 transition-all duration-200 hover:shadow-[var(--shadow-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
+      style={{
+        background: 'var(--surface-raised)',
+        border: '1px solid var(--border-subtle)',
+        color: 'var(--text-primary)',
+        fontWeight: 500,
+      }}
+    >
+      {label}
+      <IconArrowRight
+        size={14}
+        aria-hidden
+        className="transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+        style={{ color: 'var(--text-tertiary)' }}
+      />
+    </Link>
   );
 }

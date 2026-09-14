@@ -16,24 +16,24 @@ import remarkGfm from 'remark-gfm';
 
 const components: Components = {
   h1: ({ children }) => (
-    <h1 className="t-title mt-10 mb-4 text-[var(--ink-primary)] first:mt-0">{children}</h1>
+    <h1 className="t-title mt-10 mb-4 text-[var(--text-primary)] first:mt-0">{children}</h1>
   ),
   h2: ({ children }) => (
     <h2
-      className="t-heading mt-10 mb-3 border-t pt-6 text-[var(--ink-primary)]"
-      style={{ borderColor: 'var(--rule-soft)' }}
+      className="t-heading mt-10 mb-3 border-t pt-6 text-[var(--text-primary)]"
+      style={{ borderColor: 'var(--ink-100)' }}
     >
       {children}
     </h2>
   ),
-  h3: ({ children }) => <h3 className="t-panel mt-7 mb-2 text-[var(--ink-primary)]">{children}</h3>,
+  h3: ({ children }) => <h3 className="t-panel mt-7 mb-2 text-[var(--text-primary)]">{children}</h3>,
   h4: ({ children }) => (
-    <h4 className="t-micro mt-6 mb-2 text-[var(--ink-tertiary)]">{children}</h4>
+    <h4 className="t-micro mt-6 mb-2 text-[var(--text-tertiary)]">{children}</h4>
   ),
 
   p: ({ children }) => (
     <p
-      className="t-body my-3.5 text-[var(--ink-secondary)]"
+      className="t-body my-3.5 text-[var(--text-secondary)]"
       style={{ maxWidth: 'var(--measure-prose)' }}
     >
       {children}
@@ -43,7 +43,7 @@ const components: Components = {
   a: ({ href, children }) => (
     <a
       href={href}
-      className="text-[var(--copper-ink)] underline decoration-[var(--copper-rule)] underline-offset-2 hover:decoration-[var(--copper-ink)]"
+      className="text-[var(--blue-500)] underline decoration-[var(--blue-200)] underline-offset-2 hover:decoration-[var(--blue-500)]"
     >
       {children}
     </a>
@@ -62,25 +62,25 @@ const components: Components = {
       {children}
     </ol>
   ),
-  li: ({ children }) => <li className="t-body text-[var(--ink-secondary)]">{children}</li>,
+  li: ({ children }) => <li className="t-body text-[var(--text-secondary)]">{children}</li>,
 
   // Emphasis is a FAMILY SWITCH or a step of ink, never a weight change and
   // never an oblique. There is no weight axis in this system. 03 §5.
   strong: ({ children }) => (
-    <strong className="font-normal text-[var(--ink-primary)]">{children}</strong>
+    <strong className="font-normal text-[var(--text-primary)]">{children}</strong>
   ),
   em: ({ children }) => <em className="font-serif not-italic">{children}</em>,
 
   blockquote: ({ children }) => (
     <blockquote
       className="my-5 border-l-[3px] py-1 pl-4"
-      style={{ borderColor: 'var(--copper-rule)' }}
+      style={{ borderColor: 'var(--blue-200)' }}
     >
       {children}
     </blockquote>
   ),
 
-  hr: () => <hr className="my-8 border-0 border-t" style={{ borderColor: 'var(--rule-base)' }} />,
+  hr: () => <hr className="my-8 border-0 border-t" style={{ borderColor: 'var(--border-subtle)' }} />,
 
   code: ({ className, children }) => {
     const isBlock = Boolean(className);
@@ -89,7 +89,7 @@ const components: Components = {
     return (
       <code
         className="t-code rounded-chip px-1.5 py-0.5"
-        style={{ background: 'var(--surface-sunken)', color: 'var(--ink-primary)' }}
+        style={{ background: 'var(--surface-sunken)', color: 'var(--text-primary)' }}
       >
         {children}
       </code>
@@ -101,8 +101,8 @@ const components: Components = {
       className="t-code my-5 overflow-x-auto rounded-panel border p-4"
       style={{
         background: 'var(--surface-sunken)',
-        borderColor: 'var(--rule-base)',
-        color: 'var(--ink-primary)',
+        borderColor: 'var(--border-subtle)',
+        color: 'var(--text-primary)',
       }}
     >
       {children}
@@ -114,7 +114,7 @@ const components: Components = {
   table: ({ children }) => (
     <div
       className="my-5 overflow-x-auto rounded-panel border"
-      style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+      style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' }}
     >
       <table className="w-full border-collapse text-left">{children}</table>
     </div>
@@ -125,19 +125,19 @@ const components: Components = {
   th: ({ children }) => (
     <th
       scope="col"
-      className="t-micro border-b px-3.5 py-2.5 text-[var(--ink-tertiary)]"
-      style={{ borderColor: 'var(--rule-base)' }}
+      className="t-micro border-b px-3.5 py-2.5 text-[var(--text-tertiary)]"
+      style={{ borderColor: 'var(--border-subtle)' }}
     >
       {children}
     </th>
   ),
   tr: ({ children }) => (
-    <tr className="border-b last:border-b-0" style={{ borderColor: 'var(--rule-soft)' }}>
+    <tr className="border-b last:border-b-0" style={{ borderColor: 'var(--ink-100)' }}>
       {children}
     </tr>
   ),
   td: ({ children }) => (
-    <td className="t-compact px-3.5 py-2.5 align-top text-[var(--ink-secondary)]">{children}</td>
+    <td className="t-compact px-3.5 py-2.5 align-top text-[var(--text-secondary)]">{children}</td>
   ),
 
   img: ({ src, alt }) =>

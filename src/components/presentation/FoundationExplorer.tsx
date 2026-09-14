@@ -178,12 +178,12 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
           className="rounded-panel border p-5"
           style={{
             background: 'var(--surface-raised)',
-            borderColor: 'var(--rule-base)',
+            borderColor: 'var(--border-subtle)',
             boxShadow: 'var(--shadow-card)',
           }}
         >
-          <h3 className="t-micro text-[var(--ink-tertiary)]">Readiness</h3>
-          <p className="t-caption mt-1 mb-4 text-[var(--ink-tertiary)]">
+          <h3 className="t-micro text-[var(--text-tertiary)]">Readiness</h3>
+          <p className="t-caption mt-1 mb-4 text-[var(--text-tertiary)]">
             {visible.length} of {items.length} items shown
           </p>
           <ProportionDonut
@@ -201,12 +201,12 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
           className="rounded-panel border p-5"
           style={{
             background: 'var(--surface-raised)',
-            borderColor: 'var(--rule-base)',
+            borderColor: 'var(--border-subtle)',
             boxShadow: 'var(--shadow-card)',
           }}
         >
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h3 className="t-micro text-[var(--ink-tertiary)]">Items by</h3>
+            <h3 className="t-micro text-[var(--text-tertiary)]">Items by</h3>
             <SegmentedControl
               label="Chart dimension"
               value={dimension}
@@ -231,7 +231,7 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
         className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-panel border px-4 py-3"
         style={{
           background: 'var(--surface-raised)',
-          borderColor: 'var(--rule-base)',
+          borderColor: 'var(--border-subtle)',
           boxShadow: 'var(--shadow-card)',
         }}
       >
@@ -262,25 +262,25 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
         <label
           className="flex items-center gap-2 rounded-chip border px-3"
           style={{
-            borderColor: 'var(--rule-base)',
+            borderColor: 'var(--border-subtle)',
             background: 'var(--surface-sunken)',
             minHeight: '34px',
           }}
         >
-          <IconSearch size={14} stroke={1.5} aria-hidden className="text-[var(--ink-tertiary)]" />
+          <IconSearch size={14} stroke={1.5} aria-hidden className="text-[var(--text-tertiary)]" />
           <span className="visually-hidden">Filter these items</span>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Filter"
-            className="t-compact w-24 bg-transparent outline-none placeholder:text-[var(--ink-tertiary)]"
+            className="t-compact w-24 bg-transparent outline-none placeholder:text-[var(--text-tertiary)]"
           />
           {query ? (
             <button
               type="button"
               onClick={() => setQuery('')}
               aria-label="Clear the filter"
-              className="text-[var(--ink-tertiary)] hover:text-[var(--ink-primary)]"
+              className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
             >
               <IconX size={13} stroke={1.5} />
             </button>
@@ -295,7 +295,7 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
               setAreas('all');
               setQuery('');
             }}
-            className="t-caption ml-auto text-[var(--copper-ink)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+            className="t-caption ml-auto text-[var(--blue-500)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
           >
             Reset
           </button>
@@ -334,9 +334,9 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
                 />
                 <th
                   scope="col"
-                  className="t-micro border-b px-4 py-3 text-left text-[var(--ink-tertiary)]"
+                  className="t-micro border-b px-4 py-3 text-left text-[var(--text-tertiary)]"
                   style={{
-                    borderColor: 'var(--rule-base)',
+                    borderColor: 'var(--border-subtle)',
                     background: 'var(--surface-sunken)',
                     width: '26%',
                   }}
@@ -355,7 +355,7 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
           }
           empty={
             <div>
-              <p className="t-compact text-[var(--ink-secondary)]">
+              <p className="t-compact text-[var(--text-secondary)]">
                 Nothing matches those filters.
               </p>
               <button
@@ -365,7 +365,7 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
                   setAreas('all');
                   setQuery('');
                 }}
-                className="t-compact mt-2 text-[var(--copper-ink)] underline underline-offset-2"
+                className="t-compact mt-2 text-[var(--blue-500)] underline underline-offset-2"
               >
                 Reset them
               </button>
@@ -374,7 +374,7 @@ export function FoundationExplorer({ items }: { items: FoundationItem[] }) {
         />
       </div>
 
-      <p className="t-caption mt-2 text-[var(--ink-tertiary)]" role="status" aria-live="polite">
+      <p className="t-caption mt-2 text-[var(--text-tertiary)]" role="status" aria-live="polite">
         Showing {visible.length} of {items.length}.
       </p>
     </div>

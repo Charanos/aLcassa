@@ -51,12 +51,15 @@ export function SkeletonBlock({
 export function SkeletonRow() {
   return (
     <div
-      className="flex items-center gap-4 rounded-panel border p-4"
-      style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-raised)' }}
+      className="flex items-center gap-4 rounded-[12px] px-4 py-4"
+      style={{
+        background: 'white',
+        boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
+      }}
     >
-      <Bone className="h-4 shrink-0" style={{ width: 96 }} />
-      <Bone className="h-4 flex-1" style={{ width: '70%' }} />
-      <Bone className="h-5 shrink-0 rounded-full" style={{ width: 64 }} />
+      <Bone className="h-4 shrink-0" style={{ width: 96, background: 'var(--surface-inset)' }} />
+      <Bone className="h-4 flex-1" style={{ width: '70%', background: 'var(--surface-inset)' }} />
+      <Bone className="h-5 shrink-0 rounded-full" style={{ width: 64, background: 'var(--surface-inset)' }} />
     </div>
   );
 }
@@ -68,13 +71,16 @@ export function SkeletonPanel({ lines = 3 }: { lines?: number }) {
 
   return (
     <div
-      className="rounded-panel border p-5"
-      style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-raised)' }}
+      className="rounded-[16px] p-5"
+      style={{
+        background: 'var(--surface-sunken)',
+        boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
+      }}
     >
-      <Bone className="h-3.5" style={{ width: 128 }} />
+      <Bone className="h-3.5" style={{ width: 128, background: 'var(--surface-inset)' }} />
       <div className="mt-4 grid gap-2.5">
         {widths.map((width, index) => (
-          <SkeletonText key={index} width={width} />
+          <SkeletonText key={index} width={width} className="!bg-[var(--surface-inset)]" />
         ))}
       </div>
     </div>
@@ -85,11 +91,14 @@ export function SkeletonPanel({ lines = 3 }: { lines?: number }) {
 export function SkeletonMetric() {
   return (
     <div
-      className="rounded-panel border p-5"
-      style={{ borderColor: 'var(--rule-soft)', background: 'var(--surface-raised)' }}
+      className="rounded-[16px] p-5"
+      style={{
+        background: 'var(--surface-sunken)',
+        boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
+      }}
     >
-      <Bone className="h-3" style={{ width: 88 }} />
-      <Bone className="mt-3 h-8" style={{ width: 64 }} />
+      <Bone className="h-3" style={{ width: 88, background: 'var(--surface-inset)' }} />
+      <Bone className="mt-3 h-8" style={{ width: 64, background: 'var(--surface-inset)' }} />
     </div>
   );
 }

@@ -67,16 +67,16 @@ export function AiRulesEditor({
           ))}
         </div>
 
-        <label className="grid gap-1.5 border-t pt-5" style={{ borderColor: 'var(--rule-soft)' }}>
-          <span className="t-label text-[var(--ink-secondary)]">Change note</span>
+        <label className="grid gap-1.5 border-t pt-5" style={{ borderColor: 'var(--ink-100)' }}>
+          <span className="t-label text-[var(--text-secondary)]">Change note</span>
           <input
             value={changeNote}
             onChange={(e) => setChangeNote(e.target.value)}
             placeholder="What changed and why — this becomes the version history entry."
-            className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--ink-primary)]"
-            style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-sunken)' }}
+            className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--text-primary)]"
+            style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
           />
-          <span className="t-caption min-h-[18px] text-[var(--ink-tertiary)]">
+          <span className="t-caption min-h-[18px] text-[var(--text-tertiary)]">
             Required. One field, and it is what makes this readable six months later.
           </span>
         </label>
@@ -85,7 +85,7 @@ export function AiRulesEditor({
           <p
             role="alert"
             className="t-compact flex items-start gap-1.5"
-            style={{ color: 'var(--oxide-ink)' }}
+            style={{ color: 'var(--red-500)' }}
           >
             <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
             {error}
@@ -97,7 +97,7 @@ export function AiRulesEditor({
             Publish v{currentVersion + 1}
           </Button>
           {published ? (
-            <span className="t-compact" style={{ color: 'var(--verdigris-ink)' }}>
+            <span className="t-compact" style={{ color: 'var(--green-500)' }}>
               Published
             </span>
           ) : null}
@@ -107,11 +107,11 @@ export function AiRulesEditor({
       <aside className="grid gap-4">
         <div
           className="rounded-panel border p-4"
-          style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+          style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' }}
         >
           <div className="flex items-center justify-between">
-            <h2 className="t-label text-[var(--ink-tertiary)]">Version history</h2>
-            <span className="t-caption text-[var(--ink-tertiary)]">
+            <h2 className="t-label text-[var(--text-tertiary)]">Version history</h2>
+            <span className="t-caption text-[var(--text-tertiary)]">
               {versionsRetained}
               {versionsLimit === null ? '' : ` / ${versionsLimit}`} retained
             </span>
@@ -121,14 +121,14 @@ export function AiRulesEditor({
               <li
                 key={v.version}
                 className="border-t pt-3 first:border-t-0 first:pt-0"
-                style={{ borderColor: 'var(--rule-soft)' }}
+                style={{ borderColor: 'var(--ink-100)' }}
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="t-data text-[var(--ink-primary)]">v{v.version}</span>
-                  <span className="t-caption text-[var(--ink-tertiary)]">{v.publishedAt}</span>
+                  <span className="t-data text-[var(--text-primary)]">v{v.version}</span>
+                  <span className="t-caption text-[var(--text-tertiary)]">{v.publishedAt}</span>
                 </div>
-                <p className="t-caption mt-0.5 text-[var(--ink-secondary)]">{v.changeNote}</p>
-                <p className="t-caption text-[var(--ink-tertiary)]">{v.publishedBy}</p>
+                <p className="t-caption mt-0.5 text-[var(--text-secondary)]">{v.changeNote}</p>
+                <p className="t-caption text-[var(--text-tertiary)]">{v.publishedBy}</p>
               </li>
             ))}
           </ol>
@@ -150,24 +150,24 @@ function RuleFieldEditor({
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="t-label text-[var(--ink-secondary)]">{field.label}</span>
+        <span className="t-label text-[var(--text-secondary)]">{field.label}</span>
         {field.lockedByMaster ? <Badge tone="support">Locked by platform</Badge> : null}
-        <span className="t-caption text-[var(--ink-tertiary)]">{field.provenance}</span>
+        <span className="t-caption text-[var(--text-tertiary)]">{field.provenance}</span>
       </div>
 
       {field.lockedByMaster ? (
         <div
           className="mt-1.5 flex items-start gap-2.5 rounded-panel border p-3.5"
-          style={{ borderColor: 'var(--copper-rule)', background: 'var(--copper-tint)' }}
+          style={{ borderColor: 'var(--blue-200)', background: 'var(--blue-50)' }}
         >
           <IconLock
             size={15}
             stroke={1.5}
             className="mt-0.5 shrink-0"
-            style={{ color: 'var(--copper-ink)' }}
+            style={{ color: 'var(--blue-500)' }}
             aria-hidden
           />
-          <p className="t-body" style={{ color: 'var(--ink-primary)' }}>
+          <p className="t-body" style={{ color: 'var(--text-primary)' }}>
             {field.masterValue}
           </p>
         </div>
@@ -177,12 +177,12 @@ function RuleFieldEditor({
           onChange={(e) => onChange(e.target.value)}
           rows={2}
           placeholder={field.provenance === 'master (default)' ? field.masterValue : undefined}
-          className="field-sunken t-body mt-1.5 w-full rounded-chip border p-3 text-[var(--ink-primary)]"
-          style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-sunken)' }}
+          className="field-sunken t-body mt-1.5 w-full rounded-chip border p-3 text-[var(--text-primary)]"
+          style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
         />
       )}
       {field.provenance === 'master + tenant (combined)' ? (
-        <p className="t-caption mt-1 text-[var(--ink-tertiary)]">
+        <p className="t-caption mt-1 text-[var(--text-tertiary)]">
           Your assistant reads this together with the platform default, not instead of it.
         </p>
       ) : null}

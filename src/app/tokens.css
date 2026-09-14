@@ -43,27 +43,21 @@
   --brand-ink-mute: #8b8f99;
 
   /* ─ INK SCALE ─
-   * The neutral scale, and the single largest surface in the product. These
-   * are not greys: every step carries the brand hue at 267deg, so text reads
-   * as blue-black ink on a warm page rather than black on white.
-   *
-   * Three of the brand's own values land ON this scale rather than beside it:
-   *   ink-400 = #8B8F99  the moodboard's muted text
-   *   ink-700 = #172A99  the moodboard's body text
-   *   ink-800 = #17225D  the brand navy */
+   * The luxury neutral scale: deep obsidian black to crisp slate.
+   * Monochromatic, rich, and clean without blue cast. */
   --ink-0: #ffffff;
-  --ink-25: #fbfdf4; /* brand cream. The default page background */
-  --ink-50: #f3f6fb;
-  --ink-100: #e9edf5;
-  --ink-200: #d8ddea;
-  --ink-300: #bbc1d2;
-  --ink-400: #8b8f99; /* brand. Tertiary text, large only: 3.15 on cream */
-  --ink-500: #64708b; /* secondary text: 4.83 on cream */
-  --ink-600: #3a5192; /* 7.38 */
-  --ink-700: #172a99; /* brand ink: 11.19 */
-  --ink-800: #17225d; /* brand navy. Body text in light mode: 14.37 */
-  --ink-900: #0c173b; /* raised surface, dark mode */
-  --ink-950: #0b1126; /* page background, dark mode (softened from 040a20) */
+  --ink-25: #fbfbfa; /* pristine architectural warm off-white / page background */
+  --ink-50: #f4f4f5;
+  --ink-100: #e4e4e7;
+  --ink-200: #d4d4d8;
+  --ink-300: #a1a1aa;
+  --ink-400: #71717a; /* muted tertiary text */
+  --ink-500: #52525b; /* secondary body text */
+  --ink-600: #3f3f46;
+  --ink-700: #27272a;
+  --ink-800: #18181b; /* dark charcoal */
+  --ink-900: #09090b; /* rich obsidian black */
+  --ink-950: #040406;
 
   /* ─ ACTION BLUE ─
    * The saturated brand blue. This is a SMALL-DOSE colour: primary buttons,
@@ -126,10 +120,10 @@
   --display-lg: clamp(42px, 4.4vw, 52px); /* large closing & major section titles */
   --display-hero: clamp(52px, 5.4vw, 62px);
 
-  --leading-tight: 1.22;
-  --leading-snug: 1.35;
-  --leading-normal: 1.55;
-  --leading-relaxed: 1.7;
+  --leading-tight: 1.25;
+  --leading-snug: 1.42;
+  --leading-normal: 1.62;
+  --leading-relaxed: 1.78;
 
   /* Weight ceiling is 500. There is no --weight-bold, deliberately. */
   --weight-light: 300;
@@ -212,13 +206,12 @@
   --surface-inset: var(--ink-100);
   --surface-overlay: rgba(4, 10, 32, 0.45);
 
-  /* Body text is the brand navy. Not black, not grey: the identity itself,
-   * doing the job it does on every page of the moodboard. */
-  --text-primary: var(--ink-800); /* 14.37 on cream */
-  --text-secondary: var(--ink-500); /*  4.83 on cream */
-  --text-tertiary: var(--ink-400); /*  3.15 — large text and labels only */
-  --text-inverse: var(--ink-0);
-  --text-disabled: var(--ink-300);
+  /* High-contrast neutral typography: crisp obsidian black on architectural off-white. */
+  --text-primary: #09090b; /* rich obsidian black */
+  --text-secondary: #52525b; /* neutral slate */
+  --text-tertiary: #71717a; /* balanced graphite */
+  --text-inverse: #ffffff;
+  --text-disabled: #a1a1aa;
   --text-action: var(--blue-500); /* links and interactive text */
 
   --border-subtle: var(--ink-200);
@@ -311,18 +304,72 @@
  */
 
 :root {
-  --chrome-bg: #131b3e;
-  --chrome-bg-raised: #1c2754;
-  --chrome-fg: #f0f3fa;
-  --chrome-fg-muted: #9ba9ca;
-  --chrome-fg-faint: #67779c;
-  --chrome-rule: rgba(255, 255, 255, 0.08);
-  --chrome-rule-strong: rgba(255, 255, 255, 0.16);
-  --chrome-action: #7ea8fc;
-  --chrome-hover: rgba(255, 255, 255, 0.06);
-  --chrome-active-bg: rgba(126, 168, 252, 0.14);
-  --chrome-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --chrome-neu: inset 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --chrome-bg-base: #060913; /* obsidian black — the anchor */
+  --chrome-bg-navy: #07125f; /* brand navy — exact match to var(--brand-navy) */
+  /* Header: sweeps from brand navy on the left into obsidian black on the right */
+  --chrome-bg: linear-gradient(100deg, var(--chrome-bg-navy) 0%, var(--chrome-bg-base) 70%);
+  /* Sidebar pill: same two stops, vertical — obsidian at top, brand navy at the bottom */
+  --chrome-sidebar-bg: linear-gradient(to top, var(--chrome-bg-base) 30%, var(--chrome-bg-navy) 100%);
+  --chrome-bg-raised: #0b1021;
+  --chrome-fg: #ffffff;
+  --chrome-fg-muted: #d4d4d8; /* Significantly brightened for legibility */
+  --chrome-fg-faint: #a1a1aa; /* Lightened from #71717a to ensure mono fonts pop */
+  --chrome-rule: rgba(255, 255, 255, 0.05);
+  --chrome-rule-strong: rgba(255, 255, 255, 0.1);
+  --chrome-action: #ffffff;
+  --chrome-hover: rgba(255, 255, 255, 0.04);
+  --chrome-active-bg: rgba(255, 255, 255, 0.07);
+  --chrome-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --chrome-neu: inset 0 1px 1px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  --chrome-glass: rgba(6, 9, 19, 0.65);
+  --chrome-glass-strong: rgba(6, 9, 19, 0.94);
+
+  /* ─ STATUS ON CHROME ─
+   *
+   * ⚠ THE PAGE'S STATUS INKS DO NOT WORK HERE, and this is the same problem
+   * `--chrome-action` already solves one line above.
+   *
+   * The semantic status scale is deliberately muted for ink-on-cream:
+   * `--green-500` is #3f7d53, which reads as authority on a light page and as
+   * mud on obsidian. These are the lightened steps of the same five meanings,
+   * chosen to clear 4.5:1 against `--chrome-bg-base`. They are NOT a second
+   * palette — a badge that means "healthy" means it in both tiers, and only
+   * the step changes.
+   */
+  --chrome-success: #4ade80;
+  --chrome-warning: #fbbf24;
+  --chrome-danger: #f87171;
+  --chrome-info: #60a5fa;
+  --chrome-brand: #a5b4fc;
+
+  /* ─ CHROME BADGE ─ the `Badge` primitive's matte chromeplate treatment.
+   * One surface and one rim for every intent; the intent changes the ink, the
+   * border tint and the glow only. Keeping the surface constant is what stops
+   * a row of badges reading as a row of coloured blocks. */
+  --chrome-badge-bg: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  --chrome-badge-border: rgba(255, 255, 255, 0.15);
+  --chrome-badge-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.2);
+  /* Tint strengths, applied to whichever status ink the intent selects. */
+  --chrome-badge-border-alpha: 0.25;
+  --chrome-badge-glow-alpha: 0.05;
+
+  /* ─ DEBT DECK ─ the receding pills under the outstanding card.
+   * Two grounds rather than one opacity ramp: a stack read only through
+   * opacity looks like a rendering fault, and read only through size looks
+   * like a scaling bug. Depth is ground + inset + scale, together. */
+  --deck-near: linear-gradient(145deg, var(--chrome-bg-navy), var(--chrome-bg-raised));
+  --deck-far: linear-gradient(145deg, var(--chrome-bg-raised), var(--chrome-bg-base));
+  --deck-rule: color-mix(in oklab, var(--ink-0) 7%, transparent);
+  --deck-shadow: 0 4px 12px color-mix(in oklab, var(--ink-950) 45%, transparent);
+
+  /* ─ CHROME ICON PILL ─ the glass disc that houses an icon on the slab. */
+  --chrome-pill-bg: rgba(255, 255, 255, 0.05);
+  --chrome-pill-rim: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --chrome-pill-ring: rgba(255, 255, 255, 0.05);
 }
 
 /* Console geometry. Defaults; the shell root overrides them per user. */
@@ -583,140 +630,85 @@
    * where the raw brand value at 400 would not. */
   --support-banner-bg: var(--orange-500);
   --support-banner-fg: var(--ink-0);
+
+  /* ─ STATUS BADGE · PAGE TIER ─
+   *
+   * ⚠ THE SIX TONES, DERIVED FROM THE SEMANTIC SCALE RATHER THAN RESTATED.
+   *
+   * `ui/StatusBadge.tsx` carried forty-five raw Tailwind palette classes and
+   * twenty-one `rgba()` literals — `bg-emerald-500/[0.08] text-emerald-800`
+   * and so on. That is the defect `tokens.css` names in its own header, and it
+   * has a cost beyond tidiness: it put a SECOND green in the product. A badge
+   * reading "healthy" in Tailwind's emerald beside a meter reading healthy in
+   * `--success-fg` are two greens for one meaning, and nobody can say which is
+   * the product's.
+   *
+   * These are the same six meanings the rest of the system already carries, at
+   * the same values, expressed once. The tint strengths are tokens too, so a
+   * badge row that reads too hot is one edit here rather than six in a
+   * component.
+   *
+   * ⚠ THE SURFACE IS A TINT OF THE INK, NOT A SEPARATE COLOUR. `color-mix`
+   * against the page ground keeps every badge in the same key as the surface
+   * it sits on, which is what stops a row of them reading as stickers.
+   */
+  --badge-tint: 10%; /* fill strength */
+  --badge-edge: 26%; /* border strength */
+
+  --badge-success-fg: var(--success-fg);
+  --badge-success-bg: color-mix(in oklab, var(--success-fg) var(--badge-tint), var(--surface-raised));
+  --badge-success-edge: color-mix(in oklab, var(--success-fg) var(--badge-edge), var(--surface-raised));
+
+  --badge-warning-fg: var(--warning-fg);
+  --badge-warning-bg: color-mix(in oklab, var(--warning-fg) var(--badge-tint), var(--surface-raised));
+  --badge-warning-edge: color-mix(in oklab, var(--warning-fg) var(--badge-edge), var(--surface-raised));
+
+  --badge-danger-fg: var(--danger-fg);
+  --badge-danger-bg: color-mix(in oklab, var(--danger-fg) var(--badge-tint), var(--surface-raised));
+  --badge-danger-edge: color-mix(in oklab, var(--danger-fg) var(--badge-edge), var(--surface-raised));
+
+  --badge-info-fg: var(--blue-500);
+  --badge-info-bg: color-mix(in oklab, var(--blue-500) var(--badge-tint), var(--surface-raised));
+  --badge-info-edge: color-mix(in oklab, var(--blue-500) var(--badge-edge), var(--surface-raised));
+
+  /* `brand` is THE ACCENT, and it carries the one-per-screen budget in 03 §4a.
+   * A surface with a brand badge has spent it. The ink is the text-safe step:
+   * `--accent-mark` at 400 fails contrast under type, which is the single most
+   * common accent defect in this codebase. */
+  --badge-brand-fg: var(--accent-mark-text);
+  --badge-brand-bg: color-mix(in oklab, var(--accent-mark) var(--badge-tint), var(--surface-raised));
+  --badge-brand-edge: color-mix(in oklab, var(--accent-mark) var(--badge-edge), var(--surface-raised));
+
+  /* Neutral is the ABSENCE of a state rather than a seventh colour, so it takes
+   * the surface ramp and the secondary ink and nothing else. */
+  --badge-neutral-fg: var(--text-secondary);
+  --badge-neutral-bg: var(--surface-sunken);
+  --badge-neutral-edge: var(--border-subtle);
+
+  /* One rim highlight for every tone. A per-tone shadow was four values doing
+   * the work of one, and the difference was not visible at 19px tall. */
+  --badge-rim: inset 0 1px 0 color-mix(in oklab, var(--ink-0) 70%, transparent);
+
+  /* ─ QUEUE CARD ─
+   * A deliberately softer pair than the --shadow-* ramp: the queue is a column
+   * of cards on a cream page, and --shadow-sm across eight of them reads as a
+   * stack of receipts. These are the resting and hover layers, tokenised so
+   * the whole column is tuned in one place rather than per card. */
+  --card-rest:
+    0 4px 16px -4px color-mix(in oklab, var(--ink-900) 2%, transparent),
+    0 2px 4px -2px color-mix(in oklab, var(--ink-900) 2%, transparent);
+  /* A sunken well inside a panel: the operations band's figure blocks and the
+   * revenue band's outstanding tile were each hand-rolling this. */
+  --well-inset:
+    inset 0 1px 0 color-mix(in oklab, var(--ink-0) 2%, transparent),
+    inset 0 2px 4px color-mix(in oklab, var(--ink-900) 5%, transparent);
+
+  --card-lift:
+    0 12px 30px -4px color-mix(in oklab, var(--ink-900) 5%, transparent),
+    0 4px 10px -2px color-mix(in oklab, var(--ink-900) 3%, transparent);
 }
 
-/* ═══ TIER 0 · COMPATIBILITY LAYER ═════════════════════════════════════════
- *
- * ⚠ MIGRATION SCAFFOLD. DO NOT WRITE NEW CODE AGAINST THESE NAMES.
- *
- * The previous token system ("aLcassa": copper, verdigris, ochre, oxide,
- * slate, graphite on a vellum ground) is referenced ~370 times across ~48
- * component files. Deleting those names in one commit would take every
- * surface in the product down at once, which is the worst possible way to
- * land an identity change: it maximises blast radius and makes it impossible
- * to tell a rebrand regression from a refactor regression.
- *
- * So every old name resolves HERE, onto the nearest aLcassa value, by
- * SEMANTIC ROLE rather than by hue similarity. The whole product picks up the
- * new palette immediately; surfaces are then rewritten against the real
- * tokens one at a time, and this block shrinks until it is empty.
- *
- * The supplied identity file does the same thing for `--gray-*`, so this is
- * the migration pattern the handoff already assumes.
- *
- * ROLE MAPPING, and why each one goes where it goes:
- *
- *   copper     interaction, focus, the primary action   →  BLUE
- *              The single most important mapping. Copper was the old
- *              interaction colour and blue is the new one, so every button,
- *              link and focus ring lands correctly without being touched.
- *              It must NOT map to orange: orange has a one-per-screen budget
- *              and copper appears ~24 files deep.
- *
- *   verdigris  provisioned, within limits, passing      →  GREEN  (success)
- *   ochre      a refusal the reader can resolve         →  AMBER  (warning)
- *   oxide      a refusal they cannot, and destructive   →  RED    (danger)
- *   slate      system and machine facts                 →  INK 600/300
- *   graphite   inert: archived, revoked, disabled       →  INK 500/400
- *
- * Ochre maps to AMBER and not to the brand orange deliberately. 03 §4 puts
- * danger and warning "deliberately apart from the brand orange in hue, so a
- * warning and a brand accent are never confused at a glance" — routing every
- * old ochre chip through #FA5505 would blow the accent budget on every screen
- * in the product simultaneously.
- */
 
-:root {
-  /* ─ surfaces ─ */
-  --surface-page: var(--surface-base);
-  --surface-well: var(--surface-raised); /* nested block: lighter, not darker */
-  --surface-invert: var(--ink-900);
-  --surface-hover: var(--surface-inset);
-
-  /* ─ rules ─ */
-  --rule-soft: var(--ink-100);
-  --rule-base: var(--border-subtle);
-  --rule-strong: var(--border-strong);
-
-  /* ─ ink steps ─ */
-  --ink-primary: var(--text-primary);
-  --ink-secondary: var(--text-secondary);
-  --ink-tertiary: var(--text-tertiary);
-  --ink-faint: var(--ink-300);
-  --ink-inverse: var(--text-inverse);
-
-  /* ─ copper → blue. Interaction. ─ */
-  --copper-ink: var(--blue-500);
-  --copper-solid: var(--blue-500);
-  --copper-tint: var(--blue-50);
-  --copper-rule: var(--blue-200);
-
-  /* ─ verdigris → green. Passing. ─ */
-  --verdigris-ink: var(--green-500);
-  --verdigris-solid: var(--green-500);
-  --verdigris-tint: var(--green-100);
-  --verdigris-rule: color-mix(in oklab, var(--green-500) 38%, var(--surface-base));
-
-  /* ─ ochre → amber. Resolvable refusal. ─ */
-  --ochre-ink: var(--amber-500);
-  --ochre-solid: var(--amber-500);
-  --ochre-tint: var(--amber-100);
-  --ochre-rule: color-mix(in oklab, var(--amber-500) 38%, var(--surface-base));
-
-  /* ─ oxide → red. Unresolvable refusal, and destructive. ─ */
-  --oxide-ink: var(--red-500);
-  --oxide-solid: var(--red-500);
-  --oxide-tint: var(--red-100);
-  --oxide-rule: color-mix(in oklab, var(--red-500) 38%, var(--surface-base));
-
-  /* ─ slate → ink. System and machine facts. ─ */
-  --slate-ink: var(--ink-600);
-  --slate-solid: var(--ink-600);
-  --slate-tint: var(--ink-50);
-  --slate-rule: var(--ink-300);
-
-  /* ─ graphite → ink. Inert. ─ */
-  --graphite-ink: var(--ink-500);
-  --graphite-solid: var(--ink-500);
-  --graphite-tint: var(--ink-100);
-  --graphite-rule: var(--ink-300);
-
-  /* ─ interaction ─ */
-  --focus: var(--border-focus);
-  --selection-bg: var(--blue-100);
-  --selection-fg: var(--ink-900);
-  --scrim: var(--surface-overlay);
-
-  --disabled-surface: var(--ink-50);
-  --disabled-rule: var(--ink-200);
-  --disabled-ink: var(--text-disabled);
-
-  /* ─ old semantic aliases ─ */
-  --text-body: var(--text-secondary);
-  --text-muted: var(--text-tertiary);
-  --text-placeholder: var(--input-placeholder);
-  --text-faint: var(--ink-300);
-  --text-brand: var(--text-action);
-
-  --border-default: var(--border-subtle);
-  --border-emphasis: var(--border-strong);
-
-  --action-primary-bg: var(--button-primary-bg);
-  --action-primary-fg: var(--button-primary-fg);
-  --action-primary-border: var(--blue-600);
-  --action-destructive-bg: var(--button-danger-bg);
-  --action-destructive-fg: var(--button-danger-fg);
-  --action-destructive-border: var(--red-500);
-  --action-quiet-fg: var(--text-action);
-  --action-quiet-hover-bg: var(--blue-50);
-
-  /* ─ old elevation names → the glass/neu system ─ */
-  --shadow-overlay: var(--shadow-lg);
-  --shadow-card: var(--glass-highlight), var(--shadow-sm);
-  --shadow-card-hover: var(--glass-highlight), var(--shadow-md);
-  --shadow-sunken: var(--neu-inset);
-  --shadow-well: var(--neu-inset);
-}
 
 /* Old geometry and layout names, theme-independent. */
 :root {
@@ -793,20 +785,22 @@
   --t-heading: 500 var(--display-sm) / var(--display-leading) var(--font-display);
   --t-heading-tracking: var(--display-tracking);
 
-  --t-panel: var(--weight-medium) var(--text-lg) / 1.4 var(--font-ui);
+  --t-panel: var(--weight-medium) var(--text-lg) / 1.45 var(--font-ui);
   --t-lede: var(--weight-normal) var(--text-md) / var(--leading-normal) var(--font-ui);
   --t-body: var(--weight-normal) var(--text-base) / var(--leading-normal) var(--font-ui);
-  --t-compact: var(--weight-normal) var(--text-sm) / 1.5 var(--font-ui);
-  --t-caption: var(--weight-normal) var(--text-sm) / 1.45 var(--font-ui);
-  --t-label: var(--weight-medium) var(--text-xs) / 1.4 var(--font-ui);
+  --t-compact: var(--weight-normal) var(--text-sm) / 1.58 var(--font-ui);
+  --t-caption: var(--weight-normal) var(--text-sm) / 1.5 var(--font-ui);
+  --t-label: var(--weight-medium) var(--text-xs) / 1.45 var(--font-ui);
   --t-label-tracking: 0.01em;
-  --t-micro: var(--weight-medium) var(--text-xs) / 1.35 var(--font-mono);
+  --t-micro: var(--weight-medium) var(--text-xs) / 1.4 var(--font-mono);
   --t-micro-tracking: 0.06em;
 
-  --t-data: var(--weight-normal) var(--text-base) / 1.5 var(--font-mono);
-  --t-code: var(--weight-normal) var(--text-sm) / 1.7 var(--font-mono);
-  --t-chip: var(--weight-medium) var(--text-xs) / 1 var(--font-mono);
+  --t-data: var(--weight-normal) var(--text-base) / 1.55 var(--font-mono);
+  --t-code: var(--weight-normal) var(--text-sm) / 1.75 var(--font-mono);
+  --t-chip: var(--weight-medium) var(--text-xs) / 1.15 var(--font-mono);
   --t-chip-tracking: 0.06em;
-  --t-eyebrow: var(--weight-medium) var(--text-xs) / 1 var(--font-mono);
+  --t-eyebrow: var(--weight-medium) var(--text-xs) / 1.15 var(--font-mono);
   --t-eyebrow-tracking: 0.12em;
+  --t-badge: var(--weight-medium) 9px / 1.15 var(--font-mono);
+  --t-badge-tracking: 0.04em;
 }

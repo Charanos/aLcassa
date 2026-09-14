@@ -36,6 +36,31 @@ import { refreshSupabaseSession } from '@/lib/auth/supabase/middleware';
  */
 const isDev = process.env.NODE_ENV === 'development';
 
+/**
+ * This deployment's Supabase origin, for `img-src`.
+ *
+ * ⚠ IT PARSES RATHER THAN INTERPOLATES. `NEXT_PUBLIC_SUPABASE_URL` is a URL
+ * and a CSP source is an origin: pasting the variable in whole would put any
+ * trailing path or slash into the directive, and a malformed source list is
+ * dropped by the browser SILENTLY — the policy stops applying and nothing says
+ * so. An unparseable value yields `null` and the directive simply omits the
+ * host, which fails closed: avatars stop rendering, which is visible, rather
+ * than the policy weakening, which is not.
+ *
+ * It does not use `supabaseUrl()` from `lib/auth/supabase/env.ts` because that
+ * one throws when unset, and middleware runs on every request including the
+ * ones that would tell an operator their environment is misconfigured.
+ */
+const SUPABASE_ORIGIN = (() => {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+})();
+
 const CSP_DIRECTIVES = (nonce: string) =>
   [
     "default-src 'self'",
@@ -43,7 +68,21 @@ const CSP_DIRECTIVES = (nonce: string) =>
     // Tailwind emits a stylesheet, and the design system sets token values
     // through inline `style` attributes on server-rendered elements.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    /**
+     * ⚠ THE STORAGE ORIGIN IS DERIVED FROM THE PROJECT URL, NOT WILDCARDED.
+     *
+     * `Avatar.tsx` recorded the rule when it replaced the stock photograph:
+     * "the CSP should be widened only to whatever bucket actually serves them."
+     * `SUPABASE_ORIGIN` below is the exact scheme-and-host of this deployment's
+     * Supabase project, so production, staging and a local instance each admit
+     * their own storage host and nothing else. A `https://*.supabase.co` would
+     * admit every Supabase project on the internet.
+     *
+     * `blob:` is already present and is what the picker's local preview uses,
+     * so an image the operator has chosen but not yet uploaded renders without
+     * a network request at all.
+     */
+    `img-src 'self' data: blob:${SUPABASE_ORIGIN ? ` ${SUPABASE_ORIGIN}` : ''} https://images.unsplash.com https://*.unsplash.com`,
     "font-src 'self' data:",
     `connect-src 'self'${isDev ? ' ws: wss:' : ''}`,
     "frame-ancestors 'none'",
@@ -76,7 +115,28 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // ─ Coarse access control. The real authorisation happens in the pipeline;
   //   this only avoids rendering a shell for a request that has no session. ─
   const isTenantTree = pathname.startsWith('/app');
-  const isPlatformTree = pathname.startsWith('/platform') && pathname !== '/platform/sign-in';
+  /**
+   * ⚠ THE `/platform/sign-in` CARVE-OUT IS GONE, BECAUSE THE PAGE IS.
+   *
+   * There were two sign-in pages rendering the same form, and the platform one
+   * posted to `/api/platform/v1/auth/sign-in` — **a route that does not exist**.
+   * The only sign-in handler is `/api/v1/auth/sign-in`, so submitting that page
+   * 404'd. It had presumably never been submitted.
+   *
+   * One page is also the correct design rather than merely the working one. The
+   * handler authenticates FIRST and then asks `isPlatformAdmin(userId)` to
+   * decide the door, so which form somebody typed into cannot affect where they
+   * land — a second page could only ever disagree with the router about that.
+   *
+   * ⚠ 02 §3 IS NOT WEAKENED BY THIS. "Two doors, two cookie names, no
+   * navigational path between them" is about SESSIONS, and the two cookies are
+   * untouched: a platform session and a tenant session remain separate rows with
+   * separate names and no path from one to the other. The claim was never that
+   * the login FORM had to be duplicated — and duplicating it bought a second
+   * thing to keep in step, which is how one of them ended up pointing at a route
+   * nobody had written.
+   */
+  const isPlatformTree = pathname.startsWith('/platform');
 
   if (isTenantTree && !request.cookies.has(TENANT_COOKIE)) {
     const url = request.nextUrl.clone();
@@ -89,7 +149,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   if (isPlatformTree && !request.cookies.has(PLATFORM_COOKIE)) {
     const url = request.nextUrl.clone();
-    url.pathname = '/platform/sign-in';
+    /* The one sign-in page. `?next=` survives, and the handler sends a platform
+       admin to `/platform` on its own once it knows who they are. */
+    url.pathname = '/sign-in';
     url.search = `?next=${encodeURIComponent(pathname + search)}`;
     return NextResponse.redirect(url);
   }

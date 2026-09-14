@@ -15,7 +15,7 @@ export function SessionsList({ sessions }: { sessions: AccountSession[] }) {
     <div className="grid gap-6">
       <ul
         className="overflow-hidden rounded-panel border"
-        style={{ borderColor: 'var(--rule-base)', background: 'var(--surface-raised)' }}
+        style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' }}
         role="list"
       >
         {sessions.map((session) => (
@@ -43,22 +43,22 @@ function SessionRow({ session }: { session: AccountSession }) {
   return (
     <li
       className="border-t px-4 py-3.5 first:border-t-0"
-      style={{ borderColor: 'var(--rule-soft)' }}
+      style={{ borderColor: 'var(--ink-100)' }}
     >
       <div className="flex items-center gap-3.5">
         <span
           className="grid size-8 shrink-0 place-items-center rounded-panel"
-          style={{ background: 'var(--surface-sunken)', color: 'var(--ink-secondary)' }}
+          style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)' }}
           aria-hidden
         >
           <IconDeviceDesktop size={16} stroke={1.5} />
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
-            <span className="t-body font-medium text-[var(--ink-primary)]">{session.device}</span>
+            <span className="t-body font-medium text-[var(--text-primary)]">{session.device}</span>
             {session.current ? <Badge tone="active">This device</Badge> : null}
           </span>
-          <span className="t-caption block text-[var(--ink-tertiary)]">
+          <span className="t-caption block text-[var(--text-tertiary)]">
             {session.location} · {session.lastActive}
           </span>
         </span>
@@ -72,7 +72,7 @@ function SessionRow({ session }: { session: AccountSession }) {
         <p
           role="alert"
           className="t-caption mt-1.5 flex items-center gap-1.5"
-          style={{ color: 'var(--oxide-ink)' }}
+          style={{ color: 'var(--red-500)' }}
         >
           <IconAlertTriangle size={13} stroke={1.5} className="shrink-0" aria-hidden />
           {error}
@@ -103,7 +103,7 @@ function RevokeAllRow({ count }: { count: number }) {
         <p
           role="alert"
           className="t-compact mt-2 flex items-center gap-1.5"
-          style={{ color: 'var(--oxide-ink)' }}
+          style={{ color: 'var(--red-500)' }}
         >
           <IconAlertTriangle size={14} stroke={1.5} className="shrink-0" aria-hidden />
           {error}

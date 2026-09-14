@@ -45,6 +45,9 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 | `12` | Handover Package                         | Requirement 7, treated as a deliverable with its own acceptance test                 |
 | `13` | Code Brief                               | Paste-ready prompt, plus follow-up patterns                                          |
 | `15` | Specification Delta                      | Where the code and a document disagree, and every decision confirmed after M0 |
+| `16` | Channel Adapter Guide                    | Adding a channel. The typed interface, the webhook shell, the seam boundary  |
+| `17` | Console Density and Function Pass        | The console strengthening pass opened 12 Sep 2026. Audit, stages, gates      |
+| `18` | Surface Refinement Playbook              | Taking a section from correct to finished. The seven steps and the checklist |
 
 ---
 
@@ -64,7 +67,7 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 
 ## Stack
 
-Next.js 15 with TypeScript strict, session door and dashboard · **FastAPI, service door, confirmed 24 Aug 2026, see `01 D-14`** · Supabase for Postgres, Auth, Storage and Row Level Security · Drizzle ORM · Upstash Redis, scoped to four uses · Vercel · pgvector · Sentry, Axiom, Better Stack · Libertinus Serif, Libertinus Sans, Fira Code · Tabler Icons
+Next.js 15 with TypeScript strict, session door and dashboard · **FastAPI, service door, confirmed 24 Aug 2026, see `01 D-14`** · Supabase for Postgres, Auth, Storage and Row Level Security · Drizzle ORM · Upstash Redis, scoped to four uses · Vercel · pgvector · Sentry, Axiom, Better Stack · Libertinus Serif Display, DM Sans, Lilex · Tabler Icons
 
 ## Before anything is built
 

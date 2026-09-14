@@ -5,7 +5,23 @@ import { IconLock, IconPencil, IconRefresh, IconShieldCheck, IconPlus } from '@t
 import type { WorkspaceRule } from '@/lib/console/data';
 import { Panel } from '@/components/console/Surface';
 
-export function RulesTab({ rules }: { rules: WorkspaceRule[] }) {
+/**
+ * ⚠ THE COUNT ARRIVES AS A PROP, AND THAT IS NOT A STYLE PREFERENCE.
+ *
+ * This is a client component. `lib/console/data` opens with `import
+ * 'server-only'`, so importing the shared count directly compiles clean under
+ * `tsc` and fails the BUILD — the type checker has no idea which side of the
+ * boundary a module lands on. The server page that renders this tab reads the
+ * count and passes it down, which is the same direction every other fact on
+ * this screen already travels.
+ */
+export function RulesTab({
+  rules,
+  workspaceCount,
+}: {
+  rules: WorkspaceRule[];
+  workspaceCount: number;
+}) {
   const masterRules = rules.filter((r) => r.state === 'inherited');
   const customRules = rules.filter((r) => r.state !== 'inherited');
 
@@ -38,7 +54,7 @@ export function RulesTab({ rules }: { rules: WorkspaceRule[] }) {
             </span>
           </div>
           <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
-            Propagated across 47 workspaces
+            Propagated across {workspaceCount} workspaces
           </p>
           <div
             className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
@@ -220,8 +236,10 @@ export function RulesTab({ rules }: { rules: WorkspaceRule[] }) {
           action={
             <button
               type="button"
+              disabled
+              title="A workspace’s own AI rules are edited in their console. The platform sets the floor, at /platform/ai-rules."
               className="inline-flex h-7.5 items-center gap-1 rounded-lg px-2.5 text-xs font-medium text-white transition-all active:scale-95"
-              style={{ background: 'var(--blue-500)' }}
+              style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
             >
               <IconPlus size={13} stroke={1.5} />
               Add Override
@@ -259,18 +277,20 @@ export function RulesTab({ rules }: { rules: WorkspaceRule[] }) {
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
+                      disabled
+                      title="A workspace’s own AI rules are edited in their console. The platform sets the floor, at /platform/ai-rules."
                       className="inline-flex items-center gap-1 rounded p-1 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-                      style={{ color: 'var(--text-secondary)' }}
-                      title="Edit rule override"
+                      style={{ opacity: 0.45, cursor: 'not-allowed', color: 'var(--text-secondary)' }}
                     >
                       <IconPencil size={12} stroke={1.5} />
                       Edit
                     </button>
                     <button
                       type="button"
+                      disabled
+                      title="Resetting a workspace override is a change inside their workspace, which needs a support session."
                       className="inline-flex items-center gap-1 rounded p-1 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-                      style={{ color: 'var(--danger-fg)' }}
-                      title="Reset to master value"
+                      style={{ opacity: 0.45, cursor: 'not-allowed', color: 'var(--danger-fg)' }}
                     >
                       <IconRefresh size={12} stroke={1.5} />
                       Reset
