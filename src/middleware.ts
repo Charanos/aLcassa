@@ -36,6 +36,31 @@ import { refreshSupabaseSession } from '@/lib/auth/supabase/middleware';
  */
 const isDev = process.env.NODE_ENV === 'development';
 
+/**
+ * This deployment's Supabase origin, for `img-src`.
+ *
+ * ⚠ IT PARSES RATHER THAN INTERPOLATES. `NEXT_PUBLIC_SUPABASE_URL` is a URL
+ * and a CSP source is an origin: pasting the variable in whole would put any
+ * trailing path or slash into the directive, and a malformed source list is
+ * dropped by the browser SILENTLY — the policy stops applying and nothing says
+ * so. An unparseable value yields `null` and the directive simply omits the
+ * host, which fails closed: avatars stop rendering, which is visible, rather
+ * than the policy weakening, which is not.
+ *
+ * It does not use `supabaseUrl()` from `lib/auth/supabase/env.ts` because that
+ * one throws when unset, and middleware runs on every request including the
+ * ones that would tell an operator their environment is misconfigured.
+ */
+const SUPABASE_ORIGIN = (() => {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+})();
+
 const CSP_DIRECTIVES = (nonce: string) =>
   [
     "default-src 'self'",
@@ -43,7 +68,21 @@ const CSP_DIRECTIVES = (nonce: string) =>
     // Tailwind emits a stylesheet, and the design system sets token values
     // through inline `style` attributes on server-rendered elements.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://images.unsplash.com https://*.unsplash.com",
+    /**
+     * ⚠ THE STORAGE ORIGIN IS DERIVED FROM THE PROJECT URL, NOT WILDCARDED.
+     *
+     * `Avatar.tsx` recorded the rule when it replaced the stock photograph:
+     * "the CSP should be widened only to whatever bucket actually serves them."
+     * `SUPABASE_ORIGIN` below is the exact scheme-and-host of this deployment's
+     * Supabase project, so production, staging and a local instance each admit
+     * their own storage host and nothing else. A `https://*.supabase.co` would
+     * admit every Supabase project on the internet.
+     *
+     * `blob:` is already present and is what the picker's local preview uses,
+     * so an image the operator has chosen but not yet uploaded renders without
+     * a network request at all.
+     */
+    `img-src 'self' data: blob:${SUPABASE_ORIGIN ? ` ${SUPABASE_ORIGIN}` : ''} https://images.unsplash.com https://*.unsplash.com`,
     "font-src 'self' data:",
     `connect-src 'self'${isDev ? ' ws: wss:' : ''}`,
     "frame-ancestors 'none'",

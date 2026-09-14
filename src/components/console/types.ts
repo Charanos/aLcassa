@@ -45,4 +45,17 @@ export type ConsoleAccount = {
   email: string;
   role: string;
   initials: string;
+  /**
+   * The uploaded face, or null for the initials fallback.
+   *
+   * ⚠ NULL IS THE COMMON CASE AND IS FULLY DESIGNED. Most accounts have no
+   * avatar, and `Avatar` renders initials with no network request at all — so
+   * "no photograph" is a first-class state here rather than a missing image.
+   *
+   * A public storage URL, built rather than signed. `lib/storage/avatar.ts`
+   * carries the reasoning: the chrome renders this three times on every page,
+   * and signing would put a round trip in the layout's critical path on every
+   * navigation.
+   */
+  avatarUrl?: string | null;
 };

@@ -10,7 +10,7 @@ import {
   IconUsers,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage, ExportLink, Panel } from '@/components/console/Surface';
+import { ConsoleHeader, ConsolePage, ExportLink, Panel, SectionHeading } from '@/components/console/Surface';
 import { AgeingChart, MrrChart, PlanMixChart } from '@/components/console/Charts';
 import { CollectionQueueTable } from '@/components/console/CollectionQueueTable';
 import { getRevenue, type Kpi } from '@/lib/console/data';
@@ -54,7 +54,10 @@ export default async function RevenuePage() {
         style={{ borderColor: 'var(--border-subtle)' }}
       >
         <div className="min-w-0 flex-1">
-          <ConsoleHeader eyebrow="/platform/revenue" title="Revenue" />
+          <ConsoleHeader
+            breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Revenue' }]}
+            title="Revenue"
+          />
           <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}>
             What the platform earns, what it is owed, and which workspaces are worth calling this
             week.
@@ -68,73 +71,125 @@ export default async function RevenuePage() {
         </div>
       </div>
 
-      {/* ── KPI row ──────────────────────────────────────────────────── */}
-      <div
-        className="mt-5 grid gap-3.5"
-        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(168px, 1fr))' }}
+      {/* ── KPIs ───────────────────────────────────
+          Dark ambient section matching the Overview aesthetic. */}
+      <section
+        className="relative mt-8 mb-12 overflow-hidden rounded-[20px] shadow-2xl transition-all duration-300"
+        style={{
+          background: '#060913',
+          border: '1px solid rgba(255,255,255,0.08)',
+          color: 'var(--invert-card-fg)',
+          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.06)',
+        }}
       >
-        {m.kpis.map((k) => {
-          const Icon = KPI_ICON[k.icon];
-          const Arrow = k.direction === 'up' ? IconArrowUp : IconArrowDown;
-          /*
-            The arrow points where the number moved; the COLOUR says whether
-            that was good. Churn falling and revenue falling are both down
-            arrows and mean opposite things, which is why the read model
-            carries `direction` and `good` as separate fields.
-          */
-          const deltaInk = k.good ? 'var(--success-fg)' : 'var(--danger-fg)';
-          return (
-            <div
-              key={k.label}
-              className="min-w-0 rounded-overlay p-4"
-              style={{
-                border: '1px solid var(--border-subtle)',
-                background: 'var(--surface-raised)',
-                boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="grid size-[22px] shrink-0 place-items-center rounded-chip"
-                  style={{ background: 'var(--surface-sunken)', color: 'var(--text-tertiary)' }}
-                  aria-hidden
-                >
-                  <Icon size={14} stroke={1.5} />
-                </span>
-                <span className="t-compact truncate" style={{ color: 'var(--text-secondary)' }}>
-                  {k.label}
-                </span>
-              </div>
-              <p
-                className="numeric mt-3"
-                style={{
-                  fontSize: 'var(--display-sm)',
-                  color: k.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
-                }}
-              >
-                {k.value}
-              </p>
-              <div className="mt-2 flex items-center gap-1.5">
-                <span
-                  className="numeric inline-flex items-center gap-0.5"
-                  style={{ fontSize: 11, color: deltaInk }}
-                >
-                  <Arrow size={11} stroke={2} aria-hidden />
-                  {k.delta}
-                </span>
-                <span className="t-caption truncate" style={{ color: 'var(--text-tertiary)' }}>
-                  {k.note}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+        {/* Premium Ambient Background Art */}
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none" aria-hidden="true">
+          <div className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-[0.18] blur-[120px]" style={{ background: 'var(--blue-500)' }} />
+          <div className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]" style={{ background: 'var(--indigo-500)' }} />
+          
+          <svg className="absolute inset-0 h-full w-full opacity-[0.4]" viewBox="0 0 1000 400" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <path d="M -100 250 C 200 350 400 50 700 150 S 1100 0 1200 100" stroke="url(#elegant-line-1)" strokeWidth="1.5" />
+            <path d="M -50 300 C 250 400 450 100 750 200 S 1150 50 1250 150" stroke="url(#elegant-line-2)" strokeWidth="1" strokeDasharray="4 8" />
+            <defs>
+              <linearGradient id="elegant-line-1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
+                <stop offset="40%" stopColor="var(--invert-card-fg)" stopOpacity="0.25" />
+                <stop offset="80%" stopColor="var(--blue-400)" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="elegant-line-2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
+                <stop offset="50%" stopColor="var(--invert-card-fg)" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
 
-      {/* ── MRR + plan mix ───────────────────────────────────────────── */}
-      <div className="mt-5 grid items-start gap-5 lg:grid-cols-[1.5fr_1fr]">
+          <div className="absolute inset-0 opacity-[0.25]" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '32px 32px', maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)', WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)' }} />
+        </div>
+
+        {/* KPI Row (Signal Cards) */}
+        <div className="relative z-10 px-8 pb-8 lg:px-12 lg:pb-12">
+          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.15)] to-transparent opacity-60 lg:left-12 lg:right-12" />
+
+          <div className="grid w-full grid-cols-1 gap-6 pt-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 md:gap-8">
+            {m.kpis.map((k, i) => {
+              const Icon = KPI_ICON[k.icon];
+              const Arrow = k.direction === 'up' ? IconArrowUp : IconArrowDown;
+              const isPositive = k.good;
+              const isDanger = k.tone === 'danger';
+              
+              return (
+                <div
+                  key={k.label}
+                  className="group relative flex flex-col justify-between rounded-xl px-5 -m-5 py-3 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] cursor-default"
+                >
+                  <div className="pointer-events-none absolute -bottom-6 right-3 z-0 text-[var(--invert-card-fg)] opacity-[0.08] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.14]">
+                    <Icon size={120} stroke={1.5} aria-hidden />
+                  </div>
+
+                  {i < m.kpis.length - 1 && (
+                    <div className="pointer-events-none absolute -right-4 top-1/2 hidden h-16 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[rgba(255,255,255,0.1)] to-transparent xl:block" />
+                  )}
+
+                  <div className="relative z-10 mb-4 flex items-center justify-between">
+                    <span
+                      className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em]"
+                      style={{ color: 'var(--invert-card-fg)', opacity: 0.5 }}
+                    >
+                      {k.label}
+                    </span>
+                  </div>
+
+                  <div className="relative z-10 mb-2 flex items-end gap-3">
+                    <div
+                      className="font-mono tracking-tight"
+                      style={{
+                        fontSize: '34px',
+                        fontWeight: 300,
+                        color: isDanger ? '#fb7185' : 'var(--invert-card-fg)',
+                        lineHeight: 1,
+                        textShadow: isDanger ? '0 4px 16px rgba(251,113,133,0.3)' : '0 4px 16px rgba(0,0,0,0.5)',
+                        letterSpacing: '-0.03em',
+                      }}
+                    >
+                      {k.value}
+                    </div>
+                  </div>
+
+                  <div
+                    className="relative z-10 mt-1 flex items-center gap-2"
+                    style={{
+                      font: '400 12px/1.4 var(--font-ui)',
+                      color: 'var(--invert-card-fg)',
+                      opacity: 0.7,
+                    }}
+                  >
+                    <span
+                      className="numeric inline-flex items-center gap-0.5 whitespace-nowrap"
+                      style={{ fontSize: 11, color: isPositive ? '#4ade80' : '#f87171' }}
+                    >
+                      <Arrow size={12} stroke={2.5} aria-hidden />
+                      {k.delta}
+                    </span>
+                    <span className="truncate">{k.note}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <SectionHeading
+        title="Revenue Analytics"
+        note="Live breakdown of monthly recurring revenue trajectory and plan distribution."
+        align="right"
+      />
+      <div className="mt-8 grid items-stretch gap-6 lg:grid-cols-[1.5fr_1fr]">
         <Panel
           title="Monthly recurring revenue"
+          variant="elevated"
           action={
             <span className="flex items-center gap-3.5">
               <Legend swatch="var(--blue-500)" shape="line">
@@ -147,7 +202,7 @@ export default async function RevenuePage() {
           <MrrChart data={m.mrr} />
         </Panel>
 
-        <Panel title="Revenue by plan" flush>
+        <Panel title="Revenue by plan" flush variant="elevated">
           <div className="px-4 pt-3.5">
             <PlanMixChart data={m.planMix.map((p) => ({ name: p.name, value: p.value }))} />
           </div>
@@ -186,12 +241,20 @@ export default async function RevenuePage() {
         </Panel>
       </div>
 
-      <MovementBand movement={m.movement} />
+      <div className="mt-8 mb-16">
+        <MovementBand movement={m.movement} />
+      </div>
 
       {/* ── Ageing + collection queue ────────────────────────────────── */}
-      <div className="mt-5 grid items-start gap-5 lg:grid-cols-[1fr_1.5fr]">
+      <SectionHeading
+        title="Collection Queue"
+        note="Outstanding invoices sorted by days late. The collection queue is the actionable priority."
+        align="right"
+      />
+      <div className="mt-8 grid items-stretch gap-6 lg:grid-cols-[1.1fr_1.5fr]">
         <Panel
           title="Invoice ageing"
+          variant="elevated"
           action={
             <span
               className="numeric whitespace-nowrap"
@@ -201,12 +264,15 @@ export default async function RevenuePage() {
             </span>
           }
         >
-          <AgeingChart data={m.ageing} />
+          <div className="relative min-h-[220px] flex-1">
+            <AgeingChart data={m.ageing} />
+          </div>
         </Panel>
 
         <Panel
           title="Collection queue"
           flush
+          variant="elevated"
           action={
             <span className="t-caption whitespace-nowrap" style={{ color: 'var(--text-tertiary)' }}>
               Sorted by days late

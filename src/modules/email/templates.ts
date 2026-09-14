@@ -227,3 +227,56 @@ View activity:
 ${input.activityUrl}`,
   };
 }
+
+/**
+ * "We signed out your other devices."
+ *
+ * ⚠ THE SIXTH TEMPLATE, AND THE FIRST ONE ADDRESSED TO AN OPERATOR RATHER THAN
+ * TO A CUSTOMER. The other five tell a tenant something the platform did; this
+ * one tells a platform admin something they did to their own account.
+ *
+ * ⚠ WHY A SWEEP IS WORTH AN EMAIL AND A RENAME IS NOT.
+ *
+ * The value of this message is not the confirmation — the operator pressed the
+ * button and watched the list empty. It is the SECOND reader: the person who
+ * gets this and did not do it. Session revocation is the one action on the
+ * profile screen whose unexpected arrival means an account is compromised, and
+ * an email is the only channel that reaches somebody who is not currently
+ * looking at the console. Changing a display name or a photograph has no such
+ * reading, and mailing every profile edit would train the recipient to ignore
+ * the one message that matters.
+ *
+ * ⚠ IT DOES NOT LINK A "THIS WASN'T ME" ACTION, because there is nothing
+ * honest to link to. A one-click lockout needs a flow that does not exist yet;
+ * pointing at the profile screen would be pointing a possibly-locked-out person
+ * at a page they cannot reach. It names the one thing that is true and
+ * actionable: the password is what an intruder needs, and changing it goes
+ * through recovery.
+ */
+export function sessionsRevokedEmail(input: {
+  name: string;
+  count: number;
+  /** The device that did it, so the recipient can tell "me" from "not me". */
+  fromDevice: string;
+  when: string;
+}): RenderedTemplate {
+  const plural = input.count === 1 ? 'session was' : 'sessions were';
+  const subject = 'Your other devices were signed out';
+  const opening = `${input.count} ${plural} ended on your aLcassa platform account.`;
+
+  return {
+    subject,
+    html: layout({
+      preheader: opening,
+      heading: subject,
+      body: `<p style="margin:0 0 12px 0;">${escapeHtml(input.name)}, ${escapeHtml(opening)}</p>
+<p style="margin:0 0 12px 0;">Requested from ${escapeHtml(input.fromDevice)} at ${escapeHtml(input.when)}. That device is still signed in.</p>
+<p style="margin:0 0 12px 0;"><strong>If this was not you</strong>, someone else has your password. Change it through the sign-in page's recovery link, which proves control of this address first.</p>`,
+    }),
+    text: `${input.name}, ${opening}
+
+Requested from ${input.fromDevice} at ${input.when}. That device is still signed in.
+
+If this was not you, someone else has your password. Change it through the sign-in page's recovery link, which proves control of this address first.`,
+  };
+}

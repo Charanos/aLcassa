@@ -29,46 +29,57 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
   return (
     <>
       {/* Desktop table */}
-      <div className="hidden sm:block">
-        <table className="w-full table-fixed border-collapse">
-          <colgroup>
-            <col style={{ width: '34%' }} />
-            <col style={{ width: '18%' }} />
-            <col style={{ width: '16%' }} />
-            <col style={{ width: '16%' }} />
-            <col style={{ width: '16%' }} />
-          </colgroup>
-          <thead>
-            <tr style={{ background: 'var(--surface-sunken)' }}>
-              {['Workspace', 'Invoice', 'Amount', 'Late', 'Attempts'].map((h, i) => (
-                <th
-                  key={h}
-                  scope="col"
-                  className="h-9"
-                  style={{
-                    padding: i === 0 ? '0 16px' : i === 4 ? '0 16px' : '0 8px',
-                    textAlign: i >= 2 ? 'right' : 'left',
-                    borderBottom: '1px solid var(--border-subtle)',
-                    font: '500 11px/1 var(--font-ui)',
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                    color: 'var(--text-secondary)',
-                  }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
+      <div className="hidden sm:block p-4">
+        <div 
+          className="relative overflow-hidden rounded-[20px] bg-white"
+          style={{
+            border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
+            boxShadow: '0 8px 40px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset'
+          }}
+        >
+          <table className="w-full table-fixed border-collapse">
+            <colgroup>
+              <col style={{ width: '34%' }} />
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '16%' }} />
+              <col style={{ width: '16%' }} />
+              <col style={{ width: '16%' }} />
+            </colgroup>
+            <thead>
+              <tr style={{ background: 'color-mix(in srgb, var(--surface-sunken) 30%, transparent)' }}>
+                {['Workspace', 'Invoice', 'Amount', 'Late', 'Attempts'].map((h, i) => (
+                  <th
+                    key={h}
+                    scope="col"
+                    className="h-11"
+                    style={{
+                      padding: i === 0 ? '0 24px' : i === 4 ? '0 24px' : '0 12px',
+                      textAlign: i >= 2 ? 'right' : 'left',
+                      borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 25%, transparent)',
+                      font: '500 11px/1 var(--font-ui)',
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      color: 'var(--text-tertiary)',
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
           <tbody>
             {collections.map((c, i) => (
               <tr
                 key={c.id}
                 {...grid.getRowProps(i)}
-                className="cursor-pointer transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
-                style={{ height: 44, borderBottom: '1px solid var(--border-subtle)' }}
+                className="group cursor-pointer transition-colors hover:bg-[var(--surface-inset)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
+                style={{ height: 56 }}
               >
-                <td className="overflow-hidden" style={{ padding: '0 16px' }} data-row-actions>
+                <td
+                  className="overflow-hidden border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                  style={{ padding: '0 24px' }}
+                  data-row-actions
+                >
                   <Link
                     href={`/platform/tenants/${c.slug}`}
                     tabIndex={-1}
@@ -78,41 +89,52 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                         grid.focusIndex(i);
                       }
                     }}
-                    className="block truncate transition-colors hover:text-[var(--text-action)]"
+                    className="block truncate transition-colors group-hover:text-[var(--blue-600)]"
                     style={{
-                      font: '400 var(--text-sm)/1.3 var(--font-ui)',
+                      font: '500 13.5px/1.4 var(--font-ui)',
                       color: 'var(--text-primary)',
+                      letterSpacing: '-0.01em',
                     }}
                   >
                     {c.name}
                   </Link>
                 </td>
-                <td style={{ padding: '0 8px' }}>
-                  <span
-                    style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-secondary)' }}
-                  >
+                <td
+                  className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                  style={{ padding: '0 12px' }}
+                >
+                  <span style={{ font: '400 12.5px/1 var(--font-mono)', color: 'var(--text-secondary)' }}>
                     {c.invoice}
                   </span>
                 </td>
-                <td style={{ padding: '0 8px', textAlign: 'right' }}>
-                  <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
+                <td
+                  className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                  style={{ padding: '0 12px', textAlign: 'right' }}
+                >
+                  <span className="numeric" style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500 }}>
                     {c.amount}
                   </span>
                 </td>
-                <td style={{ padding: '0 8px', textAlign: 'right' }}>
+                <td
+                  className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                  style={{ padding: '0 12px', textAlign: 'right' }}
+                >
                   <span
                     style={{
-                      font: '400 var(--text-sm)/1 var(--font-mono)',
+                      font: '400 13px/1 var(--font-mono)',
                       color: lateInk(c.days),
                     }}
                   >
                     {c.days} {c.days === 1 ? 'day' : 'days'}
                   </span>
                 </td>
-                <td style={{ padding: '0 16px', textAlign: 'right' }}>
+                <td
+                  className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                  style={{ padding: '0 24px', textAlign: 'right' }}
+                >
                   <span
                     style={{
-                      font: '400 var(--text-sm)/1 var(--font-mono)',
+                      font: '400 12.5px/1 var(--font-mono)',
                       color: 'var(--text-tertiary)',
                     }}
                   >
@@ -123,6 +145,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Mobile cards */}

@@ -258,7 +258,7 @@ export function PricingSection() {
                 {/* Popular Pill Badge (Clean typography, no sparkles) */}
                 {tier.isPopular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center font-mono text-[10px] font-semibold uppercase tracking-wider text-white bg-[var(--blue-500)] px-3.5 py-1 rounded-full shadow-sm">
+                    <span className="inline-flex items-center font-mono text-[10px] font-medium uppercase tracking-wider text-white bg-[var(--blue-500)] px-3.5 py-1 rounded-full shadow-sm">
                       {tier.badge}
                     </span>
                   </div>
@@ -283,7 +283,7 @@ export function PricingSection() {
                   {/* Price Block */}
                   <div className="mt-6 pt-6 border-t border-[var(--ink-100)]">
                     <div className="flex items-baseline gap-2">
-                      <span className="font-mono text-[32px] sm:text-[36px] font-semibold tracking-tight text-[var(--text-primary)]">
+                      <span className="font-mono text-[32px] sm:text-[36px] font-medium tracking-tight text-[var(--text-primary)]">
                         {formattedPrice}
                       </span>
                       {tier.monthlyPrice > 0 && (

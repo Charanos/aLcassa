@@ -72,9 +72,11 @@ export function MovementBand({ movement }: { movement: MrrMovement[] }) {
     <section className="mt-8">
       <SectionHeading title="Movement" note="Where the change came from" />
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)]">
-        <Panel title="New, expansion, contraction and churn">
-          <MovementChart data={movement} />
+      <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)]">
+        <Panel title="New, expansion, contraction and churn" variant="elevated">
+          <div className="relative min-h-[260px] flex-1">
+            <MovementChart data={movement} />
+          </div>
         </Panel>
 
         <Panel title="Twelve months">
@@ -122,17 +124,22 @@ function Figure({
 }) {
   return (
     <div
-      className="grid gap-0.5 py-3 first:pt-0"
-      style={{ borderTop: '1px solid var(--border-subtle)' }}
+      className="group flex flex-col gap-1.5 py-4 first:pt-2"
+      style={{ borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 50%, transparent)' }}
     >
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
+      <div className="flex items-baseline justify-between gap-4">
+        <span
+          className="font-ui text-[13px] font-medium transition-colors group-hover:text-[var(--text-primary)]"
+          style={{ color: 'var(--text-secondary)' }}
+        >
           {label}
         </span>
         <span
           className="numeric shrink-0 whitespace-nowrap"
           style={{
-            fontSize: strong ? 'var(--text-md)' : 'var(--text-sm)',
+            fontSize: strong ? '20px' : '14px',
+            fontWeight: strong ? 500 : 400,
+            letterSpacing: strong ? '-0.02em' : 'normal',
             color: tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
           }}
         >
@@ -140,9 +147,12 @@ function Figure({
         </span>
       </div>
       {note ? (
-        <span className="t-caption" style={{ color: 'var(--text-tertiary)', maxWidth: '40ch' }}>
+        <p
+          className="font-ui text-[12px] leading-snug"
+          style={{ color: 'var(--text-tertiary)', maxWidth: '42ch' }}
+        >
           {note}
-        </span>
+        </p>
       ) : null}
     </div>
   );

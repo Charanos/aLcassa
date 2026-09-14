@@ -249,6 +249,8 @@ COMPONENTISE
 
 TRUTH
   [ ] no data-shaped literals left in presentation files
+  [ ] if the surface can write, it knows whether the model is live —
+      and every control says so before it is pressed, not after
   [ ] every figure: sourced, derived, or labelled as not counted
   [ ] the live reader and the fixture return the SAME shape
   [ ] maps keyed by id, never by display label
@@ -300,7 +302,11 @@ VERIFY
 | Revenue · movement | done | done | done | — | n/a | — |
 | Sessions · shape | done | done | done | done | n/a | done |
 | AI rules · fields, versions | done | done | done | partial | n/a | — |
-| Tenants, health, admins, settings, profile, tenant detail | — | — | — | — | — | — |
+| Profile · identity & avatar | done | done | done | done | done | done |
+| Profile · security | done | done | done | done | n/a | done |
+| Profile · sessions | done | done | done | done | done | done |
+| Profile · access rail | done | done | done | done | n/a | done |
+| Tenants, health, admins, settings, tenant detail | — | — | — | — | — | — |
 
 **The overview page is complete.** Every section on it has been through all seven steps. It is the reference implementation: when a later surface is ambiguous, open the equivalent piece of the overview and match it.
 
@@ -492,3 +498,99 @@ reader the ability to tell where one ends.
 `03 §26` is the authority. It was written after the fact, which is the lesson:
 **when the product and the design document disagree, the document is a defect
 whoever notices it owns** — regardless of who changed the code.
+
+---
+
+## 15. What the profile added to this list
+
+The second surface through the playbook. Four lessons, of which two change the
+checklist in §9.
+
+### A client component can hold state ABOVE server children
+
+The profile needed a floating unsaved-changes bar, and a `sticky` bar only works
+inside its own container — so a bar rendered in the identity card stops following
+the reader exactly when they scroll past that card. The draft state therefore has
+to live above every card on the page.
+
+The naive conclusion is that every card must become client code, which would have
+undone step 1 completely.
+
+It does not follow. A client component that receives already-rendered **server**
+trees as props renders them without inspecting or hydrating them:
+
+```tsx
+// ProfilePanel.tsx — a SERVER component
+<ProfileForm
+  name={model.name}
+  main={<><SecurityList … /><SessionList … /></>}   // rendered on the server
+  rail={<><AccessRail … /><LimitsCard /></>}        // rendered on the server
+/>
+```
+
+`ProfileForm` is `'use client'`, holds the draft, and renders `{main}` and
+`{rail}` as opaque output. This is the same inversion `PagedList` uses to window
+server children, applied to **state** instead of to windowing — and it is the
+general answer whenever page-level interaction meets a page of static cards.
+
+**Add to the checklist, under COMPONENTISE:**
+
+```
+  [ ] page-level state lifted into a client wrapper that takes server
+      children as props — not by making the children client components
+```
+
+### Propagation is part of "wired", and revalidatePath has a scope
+
+A write that lands in the database and does not reach the chrome is not finished.
+Two things have to be right, and both were wrong here:
+
+1. **`revalidatePath(path)` revalidates the PAGE segment only.** Anything rendered
+   by the layout — a sidebar identity card, a top-bar account control — needs
+   `revalidatePath(path, 'layout')`. A rename was landing correctly and showing
+   the old name on every screen until a hard reload.
+2. **The chrome has to read the same column the write wrote.** It read
+   `platform_admins.display_name`; the rename writes `user_profiles.full_name`,
+   deliberately. Revalidating harder would never have fixed it.
+
+**Add to the checklist, under INTERACTION:**
+
+```
+  [ ] every surface that renders the changed value is revalidated —
+      'layout' scope where the chrome shows it
+  [ ] the readers behind those surfaces select the column the write wrote
+```
+
+### An action that writes nothing must not answer `ok`
+
+`revokeSession` returned `void` and matched on id alone, so a stale id, a foreign
+id and an already-revoked row were indistinguishable from success. The screen
+refreshed, the row stayed, and nothing explained why.
+
+This is the same defect as the fake save in §6 — *"never fake a save"* — arriving
+from the other direction. The save was fake because it never called the server;
+this one called the server and did not look at what came back.
+
+The rule generalises: **a write that can affect zero rows must return the count,
+and zero must not be success.** It also gates the audit row — recording
+`session.revoked` for a revocation that revoked nothing puts a false event into
+the one log a security review actually reads.
+
+### `title=` is not a stated reason, and the component said so
+
+`InertControl`'s own documentation reads: *"the reason is also rendered as text
+beside or beneath the control by the caller. This component refuses to be the only
+carrier."*
+
+The profile was the caller that did not. Three security controls shipped greyed
+out with their explanation reachable only by hovering a pointer, so a keyboard
+reader, a touch reader and a screen-reader user each got a dead control and no
+account of it.
+
+§6 already recorded this from the queue's truncated reason. Two independent
+instances of the same failure means the checklist item was too weak. It now reads:
+
+```
+  [ ] disabled controls state the reason as TEXT in the layout —
+      title= is an addition to it, never the carrier
+```

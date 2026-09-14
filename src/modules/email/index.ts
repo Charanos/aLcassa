@@ -12,7 +12,12 @@ import type { EmailAdapter, RenderedTemplate, SendResult } from './types';
  * something rendered a subject and two bodies and wants them sent.
  */
 
-export { invitationEmail, credentialCreatedEmail, supportSessionEmail } from './templates';
+export {
+  invitationEmail,
+  credentialCreatedEmail,
+  sessionsRevokedEmail,
+  supportSessionEmail,
+} from './templates';
 export type { EmailAdapter, OutboundEmail, RenderedTemplate, SendResult } from './types';
 
 /**

@@ -464,9 +464,9 @@ export const FOUNDATION: FoundationItem[] = [
   },
   {
     area: 'Console',
-    what: "Profile: the signed-in operator's own identity, security, sessions, and access ceiling",
+    what: "Profile: the operator's own identity — photo upload, rename, live device sessions with revocation, capability grants, and the access ceiling",
     state: 'built',
-    evidence: 'src/components/console/ProfilePanel.tsx',
+    evidence: 'src/components/console/profile/',
     milestone: 'M4, M2',
   },
   {

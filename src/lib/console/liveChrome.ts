@@ -3,6 +3,7 @@ import { desc, eq, isNull } from 'drizzle-orm';
 import { platformAdmins, plans, subscriptions, tenants, userProfiles } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import { withoutTenantContext } from '@/lib/db';
+import { avatarUrlFor } from '@/lib/storage/avatar';
 import type { ConsoleAccount, ConsoleWorkspace } from '@/components/console/types';
 
 /**
@@ -75,6 +76,25 @@ export async function getLiveConsoleChrome(): Promise<{
     const [admin] = await tx
       .select({
         displayName: platformAdmins.displayName,
+        /**
+         * ⚠ `full_name` WAS NOT BEING READ HERE, AND THAT WAS THE PROPAGATION
+         * BUG.
+         *
+         * Renaming yourself on the profile screen writes `user_profiles.
+         * full_name` — deliberately, because rewriting your own entry in the
+         * access register is the wrong direction for a security record, and
+         * `profile-actions.ts` says so. The profile screen and the admin roster
+         * both prefer the profile name when one exists.
+         *
+         * The chrome did not. It read `platform_admins.display_name` alone, so
+         * an operator could rename themselves, see it take on two screens, and
+         * keep looking at the old name in the sidebar and the top bar on EVERY
+         * screen — the most visible surface of the three, and the last to
+         * agree. Same precedence as everywhere else now: profile, then roster,
+         * then the session's own label.
+         */
+        fullName: userProfiles.fullName,
+        avatarPath: userProfiles.avatarPath,
         email: userProfiles.email,
         canEnterSupportMode: platformAdmins.canEnterSupportMode,
       })
@@ -91,7 +111,7 @@ export async function getLiveConsoleChrome(): Promise<{
      * missed would be worse than showing the label the session already
      * carries.
      */
-    const name = admin?.displayName ?? ctx.actorLabel;
+    const name = admin?.fullName ?? admin?.displayName ?? ctx.actorLabel;
 
     return {
       workspaces: rows.map((row) => ({
@@ -111,6 +131,12 @@ export async function getLiveConsoleChrome(): Promise<{
            changes what the menu can offer. */
         role: admin?.canEnterSupportMode === false ? 'platform_readonly' : 'platform_admin',
         initials: initialsOf(name),
+        /* Null for most accounts, and null is the designed state: `Avatar`
+           falls back to the initials beside it, with no network request at
+           all. The URL is built rather than signed — see `lib/storage/avatar.ts`
+           for why this bucket is public-read, which is what keeps this
+           layout-critical read synchronous. */
+        avatarUrl: avatarUrlFor(admin?.avatarPath),
       },
     };
   });

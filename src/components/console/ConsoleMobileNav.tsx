@@ -301,7 +301,7 @@ export function ConsoleMobileNav({
               </Link>
 
               <div
-                className="mt-3 border-t pt-3"
+                className="my-6 border-t pt-3"
                 style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}
               >
                 <div className="mb-1 px-2.5">

@@ -56,14 +56,37 @@ export function ConsoleHeader({
   breadcrumbs,
   title,
   actions,
+  rule,
 }: {
   eyebrow?: string;
   breadcrumbs?: Array<{ label: string; href?: string }>;
   title: string;
   actions?: React.ReactNode;
+  /**
+   * A hairline directly beneath the header, for the screens that want one.
+   *
+   * ⚠ IT REPLACES A WRAPPER THAT WAS PUTTING THE RULE IN THE WRONG PLACE.
+   *
+   * Three pages — profile, settings, support sessions — each wrapped this
+   * component in `<div className="border-b pb-5">` and then added `mt-6` below
+   * it. Since the header carries its own `mb-10`, the result was: title, forty
+   * pixels of air, a hairline, twenty-four more pixels, content. The rule ended
+   * up floating in the middle of an eighty-pixel gap, attached to nothing,
+   * rather than closing the header.
+   *
+   * With `rule` the margin collapses into the rule's own spacing and the
+   * hairline sits where a hairline under a heading belongs. The other two pages
+   * drop their wrapper when their pass comes round.
+   */
+  rule?: boolean;
 }) {
   return (
-    <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:gap-8">
+    <div
+      className={`flex flex-col gap-5 sm:flex-row sm:items-end sm:gap-8 ${
+        rule ? 'mb-6 border-b pb-5' : 'mb-10'
+      }`}
+      style={rule ? { borderColor: 'var(--border-subtle)' } : undefined}
+    >
       <div className="min-w-0 flex-1">
         {breadcrumbs && breadcrumbs.length > 0 ? (
           <nav className="mb-4 -ml-2.5 flex items-center gap-1.5">
@@ -86,7 +109,12 @@ export function ConsoleHeader({
                   </span>
                 )}
                 {i < breadcrumbs.length - 1 && (
-                  <IconChevronRight size={12} stroke={2.5} className="opacity-30" style={{ color: 'var(--text-tertiary)' }} />
+                  <IconChevronRight
+                    size={12}
+                    stroke={2.5}
+                    className="opacity-30"
+                    style={{ color: 'var(--text-tertiary)' }}
+                  />
                 )}
               </React.Fragment>
             ))}
@@ -141,10 +169,10 @@ export function SectionHeading({
   const isRight = align === 'right';
 
   return (
-    <div className="mb-12 mt-24 w-full">
+    <div className="mt-24 mb-12 w-full">
       {/* Top Hairline spanning full width */}
       <div
-        className={`w-full h-px mb-6 ${
+        className={`mb-6 h-px w-full ${
           isRight
             ? 'bg-gradient-to-l from-[var(--border-strong)]/40 via-[var(--border-strong)]/10 to-transparent'
             : 'bg-gradient-to-r from-[var(--border-strong)]/40 via-[var(--border-strong)]/10 to-transparent'
@@ -152,9 +180,13 @@ export function SectionHeading({
         aria-hidden
       />
 
-      <div className={`flex w-full items-start justify-between gap-8 ${isRight ? 'flex-row-reverse' : ''}`}>
+      <div
+        className={`flex w-full items-start justify-between gap-8 ${isRight ? 'flex-row-reverse' : ''}`}
+      >
         {/* Main Content Stack */}
-        <div className={`flex flex-col ${isRight ? 'items-end text-right' : 'items-start text-left'}`}>
+        <div
+          className={`flex flex-col ${isRight ? 'items-end text-right' : 'items-start text-left'}`}
+        >
           <h2
             className="display display-md tracking-tight"
             style={{ color: 'var(--text-primary)', fontWeight: 400 }}
@@ -162,17 +194,14 @@ export function SectionHeading({
             {title}
           </h2>
           {note ? (
-            <p
-              className="t-body mt-2.5"
-              style={{ color: 'var(--text-secondary)' }}
-            >
+            <p className="t-body mt-2.5" style={{ color: 'var(--text-secondary)' }}>
               {note}
             </p>
           ) : null}
         </div>
 
         {/* Action Link */}
-        {action ? <div className="shrink-0 mt-1">{action}</div> : null}
+        {action ? <div className="mt-1 shrink-0">{action}</div> : null}
       </div>
     </div>
   );
@@ -262,7 +291,9 @@ export function Panel({
         />
       )}
       {title ? (
-        <div className={`mb-5 ${isElevated || isFlushGlass ? '' : 'mt-4'} flex items-center justify-between gap-4 px-1`}>
+        <div
+          className={`mb-5 ${isElevated || isFlushGlass ? '' : 'mt-4'} flex items-center justify-between gap-4 px-1`}
+        >
           <div className="flex items-center gap-2.5">
             {accentInk ? (
               <span className="relative flex size-2 shrink-0 items-center justify-center">
@@ -279,7 +310,7 @@ export function Panel({
               </span>
             ) : null}
             <h3
-              className="font-mono text-[11.5px] font-medium uppercase tracking-[0.15em]"
+              className="font-mono text-[11.5px] font-medium tracking-[0.15em] uppercase"
               style={{ color: 'var(--text-secondary)' }}
             >
               {title}
@@ -288,7 +319,121 @@ export function Panel({
           {action ? <div className="shrink-0">{action}</div> : null}
         </div>
       ) : null}
-      <div className={`${flush ? '' : 'px-1'} flex-1 min-h-0 flex flex-col`}>{children}</div>
+      <div className={`${flush ? '' : 'px-1'} flex min-h-0 flex-1 flex-col`}>{children}</div>
+    </section>
+  );
+}
+
+/**
+ * THE SECTION ON A SCREEN THE OPERATOR CAME TO CHANGE SOMETHING ON.
+ *
+ * ⚠ WHY THIS IS NOT `Panel variant="elevated"`, WHICH IS ALSO A CARD.
+ *
+ * They are the same shape doing two different jobs, and the difference is in
+ * the heading. `Panel` titles a BAND on a briefing screen: a mono eyebrow,
+ * uppercase, tracked out — a label on a region somebody is scanning. It has
+ * nowhere to put a sentence, deliberately, because a band that needs a sentence
+ * of explanation is a band whose visualisation has failed.
+ *
+ * A settings section is the opposite reading task. Nobody scans it; they arrive
+ * looking for one control, and the sentence under the heading is what tells
+ * them whether this is the section that holds it — "Devices currently signed
+ * into this account" is doing more work than the word "Sessions" above it.
+ *
+ * Bending `Panel` to carry a standfirst would have given it two title
+ * treatments and no rule for choosing between them. Two named components with
+ * one sentence each is cheaper than one component with a mode.
+ *
+ * ⚠ USE IT ON: profile, settings, admin detail — anywhere the page is a form.
+ *    USE `Panel` ON: overview and the dashboards, where the page is a briefing.
+ *    03 §26 still decides carded-vs-uncarded; this decides WHICH card.
+ *
+ * ⚠ THIRTEEN HAND-ROLLED COPIES OF THIS EXIST TODAY — four on the profile,
+ * eight in `SettingsPanel`, one in the sessions view — each with its own
+ * padding, radius and shadow, several with raw `#ffffff` grounds. The profile
+ * is the first consumer; settings adopts it in its own pass, and that pass is
+ * then a deletion rather than a redesign.
+ */
+export function SettingsSection({
+  /**
+   * ⚠ OPTIONAL, BECAUSE A SECTION CAN HAVE ITS HEADING ELSEWHERE.
+   *
+   * The profile's identity card leads with the avatar and takes its heading from
+   * the page above it, so it passes nothing. It previously passed `title=""`,
+   * which is worse than passing nothing: it emitted an empty `<h2>` into the
+   * document outline, so a screen reader's heading list gained a blank entry and
+   * the card reserved the header's padding for no content.
+   *
+   * A section with no title is still a card. §26 rule 3 — "a card needs a title"
+   * — is about a card that BELONGS to no named region, and this one is named by
+   * the heading immediately above it.
+   */
+  title,
+  standfirst,
+  action,
+  children,
+  /**
+   * Rows that draw their own dividers and need to meet the card's edge — a
+   * list, a table. The header keeps its padding; the body loses the horizontal
+   * inset so a divider can run the full width. Without this, a `divide-y` list
+   * inside a padded card produces rules that stop short of the border and read
+   * as a rendering fault.
+   */
+  flush,
+  /** Sits under the body, above the card's bottom edge: an error, a note. */
+  footer,
+}: {
+  title?: string;
+  standfirst?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  flush?: boolean;
+  footer?: React.ReactNode;
+}) {
+  return (
+    <section
+      className="rounded-xl overflow-hidden bg-white"
+      style={{
+        border: '1px solid var(--border-subtle)',
+        boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
+      }}
+    >
+      {title || standfirst || action ? (
+        <div
+          className={`flex items-start justify-between gap-4 px-5 pt-5 ${flush ? 'pb-4' : 'pb-0'}`}
+          style={flush ? { borderBottom: '1px solid var(--border-subtle)' } : undefined}
+        >
+          <div className="min-w-0">
+            {/* 15px medium. Above the body text, below the page title, and under
+                the weight ceiling of 500 that 03 §5 sets for the whole console. */}
+            {title ? (
+              <h2
+                className="text-[15px]"
+                style={{ color: 'var(--text-primary)', fontWeight: 500, letterSpacing: '-0.01em' }}
+              >
+                {title}
+              </h2>
+            ) : null}
+            {standfirst ? (
+              <p
+                className="t-compact mt-1"
+                style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+              >
+                {standfirst}
+              </p>
+            ) : null}
+          </div>
+          {action ? <div className="shrink-0">{action}</div> : null}
+        </div>
+      ) : null}
+
+      <div className={flush ? '' : 'px-5 pt-5 pb-5'}>{children}</div>
+
+      {footer ? (
+        <div className="px-5 py-4" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          {footer}
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -315,7 +460,7 @@ export function FactRow({
 
   return (
     <div
-      className="flex items-center justify-between gap-4 py-2.5 px-2 transition-colors duration-200 hover:bg-[var(--surface-inset)]/50 rounded-md"
+      className="flex items-center justify-between gap-4 rounded-md px-2 py-2.5 transition-colors duration-200 hover:bg-[var(--surface-inset)]/50"
       style={{
         borderBottom: last ? 'none' : '1px solid var(--border-subtle)',
       }}
@@ -325,9 +470,9 @@ export function FactRow({
           <span
             aria-hidden
             className="size-1.5 shrink-0 rounded-full"
-            style={{ 
-              background: dotInk, 
-              boxShadow: `0 0 6px ${dotInk}`
+            style={{
+              background: dotInk,
+              boxShadow: `0 0 6px ${dotInk}`,
             }}
           />
         ) : null}
@@ -354,7 +499,6 @@ export function FactRow({
   );
 }
 
-
 /**
  * The console's one download control. 17 §6.1.
  *
@@ -370,20 +514,29 @@ export function FactRow({
  */
 export function ExportLink({
   resource,
+  className,
   children,
 }: {
   resource: 'workspaces' | 'revenue' | 'audit';
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
     <a
       href={`/api/platform/export/${resource}`}
-      className="t-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
-      style={{
-        border: '1px solid var(--border-strong)',
-        background: 'var(--surface-raised)',
-        color: 'var(--text-primary)',
-      }}
+      className={
+        className ??
+        't-compact inline-flex h-[34px] shrink-0 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]'
+      }
+      style={
+        className
+          ? undefined
+          : {
+              border: '1px solid var(--border-strong)',
+              background: 'var(--surface-raised)',
+              color: 'var(--text-primary)',
+            }
+      }
     >
       {children}
     </a>
@@ -452,7 +605,7 @@ export function BandLink({ href, children }: { href: string; children: React.Rea
     <Link
       href={href}
       className="group relative flex h-[34px] items-center gap-2 overflow-hidden rounded-full px-4 transition-all duration-300 hover:bg-[var(--surface-sunken)]"
-      style={{ 
+      style={{
         background: 'transparent',
         border: '1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent)',
         color: 'var(--text-primary)',
@@ -460,12 +613,14 @@ export function BandLink({ href, children }: { href: string; children: React.Rea
         boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
       }}
     >
-      <span className="relative z-10 transition-colors duration-300 group-hover:text-[var(--blue-500)]">{children}</span>
-      <IconArrowRight 
-        size={14} 
-        stroke={2} 
-        className="relative z-10 opacity-70 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100 group-hover:text-[var(--blue-500)]" 
-        aria-hidden 
+      <span className="relative z-10 transition-colors duration-300 group-hover:text-[var(--blue-500)]">
+        {children}
+      </span>
+      <IconArrowRight
+        size={14}
+        stroke={2}
+        className="relative z-10 opacity-70 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-[var(--blue-500)] group-hover:opacity-100"
+        aria-hidden
       />
     </Link>
   );

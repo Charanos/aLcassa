@@ -956,3 +956,70 @@ Carding gives each band a boundary that survives scrolling. That is what a brief
 ### What this replaces in §20
 
 §20's "drop shadows on cards → 1px rule" was written for the uncarded system. The current reading: **cards are permitted where §26 says they are, and they carry `--shadow-sm` at most.** The anti-pattern it was protecting against — elevation used to fake hierarchy — is unchanged.
+
+---
+
+## 27. Avatars
+
+**Added 13 Sep 2026 with the profile pass. See 19 for the storage design.**
+
+### The two states, and neither is a failure
+
+| State | Rendering |
+| --- | --- |
+| No photograph | Two initials, derived from the name, on `--blue-50` with `--blue-500` ink |
+| A photograph | The stored image, `object-cover`, circular |
+
+**Initials are the resting state of most accounts, not a loading state.** An
+avatar that is absent is not an avatar that failed, and nothing about the initials
+rendering should suggest something is still arriving — no pulse, no placeholder
+grey, no spinner. They render with no network request at all.
+
+### The scale
+
+`xs` 22 · `sm` 26 · `md` 32 · `lg` 40 · `xl` 72, plus a numeric escape hatch.
+
+Use a **named step** wherever the avatar identifies somebody beside their name —
+that is what keeps five call sites agreeing. The numeric form is for the one case
+where the avatar is the **subject** rather than an identifier: the profile's
+picker is 84px because it is the control you press, and adding an `xxl` rung for a
+single site would put a step on the scale that means "the profile picker" rather
+than a size.
+
+### `alt` is the name in one place and empty everywhere else
+
+This asymmetry is correct and deliberate. In the chrome the avatar sits beside the
+name in text, so alt text makes a screen reader announce the person twice. Where
+the avatar stands alone — the picker — it is the only thing identifying them and
+carries the name.
+
+The component takes `name` for that case and `label` to override; when neither is
+given it is `aria-hidden`.
+
+### The initials stay in the DOM behind the image
+
+A stored object that 404s then degrades to initials rather than to a broken-image
+glyph. The image is absolutely positioned over them rather than replacing them.
+
+### Uploads are cropped and re-encoded in the BROWSER
+
+Not as an optimisation. Three of the four reasons are correctness, and the
+important one is that **re-encoding strips EXIF, which on a phone photograph
+contains the GPS coordinates of where it was taken** — and the avatar bucket is
+public-read. Doing it server-side would mean the coordinates still travelled and
+still landed in a request log.
+
+Say so on the surface. The picker's helper line reads "resized in your browser,
+which also strips location and camera data before anything is uploaded", because
+an operator handing over a photograph is entitled to know that before they do it.
+
+### Never a stock photograph
+
+`Avatar.tsx` exists because one hardcoded Unsplash URL of a real person shipped as
+the signed-in administrator's face in three places. A placeholder that is a
+picture of somebody is not a placeholder; it is a claim about who is signed in,
+and it dragged a third-party host into both `remotePatterns` and the CSP's
+`img-src` to serve it.
+
+**A placeholder must never require widening a security policy.** If it does, it is
+not a placeholder any more.

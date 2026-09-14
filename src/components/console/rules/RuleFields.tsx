@@ -61,18 +61,16 @@ function Field({ field }: { field: MasterRuleField }) {
      rather than as a paragraph is what keeps "four prohibited topics" legible
      as four things. */
   const lines = field.value.split('\n').filter((l) => l.trim().length > 0);
-
   return (
     <div
-      className="grid gap-2 py-4 first:pt-0"
-      style={{ borderTop: '1px solid var(--border-subtle)' }}
+      className="grid gap-3 py-5 border-t border-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] first:border-0 first:pt-2"
     >
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className="flex items-center justify-between gap-4 mb-1">
         <span className="t-label" style={{ color: 'var(--text-primary)' }}>
           {field.label}
         </span>
         <span
-          className="inline-flex h-[19px] shrink-0 items-center gap-1 rounded-full px-2"
+          className="inline-flex h-[22px] shrink-0 items-center gap-1.5 rounded-full px-2.5"
           style={{
             background: 'var(--surface-inset)',
             color: authority.ink,
@@ -87,22 +85,19 @@ function Field({ field }: { field: MasterRuleField }) {
       </div>
 
       {empty ? (
-        /*
-          ⚠ "THE PLATFORM SAYS NOTHING HERE" IS A DIFFERENT CLAIM FROM "THIS IS
-          SWITCHED OFF", and the difference matters to whoever reads it next. An
-          empty floor is a deliberate absence of a floor.
-        */
-        <p className="t-compact" style={{ color: 'var(--text-tertiary)' }}>
+        <p className="t-compact mt-1" style={{ color: 'var(--text-tertiary)' }}>
           The platform sets nothing here. Each workspace decides on its own.
         </p>
       ) : (
         <div
-          className="rounded-panel px-3.5 py-3"
+          className="rounded-[16px] px-5 py-4 relative overflow-hidden"
           style={{
-            background: 'var(--surface-sunken)',
-            borderLeft: `2px solid ${authority.rule}`,
+            background: 'white',
+            border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
+            boxShadow: '0 8px 32px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset'
           }}
         >
+          <div className="absolute inset-y-0 left-0 w-1" style={{ background: authority.rule }} />
           {lines.length > 1 ? (
             <ul className="grid gap-1.5">
               {lines.map((line) => (
@@ -146,6 +141,7 @@ export function RuleFields({
   return (
     <Panel
       title="The rule set"
+      variant="elevated"
       action={
         <span
           className="whitespace-nowrap"

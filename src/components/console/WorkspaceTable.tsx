@@ -7,11 +7,16 @@ import {
   IconChevronUp,
   IconDotsVertical,
   IconExternalLink,
-  IconSearch,
   IconX,
   IconBuildings,
+  IconCalendar,
+  IconUsers,
+  IconBolt,
+  IconActivityHeartbeat,
 } from '@tabler/icons-react';
 import { EmptyState } from '@/components/primitives/EmptyState';
+import { FilterBar } from '@/components/primitives/FilterBar';
+import type { FilterOption } from '@/components/primitives/FilterBar';
 import { StartSessionDialog } from './StartSessionDialog';
 import { WorkspaceDetailDrawer } from './WorkspaceDetailDrawer';
 import { useToast } from '@/components/primitives/Toast';
@@ -31,6 +36,35 @@ const STATUS_INK: Record<WorkspaceStatus, { dot: string; ink: string }> = {
   'past due': { dot: 'var(--danger-fg)', ink: 'var(--danger-fg)' },
   suspended: { dot: 'var(--ink-400)', ink: 'var(--text-secondary)' },
   pending: { dot: 'var(--warning-fg)', ink: 'var(--text-secondary)' },
+};
+
+/** Refined aesthetic tokens drawing from the Badge primitive taxonomy */
+const STATUS_AESTHETICS: Record<WorkspaceStatus, { ink: string; tint: string; border: string }> = {
+  active: {
+    ink: 'var(--green-500)',
+    tint: 'var(--green-100)',
+    border: 'color-mix(in oklab, var(--green-500) 40%, transparent)',
+  },
+  trial: {
+    ink: 'var(--blue-500)',
+    tint: 'var(--blue-50)',
+    border: 'var(--blue-200)',
+  },
+  'past due': {
+    ink: 'var(--red-500)',
+    tint: 'var(--red-100)',
+    border: 'color-mix(in oklab, var(--red-500) 40%, transparent)',
+  },
+  suspended: {
+    ink: 'var(--ink-500)',
+    tint: 'var(--ink-100)',
+    border: 'var(--ink-300)',
+  },
+  pending: {
+    ink: 'var(--amber-500)',
+    tint: 'var(--amber-100)',
+    border: 'color-mix(in oklab, var(--amber-500) 40%, transparent)',
+  },
 };
 
 /**
@@ -119,8 +153,9 @@ export function WorkspaceTable({
    */
   const [query, setQuery] = useState('');
   const [statuses, setStatuses] = useState<WorkspaceStatus[]>([]);
-  const [attention, setAttention] = useState(() => rows.some(needsAttention));
-  const [sortField, setSortField] = useState<SortField>('activity');
+  const [attention, setAttention] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [sortField, setSortField] = useState<SortField>('name');
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -244,17 +279,39 @@ export function WorkspaceTable({
   return (
     <>
       {/* ── Summary KPI Ribbon (Inverted Command Panel) ───────────────── */}
-      {/* Uses --invert-card-* tokens: a dark navy slab against the cream page, always. */}
       <div
-        className="mt-6 flex flex-col overflow-hidden rounded-2xl sm:flex-row"
+        className="relative mt-6 flex flex-col overflow-hidden rounded-[20px] shadow-2xl transition-all duration-300 sm:flex-row"
         style={{
-          background: 'var(--invert-card-bg)',
+          background: '#060913',
+          border: '1px solid rgba(255,255,255,0.08)',
           color: 'var(--invert-card-fg)',
-          boxShadow: 'var(--invert-card-shadow)',
+          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.06)',
         }}
       >
+        {/* ── Premium Ambient Background Art ── */}
+        <div className="pointer-events-none absolute inset-0 z-0 select-none" aria-hidden="true">
+          <div
+            className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-[0.18] blur-[120px]"
+            style={{ background: 'var(--blue-500)' }}
+          />
+          <div
+            className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
+            style={{ background: 'var(--indigo-500)' }}
+          />
+          
+          <div
+            className="absolute inset-0 opacity-[0.25]"
+            style={{
+              backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)',
+              backgroundSize: '32px 32px',
+              maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
+              WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
+            }}
+          />
+        </div>
+
         {/* Metric 1 */}
-        <div className="relative flex-1 p-5 sm:p-6 sm:pr-8">
+        <div className="relative z-10 flex-1 p-5 sm:p-6 sm:pr-8">
           <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
             Total Workspaces
           </div>
@@ -273,23 +330,23 @@ export function WorkspaceTable({
             </span>
           </div>
           <div
-            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
             style={{
-              background:
-                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+              background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
+              boxShadow: '1px 0 0 rgba(0,0,0,0.5)',
             }}
           />
           <div
             className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
             style={{
-              background:
-                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
+              boxShadow: '0 1px 0 rgba(0,0,0,0.5)',
             }}
           />
         </div>
 
         {/* Metric 2 */}
-        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
+        <div className="relative z-10 flex-1 p-5 sm:p-6 sm:px-8">
           <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
             Seats Allocated
           </div>
@@ -305,23 +362,23 @@ export function WorkspaceTable({
             </span>
           </div>
           <div
-            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
             style={{
-              background:
-                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+              background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
+              boxShadow: '1px 0 0 rgba(0,0,0,0.5)',
             }}
           />
           <div
             className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
             style={{
-              background:
-                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
+              boxShadow: '0 1px 0 rgba(0,0,0,0.5)',
             }}
           />
         </div>
 
         {/* Metric 3 */}
-        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
+        <div className="relative z-10 flex-1 p-5 sm:p-6 sm:px-8">
           <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
             Monthly Events
           </div>
@@ -337,24 +394,24 @@ export function WorkspaceTable({
             </span>
           </div>
           <div
-            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
+            className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
             style={{
-              background:
-                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
+              background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
+              boxShadow: '1px 0 0 rgba(0,0,0,0.5)',
             }}
           />
           <div
             className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
             style={{
-              background:
-                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
+              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.03) 85%, transparent)',
+              boxShadow: '0 1px 0 rgba(0,0,0,0.5)',
             }}
           />
         </div>
 
         {/* Metric 4 */}
         <div
-          className="relative flex-1 p-5 transition-colors duration-500 sm:p-6 sm:pl-8"
+          className="relative z-10 flex-1 p-5 transition-colors duration-500 sm:p-6 sm:pl-8"
           style={{
             background:
               attentionCount > 0
@@ -390,128 +447,58 @@ export function WorkspaceTable({
       </div>
 
       {/* ── Filter bar ───────────────────────────────────────────────── */}
-      <div
-        className="surface-card mt-6 flex flex-wrap items-center gap-3 p-4"
-        style={{ borderRadius: 'var(--radius-lg)' }}
-      >
-        <label
-          className="flex h-10 max-w-[400px] min-w-0 flex-1 basis-[280px] items-center gap-3 rounded-xl px-3.5 transition-all duration-200 focus-within:ring-2 focus-within:ring-[var(--blue-500)] xl:max-w-[480px]"
-          style={{
-            border: '1px solid var(--border-strong)',
-            background: 'var(--surface-raised)',
-            boxShadow: 'var(--neu-inset)',
-          }}
-        >
-          <IconSearch
-            size={16}
-            stroke={1.5}
-            className="shrink-0"
-            style={{ color: 'var(--text-tertiary)' }}
-            aria-hidden
-          />
-          <input
-            ref={searchRef}
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name, slug or ID..."
-            aria-label="Search workspaces"
-            className="min-w-0 flex-1 border-none bg-transparent outline-none"
-            style={{ font: '400 var(--text-sm)/1 var(--font-ui)', color: 'var(--text-primary)' }}
-          />
-          <kbd style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
-            /
-          </kbd>
-        </label>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="t-eyebrow mr-1 tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
-            Status
-          </span>
-          {STATUSES.map((s) => {
-            const on = statuses.includes(s);
-            return (
-              <button
-                key={s}
-                type="button"
-                onClick={() => toggleStatus(s)}
-                aria-pressed={on}
-                className="inline-flex h-8.5 cursor-pointer items-center gap-2 rounded-full px-3.5 transition-all duration-200 hover:-translate-y-px"
-                style={{
-                  border: `1px solid ${on ? 'var(--blue-500)' : 'var(--border-strong)'}`,
-                  background: on ? 'var(--blue-500)' : 'var(--surface-raised)',
-                  color: on ? '#ffffff' : 'var(--text-secondary)',
-                  font: '500 var(--text-sm)/1 var(--font-ui)',
-                  /* No glow on a selected chip. Sheet 03 gives a chip a tint,
-                     an ink and a hairline — the fill change already reads as
-                     selected, and the halo was a sky-blue that is not even
-                     this product's blue. */
-                }}
-              >
-                <span
-                  aria-hidden
-                  className="size-[7px] rounded-full"
-                  style={{ background: on ? '#ffffff' : STATUS_INK[s].dot }}
-                />
-                {s}
-                <span
-                  className="numeric"
-                  style={{
-                    fontSize: 11,
-                    color: on ? 'rgba(255,255,255,0.75)' : 'var(--text-tertiary)',
-                  }}
-                >
-                  {byStatus.get(s) ?? 0}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setAttention((a) => !a)}
-          aria-pressed={attention}
-          className="inline-flex h-8.5 cursor-pointer items-center gap-2.5 rounded-full py-0 pr-2 pl-3.5 transition-all duration-200 hover:-translate-y-px"
-          style={{
-            border: `1px solid ${attention ? 'var(--accent-mark)' : 'var(--border-strong)'}`,
-            background: attention ? 'var(--accent-mark)' : 'var(--surface-raised)',
-            color: attention ? '#ffffff' : 'var(--text-secondary)',
-            font: '500 var(--text-sm)/1 var(--font-ui)',
-          }}
-        >
-          Needs attention
-          <span
-            className="numeric grid h-5 min-w-5 place-items-center rounded-full px-1.5 font-medium shadow-sm transition-colors"
+      <FilterBar<WorkspaceStatus>
+        query={query}
+        onQueryChange={setQuery}
+        searchPlaceholder="Search by name, slug or ID..."
+        optionsLabel="STATUS"
+        options={STATUSES.map(
+          (s): FilterOption<WorkspaceStatus> => ({
+            id: s,
+            label: s,
+            count: byStatus.get(s) ?? 0,
+            activeColor: STATUS_AESTHETICS[s],
+          })
+        )}
+        selectedOptions={statuses}
+        onToggleOption={toggleStatus}
+        customChips={
+          <button
+            type="button"
+            onClick={() => setAttention((a) => !a)}
+            aria-pressed={attention}
+            className="group inline-flex h-[28px] cursor-pointer items-center gap-2.5 rounded-full py-0 pr-2 pl-3 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px hover:shadow-sm"
             style={{
-              background: attention ? '#ffffff' : 'var(--accent-mark)',
-              color: attention ? 'var(--accent-mark)' : '#ffffff',
-              fontSize: 11,
+              border: `1px solid ${attention ? 'color-mix(in oklab, var(--amber-500) 40%, transparent)' : 'var(--border-strong)'}`,
+              background: attention ? 'var(--amber-100)' : 'var(--surface-raised)',
+              color: attention ? 'var(--amber-500)' : 'var(--text-primary)',
+              font: '600 11px/1 var(--font-ui)',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              boxShadow: attention ? '0 2px 8px rgba(0,0,0,0.04)' : '0 1px 2px rgba(0,0,0,0.04)',
             }}
           >
-            {attentionCount}
-          </span>
-        </button>
-
-        <span className="ml-auto flex items-center gap-4">
-          <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
-            <span className="numeric font-medium" style={{ color: 'var(--text-primary)' }}>
-              {filtered.length}
-            </span>{' '}
-            of {total}
-          </span>
-          {filtersActive && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="t-compact inline-flex items-center gap-1 text-[var(--text-action)] hover:underline"
+            Needs attention
+            <span
+              className="numeric grid h-[20px] min-w-[20px] place-items-center rounded-full px-1.5 font-medium shadow-sm transition-colors duration-300"
+              style={{
+                background: attention ? 'var(--amber-500)' : 'var(--amber-500)',
+                color: '#ffffff',
+                fontSize: 10,
+                fontWeight: 700,
+              }}
             >
-              <IconX size={13} stroke={1.5} />
-              Reset
-            </button>
-          )}
-        </span>
-      </div>
+              {attentionCount}
+            </span>
+          </button>
+        }
+        resultsCount={filtered.length}
+        totalCount={total}
+        onClear={clearFilters}
+        filtersActive={filtersActive}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
 
       {/* ── Results ──────────────────────────────────────────────────── */}
       {filtered.length === 0 ? (
@@ -551,21 +538,21 @@ export function WorkspaceTable({
         </div>
       ) : (
         <>
-          {/* Desktop: The expansive enterprise table */}
+          {/* Desktop/List: The expansive enterprise table */}
           <div
-            className="mt-6 hidden overflow-x-auto rounded-2xl md:block"
+            className={`mt-6 overflow-x-auto rounded-3xl transition-all duration-300 ${viewMode === 'list' ? 'block' : 'hidden'}`}
             style={{
-              border: '1px solid var(--border-subtle)',
               background: 'var(--surface-raised)',
+              border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+              boxShadow: '0 12px 40px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
             }}
           >
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr
-                  className="border-b"
                   style={{
                     background: 'var(--surface-sunken)',
-                    borderColor: 'var(--border-subtle)',
+                    boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
                   }}
                 >
                   <th
@@ -575,8 +562,8 @@ export function WorkspaceTable({
                   >
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="text-[11px] font-medium tracking-wider uppercase"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
                       >
                         Workspace
                       </span>
@@ -617,8 +604,8 @@ export function WorkspaceTable({
                   >
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="text-[11px] font-medium tracking-wider uppercase"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
                       >
                         Seats
                       </span>
@@ -641,8 +628,8 @@ export function WorkspaceTable({
                   >
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="text-[11px] font-medium tracking-wider uppercase"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
                       >
                         Events / Month
                       </span>
@@ -665,8 +652,8 @@ export function WorkspaceTable({
                   >
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="text-[11px] font-medium tracking-wider uppercase"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
                       >
                         Activity
                       </span>
@@ -683,17 +670,17 @@ export function WorkspaceTable({
                   </th>
 
                   <th scope="col" className="py-3.5 pr-6 pl-3 text-right">
-                    <span
-                      className="text-[11px] font-medium tracking-wider uppercase"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      Actions
-                    </span>
+                      <span
+                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
+                        Actions
+                      </span>
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+              <tbody>
                 {paginated.map((r, i) => {
                   const seatPct = r.seatsUsed / r.seatsLimit;
                   const eventPct = r.events / r.eventsLimit;
@@ -708,17 +695,20 @@ export function WorkspaceTable({
                       key={r.id}
                       {...grid.getRowProps(i)}
                       onClick={() => setDrawerRow(r)}
-                      className="group cursor-pointer transition-colors duration-150 hover:bg-[var(--surface-sunken)]/60 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
+                      className={`group relative cursor-pointer transition-all duration-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)] ${INERT.has(r.status) ? 'opacity-60 hover:opacity-100 hover:bg-[var(--surface-sunken)]' : 'hover:bg-[var(--surface-sunken)] hover:shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)]'}`}
+                      style={{
+                        borderTop: i === 0 ? 'none' : '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                        boxShadow: i === 0 ? 'none' : 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                      }}
                     >
                       {/* Workspace & Meta */}
-                      <td className="py-4.5 pr-4 pl-6">
+                      <td className="py-5 pr-4 pl-6 relative">
                         <div className="flex items-center gap-3.5">
                           <div
-                            className="relative flex size-10.5 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105"
+                            className="relative flex size-10 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105"
                             style={{
-                              background:
-                                'linear-gradient(135deg, var(--surface-inset), var(--surface-sunken))',
-                              border: '1px solid var(--border-strong)',
+                              background: 'var(--surface-raised)',
+                              boxShadow: 'inset 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.02)',
                               color: 'var(--text-primary)',
                               font: '600 13px var(--font-ui)',
                             }}
@@ -726,8 +716,8 @@ export function WorkspaceTable({
                           >
                             {initials}
                             <span
-                              className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full border-2"
-                              style={{ background: st.dot, borderColor: 'var(--surface-raised)' }}
+                              className="absolute top-0 -right-0.5 size-2.5 rounded-full border-2"
+                              style={{ background: st.dot, borderColor: 'var(--surface-base)' }}
                             />
                           </div>
 
@@ -772,17 +762,17 @@ export function WorkspaceTable({
                       </td>
 
                       {/* Plan */}
-                      <td className="px-3 py-4.5">
+                      <td className="px-3 py-5">
                         <PlanBadge plan={r.plan} />
                       </td>
 
                       {/* Status */}
-                      <td className="px-3 py-4.5">
+                      <td className="px-3 py-5">
                         <StatusBadge status={r.status} />
                       </td>
 
                       {/* Seats Meter */}
-                      <td className="px-3 py-4.5">
+                      <td className="px-3 py-5">
                         <DetailedMeter
                           value={`${r.seatsUsed}`}
                           maxFormatted={`${r.seatsLimit}`}
@@ -793,7 +783,7 @@ export function WorkspaceTable({
                       </td>
 
                       {/* Events Meter */}
-                      <td className="px-3 py-4.5">
+                      <td className="px-3 py-5">
                         <DetailedMeter
                           value={group(r.events)}
                           maxFormatted={formatCompactNumber(r.eventsLimit)}
@@ -804,7 +794,7 @@ export function WorkspaceTable({
                       </td>
 
                       {/* Activity & Timeline */}
-                      <td className="px-3 py-4.5">
+                      <td className="px-3 py-5">
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 font-mono text-xs">
                             {isRecent && (
@@ -838,7 +828,7 @@ export function WorkspaceTable({
 
                       {/* Actions */}
                       <td
-                        className="py-4.5 pr-6 pl-3 text-right"
+                        className="py-5 pr-6 pl-3 text-right"
                         onClick={(e) => e.stopPropagation()}
                         data-row-actions
                         onKeyDown={(e) => {
@@ -854,7 +844,7 @@ export function WorkspaceTable({
                             onClick={() => setPending(toWorkspace(r))}
                             title="Start support session"
                             aria-label={`Start support session in ${r.name}`}
-                            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-2.5 transition-all duration-200 hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] active:scale-95"
+                            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-2.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] hover:shadow-sm hover:border-[var(--blue-300)] active:scale-95"
                             style={{
                               border: '1px solid var(--border-subtle)',
                               background: 'var(--surface-raised)',
@@ -870,7 +860,7 @@ export function WorkspaceTable({
                             onClick={() => setDrawerRow(r)}
                             title={`View ${r.name} details`}
                             aria-label={`View ${r.name} details`}
-                            className="grid size-8.5 place-items-center rounded-lg transition-all duration-200 hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] active:scale-95"
+                            className="grid size-8.5 place-items-center rounded-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] hover:shadow-sm active:scale-95"
                             style={{
                               border: '1px solid var(--border-subtle)',
                               background: 'var(--surface-raised)',
@@ -888,8 +878,10 @@ export function WorkspaceTable({
             </table>
           </div>
 
-          {/* Mobile: Expansive Neumorphic Cards */}
-          <div className="mt-6 grid gap-4 md:hidden">
+          {/* Grid/Mobile: Expansive Neumorphic Cards */}
+          <div
+            className={`mt-6 gap-4 ${viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3' : 'hidden'}`}
+          >
             {paginated.map((r) => {
               const st = STATUS_INK[r.status];
               const eventPct = r.events / r.eventsLimit;
@@ -902,10 +894,11 @@ export function WorkspaceTable({
                 <article
                   key={r.id}
                   onClick={() => setDrawerRow(r)}
-                  className="group relative cursor-pointer overflow-hidden rounded-2xl transition-all duration-400 hover:-translate-y-[2px]"
+                  className="group relative cursor-pointer overflow-hidden rounded-[24px] transition-all duration-400 hover:-translate-y-[2px]"
                   style={{
-                    border: '1px solid var(--border-subtle)',
                     background: 'var(--surface-raised)',
+                    border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                    boxShadow: '0 12px 40px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)',
                   }}
                 >
                   <div
@@ -918,17 +911,20 @@ export function WorkspaceTable({
                   <div className="relative z-10 p-5">
                     <div className="flex items-start gap-3.5">
                       <div
-                        className="flex size-11 shrink-0 items-center justify-center rounded-xl font-medium"
+                        className="relative flex size-12 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105"
                         style={{
-                          background: 'var(--surface-inset)',
-                          border: '1px solid var(--border-strong)',
-                          color: 'var(--text-secondary)',
-                          fontSize: '14px',
-                          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                          background: 'var(--surface-raised)',
+                          boxShadow: 'inset 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.02)',
+                          color: 'var(--text-primary)',
+                          font: '600 15px var(--font-ui)',
                         }}
                         aria-hidden="true"
                       >
                         {initials}
+                        <span
+                          className="absolute top-0 -right-0.5 size-3 rounded-full border-2"
+                          style={{ background: st.dot, borderColor: 'var(--surface-base)' }}
+                        />
                       </div>
 
                       <div className="min-w-0 flex-1">
@@ -941,6 +937,7 @@ export function WorkspaceTable({
                           className="block truncate text-left font-medium transition-colors hover:text-[var(--text-action)]"
                           style={{
                             fontSize: '16px',
+                            fontWeight: 600,
                             lineHeight: 1.35,
                             color: nameInk(r.status),
                             letterSpacing: '-0.01em',
@@ -965,17 +962,22 @@ export function WorkspaceTable({
 
                     <div className="mt-4 flex items-center gap-2">
                       <PlanBadge plan={r.plan} />
-                      <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                      <span className="flex items-center gap-1.5 font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                        <IconCalendar size={13} stroke={1.5} />
                         Created {r.created}
                       </span>
                     </div>
 
                     <dl
-                      className="mt-5 grid grid-cols-2 gap-4 rounded-xl p-3.5"
-                      style={{ background: 'var(--surface-sunken)' }}
+                      className="mt-6 grid grid-cols-2 gap-5 rounded-2xl p-4"
+                      style={{ 
+                        background: 'var(--surface-sunken)',
+                        boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+                      }}
                     >
                       <div>
-                        <dt className="t-eyebrow mb-1" style={{ color: 'var(--text-tertiary)' }}>
+                        <dt className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+                          <IconUsers size={12} stroke={2} />
                           Seats
                         </dt>
                         <dd>
@@ -988,7 +990,8 @@ export function WorkspaceTable({
                         </dd>
                       </div>
                       <div>
-                        <dt className="t-eyebrow mb-1" style={{ color: 'var(--text-tertiary)' }}>
+                        <dt className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+                          <IconBolt size={12} stroke={2} />
                           Events
                         </dt>
                         <dd>
@@ -1006,7 +1009,10 @@ export function WorkspaceTable({
                       className="mt-4 flex items-center justify-between font-mono text-xs"
                       style={{ color: 'var(--text-tertiary)' }}
                     >
-                      <span>Active: {r.activity}</span>
+                      <span className="flex items-center gap-1.5">
+                        <IconActivityHeartbeat size={13} stroke={1.5} />
+                        Active: {r.activity}
+                      </span>
                     </div>
                   </div>
 
@@ -1018,7 +1024,8 @@ export function WorkspaceTable({
                     }}
                     className="relative z-10 flex h-11 w-full items-center justify-center gap-2 font-medium transition-colors hover:bg-[var(--surface-inset)] active:bg-[var(--surface-sunken)]"
                     style={{
-                      borderTop: '1px solid var(--border-subtle)',
+                      borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
                       background: 'var(--surface-raised)',
                       color: 'var(--text-secondary)',
                       fontSize: '14px',
@@ -1162,12 +1169,13 @@ function StatusBadge({ status }: { status: WorkspaceStatus }) {
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 transition-all duration-200"
+      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 transition-all duration-300 hover:shadow-sm"
       style={{
         border: `1px solid ${isPastDue ? 'var(--danger-fg)' : 'var(--border-subtle)'}`,
         background: isPastDue
           ? 'var(--danger-bg, rgba(239, 68, 68, 0.08))'
           : 'var(--surface-sunken)',
+        boxShadow: isPastDue ? 'inset 0 1px 2px rgba(0,0,0,0.02)' : 'var(--shadow-sm)',
       }}
     >
       <span
@@ -1239,20 +1247,15 @@ function DetailedMeter({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={`${Math.round(clamped * 100)} percent of limit`}
-        className="relative h-1.5 w-full overflow-hidden rounded-full"
+        className="relative h-2 w-full overflow-hidden rounded-full transition-all duration-300"
         style={{
           maxWidth: maxTrackWidth,
           background: 'var(--surface-sunken)',
-          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.06)',
-          border: '1px solid var(--border-subtle)',
+          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.08)',
         }}
       >
-        {/* Flat fill in the meter's own hue. The gradient this replaced ran
-            from blue to the state colour, which made a meter read as two
-            different states at once — and the glow under it was decoration on
-            a panel, which sheet 06 rules out. */}
         <div
-          className="h-full rounded-full transition-all duration-500"
+          className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{ width: `${clamped * 100}%`, background: ink }}
         />
       </div>

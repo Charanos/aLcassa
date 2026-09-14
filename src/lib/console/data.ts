@@ -2301,12 +2301,38 @@ export async function getSettings(): Promise<SettingsModel> {
 /* ── Profile ────────────────────────────────────────────────────────────── */
 
 export type SecurityItem = {
-  key: string;
+  key: SecurityKey;
   label: string;
+  /**
+   * ⚠ WRITTEN AS ADVICE, NOT AS MEASUREMENT — see `measured`.
+   *
+   * The fixture's original copy read "Eight of ten remaining. Two were
+   * consumed during the July replica failover." On the designed screen that is
+   * a fine sentence. On the LIVE screen it was a fabrication: `getLiveProfile`
+   * passes the fixture's `security` array straight through, because the three
+   * facts it describes live in Supabase's `auth.users` behind the admin client
+   * — so a real operator was being told a specific, invented history of their
+   * own recovery codes.
+   *
+   * The details are now claims this codebase can actually stand behind, and
+   * anything it cannot measure is flagged rather than asserted.
+   */
   detail: string;
   action: string;
   state: 'good' | 'neutral';
+  /**
+   * False when the state shown is the product's POLICY rather than a reading of
+   * this account. `false` renders an explicit "not read from here" line; it
+   * does not render a worse-looking badge, because unknown is not bad.
+   *
+   * Precedent: `Admin.mfa`, where null means "not counted", not "off". Those
+   * are opposite claims about somebody's account and the screen must not
+   * confuse them.
+   */
+  measured: boolean;
 };
+
+export type SecurityKey = 'mfa' | 'password' | 'recovery';
 
 export type DeviceSession = {
   id: string;
@@ -2314,18 +2340,138 @@ export type DeviceSession = {
   meta: string;
   when: string;
   current?: boolean;
+  /**
+   * A support session opened into a customer's workspace, which is a different
+   * KIND of thing from a laptop — it has a ceiling, it appears in that
+   * customer's own log, and ending it ends a visit rather than a login. The
+   * row says so rather than looking like a third browser.
+   */
+  support?: boolean;
+};
+
+/**
+ * What this admin is permitted to do, from `platform_admins`' three booleans.
+ *
+ * ⚠ THESE WERE READ AND THROWN AWAY. `getLiveProfile` already selected all
+ * three columns and used them only to collapse into a role label — so the
+ * screen whose stated purpose is "the person with the most access is shown
+ * their own ceiling" was showing a pill derived from the grants instead of the
+ * grants. 05 §4 chose per-capability booleans over a role enum precisely so
+ * this could be stated exactly; the rail now states it.
+ */
+export type ProfileCapability = {
+  key: 'suspend' | 'rules' | 'support';
+  label: string;
+  /** What it lets you do, in the second person. */
+  detail: string;
+  granted: boolean;
 };
 
 export type ProfileModel = {
   name: string;
   email: string;
-  emailVerified: boolean;
+  /**
+   * ⚠ NULL MEANS NOT READABLE FROM HERE, NOT "UNVERIFIED".
+   *
+   * Verification state lives in `auth.users`, same guard as MFA. The live
+   * reader used to report a hard `false`, which renders identically to a
+   * genuinely unverified address — and "we did not look" and "this address was
+   * never confirmed" are opposite claims to put beside somebody's email.
+   */
+  emailVerified: boolean | null;
   initials: string;
+  /**
+   * The uploaded photograph, or null.
+   *
+   * ⚠ NULL IS THE COMMON CASE AND IS A DESIGNED STATE, NOT A MISSING IMAGE.
+   * Most accounts have no avatar and render their initials with no network
+   * request at all. `user_profiles.avatar_path` has existed since the first
+   * migration and `/v1/me` has always accepted it; nothing wrote to it until
+   * the console's own picker did.
+   *
+   * A public storage URL, built rather than signed — `lib/storage/avatar.ts`
+   * carries the reasoning for the bucket being public-read.
+   */
+  avatarUrl: string | null;
   role: AdminRole;
-  security: SecurityItem[];
+  capabilities: ProfileCapability[];
+  security: readonly SecurityItem[];
   sessions: DeviceSession[];
+  /**
+   * Sessions the reader is NOT being shown, because the query is capped. Zero
+   * on every ordinary account. A list that silently truncates is the defect
+   * 18 §12 records; this is how this surface avoids it.
+   */
+  sessionsHidden: number;
   facts: Array<{ label: string; value: string }>;
 };
+
+/**
+ * The three grants, with their labels, in the order the rail states them.
+ *
+ * ⚠ IT IS A LIST OF GRANTS, NOT A LIST OF WHAT IS GRANTED. The fixture marks
+ * all three true because the fixture is the owner; the live reader marks each
+ * one from its own column, so a support-only admin sees two of them read
+ * "not granted" rather than seeing a shorter list. A capability that vanishes
+ * when it is withheld cannot be distinguished from one the product does not
+ * have, and the whole point of this rail is telling an operator their ceiling.
+ */
+export const PLATFORM_CAPABILITIES: ReadonlyArray<Omit<ProfileCapability, 'granted'>> = [
+  {
+    key: 'suspend',
+    label: 'Suspend a workspace',
+    detail: 'Stop a customer sending or receiving, and lift it again.',
+  },
+  {
+    key: 'rules',
+    label: 'Edit the master rules',
+    detail: 'Change the defaults every workspace inherits.',
+  },
+  {
+    key: 'support',
+    label: 'Enter support mode',
+    detail: 'Open a time-boxed, logged session inside a customer workspace.',
+  },
+];
+
+/**
+ * The security checklist. Shared by the fixture and the live reader, because it
+ * is the same list either way — it states the product's policy rather than
+ * measuring this account.
+ *
+ * ⚠ EVERY ITEM IS `measured: false`, AND THAT IS THE CORRECTION. These three
+ * facts live in Supabase's `auth.users`, behind the admin client that is
+ * lint-guarded to `modules/platform` for bypassing RLS. Nothing here has read
+ * them. The previous copy — "added 14 March 2025", "changed 62 days ago",
+ * "eight of ten remaining" — was rendered verbatim on the LIVE screen, so a
+ * real operator was being told an invented history of their own account.
+ */
+export const SECURITY_POLICY: readonly SecurityItem[] = [
+  {
+    key: 'mfa',
+    label: 'Two-factor authentication',
+    detail: 'Required for every platform admin. Enrolment is held by the identity provider.',
+    action: 'Regenerate codes',
+    state: 'good',
+    measured: false,
+  },
+  {
+    key: 'password',
+    label: 'Password',
+    detail: 'No rotation requirement — length beats churn. Changes go through the recovery flow.',
+    action: 'Change',
+    state: 'neutral',
+    measured: false,
+  },
+  {
+    key: 'recovery',
+    label: 'Recovery codes',
+    detail: 'Ten are issued once, at enrolment, and shown only that one time.',
+    action: 'View',
+    state: 'neutral',
+    measured: false,
+  },
+];
 
 /**
  * The signed-in operator's own profile.
@@ -2344,53 +2490,45 @@ export async function getProfile(): Promise<ProfileModel> {
     email: 'brian@andishi.co.ke',
     emailVerified: true,
     initials: 'BM',
+    /* ⚠ THE DESIGNED PROFILE HAS NO PHOTOGRAPH, AND THAT IS THE HONEST FIXTURE.
+       A stock face here would put a stranger's likeness back on the screen the
+       avatar picker was built to remove, and it would exercise the rarer of the
+       two states — most accounts render initials. The picker is reachable on
+       the fixture path; what it cannot do without a session is store anything. */
+    avatarUrl: null,
     role: 'owner',
 
-    security: [
-      {
-        key: 'mfa',
-        label: 'Two-factor authentication',
-        detail: 'Authenticator app, added 14 March 2025. Required for every platform admin.',
-        action: 'Regenerate codes',
-        state: 'good',
-      },
-      {
-        key: 'password',
-        label: 'Password',
-        detail: 'Changed 62 days ago. There is no rotation requirement; length beats churn.',
-        action: 'Change',
-        state: 'neutral',
-      },
-      {
-        key: 'recovery',
-        label: 'Recovery codes',
-        detail: 'Eight of ten remaining. Two were consumed during the July replica failover.',
-        action: 'View',
-        state: 'neutral',
-      },
-    ],
+    capabilities: PLATFORM_CAPABILITIES.map((c) => ({ ...c, granted: true })),
+
+    security: SECURITY_POLICY,
 
     sessions: [
       {
         id: 'sess_1',
         device: 'MacBook Pro · Chrome 141',
         meta: 'Nairobi, KE · 196.201.214.88',
-        when: 'This device',
+        /* ⚠ NOT "This device". The row already carries a "This device" pill in
+           the control column, and repeating it in the recency column cost the
+           screen the one fact that column exists for — when this session was
+           last used. Two labels saying the same thing is one label short. */
+        when: 'Active now',
         current: true,
       },
       {
         id: 'sess_2',
         device: 'iPhone 16 · Safari',
         meta: 'Nairobi, KE · 41.90.64.12',
-        when: '3 hours ago',
+        when: '3h ago',
       },
       {
         id: 'sess_3',
         device: 'Windows · Edge 129',
         meta: 'Mombasa, KE · 105.163.2.41',
-        when: '6 days ago',
+        when: '6 Sep',
       },
     ],
+
+    sessionsHidden: 0,
 
     facts: [
       { label: 'Admin since', value: '14 Mar 2025' },
@@ -2989,6 +3127,7 @@ export type HeadroomPlan = {
   key: string;
   name: string;
   tenants: number;
+  workspaces: { name: string; slug: string }[];
   rows: HeadroomRow[];
 };
 
@@ -3012,6 +3151,11 @@ export async function getHeadroom(): Promise<HeadroomModel> {
         key: 'pro',
         name: 'Pro',
         tenants: 24,
+        workspaces: [
+          { name: 'Aurora Dental Group', slug: 'aurora-dental' },
+          { name: 'Tamarind Bay Resorts', slug: 'tamarind-bay' },
+          { name: 'Lake Naivasha Retreat', slug: 'naivasha-retreat' },
+        ],
         rows: [
           { key: 'seats', label: 'Staff seats', limit: 5, tenants: 24, p50: 3, max: 5, atCeiling: 4 },
           { key: 'channels', label: 'Channels', limit: 2, tenants: 24, p50: 1, max: 2, atCeiling: 2 },
@@ -3022,6 +3166,12 @@ export async function getHeadroom(): Promise<HeadroomModel> {
         key: 'business',
         name: 'Business',
         tenants: 15,
+        workspaces: [
+          { name: 'Sarova Hospitality Collection', slug: 'sarova-hospitality' },
+          { name: 'Northwind Traders East Africa', slug: 'northwind-ea' },
+          { name: 'Mombasa Freight Union', slug: 'mombasa-freight' },
+          { name: 'Peridot Health Clinics', slug: 'peridot-health' },
+        ],
         rows: [
           { key: 'seats', label: 'Staff seats', limit: 25, tenants: 15, p50: 9, max: 24, atCeiling: 1 },
           { key: 'channels', label: 'Channels', limit: 6, tenants: 15, p50: 2, max: 5, atCeiling: 0 },
@@ -3032,6 +3182,10 @@ export async function getHeadroom(): Promise<HeadroomModel> {
         key: 'custom',
         name: 'Custom',
         tenants: 2,
+        workspaces: [
+          { name: 'Kilimanjaro Logistics Group Ltd', slug: 'kilimanjaro-logistics' },
+          { name: 'Lake Victoria Fisheries', slug: 'victoria-fisheries' },
+        ],
         rows: [
           { key: 'seats', label: 'Staff seats', limit: null, tenants: 2, p50: 41, max: 68, atCeiling: 0 },
           { key: 'channels', label: 'Channels', limit: null, tenants: 2, p50: 7, max: 9, atCeiling: 0 },

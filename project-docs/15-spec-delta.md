@@ -2559,7 +2559,7 @@ every queue is empty, no bar is drawn.
 
 ### Eight weight-ceiling violations
 
-`03 §5` sets the ceiling at 500 with deliberately no bold; `font-semibold` is
+`03 §5` sets the ceiling at 500 with deliberately no bold; `font-medium` is
 600. Ten instances across the section, in figures, labels and micro-caps. All to
 `font-medium`. Hierarchy here comes from size, family switch, colour and case —
 that is the constraint the whole type system is built on.
@@ -2640,7 +2640,7 @@ went with them.
 
 ### Weight ceiling, again
 
-Two more `font-semibold` reintroduced during the last pass. `03 §5` caps at 500.
+Two more `font-medium` reintroduced during the last pass. `03 §5` caps at 500.
 The section is clear.
 
 ### Final state of the overview
@@ -2657,3 +2657,163 @@ The section is clear.
 
 `notices` remains the one literal in the console chrome: there is no
 notifications table, and the layout says so rather than inventing one.
+
+---
+
+## C56 · The profile gains a real photograph, and the shell loses a stranger's
+
+**13 Sep 2026.** `05 §2` names `user_profiles.avatar_path` and nothing ever wrote
+to it. `07 §3`'s `PATCH /v1/me` has always accepted it. The console meanwhile
+rendered one hardcoded Unsplash photograph of a real person, in three places, as
+the signed-in administrator — and the profile card carried a sentence claiming
+the console "shows no photographs" as though that were a security posture.
+
+**Added:** an `avatars` bucket (public-read, random per-upload paths), storage RLS
+in `db/policies/08_storage.sql` admitting writes only under
+`platform/<auth.uid()>/`, `updateConsoleAvatar` and `removeConsoleAvatar`, a
+browser-side crop/downscale/EXIF-strip pipeline, and `Avatar src` with initials as
+the fallback.
+
+**Removed:** all three Unsplash renders. The CSP and `remotePatterns` now also
+name this deployment's own storage origin, derived from
+`NEXT_PUBLIC_SUPABASE_URL` so each environment admits only its own.
+
+Both avatar actions audit as `profile.updated` with the reason column carrying
+`avatar replaced` / `avatar removed`, matching the rename's `display name`. No new
+catalogue entry: `05 §9` keeps the action list short and "what changed" is the
+reason column's job.
+
+Full design in **19**.
+
+---
+
+## C57 · A profile change now reaches the chrome
+
+Two independent defects meant a rename landed in the database and nowhere a
+reader could see it.
+
+`revalidatePath(path)` revalidates the **page segment only**, and the sidebar
+identity card and top-bar account control live in the console **layout**. And
+`getLiveConsoleChrome` read `platform_admins.display_name`, while the rename
+writes `user_profiles.full_name` — deliberately, per the rule that an admin does
+not rewrite their own entry in the access register.
+
+Now: `revalidatePath('/platform', 'layout')` from one `PROPAGATE()` helper, and
+the chrome's precedence matches the profile screen and the roster — profile name,
+then roster label, then the session's own label.
+
+---
+
+## C58 · Expired sessions were listed as live
+
+`getLiveProfile` filtered on `revoked_at is null` and not on expiry, so a
+timed-out session appeared under "Devices currently signed into this account".
+On the one screen that answers *is something else signed in as me*, that
+manufactures an intruder out of a laptop nobody has used since Tuesday.
+
+`listActiveSessions` in `lib/auth/session.ts` has always carried
+`expires_at > now()`. The two readers now agree. `04 §6` is unchanged; this was
+one reader disagreeing with it.
+
+---
+
+## C59 · `revokeSession` reports whether it revoked anything
+
+It returned `void` and matched on session id alone, so a stale id, an id
+belonging to someone else, and an already-revoked row all produced zero rows, no
+error, and a caller free to report success — which the console did.
+
+Now returns a count. Zero is a refusal with its own message, and **no audit row is
+written**, because recording `session.revoked` for a revocation that revoked
+nothing puts a false event into the log `09 §7` promises is accurate.
+
+A `user_id` predicate was added alongside. `sessions_modify` already restricted
+this to the account holder; the predicate makes the restriction legible in the
+query rather than only in the policy file.
+
+---
+
+## C60 · The security checklist stops asserting things it never read
+
+`getLiveProfile` passed the designed fixture's `security` array straight through,
+so the **live** screen told a real operator "Authenticator app, added 14 March
+2025", "Changed 62 days ago", "Eight of ten remaining. Two were consumed during
+the July replica failover."
+
+None of those had been read. All three facts live in `auth.users`, behind the
+admin client lint-guarded to `modules/platform`.
+
+`SECURITY_POLICY` is now a named export shared by both paths, every item carries
+`measured: false`, and the card states once that it describes the platform's
+policy rather than the state of this account.
+
+Related: `ProfileModel.emailVerified` becomes `boolean | null`. The live reader
+answered a hard `false`, which renders identically to an address that was
+genuinely never confirmed — opposite claims. `null` renders as "not checked here",
+following `Admin.mfa`'s "MFA unknown" precedent from C31.
+
+---
+
+## C61 · The access rail shows the grants, not a label derived from them
+
+`getLiveProfile` selected `can_suspend_tenants`, `can_edit_master_rules` and
+`can_enter_support_mode` and used all three only to collapse into a role name.
+`05 §4` chose per-capability booleans over a role enum precisely so an admin's
+ceiling could be stated exactly.
+
+The rail now lists all three, and shows a **withheld** grant rather than omitting
+it: a capability that disappears when not granted cannot be distinguished from one
+the product does not have.
+
+---
+
+## C62 · A session sweep sends a security notice
+
+`sessionsRevokedEmail`, the sixth template in `modules/email` and the first
+addressed to an operator rather than a customer.
+
+The value is not the confirmation — the operator pressed the button. It is the
+second reader: somebody who receives this and did not do it has learned their
+account is compromised, through the only channel that reaches a person not
+currently looking at the console. It is the one action on the profile with that
+property, which is why it is the only one that mails.
+
+Best-effort and never fails the revocation: the sessions are already ended and
+the audit row already written, and turning "we could not reach your mailbox" into
+"signing out your devices failed" would be a false report of a security action
+that succeeded.
+
+---
+
+## C63 · The console could render designed data as a real account
+
+**14 Sep 2026.** `middleware.ts` admits any request holding the platform cookie;
+the live readers need a resolvable Supabase auth session as well. When the cookie
+outlived the token — an ordinary expiry — `getLiveProfile()` returned null,
+`?? getProfile()` did its job, and the profile rendered the designed fixture with
+no indication of it: a name, an "Admin since 14 Mar 2025", three invented devices,
+an address marked verified. Every control then failed on click with an auth error.
+
+The seam is right and nothing downstream knew which reader had answered. `live` is
+now part of the page's state, `PreviewNotice` states that the data is designed and
+links to sign-in with `?next=`, and every write control is inert with a stated
+reason rather than failing after the fact.
+
+**This is latent on every console surface that can write** — tenants, settings,
+AI rules, tenant detail — and each should carry `live` the same way. Added to
+18 §9's checklist under TRUTH.
+
+---
+
+## C64 · `AppError.internal` was reaching the operator
+
+Three catch blocks in `profile-actions.ts` appended
+`(Stage: ${JSON.stringify(error.internal)})` to the message shown on screen.
+`lib/errors` documents that field as "detail that goes to the log and never to
+the client"; it carries the auth resolver's stage names, the door, and the
+identity provider's own error codes.
+
+All six catches now route through one `refusal()` helper: internals stay in
+`logger.error`, and `AUTH_SESSION_EXPIRED` becomes its own outcome with
+`signedOut: true`, so the interface offers a sign-in link rather than a retry
+that would fail identically every time.

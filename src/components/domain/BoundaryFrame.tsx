@@ -116,7 +116,7 @@ export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFram
             <>
               <span className="opacity-90">SUPPORT MODE</span>
               <span className="opacity-50">·</span>
-              <span className="font-semibold">{supportMode.tenantName.toUpperCase()}</span>
+              <span className="font-medium">{supportMode.tenantName.toUpperCase()}</span>
               <span className="opacity-50">·</span>
               <span className={expired ? 'animate-pulse text-white' : 'opacity-90'}>
                 {expired ? 'SESSION ENDED' : label}
@@ -132,7 +132,7 @@ export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFram
             <button
               type="button"
               onClick={onExit}
-              className="rounded-sm bg-white/20 px-3 py-0.5 text-[10px] font-semibold hover:bg-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="rounded-sm bg-white/20 px-3 py-0.5 text-[10px] font-medium hover:bg-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               {expired ? 'RECONNECT' : 'EXIT'}
             </button>

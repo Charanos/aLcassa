@@ -425,7 +425,7 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
             tick={{ ...AXIS, fill: t.muted }}
             axisLine={false}
             tickLine={false}
-            width={72}
+            width={90}
           />
           <Tooltip
             cursor={{ fill: t.rule, fillOpacity: 0.3 }}
@@ -784,8 +784,9 @@ export function MovementChart({
   const fmt = (n: number) => `${n < 0 ? '−' : ''}${Math.abs(Math.round(n / 1000))}k`;
 
   return (
-    <div>
-      <ResponsiveContainer width="100%" height={228}>
+    <div className="absolute inset-0 flex flex-col">
+      <div className="min-h-0 flex-1">
+        <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={series} margin={{ top: 8, right: 4, bottom: 0, left: -8 }} stackOffset="sign">
           <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
           <XAxis
@@ -868,8 +869,9 @@ export function MovementChart({
           />
         </ComposedChart>
       </ResponsiveContainer>
+      </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+      <div className="mt-2 shrink-0 flex flex-wrap items-center gap-x-4 gap-y-1.5 pb-1">
         <Swatch colour={t.blue500}>new</Swatch>
         <Swatch colour={t.blue200}>expansion</Swatch>
         <Swatch colour={t.ink300}>contraction</Swatch>

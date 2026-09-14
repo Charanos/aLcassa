@@ -42,7 +42,7 @@ Measured 12 Sep 2026 against the working tree.
 | `/platform/ai-rules` | 176 ln | fixture | 0 | Version table exists in schema and is unsurfaced |
 | `/platform/support-sessions` | 278 ln | **live** | 0 | Good. No distribution of what sessions cost |
 | `/platform/settings` | 45 ln | fixture | 3 | Five tabs that persist nothing |
-| `/platform/profile` | 22 ln | fixture | 2 | Device list that cannot revoke |
+| `/platform/profile` | 22 ln | **live** | **0** | ~~Device list that cannot revoke~~ — closed 13 Sep 2026, see **19**. Avatar upload added in the same pass. |
 | `/platform/tenants/[id]` | 220 ln | **live** | 12 | Six tabs, most controls inert |
 
 **Totals: 29 controls with no handler. 6 of 12 surfaces still on fixtures. 24
@@ -510,3 +510,36 @@ alone here on purpose: it is the component the front-end agent has just
 finished polishing, and tokenising it changes rendered values. The fix is to
 add Tier-3 tokens holding those exact values, so the tokenisation lands with no
 visual change at all — worth agreeing before it happens rather than after.
+
+---
+
+## 12. Profile, closed · 13 Sep 2026
+
+The second surface through **18**'s playbook, and the first to close a §6.3 item
+by building the capability rather than wiring an existing one.
+
+**§6.3 · new audited operations.** "Revoke device session" is done, and correctly:
+the action now reports a zero-row revoke as a refusal rather than a success, and
+withholds the audit row when nothing was revoked. Two more audited operations
+joined it that were not on the original list — avatar replaced and avatar removed,
+both `profile.updated` with the reason column naming what changed.
+
+**§6.4 · honestly disabled.** The three security controls stay disabled, and the
+requirement is now actually met. It was not before: the reasons lived only in
+`title=`, so a keyboard, touch or screen-reader user got a dead control and no
+account of it. `InertControl`'s own documentation had said this was insufficient
+— *"this component refuses to be the only carrier"* — and the profile was the
+caller that ignored it. The reasons are text in the layout now.
+
+**What this surface added that the plan did not anticipate:** a real profile
+photograph. `user_profiles.avatar_path` had existed since the first migration and
+nothing wrote to it, while the shell rendered a stock photograph of a stranger as
+the operator. That is documented in full in **19**, including the storage policy,
+the browser-side EXIF strip, and the two propagation bugs it exposed — a
+`revalidatePath` that never touched the layout, and a chrome reader selecting a
+different column from the one the rename writes.
+
+**Remaining surfaces**, in order: tenants, health, admins, settings, tenant
+detail. Settings is next in line and is now cheap: eight of its hand-rolled
+sections are the `SettingsSection` primitive this pass extracted, so that pass is
+a deletion rather than a redesign.

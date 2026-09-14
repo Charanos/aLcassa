@@ -617,11 +617,20 @@ export async function getLiveHeadroom(): Promise<HeadroomModel | null> {
       )
       .orderBy(asc(planEntitlements.displayOrder));
 
-    const counts = await tx
-      .select({ planId: subscriptions.planId, n: sql<number>`count(*)::int` })
+    const workspacesData = await tx
+      .select({
+        planId: subscriptions.planId,
+        name: tenants.name,
+        slug: tenants.slug,
+      })
       .from(subscriptions)
-      .groupBy(subscriptions.planId);
-    const countByPlan = new Map(counts.map((c) => [c.planId, c.n]));
+      .innerJoin(tenants, eq(tenants.id, subscriptions.tenantId));
+
+    const workspacesByPlan = new Map<string, { name: string; slug: string }[]>();
+    for (const w of workspacesData) {
+      if (!workspacesByPlan.has(w.planId)) workspacesByPlan.set(w.planId, []);
+      workspacesByPlan.get(w.planId)!.push({ name: w.name, slug: w.slug });
+    }
 
     /*
       A counter key bounded by no plan is drift: something is counting a
@@ -633,11 +642,14 @@ export async function getLiveHeadroom(): Promise<HeadroomModel | null> {
     const orphanedCounters = allKeys.map((k) => k.key).filter((k) => !knownKeys.has(k));
 
     return {
-      plans: planRows.map((p) => ({
-        key: p.code,
-        name: p.name,
-        tenants: countByPlan.get(p.id) ?? 0,
-        rows: agg
+      plans: planRows.map((p) => {
+        const planWorkspaces = workspacesByPlan.get(p.id) ?? [];
+        return {
+          key: p.code,
+          name: p.name,
+          tenants: planWorkspaces.length,
+          workspaces: planWorkspaces,
+          rows: agg
           .filter((a) => a.planId === p.id)
           .map((a) => ({
             key: a.key,
@@ -648,7 +660,8 @@ export async function getLiveHeadroom(): Promise<HeadroomModel | null> {
             max: a.max,
             atCeiling: a.atCeiling,
           })),
-      })),
+        };
+      }),
       orphanedCounters,
     } satisfies HeadroomModel;
   });

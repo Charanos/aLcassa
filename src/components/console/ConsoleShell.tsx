@@ -23,7 +23,7 @@ import {
   IconCube,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import Image from 'next/image';
+import { Avatar } from '@/components/primitives/Avatar';
 import { Mark } from '@/components/brand/Mark';
 import { CONSOLE_ICONS } from './icons';
 import { ConsoleMobileNav } from './ConsoleMobileNav';
@@ -32,7 +32,6 @@ import { StartSessionDialog } from './StartSessionDialog';
 import { ProvisionWorkspaceDialog } from './ProvisionWorkspaceDialog';
 import { gsapSafe, prefersReducedMotion } from '@/lib/motion';
 import { useToast } from '@/components/primitives/Toast';
-import { Badge } from '@/components/primitives/Badge';
 import type {
   ConsoleAccount,
   ConsoleNavGroup,
@@ -1075,15 +1074,13 @@ export function ConsoleShell({
                 color: 'var(--chrome-fg)',
               }}
             >
-              <div className="relative size-[24px] shrink-0 overflow-hidden rounded-full border border-[var(--chrome-rule)]">
-                <Image
-                  src="https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGJsYWNrJTIwbWFufGVufDB8fDB8fHww"
-                  alt={account.name}
-                  width={24}
-                  height={24}
-                  className="size-full object-cover"
-                />
-              </div>
+              {/* ⚠ THE STOCK PHOTOGRAPH IS GONE FROM ALL THREE PLACES. It was
+                  one hardcoded Unsplash URL of a stranger, standing in for the
+                  signed-in administrator, and it was kept only until upload
+                  existed. It does. `account.avatarUrl` is the operator's own
+                  file from this deployment's storage bucket, and initials are
+                  the fallback for the accounts — most of them — with none. */}
+              <Avatar initials={account.initials} src={account.avatarUrl} size="xs" tone="chrome" />
               <span className="hidden text-[12.5px] font-medium lg:inline">{account.name}</span>
               <IconChevronDown
                 size={12}
@@ -1100,14 +1097,7 @@ export function ConsoleShell({
                   className="mb-2 flex items-center gap-3 border-b px-3 pt-2 pb-4"
                   style={{ borderColor: 'rgba(0,0,0,0.06)' }}
                 >
-                  <div className="relative size-[38px] shrink-0 overflow-hidden rounded-full border border-[rgba(0,0,0,0.08)] shadow-sm">
-                    <Image
-                      src="https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGJsYWNrJTIwbWFufGVufDB8fDB8fHww"
-                      alt={account.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+                  <Avatar initials={account.initials} src={account.avatarUrl} size="lg" />
                   <span className="min-w-0 flex-1">
                     <span
                       className="block truncate font-medium text-[14px]"
@@ -1116,13 +1106,15 @@ export function ConsoleShell({
                       {account.name}
                     </span>
                     <span
-                      className="block truncate mt-[1px]"
+                      className="block truncate mt-[2px]"
                       style={{
-                        font: '400 12px/1.4 var(--font-mono)',
+                        font: '500 11px/1.4 var(--font-ui)',
                         color: 'var(--text-tertiary)',
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
                       }}
                     >
-                      {account.email}
+                      {account.role.replace('_', ' ')}
                     </span>
                   </span>
                 </div>
@@ -1625,23 +1617,13 @@ export function ConsoleShell({
               }}
               title={collapsed ? `${account.name} (${account.role})` : undefined}
             >
-              <div
-                className="relative shrink-0 overflow-hidden rounded-full"
-                style={{
-                  width: '30px',
-                  height: '30px',
-                  border: '1.5px solid rgba(255,255,255,0.12)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                }}
-              >
-                <Image
-                  src="https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGJsYWNrJTIwbWFufGVufDB8fDB8fHww"
-                  alt={account.name}
-                  width={30}
-                  height={30}
-                  className="size-full object-cover"
-                />
-              </div>
+              <Avatar
+                initials={account.initials}
+                src={account.avatarUrl}
+                size="md"
+                tone="chrome"
+                ring
+              />
               <span
                 className="min-w-0 flex-1 overflow-hidden whitespace-nowrap"
                 style={{
@@ -1658,10 +1640,11 @@ export function ConsoleShell({
                 >
                   {account.name}
                 </span>
-                <span className="mt-[3px] flex items-center gap-1.5">
-                  <Badge intent="brand" crisp>
-                    {account.role}
-                  </Badge>
+                <span 
+                  className="mt-[3px] block truncate"
+                  style={{ font: '400 11px/1.4 var(--font-mono)', color: 'var(--chrome-fg-muted)' }}
+                >
+                  {account.email}
                 </span>
               </span>
             </div>

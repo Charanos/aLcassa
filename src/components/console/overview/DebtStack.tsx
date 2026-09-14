@@ -278,6 +278,16 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
         className="pointer-events-none absolute -top-20 -left-16 size-[220px] rounded-full opacity-[0.18] blur-[70px]"
         style={{ background: 'var(--chrome-danger)' }}
       />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.25]"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+          maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)',
+          WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)',
+        }}
+      />
 
       <div className="relative z-10 flex flex-col">
         <div className="px-6 pt-6">

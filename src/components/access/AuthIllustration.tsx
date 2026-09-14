@@ -166,7 +166,7 @@ export function AuthIllustration() {
                   <span className="absolute inset-[-2px] rounded-full bg-[var(--success-fg)]/40 animate-pulse"></span>
                   <span className="absolute size-1.5 rounded-full bg-[var(--success-fg)]"></span>
                 </div>
-                <span className="font-mono text-[9.5px] font-semibold tracking-[0.15em] uppercase text-[var(--success-fg)]/90 whitespace-nowrap">Live & Isolated</span>
+                <span className="font-mono text-[9.5px] font-medium tracking-[0.15em] uppercase text-[var(--success-fg)]/90 whitespace-nowrap">Live & Isolated</span>
               </div>
             </div>
           </div>
@@ -215,7 +215,7 @@ function FeatureCard({ title, subtitle, icon }: { title: string; subtitle: strin
         {icon}
       </div>
       <div>
-        <div className="font-mono text-[9px] font-semibold tracking-[0.1em] text-[var(--text-tertiary)] uppercase leading-tight mb-1">
+        <div className="font-mono text-[9px] font-medium tracking-[0.1em] text-[var(--text-tertiary)] uppercase leading-tight mb-1">
           {title}
         </div>
         <div className="font-sans text-[12px] text-[var(--text-secondary)] leading-snug font-medium">

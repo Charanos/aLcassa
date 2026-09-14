@@ -10,8 +10,7 @@ import {
   YAxis,
   CartesianGrid,
 } from 'recharts';
-import { Badge } from '@/components/primitives/Badge';
-
+import { IconArrowUpRight } from '@tabler/icons-react';
 /**
  * Creative Data Viz for the Overview Dashboard.
  *
@@ -76,10 +75,14 @@ export function OverviewChart() {
         </div>
       </div>
 
-      <div className="absolute top-6 right-6 z-10 pointer-events-none">
-        <Badge intent="success" indicator={false} crisp={false}>
+      <div className="absolute top-6 right-6 z-10 pointer-events-none flex items-center gap-1.5">
+        <IconArrowUpRight size={14} stroke={2.5} style={{ color: 'var(--chrome-success)' }} />
+        <span 
+          className="font-mono text-[13px] font-medium" 
+          style={{ color: 'var(--chrome-success)' }}
+        >
           +12.4% vs last month
-        </Badge>
+        </span>
       </div>
 
       <div className="absolute inset-0 px-3 pt-20 pb-2">

@@ -3,7 +3,22 @@ import { and, desc, eq, gte, isNull, sql } from 'drizzle-orm';
 import { platformAdmins, platformAuditLog, sessions, tenants, userProfiles } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import { withoutTenantContext } from '@/lib/db';
+import { PLATFORM_CAPABILITIES, SECURITY_POLICY } from './data';
+import { avatarUrlFor } from '@/lib/storage/avatar';
+import { describeAgent } from './userAgent';
 import type { Admin, AdminRole, AdminsModel, DeviceSession, ProfileModel } from './data';
+
+/**
+ * How many device sessions the profile screen reads at once.
+ *
+ * Twelve was the old inline `.limit(12)`, chosen so a pathological account
+ * cannot make the page slow. It is raised to a number a real person can
+ * actually reach — someone who signs in from a phone, two laptops and a
+ * borrowed machine, over a fortnight of eight-hour sessions — because the cap
+ * is a safety valve, not a page size. The LIST pages at eight; this is the
+ * query's ceiling, and whatever it excludes is counted and stated.
+ */
+const SESSION_CAP = 40;
 
 /**
  * The PEOPLE half of the console read model, against the real database.
@@ -200,13 +215,18 @@ export async function getLiveProfile(): Promise<ProfileModel | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  const fixture = await import('./data').then((m) => m.getProfile());
+  /* ⚠ NO FIXTURE IMPORT HERE ANY MORE. This reader used to pull the whole
+     designed profile in to borrow one field — `fixture.security` — and that
+     borrowed field was the invented account history described in `data.ts`.
+     The checklist it needed is now a named export, `SECURITY_POLICY`, shared
+     by both paths rather than smuggled from one into the other. */
   const now = new Date();
 
   return withoutTenantContext(ctx.requestId, async (tx) => {
     const [me] = await tx
       .select({
         fullName: userProfiles.fullName,
+        avatarPath: userProfiles.avatarPath,
         email: userProfiles.email,
         displayName: platformAdmins.displayName,
         canSuspendTenants: platformAdmins.canSuspendTenants,
@@ -221,6 +241,25 @@ export async function getLiveProfile(): Promise<ProfileModel | null> {
 
     if (!me) return null;
 
+    /**
+     * ⚠ `expires_at > now()` IS NOT DECORATION, AND ITS ABSENCE WAS A DEFECT.
+     *
+     * This read filtered only on `revoked_at is null`, so a session that had
+     * simply timed out — never revoked, no longer usable — was listed beside
+     * the live ones under the heading "Devices currently signed into this
+     * account". On the one screen an operator opens to answer "is something
+     * else signed in as me", that is the worst available error: it manufactures
+     * an intruder out of last Tuesday's laptop.
+     *
+     * `listActiveSessions` in `lib/auth/session.ts` has always had this
+     * predicate. The two readers now agree.
+     */
+    const isLive = and(
+      eq(sessions.userId, ctx.actorId),
+      isNull(sessions.revokedAt),
+      sql`${sessions.expiresAt} > now()`,
+    );
+
     const live = await tx
       .select({
         id: sessions.id,
@@ -232,9 +271,18 @@ export async function getLiveProfile(): Promise<ProfileModel | null> {
       })
       .from(sessions)
       .leftJoin(tenants, eq(tenants.id, sessions.tenantId))
-      .where(and(eq(sessions.userId, ctx.actorId), isNull(sessions.revokedAt)))
+      .where(isLive)
       .orderBy(desc(sessions.lastActivityAt))
-      .limit(12);
+      .limit(SESSION_CAP);
+
+    /* The cap exists so one pathological account cannot make this page slow.
+       It is counted rather than hidden: 18 §12 — a list that truncates must
+       say so, and a reader hunting an unrecognised device is exactly the
+       reader who must not be shown a silently shortened list. */
+    const [sessionTotal] = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(sessions)
+      .where(isLive);
 
     const name = me.fullName ?? me.displayName;
 
@@ -251,7 +299,13 @@ export async function getLiveProfile(): Promise<ProfileModel | null> {
           : (s.ipAddress ?? 'Address not recorded'),
       when: agoLabel(s.lastActivityAt ? new Date(s.lastActivityAt) : null, now),
       current: s.id === ctx.sessionId,
+      support: s.kind === 'support',
     }));
+
+    /* Current device first, then most recent. The ordering above is recency
+       alone, which puts the reader's own row wherever it happens to fall —
+       and the first question this list answers is "which of these is me". */
+    deviceSessions.sort((a, b) => Number(b.current ?? false) - Number(a.current ?? false));
 
     const actions30d = await tx
       .select({ n: sql<number>`count(*)::int` })
@@ -263,57 +317,44 @@ export async function getLiveProfile(): Promise<ProfileModel | null> {
         ),
       );
 
+    const total = sessionTotal?.n ?? deviceSessions.length;
+
     return {
       name,
       email: me.email ?? '—',
-      /* Verification state lives in `auth.users`, same guard as MFA. The
-         fixture's `true` is a claim this reader cannot make, and an unverified
-         address rendered as verified is worse than an unanswered question. */
-      emailVerified: false,
+      /* ⚠ NULL, NOT FALSE. Verification state lives in `auth.users`, same
+         guard as MFA. This reader used to answer `false`, which renders
+         exactly like an address that was genuinely never confirmed — so the
+         screen was making a claim about the operator's identity on the
+         strength of not having looked. `null` says "not read from here", and
+         the badge says it too. */
+      emailVerified: null,
       initials: initialsOf(name),
+      avatarUrl: avatarUrlFor(me.avatarPath),
       role: deriveRole(me),
-      /* The security checklist is advice rather than measurement; it is the
-         same list whether this screen is live or drawn. */
-      security: fixture.security,
+      /* The grants, from the three columns this reader already selected and
+         previously discarded into a role label. */
+      capabilities: PLATFORM_CAPABILITIES.map((c) => ({
+        ...c,
+        granted:
+          c.key === 'suspend'
+            ? me.canSuspendTenants
+            : c.key === 'rules'
+              ? me.canEditMasterRules
+              : me.canEnterSupportMode,
+      })),
+      /* The security checklist is POLICY rather than measurement; it is the
+         same list whether this screen is live or drawn, and every item on it
+         carries `measured: false` so the screen says which. */
+      security: SECURITY_POLICY,
       sessions: deviceSessions,
+      sessionsHidden: Math.max(0, total - deviceSessions.length),
       facts: [
         { label: 'Platform access granted', value: dateLabel(me.grantedOn ? new Date(me.grantedOn) : null) },
-        { label: 'Active sessions', value: String(deviceSessions.length) },
+        { label: 'Active sessions', value: String(total) },
         { label: 'Platform actions, 30 days', value: String(actions30d[0]?.n ?? 0) },
       ],
     } satisfies ProfileModel;
   });
 }
 
-/**
- * A user agent string, reduced to the two facts a person recognises.
- *
- * Deliberately crude. A full parser is a dependency and a maintenance burden
- * for a label whose only job is to let someone say "that is not my machine".
- */
-function describeAgent(ua: string | null): string {
-  if (!ua) return 'Unknown device';
-  const browser = /Edg\//.test(ua)
-    ? 'Edge'
-    : /OPR\//.test(ua)
-      ? 'Opera'
-      : /Firefox\//.test(ua)
-        ? 'Firefox'
-        : /Chrome\//.test(ua)
-          ? 'Chrome'
-          : /Safari\//.test(ua)
-            ? 'Safari'
-            : 'Browser';
-  const os = /Windows/.test(ua)
-    ? 'Windows'
-    : /Mac OS X|Macintosh/.test(ua)
-      ? 'macOS'
-      : /Android/.test(ua)
-        ? 'Android'
-        : /iPhone|iPad/.test(ua)
-          ? 'iOS'
-          : /Linux/.test(ua)
-            ? 'Linux'
-            : 'Unknown OS';
-  return `${browser} on ${os}`;
-}

@@ -68,7 +68,24 @@ export default async function AiRulesPage() {
         style={{ borderColor: 'var(--border-subtle)' }}
       >
         <div className="min-w-0 flex-1">
-          <ConsoleHeader eyebrow="/platform/ai-rules" title="Master AI rules" />
+          <ConsoleHeader 
+            breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Master AI rules' }]}
+            title="Master AI rules" 
+            actions={
+              <span
+                className="inline-flex h-[26px] items-center gap-1.5 rounded-full px-2.5 whitespace-nowrap"
+                style={{
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--surface-sunken)',
+                  color: 'var(--text-secondary)',
+                  font: '400 11.5px/1 var(--font-mono)',
+                }}
+              >
+                <IconLock size={12} stroke={1.5} aria-hidden />
+                Singleton · one record, platform-wide
+              </span>
+            }
+          />
 
           {/*
             ⚠ THE SINGLETON SAYS SO. Sheet 10: "A lock chip beside the title
@@ -81,20 +98,8 @@ export default async function AiRulesPage() {
             whether they are editing "the" rules or "a" set of rules — and the
             difference decides whether they expect a New button to exist.
           */}
-          <span
-            className="mt-3 inline-flex h-[26px] items-center gap-1.5 rounded-full px-2.5 whitespace-nowrap"
-            style={{
-              border: '1px solid var(--border-subtle)',
-              background: 'var(--surface-sunken)',
-              color: 'var(--text-secondary)',
-              font: '400 11.5px/1 var(--font-mono)',
-            }}
-          >
-            <IconLock size={12} stroke={1.5} aria-hidden />
-            Singleton · one record, platform-wide
-          </span>
 
-          <p className="t-body mt-2.5" style={{ color: 'var(--text-secondary)', maxWidth: '70ch' }}>
+          <p className="t-body mt-3" style={{ color: 'var(--text-secondary)', maxWidth: '70ch' }}>
             The floor every workspace inherits. Workspaces may add rules on top; they cannot remove
             these.
           </p>
@@ -109,7 +114,7 @@ export default async function AiRulesPage() {
           savedAt={doc.savedAt}
         />
 
-        <div className="grid gap-4">
+        <div className="sticky top-8 grid gap-4 self-start">
           <VersionRail versions={doc.versions} />
           <InheritancePanel doc={doc} />
         </div>

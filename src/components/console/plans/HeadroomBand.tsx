@@ -1,5 +1,7 @@
+import { IconInfoCircle } from '@tabler/icons-react';
 import { BandLink, Panel, SectionHeading } from '../Surface';
-import { PRESSURE_THRESHOLD, type HeadroomModel, type HeadroomRow } from '@/lib/console/data';
+import { type HeadroomModel } from '@/lib/console/data';
+import { HeadroomPlanCard } from './HeadroomPlanCard';
 
 /**
  * HEADROOM BY PLAN. 17 §7.
@@ -30,107 +32,7 @@ import { PRESSURE_THRESHOLD, type HeadroomModel, type HeadroomRow } from '@/lib/
  * plan is pressed against, and an average would render them identically.
  */
 
-/** An unlimited row still gets a track. See `scaleOf`. */
-const UNLIMITED_HEADROOM = 1.25;
 
-/**
- * What 100% of the track means for this row.
- *
- * For a bounded entitlement it is the limit, so every row on a plan is read
- * against its own ceiling and "nearly full" looks the same everywhere.
- *
- * For an UNLIMITED one there is no ceiling to read against, so the track is
- * scaled to a quarter past the observed maximum. That is honest — the bar is
- * explicitly not a proportion of anything — and it keeps the row legible
- * rather than collapsing it to a dot at the far left of a track scaled to some
- * arbitrary large number.
- */
-function scaleOf(row: HeadroomRow): number {
-  if (row.limit !== null && row.limit > 0) return row.limit;
-  return Math.max(row.max * UNLIMITED_HEADROOM, 1);
-}
-
-function pct(value: number, scale: number): number {
-  return Math.max(0, Math.min(100, (value / scale) * 100));
-}
-
-function Row({ row }: { row: HeadroomRow }) {
-  const scale = scaleOf(row);
-  const medianPct = pct(row.p50, scale);
-  const maxPct = pct(row.max, scale);
-  const unbounded = row.limit === null;
-
-  /*
-    The accent, doing semantic work rather than decoration. It is the same hue
-    the workspace table's amber state, the attention standfirst and the console
-    meters use for "at a ceiling", so every surface names the same condition in
-    the same colour. 03 §4a: one per screen — this band is that one.
-  */
-  const pressed = !unbounded && maxPct >= PRESSURE_THRESHOLD;
-  const maxInk = pressed ? 'var(--accent-mark)' : 'var(--blue-500)';
-
-  return (
-    <div className="grid gap-1.5 py-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="t-compact truncate" style={{ color: 'var(--text-primary)' }}>
-          {row.label}
-        </span>
-        <span
-          className="shrink-0 whitespace-nowrap"
-          style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
-        >
-          {row.tenants === 0
-            ? 'nothing reports this'
-            : unbounded
-              ? `median ${row.p50} · max ${row.max} · no limit`
-              : `median ${row.p50} · max ${row.max} of ${row.limit}`}
-        </span>
-      </div>
-
-      {/*
-        A track, a filled portion to the median, and a marker at the maximum.
-        `role="img"` with a full label because the shape carries the meaning and
-        a screen reader gets none of it from three divs. 03 §3 rule 3.
-      */}
-      <div
-        className="relative h-2.5 w-full overflow-hidden rounded-full"
-        style={{ background: 'var(--surface-inset)' }}
-        role="img"
-        aria-label={
-          row.tenants === 0
-            ? `${row.label}: no workspace reports this counter`
-            : `${row.label}: median ${row.p50}, maximum ${row.max}${
-                unbounded ? ', no limit' : ` of ${row.limit}`
-              }`
-        }
-      >
-        <span
-          className="absolute inset-y-0 left-0 rounded-full"
-          style={{ width: `${medianPct}%`, background: 'var(--blue-200)' }}
-        />
-        {row.tenants > 0 ? (
-          <span
-            className="absolute inset-y-0 w-[3px] rounded-full"
-            style={{
-              left: `calc(${maxPct}% - 1.5px)`,
-              background: maxInk,
-            }}
-          />
-        ) : null}
-      </div>
-
-      {row.atCeiling > 0 ? (
-        <span
-          className="whitespace-nowrap"
-          style={{ font: '400 11px/1 var(--font-mono)', color: 'var(--accent-mark-text)' }}
-        >
-          {row.atCeiling} {row.atCeiling === 1 ? 'workspace is' : 'workspaces are'} at{' '}
-          {PRESSURE_THRESHOLD}% or above
-        </span>
-      ) : null}
-    </div>
-  );
-}
 
 export function HeadroomBand({ model }: { model: HeadroomModel }) {
   const plansWithRows = model.plans.filter((p) => p.rows.length > 0);
@@ -140,14 +42,9 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
       <SectionHeading
         title="Headroom"
         note="Where each plan's workspaces actually sit"
+        align="right"
         action={<BandLink href="/platform/tenants">Open workspaces</BandLink>}
       />
-
-      <p className="t-body -mt-3 mb-5" style={{ color: 'var(--text-secondary)', maxWidth: '72ch' }}>
-        The pale bar is the median workspace on that plan; the mark is the busiest one. A limit
-        nothing approaches is not protecting anything, and a limit one workspace is pressed against
-        is a conversation with that customer rather than a change to the plan.
-      </p>
 
       {plansWithRows.length === 0 ? (
         <Panel title="Headroom">
@@ -157,31 +54,33 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
         </Panel>
       ) : (
         <div
-          className="grid gap-5"
+          className="grid gap-6"
           style={{ gridTemplateColumns: `repeat(auto-fit, minmax(280px, 1fr))` }}
         >
           {plansWithRows.map((plan) => (
-            <Panel
-              key={plan.key}
-              title={plan.name}
-              action={
-                <span
-                  className="whitespace-nowrap"
-                  style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
-                >
-                  {plan.tenants} {plan.tenants === 1 ? 'workspace' : 'workspaces'}
-                </span>
-              }
-            >
-              <div className="grid">
-                {plan.rows.map((row) => (
-                  <Row key={row.key} row={row} />
-                ))}
-              </div>
-            </Panel>
+            <HeadroomPlanCard key={plan.key} plan={plan} />
           ))}
         </div>
       )}
+
+      <div 
+        className="mt-6 flex flex-col gap-2 rounded-[24px] p-5 sm:flex-row sm:items-center sm:gap-6"
+        style={{
+          background: 'var(--surface-sunken)',
+          boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
+        }}
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--surface-raised)', boxShadow: '0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.6)' }}>
+          <IconInfoCircle size={20} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
+        </div>
+        <div className="flex-1">
+          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            The pale bar is the median workspace on that plan; the mark is the busiest one. A limit
+            nothing approaches is not protecting anything, and a limit one workspace is pressed against
+            is a conversation with that customer rather than a change to the plan.
+          </p>
+        </div>
+      </div>
 
       {/*
         ⚠ A COUNTER NOTHING BOUNDS IS DRIFT, AND IT IS SURFACED RATHER THAN

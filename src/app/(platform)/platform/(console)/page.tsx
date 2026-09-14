@@ -187,7 +187,7 @@ export default async function ConsoleOverviewPage() {
             </defs>
           </svg>
 
-          {/* Minimalist dot matrix overlay fading out at the bottom */}
+          {/* Minimalist dot matrix overlay */}
           <div
             className="absolute inset-0 opacity-[0.25]"
             style={{
@@ -276,8 +276,6 @@ export default async function ConsoleOverviewPage() {
 
           {/* Right Column: Recharts Data Viz - uncarded */}
           <div className="relative min-h-[260px] flex-1 lg:min-h-[280px]">
-            {/* Soft gradient fade masking the left edge of the chart to blend with the text */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r from-[#060913] to-transparent hidden lg:block" />
             <OverviewChart />
           </div>
         </div>
