@@ -42,3 +42,4 @@ aLcassa-appshell-boilerplate/
 # boilerplate in the repository the rule exists to keep out of it.
 conduit-appshell-boilerplate/
 
+.test-report/
