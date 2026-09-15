@@ -101,7 +101,9 @@ async function main() {
 
       // The period, computed the way the service computes it.
       const trialDays = Number(plan.trial_days);
-      const [sub] = await tx<{ id: string; status: string; current_period_end: string; trial_ends_at: string | null }[]>`
+      const [sub] = await tx<
+        { id: string; status: string; current_period_end: string; trial_ends_at: string | null }[]
+      >`
         insert into subscriptions
           (tenant_id, plan_id, status, current_period_start, current_period_end, trial_ends_at)
         values (
@@ -118,16 +120,18 @@ async function main() {
 
       // ── 3 · read it back the way the console reads it ────────────────────
       console.log('\n3. Read back, as the console reads it');
-      const [readback] = await tx<{
-        slug: string;
-        tenant_status: string;
-        plan_code: string;
-        plan_name: string;
-        sub_status: string;
-        trial_ends_at: string | null;
-        limits: number;
-        owners: number;
-      }[]>`
+      const [readback] = await tx<
+        {
+          slug: string;
+          tenant_status: string;
+          plan_code: string;
+          plan_name: string;
+          sub_status: string;
+          trial_ends_at: string | null;
+          limits: number;
+          owners: number;
+        }[]
+      >`
         select t.slug, t.status as tenant_status,
                p.code as plan_code, p.name as plan_name,
                s.status as sub_status, s.trial_ends_at,
@@ -179,7 +183,9 @@ async function main() {
 
   // ── 5 · nothing survived ───────────────────────────────────────────────
   console.log('\n5. Rollback');
-  const [left] = await sql<{ n: number }[]>`select count(*)::int as n from tenants where slug = ${slug}`;
+  const [left] = await sql<
+    { n: number }[]
+  >`select count(*)::int as n from tenants where slug = ${slug}`;
   if ((left?.n ?? 0) === 0) ok('nothing was kept');
   else bad(`${left?.n} probe row(s) survived — clean up ${slug} by hand.`);
 

@@ -99,7 +99,18 @@ export async function buildExport(resource: ExportResource, stamp: Date): Promis
         filename: `alcassa-workspaces-${date}.csv`,
         rows: rows.length,
         body: toCsv(
-          ['Workspace', 'Slug', 'Status', 'Plan', 'Seats used', 'Seat limit', 'Events', 'Event limit', 'Last activity', 'Created'],
+          [
+            'Workspace',
+            'Slug',
+            'Status',
+            'Plan',
+            'Seats used',
+            'Seat limit',
+            'Events',
+            'Event limit',
+            'Last activity',
+            'Created',
+          ],
           rows.map((w: WorkspaceRow) => [
             w.name,
             w.slug,

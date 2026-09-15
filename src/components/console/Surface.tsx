@@ -337,7 +337,9 @@ export function Panel({
       {/* `mt-auto` so a footer in a band stretched by a taller sibling in the
           same grid row still sits at the bottom, rather than floating under
           short content with a gap beneath it. */}
-      {footer ? <div className={`mt-auto pt-4 ${flush ? 'px-5 pb-1' : 'px-1'}`}>{footer}</div> : null}
+      {footer ? (
+        <div className={`mt-auto pt-4 ${flush ? 'px-5 pb-1' : 'px-1'}`}>{footer}</div>
+      ) : null}
     </section>
   );
 }
@@ -410,7 +412,7 @@ export function SettingsSection({
 }) {
   return (
     <section
-      className="rounded-xl overflow-hidden"
+      className="overflow-hidden rounded-xl"
       style={{
         background: 'var(--surface-raised)',
         border: '1px solid var(--border-subtle)',

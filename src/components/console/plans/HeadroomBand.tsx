@@ -32,8 +32,6 @@ import { HeadroomPlanCard } from './HeadroomPlanCard';
  * plan is pressed against, and an average would render them identically.
  */
 
-
-
 export function HeadroomBand({ model }: { model: HeadroomModel }) {
   const plansWithRows = model.plans.filter((p) => p.rows.length > 0);
 
@@ -63,21 +61,32 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
         </div>
       )}
 
-      <div 
+      <div
         className="mt-6 flex flex-col gap-2 rounded-[24px] p-5 sm:flex-row sm:items-center sm:gap-6"
         style={{
           background: 'var(--surface-sunken)',
           boxShadow: 'var(--neu-inset)',
         }}
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--surface-raised)', boxShadow: 'var(--shadow-sm), var(--glass-highlight)' }}>
-          <IconInfoCircle size={20} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+          style={{
+            background: 'var(--surface-raised)',
+            boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
+          }}
+        >
+          <IconInfoCircle
+            size={20}
+            stroke={1.5}
+            style={{ color: 'var(--text-tertiary)' }}
+            aria-hidden
+          />
         </div>
         <div className="flex-1">
           <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             The pale bar is the median workspace on that plan; the mark is the busiest one. A limit
-            nothing approaches is not protecting anything, and a limit one workspace is pressed against
-            is a conversation with that customer rather than a change to the plan.
+            nothing approaches is not protecting anything, and a limit one workspace is pressed
+            against is a conversation with that customer rather than a change to the plan.
           </p>
         </div>
       </div>
@@ -89,10 +98,7 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
         Both are worth a line; neither is worth a silent filter.
       */}
       {model.orphanedCounters.length > 0 ? (
-        <p
-          className="t-compact mt-4"
-          style={{ color: 'var(--warning-fg)', maxWidth: '72ch' }}
-        >
+        <p className="t-compact mt-4" style={{ color: 'var(--warning-fg)', maxWidth: '72ch' }}>
           {model.orphanedCounters.length}{' '}
           {model.orphanedCounters.length === 1 ? 'counter is' : 'counters are'} tracked against no
           plan entitlement: <span className="numeric">{model.orphanedCounters.join(', ')}</span>.

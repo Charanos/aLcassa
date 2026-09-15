@@ -197,9 +197,9 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
           <div className="t-compact text-pretty">
             <p className="font-medium">This document is not yet published.</p>
             <p className="mt-1">
-              The outline below is what it will cover. Until it is in force, the
-              agreement governing your workspace is the one in your order form or
-              contract. For a copy, or for anything urgent, email{' '}
+              The outline below is what it will cover. Until it is in force, the agreement governing
+              your workspace is the one in your order form or contract. For a copy, or for anything
+              urgent, email{' '}
               <a
                 href="mailto:legal@alcassa.co.ke"
                 className="font-medium underline underline-offset-2"

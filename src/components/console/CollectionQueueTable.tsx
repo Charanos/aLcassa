@@ -29,8 +29,8 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
   return (
     <>
       {/* Desktop table */}
-      <div className="hidden sm:block p-4">
-        <div 
+      <div className="hidden p-4 sm:block">
+        <div
           className="relative overflow-hidden rounded-[20px]"
           style={{
             background: 'var(--surface-raised)',
@@ -47,7 +47,9 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
               <col style={{ width: '16%' }} />
             </colgroup>
             <thead>
-              <tr style={{ background: 'color-mix(in srgb, var(--surface-sunken) 30%, transparent)' }}>
+              <tr
+                style={{ background: 'color-mix(in srgb, var(--surface-sunken) 30%, transparent)' }}
+              >
                 {['Workspace', 'Invoice', 'Amount', 'Late', 'Attempts'].map((h, i) => (
                   <th
                     key={h}
@@ -56,7 +58,8 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                     style={{
                       padding: i === 0 ? '0 24px' : i === 4 ? '0 24px' : '0 12px',
                       textAlign: i >= 2 ? 'right' : 'left',
-                      borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 25%, transparent)',
+                      borderBottom:
+                        '1px solid color-mix(in srgb, var(--border-subtle) 25%, transparent)',
                       font: '500 11px/1 var(--font-ui)',
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
@@ -68,84 +71,92 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                 ))}
               </tr>
             </thead>
-          <tbody>
-            {collections.map((c, i) => (
-              <tr
-                key={c.id}
-                {...grid.getRowProps(i)}
-                className="group cursor-pointer transition-colors hover:bg-[var(--surface-inset)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
-                style={{ height: 56 }}
-              >
-                <td
-                  className="overflow-hidden border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
-                  style={{ padding: '0 24px' }}
-                  data-row-actions
+            <tbody>
+              {collections.map((c, i) => (
+                <tr
+                  key={c.id}
+                  {...grid.getRowProps(i)}
+                  className="group cursor-pointer transition-colors hover:bg-[var(--surface-inset)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)]"
+                  style={{ height: 56 }}
                 >
-                  <Link
-                    href={`/platform/tenants/${c.slug}`}
-                    tabIndex={-1}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Escape' || e.key === 'ArrowLeft') {
-                        e.preventDefault();
-                        grid.focusIndex(i);
-                      }
-                    }}
-                    className="block truncate transition-colors group-hover:text-[var(--blue-600)]"
-                    style={{
-                      font: '500 13.5px/1.4 var(--font-ui)',
-                      color: 'var(--text-primary)',
-                      letterSpacing: '-0.01em',
-                    }}
+                  <td
+                    className="overflow-hidden border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                    style={{ padding: '0 24px' }}
+                    data-row-actions
                   >
-                    {c.name}
-                  </Link>
-                </td>
-                <td
-                  className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
-                  style={{ padding: '0 12px' }}
-                >
-                  <span style={{ font: '400 12.5px/1 var(--font-mono)', color: 'var(--text-secondary)' }}>
-                    {c.invoice}
-                  </span>
-                </td>
-                <td
-                  className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
-                  style={{ padding: '0 12px', textAlign: 'right' }}
-                >
-                  <span className="numeric" style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500 }}>
-                    {c.amount}
-                  </span>
-                </td>
-                <td
-                  className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
-                  style={{ padding: '0 12px', textAlign: 'right' }}
-                >
-                  <span
-                    style={{
-                      font: '400 13px/1 var(--font-mono)',
-                      color: lateInk(c.days),
-                    }}
+                    <Link
+                      href={`/platform/tenants/${c.slug}`}
+                      tabIndex={-1}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape' || e.key === 'ArrowLeft') {
+                          e.preventDefault();
+                          grid.focusIndex(i);
+                        }
+                      }}
+                      className="block truncate transition-colors group-hover:text-[var(--blue-600)]"
+                      style={{
+                        font: '500 13.5px/1.4 var(--font-ui)',
+                        color: 'var(--text-primary)',
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      {c.name}
+                    </Link>
+                  </td>
+                  <td
+                    className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                    style={{ padding: '0 12px' }}
                   >
-                    {c.days} {c.days === 1 ? 'day' : 'days'}
-                  </span>
-                </td>
-                <td
-                  className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
-                  style={{ padding: '0 24px', textAlign: 'right' }}
-                >
-                  <span
-                    style={{
-                      font: '400 12.5px/1 var(--font-mono)',
-                      color: 'var(--text-tertiary)',
-                    }}
+                    <span
+                      style={{
+                        font: '400 12.5px/1 var(--font-mono)',
+                        color: 'var(--text-secondary)',
+                      }}
+                    >
+                      {c.invoice}
+                    </span>
+                  </td>
+                  <td
+                    className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                    style={{ padding: '0 12px', textAlign: 'right' }}
                   >
-                    {c.attempts}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <span
+                      className="numeric"
+                      style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500 }}
+                    >
+                      {c.amount}
+                    </span>
+                  </td>
+                  <td
+                    className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                    style={{ padding: '0 12px', textAlign: 'right' }}
+                  >
+                    <span
+                      style={{
+                        font: '400 13px/1 var(--font-mono)',
+                        color: lateInk(c.days),
+                      }}
+                    >
+                      {c.days} {c.days === 1 ? 'day' : 'days'}
+                    </span>
+                  </td>
+                  <td
+                    className="border-b border-[color-mix(in_srgb,var(--border-subtle)_20%,transparent)] group-last:border-0"
+                    style={{ padding: '0 24px', textAlign: 'right' }}
+                  >
+                    <span
+                      style={{
+                        font: '400 12.5px/1 var(--font-mono)',
+                        color: 'var(--text-tertiary)',
+                      }}
+                    >
+                      {c.attempts}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 

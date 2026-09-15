@@ -277,354 +277,356 @@ export function ProvisionWorkspaceDialog({
           overlay underneath still takes the click-outside.
         */}
         <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
-        <Dialog.Content
-          ref={panelRef}
-          className="surface-glass-strong pointer-events-auto flex max-h-[88vh] w-full max-w-[920px] flex-col overflow-hidden rounded-3xl"
-        >
-          {/* ── Header ─────────────────────────────────────────────── */}
-          <div className="relative px-8 pb-5 pt-7">
-            <div className="absolute bottom-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-[var(--border-subtle)] to-transparent" />
+          <Dialog.Content
+            ref={panelRef}
+            className="surface-glass-strong pointer-events-auto flex max-h-[88vh] w-full max-w-[920px] flex-col overflow-hidden rounded-3xl"
+          >
+            {/* ── Header ─────────────────────────────────────────────── */}
+            <div className="relative px-8 pt-7 pb-5">
+              <div className="absolute right-8 bottom-0 left-8 h-px bg-gradient-to-r from-transparent via-[var(--border-subtle)] to-transparent" />
 
-            <div className="flex items-start justify-between">
-              <div>
-                <p
-                  className="mb-1.5 font-mono text-[10.5px] font-medium tracking-[0.2em] uppercase"
-                  style={{ color: 'var(--blue-500)' }}
-                >
-                  New tenant
-                </p>
-                <Dialog.Title asChild>
-                  <h2 className="display display-sm" style={{ color: 'var(--text-primary)' }}>
-                    Provision a workspace
-                  </h2>
-                </Dialog.Title>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p
+                    className="mb-1.5 font-mono text-[10.5px] font-medium tracking-[0.2em] uppercase"
+                    style={{ color: 'var(--blue-500)' }}
+                  >
+                    New tenant
+                  </p>
+                  <Dialog.Title asChild>
+                    <h2 className="display display-sm" style={{ color: 'var(--text-primary)' }}>
+                      Provision a workspace
+                    </h2>
+                  </Dialog.Title>
+                </div>
+                <Dialog.Close asChild>
+                  <button
+                    type="button"
+                    aria-label="Close"
+                    disabled={working}
+                    className="grid size-8 shrink-0 place-items-center rounded-lg transition-colors hover:bg-[var(--surface-inset)]"
+                    style={{ color: 'var(--text-tertiary)' }}
+                  >
+                    <IconX size={16} stroke={1.5} />
+                  </button>
+                </Dialog.Close>
               </div>
-              <Dialog.Close asChild>
-                <button
-                  type="button"
-                  aria-label="Close"
-                  disabled={working}
-                  className="grid size-8 shrink-0 place-items-center rounded-lg transition-colors hover:bg-[var(--surface-inset)]"
-                  style={{ color: 'var(--text-tertiary)' }}
-                >
-                  <IconX size={16} stroke={1.5} />
-                </button>
-              </Dialog.Close>
+              <Dialog.Description
+                className="mt-2.5"
+                style={{ font: '400 13.5px/1.6 var(--font-ui)', color: 'var(--text-secondary)' }}
+              >
+                Four fields. The owner receives an invitation and sets their own password; you never
+                see it.
+              </Dialog.Description>
             </div>
-            <Dialog.Description
-              className="mt-2.5"
-              style={{ font: '400 13.5px/1.6 var(--font-ui)', color: 'var(--text-secondary)' }}
-            >
-              Four fields. The owner receives an invitation and sets their own password; you never
-              see it.
-            </Dialog.Description>
-          </div>
 
-          {/* ── Body ────────────────────────────────────────────────── */}
-          <div className="scrollbar-slim flex-1 overflow-y-auto px-8 pt-6 pb-8">
-            {loadError ? (
-              <p className="t-compact py-10 text-center" style={{ color: 'var(--danger-fg)' }}>
-                Could not load plans and existing workspaces. Close and try again.
-              </p>
-            ) : loading || !model ? (
-              <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_320px]">
-                <SkeletonPanel lines={5} />
-                <SkeletonPanel lines={3} />
-              </div>
-            ) : (
-              <form
-                /* `void` rather than passing the async function straight in:
+            {/* ── Body ────────────────────────────────────────────────── */}
+            <div className="scrollbar-slim flex-1 overflow-y-auto px-8 pt-6 pb-8">
+              {loadError ? (
+                <p className="t-compact py-10 text-center" style={{ color: 'var(--danger-fg)' }}>
+                  Could not load plans and existing workspaces. Close and try again.
+                </p>
+              ) : loading || !model ? (
+                <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_320px]">
+                  <SkeletonPanel lines={5} />
+                  <SkeletonPanel lines={3} />
+                </div>
+              ) : (
+                <form
+                  /* `void` rather than passing the async function straight in:
                    onSubmit expects a void return, and handing it a promise
                    makes an unhandled rejection invisible. submit() already
                    catches its own failures into state. */
-                onSubmit={(e) => void submit(e)}
-                className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.4fr)_320px]"
-              >
-                {/* ── Left Column ─────────────────────────────────── */}
-                <div className="grid gap-10">
-                  {/* Identity */}
-                  <section>
-                    <p
-                      className="mb-5 font-mono text-[11px] font-medium tracking-[0.15em] uppercase"
-                      style={{ color: 'var(--text-tertiary)' }}
-                    >
-                      Identity
-                    </p>
+                  onSubmit={(e) => void submit(e)}
+                  className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.4fr)_320px]"
+                >
+                  {/* ── Left Column ─────────────────────────────────── */}
+                  <div className="grid gap-10">
+                    {/* Identity */}
+                    <section>
+                      <p
+                        className="mb-5 font-mono text-[11px] font-medium tracking-[0.15em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
+                        Identity
+                      </p>
 
-                    <div className="grid gap-5">
-                      {/* Legal name */}
-                      <label className="block">
-                        <span
-                          className="mb-2 block text-[13px] font-medium"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          Legal name
-                        </span>
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => onNameChange(e.target.value)}
-                          placeholder="Tamarind Bay Resorts Ltd"
-                          disabled={working || done}
-                          className={inputCls}
-                          style={inputStyle}
-                        />
-                      </label>
-
-                      {/* Slug */}
-                      <label className="block">
-                        <span className="mb-2 flex items-center justify-between">
+                      <div className="grid gap-5">
+                        {/* Legal name */}
+                        <label className="block">
                           <span
-                            className="text-[13px] font-medium"
+                            className="mb-2 block text-[13px] font-medium"
                             style={{ color: 'var(--text-primary)' }}
                           >
-                            Slug
-                          </span>
-                          {slug ? (
-                            <span
-                              className="flex items-center gap-1.5 font-mono text-[10.5px] font-medium uppercase tracking-widest"
-                              style={{
-                                color: slugAvailable ? 'var(--green-500)' : 'var(--red-500)',
-                              }}
-                            >
-                              {slugAvailable ? (
-                                <IconCheck size={12} stroke={2.5} aria-hidden />
-                              ) : (
-                                <IconX size={12} stroke={2.5} aria-hidden />
-                              )}
-                              {slugAvailable ? 'Available' : 'Taken'}
-                            </span>
-                          ) : null}
-                        </span>
-                        <span
-                          className="flex h-[46px] items-center overflow-hidden rounded-xl border border-[var(--ink-200)] bg-[var(--surface-raised)] transition-all duration-200 focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-100)]"
-                          style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)' }}
-                        >
-                          <span
-                            className="flex h-full shrink-0 items-center px-3.5 whitespace-nowrap"
-                            style={{
-                              background: 'var(--surface-sunken)',
-                              borderRight: '1px solid var(--ink-100)',
-                              font: '400 12.5px/1 var(--font-mono)',
-                              color: 'var(--text-tertiary)',
-                            }}
-                          >
-                            alcassa.app /
+                            Legal name
                           </span>
                           <input
                             type="text"
-                            value={slug}
-                            onChange={(e) => {
-                              setSlug(slugify(e.target.value));
-                              setSlugTouched(true);
-                            }}
-                            placeholder="tamarind-bay"
+                            value={name}
+                            onChange={(e) => onNameChange(e.target.value)}
+                            placeholder="Tamarind Bay Resorts Ltd"
                             disabled={working || done}
-                            className="h-full min-w-0 flex-1 border-none bg-transparent px-3.5 outline-none"
-                            style={{
-                              font: '400 14px/1 var(--font-mono)',
-                              color: 'var(--text-primary)',
-                            }}
+                            className={inputCls}
+                            style={inputStyle}
                           />
-                        </span>
-                      </label>
+                        </label>
 
-                      {/* Owner email */}
-                      <label className="block">
-                        <span
-                          className="mb-2 block text-[13px] font-medium"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          Owner email
-                        </span>
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="owner@tamarindbay.co.ke"
-                          disabled={working || done}
-                          className={inputCls}
-                          style={inputStyle}
-                        />
-                        <span
-                          className="mt-1.5 block text-[12.5px]"
-                          style={{ color: 'var(--text-tertiary)' }}
-                        >
-                          They receive an invitation valid for seven days and choose their own
-                          password.
-                        </span>
-                      </label>
-                    </div>
-                  </section>
-
-                  {/* ── Plan ─────────────────────────────────────── */}
-                  <section>
-                    <p
-                      className="mb-5 font-mono text-[11px] font-medium tracking-[0.15em] uppercase"
-                      style={{ color: 'var(--text-tertiary)' }}
-                    >
-                      Plan
-                    </p>
-
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      {model.plans.map((p) => {
-                        const on = plan === p.key;
-                        return (
-                          <button
-                            key={p.key}
-                            type="button"
-                            disabled={working || done}
-                            onClick={() => setPlan(p.key)}
-                            aria-pressed={on}
-                            className={`relative flex flex-col rounded-2xl p-4 text-left transition-all duration-300 ${
-                              on
-                                ? 'border-2 border-[var(--blue-500)] bg-[var(--surface-raised)] shadow-[0_12px_40px_-10px_rgba(4,58,225,0.12)] -translate-y-1'
-                                : 'border border-[var(--border-subtle)] bg-[var(--surface-raised)]/80 hover:bg-[var(--surface-raised)] hover:border-[var(--ink-200)] hover:shadow-md'
-                            }`}
+                        {/* Slug */}
+                        <label className="block">
+                          <span className="mb-2 flex items-center justify-between">
+                            <span
+                              className="text-[13px] font-medium"
+                              style={{ color: 'var(--text-primary)' }}
+                            >
+                              Slug
+                            </span>
+                            {slug ? (
+                              <span
+                                className="flex items-center gap-1.5 font-mono text-[10.5px] font-medium tracking-widest uppercase"
+                                style={{
+                                  color: slugAvailable ? 'var(--green-500)' : 'var(--red-500)',
+                                }}
+                              >
+                                {slugAvailable ? (
+                                  <IconCheck size={12} stroke={2.5} aria-hidden />
+                                ) : (
+                                  <IconX size={12} stroke={2.5} aria-hidden />
+                                )}
+                                {slugAvailable ? 'Available' : 'Taken'}
+                              </span>
+                            ) : null}
+                          </span>
+                          <span
+                            className="flex h-[46px] items-center overflow-hidden rounded-xl border border-[var(--ink-200)] bg-[var(--surface-raised)] transition-all duration-200 focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-100)]"
+                            style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)' }}
                           >
                             <span
-                              className="block text-[14px] font-medium"
+                              className="flex h-full shrink-0 items-center px-3.5 whitespace-nowrap"
                               style={{
-                                color: on ? 'var(--blue-600)' : 'var(--text-primary)',
+                                background: 'var(--surface-sunken)',
+                                borderRight: '1px solid var(--ink-100)',
+                                font: '400 12.5px/1 var(--font-mono)',
+                                color: 'var(--text-tertiary)',
                               }}
                             >
-                              {p.name}
+                              alcassa.app /
                             </span>
+                            <input
+                              type="text"
+                              value={slug}
+                              onChange={(e) => {
+                                setSlug(slugify(e.target.value));
+                                setSlugTouched(true);
+                              }}
+                              placeholder="tamarind-bay"
+                              disabled={working || done}
+                              className="h-full min-w-0 flex-1 border-none bg-transparent px-3.5 outline-none"
+                              style={{
+                                font: '400 14px/1 var(--font-mono)',
+                                color: 'var(--text-primary)',
+                              }}
+                            />
+                          </span>
+                        </label>
 
-                            <div className="mt-3 border-t border-[var(--ink-100)] pt-3">
-                              <span
-                                className="block font-mono text-[12px] font-medium tracking-tight"
-                                style={{ color: 'var(--text-primary)' }}
-                              >
-                                {p.price}
-                              </span>
-                              <span
-                                className="mt-1.5 block text-[11px] leading-snug"
-                                style={{ color: 'var(--text-tertiary)' }}
-                              >
-                                {p.limit}
-                              </span>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Trial toggle */}
-                    <div className="relative mt-8 pt-6">
-                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--border-subtle)] to-transparent" />
-                      <label className="flex cursor-pointer items-start gap-3.5">
-                        <Switch.Root
-                          checked={trial}
-                          disabled={working || done}
-                          aria-label="Start with a 14-day trial"
-                          onCheckedChange={() => setTrial((t) => !t)}
-                          className="relative mt-0.5 h-[22px] w-[40px] shrink-0 rounded-full transition-colors"
-                          style={{
-                            border: 'none',
-                            background: trial ? 'var(--blue-500)' : 'var(--ink-200)',
-                            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15)',
-                            transitionDuration: 'var(--duration-base)',
-                          }}
-                        >
-                          <Switch.Thumb
-                            className="block size-[18px] rounded-full bg-[var(--surface-raised)] transition-transform"
-                            style={{
-                              transform: trial ? 'translateX(20px)' : 'translateX(2px)',
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-                              transitionDuration: 'var(--duration-base)',
-                            }}
-                          />
-                        </Switch.Root>
-                        <span className="flex-1">
+                        {/* Owner email */}
+                        <label className="block">
                           <span
-                            className="block text-[13px] font-medium"
+                            className="mb-2 block text-[13px] font-medium"
                             style={{ color: 'var(--text-primary)' }}
                           >
-                            Start with a 14-day trial
+                            Owner email
                           </span>
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="owner@tamarindbay.co.ke"
+                            disabled={working || done}
+                            className={inputCls}
+                            style={inputStyle}
+                          />
                           <span
-                            className="mt-0.5 block text-[12px] leading-relaxed"
+                            className="mt-1.5 block text-[12.5px]"
                             style={{ color: 'var(--text-tertiary)' }}
                           >
-                            No invoice is raised until the trial ends. The workspace appears under
-                            Trial on Overview.
+                            They receive an invitation valid for seven days and choose their own
+                            password.
                           </span>
-                        </span>
-                      </label>
-                    </div>
-                  </section>
-                </div>
-
-                {/* ── Right Rail ──────────────────────────────────── */}
-                <div className="grid gap-6">
-                  {/* Execution flow */}
-                  <section
-                    className="rounded-2xl p-5"
-                    style={{
-                      border: '1px solid var(--border-subtle)',
-                      background: 'var(--surface-sunken)',
-                    }}
-                  >
-                    <p
-                      className="mb-5 font-mono text-[10.5px] font-medium tracking-[0.15em] uppercase"
-                      style={{ color: 'var(--text-tertiary)' }}
-                    >
-                      What happens on submit
-                    </p>
-                    <div className="relative">
-                      {/* Vertical connector — perfectly centered on the 26px circles */}
-                      {/* Center of a 26px circle is at 13px. We use left 13px and transform translateX(-50%) for pixel-perfect centering */}
-                      <div
-                        className="absolute top-3 bottom-3 w-px"
-                        style={{
-                          left: '13px',
-                          transform: 'translateX(-50%)',
-                          background: 'linear-gradient(to bottom, var(--blue-200), var(--ink-200), var(--ink-100))',
-                        }}
-                      />
-
-                      <div className="relative flex flex-col gap-5">
-                        {model.steps.map((s, idx) => (
-                          <div key={s.n} className="flex items-start gap-3.5">
-                            {/* Circle wrapper to ensure precise 26px size */}
-                            <div className="shrink-0 flex items-center justify-center size-[26px]">
-                              <span
-                                className="grid size-full place-items-center rounded-full"
-                                style={{
-                                  border: `1.5px solid ${idx === 0 ? 'var(--blue-400)' : 'var(--ink-200)'}`,
-                                  background: idx === 0 ? 'var(--blue-50)' : 'var(--surface-raised)',
-                                  font: '600 10px/1 var(--font-mono)',
-                                  color: idx === 0 ? 'var(--blue-500)' : 'var(--text-tertiary)',
-                                  zIndex: 1, // ensure it covers the line behind it
-                                }}
-                                aria-hidden
-                              >
-                                {s.n}
-                              </span>
-                            </div>
-                            <span
-                              className="flex-1 pt-[5px] text-[12.5px] leading-relaxed"
-                              style={{ color: 'var(--text-secondary)' }}
-                            >
-                              {s.text}
-                            </span>
-                          </div>
-                        ))}
+                        </label>
                       </div>
-                    </div>
-                    <p
-                      className="mt-5 border-t pt-4 text-[12px]"
+                    </section>
+
+                    {/* ── Plan ─────────────────────────────────────── */}
+                    <section>
+                      <p
+                        className="mb-5 font-mono text-[11px] font-medium tracking-[0.15em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
+                        Plan
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {model.plans.map((p) => {
+                          const on = plan === p.key;
+                          return (
+                            <button
+                              key={p.key}
+                              type="button"
+                              disabled={working || done}
+                              onClick={() => setPlan(p.key)}
+                              aria-pressed={on}
+                              className={`relative flex flex-col rounded-2xl p-4 text-left transition-all duration-300 ${
+                                on
+                                  ? '-translate-y-1 border-2 border-[var(--blue-500)] bg-[var(--surface-raised)] shadow-[0_12px_40px_-10px_rgba(4,58,225,0.12)]'
+                                  : 'border border-[var(--border-subtle)] bg-[var(--surface-raised)]/80 hover:border-[var(--ink-200)] hover:bg-[var(--surface-raised)] hover:shadow-md'
+                              }`}
+                            >
+                              <span
+                                className="block text-[14px] font-medium"
+                                style={{
+                                  color: on ? 'var(--blue-600)' : 'var(--text-primary)',
+                                }}
+                              >
+                                {p.name}
+                              </span>
+
+                              <div className="mt-3 border-t border-[var(--ink-100)] pt-3">
+                                <span
+                                  className="block font-mono text-[12px] font-medium tracking-tight"
+                                  style={{ color: 'var(--text-primary)' }}
+                                >
+                                  {p.price}
+                                </span>
+                                <span
+                                  className="mt-1.5 block text-[11px] leading-snug"
+                                  style={{ color: 'var(--text-tertiary)' }}
+                                >
+                                  {p.limit}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Trial toggle */}
+                      <div className="relative mt-8 pt-6">
+                        <div className="absolute top-0 right-0 left-0 h-px bg-gradient-to-r from-transparent via-[var(--border-subtle)] to-transparent" />
+                        <label className="flex cursor-pointer items-start gap-3.5">
+                          <Switch.Root
+                            checked={trial}
+                            disabled={working || done}
+                            aria-label="Start with a 14-day trial"
+                            onCheckedChange={() => setTrial((t) => !t)}
+                            className="relative mt-0.5 h-[22px] w-[40px] shrink-0 rounded-full transition-colors"
+                            style={{
+                              border: 'none',
+                              background: trial ? 'var(--blue-500)' : 'var(--ink-200)',
+                              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15)',
+                              transitionDuration: 'var(--duration-base)',
+                            }}
+                          >
+                            <Switch.Thumb
+                              className="block size-[18px] rounded-full bg-[var(--surface-raised)] transition-transform"
+                              style={{
+                                transform: trial ? 'translateX(20px)' : 'translateX(2px)',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                                transitionDuration: 'var(--duration-base)',
+                              }}
+                            />
+                          </Switch.Root>
+                          <span className="flex-1">
+                            <span
+                              className="block text-[13px] font-medium"
+                              style={{ color: 'var(--text-primary)' }}
+                            >
+                              Start with a 14-day trial
+                            </span>
+                            <span
+                              className="mt-0.5 block text-[12px] leading-relaxed"
+                              style={{ color: 'var(--text-tertiary)' }}
+                            >
+                              No invoice is raised until the trial ends. The workspace appears under
+                              Trial on Overview.
+                            </span>
+                          </span>
+                        </label>
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* ── Right Rail ──────────────────────────────────── */}
+                  <div className="grid gap-6">
+                    {/* Execution flow */}
+                    <section
+                      className="rounded-2xl p-5"
                       style={{
-                        borderColor: 'var(--border-subtle)',
-                        color: 'var(--text-tertiary)',
+                        border: '1px solid var(--border-subtle)',
+                        background: 'var(--surface-sunken)',
                       }}
                     >
-                      Runs as one transaction. If any step fails, nothing is created.
-                    </p>
-                  </section>
+                      <p
+                        className="mb-5 font-mono text-[10.5px] font-medium tracking-[0.15em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
+                        What happens on submit
+                      </p>
+                      <div className="relative">
+                        {/* Vertical connector — perfectly centered on the 26px circles */}
+                        {/* Center of a 26px circle is at 13px. We use left 13px and transform translateX(-50%) for pixel-perfect centering */}
+                        <div
+                          className="absolute top-3 bottom-3 w-px"
+                          style={{
+                            left: '13px',
+                            transform: 'translateX(-50%)',
+                            background:
+                              'linear-gradient(to bottom, var(--blue-200), var(--ink-200), var(--ink-100))',
+                          }}
+                        />
 
-                  {/*
+                        <div className="relative flex flex-col gap-5">
+                          {model.steps.map((s, idx) => (
+                            <div key={s.n} className="flex items-start gap-3.5">
+                              {/* Circle wrapper to ensure precise 26px size */}
+                              <div className="flex size-[26px] shrink-0 items-center justify-center">
+                                <span
+                                  className="grid size-full place-items-center rounded-full"
+                                  style={{
+                                    border: `1.5px solid ${idx === 0 ? 'var(--blue-400)' : 'var(--ink-200)'}`,
+                                    background:
+                                      idx === 0 ? 'var(--blue-50)' : 'var(--surface-raised)',
+                                    font: '600 10px/1 var(--font-mono)',
+                                    color: idx === 0 ? 'var(--blue-500)' : 'var(--text-tertiary)',
+                                    zIndex: 1, // ensure it covers the line behind it
+                                  }}
+                                  aria-hidden
+                                >
+                                  {s.n}
+                                </span>
+                              </div>
+                              <span
+                                className="flex-1 pt-[5px] text-[12.5px] leading-relaxed"
+                                style={{ color: 'var(--text-secondary)' }}
+                              >
+                                {s.text}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <p
+                        className="mt-5 border-t pt-4 text-[12px]"
+                        style={{
+                          borderColor: 'var(--border-subtle)',
+                          color: 'var(--text-tertiary)',
+                        }}
+                      >
+                        Runs as one transaction. If any step fails, nothing is created.
+                      </p>
+                    </section>
+
+                    {/*
                     ⚠ THE REFUSAL IS SHOWN WHERE THE DECISION IS MADE.
                     A toast also fires, but a toast is gone in five seconds and
                     this dialog can be scrolled — an operator who was reading
@@ -632,78 +634,84 @@ export function ProvisionWorkspaceDialog({
                     nothing left to act on. `role="alert"` so it is announced
                     rather than silently appearing above the button.
                   */}
-                  {submitError ? (
-                    <div
-                      role="alert"
-                      className="mb-3 rounded-xl border px-3.5 py-2.5"
+                    {submitError ? (
+                      <div
+                        role="alert"
+                        className="mb-3 rounded-xl border px-3.5 py-2.5"
+                        style={{
+                          font: '400 var(--text-sm)/1.5 var(--font-ui)',
+                          color: 'var(--danger-fg)',
+                          background: 'var(--danger-bg)',
+                          borderColor: 'color-mix(in oklab, var(--danger-fg) 38%, transparent)',
+                        }}
+                      >
+                        {submitError}
+                        {fieldError === 'slug' ? ' Try a different slug.' : null}
+                        {fieldError === 'ownerEmail'
+                          ? ' Invite them to the existing workspace instead.'
+                          : null}
+                      </div>
+                    ) : null}
+
+                    {/* Submit CTA */}
+                    <button
+                      type="submit"
+                      disabled={!ready || working || done}
+                      className="group relative flex h-11 w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl transition-all duration-300 focus:ring-2 focus:ring-[var(--blue-400)] focus:ring-offset-2 focus:outline-none"
                       style={{
-                        font: '400 var(--text-sm)/1.5 var(--font-ui)',
-                        color: 'var(--danger-fg)',
-                        background: 'var(--danger-bg)',
-                        borderColor: 'color-mix(in oklab, var(--danger-fg) 38%, transparent)',
+                        border: 'none',
+                        background: done
+                          ? 'var(--success-fg)'
+                          : ready && !working
+                            ? 'linear-gradient(180deg, var(--blue-500) 0%, var(--blue-600) 100%)'
+                            : 'var(--surface-inset)',
+                        color:
+                          done || (ready && !working)
+                            ? 'var(--text-inverse)'
+                            : 'var(--text-disabled)',
+                        font: '600 13.5px/1 var(--font-ui)',
+                        cursor: ready && !working && !done ? 'pointer' : 'not-allowed',
+                        boxShadow:
+                          ready && !working && !done
+                            ? 'inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 16px rgba(4,58,225,0.2)'
+                            : 'none',
+                        textShadow:
+                          ready && !working && !done ? '0 1px 2px rgba(0,0,0,0.2)' : 'none',
                       }}
                     >
-                      {submitError}
-                      {fieldError === 'slug' ? ' Try a different slug.' : null}
-                      {fieldError === 'ownerEmail'
-                        ? ' Invite them to the existing workspace instead.'
-                        : null}
-                    </div>
-                  ) : null}
-
-                  {/* Submit CTA */}
-                  <button
-                    type="submit"
-                    disabled={!ready || working || done}
-                    className="group relative flex h-11 w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--blue-400)] focus:ring-offset-2"
-                    style={{
-                      border: 'none',
-                      background: done
-                        ? 'var(--success-fg)'
-                        : ready && !working
-                          ? 'linear-gradient(180deg, var(--blue-500) 0%, var(--blue-600) 100%)'
-                          : 'var(--surface-inset)',
-                      color: done || (ready && !working) ? 'var(--text-inverse)' : 'var(--text-disabled)',
-                      font: '600 13.5px/1 var(--font-ui)',
-                      cursor: ready && !working && !done ? 'pointer' : 'not-allowed',
-                      boxShadow:
-                        ready && !working && !done
-                          ? 'inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 16px rgba(4,58,225,0.2)'
-                          : 'none',
-                      textShadow:
-                        ready && !working && !done ? '0 1px 2px rgba(0,0,0,0.2)' : 'none',
-                    }}
-                  >
-                    {ready && !working && !done && (
-                      <div className="absolute inset-0 z-0 bg-gradient-to-tr from-transparent via-[rgba(255,255,255,0.15)] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    )}
-                    <span className="relative z-10 flex items-center gap-2">
-                      {done ? (
-                        <IconCheck size={16} stroke={2} aria-hidden />
-                      ) : working ? (
-                        <IconLoader2 size={16} stroke={2} className="animate-spin" aria-hidden />
-                      ) : (
-                        <IconPlus size={16} stroke={2} aria-hidden />
+                      {ready && !working && !done && (
+                        <div className="absolute inset-0 z-0 bg-gradient-to-tr from-transparent via-[rgba(255,255,255,0.15)] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                       )}
-                      {working
-                        ? 'Provisioning...'
-                        : done
-                          ? 'Workspace created'
-                          : 'Provision workspace'}
-                    </span>
-                  </button>
-                  <p className="text-center text-[12px]" style={{ color: 'var(--text-tertiary)' }}>
-                    {done
-                      ? 'Invitation sent. Returning to Workspaces.'
-                      : working
-                        ? 'Running five steps in one transaction...'
-                        : 'Typically completes in under two minutes'}
-                  </p>
-                </div>
-              </form>
-            )}
-          </div>
-        </Dialog.Content>
+                      <span className="relative z-10 flex items-center gap-2">
+                        {done ? (
+                          <IconCheck size={16} stroke={2} aria-hidden />
+                        ) : working ? (
+                          <IconLoader2 size={16} stroke={2} className="animate-spin" aria-hidden />
+                        ) : (
+                          <IconPlus size={16} stroke={2} aria-hidden />
+                        )}
+                        {working
+                          ? 'Provisioning...'
+                          : done
+                            ? 'Workspace created'
+                            : 'Provision workspace'}
+                      </span>
+                    </button>
+                    <p
+                      className="text-center text-[12px]"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
+                      {done
+                        ? 'Invitation sent. Returning to Workspaces.'
+                        : working
+                          ? 'Running five steps in one transaction...'
+                          : 'Typically completes in under two minutes'}
+                    </p>
+                  </div>
+                </form>
+              )}
+            </div>
+          </Dialog.Content>
         </div>
       </Dialog.Portal>
     </Dialog.Root>

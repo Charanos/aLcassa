@@ -193,11 +193,7 @@ export async function revokeSession(
       .update(sessions)
       .set({ revokedAt: new Date(), revokedReason: reason })
       .where(
-        and(
-          eq(sessions.id, sessionId),
-          eq(sessions.userId, userId),
-          isNull(sessions.revokedAt),
-        ),
+        and(eq(sessions.id, sessionId), eq(sessions.userId, userId), isNull(sessions.revokedAt)),
       )
       .returning({ id: sessions.id });
 

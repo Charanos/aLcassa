@@ -29,19 +29,19 @@ export const metadata: Metadata = {
  */
 export default function NotFound() {
   return (
-    <main
-      id="main"
-      className="mx-auto flex min-h-dvh flex-col items-center justify-center px-6"
-    >
-      <div 
+    <main id="main" className="mx-auto flex min-h-dvh flex-col items-center justify-center px-6">
+      <div
         className="w-full max-w-[440px] rounded-[24px] p-2"
-        style={{ background: 'var(--surface-sunken)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)' }}
+        style={{
+          background: 'var(--surface-sunken)',
+          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)',
+        }}
       >
-        <div 
-          className="flex flex-col items-center rounded-[16px] px-8 py-10 text-center relative overflow-hidden"
-          style={{ 
-            background: 'white', 
-            boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)' 
+        <div
+          className="relative flex flex-col items-center overflow-hidden rounded-[16px] px-8 py-10 text-center"
+          style={{
+            background: 'white',
+            boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
           }}
         >
           {/* Subtle blue glow at the top */}
@@ -50,10 +50,10 @@ export default function NotFound() {
           <div className="relative mb-6">
             <span
               className="grid size-12 place-items-center rounded-2xl"
-              style={{ 
+              style={{
                 background: 'white',
                 border: '1px solid var(--border-subtle)',
-                boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.15)' 
+                boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.15)',
               }}
             >
               <Mark size={22} />
@@ -61,7 +61,7 @@ export default function NotFound() {
           </div>
 
           <p
-            className="relative font-mono text-[12px] font-medium tracking-wider mb-3 uppercase"
+            className="relative mb-3 font-mono text-[12px] font-medium tracking-wider uppercase"
             style={{ color: 'var(--blue-500)' }}
           >
             404 Not Found
@@ -71,12 +71,15 @@ export default function NotFound() {
             That is not here.
           </h1>
 
-          <p className="relative mt-2.5 text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            Or you do not have access to it. There is no way to tell which from this page, and that is
-            deliberate.
+          <p
+            className="relative mt-2.5 text-[14px] leading-relaxed"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Or you do not have access to it. There is no way to tell which from this page, and that
+            is deliberate.
           </p>
 
-          <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3 w-full">
+          <div className="relative mt-8 flex w-full flex-wrap items-center justify-center gap-3">
             <Button asChild variant="primary" size="md">
               <Link href="/">Go home</Link>
             </Button>

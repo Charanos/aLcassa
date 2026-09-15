@@ -102,15 +102,13 @@ export function Pagination({ page, pageSize, total, onPage, noun, label }: Pagin
         <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
           {first}&ndash;{last}
         </span>{' '}
-        <span className="opacity-70">of {total} {noun}</span>
+        <span className="opacity-70">
+          of {total} {noun}
+        </span>
       </p>
 
       <div className="flex items-center gap-1.5">
-        <Step
-          direction="previous"
-          disabled={page <= 1}
-          onClick={() => onPage(page - 1)}
-        />
+        <Step direction="previous" disabled={page <= 1} onClick={() => onPage(page - 1)} />
 
         {run.map((p, i) =>
           p === null ? (

@@ -2,10 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import {
-  IconCheck,
-  IconArrowRight,
-} from '@tabler/icons-react';
+import { IconCheck, IconArrowRight } from '@tabler/icons-react';
 import { Button } from '@/components/primitives/Button';
 
 interface PricingTier {
@@ -173,34 +170,48 @@ export function PricingSection() {
           stroke="url(#pricing-arch-grad)"
           strokeWidth="0.85"
         />
-        <ellipse cx="12%" cy="45%" rx="420" ry="240" stroke="url(#pricing-arch-grad)" strokeWidth="0.7" />
-        <ellipse cx="88%" cy="35%" rx="460" ry="260" stroke="url(#pricing-arch-grad)" strokeWidth="0.7" />
+        <ellipse
+          cx="12%"
+          cy="45%"
+          rx="420"
+          ry="240"
+          stroke="url(#pricing-arch-grad)"
+          strokeWidth="0.7"
+        />
+        <ellipse
+          cx="88%"
+          cy="35%"
+          rx="460"
+          ry="260"
+          stroke="url(#pricing-arch-grad)"
+          strokeWidth="0.7"
+        />
       </svg>
 
       <div className="relative z-10">
-        
         {/* ── Section Header & Interactive Billing Switch ── */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-16">
-          <div className="flex flex-col items-start text-left max-w-3xl">
+        <div className="mb-12 flex flex-col justify-between gap-6 sm:mb-16 md:flex-row md:items-end">
+          <div className="flex max-w-3xl flex-col items-start text-left">
             <div className="inline-flex items-center gap-2">
               <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
-              <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--orange-500)]">
+              <p className="font-mono text-[11px] font-medium tracking-wider text-[var(--orange-500)] uppercase">
                 Pricing & Workspace Packages
               </p>
             </div>
-            <h2 className="display text-[32px] sm:text-[42px] font-normal tracking-tight text-[var(--text-primary)] mt-3 leading-tight">
-              Predictable plans for growing teams<br className="hidden sm:block" /> & high-throughput enterprises.
+            <h2 className="display mt-3 text-[32px] leading-tight font-normal tracking-tight text-[var(--text-primary)] sm:text-[42px]">
+              Predictable plans for growing teams
+              <br className="hidden sm:block" /> & high-throughput enterprises.
             </h2>
-            <p className="text-[15px] sm:text-[16px] text-[var(--text-secondary)] mt-3 leading-relaxed max-w-2xl">
-              No surprise overages or per-event penalties. Scale your customer support operations on dedicated
-              PostgreSQL isolation with transparent billing in Kenyan Shillings (KES).
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-[16px]">
+              No surprise overages or per-event penalties. Scale your customer support operations on
+              dedicated PostgreSQL isolation with transparent billing in Kenyan Shillings (KES).
             </p>
           </div>
 
           {/* Interactive Billing Frequency Switch */}
-          <div className="flex items-center gap-3 shrink-0 self-start md:self-end">
+          <div className="flex shrink-0 items-center gap-3 self-start md:self-end">
             <div
-              className="inline-flex items-center p-1 rounded-full border border-[var(--ink-200)] bg-[var(--surface-raised)] shadow-xs"
+              className="inline-flex items-center rounded-full border border-[var(--ink-200)] bg-[var(--surface-raised)] p-1 shadow-xs"
               role="radiogroup"
               aria-label="Billing cycle"
             >
@@ -209,7 +220,7 @@ export function PricingSection() {
                 onClick={() => setBillingCycle('monthly')}
                 role="radio"
                 aria-checked={billingCycle === 'monthly'}
-                className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-200 cursor-pointer ${
+                className={`cursor-pointer rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${
                   billingCycle === 'monthly'
                     ? 'bg-[var(--text-primary)] text-white shadow-xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -222,14 +233,14 @@ export function PricingSection() {
                 onClick={() => setBillingCycle('annual')}
                 role="radio"
                 aria-checked={billingCycle === 'annual'}
-                className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-200 cursor-pointer ${
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${
                   billingCycle === 'annual'
                     ? 'bg-[var(--text-primary)] text-white shadow-xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <span>Annual</span>
-                <span className="font-mono text-[10px] font-medium uppercase px-1.5 py-0.2 rounded-full bg-[var(--orange-500)] text-white">
+                <span className="py-0.2 rounded-full bg-[var(--orange-500)] px-1.5 font-mono text-[10px] font-medium text-white uppercase">
                   Save 15%
                 </span>
               </button>
@@ -238,27 +249,25 @@ export function PricingSection() {
         </div>
 
         {/* ── 3-Tier Grid Layout (Pro, Business [Featured], Custom) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+        <div className="grid grid-cols-1 items-stretch gap-6 sm:gap-8 lg:grid-cols-3">
           {PRICING_TIERS.map((tier) => {
             const price = billingCycle === 'annual' ? tier.annualPrice : tier.monthlyPrice;
             const formattedPrice =
-              tier.monthlyPrice === 0
-                ? 'Tailored'
-                : `KES ${price.toLocaleString('en-GB')}`;
+              tier.monthlyPrice === 0 ? 'Tailored' : `KES ${price.toLocaleString('en-GB')}`;
 
             return (
               <div
                 key={tier.id}
                 className={`relative flex flex-col justify-between rounded-3xl transition-all duration-300 ${
                   tier.isPopular
-                    ? 'bg-white border-2 border-[var(--blue-500)] shadow-[0_20px_60px_-15px_rgba(4,58,225,0.12)] p-7 sm:p-9 lg:-translate-y-2'
-                    : 'bg-white/80 hover:bg-white border border-[var(--border-subtle)] hover:border-[var(--ink-200)] shadow-xs hover:shadow-md p-7 sm:p-8 backdrop-blur-md'
+                    ? 'border-2 border-[var(--blue-500)] bg-white p-7 shadow-[0_20px_60px_-15px_rgba(4,58,225,0.12)] sm:p-9 lg:-translate-y-2'
+                    : 'border border-[var(--border-subtle)] bg-white/80 p-7 shadow-xs backdrop-blur-md hover:border-[var(--ink-200)] hover:bg-white hover:shadow-md sm:p-8'
                 }`}
               >
                 {/* Popular Pill Badge (Clean typography, no sparkles) */}
                 {tier.isPopular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center font-mono text-[10px] font-medium uppercase tracking-wider text-white bg-[var(--blue-500)] px-3.5 py-1 rounded-full shadow-sm">
+                    <span className="inline-flex items-center rounded-full bg-[var(--blue-500)] px-3.5 py-1 font-mono text-[10px] font-medium tracking-wider text-white uppercase shadow-sm">
                       {tier.badge}
                     </span>
                   </div>
@@ -271,19 +280,19 @@ export function PricingSection() {
                       {tier.name}
                     </h3>
                     {tier.badge && !tier.isPopular && (
-                      <span className="font-mono text-[10px] font-medium uppercase tracking-wider text-[var(--text-tertiary)] bg-[var(--surface-sunken)] border border-[var(--border-subtle)] px-2.5 py-0.5 rounded-full">
+                      <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-sunken)] px-2.5 py-0.5 font-mono text-[10px] font-medium tracking-wider text-[var(--text-tertiary)] uppercase">
                         {tier.badge}
                       </span>
                     )}
                   </div>
-                  <p className="text-[13.5px] text-[var(--text-secondary)] mt-2 leading-relaxed min-h-[42px]">
+                  <p className="mt-2 min-h-[42px] text-[13.5px] leading-relaxed text-[var(--text-secondary)]">
                     {tier.description}
                   </p>
 
                   {/* Price Block */}
-                  <div className="mt-6 pt-6 border-t border-[var(--ink-100)]">
+                  <div className="mt-6 border-t border-[var(--ink-100)] pt-6">
                     <div className="flex items-baseline gap-2">
-                      <span className="font-mono text-[32px] sm:text-[36px] font-medium tracking-tight text-[var(--text-primary)]">
+                      <span className="font-mono text-[32px] font-medium tracking-tight text-[var(--text-primary)] sm:text-[36px]">
                         {formattedPrice}
                       </span>
                       {tier.monthlyPrice > 0 && (
@@ -292,23 +301,25 @@ export function PricingSection() {
                         </span>
                       )}
                     </div>
-                    <p className="text-[11.5px] text-[var(--text-tertiary)] mt-1">
+                    <p className="mt-1 text-[11.5px] text-[var(--text-tertiary)]">
                       {tier.monthlyPrice > 0
                         ? billingCycle === 'annual'
-                          ? 'Billed annually · KES ' + (price * 12).toLocaleString('en-GB') + ' / year'
+                          ? 'Billed annually · KES ' +
+                            (price * 12).toLocaleString('en-GB') +
+                            ' / year'
                           : 'Billed monthly · Cancel or change seats anytime'
                         : 'Custom SLA commitments & volume contracts'}
                     </p>
                   </div>
 
                   {/* Key Quick Specs Bento Matrix */}
-                  <div className="mt-6 grid grid-cols-2 gap-2 bg-[var(--surface-sunken)]/70 border border-[var(--ink-100)] p-3 rounded-2xl">
+                  <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl border border-[var(--ink-100)] bg-[var(--surface-sunken)]/70 p-3">
                     {tier.specs.map((spec) => (
                       <div key={spec.label} className="flex flex-col">
-                        <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+                        <span className="font-mono text-[10px] tracking-wider text-[var(--text-tertiary)] uppercase">
                           {spec.label}
                         </span>
-                        <span className="text-[12.5px] font-medium text-[var(--text-primary)] mt-0.5">
+                        <span className="mt-0.5 text-[12.5px] font-medium text-[var(--text-primary)]">
                           {spec.value}
                         </span>
                       </div>
@@ -317,14 +328,14 @@ export function PricingSection() {
 
                   {/* Checklist of Features & Entitlements */}
                   <div className="mt-6 space-y-3">
-                    <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--text-tertiary)]">
+                    <p className="font-mono text-[11px] font-medium tracking-wider text-[var(--text-tertiary)] uppercase">
                       Included in {tier.name}:
                     </p>
                     <ul className="space-y-2.5">
                       {tier.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2.5 text-[13px] leading-snug">
                           <span
-                            className={`size-4.5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                            className={`mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full ${
                               tier.isPopular
                                 ? 'bg-blue-50 text-[var(--blue-500)]'
                                 : 'bg-emerald-50 text-emerald-700'
@@ -348,14 +359,14 @@ export function PricingSection() {
                 </div>
 
                 {/* Card CTA Action */}
-                <div className="mt-8 pt-6 border-t border-[var(--ink-100)]">
+                <div className="mt-8 border-t border-[var(--ink-100)] pt-6">
                   <Button
                     asChild
                     variant={tier.ctaVariant}
                     size="lg"
                     className={`w-full justify-center rounded-full transition-all duration-200 ${
                       tier.isPopular
-                        ? 'bg-[var(--blue-500)] hover:bg-[var(--blue-600)] text-white shadow-sm hover:shadow-md'
+                        ? 'bg-[var(--blue-500)] text-white shadow-sm hover:bg-[var(--blue-600)] hover:shadow-md'
                         : 'hover:bg-[var(--surface-sunken)]'
                     }`}
                   >
@@ -369,7 +380,6 @@ export function PricingSection() {
             );
           })}
         </div>
-
       </div>
     </div>
   );

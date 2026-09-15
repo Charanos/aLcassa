@@ -66,11 +66,11 @@ export default async function SignInPage({
           */}
           {demoAccessEnabled() ? <DemoDoors /> : null}
 
-          <p className="text-center text-[12.5px] text-[var(--text-secondary)] pt-2">
+          <p className="pt-2 text-center text-[12.5px] text-[var(--text-secondary)]">
             Don&apos;t have a workspace yet?{' '}
             <Link
               href="/sign-up"
-              className="font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] underline underline-offset-4 transition-colors"
+              className="font-medium text-[var(--blue-600)] underline underline-offset-4 transition-colors hover:text-[var(--blue-700)]"
             >
               Create one
             </Link>
@@ -103,7 +103,8 @@ export default async function SignInPage({
               borderColor: 'var(--border-subtle)',
             }}
           >
-            Your password has been changed, and every other active session was signed out. Please sign in with your new password.
+            Your password has been changed, and every other active session was signed out. Please
+            sign in with your new password.
           </div>
         ) : null}
 
@@ -123,17 +124,22 @@ export default async function SignInPage({
             autoComplete="current-password"
             required
           />
-          <div className="flex justify-end -mt-2 mb-2">
+          <div className="-mt-2 mb-2 flex justify-end">
             <Link
               href="/forgot-password"
-              className="text-[12px] font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] transition-colors hover:underline underline-offset-2"
+              className="text-[12px] font-medium text-[var(--blue-600)] underline-offset-2 transition-colors hover:text-[var(--blue-700)] hover:underline"
             >
               Forgot your password?
             </Link>
           </div>
         </div>
 
-        <Button type="submit" variant="primary" size="lg" className="w-full font-medium shadow-sm hover:shadow-md">
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="w-full font-medium shadow-sm hover:shadow-md"
+        >
           Sign in
         </Button>
       </form>

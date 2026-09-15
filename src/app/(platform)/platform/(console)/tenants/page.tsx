@@ -48,10 +48,7 @@ export default async function WorkspacesPage() {
       </div>
 
       <ConsoleHeader
-        breadcrumbs={[
-          { label: 'Platform Console', href: '/platform' },
-          { label: 'Workspaces' },
-        ]}
+        breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Workspaces' }]}
         title="Workspaces"
         actions={
           <>

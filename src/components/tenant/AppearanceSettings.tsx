@@ -23,18 +23,21 @@ export function AppearanceSettings() {
   const [sidebarHover, setSidebarHover] = useState(true); // Default to hover expand
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    gsap.fromTo(
-      '.gsap-stagger',
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power2.out' }
-    );
-  }, { scope: containerRef });
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        '.gsap-stagger',
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power2.out' },
+      );
+    },
+    { scope: containerRef },
+  );
 
   const handleAccentChange = (id: string) => {
     setActiveAccent(id);
     document.documentElement.dataset.accent = id;
-    
+
     // Animate the change for a premium feel
     gsap.fromTo('html', { opacity: 0.8 }, { opacity: 1, duration: 0.5, ease: 'power2.out' });
   };
@@ -49,8 +52,9 @@ export function AppearanceSettings() {
     <div ref={containerRef} className="grid gap-12">
       <section className="gsap-stagger rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-6 md:p-8">
         <h2 className="t-panel text-[var(--text-primary)]">Accent Palette</h2>
-        <p className="t-compact mt-2 text-[var(--text-secondary)] max-w-xl">
-          Select the primary accent color for your workspace. This color will be applied to your organization&apos;s avatar, navigation highlights, and key charts.
+        <p className="t-compact mt-2 max-w-xl text-[var(--text-secondary)]">
+          Select the primary accent color for your workspace. This color will be applied to your
+          organization&apos;s avatar, navigation highlights, and key charts.
         </p>
 
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
@@ -60,11 +64,13 @@ export function AppearanceSettings() {
               <button
                 key={accent.id}
                 onClick={() => handleAccentChange(accent.id)}
-                className={`group relative flex flex-col items-center gap-3 rounded-lg border p-4 transition-all duration-200 hover:bg-[var(--surface-inset)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] ${
-                  isActive ? 'border-[var(--border-focus)] bg-[var(--surface-inset)] shadow-sm' : 'border-[var(--ink-100)]'
+                className={`group relative flex flex-col items-center gap-3 rounded-lg border p-4 transition-all duration-200 hover:bg-[var(--surface-inset)] focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:outline-none ${
+                  isActive
+                    ? 'border-[var(--border-focus)] bg-[var(--surface-inset)] shadow-sm'
+                    : 'border-[var(--ink-100)]'
                 }`}
               >
-                <div 
+                <div
                   className={`size-10 rounded-full shadow-inner transition-transform duration-300 group-hover:scale-110 ${isActive ? 'ring-4 ring-[var(--surface-base)] ring-offset-2 ring-offset-[var(--accent-500)]' : ''}`}
                   style={{ backgroundColor: accent.hex }}
                 />
@@ -77,14 +83,16 @@ export function AppearanceSettings() {
 
       <section className="gsap-stagger rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-6 md:p-8">
         <h2 className="t-panel text-[var(--text-primary)]">Layout Behavior</h2>
-        <p className="t-compact mt-2 text-[var(--text-secondary)] max-w-xl">
+        <p className="t-compact mt-2 max-w-xl text-[var(--text-secondary)]">
           Customize how the workspace interface behaves to suit your workflow.
         </p>
 
         <div className="mt-8 border-t border-[var(--ink-100)] pt-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <h3 className="t-body font-medium text-[var(--text-primary)]">Sidebar Expand on Hover</h3>
+              <h3 className="t-body font-medium text-[var(--text-primary)]">
+                Sidebar Expand on Hover
+              </h3>
               <p className="t-compact mt-1 text-[var(--text-secondary)]">
                 Automatically expand the collapsed sidebar when you hover over it.
               </p>
@@ -93,8 +101,8 @@ export function AppearanceSettings() {
               <button
                 onClick={() => toggleSidebarBehavior(true)}
                 className={`rounded-sm px-4 py-1.5 text-sm font-medium transition-colors ${
-                  sidebarHover 
-                    ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm' 
+                  sidebarHover
+                    ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -103,8 +111,8 @@ export function AppearanceSettings() {
               <button
                 onClick={() => toggleSidebarBehavior(false)}
                 className={`rounded-sm px-4 py-1.5 text-sm font-medium transition-colors ${
-                  !sidebarHover 
-                    ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm' 
+                  !sidebarHover
+                    ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -114,7 +122,7 @@ export function AppearanceSettings() {
           </div>
         </div>
       </section>
-      
+
       <div className="gsap-stagger flex justify-end">
         <Button variant="primary">Save Preferences</Button>
       </div>

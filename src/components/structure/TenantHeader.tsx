@@ -237,10 +237,7 @@ export function NotificationsMenu({
                       {n.body}
                     </span>
                   </span>
-                  <span
-                    className="t-micro shrink-0"
-                    style={{ color: 'var(--text-tertiary)' }}
-                  >
+                  <span className="t-micro shrink-0" style={{ color: 'var(--text-tertiary)' }}>
                     {n.time}
                   </span>
                 </Link>
@@ -281,10 +278,7 @@ export function AccountMenu({ account }: { account: AccountSummary }) {
           >
             {account.initials}
           </span>
-          <span
-            className="t-compact hidden lg:inline"
-            style={{ color: 'var(--text-primary)' }}
-          >
+          <span className="t-compact hidden lg:inline" style={{ color: 'var(--text-primary)' }}>
             {account.name}
           </span>
         </button>

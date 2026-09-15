@@ -77,7 +77,11 @@ export function hueOf(code: ErrorCode): ErrorHue {
 
 const HUE_TOKENS: Record<ErrorHue, { fg: string; bg: string; rule: string }> = {
   ochre: { fg: 'var(--amber-500)', bg: 'var(--warning-bg)', rule: 'var(--warning-fg)' },
-  oxide: { fg: 'var(--red-500)', bg: 'var(--red-100)', rule: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))' },
+  oxide: {
+    fg: 'var(--red-500)',
+    bg: 'var(--red-100)',
+    rule: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))',
+  },
   slate: { fg: 'var(--ink-600)', bg: 'var(--surface-sunken)', rule: 'var(--border-subtle)' },
 };
 

@@ -327,7 +327,8 @@ export function WorkspaceTable({
           background: 'var(--chrome-bg-base)',
           border: '1px solid var(--chrome-rule-strong)',
           color: 'var(--invert-card-fg)',
-          boxShadow: 'var(--shadow-lg), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 6%, transparent)',
+          boxShadow:
+            'var(--shadow-lg), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 6%, transparent)',
         }}
       >
         {/* ── Premium Ambient Background Art ── */}
@@ -337,14 +338,15 @@ export function WorkspaceTable({
             style={{ background: 'var(--blue-500)' }}
           />
           <div
-            className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
+            className="absolute -right-32 -bottom-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
             style={{ background: 'var(--blue-700)' }}
           />
-          
+
           <div
             className="absolute inset-0 opacity-[0.25]"
             style={{
-              backgroundImage: 'radial-gradient(color-mix(in oklab, var(--ink-0) 80%, transparent) 1px, transparent 1px)',
+              backgroundImage:
+                'radial-gradient(color-mix(in oklab, var(--ink-0) 80%, transparent) 1px, transparent 1px)',
               backgroundSize: '32px 32px',
               maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
               WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
@@ -374,14 +376,16 @@ export function WorkspaceTable({
           <div
             className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
             style={{
-              background: 'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              background:
+                'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
               boxShadow: '1px 0 0 var(--chrome-bg-base)',
             }}
           />
           <div
             className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
             style={{
-              background: 'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              background:
+                'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
               boxShadow: '0 1px 0 var(--chrome-bg-base)',
             }}
           />
@@ -406,14 +410,16 @@ export function WorkspaceTable({
           <div
             className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
             style={{
-              background: 'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              background:
+                'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
               boxShadow: '1px 0 0 var(--chrome-bg-base)',
             }}
           />
           <div
             className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
             style={{
-              background: 'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              background:
+                'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
               boxShadow: '0 1px 0 var(--chrome-bg-base)',
             }}
           />
@@ -438,14 +444,16 @@ export function WorkspaceTable({
           <div
             className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
             style={{
-              background: 'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              background:
+                'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
               boxShadow: '1px 0 0 var(--chrome-bg-base)',
             }}
           />
           <div
             className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
             style={{
-              background: 'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
+              background:
+                'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
               boxShadow: '0 1px 0 var(--chrome-bg-base)',
             }}
           />
@@ -494,14 +502,12 @@ export function WorkspaceTable({
         onQueryChange={setQuery}
         searchPlaceholder="Search by name, slug or ID..."
         optionsLabel="STATUS"
-        options={STATUSES.map(
-          (s): FilterOption<WorkspaceStatus> => ({
-            id: s,
-            label: s,
-            count: byStatus.get(s) ?? 0,
-            activeColor: STATUS_AESTHETICS[s],
-          })
-        )}
+        options={STATUSES.map((s): FilterOption<WorkspaceStatus> => ({
+          id: s,
+          label: s,
+          count: byStatus.get(s) ?? 0,
+          activeColor: STATUS_AESTHETICS[s],
+        }))}
         selectedOptions={statuses}
         onToggleOption={toggleStatus}
         customChips={
@@ -712,12 +718,12 @@ export function WorkspaceTable({
                   </th>
 
                   <th scope="col" className="py-3.5 pr-6 pl-3 text-right">
-                      <span
-                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
-                        style={{ color: 'var(--text-tertiary)' }}
-                      >
-                        Actions
-                      </span>
+                    <span
+                      className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
+                      Actions
+                    </span>
                   </th>
                 </tr>
               </thead>
@@ -736,14 +742,17 @@ export function WorkspaceTable({
                       key={r.id}
                       {...grid.getRowProps(i)}
                       onClick={() => setDrawerRow(r)}
-                      className={`group relative cursor-pointer transition-all duration-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)] ${INERT.has(r.status) ? 'opacity-60 hover:opacity-100 hover:bg-[var(--surface-sunken)]' : 'hover:bg-[var(--surface-sunken)] hover:shadow-[var(--neu-inset)]'}`}
+                      className={`group relative cursor-pointer transition-all duration-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--blue-500)] ${INERT.has(r.status) ? 'opacity-60 hover:bg-[var(--surface-sunken)] hover:opacity-100' : 'hover:bg-[var(--surface-sunken)] hover:shadow-[var(--neu-inset)]'}`}
                       style={{
-                        borderTop: i === 0 ? 'none' : '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                        borderTop:
+                          i === 0
+                            ? 'none'
+                            : '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                         boxShadow: i === 0 ? 'none' : 'var(--glass-highlight)',
                       }}
                     >
                       {/* Workspace & Meta */}
-                      <td className="py-5 pr-4 pl-6 relative">
+                      <td className="relative py-5 pr-4 pl-6">
                         <div className="flex items-center gap-3.5">
                           <InitialsTile
                             name={r.name}
@@ -875,7 +884,7 @@ export function WorkspaceTable({
                             onClick={() => setPending(toWorkspace(r))}
                             title="Start support session"
                             aria-label={`Start support session in ${r.name}`}
-                            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-2.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] hover:shadow-sm hover:border-[var(--blue-300)] active:scale-95"
+                            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-2.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px hover:border-[var(--blue-300)] hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] hover:shadow-sm active:scale-95"
                             style={{
                               border: '1px solid var(--border-subtle)',
                               background: 'var(--surface-raised)',
@@ -982,7 +991,10 @@ export function WorkspaceTable({
 
                     <div className="mt-4 flex items-center gap-2">
                       <PlanBadge plan={r.plan} />
-                      <span className="flex items-center gap-1.5 font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                      <span
+                        className="flex items-center gap-1.5 font-mono text-xs"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
                         <IconCalendar size={13} stroke={1.5} />
                         {r.created}
                       </span>
@@ -990,13 +1002,16 @@ export function WorkspaceTable({
 
                     <dl
                       className="mt-6 grid grid-cols-2 gap-5 rounded-2xl p-4"
-                      style={{ 
+                      style={{
                         background: 'var(--surface-sunken)',
                         boxShadow: 'var(--neu-inset)',
                       }}
                     >
                       <div>
-                        <dt className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+                        <dt
+                          className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium tracking-[0.1em] uppercase"
+                          style={{ color: 'var(--text-tertiary)' }}
+                        >
                           <IconUsers size={12} stroke={2} />
                           Seats
                         </dt>
@@ -1010,7 +1025,10 @@ export function WorkspaceTable({
                         </dd>
                       </div>
                       <div>
-                        <dt className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+                        <dt
+                          className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium tracking-[0.1em] uppercase"
+                          style={{ color: 'var(--text-tertiary)' }}
+                        >
                           <IconBolt size={12} stroke={2} />
                           Events
                         </dt>
@@ -1044,7 +1062,8 @@ export function WorkspaceTable({
                     }}
                     className="relative z-10 flex h-11 w-full items-center justify-center gap-2 font-medium transition-colors hover:bg-[var(--surface-inset)] active:bg-[var(--surface-sunken)]"
                     style={{
-                      borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                      borderTop:
+                        '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                       boxShadow: 'var(--glass-highlight)',
                       background: 'var(--surface-raised)',
                       color: 'var(--text-secondary)',

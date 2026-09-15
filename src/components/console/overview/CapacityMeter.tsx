@@ -59,7 +59,10 @@ export function CapacityMeter({
       <div className="mb-3 flex items-end justify-between gap-3">
         <p
           className="font-mono text-[32px] font-medium tracking-tight"
-          style={{ color: bounded ? 'var(--text-primary)' : 'var(--text-tertiary)', lineHeight: 0.9 }}
+          style={{
+            color: bounded ? 'var(--text-primary)' : 'var(--text-tertiary)',
+            lineHeight: 0.9,
+          }}
         >
           {bounded ? `${pct}%` : '—'}
         </p>

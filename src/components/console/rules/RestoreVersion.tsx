@@ -3,11 +3,7 @@
 import { useState, useTransition } from 'react';
 import { rollbackMasterRulesAction } from '@/app/(platform)/platform/(console)/rules-actions';
 import { IconArrowBackUp, IconStack2 } from '@tabler/icons-react';
-import {
-  ConsoleDialog,
-  DialogActions,
-  DialogFact,
-} from '@/components/primitives/ConsoleDialog';
+import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
 import { useToast } from '@/components/primitives/Toast';
 
 /**
@@ -86,14 +82,14 @@ export function RestoreVersion({
         facts={
           <>
             <DialogFact icon={IconArrowBackUp}>
-              v{versionNumber} becomes live; <em>v{currentVersionNumber}</em> stops being the
-              floor for all {workspaceCount} workspaces.
+              v{versionNumber} becomes live; <em>v{currentVersionNumber}</em> stops being the floor
+              for all {workspaceCount} workspaces.
             </DialogFact>
             <DialogFact icon={IconStack2}>
               {/* The reassurance that is actually true, because the table is
                   append-only: this is reversible in one click. */}
-              Nothing is deleted. Every version between the two stays where it is, so restoring
-              v{currentVersionNumber} afterwards is <em>the same single action</em>.
+              Nothing is deleted. Every version between the two stays where it is, so restoring v
+              {currentVersionNumber} afterwards is <em>the same single action</em>.
             </DialogFact>
           </>
         }
@@ -121,7 +117,7 @@ export function RestoreVersion({
             onChange={(e) => setReason(e.target.value)}
             rows={2}
             placeholder={`v${currentVersionNumber} escalated too aggressively; three workspaces reported it.`}
-            className="t-body w-full rounded-chip px-3 py-2.5 outline-none transition-colors"
+            className="t-body w-full rounded-chip px-3 py-2.5 transition-colors outline-none"
             style={{
               border: '1px solid var(--border-strong)',
               background: 'var(--surface-raised)',

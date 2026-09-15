@@ -133,8 +133,8 @@ export function WorkspaceJourney({ current }: { current: JourneyStage }) {
         className="mt-6 border-t pt-3.5 text-[11px] leading-relaxed text-pretty"
         style={{ borderColor: 'var(--ink-200)', color: 'var(--text-tertiary)' }}
       >
-        About ten minutes end to end. You can stop after any step and pick the
-        rest up from your workspace.
+        About ten minutes end to end. You can stop after any step and pick the rest up from your
+        workspace.
       </p>
     </div>
   );

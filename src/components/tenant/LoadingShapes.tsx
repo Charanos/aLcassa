@@ -63,13 +63,7 @@ export function ListPageSkeleton({
 }
 
 /** A summary of a few panels: billing, plan and usage, the settings index. */
-export function PanelsPageSkeleton({
-  label,
-  panels = 2,
-}: {
-  label: string;
-  panels?: number;
-}) {
+export function PanelsPageSkeleton({ label, panels = 2 }: { label: string; panels?: number }) {
   return (
     <SkeletonGroup label={label} className="grid gap-5">
       <SkeletonHeader />

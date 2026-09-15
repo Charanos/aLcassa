@@ -142,7 +142,10 @@ export const StatusBadge = forwardRef<HTMLSpanElement, StatusBadgeProps>(functio
               style={{ background: ink }}
             />
           )}
-          <span className="relative inline-flex size-1.5 rounded-full" style={{ background: ink }} />
+          <span
+            className="relative inline-flex size-1.5 rounded-full"
+            style={{ background: ink }}
+          />
         </span>
       )}
 

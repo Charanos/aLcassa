@@ -69,14 +69,13 @@ export function ConsoleMobileNav({
     .filter((item) => !PRIMARY.some((p) => p.href === item.href))
     .reduce((sum, item) => sum + (item.badge ?? 0), 0);
 
-  const isMenuTabActive =
-    menuOpen || !PRIMARY.some((p) => isActive(pathname, p.href));
+  const isMenuTabActive = menuOpen || !PRIMARY.some((p) => isActive(pathname, p.href));
 
   return (
     <>
       <nav
         aria-label="Console navigation"
-        className="fixed inset-x-4 z-40 md:hidden flex justify-center pointer-events-none"
+        className="pointer-events-none fixed inset-x-4 z-40 flex justify-center md:hidden"
         style={{ bottom: `calc(16px + env(safe-area-inset-bottom, 0px))` }}
       >
         {/*
@@ -105,7 +104,8 @@ export function ConsoleMobileNav({
         <div
           className="pointer-events-auto relative flex h-[62px] w-full max-w-[360px] items-center rounded-full px-1.5 select-none"
           style={{
-            background: 'linear-gradient(180deg, var(--chrome-bg-navy) 0%, var(--chrome-bg-base) 100%)',
+            background:
+              'linear-gradient(180deg, var(--chrome-bg-navy) 0%, var(--chrome-bg-base) 100%)',
             border: '1px solid rgba(255, 255, 255, 0.10)',
             boxShadow:
               '0 16px 32px -8px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.07)',

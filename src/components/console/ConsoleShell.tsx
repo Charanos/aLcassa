@@ -240,7 +240,6 @@ export function ConsoleShell({
   const headerRef = useRef<HTMLElement>(null);
   const navElRef = useRef<HTMLElement>(null);
 
-
   /**
    * ⚠ WHICH CONTROL OPENED THE CURRENT MENU, SO FOCUS CAN GO BACK TO IT.
    *
@@ -708,7 +707,10 @@ export function ConsoleShell({
         }}
       >
         {/* Subtle Architectural Top Bar Backdrop Art */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden select-none" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute inset-0 overflow-hidden select-none"
+          aria-hidden="true"
+        >
           <div
             className="absolute -top-14 left-10 size-[200px] rounded-full opacity-[0.05] blur-[60px]"
             style={{ background: 'var(--blue-500)' }}
@@ -725,7 +727,7 @@ export function ConsoleShell({
           <IconCube
             size={90}
             stroke={0.7}
-            className="absolute -bottom-6 right-[26%] -rotate-[14deg] text-[var(--chrome-fg-muted)] opacity-[0.08]"
+            className="absolute right-[26%] -bottom-6 -rotate-[14deg] text-[var(--chrome-fg-muted)] opacity-[0.08]"
           />
         </div>
         {/* ── Left: Logo & Switcher ────────────────────────────────────── */}
@@ -735,7 +737,7 @@ export function ConsoleShell({
             className="inline-flex shrink-0 items-center gap-3"
             style={{ color: 'var(--chrome-fg)' }}
           >
-            <span className="md:hidden inline-flex">
+            <span className="inline-flex md:hidden">
               <Mark size={20} tone="inverse" title="aLcassa" />
             </span>
             <span className="hidden md:inline-flex">
@@ -753,20 +755,20 @@ export function ConsoleShell({
             </span>
           </Link>
 
-        <span
-          aria-hidden
-          className="hidden shrink-0 md:block"
-          style={{ width: 1, height: 18, background: 'var(--chrome-rule)' }}
-        />
+          <span
+            aria-hidden
+            className="hidden shrink-0 md:block"
+            style={{ width: 1, height: 18, background: 'var(--chrome-rule)' }}
+          />
 
-        {/* ── Workspace switcher ─────────────────────────────────────── */}
-        <div className="relative hidden shrink-0 md:block">
-          <ChromeButton
-            onClick={(e) => toggleMenu('switcher', e.currentTarget)}
-            expanded={openMenu === 'switcher'}
-            bordered
-          >
-            {/*
+          {/* ── Workspace switcher ─────────────────────────────────────── */}
+          <div className="relative hidden shrink-0 md:block">
+            <ChromeButton
+              onClick={(e) => toggleMenu('switcher', e.currentTarget)}
+              expanded={openMenu === 'switcher'}
+              bordered
+            >
+              {/*
               ⚠ THIS WAS THE LITERAL CHARACTER `◎`.
 
               A Unicode glyph standing in for an icon in a bar where every
@@ -780,125 +782,133 @@ export function ConsoleShell({
               a state, which is what keeps the bar from being a single flat
               navy note.
             */}
-            <IconCircleDot
-              size={15}
-              stroke={1.5}
-              className="shrink-0"
-              style={{ color: 'var(--chrome-action)' }}
-              aria-hidden
-            />
-            <span className="text-[12.5px] whitespace-nowrap">Switch workspace</span>
-            <IconChevronDown
-              size={13}
-              stroke={1.25}
-              className={`transition-transform duration-200 ${openMenu === 'switcher' ? 'rotate-180' : ''}`}
-              style={{ color: 'var(--chrome-fg-muted)' }}
-              aria-hidden
-            />
-          </ChromeButton>
+              <IconCircleDot
+                size={15}
+                stroke={1.5}
+                className="shrink-0"
+                style={{ color: 'var(--chrome-action)' }}
+                aria-hidden
+              />
+              <span className="text-[12.5px] whitespace-nowrap">Switch workspace</span>
+              <IconChevronDown
+                size={13}
+                stroke={1.25}
+                className={`transition-transform duration-200 ${openMenu === 'switcher' ? 'rotate-180' : ''}`}
+                style={{ color: 'var(--chrome-fg-muted)' }}
+                aria-hidden
+              />
+            </ChromeButton>
 
-          {openMenu === 'switcher' ? (
-            <Dropdown className="left-0 w-[380px] p-2">
-              <p className="t-eyebrow px-2.5 pt-2 pb-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                Recent workspaces
-              </p>
-              {workspaces.map((w) => (
-                <button
-                  key={w.id}
-                  type="button"
-                  onClick={() => {
-                    setOpenMenu(null);
-                    setPendingWorkspace(w);
-                  }}
-                  className="flex w-full items-center gap-3 rounded-[8px] px-2.5 py-2.5 text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
-                  style={{ color: 'var(--text-primary)' }}
+            {openMenu === 'switcher' ? (
+              <Dropdown className="left-0 w-[380px] p-2">
+                <p
+                  className="t-eyebrow px-2.5 pt-2 pb-1.5"
+                  style={{ color: 'var(--text-tertiary)' }}
                 >
-                  <span
-                    className="grid size-[30px] shrink-0 place-items-center rounded-[6px]"
-                    style={{
-                      background: 'var(--blue-50)',
-                      color: 'var(--blue-600)',
-                      font: '600 12px/1 var(--font-mono)',
+                  Recent workspaces
+                </p>
+                {workspaces.map((w) => (
+                  <button
+                    key={w.id}
+                    type="button"
+                    onClick={() => {
+                      setOpenMenu(null);
+                      setPendingWorkspace(w);
                     }}
-                    aria-hidden
+                    className="flex w-full items-center gap-3 rounded-[8px] px-2.5 py-2.5 text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
+                    style={{ color: 'var(--text-primary)' }}
                   >
-                    {w.initials}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium text-[13.5px]" style={{ color: 'var(--text-primary)' }}>{w.name}</span>
                     <span
-                      className="block truncate mt-[2px]"
+                      className="grid size-[30px] shrink-0 place-items-center rounded-[6px]"
                       style={{
-                        font: '400 12px/1.4 var(--font-mono)',
-                        color: 'var(--text-tertiary)',
+                        background: 'var(--blue-50)',
+                        color: 'var(--blue-600)',
+                        font: '600 12px/1 var(--font-mono)',
                       }}
+                      aria-hidden
                     >
-                      {w.slug}
+                      {w.initials}
                     </span>
-                  </span>
-                  <span
-                    style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
-                  >
-                    {w.plan}
-                  </span>
-                </button>
-              ))}
-              <p
-                className="mx-2.5 mt-1.5 mb-1 border-t pt-3 text-[12px] font-medium leading-relaxed"
-                style={{ borderColor: 'rgba(0,0,0,0.06)', color: 'var(--text-tertiary)' }}
-              >
-                Selecting a workspace opens a confirmation. It never navigates straight in.
-              </p>
-            </Dropdown>
-          ) : null}
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className="block truncate text-[13.5px] font-medium"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
+                        {w.name}
+                      </span>
+                      <span
+                        className="mt-[2px] block truncate"
+                        style={{
+                          font: '400 12px/1.4 var(--font-mono)',
+                          color: 'var(--text-tertiary)',
+                        }}
+                      >
+                        {w.slug}
+                      </span>
+                    </span>
+                    <span
+                      style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                    >
+                      {w.plan}
+                    </span>
+                  </button>
+                ))}
+                <p
+                  className="mx-2.5 mt-1.5 mb-1 border-t pt-3 text-[12px] leading-relaxed font-medium"
+                  style={{ borderColor: 'rgba(0,0,0,0.06)', color: 'var(--text-tertiary)' }}
+                >
+                  Selecting a workspace opens a confirmation. It never navigates straight in.
+                </p>
+              </Dropdown>
+            ) : null}
+          </div>
         </div>
-      </div>
 
-      {/* ── Center: Command palette trigger ───────────────────────────── */}
-      <div className="hidden md:flex flex-1 justify-center px-4">
-        <button
-          type="button"
-          onClick={() => {
-            setPaletteOpen(true);
-            setQuery('');
-            setOpenMenu(null);
-          }}
-          className="group flex h-[32px] w-full max-w-[340px] cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left transition-all hover:border-[var(--chrome-rule-strong)] hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
-          style={{
-            border: '1px solid var(--chrome-rule)',
-            background: 'rgba(255, 255, 255, 0.02)',
-            color: 'var(--chrome-fg-muted)',
-            font: '400 12.5px/1 var(--font-ui)',
-            boxShadow: 'var(--chrome-neu)',
-          }}
-        >
-          <IconSearch
-            size={14}
-            stroke={1.3}
-            className="transition-colors group-hover:text-[var(--chrome-fg)]"
-            style={{ color: 'var(--chrome-fg-faint)' }}
-            aria-hidden
-          />
-          <span className="flex-1 truncate text-[12px] transition-colors group-hover:text-[var(--chrome-fg)]">
-            Search or jump to...
-          </span>
-          <kbd
-            className="hidden h-[22px] items-center gap-[3px] rounded-[5px] px-1.5 sm:inline-flex select-none"
+        {/* ── Center: Command palette trigger ───────────────────────────── */}
+        <div className="hidden flex-1 justify-center px-4 md:flex">
+          <button
+            type="button"
+            onClick={() => {
+              setPaletteOpen(true);
+              setQuery('');
+              setOpenMenu(null);
+            }}
+            className="group flex h-[32px] w-full max-w-[340px] cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left transition-all hover:border-[var(--chrome-rule-strong)] hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
             style={{
-              background: 'color-mix(in oklab, var(--chrome-active-bg) 60%, transparent)',
-              border: '1px solid var(--chrome-rule-strong)',
-              font: '500 11px/1 var(--font-mono)',
-              color: 'var(--chrome-fg)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 1px 1px rgba(0,0,0,0.2)',
+              border: '1px solid var(--chrome-rule)',
+              background: 'rgba(255, 255, 255, 0.02)',
+              color: 'var(--chrome-fg-muted)',
+              font: '400 12.5px/1 var(--font-ui)',
+              boxShadow: 'var(--chrome-neu)',
             }}
           >
-            <span style={{ opacity: 0.5, fontSize: '10px' }}>⌘</span>K
-          </kbd>
-        </button>
-      </div>
+            <IconSearch
+              size={14}
+              stroke={1.3}
+              className="transition-colors group-hover:text-[var(--chrome-fg)]"
+              style={{ color: 'var(--chrome-fg-faint)' }}
+              aria-hidden
+            />
+            <span className="flex-1 truncate text-[12px] transition-colors group-hover:text-[var(--chrome-fg)]">
+              Search or jump to...
+            </span>
+            <kbd
+              className="hidden h-[22px] items-center gap-[3px] rounded-[5px] px-1.5 select-none sm:inline-flex"
+              style={{
+                background: 'color-mix(in oklab, var(--chrome-active-bg) 60%, transparent)',
+                border: '1px solid var(--chrome-rule-strong)',
+                font: '500 11px/1 var(--font-mono)',
+                color: 'var(--chrome-fg)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 1px 1px rgba(0,0,0,0.2)',
+              }}
+            >
+              <span style={{ opacity: 0.5, fontSize: '10px' }}>⌘</span>K
+            </kbd>
+          </button>
+        </div>
 
-      {/* ── Right: Actions ────────────────────────────────────────────── */}
-      <div className="flex shrink-0 items-center gap-1.5">
+        {/* ── Right: Actions ────────────────────────────────────────────── */}
+        <div className="flex shrink-0 items-center gap-1.5">
           {/* ── Notifications ─────────────────────────────────────────── */}
           <div className="relative">
             <ChromeIconButton
@@ -992,7 +1002,10 @@ export function ConsoleShell({
                       >
                         <span
                           className="grid size-[32px] shrink-0 place-items-center rounded-[8px]"
-                          style={{ background: n.kind === 'plain' ? 'rgba(0,0,0,0.04)' : ink.bg, color: n.kind === 'plain' ? 'var(--text-secondary)' : ink.fg }}
+                          style={{
+                            background: n.kind === 'plain' ? 'rgba(0,0,0,0.04)' : ink.bg,
+                            color: n.kind === 'plain' ? 'var(--text-secondary)' : ink.fg,
+                          }}
                           aria-hidden
                         >
                           {n.kind === 'plain' ? (
@@ -1002,7 +1015,12 @@ export function ConsoleShell({
                           )}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block font-medium text-[13.5px] transition-colors group-hover:text-[var(--blue-600)]" style={{ color: 'var(--text-primary)' }}>{n.title}</span>
+                          <span
+                            className="block text-[13.5px] font-medium transition-colors group-hover:text-[var(--blue-600)]"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {n.title}
+                          </span>
                           <span
                             className="mt-1 block"
                             style={{
@@ -1027,10 +1045,13 @@ export function ConsoleShell({
                     );
                   })}
                 </div>
-                <div className="px-5 py-3 border-t bg-[rgba(0,0,0,0.01)]" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
+                <div
+                  className="border-t bg-[rgba(0,0,0,0.01)] px-5 py-3"
+                  style={{ borderColor: 'rgba(0,0,0,0.06)' }}
+                >
                   <Link
                     href="/platform/settings?tab=notifications"
-                    className="font-medium text-[13px] hover:underline"
+                    className="text-[13px] font-medium hover:underline"
                     style={{ color: 'var(--blue-600)' }}
                   >
                     Notification settings
@@ -1100,13 +1121,13 @@ export function ConsoleShell({
                   <Avatar initials={account.initials} src={account.avatarUrl} size="lg" />
                   <span className="min-w-0 flex-1">
                     <span
-                      className="block truncate font-medium text-[14px]"
+                      className="block truncate text-[14px] font-medium"
                       style={{ color: 'var(--text-primary)' }}
                     >
                       {account.name}
                     </span>
                     <span
-                      className="block truncate mt-[2px]"
+                      className="mt-[2px] block truncate"
                       style={{
                         font: '500 11px/1.4 var(--font-ui)',
                         color: 'var(--text-tertiary)',
@@ -1254,7 +1275,10 @@ export function ConsoleShell({
           }}
         >
           {/* Refined Premium Sidebar Backdrop */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden select-none" aria-hidden="true">
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden select-none"
+            aria-hidden="true"
+          >
             {/* Soft Brand Accent Atmospheric Glows */}
             <div
               className="absolute -top-32 -left-32 size-[360px] rounded-full opacity-[0.08] blur-[90px]"
@@ -1268,17 +1292,17 @@ export function ConsoleShell({
             <IconHexagon
               size={260}
               stroke={0.7}
-              className="absolute -left-20 top-16 rotate-[15deg] text-[var(--chrome-fg-muted)] opacity-[0.0318]"
+              className="absolute top-16 -left-20 rotate-[15deg] text-[var(--chrome-fg-muted)] opacity-[0.0318]"
             />
             <IconLayersIntersect
               size={240}
               stroke={0.7}
-              className="absolute -right-20 top-[38%] -rotate-[20deg] text-[var(--chrome-fg-muted)] opacity-[0.0318]"
+              className="absolute top-[38%] -right-20 -rotate-[20deg] text-[var(--chrome-fg-muted)] opacity-[0.0318]"
             />
             <IconCube
               size={220}
               stroke={0.6}
-              className="absolute -left-16 bottom-24 rotate-[35deg] text-[var(--chrome-fg-muted)] opacity-[0.0318]"
+              className="absolute bottom-24 -left-16 rotate-[35deg] text-[var(--chrome-fg-muted)] opacity-[0.0318]"
             />
           </div>
 
@@ -1303,7 +1327,7 @@ export function ConsoleShell({
             {/* GSAP Smooth Sliding Active Pill Indicator */}
             <div
               ref={indicatorRef}
-              className="pointer-events-none absolute right-2.5 left-2.5 z-0 rounded-lg overflow-hidden"
+              className="pointer-events-none absolute right-2.5 left-2.5 z-0 overflow-hidden rounded-lg"
               style={{
                 background: 'color-mix(in oklab, var(--chrome-active-bg) 90%, transparent)',
                 boxShadow: 'var(--chrome-highlight), 0 1px 3px rgba(0,0,0,0.3)',
@@ -1314,7 +1338,7 @@ export function ConsoleShell({
               aria-hidden="true"
             >
               <span
-                className="absolute left-0 top-1.5 bottom-1.5 w-[2.5px] rounded-r-full"
+                className="absolute top-1.5 bottom-1.5 left-0 w-[2.5px] rounded-r-full"
                 style={{
                   background: 'var(--blue-400)',
                   boxShadow: '0 0 8px var(--blue-400)',
@@ -1330,7 +1354,8 @@ export function ConsoleShell({
                   style={{
                     maxHeight: collapsed ? (gIdx === 0 ? '0px' : '16px') : '20px',
                     marginBottom: collapsed ? (gIdx === 0 ? '0px' : '8px') : '8px',
-                    transition: 'max-height 240ms cubic-bezier(0.2,0,0,1), margin-bottom 240ms ease',
+                    transition:
+                      'max-height 240ms cubic-bezier(0.2,0,0,1), margin-bottom 240ms ease',
                   }}
                 >
                   <p
@@ -1348,7 +1373,7 @@ export function ConsoleShell({
                   {/* Subtle dash divider that appears only in collapsed state (and never for the first group) */}
                   {gIdx > 0 && (
                     <div
-                      className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full"
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
                       style={{
                         height: '2px',
                         background: 'rgba(255, 255, 255, 0.22)',
@@ -1396,7 +1421,8 @@ export function ConsoleShell({
                           style={{
                             width: collapsed ? '20px' : '16px',
                             height: collapsed ? '20px' : '16px',
-                            transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
+                            transition:
+                              'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
                           }}
                         >
                           <Icon
@@ -1427,11 +1453,11 @@ export function ConsoleShell({
                               opacity: collapsed ? 0 : 1,
                               transform: collapsed ? 'scale(0.4)' : 'scale(1)',
                               pointerEvents: collapsed ? 'none' : 'auto',
-                              background: active
-                                ? 'var(--blue-500)'
-                                : 'rgba(255, 255, 255, 0.08)',
+                              background: active ? 'var(--blue-500)' : 'rgba(255, 255, 255, 0.08)',
                               color: active ? 'var(--chrome-fg)' : 'var(--chrome-fg)',
-                              border: active ? '1px solid var(--blue-400)' : '1px solid rgba(255, 255, 255, 0.1)',
+                              border: active
+                                ? '1px solid var(--blue-400)'
+                                : '1px solid rgba(255, 255, 255, 0.1)',
                               font: '500 10px/1 var(--font-mono)',
                               transition:
                                 'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
@@ -1487,29 +1513,34 @@ export function ConsoleShell({
               style={{
                 width: collapsed ? '24px' : '18px',
                 height: collapsed ? '24px' : '18px',
-                transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
+                transition:
+                  'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
               }}
             >
               {isolationOk ? (
                 <>
                   <span
-                    className="absolute rounded-full animate-ping"
+                    className="absolute animate-ping rounded-full"
                     style={{
                       background: 'var(--success-fg)',
                       opacity: 0.35,
                       width: collapsed ? '12px' : '9px',
                       height: collapsed ? '12px' : '9px',
-                      transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
+                      transition:
+                        'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1)',
                     }}
                   />
                   <span
                     className="relative rounded-full"
                     style={{
                       background: 'var(--success-fg)',
-                      boxShadow: collapsed ? '0 0 10px var(--success-fg)' : '0 0 7px var(--success-fg)',
+                      boxShadow: collapsed
+                        ? '0 0 10px var(--success-fg)'
+                        : '0 0 7px var(--success-fg)',
                       width: collapsed ? '8px' : '7px',
                       height: collapsed ? '8px' : '7px',
-                      transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1), box-shadow 240ms ease',
+                      transition:
+                        'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1), box-shadow 240ms ease',
                     }}
                   />
                 </>
@@ -1518,10 +1549,13 @@ export function ConsoleShell({
                   className="rounded-full"
                   style={{
                     background: 'var(--warning-fg)',
-                    boxShadow: collapsed ? '0 0 10px var(--warning-fg)' : '0 0 7px var(--warning-fg)',
+                    boxShadow: collapsed
+                      ? '0 0 10px var(--warning-fg)'
+                      : '0 0 7px var(--warning-fg)',
                     width: collapsed ? '8px' : '7px',
                     height: collapsed ? '8px' : '7px',
-                    transition: 'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1), box-shadow 240ms ease',
+                    transition:
+                      'width 240ms cubic-bezier(0.2,0,0,1), height 240ms cubic-bezier(0.2,0,0,1), box-shadow 240ms ease',
                   }}
                 />
               )}
@@ -1539,12 +1573,15 @@ export function ConsoleShell({
             >
               <span
                 className="block truncate font-medium tracking-tight"
-                style={{ color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)', fontSize: '11.5px' }}
+                style={{
+                  color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)',
+                  fontSize: '11.5px',
+                }}
               >
                 {isolationOk ? 'Isolation green' : 'Isolation gap'}
               </span>
               <span
-                className="block truncate font-mono mt-[1.5px]"
+                className="mt-[1.5px] block truncate font-mono"
                 style={{ color: 'var(--chrome-fg-faint)', fontSize: '10px' }}
               >
                 {isolation.tablesPoliced}/{isolation.tablesTotal} tables · {isolation.lastRun}
@@ -1565,7 +1602,6 @@ export function ConsoleShell({
               transition: 'padding 240ms cubic-bezier(0.2,0,0,1)',
             }}
           >
-
             {/* ── Public site exit ─────────────────────────── */}
             <Link
               href="/"
@@ -1575,7 +1611,8 @@ export function ConsoleShell({
                 gap: collapsed ? '0px' : '9px',
                 paddingLeft: collapsed ? '18px' : '8px',
                 paddingRight: collapsed ? '0px' : '8px',
-                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                transition:
+                  'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
               title={collapsed ? 'Public marketing site' : undefined}
             >
@@ -1599,7 +1636,8 @@ export function ConsoleShell({
                   transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
                   pointerEvents: collapsed ? 'none' : 'auto',
                   font: '400 12px/1 var(--font-ui)',
-                  transition: 'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+                  transition:
+                    'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
                 Public site
@@ -1613,7 +1651,8 @@ export function ConsoleShell({
                 gap: collapsed ? '0px' : '10px',
                 paddingLeft: collapsed ? '15px' : '8px',
                 paddingRight: collapsed ? '0px' : '8px',
-                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                transition:
+                  'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
               title={collapsed ? `${account.name} (${account.role})` : undefined}
             >
@@ -1631,16 +1670,21 @@ export function ConsoleShell({
                   maxWidth: collapsed ? '0px' : '150px',
                   transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
                   pointerEvents: collapsed ? 'none' : 'auto',
-                  transition: 'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+                  transition:
+                    'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
                 <span
                   className="block truncate"
-                  style={{ font: '500 12.5px/1 var(--font-ui)', color: 'var(--chrome-fg)', letterSpacing: '-0.01em' }}
+                  style={{
+                    font: '500 12.5px/1 var(--font-ui)',
+                    color: 'var(--chrome-fg)',
+                    letterSpacing: '-0.01em',
+                  }}
                 >
                   {account.name}
                 </span>
-                <span 
+                <span
                   className="mt-[3px] block truncate"
                   style={{ font: '400 11px/1.4 var(--font-mono)', color: 'var(--chrome-fg-muted)' }}
                 >
@@ -1660,7 +1704,8 @@ export function ConsoleShell({
                 paddingLeft: collapsed ? '18px' : '8px',
                 paddingRight: collapsed ? '0px' : '8px',
                 gap: collapsed ? '0px' : '9px',
-                transition: 'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
+                transition:
+                  'gap 240ms cubic-bezier(0.2,0,0,1), padding 240ms cubic-bezier(0.2,0,0,1)',
               }}
               aria-label={lockedCollapsed ? 'Keep sidebar open' : 'Collapse sidebar'}
             >
@@ -1676,13 +1721,14 @@ export function ConsoleShell({
                 />
               </span>
               <span
-                className="nav-label min-w-0 flex-1 truncate overflow-hidden whitespace-nowrap text-left"
+                className="nav-label min-w-0 flex-1 truncate overflow-hidden text-left whitespace-nowrap"
                 style={{
                   opacity: collapsed ? 0 : 1,
                   maxWidth: collapsed ? '0px' : '150px',
                   transform: collapsed ? 'translateX(-8px)' : 'translateX(0)',
                   pointerEvents: collapsed ? 'none' : 'auto',
-                  transition: 'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
+                  transition:
+                    'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
                 <span className="transition-colors group-hover:text-[var(--chrome-fg)]">
@@ -1724,7 +1770,7 @@ export function ConsoleShell({
            * an inline `paddingBottom` has no breakpoint and would leave 76px
            * of dead space under every desktop page.
            */
-          className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-hide pb-[calc(76px+env(safe-area-inset-bottom,0px))] md:pb-0"
+          className="scrollbar-hide min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-[calc(76px+env(safe-area-inset-bottom,0px))] md:pb-0"
           style={{ background: 'var(--surface-base)' }}
         >
           {children}
@@ -1903,7 +1949,8 @@ export function ConsoleShell({
               <kbd
                 className="flex h-5 items-center justify-center rounded-[4px] px-1.5"
                 style={{
-                  background: 'linear-gradient(to bottom, var(--surface-raised), var(--surface-sunken))',
+                  background:
+                    'linear-gradient(to bottom, var(--surface-raised), var(--surface-sunken))',
                   border: '1px solid rgba(0,0,0,0.1)',
                   boxShadow: '0 1px 1px rgba(0,0,0,0.05)',
                   font: '500 10px/1 var(--font-mono)',
@@ -1958,9 +2005,14 @@ export function ConsoleShell({
                         <Icon size={18} stroke={1.5} />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-medium text-[14.5px] tracking-tight transition-colors group-hover:text-[var(--blue-600)]" style={{ color: 'var(--text-primary)' }}>{hit.label}</span>
                         <span
-                          className="block truncate mt-[1px]"
+                          className="block truncate text-[14.5px] font-medium tracking-tight transition-colors group-hover:text-[var(--blue-600)]"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
+                          {hit.label}
+                        </span>
+                        <span
+                          className="mt-[1px] block truncate"
                           style={{
                             font: '400 12.5px/1.4 var(--font-ui)',
                             color: 'var(--text-tertiary)',
@@ -1975,13 +2027,17 @@ export function ConsoleShell({
                           style={{
                             borderColor: 'rgba(0,0,0,0.06)',
                             background: 'var(--surface-sunken)',
-                            color: 'var(--text-tertiary)'
+                            color: 'var(--text-tertiary)',
                           }}
                         >
                           {hit.kind.charAt(0).toUpperCase() + hit.kind.slice(1).toLowerCase()}
                         </span>
-                        <div className="flex items-center justify-center overflow-hidden w-0 opacity-0 transition-all duration-200 ease-out group-hover:w-5 group-hover:opacity-100 group-hover:ml-1.5">
-                           <IconArrowRight size={14} stroke={2} className="text-[var(--blue-500)] -translate-x-2 transition-transform duration-200 group-hover:translate-x-0" />
+                        <div className="flex w-0 items-center justify-center overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:ml-1.5 group-hover:w-5 group-hover:opacity-100">
+                          <IconArrowRight
+                            size={14}
+                            stroke={2}
+                            className="-translate-x-2 text-[var(--blue-500)] transition-transform duration-200 group-hover:translate-x-0"
+                          />
                         </div>
                       </div>
                     </Link>
@@ -2156,7 +2212,7 @@ function Dropdown({ children, className = '' }: { children: React.ReactNode; cla
   return (
     <div
       ref={ref}
-      className={`absolute top-[42px] rounded-[12px] overflow-hidden ${className}`}
+      className={`absolute top-[42px] overflow-hidden rounded-[12px] ${className}`}
       style={{
         background: 'rgba(255, 255, 255, 0.85)',
         backdropFilter: 'blur(16px)',

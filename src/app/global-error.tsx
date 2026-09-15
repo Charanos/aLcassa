@@ -34,7 +34,7 @@ export default function GlobalError({
           color: '#171717',
         }}
       >
-        <div 
+        <div
           style={{
             background: '#ffffff',
             borderRadius: '16px',
@@ -44,23 +44,34 @@ export default function GlobalError({
             width: '100%',
           }}
         >
-          <div style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '16px',
-            background: '#ffffff',
-            border: '1px solid rgba(0,0,0,0.05)',
-            boxShadow: '0 4px 12px -2px rgba(239, 68, 68, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 24px',
-            color: '#ef4444',
-          }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '16px',
+              background: '#ffffff',
+              border: '1px solid rgba(0,0,0,0.05)',
+              boxShadow: '0 4px 12px -2px rgba(239, 68, 68, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 24px',
+              color: '#ef4444',
+            }}
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </div>
 

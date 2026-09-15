@@ -7,11 +7,7 @@ import {
   previewPlanLimit,
 } from '@/app/(platform)/platform/(console)/plan-actions';
 import type { PlanLimitImpact } from '@/modules/platform';
-import {
-  ConsoleDialog,
-  DialogActions,
-  DialogFact,
-} from '@/components/primitives/ConsoleDialog';
+import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
 import { useToast } from '@/components/primitives/Toast';
 import type { HeadroomRow } from '@/lib/console/data';
 
@@ -162,12 +158,12 @@ export function LimitEditor({
         facts={
           <>
             <DialogFact icon={IconUsers}>
-              Nobody is removed. A workspace already above the new number{' '}
-              <em>keeps what it has</em> and cannot add more.
+              Nobody is removed. A workspace already above the new number <em>keeps what it has</em>{' '}
+              and cannot add more.
             </DialogFact>
             <DialogFact icon={IconAlertTriangle}>
-              The count below is read from the database when the value changes, not estimated —
-              the bars on the card behind this show a median and a maximum, which are not a count
+              The count below is read from the database when the value changes, not estimated — the
+              bars on the card behind this show a median and a maximum, which are not a count
               against a number you just typed.
             </DialogFact>
           </>
@@ -210,11 +206,17 @@ export function LimitEditor({
                     fontFamily: 'var(--font-mono)',
                   }}
                 />
-                <span className="t-caption whitespace-nowrap" style={{ color: 'var(--text-tertiary)' }}>
+                <span
+                  className="t-caption whitespace-nowrap"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
                   was {row.limit === null ? '∞' : row.limit}
                 </span>
               </div>
-              <label className="t-caption mt-2.5 flex w-fit items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+              <label
+                className="t-caption mt-2.5 flex w-fit items-center gap-2"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 <input
                   type="checkbox"
                   checked={unlimited}
@@ -245,7 +247,8 @@ export function LimitEditor({
                 <>
                   <span className="t-compact" style={{ color: 'var(--text-primary)' }}>
                     <span className="numeric">{impact.affected}</span>{' '}
-                    {impact.affected === 1 ? 'workspace is' : 'workspaces are'} on {impact.planName}.
+                    {impact.affected === 1 ? 'workspace is' : 'workspaces are'} on {impact.planName}
+                    .
                   </span>
                   {impact.stranded > 0 ? (
                     <span

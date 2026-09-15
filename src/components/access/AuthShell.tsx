@@ -44,19 +44,16 @@ export function AuthShell({
   aside?: React.ReactNode;
   cardMaxWidth?: string;
 }) {
-
   return (
-    <div className="relative flex min-h-dvh lg:h-dvh w-full flex-col lg:flex-row overflow-hidden bg-white text-left selection:bg-[var(--blue-500)]/15">
-      
+    <div className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-white text-left selection:bg-[var(--blue-500)]/15 lg:h-dvh lg:flex-row">
       {/* ── LEFT PANE: Action Canvas ── */}
-      <div 
-        className={`relative z-20 flex w-full flex-col bg-white lg:h-full lg:overflow-hidden lg:border-r border-[var(--ink-200)]/60 lg:shadow-[20px_0_60px_-15px_rgba(0,0,0,0.05)] ${
+      <div
+        className={`relative z-20 flex w-full flex-col border-[var(--ink-200)]/60 bg-white lg:h-full lg:overflow-hidden lg:border-r lg:shadow-[20px_0_60px_-15px_rgba(0,0,0,0.05)] ${
           aside ? 'lg:w-[60%] xl:w-[58%]' : 'lg:w-[45%] xl:w-[40%]'
         }`}
       >
-        
         {/* Header */}
-        <header className="shrink-0 w-full px-6 sm:px-10 py-5 lg:py-8">
+        <header className="w-full shrink-0 px-6 py-5 sm:px-10 lg:py-8">
           <div className="flex items-center justify-between gap-4">
             <Link
               href="/"
@@ -67,7 +64,7 @@ export function AuthShell({
             </Link>
             <Link
               href="/"
-              className="group inline-flex items-center gap-1.5 text-[length:var(--text-sm)] font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+              className="group inline-flex items-center gap-1.5 text-[length:var(--text-sm)] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
             >
               <IconArrowLeft
                 size={13}
@@ -87,19 +84,26 @@ export function AuthShell({
          * wrapper inside an overflow-y-auto scroll container anchors the content to
          * the top when it overflows, and centres it when it fits — without clipping.
          */}
-        <main id="main" className="flex-1 flex flex-col px-6 sm:px-10 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <div className={`w-full mx-auto my-auto py-8 ${cardMaxWidth ?? 'max-w-[440px]'}`}>
+        <main
+          id="main"
+          className="flex flex-1 [scrollbar-width:none] flex-col overflow-y-auto px-6 [-ms-overflow-style:none] sm:px-10 [&::-webkit-scrollbar]:hidden"
+        >
+          <div className={`mx-auto my-auto w-full py-8 ${cardMaxWidth ?? 'max-w-[440px]'}`}>
             {(title || lede) && (
-              <div className="mb-6 sm:mb-8 text-left">
+              <div className="mb-6 text-left sm:mb-8">
                 {title ? (
                   <h1 className="font-sans text-[26px] font-medium tracking-tight text-[var(--text-primary)] sm:text-[30px]">
                     {title}
                   </h1>
                 ) : null}
                 {lede ? (
-                  <p className={`leading-relaxed text-[var(--text-secondary)] ${
-                    title ? 'mt-1.5 text-[length:var(--text-sm)] sm:text-[length:var(--text-base)]' : 'text-[length:var(--text-base)]'
-                  }`}>
+                  <p
+                    className={`leading-relaxed text-[var(--text-secondary)] ${
+                      title
+                        ? 'mt-1.5 text-[length:var(--text-sm)] sm:text-[length:var(--text-base)]'
+                        : 'text-[length:var(--text-base)]'
+                    }`}
+                  >
                     {lede}
                   </p>
                 ) : null}
@@ -109,28 +113,24 @@ export function AuthShell({
             <div>{children}</div>
 
             {footer ? (
-              <div className="mt-6 border-t border-[var(--ink-100)] pt-5 text-left">
-                {footer}
-              </div>
+              <div className="mt-6 border-t border-[var(--ink-100)] pt-5 text-left">{footer}</div>
             ) : null}
           </div>
-          
+
           {/* Mobile Aside fallback - rendered below the form on small screens if aside exists */}
           {aside ? (
-             <div className="mt-10 lg:hidden border-t border-[var(--ink-200)]/70 pt-8">
-               {aside}
-             </div>
+            <div className="mt-10 border-t border-[var(--ink-200)]/70 pt-8 lg:hidden">{aside}</div>
           ) : null}
         </main>
-
-
       </div>
 
       {/* ── RIGHT PANE: Context & Art Canvas (Hidden on mobile) ── */}
-      <div className="relative hidden lg:flex flex-1 flex-col items-center justify-center bg-[#FAFAFA] overflow-hidden">
-        
+      <div className="relative hidden flex-1 flex-col items-center justify-center overflow-hidden bg-[#FAFAFA] lg:flex">
         {/* Immersive Background Art */}
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
+          aria-hidden="true"
+        >
           {/* Radial Orbs */}
           <div
             className="absolute -top-1/4 -right-1/4 size-[800px] rounded-full opacity-[0.25] blur-[140px]"
@@ -142,7 +142,10 @@ export function AuthShell({
           />
 
           {/* Architectural Mesh */}
-          <svg className="absolute inset-0 h-full w-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            className="absolute inset-0 h-full w-full opacity-[0.06]"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <defs>
               <pattern id="blueprint-grid" width="60" height="60" patternUnits="userSpaceOnUse">
                 <path d="M 60 0 L 0 0 0 60" fill="none" stroke="var(--ink-900)" strokeWidth="0.5" />
@@ -153,28 +156,39 @@ export function AuthShell({
               </linearGradient>
             </defs>
             <rect width="100%" height="100%" fill="url(#blueprint-grid)" />
-            <path d="M -200 200 C 200 400, 600 -100, 1200 300 S 1800 100, 2400 500" fill="none" stroke="url(#curve-grad)" strokeWidth="1.5" />
-            <path d="M -200 400 C 300 600, 700 100, 1300 500 S 1900 300, 2500 700" fill="none" stroke="url(#curve-grad)" strokeWidth="1" strokeDasharray="4 4" />
+            <path
+              d="M -200 200 C 200 400, 600 -100, 1200 300 S 1800 100, 2400 500"
+              fill="none"
+              stroke="url(#curve-grad)"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M -200 400 C 300 600, 700 100, 1300 500 S 1900 300, 2500 700"
+              fill="none"
+              stroke="url(#curve-grad)"
+              strokeWidth="1"
+              strokeDasharray="4 4"
+            />
           </svg>
 
           {/* Floating Geometric Marks */}
           {aside ? (
             /* Sign-up page (aside present) - structural geometry framing the journey card */
             <>
-              <div className="absolute top-[2%] right-[4%] text-[var(--ink-600)] opacity-[0.06] rotate-[12deg]">
+              <div className="absolute top-[2%] right-[4%] rotate-[12deg] text-[var(--ink-600)] opacity-[0.06]">
                 <IconTriangleSquareCircle size={220} stroke={0.8} />
               </div>
-              <div className="absolute bottom-[4%] left-[4%] text-[var(--ink-600)] opacity-[0.06] -rotate-[15deg]">
+              <div className="absolute bottom-[4%] left-[4%] -rotate-[15deg] text-[var(--ink-600)] opacity-[0.06]">
                 <IconLayersIntersect size={280} stroke={0.7} />
               </div>
             </>
           ) : (
             /* Sign-in page (no aside) - architectural/network blend */
             <>
-              <div className="absolute top-[10%] right-[12%] text-[var(--blue-500)] opacity-[0.05] rotate-[30deg]">
+              <div className="absolute top-[10%] right-[12%] rotate-[30deg] text-[var(--blue-500)] opacity-[0.05]">
                 <IconFingerprint size={280} stroke={0.8} />
               </div>
-              <div className="absolute bottom-[10%] left-[10%] text-[var(--orange-500)] opacity-[0.05] -rotate-[15deg]">
+              <div className="absolute bottom-[10%] left-[10%] -rotate-[15deg] text-[var(--orange-500)] opacity-[0.05]">
                 <IconRoute size={320} stroke={0.7} />
               </div>
             </>
@@ -184,16 +198,15 @@ export function AuthShell({
         {/* Context Aside or Illustration */}
         {aside ? (
           <aside className="relative z-10 w-full max-w-[460px] p-8 xl:p-12">
-            <div className="rounded-2xl border border-[var(--ink-200)]/60 bg-white/70 backdrop-blur-xl p-8 shadow-sm">
+            <div className="rounded-2xl border border-[var(--ink-200)]/60 bg-white/70 p-8 shadow-sm backdrop-blur-xl">
               {aside}
             </div>
           </aside>
         ) : (
-          <div className="relative z-10 flex w-full h-full items-center justify-center">
+          <div className="relative z-10 flex h-full w-full items-center justify-center">
             <AuthIllustration />
           </div>
         )}
-
       </div>
     </div>
   );

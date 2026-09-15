@@ -74,12 +74,24 @@ export type AuditDescription = {
 const VOCABULARY: Record<string, AuditDescription> = {
   /* ── Workspaces ──────────────────────────────────────────────────────── */
   'tenant.provisioned': { label: 'Workspace created', icon: IconBuildingPlus, tone: 'success' },
-  'tenant.self_registered': { label: 'Workspace signed itself up', icon: IconBuildingPlus, tone: 'success' },
+  'tenant.self_registered': {
+    label: 'Workspace signed itself up',
+    icon: IconBuildingPlus,
+    tone: 'success',
+  },
   'tenant.suspended': { label: 'Workspace suspended', icon: IconPlayerPause, tone: 'danger' },
   'tenant.reactivated': { label: 'Workspace reactivated', icon: IconPlayerPlay, tone: 'success' },
-  'tenant.settings_updated': { label: 'Workspace settings changed', icon: IconPencil, tone: 'neutral' },
+  'tenant.settings_updated': {
+    label: 'Workspace settings changed',
+    icon: IconPencil,
+    tone: 'neutral',
+  },
   'tenant.logo_uploaded': { label: 'Workspace logo replaced', icon: IconPhoto, tone: 'neutral' },
-  'tenant.ownership_transferred': { label: 'Ownership transferred', icon: IconTransfer, tone: 'warning' },
+  'tenant.ownership_transferred': {
+    label: 'Ownership transferred',
+    icon: IconTransfer,
+    tone: 'warning',
+  },
 
   /* ── Support sessions. The boundary the whole product is sold on. ────── */
   'support.entered': { label: 'Entered a workspace', icon: IconDoorEnter, tone: 'warning' },
@@ -105,8 +117,16 @@ const VOCABULARY: Record<string, AuditDescription> = {
 
   /* ── Money ───────────────────────────────────────────────────────────── */
   'subscription.plan_assigned': { label: 'Plan changed', icon: IconCreditCard, tone: 'info' },
-  'subscription.status_changed': { label: 'Subscription status changed', icon: IconCreditCard, tone: 'warning' },
-  'subscription.override_granted': { label: 'Limit override granted', icon: IconCreditCard, tone: 'info' },
+  'subscription.status_changed': {
+    label: 'Subscription status changed',
+    icon: IconCreditCard,
+    tone: 'warning',
+  },
+  'subscription.override_granted': {
+    label: 'Limit override granted',
+    icon: IconCreditCard,
+    tone: 'info',
+  },
   'plan.limit_changed': { label: 'Plan limit changed', icon: IconCreditCard, tone: 'warning' },
 
   /* ── The rules every workspace inherits ──────────────────────────────── */

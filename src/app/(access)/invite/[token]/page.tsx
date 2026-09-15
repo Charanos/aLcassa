@@ -96,7 +96,8 @@ export default async function InvitePage({
             </span>
           </div>
           <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
-            As a team member on {company}, you can access customer threads and collaborate in real-time.
+            As a team member on {company}, you can access customer threads and collaborate in
+            real-time.
           </p>
         </div>
       </div>
@@ -116,7 +117,7 @@ export default async function InvitePage({
           type="submit"
           variant="accent"
           size="lg"
-          className="mt-2 w-full font-medium shadow-sm hover:shadow-md cursor-pointer"
+          className="mt-2 w-full cursor-pointer font-medium shadow-sm hover:shadow-md"
         >
           Accept invitation & join workspace
         </Button>

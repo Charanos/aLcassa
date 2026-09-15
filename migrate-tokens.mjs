@@ -94,11 +94,11 @@ const tokenMap = {
 function walkDir(dir) {
   let results = [];
   const list = fs.readdirSync(dir);
-  
+
   list.forEach((file) => {
     const filePath = path.join(dir, file);
     const stat = fs.statSync(filePath);
-    
+
     if (stat && stat.isDirectory()) {
       results = results.concat(walkDir(filePath));
     } else {
@@ -107,16 +107,16 @@ function walkDir(dir) {
       }
     }
   });
-  
+
   return results;
 }
 
 const files = walkDir(SRC_DIR);
 let totalReplacements = 0;
 
-files.forEach(file => {
+files.forEach((file) => {
   if (file.endsWith('tokens.css')) return; // skip the tokens file itself
-  
+
   let content = fs.readFileSync(file, 'utf8');
   let changed = false;
 

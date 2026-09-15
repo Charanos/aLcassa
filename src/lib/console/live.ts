@@ -687,17 +687,17 @@ export async function getLiveHeadroom(): Promise<HeadroomModel | null> {
           tenants: planWorkspaces.length,
           workspaces: planWorkspaces,
           rows: agg
-          .filter((a) => a.planId === p.id)
-          .map((a) => ({
-            entitlementId: a.entitlementId,
-            key: a.key,
-            label: a.label,
-            limit: a.limitValue,
-            tenants: a.tenants,
-            p50: a.p50,
-            max: a.max,
-            atCeiling: a.atCeiling,
-          })),
+            .filter((a) => a.planId === p.id)
+            .map((a) => ({
+              entitlementId: a.entitlementId,
+              key: a.key,
+              label: a.label,
+              limit: a.limitValue,
+              tenants: a.tenants,
+              p50: a.p50,
+              max: a.max,
+              atCeiling: a.atCeiling,
+            })),
         };
       }),
       orphanedCounters,

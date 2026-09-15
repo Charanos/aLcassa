@@ -324,7 +324,7 @@ export function WorkspaceDetailDrawer({
       >
         {/* ── 1 · Header Surface ─────────────────────────────────────── */}
         <div
-          className="relative py-6 px-3 pb-5 sm:p-7"
+          className="relative px-3 py-6 pb-5 sm:p-7"
           style={{
             borderBottom: '1px solid var(--border-subtle)',
             background: 'linear-gradient(to bottom, var(--surface-raised), var(--surface-base))',
@@ -569,9 +569,7 @@ export function WorkspaceDetailDrawer({
                   style={{
                     background: isActive ? 'var(--surface-base)' : 'transparent',
                     color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                    boxShadow: isActive
-                      ? 'var(--shadow-sm), var(--glass-highlight)'
-                      : 'none',
+                    boxShadow: isActive ? 'var(--shadow-sm), var(--glass-highlight)' : 'none',
                   }}
                 >
                   <Icon
@@ -680,7 +678,8 @@ export function WorkspaceDetailDrawer({
                         className="flex flex-col justify-between rounded-2xl p-4 transition-all duration-300 hover:-translate-y-px"
                         style={{
                           background: 'var(--surface-raised)',
-                          border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                          border:
+                            '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                           boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                         }}
                       >
@@ -721,7 +720,10 @@ export function WorkspaceDetailDrawer({
                         boxShadow: 'var(--neu-inset)',
                       }}
                     >
-                      <span className="text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+                      <span
+                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
                         Workspace Specifications
                       </span>
                     </div>
@@ -740,17 +742,18 @@ export function WorkspaceDetailDrawer({
                       when the count is odd — which is the direction a reader
                       scanning top-left expects.
                     */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 relative">
+                    <div className="relative grid grid-cols-1 sm:grid-cols-2">
                       {/* Very subtle center divider on desktop */}
                       <div className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
-                      
+
                       <div>
                         {detail.facts.slice(0, Math.ceil(detail.facts.length / 2)).map((f) => (
                           <div
                             key={f.label}
                             className="flex items-center justify-between px-5 py-4"
                             style={{
-                              borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                              borderTop:
+                                '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                               boxShadow: 'var(--glass-highlight)',
                             }}
                           >
@@ -778,7 +781,8 @@ export function WorkspaceDetailDrawer({
                             key={f.label}
                             className="flex items-center justify-between px-5 py-4"
                             style={{
-                              borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                              borderTop:
+                                '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                               boxShadow: 'var(--glass-highlight)',
                             }}
                           >
@@ -826,7 +830,10 @@ export function WorkspaceDetailDrawer({
                         {detail.owner.initials}
                       </div>
                       <div>
-                        <p className="text-sm font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                        <p
+                          className="text-sm font-medium tracking-tight"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
                           {detail.owner.name}
                         </p>
                         <p
@@ -839,7 +846,11 @@ export function WorkspaceDetailDrawer({
                     </div>
                     <span
                       className="rounded-full px-2.5 py-1 text-[9px] font-medium tracking-[0.1em] uppercase"
-                      style={{ background: 'var(--surface-inset)', color: 'var(--text-tertiary)', boxShadow: 'var(--glass-highlight)' }}
+                      style={{
+                        background: 'var(--surface-inset)',
+                        color: 'var(--text-tertiary)',
+                        boxShadow: 'var(--glass-highlight)',
+                      }}
                     >
                       Primary Administrator
                     </span>
@@ -871,11 +882,7 @@ export function WorkspaceDetailDrawer({
                       const color = meterColor(pct);
                       const usedStr = m.unit ? `${m.used}${m.unit}` : fmtNum(m.used);
                       const limitStr =
-                        limit === null
-                          ? 'no limit'
-                          : m.unit
-                            ? `${limit}${m.unit}`
-                            : fmtNum(limit);
+                        limit === null ? 'no limit' : m.unit ? `${limit}${m.unit}` : fmtNum(limit);
 
                       return (
                         <div
@@ -883,7 +890,8 @@ export function WorkspaceDetailDrawer({
                           className="rounded-[20px] p-4 transition-all duration-300 hover:-translate-y-px"
                           style={{
                             background: 'var(--surface-raised)',
-                            border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                            border:
+                              '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                             boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                           }}
                         >
@@ -992,7 +1000,9 @@ export function WorkspaceDetailDrawer({
                         className="flex flex-col justify-between rounded-[20px] p-4 transition-all duration-300 hover:-translate-y-px"
                         style={{
                           background:
-                            s.tone === 'danger' ? 'var(--badge-danger-bg)' : 'var(--surface-raised)',
+                            s.tone === 'danger'
+                              ? 'var(--badge-danger-bg)'
+                              : 'var(--surface-raised)',
                           border: `2px solid ${s.tone === 'danger' ? 'var(--badge-danger-edge)' : 'color-mix(in srgb, var(--border-subtle) 30%, transparent)'}`,
                           boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                         }}
@@ -1040,7 +1050,8 @@ export function WorkspaceDetailDrawer({
                         className="overflow-hidden rounded-[24px]"
                         style={{
                           background: 'var(--surface-raised)',
-                          border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                          border:
+                            '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                           boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                         }}
                       >
@@ -1050,10 +1061,11 @@ export function WorkspaceDetailDrawer({
                             className="flex items-center justify-between gap-4 p-4"
                             style={{
                               background:
-                                inv.status === 'failed'
-                                  ? 'var(--badge-danger-bg)'
-                                  : 'transparent',
-                              borderTop: index > 0 ? '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)' : 'none',
+                                inv.status === 'failed' ? 'var(--badge-danger-bg)' : 'transparent',
+                              borderTop:
+                                index > 0
+                                  ? '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)'
+                                  : 'none',
                               boxShadow: index > 0 ? 'var(--glass-highlight)' : 'none',
                             }}
                           >
@@ -1149,10 +1161,13 @@ export function WorkspaceDetailDrawer({
                       boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                     }}
                   >
-                    <h3 className="text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+                    <h3
+                      className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
                       Access Topology
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 relative">
+                    <div className="relative grid grid-cols-1 sm:grid-cols-3">
                       <div className="px-2 pb-4 sm:pb-0">
                         <span
                           className="text-[11px] font-medium tracking-wide"
@@ -1167,14 +1182,14 @@ export function WorkspaceDetailDrawer({
                           {detail.team.staff}
                         </p>
                       </div>
-                      <div className="px-2 py-4 sm:py-0 sm:px-6 relative">
+                      <div className="relative px-2 py-4 sm:px-6 sm:py-0">
                         {/* Desktop vertical engraved separator */}
                         <div className="absolute inset-y-0 left-0 hidden w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
-                        <div className="absolute inset-y-0 left-px hidden w-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] sm:block" />
+                        <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-y-0 left-px hidden w-px sm:block" />
                         {/* Mobile horizontal engraved separator */}
                         <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:hidden" />
-                        <div className="absolute inset-x-0 top-px h-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] sm:hidden" />
-                        
+                        <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-x-0 top-px h-px sm:hidden" />
+
                         <span
                           className="text-[11px] font-medium tracking-wide"
                           style={{ color: 'var(--text-tertiary)' }}
@@ -1188,14 +1203,14 @@ export function WorkspaceDetailDrawer({
                           {detail.team.admins} members
                         </p>
                       </div>
-                      <div className="px-2 pt-4 sm:pt-0 sm:px-6 relative">
+                      <div className="relative px-2 pt-4 sm:px-6 sm:pt-0">
                         {/* Desktop vertical engraved separator */}
                         <div className="absolute inset-y-0 left-0 hidden w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
-                        <div className="absolute inset-y-0 left-px hidden w-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] sm:block" />
+                        <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-y-0 left-px hidden w-px sm:block" />
                         {/* Mobile horizontal engraved separator */}
                         <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:hidden" />
-                        <div className="absolute inset-x-0 top-px h-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] sm:hidden" />
-                        
+                        <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-x-0 top-px h-px sm:hidden" />
+
                         <span
                           className="text-[11px] font-medium tracking-wide"
                           style={{ color: 'var(--text-tertiary)' }}
@@ -1214,7 +1229,7 @@ export function WorkspaceDetailDrawer({
 
                   {/* Data Residency & Encryption Box */}
                   <div
-                    className="flex flex-col sm:flex-row sm:items-start gap-4 rounded-[20px] p-4"
+                    className="flex flex-col gap-4 rounded-[20px] p-4 sm:flex-row sm:items-start"
                     style={{
                       background: 'var(--surface-raised)',
                       border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -1227,7 +1242,10 @@ export function WorkspaceDetailDrawer({
                         {/* ⚠ "& Encryption" NAMED A FEATURE THAT DOES NOT
                             EXIST — the fourth place a security claim outran the
                             product. Residency is real and is the subject here. */}
-                        <p className="text-sm font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                        <p
+                          className="text-sm font-medium tracking-tight"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
                           Residency and isolation
                         </p>
                         <span
@@ -1266,7 +1284,10 @@ export function WorkspaceDetailDrawer({
                         claiming weaker protection than the product actually
                         gives, on the panel that exists to describe it.
                       */}
-                      <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                      <p
+                        className="mt-2 text-[13px] leading-relaxed"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
                         Every query against this workspace is filtered by a Row Level Security
                         policy — including ours. A support session is scoped, expiring and written
                         to the customer&rsquo;s own log, and it reads nothing at all from customer

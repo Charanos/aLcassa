@@ -191,7 +191,9 @@ async function main(): Promise<void> {
     });
   }
 
-  console.log(`✓ seeded 3 plans, ${seededWorkspaces} workspaces with owners, teams and usage, 1 platform admin`);
+  console.log(
+    `✓ seeded 3 plans, ${seededWorkspaces} workspaces with owners, teams and usage, 1 platform admin`,
+  );
   console.log('✓ seeded 3 devices and 12 platform actions for the demo operator');
 
   if (hasAuth && !authProblem) {

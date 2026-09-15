@@ -247,11 +247,11 @@ export function RulesTab({
           }
           footer={
             <ReasonNote>
-              An override belongs to the workspace that set it, so adding, editing or resetting
-              one is a change made inside their console through a logged support session. What
-              the platform does own is the floor every workspace inherits, and that is editable
-              &mdash; at <span style={{ color: 'var(--text-secondary)' }}>Platform &rsaquo; AI
-              Rules</span>, where a change lands on all {workspaceCount} at once.
+              An override belongs to the workspace that set it, so adding, editing or resetting one
+              is a change made inside their console through a logged support session. What the
+              platform does own is the floor every workspace inherits, and that is editable &mdash;
+              at <span style={{ color: 'var(--text-secondary)' }}>Platform &rsaquo; AI Rules</span>,
+              where a change lands on all {workspaceCount} at once.
             </ReasonNote>
           }
         >
@@ -289,7 +289,11 @@ export function RulesTab({
                       disabled
                       title="A workspace’s own AI rules are edited in their console. The platform sets the floor, at /platform/ai-rules."
                       className="inline-flex items-center gap-1 rounded p-1 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-                      style={{ opacity: 0.45, cursor: 'not-allowed', color: 'var(--text-secondary)' }}
+                      style={{
+                        opacity: 0.45,
+                        cursor: 'not-allowed',
+                        color: 'var(--text-secondary)',
+                      }}
                     >
                       <IconPencil size={12} stroke={1.5} />
                       Edit

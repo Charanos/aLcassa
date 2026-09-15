@@ -49,7 +49,8 @@ export function VersionRail({
             key={v.id}
             className="flex gap-3 py-2.5"
             style={{
-              borderBottom: i === versions.length - 1 ? undefined : '1px solid var(--border-subtle)',
+              borderBottom:
+                i === versions.length - 1 ? undefined : '1px solid var(--border-subtle)',
             }}
           >
             <span
@@ -117,9 +118,9 @@ export function VersionRail({
           rather than one, which is a second query and a second shape — real
           work rather than a control to switch on.
         */}
-        Nothing is ever overwritten, so restoring an earlier version is a pointer move and is
-        itself reversible. Comparing two versions side by side is not built; the reader fetches
-        only the published set today.
+        Nothing is ever overwritten, so restoring an earlier version is a pointer move and is itself
+        reversible. Comparing two versions side by side is not built; the reader fetches only the
+        published set today.
       </p>
     </Panel>
   );

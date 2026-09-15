@@ -1,9 +1,4 @@
-import {
-  IconRocket,
-  IconBolt,
-  IconBox,
-  type Icon as TablerIcon,
-} from '@tabler/icons-react';
+import { IconRocket, IconBolt, IconBox, type Icon as TablerIcon } from '@tabler/icons-react';
 import { AgeingChart, MrrChart, PlanMixChart } from '../Charts';
 import { Panel, SectionHeading } from '../Surface';
 import { BandLink } from './shared';
@@ -61,32 +56,40 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
           <ul className="mt-5 grid border-t border-[var(--border-subtle)]/40 pt-2">
             {revenue.planMix.map((slice, i) => {
               const Icon = PLAN_ICON[slice.name] ?? IconBox;
-              const accentColor = i === 0 ? 'var(--text-primary)' : i === 1 ? 'var(--blue-500)' : 'var(--text-disabled)';
-              
+              const accentColor =
+                i === 0
+                  ? 'var(--text-primary)'
+                  : i === 1
+                    ? 'var(--blue-500)'
+                    : 'var(--text-disabled)';
+
               return (
-              <li 
-                key={slice.name} 
-                className="group relative flex items-baseline justify-between gap-3 px-2 py-2.5 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
-              >
-                <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-[var(--border-subtle)]/40 to-transparent group-last:hidden" />
-                <span
-                  className="flex items-center gap-2 font-ui text-[12.5px] font-medium transition-colors duration-300 group-hover:text-[var(--text-primary)]"
-                  style={{ color: 'var(--text-secondary)' }}
+                <li
+                  key={slice.name}
+                  className="group relative flex items-baseline justify-between gap-3 px-2 py-2.5 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
                 >
-                  <Icon size={14} stroke={1.5} style={{ color: accentColor }} />
-                  {slice.name}
-                </span>
-                <span
-                  className="font-mono text-[12.5px] font-medium tracking-[0.02em] transition-colors duration-300 group-hover:text-[var(--blue-500)]"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  <span className="mr-1 text-[10px] tracking-[0.08em] text-[var(--text-tertiary)] uppercase">
-                    {revenue.currency}
+                  <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-[var(--border-subtle)]/40 to-transparent group-last:hidden" />
+                  <span
+                    className="font-ui flex items-center gap-2 text-[12.5px] font-medium transition-colors duration-300 group-hover:text-[var(--text-primary)]"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    <Icon size={14} stroke={1.5} style={{ color: accentColor }} />
+                    {slice.name}
                   </span>
-                  {slice.display} <span className="mx-1 font-normal text-[var(--text-tertiary)]">·</span> {slice.tenants}
-                </span>
-              </li>
-            )})}
+                  <span
+                    className="font-mono text-[12.5px] font-medium tracking-[0.02em] transition-colors duration-300 group-hover:text-[var(--blue-500)]"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    <span className="mr-1 text-[10px] tracking-[0.08em] text-[var(--text-tertiary)] uppercase">
+                      {revenue.currency}
+                    </span>
+                    {slice.display}{' '}
+                    <span className="mx-1 font-normal text-[var(--text-tertiary)]">·</span>{' '}
+                    {slice.tenants}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </Panel>
       </div>
@@ -128,20 +131,22 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
         </Panel>
 
         <Panel title="Ageing" variant="elevated" action={<Unit currency={revenue.currency} />}>
-          <div className="flex flex-col h-full pt-1">
-            <div className="w-full mb-6">
-              <p 
-                className="font-ui text-[13px] leading-relaxed text-pretty" 
+          <div className="flex h-full flex-col pt-1">
+            <div className="mb-6 w-full">
+              <p
+                className="font-ui text-[13px] leading-relaxed text-pretty"
                 style={{ color: 'var(--text-secondary)' }}
               >
                 Grouped by how far past due each invoice is. Debt gets harder to collect the further
                 right it sits, so the{' '}
-                <span className="font-medium" style={{ color: 'var(--danger-fg)' }}>90+ days</span>{' '}
+                <span className="font-medium" style={{ color: 'var(--danger-fg)' }}>
+                  90+ days
+                </span>{' '}
                 bucket is the one to work first — and the one most likely to be written off rather
                 than recovered.
               </p>
             </div>
-            <div className="flex-1 min-w-0 min-h-0 relative">
+            <div className="relative min-h-0 min-w-0 flex-1">
               <AgeingChart data={revenue.ageing} />
             </div>
           </div>
@@ -150,7 +155,6 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
     </section>
   );
 }
-
 
 /**
  * The currency a panel's chart is plotted in.

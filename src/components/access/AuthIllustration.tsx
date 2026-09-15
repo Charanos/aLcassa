@@ -37,14 +37,18 @@ export function AuthIllustration() {
      */
     <div
       aria-hidden
-      className="relative w-full max-w-[900px] aspect-[5/3] mx-16 select-none pointer-events-none"
+      className="pointer-events-none relative mx-16 aspect-[5/3] w-full max-w-[900px] select-none"
     >
-      
       {/* ── Subtle Ambient Lighting ── */}
-      <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--blue-500)]/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="pointer-events-none absolute top-[50%] left-[50%] h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--blue-500)]/5 blur-[120px]" />
 
       {/* ── Precision SVG Connection Lines (1000x600 Grid) ── */}
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" style={{ zIndex: 0 }}>
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 1000 600"
+        preserveAspectRatio="xMidYMid meet"
+        style={{ zIndex: 0 }}
+      >
         <defs>
           <linearGradient id="flow-wa" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#25D366" stopOpacity="0.8" />
@@ -66,7 +70,7 @@ export function AuthIllustration() {
             <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#94A3B8" stopOpacity="0.1" />
           </linearGradient>
-          
+
           <filter id="orb-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
@@ -82,7 +86,7 @@ export function AuthIllustration() {
           <path id="path-ig" d="M 200 240 C 280 240, 290 300, 370 300" stroke="#94A3B8" />
           <path id="path-ms" d="M 200 360 C 280 360, 290 300, 370 300" stroke="#94A3B8" />
           <path id="path-web" d="M 200 480 C 280 480, 290 300, 370 300" stroke="#94A3B8" />
-          
+
           <path id="path-out-1" d="M 630 300 C 710 300, 690 210, 770 210" stroke="#94A3B8" />
           <path id="path-out-2" d="M 630 300 C 710 300, 690 390, 770 390" stroke="#94A3B8" />
         </g>
@@ -100,75 +104,109 @@ export function AuthIllustration() {
         {/* Animated Data Orbs */}
         <g filter="url(#orb-glow)">
           <circle r="3" fill="#25D366">
-            <animateMotion dur="4s" repeatCount="indefinite" path="M 200 120 C 280 120, 290 300, 370 300" />
+            <animateMotion
+              dur="4s"
+              repeatCount="indefinite"
+              path="M 200 120 C 280 120, 290 300, 370 300"
+            />
           </circle>
           <circle r="3" fill="#E1306C">
-            <animateMotion dur="4s" begin="1s" repeatCount="indefinite" path="M 200 240 C 280 240, 290 300, 370 300" />
+            <animateMotion
+              dur="4s"
+              begin="1s"
+              repeatCount="indefinite"
+              path="M 200 240 C 280 240, 290 300, 370 300"
+            />
           </circle>
           <circle r="3" fill="#00B2FF">
-            <animateMotion dur="4s" begin="2s" repeatCount="indefinite" path="M 200 360 C 280 360, 290 300, 370 300" />
+            <animateMotion
+              dur="4s"
+              begin="2s"
+              repeatCount="indefinite"
+              path="M 200 360 C 280 360, 290 300, 370 300"
+            />
           </circle>
           <circle r="3" fill="#F59E0B">
-            <animateMotion dur="4s" begin="3s" repeatCount="indefinite" path="M 200 480 C 280 480, 290 300, 370 300" />
+            <animateMotion
+              dur="4s"
+              begin="3s"
+              repeatCount="indefinite"
+              path="M 200 480 C 280 480, 290 300, 370 300"
+            />
           </circle>
-          
+
           <circle r="3.5" fill="#3B82F6">
-            <animateMotion dur="3s" begin="0.5s" repeatCount="indefinite" path="M 630 300 C 710 300, 690 210, 770 210" />
+            <animateMotion
+              dur="3s"
+              begin="0.5s"
+              repeatCount="indefinite"
+              path="M 630 300 C 710 300, 690 210, 770 210"
+            />
           </circle>
           <circle r="3.5" fill="#3B82F6">
-            <animateMotion dur="3s" begin="2s" repeatCount="indefinite" path="M 630 300 C 710 300, 690 390, 770 390" />
+            <animateMotion
+              dur="3s"
+              begin="2s"
+              repeatCount="indefinite"
+              path="M 630 300 C 710 300, 690 390, 770 390"
+            />
           </circle>
         </g>
       </svg>
 
       {/* ── Absolute HTML Nodes (Coordinates matched to 1000x600 SVG) ── */}
       <div className="absolute inset-0 h-full w-full" style={{ zIndex: 10 }}>
-        
         {/* INBOUND CHANNELS (Left) */}
         {/* Placed precisely at left 5% (50px on 1000px width), with 150px width -> Ends at 200px */}
-        <div className="absolute top-[20%] left-[5%] -translate-y-1/2 w-[150px]">
+        <div className="absolute top-[20%] left-[5%] w-[150px] -translate-y-1/2">
           <ChannelCard title="WhatsApp" icon={IconBrandWhatsappFilled} brand="#25D366" />
         </div>
-        <div className="absolute top-[40%] left-[5%] -translate-y-1/2 w-[150px]">
+        <div className="absolute top-[40%] left-[5%] w-[150px] -translate-y-1/2">
           <ChannelCard title="Instagram" icon={IconBrandInstagram} brand="#E1306C" />
         </div>
-        <div className="absolute top-[60%] left-[5%] -translate-y-1/2 w-[150px]">
+        <div className="absolute top-[60%] left-[5%] w-[150px] -translate-y-1/2">
           <ChannelCard title="Messenger" icon={IconBrandMessengerFilled} brand="#00B2FF" />
         </div>
-        <div className="absolute top-[80%] left-[5%] -translate-y-1/2 w-[150px]">
+        <div className="absolute top-[80%] left-[5%] w-[150px] -translate-y-1/2">
           <ChannelCard title="Web Chat" icon={IconMessageCircle} brand="var(--amber-500)" />
         </div>
 
         {/* WORKSPACE HUB (Center) */}
         {/* Sleek, horizontally-proportioned card. Center left is at 500px, width 240px -> 380px to 620px */}
-        <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[240px]">
-          <div className="relative rounded-xl bg-[#0A0F1A] p-3.5 text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-white/10 backdrop-blur-3xl transition-transform hover:scale-[1.02] duration-700">
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
-            
-            <div className="relative flex items-center justify-between mb-4">
+        <div className="absolute top-[50%] left-[50%] w-[240px] -translate-x-1/2 -translate-y-1/2">
+          <div className="relative rounded-xl bg-[#0A0F1A] p-3.5 text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-white/10 backdrop-blur-3xl transition-transform duration-700 hover:scale-[1.02]">
+            <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.04] to-transparent" />
+
+            <div className="relative mb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* Sleek, minimal icon box */}
-                <div className="flex items-center justify-center size-9 shrink-0 rounded-lg bg-[linear-gradient(135deg,#3B82F6_0%,#1D4ED8_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-[#0A0F1A]">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#3B82F6_0%,#1D4ED8_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-[#0A0F1A]">
                   <IconLock size={16} stroke={2} className="text-white drop-shadow-sm" />
                 </div>
                 <div>
-                  <span className="block font-sans text-[13px] font-medium tracking-tight text-white leading-none mb-1 whitespace-nowrap">Your Workspace</span>
-                  <span className="block font-sans text-[11px] text-[var(--blue-200)]/50 tracking-tight font-medium leading-none whitespace-nowrap">Enterprise Console</span>
+                  <span className="mb-1 block font-sans text-[13px] leading-none font-medium tracking-tight whitespace-nowrap text-white">
+                    Your Workspace
+                  </span>
+                  <span className="block font-sans text-[11px] leading-none font-medium tracking-tight whitespace-nowrap text-[var(--blue-200)]/50">
+                    Enterprise Console
+                  </span>
                 </div>
               </div>
-              <IconServerCog size={16} stroke={1.5} className="text-white/20 shrink-0" />
+              <IconServerCog size={16} stroke={1.5} className="shrink-0 text-white/20" />
             </div>
-            
+
             {/* Extremely subtle divider */}
-            <div className="relative h-[1px] w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-3" />
+            <div className="relative mb-3 h-[1px] w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
             <div className="relative">
               <div className="flex items-center justify-center gap-2">
-                <div className="relative flex items-center justify-center size-2">
-                  <span className="absolute inset-[-2px] rounded-full bg-[var(--success-fg)]/40 animate-pulse"></span>
+                <div className="relative flex size-2 items-center justify-center">
+                  <span className="absolute inset-[-2px] animate-pulse rounded-full bg-[var(--success-fg)]/40"></span>
                   <span className="absolute size-1.5 rounded-full bg-[var(--success-fg)]"></span>
                 </div>
-                <span className="font-mono text-[9.5px] font-medium tracking-[0.15em] uppercase text-[var(--success-fg)]/90 whitespace-nowrap">Live & Isolated</span>
+                <span className="font-mono text-[9.5px] font-medium tracking-[0.15em] whitespace-nowrap text-[var(--success-fg)]/90 uppercase">
+                  Live & Isolated
+                </span>
               </div>
             </div>
           </div>
@@ -176,14 +214,23 @@ export function AuthIllustration() {
 
         {/* OUTBOUND FEATURES (Right) */}
         {/* Placed precisely at right 5% (50px on 1000px width), with 180px width -> Left edge is 770px */}
-        <div className="absolute top-[35%] right-[5%] -translate-y-1/2 w-[180px]">
-          <FeatureCard title="Assistant Rules" subtitle="Live in under 5s" icon={IconActivity} tone="danger" />
+        <div className="absolute top-[35%] right-[5%] w-[180px] -translate-y-1/2">
+          <FeatureCard
+            title="Assistant Rules"
+            subtitle="Live in under 5s"
+            icon={IconActivity}
+            tone="danger"
+          />
         </div>
 
-        <div className="absolute top-[65%] right-[5%] -translate-y-1/2 w-[180px]">
-          <FeatureCard title="API Credentials" subtitle="Shown once" icon={IconKey} tone="warning" />
+        <div className="absolute top-[65%] right-[5%] w-[180px] -translate-y-1/2">
+          <FeatureCard
+            title="API Credentials"
+            subtitle="Shown once"
+            icon={IconKey}
+            tone="warning"
+          />
         </div>
-
       </div>
     </div>
   );

@@ -197,14 +197,13 @@ export default async function WorkspaceDetailPage({
       {/* Tab Contents */}
       {active === 'overview' ? <OverviewTab w={w} /> : null}
       {active === 'billing' ? (
-        <BillingTab
-          w={w}
-          plans={catalogue.plans.map((p) => ({ code: p.key, name: p.name }))}
-        />
+        <BillingTab w={w} plans={catalogue.plans.map((p) => ({ code: p.key, name: p.name }))} />
       ) : null}
       {active === 'staff' ? <StaffTab w={w} staff={await getWorkspaceStaff(w.slug)} /> : null}
       {active === 'channels' ? <ChannelsTab channels={await getWorkspaceChannels(w.slug)} /> : null}
-      {active === 'rules' ? <RulesTab rules={await getWorkspaceRules(w.slug)} workspaceCount={PORTFOLIO_COUNT} /> : null}
+      {active === 'rules' ? (
+        <RulesTab rules={await getWorkspaceRules(w.slug)} workspaceCount={PORTFOLIO_COUNT} />
+      ) : null}
       {active === 'audit' ? <ActivityTab activity={await getWorkspaceActivity(w.slug)} /> : null}
     </ConsolePage>
   );

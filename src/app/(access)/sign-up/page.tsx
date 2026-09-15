@@ -40,7 +40,7 @@ export default async function SignUpPage({
           Already have a workspace?{' '}
           <Link
             href="/sign-in"
-            className="font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] underline underline-offset-4 transition-colors"
+            className="font-medium text-[var(--blue-600)] underline underline-offset-4 transition-colors hover:text-[var(--blue-700)]"
           >
             Sign in
           </Link>
@@ -72,7 +72,7 @@ export default async function SignUpPage({
         ) : null}
 
         {/* Row 1: Name + Email */}
-        <div className="grid grid-cols-2 gap-x-4 mb-4">
+        <div className="mb-4 grid grid-cols-2 gap-x-4">
           <Field
             label="Your full name"
             name="fullName"
@@ -101,26 +101,24 @@ export default async function SignUpPage({
         </div>
 
         {/* Trust signals */}
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mb-5">
-          {[
-            'Starts on a free trial',
-            'No card required',
-            'You are the workspace owner',
-          ].map((line) => (
-            <span
-              key={line}
-              className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--text-secondary)]"
-            >
-              <IconCheck
-                size={12}
-                stroke={3}
-                aria-hidden
-                className="shrink-0"
-                style={{ color: 'var(--success-fg)' }}
-              />
-              {line}
-            </span>
-          ))}
+        <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-1.5">
+          {['Starts on a free trial', 'No card required', 'You are the workspace owner'].map(
+            (line) => (
+              <span
+                key={line}
+                className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--text-secondary)]"
+              >
+                <IconCheck
+                  size={12}
+                  stroke={3}
+                  aria-hidden
+                  className="shrink-0"
+                  style={{ color: 'var(--success-fg)' }}
+                />
+                {line}
+              </span>
+            ),
+          )}
         </div>
 
         {/* CTA */}
@@ -128,24 +126,24 @@ export default async function SignUpPage({
           type="submit"
           variant="accent"
           size="lg"
-          className="w-full gap-2 font-medium shadow-sm hover:shadow-md cursor-pointer"
+          className="w-full cursor-pointer gap-2 font-medium shadow-sm hover:shadow-md"
         >
           <span>Create workspace</span>
           <IconArrowRight size={15} />
         </Button>
 
-        <p className="text-center text-[11px] leading-relaxed text-[var(--text-tertiary)] mt-3">
+        <p className="mt-3 text-center text-[11px] leading-relaxed text-[var(--text-tertiary)]">
           By continuing, you agree to our{' '}
           <Link
             href="/legal/terms"
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-2 transition-colors"
+            className="text-[var(--text-secondary)] underline underline-offset-2 transition-colors hover:text-[var(--text-primary)]"
           >
             Terms of Service
           </Link>{' '}
           and{' '}
           <Link
             href="/legal/privacy"
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-2 transition-colors"
+            className="text-[var(--text-secondary)] underline underline-offset-2 transition-colors hover:text-[var(--text-primary)]"
           >
             Privacy Notice
           </Link>

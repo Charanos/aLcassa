@@ -82,132 +82,137 @@ export function BlastRadiusDialog({ change }: { change: PlansModel['pendingChang
             `!important` — either cancels translate-based centring, the second
             one permanently. See `ProvisionWorkspaceDialog`. */}
         <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
-        <Dialog.Content
-          className="surface-glass-strong pointer-events-auto w-[560px] max-w-[92vw] overflow-hidden rounded-overlay"
-          style={{ animation: 'panel-in var(--duration-base) var(--ease-out)' }}
-        >
-          <div className="p-6">
-            <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-              Confirm plan change
-            </p>
-            <Dialog.Title asChild>
-              <h2 className="display display-md mt-2.5" style={{ color: 'var(--text-primary)' }}>
-                This affects {change.affected} workspaces
-              </h2>
-            </Dialog.Title>
-            <Dialog.Description asChild>
-              <p className="t-body mt-3" style={{ color: 'var(--text-secondary)' }}>
-                {change.plan} · {change.field},{' '}
-                <span className="numeric" style={{ color: 'var(--text-primary)' }}>
-                  {change.from} → {change.to}
-                </span>
-                .
-              </p>
-            </Dialog.Description>
-
-            {change.breaching.length > 0 ? (
-              <div
-                className="mt-4 rounded-panel p-4"
-                style={{
-                  border: '1px solid var(--warning-fg)',
-                  background: 'var(--warning-bg)',
-                }}
-              >
-                <p
-                  className="t-compact mb-2.5"
-                  style={{ color: 'var(--text-primary)', fontWeight: 500 }}
-                >
-                  {change.breaching.length === 1
-                    ? 'One workspace is already above the new limit:'
-                    : `${change.breaching.length} workspaces are already above the new limit:`}
-                </p>
-                <div className="grid gap-2">
-                  {change.breaching.map((b) => (
-                    <span
-                      key={b.name}
-                      className="t-compact flex items-baseline justify-between gap-3"
-                    >
-                      <span>{b.name}</span>
-                      <span className="numeric shrink-0">{b.used}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            <p className="t-compact mt-3.5" style={{ color: 'var(--text-primary)' }}>
-              Their ingestion would begin rejecting <em>immediately</em>. Applying at the start of
-              the next billing period gives them time to be told.
-            </p>
-
-            {error ? (
-              <p
-                role="alert"
-                className="t-compact mt-3 flex items-start gap-1.5"
-                style={{ color: 'var(--danger-fg)' }}
-              >
-                <IconAlertTriangle size={14} stroke={1.5} className="mt-px shrink-0" aria-hidden />
-                {error}
-              </p>
-            ) : null}
-          </div>
-
-          <div
-            className="flex flex-wrap items-center gap-2.5 border-t px-6 py-3.5"
-            style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
+          <Dialog.Content
+            className="surface-glass-strong pointer-events-auto w-[560px] max-w-[92vw] overflow-hidden rounded-overlay"
+            style={{ animation: 'panel-in var(--duration-base) var(--ease-out)' }}
           >
-            <span className="t-caption numeric flex-1" style={{ color: 'var(--text-tertiary)' }}>
-              plan.entitlement_change
-            </span>
-            <Dialog.Close asChild>
+            <div className="p-6">
+              <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+                Confirm plan change
+              </p>
+              <Dialog.Title asChild>
+                <h2 className="display display-md mt-2.5" style={{ color: 'var(--text-primary)' }}>
+                  This affects {change.affected} workspaces
+                </h2>
+              </Dialog.Title>
+              <Dialog.Description asChild>
+                <p className="t-body mt-3" style={{ color: 'var(--text-secondary)' }}>
+                  {change.plan} · {change.field},{' '}
+                  <span className="numeric" style={{ color: 'var(--text-primary)' }}>
+                    {change.from} → {change.to}
+                  </span>
+                  .
+                </p>
+              </Dialog.Description>
+
+              {change.breaching.length > 0 ? (
+                <div
+                  className="mt-4 rounded-panel p-4"
+                  style={{
+                    border: '1px solid var(--warning-fg)',
+                    background: 'var(--warning-bg)',
+                  }}
+                >
+                  <p
+                    className="t-compact mb-2.5"
+                    style={{ color: 'var(--text-primary)', fontWeight: 500 }}
+                  >
+                    {change.breaching.length === 1
+                      ? 'One workspace is already above the new limit:'
+                      : `${change.breaching.length} workspaces are already above the new limit:`}
+                  </p>
+                  <div className="grid gap-2">
+                    {change.breaching.map((b) => (
+                      <span
+                        key={b.name}
+                        className="t-compact flex items-baseline justify-between gap-3"
+                      >
+                        <span>{b.name}</span>
+                        <span className="numeric shrink-0">{b.used}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              <p className="t-compact mt-3.5" style={{ color: 'var(--text-primary)' }}>
+                Their ingestion would begin rejecting <em>immediately</em>. Applying at the start of
+                the next billing period gives them time to be told.
+              </p>
+
+              {error ? (
+                <p
+                  role="alert"
+                  className="t-compact mt-3 flex items-start gap-1.5"
+                  style={{ color: 'var(--danger-fg)' }}
+                >
+                  <IconAlertTriangle
+                    size={14}
+                    stroke={1.5}
+                    className="mt-px shrink-0"
+                    aria-hidden
+                  />
+                  {error}
+                </p>
+              ) : null}
+            </div>
+
+            <div
+              className="flex flex-wrap items-center gap-2.5 border-t px-6 py-3.5"
+              style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
+            >
+              <span className="t-caption numeric flex-1" style={{ color: 'var(--text-tertiary)' }}>
+                plan.entitlement_change
+              </span>
+              <Dialog.Close asChild>
+                <button
+                  type="button"
+                  disabled={pending}
+                  className="t-compact rounded-panel px-3.5"
+                  style={{
+                    height: 36,
+                    border: '1px solid var(--border-strong)',
+                    background: 'var(--surface-raised)',
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  Cancel
+                </button>
+              </Dialog.Close>
+              {/* Forcing it now is available and deliberately not the primary. */}
               <button
                 type="button"
+                onClick={() => submit('now')}
                 disabled={pending}
                 className="t-compact rounded-panel px-3.5"
                 style={{
                   height: 36,
                   border: '1px solid var(--border-strong)',
                   background: 'var(--surface-raised)',
-                  color: 'var(--text-primary)',
+                  color: 'var(--danger-fg)',
+                  opacity: pending ? 0.7 : 1,
                 }}
               >
-                Cancel
+                Apply now
               </button>
-            </Dialog.Close>
-            {/* Forcing it now is available and deliberately not the primary. */}
-            <button
-              type="button"
-              onClick={() => submit('now')}
-              disabled={pending}
-              className="t-compact rounded-panel px-3.5"
-              style={{
-                height: 36,
-                border: '1px solid var(--border-strong)',
-                background: 'var(--surface-raised)',
-                color: 'var(--danger-fg)',
-                opacity: pending ? 0.7 : 1,
-              }}
-            >
-              Apply now
-            </button>
-            <button
-              type="button"
-              onClick={() => submit('next_period')}
-              disabled={pending}
-              className="t-compact rounded-panel px-4"
-              style={{
-                height: 36,
-                border: 'none',
-                background: 'var(--blue-500)',
-                color: 'var(--text-inverse)',
-                fontWeight: 500,
-                opacity: pending ? 0.7 : 1,
-              }}
-            >
-              {pending ? 'Applying…' : 'Apply next period'}
-            </button>
-          </div>
-        </Dialog.Content>
+              <button
+                type="button"
+                onClick={() => submit('next_period')}
+                disabled={pending}
+                className="t-compact rounded-panel px-4"
+                style={{
+                  height: 36,
+                  border: 'none',
+                  background: 'var(--blue-500)',
+                  color: 'var(--text-inverse)',
+                  fontWeight: 500,
+                  opacity: pending ? 0.7 : 1,
+                }}
+              >
+                {pending ? 'Applying…' : 'Apply next period'}
+              </button>
+            </div>
+          </Dialog.Content>
         </div>
       </Dialog.Portal>
     </Dialog.Root>

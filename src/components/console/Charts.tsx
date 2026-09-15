@@ -112,8 +112,16 @@ function Panel({ label, value, t }: { label: string; value: string; t: Tokens })
         boxShadow: '0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.1)',
       }}
     >
-      <div className="font-mono text-[10.5px] font-medium tracking-wide uppercase" style={{ color: t.muted }}>{label}</div>
-      <div className="font-mono text-[13.5px] font-medium tracking-[-0.01em]" style={{ color: t.text }}>
+      <div
+        className="font-mono text-[10.5px] font-medium tracking-wide uppercase"
+        style={{ color: t.muted }}
+      >
+        {label}
+      </div>
+      <div
+        className="font-mono text-[13.5px] font-medium tracking-[-0.01em]"
+        style={{ color: t.text }}
+      >
         {value}
       </div>
     </div>
@@ -141,7 +149,10 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
               <stop offset="100%" stopColor={t.surface} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid stroke="color-mix(in srgb, var(--border-subtle) 40%, transparent)" vertical={false} />
+          <CartesianGrid
+            stroke="color-mix(in srgb, var(--border-subtle) 40%, transparent)"
+            vertical={false}
+          />
           <XAxis
             dataKey="month"
             tick={{ ...AXIS, fill: t.muted }}
@@ -286,29 +297,29 @@ export function LatencyChart({
               );
             }}
           />
-          <Line 
-            type="monotone" 
-            dataKey="p99" 
-            stroke={t.ink300} 
-            strokeWidth={1.5} 
-            dot={false} 
+          <Line
+            type="monotone"
+            dataKey="p99"
+            stroke={t.ink300}
+            strokeWidth={1.5}
+            dot={false}
             style={{ filter: 'drop-shadow(0px 3px 6px rgba(0,0,0,0.1))' }}
           />
-          <Line 
-            type="monotone" 
-            dataKey="p95" 
-            stroke={t.blue500} 
-            strokeWidth={2.5} 
-            dot={false} 
+          <Line
+            type="monotone"
+            dataKey="p95"
+            stroke={t.blue500}
+            strokeWidth={2.5}
+            dot={false}
             style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.15))' }}
           />
-          <Line 
-            type="monotone" 
-            dataKey="p50" 
-            stroke={t.blue200} 
-            strokeWidth={1.5} 
-            strokeDasharray="4 4" 
-            dot={false} 
+          <Line
+            type="monotone"
+            dataKey="p50"
+            stroke={t.blue200}
+            strokeWidth={1.5}
+            strokeDasharray="4 4"
+            dot={false}
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -492,7 +503,7 @@ export function StatusMixChart({
   };
 
   return (
-    <div className="w-full h-full min-h-[180px]">
+    <div className="h-full min-h-[180px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -565,8 +576,7 @@ export function GrowthChart({
             content={({ active, payload, label }) => {
               if (!active || !payload?.length) return null;
               const row = payload[0]?.payload as
-                | { opened: number; closed: number; net: number }
-                | undefined;
+                { opened: number; closed: number; net: number } | undefined;
               if (!row) return null;
               return (
                 <Panel
@@ -726,11 +736,7 @@ function Swatch({ colour, children }: { colour: string; children: React.ReactNod
       className="inline-flex items-center gap-1.5 whitespace-nowrap"
       style={{ font: '400 11.5px/1 var(--font-ui)', color: 'var(--text-secondary)' }}
     >
-      <span
-        aria-hidden
-        className="size-2 shrink-0 rounded-[2px]"
-        style={{ background: colour }}
-      />
+      <span aria-hidden className="size-2 shrink-0 rounded-[2px]" style={{ background: colour }} />
       {children}
     </span>
   );
@@ -787,91 +793,95 @@ export function MovementChart({
     <div className="absolute inset-0 flex flex-col">
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={series} margin={{ top: 8, right: 4, bottom: 0, left: -8 }} stackOffset="sign">
-          <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
-          <XAxis
-            dataKey="month"
-            tick={{ ...AXIS, fill: t.muted }}
-            tickLine={false}
-            axisLine={{ stroke: t.rule }}
-          />
-          <YAxis
-            tick={{ ...AXIS, fill: t.muted }}
-            tickLine={false}
-            axisLine={false}
-            width={46}
-            tickFormatter={fmt}
-          />
-          <Tooltip
-            cursor={{ fill: `color-mix(in srgb, ${t.ink300} 18%, transparent)` }}
-            content={({ active, payload, label }) => {
-              if (!active || !payload?.length) return null;
-              const row = payload[0]?.payload as (typeof series)[number] | undefined;
-              if (!row) return null;
-              return (
-                <div
-                  className="rounded-chip px-3 py-2"
-                  style={{
-                    background: `color-mix(in srgb, ${t.surface} 88%, transparent)`,
-                    backdropFilter: 'blur(12px)',
-                    border: `1px solid ${t.rule}`,
-                    boxShadow: 'var(--shadow-md)',
-                  }}
-                >
-                  <div style={{ font: '400 11px/1.4 var(--font-mono)', color: t.muted }}>
-                    {String(label)}
-                  </div>
+          <ComposedChart
+            data={series}
+            margin={{ top: 8, right: 4, bottom: 0, left: -8 }}
+            stackOffset="sign"
+          >
+            <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
+            <XAxis
+              dataKey="month"
+              tick={{ ...AXIS, fill: t.muted }}
+              tickLine={false}
+              axisLine={{ stroke: t.rule }}
+            />
+            <YAxis
+              tick={{ ...AXIS, fill: t.muted }}
+              tickLine={false}
+              axisLine={false}
+              width={46}
+              tickFormatter={fmt}
+            />
+            <Tooltip
+              cursor={{ fill: `color-mix(in srgb, ${t.ink300} 18%, transparent)` }}
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                const row = payload[0]?.payload as (typeof series)[number] | undefined;
+                if (!row) return null;
+                return (
                   <div
-                    className="numeric mt-0.5"
+                    className="rounded-chip px-3 py-2"
                     style={{
-                      fontSize: 'var(--text-sm)',
-                      color: row.net >= 0 ? t.success : t.danger,
+                      background: `color-mix(in srgb, ${t.surface} 88%, transparent)`,
+                      backdropFilter: 'blur(12px)',
+                      border: `1px solid ${t.rule}`,
+                      boxShadow: 'var(--shadow-md)',
                     }}
                   >
-                    {row.net >= 0 ? '+' : '−'}
-                    {Math.abs(Math.round(row.net / 1000))}k net
+                    <div style={{ font: '400 11px/1.4 var(--font-mono)', color: t.muted }}>
+                      {String(label)}
+                    </div>
+                    <div
+                      className="numeric mt-0.5"
+                      style={{
+                        fontSize: 'var(--text-sm)',
+                        color: row.net >= 0 ? t.success : t.danger,
+                      }}
+                    >
+                      {row.net >= 0 ? '+' : '−'}
+                      {Math.abs(Math.round(row.net / 1000))}k net
+                    </div>
+                    <div
+                      className="mt-1 grid gap-0.5"
+                      style={{ font: '400 11px/1.5 var(--font-mono)', color: t.muted }}
+                    >
+                      <span>new {fmt(row.gained)}</span>
+                      <span>expansion {fmt(row.expanded)}</span>
+                      <span>contraction {fmt(row.contracted)}</span>
+                      <span>churn {fmt(row.churned)}</span>
+                    </div>
                   </div>
-                  <div
-                    className="mt-1 grid gap-0.5"
-                    style={{ font: '400 11px/1.5 var(--font-mono)', color: t.muted }}
-                  >
-                    <span>new {fmt(row.gained)}</span>
-                    <span>expansion {fmt(row.expanded)}</span>
-                    <span>contraction {fmt(row.contracted)}</span>
-                    <span>churn {fmt(row.churned)}</span>
-                  </div>
-                </div>
-              );
-            }}
-          />
-          {/* The zero line, explicit. */}
-          <Line
-            type="linear"
-            dataKey={() => 0}
-            stroke={t.rule}
-            strokeWidth={1}
-            dot={false}
-            activeDot={false}
-            isAnimationActive={false}
-            legendType="none"
-          />
-          <Bar dataKey="gained" stackId="m" fill={t.blue500} radius={[2, 2, 0, 0]} />
-          <Bar dataKey="expanded" stackId="m" fill={t.blue200} radius={[0, 0, 0, 0]} />
-          <Bar dataKey="contracted" stackId="m" fill={t.ink300} radius={[0, 0, 0, 0]} />
-          <Bar dataKey="churned" stackId="m" fill={t.danger} radius={[0, 0, 2, 2]} />
-          <Line
-            type="monotone"
-            dataKey="net"
-            stroke={t.text}
-            strokeWidth={1.5}
-            dot={false}
-            isAnimationActive={false}
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+                );
+              }}
+            />
+            {/* The zero line, explicit. */}
+            <Line
+              type="linear"
+              dataKey={() => 0}
+              stroke={t.rule}
+              strokeWidth={1}
+              dot={false}
+              activeDot={false}
+              isAnimationActive={false}
+              legendType="none"
+            />
+            <Bar dataKey="gained" stackId="m" fill={t.blue500} radius={[2, 2, 0, 0]} />
+            <Bar dataKey="expanded" stackId="m" fill={t.blue200} radius={[0, 0, 0, 0]} />
+            <Bar dataKey="contracted" stackId="m" fill={t.ink300} radius={[0, 0, 0, 0]} />
+            <Bar dataKey="churned" stackId="m" fill={t.danger} radius={[0, 0, 2, 2]} />
+            <Line
+              type="monotone"
+              dataKey="net"
+              stroke={t.text}
+              strokeWidth={1.5}
+              dot={false}
+              isAnimationActive={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
       </div>
 
-      <div className="mt-2 shrink-0 flex flex-wrap items-center gap-x-4 gap-y-1.5 pb-1">
+      <div className="mt-2 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1.5 pb-1">
         <Swatch colour={t.blue500}>new</Swatch>
         <Swatch colour={t.blue200}>expansion</Swatch>
         <Swatch colour={t.ink300}>contraction</Swatch>

@@ -106,10 +106,7 @@ export default function ProjectTrackerPage() {
           {ENGAGEMENT.studio} · {ENGAGEMENT.phase}
         </p>
 
-        <h1
-          className="display display-lg tracking-tight"
-          style={{ color: 'var(--text-primary)' }}
-        >
+        <h1 className="display display-lg tracking-tight" style={{ color: 'var(--text-primary)' }}>
           aLcassa
         </h1>
 
@@ -118,8 +115,8 @@ export default function ProjectTrackerPage() {
           style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           A multi-tenant messaging platform for {ENGAGEMENT.client}, built by {ENGAGEMENT.team} over{' '}
-          {ENGAGEMENT.duration}. This page is the honest state of the work — updated as it
-          changes, not written for a meeting.
+          {ENGAGEMENT.duration}. This page is the honest state of the work — updated as it changes,
+          not written for a meeting.
         </p>
 
         {/*
@@ -260,10 +257,7 @@ export default function ProjectTrackerPage() {
       </Section>
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <footer
-        className="mt-16 border-t pt-8"
-        style={{ borderColor: 'var(--border-subtle)' }}
-      >
+      <footer className="mt-16 border-t pt-8" style={{ borderColor: 'var(--border-subtle)' }}>
         <p className="t-compact" style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}>
           Brief {ENGAGEMENT.briefVersion}, {ENGAGEMENT.briefDate}. Project lead{' '}
           {ENGAGEMENT.projectLead}, {ENGAGEMENT.studio}, {ENGAGEMENT.studioLocation}.

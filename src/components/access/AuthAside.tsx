@@ -14,4 +14,3 @@ export function TenantAside() {
 export function PlatformAside() {
   return null;
 }
-

@@ -32,15 +32,18 @@ export default function ConsoleError({
 
   return (
     <div className="mx-auto flex min-h-[60vh] flex-col items-center justify-center px-6">
-      <div 
+      <div
         className="w-full max-w-[440px] rounded-[24px] p-2"
-        style={{ background: 'var(--surface-sunken)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)' }}
+        style={{
+          background: 'var(--surface-sunken)',
+          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)',
+        }}
       >
-        <div 
-          className="flex flex-col items-center rounded-[16px] px-8 py-10 text-center relative overflow-hidden"
-          style={{ 
-            background: 'var(--surface-raised)', 
-            boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)' 
+        <div
+          className="relative flex flex-col items-center overflow-hidden rounded-[16px] px-8 py-10 text-center"
+          style={{
+            background: 'var(--surface-raised)',
+            boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
           }}
         >
           {/* Subtle glow at the top */}
@@ -49,10 +52,10 @@ export default function ConsoleError({
           <div className="relative mb-6">
             <span
               className="grid size-12 place-items-center rounded-2xl"
-              style={{ 
+              style={{
                 background: 'var(--surface-raised)',
                 border: '1px solid var(--border-subtle)',
-                boxShadow: '0 4px 12px -2px rgba(239, 68, 68, 0.15)' 
+                boxShadow: '0 4px 12px -2px rgba(239, 68, 68, 0.15)',
               }}
             >
               <IconAlertTriangle
@@ -68,23 +71,33 @@ export default function ConsoleError({
             This screen did not load.
           </h1>
 
-          <p className="relative mt-2.5 text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          <p
+            className="relative mt-2.5 text-[14px] leading-relaxed"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             We have logged it. Nobody caused this, and the rest of the console is unaffected.
           </p>
 
           {error.digest ? (
-            <p className="relative mt-5 flex items-center gap-2 text-[12px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+            <p
+              className="relative mt-5 flex items-center gap-2 text-[12px] font-medium"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
               Reference
               <code
                 className="rounded-md px-2 py-1 tracking-wider"
-                style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}
+                style={{
+                  background: 'var(--surface-sunken)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-subtle)',
+                }}
               >
                 {error.digest}
               </code>
             </p>
           ) : null}
 
-          <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3 w-full">
+          <div className="relative mt-8 flex w-full flex-wrap items-center justify-center gap-3">
             <Button variant="primary" size="md" onClick={reset}>
               Try again
             </Button>

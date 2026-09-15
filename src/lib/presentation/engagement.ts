@@ -135,8 +135,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note:
-      "Complete. The architecture, the data model, the security rules and the design system were agreed and documented before any product code was written, and every decision that was blocking has been answered. The channel adapter contract is written and awaits only a signature.",
+    note: 'Complete. The architecture, the data model, the security rules and the design system were agreed and documented before any product code was written, and every decision that was blocking has been answered. The channel adapter contract is written and awaits only a signature.',
   },
   {
     id: 'M1',
@@ -148,8 +147,7 @@ export const MILESTONES = [
     tranche: 2,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note:
-      "Complete. This is the milestone the whole product rests on: one customer cannot reach another customer’s data. That is now proven automatically rather than asserted — 280 tests run against the real database on every change, and all 280 pass. Building it against a live database found four faults in the test suite itself, each of which had been reporting success while proving less than it claimed. All four are fixed.",
+    note: 'Complete. This is the milestone the whole product rests on: one customer cannot reach another customer’s data. That is now proven automatically rather than asserted — 280 tests run against the real database on every change, and all 280 pass. Building it against a live database found four faults in the test suite itself, each of which had been reporting success while proving less than it claimed. All four are fixed.',
   },
   {
     id: 'M2',
@@ -160,8 +158,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note:
-      "Complete. Sign-in, sign-out, password recovery, invitations by email, role changes and ownership transfer all work end to end, through both the customer application and the admin console. A person only sees the parts of the product their role allows, because the server never sends the rest — not because the screen hides it.",
+    note: 'Complete. Sign-in, sign-out, password recovery, invitations by email, role changes and ownership transfer all work end to end, through both the customer application and the admin console. A person only sees the parts of the product their role allows, because the server never sends the rest — not because the screen hides it.',
   },
   {
     id: 'M3',
@@ -173,8 +170,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note:
-      "Complete. Plans, pricing and limits are live. A workspace that reaches its seat limit is stopped at the limit, and every plan change is recorded with who made it and why. A nightly check rebuilds each usage figure from its source and reports any disagreement rather than quietly correcting it — it found a real discrepancy on its first run.",
+    note: 'Complete. Plans, pricing and limits are live. A workspace that reaches its seat limit is stopped at the limit, and every plan change is recorded with who made it and why. A nightly check rebuilds each usage figure from its source and reports any disagreement rather than quietly correcting it — it found a real discrepancy on its first run.',
   },
   {
     id: 'M4',
@@ -185,8 +181,7 @@ export const MILESTONES = [
     tranche: 3,
     status: 'active' as MilestoneStatus,
     progress: 80,
-    note:
-      "The admin console is built and running on real data: workspaces, revenue, plans, assistant rules, the audit trail, support sessions and the operator’s own profile. Photo upload, device management and the activity record all work. What is left is a final pass over four screens to bring their editing controls to the same standard as the rest, and a design polish across the set.",
+    note: 'The admin console is built and running on real data: workspaces, revenue, plans, assistant rules, the audit trail, support sessions and the operator’s own profile. Photo upload, device management and the activity record all work. What is left is a final pass over four screens to bring their editing controls to the same standard as the rest, and a design polish across the set.',
   },
   {
     id: 'M5',
@@ -202,8 +197,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'upcoming' as MilestoneStatus,
     progress: 30,
-    note:
-      "Customer-facing settings: company profile, team management, and API credentials shown once and never again. The screens exist and the security work behind them is done; connecting the final controls follows the console pass.",
+    note: 'Customer-facing settings: company profile, team management, and API credentials shown once and never again. The screens exist and the security work behind them is done; connecting the final controls follows the console pass.',
   },
   {
     id: 'M4a',
@@ -215,8 +209,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 45,
-    note:
-      "Assistant rules — the instructions that shape how the AI replies — can be edited centrally and inherited by every workspace. The editing screens are built and the publishing path is written. This was previously blocked on a decision about how rules are structured; that decision is made and the work is moving again.",
+    note: 'Assistant rules — the instructions that shape how the AI replies — can be edited centrally and inherited by every workspace. The editing screens are built and the publishing path is written. This was previously blocked on a decision about how rules are structured; that decision is made and the work is moving again.',
   },
   {
     id: 'M6',
@@ -228,8 +221,7 @@ export const MILESTONES = [
     tranche: 4,
     status: 'upcoming' as MilestoneStatus,
     progress: 30,
-    note:
-      "Handover: documentation, a staging environment, and the 30-day support window. The documentation has been written continuously throughout rather than left to the end, so this milestone is largely assembly.",
+    note: 'Handover: documentation, a staging environment, and the 30-day support window. The documentation has been written continuously throughout rather than left to the end, so this milestone is largely assembly.',
   },
 ] as const;
 

@@ -43,8 +43,8 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
           {total === 0 ? (
             <NoWorkspaces />
           ) : (
-            <div className="flex flex-col h-full pt-1">
-              <div className="flex-1 min-w-0 min-h-0 relative">
+            <div className="flex h-full flex-col pt-1">
+              <div className="relative min-h-0 min-w-0 flex-1">
                 <StatusMixChart data={portfolio.statusMix} />
               </div>
               {/*
@@ -61,7 +61,7 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
 
         <Panel title="Opened against closed" variant="elevated">
           {hasGrowth ? (
-            <div className="flex-1 min-w-0 min-h-0 relative pt-2">
+            <div className="relative min-h-0 min-w-0 flex-1 pt-2">
               <GrowthChart data={portfolio.growth} />
             </div>
           ) : (
@@ -147,8 +147,7 @@ function NoGrowthYet() {
         className="t-caption"
         style={{ color: 'var(--text-secondary)', maxWidth: '34ch', textWrap: 'pretty' }}
       >
-        Opened against closed needs a month of workspaces behind it before the shape means
-        anything.
+        Opened against closed needs a month of workspaces behind it before the shape means anything.
       </p>
     </div>
   );

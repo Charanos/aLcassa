@@ -1,6 +1,12 @@
 'use client';
 
-import { IconShieldCheck, IconAlertTriangle, IconClock, IconArrowRight, IconCode } from '@tabler/icons-react';
+import {
+  IconShieldCheck,
+  IconAlertTriangle,
+  IconClock,
+  IconArrowRight,
+  IconCode,
+} from '@tabler/icons-react';
 
 interface TrackerDashboardHeroProps {
   client: string;
@@ -66,7 +72,11 @@ export function TrackerDashboardHero({
           <a
             href="#documents"
             className="t-compact inline-flex items-center rounded-[12px] px-4 py-2 text-[var(--text-primary)] transition-all hover:bg-[var(--surface-raised)]"
-            style={{ boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)', background: 'var(--surface-raised)', minHeight: 'var(--control-md)' }}
+            style={{
+              boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
+              background: 'var(--surface-raised)',
+              minHeight: 'var(--control-md)',
+            }}
           >
             Project Documents
           </a>
@@ -74,29 +84,49 @@ export function TrackerDashboardHero({
       </div>
 
       {/* Telemetry Fact Block Grid */}
-      <div className="mt-10 grid grid-cols-2 gap-y-6 gap-x-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Prepared for</div>
+          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            Prepared for
+          </div>
           <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">{client}</div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Project lead</div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">{projectLead}</div>
+          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            Project lead
+          </div>
+          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">
+            {projectLead}
+          </div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Against</div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">Brief {briefVersion}</div>
+          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            Against
+          </div>
+          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">
+            Brief {briefVersion}
+          </div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Issued</div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">{briefDate}</div>
+          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            Issued
+          </div>
+          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">
+            {briefDate}
+          </div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Duration</div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">9 working weeks</div>
+          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            Duration
+          </div>
+          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">
+            9 working weeks
+          </div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Status</div>
+          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            Status
+          </div>
           <div className="mt-1.5 text-[14px] font-medium text-[var(--amber-500)]">For Review</div>
         </div>
       </div>
@@ -112,14 +142,20 @@ export function TrackerDashboardHero({
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Overall Progress</span>
+            <span className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+              Overall Progress
+            </span>
             <span className="grid size-7 place-items-center rounded-lg bg-[var(--blue-50)] text-[var(--blue-600)]">
               <IconClock size={15} stroke={2} />
             </span>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-4xl font-light tracking-tight tabular-nums text-[var(--text-primary)]">{overallProgress}%</span>
-            <span className="text-[12px] font-medium text-[var(--green-500)]">Milestone 1 Active</span>
+            <span className="text-4xl font-light tracking-tight text-[var(--text-primary)] tabular-nums">
+              {overallProgress}%
+            </span>
+            <span className="text-[12px] font-medium text-[var(--green-500)]">
+              Milestone 1 Active
+            </span>
           </div>
           <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-[var(--surface-base)]">
             <div
@@ -163,14 +199,20 @@ export function TrackerDashboardHero({
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Blocking Decisions</span>
+            <span className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+              Blocking Decisions
+            </span>
             <span className="grid size-7 place-items-center rounded-lg bg-[var(--amber-50)] text-[var(--amber-600)]">
               <IconAlertTriangle size={15} stroke={2} />
             </span>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-4xl font-light tracking-tight tabular-nums text-[var(--amber-500)]">{blockingCount}</span>
-            <span className="text-[12px] font-medium text-[var(--amber-600)]">M4a Decision Gate</span>
+            <span className="text-4xl font-light tracking-tight text-[var(--amber-500)] tabular-nums">
+              {blockingCount}
+            </span>
+            <span className="text-[12px] font-medium text-[var(--amber-600)]">
+              M4a Decision Gate
+            </span>
           </div>
           <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-secondary)]">
             {blockingCount > 0
@@ -188,14 +230,17 @@ export function TrackerDashboardHero({
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Built & Verifiable</span>
+            <span className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+              Built & Verifiable
+            </span>
             <span className="grid size-7 place-items-center rounded-lg bg-[var(--ink-50)] text-[var(--ink-600)]">
               <IconCode size={15} stroke={2} />
             </span>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-4xl font-light tracking-tight tabular-nums text-[var(--text-primary)]">
-              {builtCount} <span className="text-[20px] text-[var(--text-tertiary)]">/ {builtTotal}</span>
+            <span className="text-4xl font-light tracking-tight text-[var(--text-primary)] tabular-nums">
+              {builtCount}{' '}
+              <span className="text-[20px] text-[var(--text-tertiary)]">/ {builtTotal}</span>
             </span>
             <span className="text-[12px] font-medium text-[var(--text-tertiary)]">Foundation</span>
           </div>
@@ -209,14 +254,17 @@ export function TrackerDashboardHero({
           className="rounded-[16px] px-6 py-5 transition-all"
           style={{
             background: 'var(--surface-raised)',
-            boxShadow: complianceNeedsYou > 0
-              ? '-3px -3px 12px color-mix(in oklab, var(--red-500) 8%, transparent), 4px 5px 18px color-mix(in oklab, var(--red-500) 8%, transparent), 0 0 0 1px color-mix(in oklab, var(--red-500) 30%, var(--border-subtle) 70%), var(--shadow-sm)'
-              : 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
+            boxShadow:
+              complianceNeedsYou > 0
+                ? '-3px -3px 12px color-mix(in oklab, var(--red-500) 8%, transparent), 4px 5px 18px color-mix(in oklab, var(--red-500) 8%, transparent), 0 0 0 1px color-mix(in oklab, var(--red-500) 30%, var(--border-subtle) 70%), var(--shadow-sm)'
+                : 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Compliance Obligations</span>
-            <span 
+            <span className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+              Compliance Obligations
+            </span>
+            <span
               className="grid size-7 place-items-center rounded-lg"
               style={{
                 background: complianceNeedsYou > 0 ? 'var(--red-50)' : 'var(--green-50)',
@@ -227,11 +275,12 @@ export function TrackerDashboardHero({
             </span>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span 
+            <span
               className="text-4xl font-light tracking-tight tabular-nums"
               style={{ color: complianceNeedsYou > 0 ? 'var(--red-500)' : 'var(--green-500)' }}
             >
-              {complianceCount} <span className="text-[20px] text-[var(--text-tertiary)]">/ {complianceTotal}</span>
+              {complianceCount}{' '}
+              <span className="text-[20px] text-[var(--text-tertiary)]">/ {complianceTotal}</span>
             </span>
             <span className="text-[12px] font-medium text-[var(--text-tertiary)]">Met</span>
           </div>

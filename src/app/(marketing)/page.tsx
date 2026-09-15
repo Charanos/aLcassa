@@ -85,140 +85,147 @@ export default async function MarketingPage() {
           className="relative z-10 mx-auto w-full max-w-[1380px] px-5 pt-12 pb-32 md:px-8"
         >
           {/* ── Hero. Centered Editorial Architecture with Interactive Workspace Demo Below ── */}
-        <section
-          id="overview"
-          className="relative mx-auto flex w-full max-w-[1320px] flex-col items-center justify-center pt-8 text-center md:pt-14"
-        >
-          {/* Eyebrow status indicator (clean inline, solid non-blinking indicator) */}
-          <div
-            className="inline-flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-widest text-[var(--orange-500)]"
+          <section
+            id="overview"
+            className="relative mx-auto flex w-full max-w-[1320px] flex-col items-center justify-center pt-8 text-center md:pt-14"
           >
-            <span className="size-2 rounded-full bg-[var(--orange-500)]" />
-            <span className="font-medium">
-              UNIFIED CUSTOMER INBOX PLATFORM
-            </span>
-            <span className="size-2 rounded-full bg-[var(--orange-500)]" />
-          </div>
-
-          {/* Centered Editorial Headline */}
-          <h1
-            className="display mx-auto mt-6 max-w-[1020px] text-[46px] leading-[1.06] font-medium tracking-tight text-[var(--text-primary)] sm:text-[58px] md:text-[68px] lg:text-[76px]"
-          >
-            One inbox for every message
-            <br className="hidden sm:inline" /> your customers send.
-          </h1>
-
-          {/* Centered Lede (Client-Facing, Value-Oriented) */}
-          <p
-            className="t-lede mx-auto mt-6 max-w-[740px] text-[17px] leading-[1.68] text-[var(--text-secondary)] sm:text-[19px]"
-          >
-            Unify WhatsApp, Instagram, Messenger, and live website chat into one intelligent workspace. Delight your customers with instant AI-powered resolutions and enterprise data isolation.
-          </p>
-
-          {/* Centered CTAs */}
-          {isAuthenticated ? (
-            <div
-              className="mt-8 flex flex-wrap items-center justify-center gap-3.5"
-            >
-              <Button asChild variant="primary" size="lg" className="rounded-full px-6 shadow-sm hover:shadow-md transition-all">
-                <Link href={dashboardHref} className="gap-2">
-                  <IconShieldLock size={17} stroke={1.5} />
-                  Go to {dashboardLabel} <IconArrowRight size={16} stroke={1.5} />
-                </Link>
-              </Button>
-              <Button asChild variant="secondary" size="lg" className="rounded-full px-6 transition-all hover:bg-[var(--surface-sunken)]">
-                <Link href="/platform/tenants" className="gap-2">
-                  <IconBuildingSkyscraper size={16} stroke={1.5} />
-                  Manage Workspaces
-                </Link>
-              </Button>
+            {/* Eyebrow status indicator (clean inline, solid non-blinking indicator) */}
+            <div className="inline-flex items-center gap-2.5 font-mono text-[11px] tracking-widest text-[var(--orange-500)] uppercase">
+              <span className="size-2 rounded-full bg-[var(--orange-500)]" />
+              <span className="font-medium">UNIFIED CUSTOMER INBOX PLATFORM</span>
+              <span className="size-2 rounded-full bg-[var(--orange-500)]" />
             </div>
-          ) : (
-            <div
-              className="mt-8 flex flex-wrap items-center justify-center gap-3.5"
-            >
-              <Button asChild variant="primary" size="lg" className="rounded-full px-7 shadow-sm hover:shadow-md transition-all">
-                <Link href="/sign-up" className="gap-2">
-                  Request access <IconArrowRight size={16} stroke={1.5} />
-                </Link>
-              </Button>
-              <Button asChild variant="secondary" size="lg" className="rounded-full px-7 transition-all hover:bg-[var(--surface-sunken)]">
-                <Link href="/sign-in">Sign in</Link>
-              </Button>
+
+            {/* Centered Editorial Headline */}
+            <h1 className="display mx-auto mt-6 max-w-[1020px] text-[46px] leading-[1.06] font-medium tracking-tight text-[var(--text-primary)] sm:text-[58px] md:text-[68px] lg:text-[76px]">
+              One inbox for every message
+              <br className="hidden sm:inline" /> your customers send.
+            </h1>
+
+            {/* Centered Lede (Client-Facing, Value-Oriented) */}
+            <p className="t-lede mx-auto mt-6 max-w-[740px] text-[17px] leading-[1.68] text-[var(--text-secondary)] sm:text-[19px]">
+              Unify WhatsApp, Instagram, Messenger, and live website chat into one intelligent
+              workspace. Delight your customers with instant AI-powered resolutions and enterprise
+              data isolation.
+            </p>
+
+            {/* Centered CTAs */}
+            {isAuthenticated ? (
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
+                <Button
+                  asChild
+                  variant="primary"
+                  size="lg"
+                  className="rounded-full px-6 shadow-sm transition-all hover:shadow-md"
+                >
+                  <Link href={dashboardHref} className="gap-2">
+                    <IconShieldLock size={17} stroke={1.5} />
+                    Go to {dashboardLabel} <IconArrowRight size={16} stroke={1.5} />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
+                  className="rounded-full px-6 transition-all hover:bg-[var(--surface-sunken)]"
+                >
+                  <Link href="/platform/tenants" className="gap-2">
+                    <IconBuildingSkyscraper size={16} stroke={1.5} />
+                    Manage Workspaces
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
+                <Button
+                  asChild
+                  variant="primary"
+                  size="lg"
+                  className="rounded-full px-7 shadow-sm transition-all hover:shadow-md"
+                >
+                  <Link href="/sign-up" className="gap-2">
+                    Request access <IconArrowRight size={16} stroke={1.5} />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
+                  className="rounded-full px-7 transition-all hover:bg-[var(--surface-sunken)]"
+                >
+                  <Link href="/sign-in">Sign in</Link>
+                </Button>
+              </div>
+            )}
+
+            {/* Interactive Live Multi-Channel Studio Console Centered Directly Below CTAs */}
+            <div className="mt-10 mb-12 w-full">
+              <HeroInteractiveConsole />
             </div>
-          )}
 
-          {/* Interactive Live Multi-Channel Studio Console Centered Directly Below CTAs */}
-          <div className="w-full mt-10 mb-12">
-            <HeroInteractiveConsole />
-          </div>
-
-          {/* Stats Numerals Bento Strip (Positioned Below Console) */}
-          <div
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 border-y border-[var(--ink-200)] py-8 w-full max-w-[1320px]"
-          >
-            <div className="flex flex-col items-center justify-center text-center">
-              <span className="display text-[40px] sm:text-[48px] font-medium leading-none tracking-tight text-[var(--text-primary)]">
-                100%
-              </span>
-              <span className="mt-2 font-mono text-[11.5px] uppercase tracking-wider text-[var(--text-tertiary)]">
-                PostgreSQL RLS Isolation
-              </span>
-              <span className="text-[12px] text-[var(--text-secondary)] mt-0.5">
-                Strict tenant_id boundary segregation
-              </span>
+            {/* Stats Numerals Bento Strip (Positioned Below Console) */}
+            <div className="grid w-full max-w-[1320px] grid-cols-1 gap-6 border-y border-[var(--ink-200)] py-8 sm:grid-cols-3 sm:gap-10">
+              <div className="flex flex-col items-center justify-center text-center">
+                <span className="display text-[40px] leading-none font-medium tracking-tight text-[var(--text-primary)] sm:text-[48px]">
+                  100%
+                </span>
+                <span className="mt-2 font-mono text-[11.5px] tracking-wider text-[var(--text-tertiary)] uppercase">
+                  PostgreSQL RLS Isolation
+                </span>
+                <span className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
+                  Strict tenant_id boundary segregation
+                </span>
+              </div>
+              <div className="flex flex-col items-center justify-center text-center sm:border-x sm:border-[var(--ink-200)] sm:px-6">
+                <span className="display text-[40px] leading-none font-medium tracking-tight text-[var(--orange-500)] sm:text-[48px]">
+                  &lt; 5s
+                </span>
+                <span className="mt-2 font-mono text-[11.5px] tracking-wider text-[var(--text-tertiary)] uppercase">
+                  AI Rule Propagation
+                </span>
+                <span className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
+                  Machine-readable rule engine cache
+                </span>
+              </div>
+              <div className="flex flex-col items-center justify-center text-center">
+                <span className="display text-[40px] leading-none font-medium tracking-tight text-[var(--green-500)] sm:text-[48px]">
+                  0
+                </span>
+                <span className="mt-2 font-mono text-[11.5px] tracking-wider text-[var(--text-tertiary)] uppercase">
+                  Master Key Vulnerabilities
+                </span>
+                <span className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
+                  Scoped Argon2id tenant API credentials
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col items-center justify-center text-center sm:border-x sm:border-[var(--ink-200)] sm:px-6">
-              <span className="display text-[40px] sm:text-[48px] font-medium leading-none tracking-tight text-[var(--orange-500)]">
-                &lt; 5s
-              </span>
-              <span className="mt-2 font-mono text-[11.5px] uppercase tracking-wider text-[var(--text-tertiary)]">
-                AI Rule Propagation
-              </span>
-              <span className="text-[12px] text-[var(--text-secondary)] mt-0.5">
-                Machine-readable rule engine cache
-              </span>
-            </div>
-            <div className="flex flex-col items-center justify-center text-center">
-              <span className="display text-[40px] sm:text-[48px] font-medium leading-none tracking-tight text-[var(--green-500)]">
-                0
-              </span>
-              <span className="mt-2 font-mono text-[11.5px] uppercase tracking-wider text-[var(--text-tertiary)]">
-                Master Key Vulnerabilities
-              </span>
-              <span className="text-[12px] text-[var(--text-secondary)] mt-0.5">
-                Scoped Argon2id tenant API credentials
-              </span>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        {/* ── Live Engineering Capabilities ────────────────────────────── */}
-        <section id="live-engine" className="gsap-scroll-item mt-20 md:mt-28">
-          <InteractiveFeatures />
-        </section>
+          {/* ── Live Engineering Capabilities ────────────────────────────── */}
+          <section id="live-engine" className="gsap-scroll-item mt-20 md:mt-28">
+            <InteractiveFeatures />
+          </section>
 
-        {/* ── Omnichannel Hub ──────────────────────────────────────────── */}
-        <section id="channels" className="gsap-scroll-item mt-20 md:mt-32">
-          <ChannelsSection />
-        </section>
+          {/* ── Omnichannel Hub ──────────────────────────────────────────── */}
+          <section id="channels" className="gsap-scroll-item mt-20 md:mt-32">
+            <ChannelsSection />
+          </section>
 
-        {/* ── Pricing & Packages ────────────────────────────────────────── */}
-        <section id="pricing" className="gsap-scroll-item mt-20 md:mt-32">
-          <PricingSection />
-        </section>
+          {/* ── Pricing & Packages ────────────────────────────────────────── */}
+          <section id="pricing" className="gsap-scroll-item mt-20 md:mt-32">
+            <PricingSection />
+          </section>
 
-        {/* ── Frequently Asked Questions ────────────────────────────────── */}
-        <section id="faq" className="gsap-scroll-item mt-20 md:mt-32">
-          <FaqSection />
-        </section>
-
+          {/* ── Frequently Asked Questions ────────────────────────────────── */}
+          <section id="faq" className="gsap-scroll-item mt-20 md:mt-32">
+            <FaqSection />
+          </section>
         </main>
       </GsapScrollRevealer>
 
       {/* ── Unified Closing CTA & Footer Architectural Block ──────────── */}
       <footer
-        className="relative overflow-hidden border-t mt-20 md:mt-32"
+        className="relative mt-20 overflow-hidden border-t md:mt-32"
         style={{
           borderColor: 'var(--border-strong)',
           background: 'var(--surface-base)',
@@ -272,32 +279,54 @@ export default async function MarketingPage() {
             strokeWidth="0.85"
           />
 
-          <ellipse cx="15%" cy="35%" rx="440" ry="240" stroke="url(#footer-arch-grad-1)" strokeWidth="0.75" />
-          <ellipse cx="85%" cy="25%" rx="500" ry="280" stroke="url(#footer-arch-grad-2)" strokeWidth="0.75" />
+          <ellipse
+            cx="15%"
+            cy="35%"
+            rx="440"
+            ry="240"
+            stroke="url(#footer-arch-grad-1)"
+            strokeWidth="0.75"
+          />
+          <ellipse
+            cx="85%"
+            cy="25%"
+            rx="500"
+            ry="280"
+            stroke="url(#footer-arch-grad-2)"
+            strokeWidth="0.75"
+          />
         </svg>
 
         {/* Refined Floating Background Telemetry Icons (Framing CTA & Footer) */}
-        <div className="pointer-events-none absolute top-10 -left-12 hidden -rotate-12 text-emerald-600/[0.045] lg:block select-none" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute top-10 -left-12 hidden -rotate-12 text-emerald-600/[0.045] select-none lg:block"
+          aria-hidden="true"
+        >
           <IconBrandWhatsappFilled size={320} stroke={1} />
         </div>
-        <div className="pointer-events-none absolute top-14 -right-12 hidden rotate-12 text-blue-600/[0.045] lg:block select-none" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute top-14 -right-12 hidden rotate-12 text-blue-600/[0.045] select-none lg:block"
+          aria-hidden="true"
+        >
           <IconMessageFilled size={290} stroke={1} />
         </div>
-        <div className="pointer-events-none absolute -bottom-6 right-16 hidden -rotate-6 text-slate-800/[0.035] lg:block select-none" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute right-16 -bottom-6 hidden -rotate-6 text-slate-800/[0.035] select-none lg:block"
+          aria-hidden="true"
+        >
           <IconServer2 size={270} stroke={1} />
         </div>
 
         <div className="relative z-10 mx-auto w-full max-w-[1380px] px-5 pt-20 pb-12 md:px-8 md:pt-28 md:pb-16">
-          
           {/* ── 1. Centered Closing Call to Action ── */}
           <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
             {/* Editorial Headline */}
-            <h2 className="display text-[38px] sm:text-[50px] md:text-[60px] font-medium leading-[1.08] tracking-tight text-[var(--text-primary)]">
+            <h2 className="display text-[38px] leading-[1.08] font-medium tracking-tight text-[var(--text-primary)] sm:text-[50px] md:text-[60px]">
               Set your team up now
             </h2>
 
             {/* Lede Prose */}
-            <p className="t-lede mt-4 max-w-[620px] text-[16px] sm:text-[17.5px] leading-relaxed text-[var(--text-secondary)]">
+            <p className="t-lede mt-4 max-w-[620px] text-[16px] leading-relaxed text-[var(--text-secondary)] sm:text-[17.5px]">
               Your workspace, your team, your credentials and your assistant rules are all live.
               When channels arrive, there is nothing left to configure.
             </p>
@@ -305,57 +334,68 @@ export default async function MarketingPage() {
             {/* Interactive Actions */}
             {isAuthenticated ? (
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
-                <Button asChild variant="primary" size="lg" className="rounded-full px-6 shadow-sm hover:shadow-md transition-all">
+                <Button
+                  asChild
+                  variant="primary"
+                  size="lg"
+                  className="rounded-full px-6 shadow-sm transition-all hover:shadow-md"
+                >
                   <Link href={dashboardHref} className="gap-2">
                     <IconShieldLock size={17} stroke={1.5} />
                     Return to {dashboardLabel} <IconArrowRight size={16} stroke={1.5} />
                   </Link>
                 </Button>
-                <Button asChild variant="secondary" size="lg" className="rounded-full px-6 transition-all hover:bg-[var(--surface-sunken)]">
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
+                  className="rounded-full px-6 transition-all hover:bg-[var(--surface-sunken)]"
+                >
                   <Link href="/platform/support-sessions">Support Sessions</Link>
                 </Button>
               </div>
             ) : (
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
-                <Button asChild variant="primary" size="lg" className="rounded-full px-7 shadow-sm hover:shadow-md transition-all">
+                <Button
+                  asChild
+                  variant="primary"
+                  size="lg"
+                  className="rounded-full px-7 shadow-sm transition-all hover:shadow-md"
+                >
                   <Link href="/sign-up" className="gap-2">
                     Request access <IconArrowRight size={16} stroke={1.5} />
                   </Link>
                 </Button>
-                <Button asChild variant="secondary" size="lg" className="rounded-full px-7 transition-all hover:bg-[var(--surface-sunken)]">
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
+                  className="rounded-full px-7 transition-all hover:bg-[var(--surface-sunken)]"
+                >
                   <Link href="/sign-in">Sign in</Link>
                 </Button>
               </div>
             )}
 
             {/* Spec Ticker */}
-            <div className="font-mono text-[11px] mt-10 flex flex-wrap justify-center gap-6 sm:gap-10 border-t border-[var(--border-subtle)] pt-6 text-[var(--text-tertiary)] w-full max-w-xl">
+            <div className="mt-10 flex w-full max-w-xl flex-wrap justify-center gap-6 border-t border-[var(--border-subtle)] pt-6 font-mono text-[11px] text-[var(--text-tertiary)] sm:gap-10">
               <span className="flex items-center gap-2">
-                <span
-                  className="size-1.5 rounded-full bg-[var(--green-500)]"
-                  aria-hidden="true"
-                />
+                <span className="size-1.5 rounded-full bg-[var(--green-500)]" aria-hidden="true" />
                 Row-Level Isolated
               </span>
               <span className="flex items-center gap-2">
-                <span
-                  className="size-1.5 rounded-full bg-[var(--orange-500)]"
-                  aria-hidden="true"
-                />
+                <span className="size-1.5 rounded-full bg-[var(--orange-500)]" aria-hidden="true" />
                 Argon2 Hashed
               </span>
               <span className="flex items-center gap-2">
-                <span
-                  className="size-1.5 rounded-full bg-[var(--blue-500)]"
-                  aria-hidden="true"
-                />
+                <span className="size-1.5 rounded-full bg-[var(--blue-500)]" aria-hidden="true" />
                 &lt;5s Propagation
               </span>
             </div>
           </div>
 
           {/* ── 2. Subtle Architectural Divider ── */}
-          <div className="my-16 sm:my-20 border-t border-[var(--border-subtle)] w-full" />
+          <div className="my-16 w-full border-t border-[var(--border-subtle)] sm:my-20" />
 
           {/* ── 3. Footer Navigation Grid ── */}
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
@@ -371,13 +411,11 @@ export default async function MarketingPage() {
                   </p>
                 </div>
               </div>
-              <p className="t-compact max-w-sm text-[13.5px] text-[var(--text-secondary)] leading-relaxed">
+              <p className="t-compact max-w-sm text-[13.5px] leading-relaxed text-[var(--text-secondary)]">
                 Architected for strict database tenant isolation, machine-readable assistant rules,
                 and zero master key vulnerability.
               </p>
-              <div
-                className="t-eyebrow inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50 px-2.5 py-1 text-[11px] font-mono text-[var(--green-600)]"
-              >
+              <div className="t-eyebrow inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50 px-2.5 py-1 font-mono text-[11px] text-[var(--green-600)]">
                 <span
                   className="size-1.5 animate-pulse rounded-full bg-[var(--green-500)]"
                   aria-hidden="true"
@@ -397,7 +435,7 @@ export default async function MarketingPage() {
             />
 
             <div className="space-y-3">
-              <div className="t-eyebrow font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--text-action)]">
+              <div className="t-eyebrow font-mono text-[11px] font-medium tracking-wider text-[var(--text-action)] uppercase">
                 Architecture
               </div>
               <ul className="t-compact space-y-2 text-[13px] text-[var(--text-secondary)]">
@@ -424,16 +462,12 @@ export default async function MarketingPage() {
             className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t pt-6"
             style={{ borderColor: 'var(--border-subtle)' }}
           >
-            <div
-              className="t-eyebrow font-mono text-[11px] flex items-center gap-2 text-[var(--text-tertiary)]"
-            >
+            <div className="t-eyebrow flex items-center gap-2 font-mono text-[11px] text-[var(--text-tertiary)]">
               <span>© 2026 Andishi</span>
               <span>·</span>
               <span>Northern Bypass, Nairobi</span>
             </div>
-            <div
-              className="t-micro font-mono text-[11px] flex items-center gap-4 text-[var(--text-disabled)]"
-            >
+            <div className="t-micro flex items-center gap-4 font-mono text-[11px] text-[var(--text-disabled)]">
               <span>Version 1.0.0-beta</span>
               <span>·</span>
               <span>Isolated tenancy</span>

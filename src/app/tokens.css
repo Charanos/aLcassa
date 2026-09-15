@@ -309,7 +309,11 @@
   /* Header: sweeps from brand navy on the left into obsidian black on the right */
   --chrome-bg: linear-gradient(100deg, var(--chrome-bg-navy) 0%, var(--chrome-bg-base) 70%);
   /* Sidebar pill: same two stops, vertical — obsidian at top, brand navy at the bottom */
-  --chrome-sidebar-bg: linear-gradient(to top, var(--chrome-bg-base) 30%, var(--chrome-bg-navy) 100%);
+  --chrome-sidebar-bg: linear-gradient(
+    to top,
+    var(--chrome-bg-base) 30%,
+    var(--chrome-bg-navy) 100%
+  );
   --chrome-bg-raised: #0b1021;
   --chrome-fg: #ffffff;
   --chrome-fg-muted: #d4d4d8; /* Significantly brightened for legibility */
@@ -656,16 +660,36 @@
   --badge-edge: 26%; /* border strength */
 
   --badge-success-fg: var(--success-fg);
-  --badge-success-bg: color-mix(in oklab, var(--success-fg) var(--badge-tint), var(--surface-raised));
-  --badge-success-edge: color-mix(in oklab, var(--success-fg) var(--badge-edge), var(--surface-raised));
+  --badge-success-bg: color-mix(
+    in oklab,
+    var(--success-fg) var(--badge-tint),
+    var(--surface-raised)
+  );
+  --badge-success-edge: color-mix(
+    in oklab,
+    var(--success-fg) var(--badge-edge),
+    var(--surface-raised)
+  );
 
   --badge-warning-fg: var(--warning-fg);
-  --badge-warning-bg: color-mix(in oklab, var(--warning-fg) var(--badge-tint), var(--surface-raised));
-  --badge-warning-edge: color-mix(in oklab, var(--warning-fg) var(--badge-edge), var(--surface-raised));
+  --badge-warning-bg: color-mix(
+    in oklab,
+    var(--warning-fg) var(--badge-tint),
+    var(--surface-raised)
+  );
+  --badge-warning-edge: color-mix(
+    in oklab,
+    var(--warning-fg) var(--badge-edge),
+    var(--surface-raised)
+  );
 
   --badge-danger-fg: var(--danger-fg);
   --badge-danger-bg: color-mix(in oklab, var(--danger-fg) var(--badge-tint), var(--surface-raised));
-  --badge-danger-edge: color-mix(in oklab, var(--danger-fg) var(--badge-edge), var(--surface-raised));
+  --badge-danger-edge: color-mix(
+    in oklab,
+    var(--danger-fg) var(--badge-edge),
+    var(--surface-raised)
+  );
 
   --badge-info-fg: var(--blue-500);
   --badge-info-bg: color-mix(in oklab, var(--blue-500) var(--badge-tint), var(--surface-raised));
@@ -676,8 +700,16 @@
    * `--accent-mark` at 400 fails contrast under type, which is the single most
    * common accent defect in this codebase. */
   --badge-brand-fg: var(--accent-mark-text);
-  --badge-brand-bg: color-mix(in oklab, var(--accent-mark) var(--badge-tint), var(--surface-raised));
-  --badge-brand-edge: color-mix(in oklab, var(--accent-mark) var(--badge-edge), var(--surface-raised));
+  --badge-brand-bg: color-mix(
+    in oklab,
+    var(--accent-mark) var(--badge-tint),
+    var(--surface-raised)
+  );
+  --badge-brand-edge: color-mix(
+    in oklab,
+    var(--accent-mark) var(--badge-edge),
+    var(--surface-raised)
+  );
 
   /* Neutral is the ABSENCE of a state rather than a seventh colour, so it takes
    * the surface ramp and the secondary ink and nothing else. */
@@ -707,8 +739,6 @@
     0 12px 30px -4px color-mix(in oklab, var(--ink-900) 5%, transparent),
     0 4px 10px -2px color-mix(in oklab, var(--ink-900) 3%, transparent);
 }
-
-
 
 /* Old geometry and layout names, theme-independent. */
 :root {

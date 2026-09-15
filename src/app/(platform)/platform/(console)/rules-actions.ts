@@ -4,11 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { currentPlatformSession } from '@/lib/auth/resolve';
 import { isAppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
-import {
-  publishMasterRules,
-  rollbackMasterRules,
-  type MasterRulesInput,
-} from '@/modules/platform';
+import { publishMasterRules, rollbackMasterRules, type MasterRulesInput } from '@/modules/platform';
 
 /**
  * The master AI rules, as the console writes them. 05 §7 · 08 §4.
@@ -34,9 +30,7 @@ import {
  * service, turn a thrown `AppError` into a sentence, revalidate.
  */
 
-export type RulesActionResult =
-  | { ok: true; versionNumber: number }
-  | { ok: false; error: string };
+export type RulesActionResult = { ok: true; versionNumber: number } | { ok: false; error: string };
 
 function refuse(error: unknown, fallback: string): RulesActionResult {
   if (isAppError(error)) return { ok: false, error: error.message };

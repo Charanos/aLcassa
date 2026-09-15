@@ -208,7 +208,12 @@ function PlanChange({
                       className="t-caption flex items-start gap-1.5"
                       style={{ color: 'var(--warning-fg)', fontWeight: 500 }}
                     >
-                      <IconAlertTriangle size={13} stroke={2} aria-hidden className="mt-px shrink-0" />
+                      <IconAlertTriangle
+                        size={13}
+                        stroke={2}
+                        aria-hidden
+                        className="mt-px shrink-0"
+                      />
                       <span>
                         {stranded.length}{' '}
                         {stranded.length === 1 ? 'limit would be' : 'limits would be'} below what

@@ -149,8 +149,8 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
           style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
         >
           Your password is changed here, and takes effect immediately. The other two state the
-          platform&rsquo;s policy rather than the state of your account &mdash; neither is read
-          from this screen, so neither is a claim about what you personally have enrolled.
+          platform&rsquo;s policy rather than the state of your account &mdash; neither is read from
+          this screen, so neither is a claim about what you personally have enrolled.
         </p>
       </div>
     </section>

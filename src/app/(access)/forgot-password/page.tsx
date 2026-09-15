@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
           Remembered your password?{' '}
           <Link
             href="/sign-in"
-            className="font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] underline underline-offset-4 transition-colors"
+            className="font-medium text-[var(--blue-600)] underline underline-offset-4 transition-colors hover:text-[var(--blue-700)]"
           >
             Return to sign in
           </Link>
@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
           type="submit"
           variant="primary"
           size="lg"
-          className="mt-2 w-full font-medium shadow-sm hover:shadow-md cursor-pointer"
+          className="mt-2 w-full cursor-pointer font-medium shadow-sm hover:shadow-md"
         >
           Send reset link
         </Button>

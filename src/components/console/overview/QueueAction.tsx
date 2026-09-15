@@ -220,7 +220,9 @@ function AssignPlanAction({
               Recorded in two places, in the same transaction as the change:
             </p>
             <ul className="mt-1.5 grid gap-1">
-              <AuditLine>this platform&rsquo;s audit log, with your name and this queue as the origin</AuditLine>
+              <AuditLine>
+                this platform&rsquo;s audit log, with your name and this queue as the origin
+              </AuditLine>
               <AuditLine>
                 {workspace}&rsquo;s own activity log, where they can read the reason
               </AuditLine>

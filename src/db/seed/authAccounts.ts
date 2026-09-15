@@ -377,9 +377,7 @@ export async function verifyAuthAccount(
 
   /* One standalone statement, own placeholder numbering — see the note in
      `upsertAuthAccount` for why this must not be nested in a template. */
-  const rows = await sql.unsafe<
-    { password_ok: boolean; confirmed: boolean; identities: number }[]
-  >(
+  const rows = await sql.unsafe<{ password_ok: boolean; confirmed: boolean; identities: number }[]>(
     `select
        u.encrypted_password = ${schema}.crypt($1, u.encrypted_password) as password_ok,
        u.email_confirmed_at is not null                                 as confirmed,
@@ -391,9 +389,18 @@ export async function verifyAuthAccount(
 
   const row = rows[0];
   if (!row) return { ok: false, problem: 'the auth.users row was not written' };
-  if (!row.password_ok) return { ok: false, problem: 'the password does not verify against the stored hash' };
-  if (!row.confirmed) return { ok: false, problem: 'the address is not confirmed, so GoTrue will refuse the sign-in' };
-  if (row.identities === 0) return { ok: false, problem: 'no auth.identities row, so there is no email provider to sign in with' };
+  if (!row.password_ok)
+    return { ok: false, problem: 'the password does not verify against the stored hash' };
+  if (!row.confirmed)
+    return {
+      ok: false,
+      problem: 'the address is not confirmed, so GoTrue will refuse the sign-in',
+    };
+  if (row.identities === 0)
+    return {
+      ok: false,
+      problem: 'no auth.identities row, so there is no email provider to sign in with',
+    };
 
   /**
    * ⚠ THIS CHECK EXISTS BECAUSE THE OTHER FOUR ALL PASSED WHILE SIGN-IN WAS
@@ -450,17 +457,20 @@ export async function verifyAuthAccount(
     where u.id = ${account.id}
   `;
 
-  if (!shape) return { ok: false, problem: 'the user and its email identity could not be read together' };
+  if (!shape)
+    return { ok: false, problem: 'the user and its email identity could not be read together' };
   if (!shape.app_ok) {
     return {
       ok: false,
-      problem: 'auth.users.raw_app_meta_data is a JSON string rather than an object — the value was double-encoded',
+      problem:
+        'auth.users.raw_app_meta_data is a JSON string rather than an object — the value was double-encoded',
     };
   }
   if (!shape.identity_ok) {
     return {
       ok: false,
-      problem: 'auth.identities.identity_data is a JSON string rather than an object — the value was double-encoded',
+      problem:
+        'auth.identities.identity_data is a JSON string rather than an object — the value was double-encoded',
     };
   }
   if (!shape.identity_email) {

@@ -55,7 +55,10 @@ export function ConfirmDialog({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--surface-overlay)' }} />
+        <Dialog.Overlay
+          className="fixed inset-0 z-[150]"
+          style={{ background: 'var(--surface-overlay)' }}
+        />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
           style={{
@@ -161,7 +164,10 @@ export function DestructiveConfirm({
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[150]" style={{ background: 'var(--surface-overlay)' }} />
+        <Dialog.Overlay
+          className="fixed inset-0 z-[150]"
+          style={{ background: 'var(--surface-overlay)' }}
+        />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
           style={{

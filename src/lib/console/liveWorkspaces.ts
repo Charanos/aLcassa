@@ -552,12 +552,14 @@ export async function getLiveAuditVolume(): Promise<AuditVolumePoint[] | null> {
     /* `execute` returns driver rows rather than a typed result set, so the
        shape is asserted at exactly one place — here — and everything above
        this line reads the declared type. */
-    const points = (rows as unknown as Array<{
-      day: string;
-      total: number;
-      service_role: number;
-      support: number;
-    }>).map((r) => ({
+    const points = (
+      rows as unknown as Array<{
+        day: string;
+        total: number;
+        service_role: number;
+        support: number;
+      }>
+    ).map((r) => ({
       day: r.day,
       total: Number(r.total),
       serviceRole: Number(r.service_role),

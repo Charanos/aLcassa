@@ -67,14 +67,15 @@ export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
             >
               {/* Left Column: Metadata */}
               <div className="flex flex-col items-start gap-3 md:pt-0.5">
-                <span className="t-data text-[var(--text-tertiary)]">
-                  Week {milestone.week}
-                </span>
+                <span className="t-data text-[var(--text-tertiary)]">Week {milestone.week}</span>
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusChip tone={status.tone} icon={status.icon} size="sm">
                     {status.label}
                   </StatusChip>
-                  <span className="t-data text-[13px]" style={{ color: `var(--${status.tone}-ink)` }}>
+                  <span
+                    className="t-data text-[13px]"
+                    style={{ color: `var(--${status.tone}-ink)` }}
+                  >
                     {milestone.id}
                   </span>
                 </div>
@@ -109,7 +110,7 @@ export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
                     />
                   </div>
                   <span
-                    className="t-data shrink-0 tabular-nums text-[var(--text-secondary)]"
+                    className="t-data shrink-0 text-[var(--text-secondary)] tabular-nums"
                     style={{ fontSize: '12px' }}
                   >
                     {milestone.progress}%

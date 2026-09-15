@@ -26,7 +26,9 @@ const components: Components = {
       {children}
     </h2>
   ),
-  h3: ({ children }) => <h3 className="t-panel mt-7 mb-2 text-[var(--text-primary)]">{children}</h3>,
+  h3: ({ children }) => (
+    <h3 className="t-panel mt-7 mb-2 text-[var(--text-primary)]">{children}</h3>
+  ),
   h4: ({ children }) => (
     <h4 className="t-micro mt-6 mb-2 text-[var(--text-tertiary)]">{children}</h4>
   ),
@@ -80,7 +82,9 @@ const components: Components = {
     </blockquote>
   ),
 
-  hr: () => <hr className="my-8 border-0 border-t" style={{ borderColor: 'var(--border-subtle)' }} />,
+  hr: () => (
+    <hr className="my-8 border-0 border-t" style={{ borderColor: 'var(--border-subtle)' }} />
+  ),
 
   code: ({ className, children }) => {
     const isBlock = Boolean(className);

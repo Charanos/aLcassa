@@ -104,7 +104,7 @@ export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFram
       <div
         data-slot="boundary-banner"
         data-mode={isSupport ? 'support' : 'staging'}
-        className="fixed top-0 left-0 right-0 z-50 flex h-[28px] items-center justify-center px-4 font-mono text-[11px] font-medium tracking-widest text-white shadow-md transition-colors"
+        className="fixed top-0 right-0 left-0 z-50 flex h-[28px] items-center justify-center px-4 font-mono text-[11px] font-medium tracking-widest text-white shadow-md transition-colors"
         style={{
           background: colour,
           color: fgColor,
@@ -126,7 +126,7 @@ export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFram
             'STAGING'
           )}
         </div>
-        
+
         <div className="flex flex-1 justify-end">
           {isSupport ? (
             <button

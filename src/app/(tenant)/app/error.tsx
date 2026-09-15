@@ -35,12 +35,7 @@ export default function TenantError({
         className="grid size-11 place-items-center rounded-full"
         style={{ background: 'var(--red-100)' }}
       >
-        <IconAlertTriangle
-          size={20}
-          stroke={1.5}
-          style={{ color: 'var(--red-500)' }}
-          aria-hidden
-        />
+        <IconAlertTriangle size={20} stroke={1.5} style={{ color: 'var(--red-500)' }} aria-hidden />
       </span>
 
       <h1 className="t-panel mt-5" style={{ color: 'var(--text-primary)' }}>

@@ -126,7 +126,7 @@ function toneShadow(tone: Tone | undefined): string | undefined {
     `-3px -3px 12px color-mix(in oklab, var(--${tone}-ink) 8%, transparent)`,
     `4px 5px 18px color-mix(in oklab, var(--${tone}-ink) 8%, transparent)`,
     `0 0 0 1px color-mix(in oklab, var(--${tone}-rule) 30%, var(--border-subtle) 70%)`,
-    'var(--shadow-sm)'
+    'var(--shadow-sm)',
   ].join(', ');
 }
 

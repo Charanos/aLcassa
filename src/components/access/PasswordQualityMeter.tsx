@@ -51,10 +51,7 @@ function isLowEntropyShape(value: string): boolean {
   const sequential = (step: 1 | -1) =>
     value
       .split('')
-      .every(
-        (char, i) =>
-          i === 0 || char.charCodeAt(0) === value.charCodeAt(i - 1) + step
-      );
+      .every((char, i) => i === 0 || char.charCodeAt(0) === value.charCodeAt(i - 1) + step);
 
   return value.length > 3 && (sequential(1) || sequential(-1));
 }
@@ -103,11 +100,8 @@ export function PasswordQualityMeter({ password = '' }: { password?: string }) {
 
   return (
     <div className="mt-1.5 px-0.5 transition-all">
-      <div className="flex items-center gap-2.5 mb-2">
-        <div
-          className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(0,0,0,0.06)]"
-          aria-hidden
-        >
+      <div className="mb-2 flex items-center gap-2.5">
+        <div className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(0,0,0,0.06)]" aria-hidden>
           <div
             className="h-full rounded-full transition-all duration-300"
             style={{
@@ -118,7 +112,7 @@ export function PasswordQualityMeter({ password = '' }: { password?: string }) {
         </div>
         <span
           aria-live="polite"
-          className="font-mono text-[length:var(--text-xs)] font-medium tracking-widest uppercase shrink-0"
+          className="shrink-0 font-mono text-[length:var(--text-xs)] font-medium tracking-widest uppercase"
           style={{ color: ink }}
         >
           {label}
@@ -137,12 +131,15 @@ export function PasswordQualityMeter({ password = '' }: { password?: string }) {
                 aria-hidden
               />
             ) : (
-              <div className="size-1 rounded-full bg-[var(--text-tertiary)] opacity-40 shrink-0 mx-[4px]" aria-hidden />
+              <div
+                className="mx-[4px] size-1 shrink-0 rounded-full bg-[var(--text-tertiary)] opacity-40"
+                aria-hidden
+              />
             )}
             <span
               className={
                 rule.valid
-                  ? 'text-[var(--text-secondary)] font-medium'
+                  ? 'font-medium text-[var(--text-secondary)]'
                   : 'text-[var(--text-tertiary)]'
               }
             >

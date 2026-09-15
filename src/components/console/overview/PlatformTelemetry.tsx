@@ -110,7 +110,7 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
             <IconArrowUpRight
               size={12}
               stroke={2}
-              className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transform-none"
+              className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transform-none"
             />
           </Link>
         </div>
@@ -157,7 +157,10 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
                   aria-hidden
                 />
               )}
-              <span className="text-[11.5px] font-medium" style={{ color: 'var(--text-secondary)' }}>
+              <span
+                className="text-[11.5px] font-medium"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {healthy} of {vitals.length} within budget
               </span>
             </span>
@@ -388,32 +391,40 @@ function VitalRow({
 function TelemetryUnwired() {
   return (
     <div
-      className="mt-2 flex flex-col items-center text-center gap-4 rounded-[16px] px-6 py-10 relative overflow-hidden"
+      className="relative mt-2 flex flex-col items-center gap-4 overflow-hidden rounded-[16px] px-6 py-10 text-center"
       style={{
         background: 'var(--surface-raised)',
         border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
-        boxShadow: '0 8px 32px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset'
+        boxShadow: '0 8px 32px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset',
       }}
     >
-      <div 
-        className="flex h-12 w-12 items-center justify-center rounded-[14px]" 
-        style={{ 
-          background: 'var(--surface-inset)', 
-          border: '1px solid var(--border-subtle)' 
+      <div
+        className="flex h-12 w-12 items-center justify-center rounded-[14px]"
+        style={{
+          background: 'var(--surface-inset)',
+          border: '1px solid var(--border-subtle)',
         }}
       >
-        <IconActivity size={22} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
+        <IconActivity
+          size={22}
+          stroke={1.5}
+          style={{ color: 'var(--text-tertiary)' }}
+          aria-hidden
+        />
       </div>
       <div>
-        <p className="text-[14px] font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+        <p
+          className="text-[14px] font-medium tracking-tight"
+          style={{ color: 'var(--text-primary)' }}
+        >
           No probes are reporting yet.
         </p>
         <p
-          className="t-caption mt-1.5 mx-auto"
+          className="t-caption mx-auto mt-1.5"
           style={{ color: 'var(--text-secondary)', maxWidth: '44ch', textWrap: 'pretty' }}
         >
-          Latency, delivery and queue depth arrive from the observability probes at M6. The isolation
-          suite is answerable today and is reported live on the health page.
+          Latency, delivery and queue depth arrive from the observability probes at M6. The
+          isolation suite is answerable today and is reported live on the health page.
         </p>
         <Link
           href="/platform/health"
@@ -449,8 +460,12 @@ export function PlatformTelemetrySkeleton() {
         </h3>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-4">
-            <span className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>Live</span>
-            <span className="t-compact font-medium" style={{ color: 'var(--text-tertiary)' }}>Budgets</span>
+            <span className="t-compact font-medium" style={{ color: 'var(--text-primary)' }}>
+              Live
+            </span>
+            <span className="t-compact font-medium" style={{ color: 'var(--text-tertiary)' }}>
+              Budgets
+            </span>
           </div>
         </div>
       </header>
@@ -471,7 +486,10 @@ export function PlatformTelemetrySkeleton() {
               style={{ borderBottom: i === 3 ? undefined : '1px solid var(--border-subtle)' }}
             >
               <div className="flex items-center gap-3">
-                <span className="h-5 w-5 rounded-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] motion-reduce:animate-none motion-reduce:opacity-70" style={{ background: 'var(--surface-sunken)' }} />
+                <span
+                  className="h-5 w-5 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-full motion-reduce:animate-none motion-reduce:opacity-70"
+                  style={{ background: 'var(--surface-sunken)' }}
+                />
                 <span
                   aria-hidden
                   className="h-4 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-chip motion-reduce:animate-none motion-reduce:opacity-70"

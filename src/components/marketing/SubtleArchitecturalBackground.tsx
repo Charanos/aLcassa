@@ -1,38 +1,37 @@
 'use client';
 
 import { useRef } from 'react';
-import {
-  IconBrandWhatsapp,
-  IconMessage,
-  IconServer2,
-} from '@tabler/icons-react';
+import { IconBrandWhatsapp, IconMessage, IconServer2 } from '@tabler/icons-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
 export function SubtleArchitecturalBackground() {
   const container = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    // Ultra-slow, peaceful ambient atmospheric drift
-    gsap.to('.ambient-orb-1', {
-      x: 'random(-25, 25)',
-      y: 'random(-20, 20)',
-      duration: 14,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
-    });
+  useGSAP(
+    () => {
+      // Ultra-slow, peaceful ambient atmospheric drift
+      gsap.to('.ambient-orb-1', {
+        x: 'random(-25, 25)',
+        y: 'random(-20, 20)',
+        duration: 14,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      });
 
-    gsap.to('.ambient-orb-2', {
-      x: 'random(-30, 30)',
-      y: 'random(-25, 25)',
-      duration: 16,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
-      delay: 1,
-    });
-  }, { scope: container });
+      gsap.to('.ambient-orb-2', {
+        x: 'random(-30, 30)',
+        y: 'random(-25, 25)',
+        duration: 16,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: 1,
+      });
+    },
+    { scope: container },
+  );
 
   return (
     <div
@@ -61,7 +60,7 @@ export function SubtleArchitecturalBackground() {
       <div className="absolute top-[6%] -right-24 hidden rotate-12 text-[var(--ink-400)] opacity-[0.045] md:block">
         <IconMessage size={480} stroke={0.85} />
       </div>
-      <div className="absolute -left-16 top-[53%] hidden -rotate-[8deg] text-[var(--ink-400)] opacity-[0.04] md:block">
+      <div className="absolute top-[53%] -left-16 hidden -rotate-[8deg] text-[var(--ink-400)] opacity-[0.04] md:block">
         <IconBrandWhatsapp size={450} stroke={0.85} />
       </div>
 
@@ -98,8 +97,22 @@ export function SubtleArchitecturalBackground() {
           strokeWidth="0.85"
         />
 
-        <ellipse cx="12%" cy="30%" rx="440" ry="240" stroke="url(#arch-grad-1)" strokeWidth="0.75" />
-        <ellipse cx="88%" cy="20%" rx="500" ry="280" stroke="url(#arch-grad-2)" strokeWidth="0.75" />
+        <ellipse
+          cx="12%"
+          cy="30%"
+          rx="440"
+          ry="240"
+          stroke="url(#arch-grad-1)"
+          strokeWidth="0.75"
+        />
+        <ellipse
+          cx="88%"
+          cy="20%"
+          rx="500"
+          ry="280"
+          stroke="url(#arch-grad-2)"
+          strokeWidth="0.75"
+        />
       </svg>
     </div>
   );

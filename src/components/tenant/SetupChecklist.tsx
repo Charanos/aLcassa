@@ -72,8 +72,8 @@ export function SetupChecklist({
             Finish setting up
           </h2>
           <p className="t-compact mt-1 text-[var(--text-secondary)]">
-            {total - done} {total - done === 1 ? 'step' : 'steps'} left. You can come back to any
-            of them.
+            {total - done} {total - done === 1 ? 'step' : 'steps'} left. You can come back to any of
+            them.
           </p>
         </div>
 

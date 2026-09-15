@@ -8,8 +8,9 @@ export default function AppearancePage() {
     <div className="grid gap-8">
       <div>
         <h1 className="t-title text-[var(--text-primary)]">Appearance & Layout</h1>
-        <p className="t-lede mt-1 text-[var(--text-secondary)] max-w-2xl">
-          Personalize your workspace. Choose your brand accent color and customize layout preferences.
+        <p className="t-lede mt-1 max-w-2xl text-[var(--text-secondary)]">
+          Personalize your workspace. Choose your brand accent color and customize layout
+          preferences.
         </p>
       </div>
 

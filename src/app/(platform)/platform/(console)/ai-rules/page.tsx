@@ -68,9 +68,12 @@ export default async function AiRulesPage() {
         style={{ borderColor: 'var(--border-subtle)' }}
       >
         <div className="min-w-0 flex-1">
-          <ConsoleHeader 
-            breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Master AI rules' }]}
-            title="Master AI rules" 
+          <ConsoleHeader
+            breadcrumbs={[
+              { label: 'Platform Console', href: '/platform' },
+              { label: 'Master AI rules' },
+            ]}
+            title="Master AI rules"
             actions={
               <span
                 className="inline-flex h-[26px] items-center gap-1.5 rounded-full px-2.5 whitespace-nowrap"

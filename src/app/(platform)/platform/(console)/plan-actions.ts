@@ -16,9 +16,7 @@ import { previewPlanLimitChange, setPlanLimit, type PlanLimitImpact } from '@/mo
  * discovered afterwards.
  */
 
-export type PlanActionResult =
-  | { ok: true; impact: PlanLimitImpact }
-  | { ok: false; error: string };
+export type PlanActionResult = { ok: true; impact: PlanLimitImpact } | { ok: false; error: string };
 
 function refuse(error: unknown, fallback: string): PlanActionResult {
   if (isAppError(error)) return { ok: false, error: error.message };

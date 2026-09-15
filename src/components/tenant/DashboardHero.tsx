@@ -94,10 +94,7 @@ export function DashboardHero({
 }: DashboardHeroProps) {
   return (
     <div className="grid gap-5">
-      <div
-        data-reveal
-        className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4"
-      >
+      <div data-reveal className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div>
           <p className="t-eyebrow uppercase" style={{ color: 'var(--text-tertiary)' }}>
             {today}

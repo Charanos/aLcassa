@@ -117,7 +117,10 @@ export function MilestoneBoard() {
                       </div>
                       <span
                         className="numeric shrink-0"
-                        style={{ font: '500 12px/1 var(--font-mono)', color: 'var(--text-secondary)' }}
+                        style={{
+                          font: '500 12px/1 var(--font-mono)',
+                          color: 'var(--text-secondary)',
+                        }}
                       >
                         {m.progress}%
                       </span>

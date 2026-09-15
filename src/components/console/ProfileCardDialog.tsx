@@ -29,7 +29,14 @@ export function ProfileCardDialog({
         gsapSafe.fromTo(
           cardRef.current,
           { opacity: 0, y: 15, scale: 0.98 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'power3.out', clearProps: 'transform' },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.4,
+            ease: 'power3.out',
+            clearProps: 'transform',
+          },
         );
       }
     }
@@ -110,7 +117,10 @@ export function ProfileCardDialog({
           </div>
 
           <div className="mt-4">
-            <h2 className="text-xl font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            <h2
+              className="text-xl font-medium tracking-tight"
+              style={{ color: 'var(--text-primary)' }}
+            >
               {owner.name}
             </h2>
             <p className="mt-1 font-mono text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -145,11 +155,21 @@ export function ProfileCardDialog({
             >
               <div className="flex items-center gap-2">
                 <IconShieldCheck size={14} stroke={2} style={{ color: 'var(--success-fg)' }} />
-                <span className="text-[11px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-tertiary)' }}>Account Status</span>
+                <span
+                  className="text-[11px] font-medium tracking-wide uppercase"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  Account Status
+                </span>
               </div>
-              <span className="font-mono text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Active</span>
+              <span
+                className="font-mono text-xs font-medium"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Active
+              </span>
             </div>
-            
+
             <div
               className="flex items-center justify-between px-4 py-3"
               style={{
@@ -159,11 +179,21 @@ export function ProfileCardDialog({
             >
               <div className="flex items-center gap-2">
                 <IconKey size={14} stroke={2} style={{ color: 'var(--text-secondary)' }} />
-                <span className="text-[11px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-tertiary)' }}>Security</span>
+                <span
+                  className="text-[11px] font-medium tracking-wide uppercase"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  Security
+                </span>
               </div>
-              <span className="font-mono text-xs font-medium" style={{ color: 'var(--text-primary)' }}>MFA Enabled</span>
+              <span
+                className="font-mono text-xs font-medium"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                MFA Enabled
+              </span>
             </div>
-            
+
             <div
               className="flex items-center justify-between px-4 py-3"
               style={{
@@ -173,17 +203,37 @@ export function ProfileCardDialog({
             >
               <div className="flex items-center gap-2">
                 <IconUserCheck size={14} stroke={2} style={{ color: 'var(--text-secondary)' }} />
-                <span className="text-[11px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-tertiary)' }}>Access Level</span>
+                <span
+                  className="text-[11px] font-medium tracking-wide uppercase"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  Access Level
+                </span>
               </div>
-              <span className="font-mono text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Full Admin</span>
+              <span
+                className="font-mono text-xs font-medium"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Full Admin
+              </span>
             </div>
-            
+
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
                 <IconClock size={14} stroke={2} style={{ color: 'var(--text-secondary)' }} />
-                <span className="text-[11px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-tertiary)' }}>Joined</span>
+                <span
+                  className="text-[11px] font-medium tracking-wide uppercase"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  Joined
+                </span>
               </div>
-              <span className="font-mono text-xs font-medium" style={{ color: 'var(--text-primary)' }}>08 Aug 2026</span>
+              <span
+                className="font-mono text-xs font-medium"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                08 Aug 2026
+              </span>
             </div>
           </div>
         </div>

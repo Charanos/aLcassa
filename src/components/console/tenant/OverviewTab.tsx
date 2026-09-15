@@ -232,9 +232,9 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                   }}
                 >
                   Charging a card is not something this console does &mdash; there is no payment
-                  gateway in Phase 1. It reports what is owed and records every change against
-                  the account; collection is the finance operator&rsquo;s, and the invoice
-                  history behind it is one click away.
+                  gateway in Phase 1. It reports what is owed and records every change against the
+                  account; collection is the finance operator&rsquo;s, and the invoice history
+                  behind it is one click away.
                 </p>
               )}
             </div>

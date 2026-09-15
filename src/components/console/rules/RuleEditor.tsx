@@ -3,11 +3,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import { IconBroadcast, IconPencil, IconStack2, IconUpload } from '@tabler/icons-react';
 import { publishMasterRulesAction } from '@/app/(platform)/platform/(console)/rules-actions';
-import {
-  ConsoleDialog,
-  DialogActions,
-  DialogFact,
-} from '@/components/primitives/ConsoleDialog';
+import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
 import { useToast } from '@/components/primitives/Toast';
 import type { MasterRuleField } from '@/lib/console/data';
 
@@ -198,7 +194,7 @@ export function RuleEditor({
                       ? 'One topic per line. Leave empty to say nothing here.'
                       : 'Leave empty to say nothing here — each workspace then decides alone.'
                   }
-                  className="t-body w-full rounded-chip px-3 py-2.5 outline-none transition-colors"
+                  className="t-body w-full rounded-chip px-3 py-2.5 transition-colors outline-none"
                   style={{
                     border: `1px solid ${isChanged ? 'var(--blue-500)' : 'var(--border-strong)'}`,
                     background: 'var(--surface-raised)',
@@ -222,7 +218,7 @@ export function RuleEditor({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Tightened escalation: anything mentioning a refund goes to a human."
-              className="t-body w-full rounded-chip px-3 outline-none transition-colors"
+              className="t-body w-full rounded-chip px-3 transition-colors outline-none"
               style={{
                 height: 38,
                 border: '1px solid var(--border-strong)',

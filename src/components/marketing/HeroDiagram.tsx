@@ -81,30 +81,33 @@ const CORE_MID = CORE_Y + CORE_H / 2;
 export function HeroDiagram() {
   const container = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    // 03 §7: Motion that serves a purpose. The channels float smoothly to imply active, 
-    // real-time connections waiting for data.
-    gsap.to('.hero-node-float', {
-      y: '-=10',
-      duration: 'random(2.5, 3.5)',
-      yoyo: true,
-      repeat: -1,
-      ease: 'sine.inOut',
-      stagger: {
-        each: 0.15,
-        from: 'random',
-      },
-    });
+  useGSAP(
+    () => {
+      // 03 §7: Motion that serves a purpose. The channels float smoothly to imply active,
+      // real-time connections waiting for data.
+      gsap.to('.hero-node-float', {
+        y: '-=10',
+        duration: 'random(2.5, 3.5)',
+        yoyo: true,
+        repeat: -1,
+        ease: 'sine.inOut',
+        stagger: {
+          each: 0.15,
+          from: 'random',
+        },
+      });
 
-    // The core breathes steadily to imply stability and active listening
-    gsap.to('.hero-core-float', {
-      y: '-=6',
-      duration: 3,
-      yoyo: true,
-      repeat: -1,
-      ease: 'sine.inOut',
-    });
-  }, { scope: container });
+      // The core breathes steadily to imply stability and active listening
+      gsap.to('.hero-core-float', {
+        y: '-=6',
+        duration: 3,
+        yoyo: true,
+        repeat: -1,
+        ease: 'sine.inOut',
+      });
+    },
+    { scope: container },
+  );
 
   return (
     <div

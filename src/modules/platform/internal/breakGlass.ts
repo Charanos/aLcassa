@@ -126,9 +126,7 @@ export async function setBreakGlass(
     {
       actorUserId: actor.userId,
       actorLabel: actor.label,
-      action: input.lock
-        ? AUDIT_ACTIONS.SUPPORT_LOCK_ENGAGED
-        : AUDIT_ACTIONS.SUPPORT_LOCK_RELEASED,
+      action: input.lock ? AUDIT_ACTIONS.SUPPORT_LOCK_ENGAGED : AUDIT_ACTIONS.SUPPORT_LOCK_RELEASED,
       entityType: 'platform',
       reason,
       requestId: actor.requestId,

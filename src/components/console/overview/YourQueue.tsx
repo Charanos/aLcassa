@@ -143,7 +143,7 @@ export function QueueCard({ item }: { item: QueueItem }) {
             />
             <Link
               href={`/platform/tenants/${item.slug}`}
-              className="t-compact shrink-0 inline-flex h-8 cursor-pointer items-center rounded-lg px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
+              className="t-compact inline-flex h-8 shrink-0 cursor-pointer items-center rounded-lg px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
               style={{ color: 'var(--text-primary)', fontWeight: 500 }}
             >
               Open workspace
@@ -319,9 +319,9 @@ export function QueueSkeleton() {
         <div
           key={i}
           className="rounded-[16px] px-6 py-5"
-          style={{ 
-            background: 'var(--surface-raised)', 
-            boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)' 
+          style={{
+            background: 'var(--surface-raised)',
+            boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
           }}
         >
           <div className="flex items-center gap-3">

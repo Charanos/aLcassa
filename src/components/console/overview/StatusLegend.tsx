@@ -64,10 +64,7 @@ export function StatusLegend({ slices, total }: { slices: StatusSlice[]; total: 
                   that it is 87%. The count alone makes a reader do the division
                   against a total printed in the panel title.
                 */}
-                <span
-                  className="font-mono text-[11px]"
-                  style={{ color: 'var(--text-tertiary)' }}
-                >
+                <span className="font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
                   {share}%
                 </span>
                 <span

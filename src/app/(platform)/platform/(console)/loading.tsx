@@ -1,9 +1,5 @@
 import { ConsolePage } from '@/components/console/Surface';
-import {
-  SkeletonGroup,
-  SkeletonHeader,
-  SkeletonMetric,
-} from '@/components/primitives/Skeleton';
+import { SkeletonGroup, SkeletonHeader, SkeletonMetric } from '@/components/primitives/Skeleton';
 import { QueueSkeleton } from '@/components/console/overview/YourQueue';
 import { PlatformTelemetrySkeleton } from '@/components/console/overview/PlatformTelemetry';
 import { LastActionsSkeleton } from '@/components/console/overview/LastActions';

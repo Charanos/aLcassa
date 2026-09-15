@@ -91,7 +91,12 @@ async function resolveSessionCore(
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
     throw new AppError(ERROR_CODES.AUTH_SESSION_EXPIRED, {
-      internal: { stage: 'supabase.getUser', reason: error?.message, name: error?.name, status: error?.status },
+      internal: {
+        stage: 'supabase.getUser',
+        reason: error?.message,
+        name: error?.name,
+        status: error?.status,
+      },
     });
   }
   const userId = data.user.id;
@@ -255,7 +260,13 @@ async function resolvePlatformCore(
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
     throw new AppError(ERROR_CODES.AUTH_SESSION_EXPIRED, {
-      internal: { stage: 'supabase.getUser', door: 'platform', reason: error?.message, name: error?.name, status: error?.status },
+      internal: {
+        stage: 'supabase.getUser',
+        door: 'platform',
+        reason: error?.message,
+        name: error?.name,
+        status: error?.status,
+      },
     });
   }
   const userId = data.user.id;

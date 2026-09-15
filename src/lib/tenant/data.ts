@@ -292,7 +292,13 @@ export async function getOverview(): Promise<OverviewModel> {
        why this reads 12 of 15 against a team page showing fewer active rows. */
     meters: [
       { key: 'events', label: 'Events', text: '470,300 / 500,000', pct: 94, tone: 'warn' },
-      { key: 'conversations', label: 'Conversations', text: '18,402 / 40,000', pct: 46, tone: 'good' },
+      {
+        key: 'conversations',
+        label: 'Conversations',
+        text: '18,402 / 40,000',
+        pct: 46,
+        tone: 'good',
+      },
       { key: 'seats', label: 'Staff seats', text: '12 / 15', pct: 80, tone: 'good' },
     ],
     /*

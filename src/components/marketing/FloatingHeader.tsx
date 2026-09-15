@@ -160,7 +160,7 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
             {session?.isAuthenticated ? (
               <Link
                 href={session.dashboardHref}
-                className="t-compact rounded-full px-4 py-1.5 font-medium text-white transition-all hover:brightness-105 active:scale-95 shadow-xs"
+                className="t-compact rounded-full px-4 py-1.5 font-medium text-white shadow-xs transition-all hover:brightness-105 active:scale-95"
                 style={{
                   background: 'var(--orange-500)',
                   transitionDuration: 'var(--duration-fast)',
@@ -171,7 +171,7 @@ export function FloatingHeader({ session }: FloatingHeaderProps) {
             ) : (
               <Link
                 href="/sign-in"
-                className="t-compact rounded-full px-4.5 py-1.5 font-medium text-white transition-all hover:brightness-105 active:scale-95 shadow-xs"
+                className="t-compact rounded-full px-4.5 py-1.5 font-medium text-white shadow-xs transition-all hover:brightness-105 active:scale-95"
                 style={{
                   background: 'var(--orange-500)',
                   transitionDuration: 'var(--duration-fast)',

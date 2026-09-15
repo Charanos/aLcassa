@@ -253,7 +253,7 @@ function Field({
         onKeyDown={(e) => {
           if (e.key === 'Enter') onEnter?.();
         }}
-        className="t-body w-full rounded-chip px-3 outline-none transition-colors"
+        className="t-body w-full rounded-chip px-3 transition-colors outline-none"
         style={{
           height: 38,
           border: `1px solid ${invalid ? 'var(--danger-fg)' : 'var(--border-strong)'}`,

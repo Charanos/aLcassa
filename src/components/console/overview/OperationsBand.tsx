@@ -43,22 +43,19 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
-        <Panel
-          title="Response latency · p50 / p95 / p99"
-          action={<Designed />}
-          variant="elevated"
-        >
+        <Panel title="Response latency · p50 / p95 / p99" action={<Designed />} variant="elevated">
           {operations.latency.length > 0 ? (
-            <div className="flex flex-col h-full pt-1">
-              <div className="w-full mb-6">
-                <p 
-                  className="font-ui text-[13px] leading-relaxed text-pretty" 
+            <div className="flex h-full flex-col pt-1">
+              <div className="mb-6 w-full">
+                <p
+                  className="font-ui text-[13px] leading-relaxed text-pretty"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  Tail performance — p95 and p99 — against the median, hour by hour across the last day. The tail is what pages somebody; a mean hides it.
+                  Tail performance — p95 and p99 — against the median, hour by hour across the last
+                  day. The tail is what pages somebody; a mean hides it.
                 </p>
               </div>
-              <div className="flex-1 min-w-0 min-h-0 relative">
+              <div className="relative min-h-0 min-w-0 flex-1">
                 <LatencyChart data={operations.latency} />
               </div>
             </div>
@@ -78,7 +75,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                 body="Each service answers a probe and appears here with its budget."
               />
             ) : (
-              <div className="group relative overflow-hidden rounded-xl bg-[var(--surface-raised)] px-5 py-4 transition-shadow duration-300 hover:shadow-md border border-[var(--border-subtle)] shadow-sm">
+              <div className="group relative overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-5 py-4 shadow-sm transition-shadow duration-300 hover:shadow-md">
                 <p
                   className="t-compact relative z-10 font-medium"
                   style={{ color: 'var(--text-primary)' }}
@@ -117,7 +114,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
               </div>
             ) : (
               <div className="px-1 pb-2">
-                <div 
+                <div
                   className="flex flex-col overflow-hidden rounded-[12px] bg-[var(--surface-raised)] transition-shadow duration-300 hover:shadow-md"
                   style={{
                     border: '1px solid var(--border-subtle)',
@@ -145,17 +142,20 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                       and no bar is drawn.
                     */
                     const share = deepest > 0 ? Math.max(6, (q.depth / deepest) * 100) : 0;
-                    
+
                     return (
-                      <div 
+                      <div
                         key={q.name}
                         className="group transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
                         style={{
-                          borderBottom: i === list.length - 1 && hiddenQueues === 0 ? 'none' : '1px solid var(--border-subtle)',
+                          borderBottom:
+                            i === list.length - 1 && hiddenQueues === 0
+                              ? 'none'
+                              : '1px solid var(--border-subtle)',
                         }}
                       >
                         <div className="flex items-center justify-between gap-4 px-4 py-3.5">
-                          <span className="flex items-center gap-3 min-w-0">
+                          <span className="flex min-w-0 items-center gap-3">
                             <span
                               className="grid size-6 shrink-0 place-items-center rounded-md transition-transform duration-200 group-hover:scale-105"
                               style={{ color: active ? ink : 'var(--blue-400)' }}
@@ -163,12 +163,19 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                             >
                               <IconActivity size={15} stroke={1.75} />
                             </span>
-                            <span className="flex items-center gap-2 min-w-0">
-                              <span className="truncate text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                            <span className="flex min-w-0 items-center gap-2">
+                              <span
+                                className="truncate text-[14px] font-medium"
+                                style={{ color: 'var(--text-primary)' }}
+                              >
                                 {q.name}
                               </span>
                               {active ? (
-                                <span className="size-1.5 shrink-0 rounded-full" style={{ background: ink }} aria-hidden />
+                                <span
+                                  className="size-1.5 shrink-0 rounded-full"
+                                  style={{ background: ink }}
+                                  aria-hidden
+                                />
                               ) : null}
                             </span>
                           </span>
@@ -176,28 +183,34 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                           <span className="flex shrink-0 items-center text-right">
                             <span className="flex flex-col items-end gap-1">
                               <span className="flex items-baseline justify-end gap-1.5">
-                                <span className="font-mono text-[14px] font-medium tracking-tight" style={{ color: active ? ink : 'var(--text-primary)' }}>
+                                <span
+                                  className="font-mono text-[14px] font-medium tracking-tight"
+                                  style={{ color: active ? ink : 'var(--text-primary)' }}
+                                >
                                   {q.depth.toLocaleString('en-KE')}
                                 </span>
-                                <span className="text-[12px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+                                <span
+                                  className="text-[12px] font-medium"
+                                  style={{ color: 'var(--text-tertiary)' }}
+                                >
                                   · {q.rate}
                                 </span>
                               </span>
                               {deepest > 0 ? (
-                                <span 
-                                  className="flex h-[2px] w-24 overflow-hidden rounded-full bg-[var(--surface-inset)]" 
+                                <span
+                                  className="flex h-[2px] w-24 overflow-hidden rounded-full bg-[var(--surface-inset)]"
                                   role="meter"
                                   aria-valuenow={q.depth}
                                   aria-valuemin={0}
                                   aria-valuemax={deepest}
                                   aria-label={`${q.name}: ${q.depth} queued, against ${deepest} in the deepest queue`}
                                 >
-                                  <span 
-                                    className="h-full rounded-full transition-all duration-700 ease-out" 
-                                    style={{ 
-                                      width: `${share}%`, 
-                                      background: ink
-                                    }} 
+                                  <span
+                                    className="h-full rounded-full transition-all duration-700 ease-out"
+                                    style={{
+                                      width: `${share}%`,
+                                      background: ink,
+                                    }}
                                   />
                                 </span>
                               ) : null}
@@ -235,9 +248,9 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
             <NoSessionsYet />
           ) : (
             <div className="flex flex-col overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] shadow-sm transition-shadow duration-300 hover:shadow-md">
-              <dl className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-[var(--border-subtle)]">
+              <dl className="flex flex-col divide-y divide-[var(--border-subtle)] sm:flex-row sm:divide-x sm:divide-y-0">
                 {operations.sessions.map((stat) => (
-                  <div 
+                  <div
                     key={stat.label}
                     className="group relative flex flex-1 flex-col justify-center p-6 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
                   >
@@ -256,16 +269,16 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                         {stat.label}
                       </dt>
                       <dd
-                        className="flex items-center gap-3 font-mono text-[36px] font-medium tracking-tight leading-none"
+                        className="flex items-center gap-3 font-mono text-[36px] leading-none font-medium tracking-tight"
                         style={{
                           color: stat.tone === 'accent' ? 'var(--blue-500)' : 'var(--text-primary)',
                         }}
                       >
                         {stat.tone === 'accent' ? (
                           <span className="relative flex size-3.5 shrink-0 items-center justify-center">
-                            <span 
-                              className="absolute inset-0 animate-ping rounded-full opacity-40 bg-[var(--blue-400)]" 
-                              style={{ animationDuration: '3s' }} 
+                            <span
+                              className="absolute inset-0 animate-ping rounded-full bg-[var(--blue-400)] opacity-40"
+                              style={{ animationDuration: '3s' }}
                             />
                             <span className="relative size-2.5 rounded-full bg-[var(--blue-500)] shadow-[0_0_8px_var(--blue-400)]" />
                           </span>
@@ -390,8 +403,14 @@ export function OperationsBandSkeleton() {
           <div className="grid gap-6 sm:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <div key={i} className="grid gap-2">
-                <SkeletonText width={[34, 28, 40][i] ?? 34} className="!bg-[var(--surface-inset)]" />
-                <SkeletonText width={[70, 82, 64][i] ?? 70} className="!bg-[var(--surface-inset)]" />
+                <SkeletonText
+                  width={[34, 28, 40][i] ?? 34}
+                  className="!bg-[var(--surface-inset)]"
+                />
+                <SkeletonText
+                  width={[70, 82, 64][i] ?? 70}
+                  className="!bg-[var(--surface-inset)]"
+                />
               </div>
             ))}
           </div>
@@ -400,4 +419,3 @@ export function OperationsBandSkeleton() {
     </SkeletonGroup>
   );
 }
-

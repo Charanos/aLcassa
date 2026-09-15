@@ -177,7 +177,7 @@ export function HeroInteractiveConsole() {
         ease: 'sine.inOut',
       });
     },
-    { scope: containerRef, dependencies: [reducedMotion] }
+    { scope: containerRef, dependencies: [reducedMotion] },
   );
 
   // Subtle thread transition on conversation switch
@@ -186,7 +186,7 @@ export function HeroInteractiveConsole() {
     gsap.fromTo(
       chatViewRef.current,
       { opacity: 0, y: 5 },
-      { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' }
+      { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' },
     );
   }, [selectedId, reducedMotion]);
 
@@ -221,11 +221,11 @@ export function HeroInteractiveConsole() {
   return (
     <div
       ref={containerRef}
-      className="relative pt-6 w-full max-w-[1320px] mx-auto select-none text-left"
+      className="relative mx-auto w-full max-w-[1320px] pt-6 text-left select-none"
     >
       <span className="sr-only">
-        Interactive live preview of the aLcassa omnichannel tenant workspace with live customer conversation
-        on {active.channelName} and rule-driven assistant resolution.
+        Interactive live preview of the aLcassa omnichannel tenant workspace with live customer
+        conversation on {active.channelName} and rule-driven assistant resolution.
       </span>
 
       {/* Atmospheric Ambient Backlight */}
@@ -238,10 +238,9 @@ export function HeroInteractiveConsole() {
       />
 
       {/* Master Workspace Console Frame */}
-      <div className="relative z-10 overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--ink-200)] bg-[var(--ink-0)] shadow-[0_24px_70px_-18px_rgba(0,0,0,0.07)]">
-        
+      <div className="relative z-10 overflow-hidden rounded-2xl border border-[var(--ink-200)] bg-[var(--ink-0)] shadow-[0_24px_70px_-18px_rgba(0,0,0,0.07)] sm:rounded-3xl">
         {/* Top Header Bar: Workspace Shell */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ink-100)] bg-[var(--ink-50)]/70 px-5 sm:px-6 py-3.5 backdrop-blur-md">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ink-100)] bg-[var(--ink-50)]/70 px-5 py-3.5 backdrop-blur-md sm:px-6">
           {/* Brand & Workspace breadcrumbs */}
           <div className="flex items-center gap-3">
             <Link
@@ -254,7 +253,9 @@ export function HeroInteractiveConsole() {
                 aLcassa
               </span>
             </Link>
-            <span className="text-[var(--ink-300)]" aria-hidden="true">|</span>
+            <span className="text-[var(--ink-300)]" aria-hidden="true">
+              |
+            </span>
             <div className="flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-secondary)]">
               <span className="font-medium text-[var(--text-primary)]">Acme Corp HQ</span>
               <span className="text-[var(--ink-300)]">·</span>
@@ -263,16 +264,20 @@ export function HeroInteractiveConsole() {
           </div>
 
           {/* Center: Search Bar with "Every channel, one inbox" placeholder */}
-          <div className="hidden md:flex items-center gap-2 rounded-xl border border-[var(--ink-200)]/80 bg-[var(--ink-0)] px-3 py-1.5 text-[12px] text-[var(--text-secondary)] shadow-xs w-[280px] lg:w-[320px] transition-all focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-500)]/15">
-            <IconSearch size={14} className="text-[var(--text-tertiary)] shrink-0" aria-hidden="true" />
+          <div className="hidden w-[280px] items-center gap-2 rounded-xl border border-[var(--ink-200)]/80 bg-[var(--ink-0)] px-3 py-1.5 text-[12px] text-[var(--text-secondary)] shadow-xs transition-all focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-500)]/15 md:flex lg:w-[320px]">
+            <IconSearch
+              size={14}
+              className="shrink-0 text-[var(--text-tertiary)]"
+              aria-hidden="true"
+            />
             <input
               type="text"
               placeholder="Every channel, one inbox"
-              className="w-full bg-transparent text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none cursor-default"
+              className="w-full cursor-default bg-transparent text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none"
               readOnly
               aria-label="Search inbox"
             />
-            <kbd className="hidden lg:inline-flex items-center font-mono text-[9.5px] text-[var(--text-tertiary)] bg-[var(--ink-50)] border border-[var(--ink-200)]/80 px-1.5 py-0.5 rounded">
+            <kbd className="hidden items-center rounded border border-[var(--ink-200)]/80 bg-[var(--ink-50)] px-1.5 py-0.5 font-mono text-[9.5px] text-[var(--text-tertiary)] lg:inline-flex">
               ⌘K
             </kbd>
           </div>
@@ -280,31 +285,31 @@ export function HeroInteractiveConsole() {
           {/* Right: Production-Grade Dashboard Control Cluster */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             {/* 1. Connected Channels Micro-Dock */}
-            <div className="hidden sm:flex items-center gap-2 rounded-full bg-[var(--surface-sunken)] border border-[var(--ink-200)]/80 py-1 pl-1.5 pr-2.5 shadow-2xs">
-              <div className="flex -space-x-1.5 items-center">
+            <div className="hidden items-center gap-2 rounded-full border border-[var(--ink-200)]/80 bg-[var(--surface-sunken)] py-1 pr-2.5 pl-1.5 shadow-2xs sm:flex">
+              <div className="flex items-center -space-x-1.5">
                 <span
-                  className="grid size-5 place-items-center rounded-full bg-[#16a34a] text-white ring-2 ring-white shadow-xs"
+                  className="grid size-5 place-items-center rounded-full bg-[#16a34a] text-white shadow-xs ring-2 ring-white"
                   title="WhatsApp connected"
                   aria-label="WhatsApp channel active"
                 >
                   <IconBrandWhatsapp size={11} stroke={2.5} />
                 </span>
                 <span
-                  className="grid size-5 place-items-center rounded-full bg-[#e11d48] text-white ring-2 ring-white shadow-xs"
+                  className="grid size-5 place-items-center rounded-full bg-[#e11d48] text-white shadow-xs ring-2 ring-white"
                   title="Instagram connected"
                   aria-label="Instagram channel active"
                 >
                   <IconBrandInstagram size={11} stroke={2.5} />
                 </span>
                 <span
-                  className="grid size-5 place-items-center rounded-full bg-[#2563eb] text-white ring-2 ring-white shadow-xs"
+                  className="grid size-5 place-items-center rounded-full bg-[#2563eb] text-white shadow-xs ring-2 ring-white"
                   title="Messenger connected"
                   aria-label="Messenger channel active"
                 >
                   <IconBrandMessenger size={11} stroke={2.5} />
                 </span>
                 <span
-                  className="grid size-5 place-items-center rounded-full bg-[#d97706] text-white ring-2 ring-white shadow-xs"
+                  className="grid size-5 place-items-center rounded-full bg-[#d97706] text-white shadow-xs ring-2 ring-white"
                   title="Webchat connected"
                   aria-label="Website chat channel active"
                 >
@@ -317,22 +322,22 @@ export function HeroInteractiveConsole() {
             </div>
 
             {/* Subtle Divider */}
-            <div className="h-4 w-px bg-[var(--ink-200)] hidden sm:block" aria-hidden="true" />
+            <div className="hidden h-4 w-px bg-[var(--ink-200)] sm:block" aria-hidden="true" />
 
             {/* 3. Notification Activity Bell */}
             <button
               type="button"
-              className="relative p-1.5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-sunken)] rounded-lg transition-colors cursor-pointer"
+              className="relative cursor-pointer rounded-lg p-1.5 text-[var(--text-tertiary)] transition-colors hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]"
               aria-label="1 unread inbound notification"
             >
               <IconBell size={16} stroke={1.8} />
-              <span className="absolute top-1 right-1 size-1.5 rounded-full bg-[var(--orange-500)] ring-1.5 ring-white" />
+              <span className="ring-1.5 absolute top-1 right-1 size-1.5 rounded-full bg-[var(--orange-500)] ring-white" />
             </button>
 
             {/* 4. Active Tenant Operator Profile */}
             <div className="flex items-center gap-2 pl-0.5">
               <div className="relative">
-                <div className="size-6 rounded-full overflow-hidden ring-1 ring-[var(--ink-200)] shadow-2xs">
+                <div className="size-6 overflow-hidden rounded-full shadow-2xs ring-1 ring-[var(--ink-200)]">
                   <Image
                     src="/avatars/wanjiru.jpg"
                     alt="Operator Wanjiru Maina"
@@ -342,9 +347,9 @@ export function HeroInteractiveConsole() {
                     unoptimized
                   />
                 </div>
-                <span className="absolute bottom-0 right-0 size-2 rounded-full bg-emerald-500 ring-[1.5px] ring-white" />
+                <span className="absolute right-0 bottom-0 size-2 rounded-full bg-emerald-500 ring-[1.5px] ring-white" />
               </div>
-              <span className="hidden xl:inline-block font-mono text-[11px] text-[var(--text-secondary)] font-medium">
+              <span className="hidden font-mono text-[11px] font-medium text-[var(--text-secondary)] xl:inline-block">
                 Wanjiru M.
               </span>
             </div>
@@ -352,12 +357,11 @@ export function HeroInteractiveConsole() {
         </div>
 
         {/* Two-Column Main Workspace */}
-        <div className="grid grid-cols-1 md:grid-cols-[330px_1fr] divide-y md:divide-y-0 md:divide-x divide-[var(--ink-100)]">
-          
+        <div className="grid grid-cols-1 divide-y divide-[var(--ink-100)] md:grid-cols-[330px_1fr] md:divide-x md:divide-y-0">
           {/* Left Column: Clean Conversation List (No generic left border) */}
-          <div className="bg-[var(--ink-50)]/30 p-3 sm:p-4 flex flex-col gap-1.5">
-            <div className="flex items-center justify-between px-2 py-1 mb-1">
-              <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--text-tertiary)]">
+          <div className="flex flex-col gap-1.5 bg-[var(--ink-50)]/30 p-3 sm:p-4">
+            <div className="mb-1 flex items-center justify-between px-2 py-1">
+              <span className="font-mono text-[11px] font-medium tracking-wider text-[var(--text-tertiary)] uppercase">
                 Recent Inbound
               </span>
               <span className="font-mono text-[10.5px] text-[var(--text-tertiary)]">
@@ -377,18 +381,18 @@ export function HeroInteractiveConsole() {
                   onClick={() => setSelectedId(item.id)}
                   aria-pressed={isSelected}
                   aria-label={`Open conversation with ${item.senderName} on ${item.channelName}`}
-                  className={`group relative flex items-start gap-3 rounded-2xl p-3 text-left transition-all duration-200 cursor-pointer min-h-[64px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] ${
+                  className={`group relative flex min-h-[64px] cursor-pointer items-start gap-3 rounded-2xl p-3 text-left transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] ${
                     isSelected
-                      ? 'bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] border border-[var(--ink-200)]/80 scale-[1.01]'
-                      : 'hover:bg-white/60 border border-transparent'
+                      ? 'scale-[1.01] border border-[var(--ink-200)]/80 bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)]'
+                      : 'border border-transparent hover:bg-white/60'
                   }`}
                 >
                   {/* Avatar with Channel Ring Indicator */}
-                  <div className="relative shrink-0 mt-0.5">
+                  <div className="relative mt-0.5 shrink-0">
                     <div
-                      className={`relative size-11 rounded-full overflow-hidden transition-all duration-200 ${
+                      className={`relative size-11 overflow-hidden rounded-full transition-all duration-200 ${
                         isSelected
-                          ? 'ring-2 ring-offset-2 shadow-xs'
+                          ? 'shadow-xs ring-2 ring-offset-2'
                           : 'ring-1 ring-[var(--ink-200)]/60'
                       }`}
                       style={{
@@ -406,7 +410,7 @@ export function HeroInteractiveConsole() {
                       />
                     </div>
                     <span
-                      className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full bg-white text-white shadow-xs"
+                      className="absolute -right-1 -bottom-1 grid size-5 place-items-center rounded-full bg-white text-white shadow-xs"
                       style={{ background: item.color }}
                     >
                       <Icon size={11} stroke={2.5} aria-hidden="true" />
@@ -416,7 +420,7 @@ export function HeroInteractiveConsole() {
                   {/* Customer & Message Meta */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-[13.5px] font-medium text-[var(--text-primary)] truncate">
+                      <span className="truncate text-[13.5px] font-medium text-[var(--text-primary)]">
                         {item.senderName}
                       </span>
                       {isSelected ? (
@@ -424,15 +428,15 @@ export function HeroInteractiveConsole() {
                           Viewing
                         </StatusBadge>
                       ) : (
-                        <span className="font-mono text-[10.5px] text-[var(--text-tertiary)] shrink-0">
+                        <span className="shrink-0 font-mono text-[10.5px] text-[var(--text-tertiary)]">
                           {item.time}
                         </span>
                       )}
                     </div>
 
-                    <p className="text-[12px] text-[var(--text-secondary)] truncate mt-0.5">
+                    <p className="mt-0.5 truncate text-[12px] text-[var(--text-secondary)]">
                       {sent ? (
-                        <span className="text-emerald-600 font-medium inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-1 font-medium text-emerald-600">
                           <IconCheck size={12} stroke={2.5} />
                           Resolved
                         </span>
@@ -442,14 +446,10 @@ export function HeroInteractiveConsole() {
                     </p>
 
                     <div className="mt-1 flex items-center justify-between gap-1">
-                      <span className="font-mono text-[10px] text-[var(--text-tertiary)] truncate">
+                      <span className="truncate font-mono text-[10px] text-[var(--text-tertiary)]">
                         {item.senderBusiness}
                       </span>
-                      <StatusBadge
-                        tone={getChannelTone(item.id)}
-                        variant="squircle"
-                        size="sm"
-                      >
+                      <StatusBadge tone={getChannelTone(item.id)} variant="squircle" size="sm">
                         {item.channelName}
                       </StatusBadge>
                     </div>
@@ -462,14 +462,14 @@ export function HeroInteractiveConsole() {
           {/* Right Column: Active Live Thread (De-boxed & spacious layout) */}
           <div
             ref={chatViewRef}
-            className="p-5 sm:p-7 bg-[var(--ink-0)] flex flex-col justify-between min-h-[470px] text-left"
+            className="flex min-h-[470px] flex-col justify-between bg-[var(--ink-0)] p-5 text-left sm:p-7"
           >
             <div>
               {/* Thread Header: Contact Identity & Compliance */}
-              <div className="flex items-center justify-between gap-3 pb-5 border-b border-[var(--ink-100)]">
+              <div className="flex items-center justify-between gap-3 border-b border-[var(--ink-100)] pb-5">
                 <div className="flex items-center gap-3.5">
                   <div className="relative shrink-0">
-                    <div className="relative size-11 rounded-full overflow-hidden ring-1 ring-[var(--ink-200)] shadow-xs">
+                    <div className="relative size-11 overflow-hidden rounded-full shadow-xs ring-1 ring-[var(--ink-200)]">
                       <Image
                         src={active.avatarUrl}
                         alt={active.senderName}
@@ -480,7 +480,7 @@ export function HeroInteractiveConsole() {
                       />
                     </div>
                     <span
-                      className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full text-white shadow-xs"
+                      className="absolute -right-1 -bottom-1 grid size-5 place-items-center rounded-full text-white shadow-xs"
                       style={{ background: active.color }}
                     >
                       <active.icon size={11} stroke={2.5} aria-hidden="true" />
@@ -493,31 +493,26 @@ export function HeroInteractiveConsole() {
                         {active.senderName}
                       </h4>
                     </div>
-                    <p className="text-[12px] text-[var(--text-secondary)] mt-0.5">
+                    <p className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
                       {active.senderRole} · {active.senderBusiness}
                     </p>
                   </div>
                 </div>
 
                 {/* Tenancy & Security Badge */}
-                <StatusBadge
-                  tone={getChannelTone(active.id)}
-                  variant="pill"
-                  size="md"
-                >
+                <StatusBadge tone={getChannelTone(active.id)} variant="pill" size="md">
                   {active.channelName}
                 </StatusBadge>
               </div>
 
               {/* Message Feed Stream */}
               <div className="mt-6 flex flex-col gap-4">
-                
                 {/* 1. Customer Inbound Bubble (Clean, unboxed styling) */}
-                <div className="self-start max-w-[82%]">
-                  <div className="rounded-2xl rounded-tl-xs bg-[var(--surface-sunken)] p-4 text-[14px] text-left leading-relaxed text-[var(--text-primary)] shadow-xs">
+                <div className="max-w-[82%] self-start">
+                  <div className="rounded-2xl rounded-tl-xs bg-[var(--surface-sunken)] p-4 text-left text-[14px] leading-relaxed text-[var(--text-primary)] shadow-xs">
                     <p>{active.fullMessage}</p>
                   </div>
-                  <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[10.5px] text-[var(--text-tertiary)] px-1">
+                  <div className="mt-1.5 flex items-center gap-1.5 px-1 font-mono text-[10.5px] text-[var(--text-tertiary)]">
                     <IconClock size={12} />
                     <span>{active.time}</span>
                     <span>·</span>
@@ -529,7 +524,7 @@ export function HeroInteractiveConsole() {
                 {!isSent ? (
                   <div className="mt-2 rounded-2xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-5 text-left transition-all">
                     {/* Header: Rule Matching & Latency */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--ink-100)] mb-3.5">
+                    <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ink-100)] pb-3">
                       <div className="flex items-center gap-2 font-mono text-[11.5px] font-medium text-[var(--text-primary)]">
                         <IconCpu size={14} className="text-[var(--orange-500)]" />
                         <span>AI Assistant Suggested Reply</span>
@@ -545,7 +540,7 @@ export function HeroInteractiveConsole() {
                     </div>
 
                     {/* Pre-drafted reply copy */}
-                    <p className="text-[14px] text-left leading-relaxed text-[var(--text-primary)]">
+                    <p className="text-left text-[14px] leading-relaxed text-[var(--text-primary)]">
                       {active.suggestedReply}
                     </p>
 
@@ -559,11 +554,11 @@ export function HeroInteractiveConsole() {
                     )}
 
                     {/* Dispatch Button & Quick Actions */}
-                    <div className="mt-4 pt-3.5 border-t border-[var(--ink-100)] flex flex-wrap items-center justify-between gap-3">
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--ink-100)] pt-3.5">
                       <button
                         type="button"
                         onClick={handleSendReply}
-                        className="inline-flex items-center gap-2 rounded-full bg-[var(--blue-500)] hover:bg-[var(--blue-600)] px-5 py-2 text-[13px] font-medium text-white transition-all shadow-sm hover:shadow-md cursor-pointer active:scale-95"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[var(--blue-500)] px-5 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-[var(--blue-600)] hover:shadow-md active:scale-95"
                       >
                         <IconSend size={14} aria-hidden="true" />
                         <span>Send this reply</span>
@@ -571,7 +566,7 @@ export function HeroInteractiveConsole() {
 
                       {/* Micro actions to attach */}
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="font-mono text-[10.5px] text-[var(--text-tertiary)] mr-1">
+                        <span className="mr-1 font-mono text-[10.5px] text-[var(--text-tertiary)]">
                           Attach:
                         </span>
                         {active.quickActions.map((action) => {
@@ -581,9 +576,9 @@ export function HeroInteractiveConsole() {
                               key={action}
                               type="button"
                               onClick={() => toggleAction(action)}
-                              className={`rounded-full px-3 py-1 text-[11.5px] font-medium transition-all cursor-pointer ${
+                              className={`cursor-pointer rounded-full px-3 py-1 text-[11.5px] font-medium transition-all ${
                                 isAttached
-                                  ? 'bg-blue-100 text-[var(--blue-700)] border border-blue-300'
+                                  ? 'border border-blue-300 bg-blue-100 text-[var(--blue-700)]'
                                   : 'border border-[var(--ink-200)] bg-white text-[var(--text-secondary)] hover:bg-[var(--ink-50)]'
                               }`}
                             >
@@ -598,22 +593,22 @@ export function HeroInteractiveConsole() {
                   <>
                     {/* Outbound Dispatched Message Bubble */}
                     <div
-                      className="self-end max-w-[82%]"
+                      className="max-w-[82%] self-end"
                       /* tailwindcss-animate is not installed in this project, so the
              animate-in/fade-in/slide-in-* utilities were inert — this
              arrived with no transition at all. globals.css already defines
              the keyframes below, and its reduced-motion block covers them. */
                       style={{ animation: 'panel-in var(--duration-slow) var(--ease-out)' }}
                     >
-                      <div className="rounded-2xl rounded-tr-xs bg-[var(--blue-500)] p-4 text-[14px] text-left leading-relaxed text-white shadow-sm">
+                      <div className="rounded-2xl rounded-tr-xs bg-[var(--blue-500)] p-4 text-left text-[14px] leading-relaxed text-white shadow-sm">
                         <p>{active.suggestedReply}</p>
                         {activeActions[active.id] && (
-                          <div className="mt-2 pt-2 border-t border-white/20 text-[11.5px] font-mono text-white/90">
+                          <div className="mt-2 border-t border-white/20 pt-2 font-mono text-[11.5px] text-white/90">
                             📎 {activeActions[active.id]}
                           </div>
                         )}
                       </div>
-                      <div className="mt-1.5 flex items-center justify-end gap-1.5 font-mono text-[10.5px] text-[var(--text-tertiary)] px-1">
+                      <div className="mt-1.5 flex items-center justify-end gap-1.5 px-1 font-mono text-[10.5px] text-[var(--text-tertiary)]">
                         <span>Just now</span>
                         <span>·</span>
                         <span className="inline-flex items-center gap-1 font-medium text-emerald-600">
@@ -624,16 +619,18 @@ export function HeroInteractiveConsole() {
                     </div>
 
                     {/* Single-line Resolved Status Banner */}
-                    <div className="mt-2 flex items-center justify-between rounded-xl bg-emerald-50/90 border border-emerald-200/80 px-4 py-2 text-[12.5px] text-emerald-800"
-                    style={{ animation: 'overlay-in var(--duration-base) var(--ease-standard)' }}>
+                    <div
+                      className="mt-2 flex items-center justify-between rounded-xl border border-emerald-200/80 bg-emerald-50/90 px-4 py-2 text-[12.5px] text-emerald-800"
+                      style={{ animation: 'overlay-in var(--duration-base) var(--ease-standard)' }}
+                    >
                       <span className="flex items-center gap-2">
-                        <IconCircleCheck size={15} className="text-emerald-600 shrink-0" />
+                        <IconCircleCheck size={15} className="shrink-0 text-emerald-600" />
                         <span>Thread resolved and logged to immutable audit stream</span>
                       </span>
                       <button
                         type="button"
                         onClick={() => handleResetSent(active.id)}
-                        className="text-[11.5px] font-medium text-emerald-700 hover:underline cursor-pointer"
+                        className="cursor-pointer text-[11.5px] font-medium text-emerald-700 hover:underline"
                       >
                         Reset demo
                       </button>
@@ -644,9 +641,11 @@ export function HeroInteractiveConsole() {
             </div>
 
             {/* Bottom Bar: Guided Step Switcher */}
-            <div className="mt-6 pt-4 border-t border-[var(--ink-100)] flex items-center justify-between">
+            <div className="mt-6 flex items-center justify-between border-t border-[var(--ink-100)] pt-4">
               <div className="flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-tertiary)]">
-                <span>Scenario {selectedIndex + 1} of {CONVERSATIONS.length}</span>
+                <span>
+                  Scenario {selectedIndex + 1} of {CONVERSATIONS.length}
+                </span>
                 <span>·</span>
                 <span className="capitalize">{active.id}</span>
               </div>
@@ -655,7 +654,7 @@ export function HeroInteractiveConsole() {
                 type="button"
                 onClick={handleSimulateNext}
                 disabled={isSimulating}
-                className="group flex cursor-pointer items-center gap-2 rounded-full border border-[var(--ink-200)] bg-[var(--ink-0)] px-4 py-1.5 text-[12.5px] font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--ink-50)] hover:border-[var(--ink-300)] hover:text-[var(--text-primary)] min-h-[34px] disabled:opacity-60 shadow-xs"
+                className="group flex min-h-[34px] cursor-pointer items-center gap-2 rounded-full border border-[var(--ink-200)] bg-[var(--ink-0)] px-4 py-1.5 text-[12.5px] font-medium text-[var(--text-secondary)] shadow-xs transition-all hover:border-[var(--ink-300)] hover:bg-[var(--ink-50)] hover:text-[var(--text-primary)] disabled:opacity-60"
               >
                 <span>{isSimulating ? 'Switching…' : 'See next message'}</span>
                 <IconArrowRight

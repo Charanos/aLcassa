@@ -471,7 +471,9 @@ export function AppShell({
           ) : (
             <IconButton
               aria-label={
-                notificationCount > 0 ? `${notificationCount} unread notifications` : 'Notifications'
+                notificationCount > 0
+                  ? `${notificationCount} unread notifications`
+                  : 'Notifications'
               }
               title="Notifications"
             >
@@ -522,7 +524,10 @@ export function AppShell({
           onMouseLeave={() => setSidebarHovered(false)}
           className="relative hidden shrink-0 flex-col border-r transition-[width] duration-200 ease-out select-none md:flex"
           style={{
-            width: mounted && collapsed && !sidebarHovered ? 'var(--nav-rail-width)' : 'var(--nav-width)',
+            width:
+              mounted && collapsed && !sidebarHovered
+                ? 'var(--nav-rail-width)'
+                : 'var(--nav-width)',
             background: chromeBg,
             borderColor: chromeRule,
           }}
@@ -560,10 +565,7 @@ export function AppShell({
             anchor and it has no plan of its own to run out of.
           */}
           {planMeter ? (
-            <PlanMeterCard
-              meter={planMeter}
-              collapsed={mounted && collapsed && !sidebarHovered}
-            />
+            <PlanMeterCard meter={planMeter} collapsed={mounted && collapsed && !sidebarHovered} />
           ) : (
             <AdminProfileCard profile={adminProfile} collapsed={mounted && collapsed} />
           )}

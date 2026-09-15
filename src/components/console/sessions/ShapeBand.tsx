@@ -163,9 +163,7 @@ export function ShapeBand({ history }: { history: SessionRecord[] }) {
                     style={{
                       fontSize: 'var(--text-md)',
                       color:
-                        o.accent && o.count > 0
-                          ? 'var(--accent-mark-text)'
-                          : 'var(--text-primary)',
+                        o.accent && o.count > 0 ? 'var(--accent-mark-text)' : 'var(--text-primary)',
                     }}
                   >
                     {o.count}

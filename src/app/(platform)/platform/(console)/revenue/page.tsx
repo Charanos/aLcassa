@@ -86,17 +86,42 @@ export default async function RevenuePage() {
           background: 'var(--chrome-bg-base)',
           border: '1px solid var(--chrome-rule-strong)',
           color: 'var(--invert-card-fg)',
-          boxShadow: 'var(--shadow-lg), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 6%, transparent)',
+          boxShadow:
+            'var(--shadow-lg), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 6%, transparent)',
         }}
       >
         {/* Premium Ambient Background Art */}
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none" aria-hidden="true">
-          <div className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-[0.18] blur-[120px]" style={{ background: 'var(--blue-500)' }} />
-          <div className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]" style={{ background: 'var(--blue-700)' }} />
-          
-          <svg className="absolute inset-0 h-full w-full opacity-[0.4]" viewBox="0 0 1000 400" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M -100 250 C 200 350 400 50 700 150 S 1100 0 1200 100" stroke="url(#elegant-line-1)" strokeWidth="1.5" />
-            <path d="M -50 300 C 250 400 450 100 750 200 S 1150 50 1250 150" stroke="url(#elegant-line-2)" strokeWidth="1" strokeDasharray="4 8" />
+        <div
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
+          aria-hidden="true"
+        >
+          <div
+            className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-[0.18] blur-[120px]"
+            style={{ background: 'var(--blue-500)' }}
+          />
+          <div
+            className="absolute -right-32 -bottom-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
+            style={{ background: 'var(--blue-700)' }}
+          />
+
+          <svg
+            className="absolute inset-0 h-full w-full opacity-[0.4]"
+            viewBox="0 0 1000 400"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <path
+              d="M -100 250 C 200 350 400 50 700 150 S 1100 0 1200 100"
+              stroke="url(#elegant-line-1)"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M -50 300 C 250 400 450 100 750 200 S 1150 50 1250 150"
+              stroke="url(#elegant-line-2)"
+              strokeWidth="1"
+              strokeDasharray="4 8"
+            />
             <defs>
               <linearGradient id="elegant-line-1" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
@@ -112,36 +137,45 @@ export default async function RevenuePage() {
             </defs>
           </svg>
 
-          <div className="absolute inset-0 opacity-[0.25]" style={{ backgroundImage: 'radial-gradient(color-mix(in oklab, var(--ink-0) 70%, transparent) 1px, transparent 1px)', backgroundSize: '32px 32px', maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)', WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)' }} />
+          <div
+            className="absolute inset-0 opacity-[0.25]"
+            style={{
+              backgroundImage:
+                'radial-gradient(color-mix(in oklab, var(--ink-0) 70%, transparent) 1px, transparent 1px)',
+              backgroundSize: '32px 32px',
+              maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
+              WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
+            }}
+          />
         </div>
 
         {/* KPI Row (Signal Cards) */}
         <div className="relative z-10 px-8 pb-8 lg:px-12 lg:pb-12">
-          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-[var(--chrome-rule-strong)] to-transparent opacity-60 lg:left-12 lg:right-12" />
+          <div className="absolute top-0 right-8 left-8 h-[1px] bg-gradient-to-r from-transparent via-[var(--chrome-rule-strong)] to-transparent opacity-60 lg:right-12 lg:left-12" />
 
-          <div className="grid w-full grid-cols-1 gap-6 pt-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 md:gap-8">
+          <div className="grid w-full grid-cols-1 gap-6 pt-8 md:grid-cols-2 md:gap-8 lg:grid-cols-3 xl:grid-cols-5">
             {m.kpis.map((k, i) => {
               const Icon = KPI_ICON[k.icon];
               const Arrow = k.direction === 'up' ? IconArrowUp : IconArrowDown;
               const isPositive = k.good;
               const isDanger = k.tone === 'danger';
-              
+
               return (
                 <div
                   key={k.label}
-                  className="group relative flex flex-col justify-between rounded-xl px-5 -m-5 py-3 transition-all duration-300 hover:bg-[var(--chrome-hover)] hover:shadow-[var(--glass-highlight)] cursor-default"
+                  className="group relative -m-5 flex cursor-default flex-col justify-between rounded-xl px-5 py-3 transition-all duration-300 hover:bg-[var(--chrome-hover)] hover:shadow-[var(--glass-highlight)]"
                 >
-                  <div className="pointer-events-none absolute -bottom-6 right-3 z-0 text-[var(--invert-card-fg)] opacity-[0.08] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.14]">
+                  <div className="pointer-events-none absolute right-3 -bottom-6 z-0 text-[var(--invert-card-fg)] opacity-[0.08] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.14]">
                     <Icon size={120} stroke={1.5} aria-hidden />
                   </div>
 
                   {i < m.kpis.length - 1 && (
-                    <div className="pointer-events-none absolute -right-4 top-1/2 hidden h-16 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[var(--chrome-rule)] to-transparent xl:block" />
+                    <div className="pointer-events-none absolute top-1/2 -right-4 hidden h-16 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[var(--chrome-rule)] to-transparent xl:block" />
                   )}
 
                   <div className="relative z-10 mb-4 flex items-center justify-between">
                     <span
-                      className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em]"
+                      className="font-mono text-[10.5px] font-medium tracking-[0.15em] uppercase"
                       style={{ color: 'var(--invert-card-fg)', opacity: 0.5 }}
                     >
                       {k.label}
@@ -156,7 +190,9 @@ export default async function RevenuePage() {
                         fontWeight: 300,
                         color: isDanger ? 'var(--chrome-danger)' : 'var(--invert-card-fg)',
                         lineHeight: 1,
-                        textShadow: isDanger ? '0 4px 16px color-mix(in oklab, var(--chrome-danger) 30%, transparent)' : '0 4px 16px color-mix(in oklab, var(--chrome-bg-base) 50%, transparent)',
+                        textShadow: isDanger
+                          ? '0 4px 16px color-mix(in oklab, var(--chrome-danger) 30%, transparent)'
+                          : '0 4px 16px color-mix(in oklab, var(--chrome-bg-base) 50%, transparent)',
                         letterSpacing: '-0.03em',
                       }}
                     >
@@ -174,7 +210,10 @@ export default async function RevenuePage() {
                   >
                     <span
                       className="numeric inline-flex items-center gap-0.5 whitespace-nowrap"
-                      style={{ fontSize: 11, color: isPositive ? 'var(--chrome-success)' : 'var(--chrome-danger)' }}
+                      style={{
+                        fontSize: 11,
+                        color: isPositive ? 'var(--chrome-success)' : 'var(--chrome-danger)',
+                      }}
                     >
                       <Arrow size={12} stroke={2.5} aria-hidden />
                       {k.delta}

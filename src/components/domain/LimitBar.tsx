@@ -44,11 +44,7 @@ export function LimitBar({ label, current, limit, unit = '' }: LimitBarProps) {
   const atLimit = pct >= 1;
   const nearLimit = pct >= THRESHOLD;
 
-  const fillColor = atLimit
-    ? 'var(--red-500)'
-    : nearLimit
-      ? 'var(--amber-500)'
-      : 'var(--blue-500)';
+  const fillColor = atLimit ? 'var(--red-500)' : nearLimit ? 'var(--amber-500)' : 'var(--blue-500)';
   const numeralColor = atLimit
     ? 'var(--red-500)'
     : nearLimit

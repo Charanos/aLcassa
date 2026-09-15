@@ -16,8 +16,19 @@ export interface IconPillProps extends React.HTMLAttributes<HTMLDivElement> {
  * - `tinted`: A tinted soft pill for light surface backgrounds.
  */
 export const IconPill = React.forwardRef<HTMLDivElement, IconPillProps>(
-  ({ icon: Icon, iconSize = 12, iconStroke = 2, variant = 'chrome', tone = 'neutral', className, style, ...props }, ref) => {
-    
+  (
+    {
+      icon: Icon,
+      iconSize = 12,
+      iconStroke = 2,
+      variant = 'chrome',
+      tone = 'neutral',
+      className,
+      style,
+      ...props
+    },
+    ref,
+  ) => {
     if (variant === 'chrome') {
       return (
         <div
@@ -69,7 +80,7 @@ export const IconPill = React.forwardRef<HTMLDivElement, IconPillProps>(
         <Icon size={iconSize} stroke={iconStroke} style={{ color: fg }} aria-hidden />
       </div>
     );
-  }
+  },
 );
 
 IconPill.displayName = 'IconPill';

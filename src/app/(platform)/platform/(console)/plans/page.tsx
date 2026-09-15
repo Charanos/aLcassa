@@ -73,10 +73,7 @@ export default async function PlansPage() {
   return (
     <ConsolePage>
       <ConsoleHeader
-        breadcrumbs={[
-          { label: 'Platform Console', href: '/platform' },
-          { label: 'Plans' },
-        ]}
+        breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Plans' }]}
         title="Plans"
         actions={
           /*
@@ -112,15 +109,15 @@ export default async function PlansPage() {
               className="t-caption max-w-[34ch] text-right"
               style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
             >
-              A plan is a catalogue and entitlement change, applied as a migration in Phase 1 —
-              not something this screen can write.
+              A plan is a catalogue and entitlement change, applied as a migration in Phase 1 — not
+              something this screen can write.
             </p>
           </div>
         }
       />
       <p className="t-body -mt-3 mb-8" style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}>
-        Entitlements are data, not code. Editing a limit here changes what every workspace on
-        that plan can do, on save.
+        Entitlements are data, not code. Editing a limit here changes what every workspace on that
+        plan can do, on save.
       </p>
 
       <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -153,7 +150,8 @@ export default async function PlansPage() {
                       background: 'var(--surface-sunken)',
                       color: 'var(--text-tertiary)',
                       boxShadow: 'var(--glass-highlight)',
-                      borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                      borderBottom:
+                        '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                     }}
                   >
                     Entitlement
@@ -162,17 +160,18 @@ export default async function PlansPage() {
                     <th
                       key={p.key}
                       scope="col"
-                      className="px-4 py-5 text-left align-top relative"
+                      className="relative px-4 py-5 text-left align-top"
                       style={{
                         background: 'var(--surface-sunken)',
                         boxShadow: 'var(--glass-highlight)',
-                        borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                        borderBottom:
+                          '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                       }}
                     >
                       {/* Vertical Engraved Separator */}
                       <div className="absolute inset-y-0 left-0 w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)]" />
                       <div className="absolute inset-y-0 left-px w-px bg-[color-mix(in_oklab,var(--ink-0)_70%,transparent)]" />
-                      
+
                       <span
                         className="block text-sm font-medium tracking-tight"
                         style={{ color: 'var(--text-primary)' }}
@@ -212,7 +211,8 @@ export default async function PlansPage() {
                         className="px-4 text-left font-normal"
                         style={{
                           height: 52,
-                          borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                          borderBottom:
+                            '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                           boxShadow: 'var(--glass-highlight)',
                         }}
                       >
@@ -235,10 +235,11 @@ export default async function PlansPage() {
                       {row.values.map((v, i) => (
                         <td
                           key={`${row.label}-${m.plans[i]?.key ?? i}`}
-                          className="px-4 relative"
+                          className="relative px-4"
                           style={{
                             height: 52,
-                            borderBottom: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                            borderBottom:
+                              '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
                             boxShadow: 'var(--glass-highlight)',
                           }}
                         >
@@ -277,7 +278,10 @@ export default async function PlansPage() {
               background: 'var(--surface-sunken)',
             }}
           >
-            <p className="flex-1 text-[13px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+            <p
+              className="flex-1 text-[13px] leading-relaxed"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
               {m.overrides} workspaces carry per-tenant overrides that win over these values.{' '}
               {m.pendingChange.plan
                 ? null
@@ -307,7 +311,10 @@ export default async function PlansPage() {
 
         <div className="grid gap-6 sm:gap-12">
           <section className="flex flex-col gap-5 pt-4">
-            <h2 className="text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+            <h2
+              className="text-[10px] font-medium tracking-[0.1em] uppercase"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
               Distribution
             </h2>
             <div className="flex flex-col gap-4">
@@ -357,10 +364,16 @@ export default async function PlansPage() {
                         boxShadow: 'var(--glass-highlight)',
                       }}
                     />
-                    <span className="text-[13px] font-medium tracking-tight flex-1" style={{ color: 'var(--text-primary)' }}>
+                    <span
+                      className="flex-1 text-[13px] font-medium tracking-tight"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
                       {p.name}
                     </span>
-                    <span className="font-mono text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                    <span
+                      className="font-mono text-[13px] font-medium"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
                       {p.count}
                     </span>
                   </div>
@@ -370,13 +383,16 @@ export default async function PlansPage() {
           </section>
 
           <section
-            className="flex flex-col gap-4 rounded-[24px] py-6 px-5"
+            className="flex flex-col gap-4 rounded-[24px] px-5 py-6"
             style={{
               background: 'var(--surface-sunken)',
               boxShadow: 'var(--neu-inset)',
             }}
           >
-            <p className="text-[10px] font-medium tracking-[0.1em] uppercase" style={{ color: 'var(--text-tertiary)' }}>
+            <p
+              className="text-[10px] font-medium tracking-[0.1em] uppercase"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
               Blast radius
             </p>
             <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
@@ -384,11 +400,11 @@ export default async function PlansPage() {
               ones that would be pushed over a limit by the change.
             </p>
             <div
-              className="mt-2 grid gap-3 border-t pt-5 relative"
+              className="relative mt-2 grid gap-3 border-t pt-5"
               style={{ borderColor: 'color-mix(in srgb, var(--border-subtle) 30%, transparent)' }}
             >
               {/* Horizontal Engraved line overlay */}
-              <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)]" />
+              <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-x-0 top-0 h-px" />
 
               {(
                 [
@@ -401,10 +417,16 @@ export default async function PlansPage() {
                 ] as const
               ).map(([label, value]) => (
                 <div key={label} className="flex items-baseline justify-between gap-4">
-                  <span className="text-[13px] font-medium tracking-tight" style={{ color: 'var(--text-secondary)' }}>
+                  <span
+                    className="text-[13px] font-medium tracking-tight"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {label}
                   </span>
-                  <span className="font-mono text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                  <span
+                    className="font-mono text-[13px] font-medium"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     {value}
                   </span>
                 </div>

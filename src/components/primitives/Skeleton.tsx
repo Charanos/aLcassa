@@ -59,7 +59,10 @@ export function SkeletonRow() {
     >
       <Bone className="h-4 shrink-0" style={{ width: 96, background: 'var(--surface-inset)' }} />
       <Bone className="h-4 flex-1" style={{ width: '70%', background: 'var(--surface-inset)' }} />
-      <Bone className="h-5 shrink-0 rounded-full" style={{ width: 64, background: 'var(--surface-inset)' }} />
+      <Bone
+        className="h-5 shrink-0 rounded-full"
+        style={{ width: 64, background: 'var(--surface-inset)' }}
+      />
     </div>
   );
 }
@@ -252,7 +255,10 @@ export function SkeletonTable({ rows = 6, columns = 4 }: { rows?: number; column
           <Bone
             key={i}
             className={`h-2.5 ${i === 0 ? 'flex-1' : 'shrink-0'}`}
-            style={{ width: i === 0 ? undefined : widths[i % widths.length], background: 'var(--surface-inset)' }}
+            style={{
+              width: i === 0 ? undefined : widths[i % widths.length],
+              background: 'var(--surface-inset)',
+            }}
           />
         ))}
       </div>
@@ -262,13 +268,22 @@ export function SkeletonTable({ rows = 6, columns = 4 }: { rows?: number; column
           className="flex items-center gap-4 px-5 py-4"
           style={{ borderBottom: r === rows - 1 ? undefined : '1px solid var(--border-subtle)' }}
         >
-          <Bone className="size-8 shrink-0 rounded-full" style={{ background: 'var(--surface-sunken)' }} />
-          <Bone className="h-4 flex-1" style={{ maxWidth: `${[82, 68, 91, 74, 60, 86][r % 6]}%` }} />
+          <Bone
+            className="size-8 shrink-0 rounded-full"
+            style={{ background: 'var(--surface-sunken)' }}
+          />
+          <Bone
+            className="h-4 flex-1"
+            style={{ maxWidth: `${[82, 68, 91, 74, 60, 86][r % 6]}%` }}
+          />
           {Array.from({ length: Math.max(0, columns - 2) }).map((_, c) => (
             <Bone
               key={c}
               className="h-4 shrink-0"
-              style={{ width: widths[(r + c) % widths.length], background: 'var(--surface-sunken)' }}
+              style={{
+                width: widths[(r + c) % widths.length],
+                background: 'var(--surface-sunken)',
+              }}
             />
           ))}
         </div>

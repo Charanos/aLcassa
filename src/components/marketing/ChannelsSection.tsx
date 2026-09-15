@@ -184,31 +184,33 @@ export function ChannelsSection() {
     };
   }, [granted]);
 
-  const mm = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+  const mm = Math.floor(secondsLeft / 60)
+    .toString()
+    .padStart(2, '0');
   const ss = (secondsLeft % 60).toString().padStart(2, '0');
 
   return (
     <div className="w-full">
       {/* ── Right-Aligned Section Header (Alternating Cadence) ── */}
-      <div className="flex flex-col items-end text-right max-w-3xl ml-auto mb-10 sm:mb-14">
-        <div className="inline-flex items-center gap-2 mb-2.5">
-          <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--orange-500)]">
+      <div className="mb-10 ml-auto flex max-w-3xl flex-col items-end text-right sm:mb-14">
+        <div className="mb-2.5 inline-flex items-center gap-2">
+          <p className="font-mono text-[11px] font-medium tracking-wider text-[var(--orange-500)] uppercase">
             Getting in touch
           </p>
           <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden="true" />
         </div>
-        <h2 className="display text-[32px] sm:text-[44px] font-normal tracking-tight text-[var(--text-primary)] leading-[1.12]">
+        <h2 className="display text-[32px] leading-[1.12] font-normal tracking-tight text-[var(--text-primary)] sm:text-[44px]">
           Customers message you everywhere. You answer from one place.
         </h2>
-        <p className="text-[16px] sm:text-[17px] text-[var(--text-secondary)] mt-3.5 leading-relaxed">
-          WhatsApp, Instagram, Messenger, your website — every conversation lands in a single
-          inbox, answered fast, without anyone digging for the right information.
+        <p className="mt-3.5 text-[16px] leading-relaxed text-[var(--text-secondary)] sm:text-[17px]">
+          WhatsApp, Instagram, Messenger, your website — every conversation lands in a single inbox,
+          answered fast, without anyone digging for the right information.
         </p>
       </div>
 
       {/* ── UNIFIED INVERTED SECTION (Deep Slate Canvas with Atmospheric Depth) ── */}
       <div
-        className="relative overflow-hidden rounded-[36px] border transition-all text-left"
+        className="relative overflow-hidden rounded-[36px] border text-left transition-all"
         style={{
           background: 'linear-gradient(180deg, #0d121c 0%, #080c14 100%)',
           borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -218,11 +220,11 @@ export function ChannelsSection() {
       >
         {/* Subtle Ambient Radial Glow */}
         <div
-          className="absolute -top-32 left-1/4 w-[600px] h-[350px] bg-blue-600/10 blur-[130px] pointer-events-none rounded-full"
+          className="pointer-events-none absolute -top-32 left-1/4 h-[350px] w-[600px] rounded-full bg-blue-600/10 blur-[130px]"
           aria-hidden="true"
         />
         <div
-          className="absolute -bottom-32 right-1/4 w-[600px] h-[350px] bg-amber-600/10 blur-[130px] pointer-events-none rounded-full"
+          className="pointer-events-none absolute right-1/4 -bottom-32 h-[350px] w-[600px] rounded-full bg-amber-600/10 blur-[130px]"
           aria-hidden="true"
         />
 
@@ -230,59 +232,56 @@ export function ChannelsSection() {
         {/* TIER 1: Omnichannel Inbound Command Stage                         */}
         {/* ================================================================= */}
         <div className="relative z-10 p-6 sm:p-10 lg:p-14">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-            
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
             {/* Left 7 Cols: Phone-Style Real Customer Thread Card (Airy, Spacious & Beautiful) */}
-            <div className="lg:col-span-7 order-2 lg:order-1 flex justify-center lg:justify-start">
+            <div className="order-2 flex justify-center lg:order-1 lg:col-span-7 lg:justify-start">
               <div className="w-full max-w-[590px]">
                 <div
-                  className="rounded-[30px] p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all"
+                  className="rounded-[30px] p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all sm:p-8"
                   style={{
                     background: '#FFFFFF',
                     color: 'var(--text-primary)',
                   }}
                 >
                   {/* Thread Header */}
-                  <div className="flex items-center justify-between gap-3 pb-5 mb-5 border-b border-[var(--ink-100)]">
-                    <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="mb-5 flex items-center justify-between gap-3 border-b border-[var(--ink-100)] pb-5">
+                    <div className="flex min-w-0 items-center gap-3.5">
                       <div
-                        className="size-11 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border border-black/5"
+                        className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-black/5 shadow-xs"
                         style={{ backgroundColor: active.accentSoft }}
                       >
                         <active.icon size={22} stroke={1.8} style={{ color: active.accentHex }} />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[16px] font-medium text-[var(--text-primary)] truncate">
+                          <span className="truncate text-[16px] font-medium text-[var(--text-primary)]">
                             {active.handle}
                           </span>
-                          <span className="size-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                          <span
+                            className="size-2 animate-pulse rounded-full bg-emerald-500"
+                            aria-hidden="true"
+                          />
                         </div>
-                        <span className="font-mono text-[11px] text-[var(--text-tertiary)] block mt-0.5">
+                        <span className="mt-0.5 block font-mono text-[11px] text-[var(--text-tertiary)]">
                           Verified Business Channel · via {active.name}
                         </span>
                       </div>
                     </div>
 
-                    <StatusBadge
-                      tone="success"
-                      variant="pill"
-                      size="md"
-                      icon={IconCheck}
-                    >
+                    <StatusBadge tone="success" variant="pill" size="md" icon={IconCheck}>
                       Answered
                     </StatusBadge>
                   </div>
 
                   {/* Context Timeline Divider */}
-                  <div className="flex items-center justify-center my-3">
+                  <div className="my-3 flex items-center justify-center">
                     <StatusBadge tone="neutral" variant="pill" size="sm">
                       Today · 11:40 AM
                     </StatusBadge>
                   </div>
 
                   {/* Message Bubbles Stream (Unrestricted, Airy, Natural Left-Aligned Flow) */}
-                  <div className="space-y-4 min-h-[200px] flex flex-col justify-center py-2">
+                  <div className="flex min-h-[200px] flex-col justify-center space-y-4 py-2">
                     {active.thread.map((bubble, i) => {
                       const isCustomer = bubble.from === 'customer';
                       return (
@@ -296,9 +295,9 @@ export function ChannelsSection() {
                           }}
                         >
                           {/* Chat Bubble Container with Explicit Left Alignment for Internal Content */}
-                          <div className={`max-w-[90%] sm:max-w-[85%] text-left`}>
+                          <div className={`max-w-[90%] text-left sm:max-w-[85%]`}>
                             <div
-                              className="px-5 py-3.5 text-[14.5px] leading-[1.55] shadow-xs text-left"
+                              className="px-5 py-3.5 text-left text-[14.5px] leading-[1.55] shadow-xs"
                               style={
                                 isCustomer
                                   ? {
@@ -315,16 +314,18 @@ export function ChannelsSection() {
                                     }
                               }
                             >
-                              <p className="text-left m-0">{bubble.text}</p>
+                              <p className="m-0 text-left">{bubble.text}</p>
                             </div>
                             <div
-                              className={`flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-tertiary)] mt-1.5 px-2 ${
+                              className={`mt-1.5 flex items-center gap-1.5 px-2 font-mono text-[11px] text-[var(--text-tertiary)] ${
                                 isCustomer ? 'justify-start' : 'justify-end'
                               }`}
                             >
                               <span>{bubble.time}</span>
                               {!isCustomer && (
-                                <span className="text-emerald-600 font-medium">✓✓ Automated reply</span>
+                                <span className="font-medium text-emerald-600">
+                                  ✓✓ Automated reply
+                                </span>
                               )}
                             </div>
                           </div>
@@ -334,12 +335,14 @@ export function ChannelsSection() {
                   </div>
 
                   {/* Resolution Footnote */}
-                  <div className="mt-5 pt-4 border-t border-[var(--ink-100)] flex items-center justify-between gap-3 text-[13px] text-[var(--text-secondary)] leading-relaxed">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="size-5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
+                  <div className="mt-5 flex items-center justify-between gap-3 border-t border-[var(--ink-100)] pt-4 text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <div className="flex size-5 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600">
                         <IconCheck size={12} stroke={2.5} />
                       </div>
-                      <span className="truncate sm:whitespace-normal font-normal">{active.note}</span>
+                      <span className="truncate font-normal sm:whitespace-normal">
+                        {active.note}
+                      </span>
                     </div>
                     <StatusBadge tone="success" variant="squircle" size="sm">
                       ⚡ 4s latency
@@ -350,7 +353,7 @@ export function ChannelsSection() {
             </div>
 
             {/* Right 5 Cols: Interactive Channel Selector & Guarantees */}
-            <div className="lg:col-span-5 order-1 lg:order-2 flex flex-col justify-between space-y-6">
+            <div className="order-1 flex flex-col justify-between space-y-6 lg:order-2 lg:col-span-5">
               <div className="flex flex-col gap-2.5">
                 {CHANNELS.map((channel) => {
                   const isActive = channel.id === activeId;
@@ -362,16 +365,18 @@ export function ChannelsSection() {
                       onClick={() => setActiveId(channel.id)}
                       aria-pressed={isActive}
                       aria-label={`Show ${channel.name} example conversation`}
-                      className={`group flex items-center gap-4 rounded-2xl px-4.5 py-3.5 text-left transition-all duration-200 cursor-pointer min-h-[62px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 ${
+                      className={`group flex min-h-[62px] cursor-pointer items-center gap-4 rounded-2xl px-4.5 py-3.5 text-left transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 ${
                         isActive
-                          ? 'bg-white/[0.12] border border-white/25 shadow-xl scale-[1.01]'
-                          : 'bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.07] hover:border-white/15'
+                          ? 'scale-[1.01] border border-white/25 bg-white/[0.12] shadow-xl'
+                          : 'border border-white/[0.06] bg-white/[0.03] hover:border-white/15 hover:bg-white/[0.07]'
                       }`}
                     >
                       <div
-                        className="size-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200"
+                        className="flex size-11 shrink-0 items-center justify-center rounded-xl transition-all duration-200"
                         style={{
-                          backgroundColor: isActive ? channel.accentHex : 'rgba(255, 255, 255, 0.08)',
+                          backgroundColor: isActive
+                            ? channel.accentHex
+                            : 'rgba(255, 255, 255, 0.08)',
                           boxShadow: isActive ? `0 0 18px ${channel.accentHex}77` : 'none',
                         }}
                       >
@@ -384,13 +389,13 @@ export function ChannelsSection() {
 
                       <div className="min-w-0 flex-1">
                         <span
-                          className="text-[15.5px] font-medium block transition-colors"
+                          className="block text-[15.5px] font-medium transition-colors"
                           style={{ color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.75)' }}
                         >
                           {channel.name}
                         </span>
                         {isActive && (
-                          <span className="text-[13px] text-white/65 block mt-0.5 leading-snug">
+                          <span className="mt-0.5 block text-[13px] leading-snug text-white/65">
                             {channel.oneLiner}
                           </span>
                         )}
@@ -412,37 +417,40 @@ export function ChannelsSection() {
               </div>
 
               {/* Active Channel Bullets */}
-              <div className="pt-6 border-t border-white/10 space-y-3.5">
+              <div className="space-y-3.5 border-t border-white/10 pt-6">
                 {active.bullets.map((bullet, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <div className="size-5 rounded-full bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center shrink-0 mt-0.5">
-                      <IconCheck size={12} stroke={2.5} className="text-emerald-400" aria-hidden="true" />
+                    <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-500/15">
+                      <IconCheck
+                        size={12}
+                        stroke={2.5}
+                        className="text-emerald-400"
+                        aria-hidden="true"
+                      />
                     </div>
-                    <span className="text-[14px] text-white/80 leading-relaxed">{bullet}</span>
+                    <span className="text-[14px] leading-relaxed text-white/80">{bullet}</span>
                   </div>
                 ))}
               </div>
             </div>
-
           </div>
         </div>
 
         {/* ── Architectural Separator between Omnichannel & Security Permit ── */}
-        <div className="relative z-10 border-t border-white/10 mx-6 sm:mx-10 lg:mx-28" />
+        <div className="relative z-10 mx-6 border-t border-white/10 sm:mx-10 lg:mx-28" />
 
         {/* ================================================================= */}
         {/* TIER 2: Trust & Ephemeral Support Permit Stage                    */}
         {/* ================================================================= */}
         <div className="relative z-10 p-6 sm:p-10 lg:p-14">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-            
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
             {/* Left 5 Cols: Editorial Security Guarantees */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="space-y-6 lg:col-span-5">
               <div>
-                <h3 className="display text-[28px] sm:text-[36px] font-normal tracking-tight text-white mt-1 leading-[1.15]">
+                <h3 className="display mt-1 text-[28px] leading-[1.15] font-normal tracking-tight text-white sm:text-[36px]">
                   If someone on our team ever opens your account, you’ll know.
                 </h3>
-                <p className="text-[15px] sm:text-[16px] text-white/75 mt-3.5 leading-relaxed">
+                <p className="mt-3.5 text-[15px] leading-relaxed text-white/75 sm:text-[16px]">
                   Nobody at Alcassa has a master key to every business on the platform. When our
                   support team needs to help with your account, they request access to yours
                   specifically. It’s time-limited, it’s read-only, and it shows up in your activity
@@ -451,67 +459,76 @@ export function ChannelsSection() {
               </div>
 
               {/* 3 Core Security Invariants */}
-              <div className="space-y-4 pt-4 border-t border-white/10">
+              <div className="space-y-4 border-t border-white/10 pt-4">
                 <div className="flex items-start gap-3.5">
-                  <div className="size-10 rounded-2xl flex items-center justify-center shrink-0 bg-white/[0.07] border border-white/10 text-white mt-0.5 shadow-xs">
+                  <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.07] text-white shadow-xs">
                     <IconLock size={18} stroke={1.75} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-[14.5px] font-medium text-white">No shared master password</h4>
-                    <p className="text-[13px] text-white/65 mt-0.5 leading-relaxed">
-                      Every visit uses a fresh, one-time key tied to one person and one account. Nothing reused, nothing shared.
+                    <h4 className="text-[14.5px] font-medium text-white">
+                      No shared master password
+                    </h4>
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-white/65">
+                      Every visit uses a fresh, one-time key tied to one person and one account.
+                      Nothing reused, nothing shared.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3.5">
-                  <div className="size-10 rounded-2xl flex items-center justify-center shrink-0 bg-white/[0.07] border border-white/10 text-white mt-0.5 shadow-xs">
+                  <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.07] text-white shadow-xs">
                     <IconClock size={18} stroke={1.75} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-[14.5px] font-medium text-white">Access expires on its own</h4>
-                    <p className="text-[13px] text-white/65 mt-0.5 leading-relaxed">
-                      Thirty minutes, then it’s gone — or you can end it yourself, right now, from this screen.
+                    <h4 className="text-[14.5px] font-medium text-white">
+                      Access expires on its own
+                    </h4>
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-white/65">
+                      Thirty minutes, then it’s gone — or you can end it yourself, right now, from
+                      this screen.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3.5">
-                  <div className="size-10 rounded-2xl flex items-center justify-center shrink-0 bg-white/[0.07] border border-white/10 text-white mt-0.5 shadow-xs">
+                  <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.07] text-white shadow-xs">
                     <IconEye size={18} stroke={1.75} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-[14.5px] font-medium text-white">Every visit is on the record</h4>
-                    <p className="text-[13px] text-white/65 mt-0.5 leading-relaxed">
-                      Who looked, when, and why — written to your account’s history and impossible to quietly edit out.
+                    <h4 className="text-[14.5px] font-medium text-white">
+                      Every visit is on the record
+                    </h4>
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-white/65">
+                      Who looked, when, and why — written to your account’s history and impossible
+                      to quietly edit out.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex items-center gap-2 font-mono text-[11px] text-white/50">
+              <div className="flex items-center gap-2 border-t border-white/10 pt-4 font-mono text-[11px] text-white/50">
                 <IconShieldLock size={15} className="text-emerald-400" />
                 <span>Handled under Kenya’s Data Protection Act, 2019.</span>
               </div>
             </div>
 
             {/* Right 7 Cols: The Interactive "Support Permit" Canvas */}
-            <div className="lg:col-span-7 flex justify-center lg:justify-end">
+            <div className="flex justify-center lg:col-span-7 lg:justify-end">
               <div className="w-full max-w-[590px]">
                 <div
-                  className="rounded-[30px] p-7 sm:p-9 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all space-y-6"
+                  className="space-y-6 rounded-[30px] p-7 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all sm:p-9"
                   style={{
                     background: '#FFFFFF',
                     color: 'var(--text-primary)',
                   }}
                 >
                   {/* Permit Header */}
-                  <div className="flex items-start justify-between gap-4 flex-wrap pb-4 border-b border-[var(--ink-100)]">
+                  <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--ink-100)] pb-4">
                     <div>
-                      <span className="font-mono text-[11px] text-[var(--text-tertiary)] block">
+                      <span className="block font-mono text-[11px] text-[var(--text-tertiary)]">
                         This is what you’d see right now, in your own dashboard
                       </span>
-                      <h4 className="text-[18px] font-medium text-[var(--text-primary)] mt-1">
+                      <h4 className="mt-1 text-[18px] font-medium text-[var(--text-primary)]">
                         Support access to Kwanza Logistics
                       </h4>
                     </div>
@@ -527,16 +544,20 @@ export function ChannelsSection() {
                   </div>
 
                   {/* Who + Why Meta Grid */}
-                  <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-[var(--surface-sunken)]/70 border border-[var(--ink-200)]/60">
+                  <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[var(--ink-200)]/60 bg-[var(--surface-sunken)]/70 p-4">
                     <div>
-                      <span className="font-mono text-[11px] text-[var(--text-tertiary)] block">Opened by</span>
-                      <span className="text-[14px] font-medium text-[var(--text-primary)] block mt-0.5">
+                      <span className="block font-mono text-[11px] text-[var(--text-tertiary)]">
+                        Opened by
+                      </span>
+                      <span className="mt-0.5 block text-[14px] font-medium text-[var(--text-primary)]">
                         Wanjiru, Support
                       </span>
                     </div>
                     <div>
-                      <span className="font-mono text-[11px] text-[var(--text-tertiary)] block">Reason given</span>
-                      <span className="text-[14px] font-medium text-[var(--text-primary)] block mt-0.5">
+                      <span className="block font-mono text-[11px] text-[var(--text-tertiary)]">
+                        Reason given
+                      </span>
+                      <span className="mt-0.5 block text-[14px] font-medium text-[var(--text-primary)]">
                         Ticket #4829, invoice question
                       </span>
                     </div>
@@ -544,7 +565,7 @@ export function ChannelsSection() {
 
                   {/* Live Countdown Clock Bar */}
                   <div
-                    className="flex items-center justify-between rounded-2xl p-4.5 transition-colors border"
+                    className="flex items-center justify-between rounded-2xl border p-4.5 transition-colors"
                     style={{
                       background: granted ? '#fff7ed' : 'var(--surface-sunken)',
                       borderColor: granted ? 'rgba(249, 115, 22, 0.2)' : 'var(--ink-200)',
@@ -553,7 +574,9 @@ export function ChannelsSection() {
                     <div className="flex items-center gap-2.5">
                       <IconClock
                         size={19}
-                        className={granted ? 'text-[var(--orange-500)]' : 'text-[var(--text-tertiary)]'}
+                        className={
+                          granted ? 'text-[var(--orange-500)]' : 'text-[var(--text-tertiary)]'
+                        }
                         aria-hidden="true"
                       />
                       <span className="text-[14px] font-medium text-[var(--text-primary)]">
@@ -561,7 +584,7 @@ export function ChannelsSection() {
                       </span>
                     </div>
                     <span
-                      className="font-mono font-medium text-[22px] tracking-tight tabular-nums"
+                      className="font-mono text-[22px] font-medium tracking-tight tabular-nums"
                       style={{ color: granted ? 'var(--orange-500)' : 'var(--text-tertiary)' }}
                       aria-hidden="true"
                     >
@@ -580,7 +603,7 @@ export function ChannelsSection() {
                         setSecondsLeft(SESSION_LENGTH);
                       }
                     }}
-                    className="w-full flex items-center justify-center gap-2 rounded-full py-3.5 min-h-[48px] text-[14px] font-medium transition-all cursor-pointer shadow-sm hover:shadow-md active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)]"
+                    className="flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-2 rounded-full py-3.5 text-[14px] font-medium shadow-sm transition-all hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] active:scale-[0.99]"
                     style={
                       granted
                         ? { background: 'var(--text-primary)', color: '#fff' }
@@ -601,8 +624,8 @@ export function ChannelsSection() {
                   </button>
 
                   {/* Permission Scope Checklist */}
-                  <div className="pt-4 border-t border-[var(--ink-100)]">
-                    <span className="font-mono text-[11px] text-[var(--text-tertiary)] block mb-2.5 uppercase tracking-wider">
+                  <div className="border-t border-[var(--ink-100)] pt-4">
+                    <span className="mb-2.5 block font-mono text-[11px] tracking-wider text-[var(--text-tertiary)] uppercase">
                       What this lets them see
                     </span>
                     <div className="flex flex-wrap gap-2">
@@ -624,14 +647,11 @@ export function ChannelsSection() {
                       ))}
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
   );

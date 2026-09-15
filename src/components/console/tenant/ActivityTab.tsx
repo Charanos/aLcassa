@@ -211,9 +211,8 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
           <ReasonNote>
             This is the platform&rsquo;s own record of what it did to this workspace. The
             workspace&rsquo;s internal log &mdash; what their people did inside it &mdash; is
-            reachable only through a logged support session, and export follows the same route,
-            so a copy of a customer&rsquo;s activity is never taken without a trace of who took
-            it.
+            reachable only through a logged support session, and export follows the same route, so a
+            copy of a customer&rsquo;s activity is never taken without a trace of who took it.
           </ReasonNote>
         }
       >

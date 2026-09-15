@@ -68,10 +68,8 @@ function Field({ field }: { field: MasterRuleField }) {
      as four things. */
   const lines = field.value.split('\n').filter((l) => l.trim().length > 0);
   return (
-    <div
-      className="grid gap-3 py-5 border-t border-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] first:border-0 first:pt-2"
-    >
-      <div className="flex items-center justify-between gap-4 mb-1">
+    <div className="grid gap-3 border-t border-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] py-5 first:border-0 first:pt-2">
+      <div className="mb-1 flex items-center justify-between gap-4">
         <span className="t-label" style={{ color: 'var(--text-primary)' }}>
           {field.label}
         </span>
@@ -96,11 +94,11 @@ function Field({ field }: { field: MasterRuleField }) {
         </p>
       ) : (
         <div
-          className="rounded-[16px] px-5 py-4 relative overflow-hidden"
+          className="relative overflow-hidden rounded-[16px] px-5 py-4"
           style={{
             background: 'var(--surface-raised)',
             border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
-            boxShadow: 'var(--shadow-md), var(--glass-highlight)'
+            boxShadow: 'var(--shadow-md), var(--glass-highlight)',
           }}
         >
           <div className="absolute inset-y-0 left-0 w-1" style={{ background: authority.rule }} />
@@ -224,12 +222,16 @@ export function RuleFields({
 
       <p
         className="t-caption mt-4 border-t pt-3.5"
-        style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)', maxWidth: '72ch' }}
+        style={{
+          borderColor: 'var(--border-subtle)',
+          color: 'var(--text-tertiary)',
+          maxWidth: '72ch',
+        }}
       >
         Publishing appends a version and moves a pointer on an append-only table, so nothing is
         overwritten and any earlier version is one click from being restored. It changes what every
-        workspace inherits on its next generated reply, which is why the change note is required
-        and why the whole operation lands in the platform log before it is applied.
+        workspace inherits on its next generated reply, which is why the change note is required and
+        why the whole operation lands in the platform log before it is applied.
       </p>
     </Panel>
   );

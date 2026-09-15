@@ -92,7 +92,7 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
   const Glyph = described.icon;
 
   return (
-    <div 
+    <div
       className="group/row relative flex gap-3 px-2 py-3 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
       style={{ '--row-accent': accentColor } as React.CSSProperties}
     >
@@ -173,28 +173,31 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
 function NoActionsYet() {
   return (
     <div
-      className="mt-1 flex flex-col items-center text-center gap-4 rounded-[16px] px-6 py-10 relative overflow-hidden"
+      className="relative mt-1 flex flex-col items-center gap-4 overflow-hidden rounded-[16px] px-6 py-10 text-center"
       style={{
         background: 'var(--surface-raised)',
         border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
-        boxShadow: '0 8px 32px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset'
+        boxShadow: '0 8px 32px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset',
       }}
     >
-      <div 
-        className="flex h-12 w-12 items-center justify-center rounded-[14px]" 
-        style={{ 
-          background: 'var(--surface-inset)', 
-          border: '1px solid var(--border-subtle)' 
+      <div
+        className="flex h-12 w-12 items-center justify-center rounded-[14px]"
+        style={{
+          background: 'var(--surface-inset)',
+          border: '1px solid var(--border-subtle)',
         }}
       >
         <IconHistory size={22} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
       </div>
       <div>
-        <p className="text-[14px] font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
+        <p
+          className="text-[14px] font-medium tracking-tight"
+          style={{ color: 'var(--text-primary)' }}
+        >
           No platform actions yet.
         </p>
         <p
-          className="t-caption mt-1.5 mx-auto"
+          className="t-caption mx-auto mt-1.5"
           style={{ color: 'var(--text-secondary)', maxWidth: '42ch', textWrap: 'pretty' }}
         >
           Provisioning a workspace, changing a plan or entering a support session writes here in the
@@ -216,13 +219,19 @@ export function LastActionsSkeleton() {
             {/* Timeline axis */}
             <div className="relative flex shrink-0 flex-col items-center pl-1">
               <div className="mt-0.5 flex h-4 w-4 items-center justify-center">
-                <span className="h-1.5 w-1.5 rounded-full border-[1.5px]" style={{ borderColor: 'var(--text-tertiary)', opacity: 0.3 }} />
+                <span
+                  className="h-1.5 w-1.5 rounded-full border-[1.5px]"
+                  style={{ borderColor: 'var(--text-tertiary)', opacity: 0.3 }}
+                />
               </div>
               {i < 4 && (
-                <span className="absolute top-4 -bottom-3 w-px" style={{ background: 'var(--border-subtle)', opacity: 0.5 }} />
+                <span
+                  className="absolute top-4 -bottom-3 w-px"
+                  style={{ background: 'var(--border-subtle)', opacity: 0.5 }}
+                />
               )}
             </div>
-            
+
             {/* Content */}
             <div className="flex min-w-0 flex-1 flex-col gap-2 pt-0.5">
               <span

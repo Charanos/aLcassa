@@ -81,7 +81,7 @@ export function FilterBar<T extends string = string>({
     >
       {/* Search Input (Crisp Floating Pill) */}
       <label
-        className="flex h-10 min-w-0 flex-1 basis-[280px] items-center gap-3 rounded-full px-4 transition-all duration-300 focus-within:ring-2 focus-within:ring-[var(--blue-500)] focus-within:border-[var(--blue-500)] max-w-[480px] hover:shadow-sm"
+        className="flex h-10 max-w-[480px] min-w-0 flex-1 basis-[280px] items-center gap-3 rounded-full px-4 transition-all duration-300 focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-500)] hover:shadow-sm"
         style={{
           border: '1px solid var(--border-strong)',
           background: 'var(--surface-raised)',
@@ -101,7 +101,7 @@ export function FilterBar<T extends string = string>({
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-w-0 flex-1 border-none bg-transparent outline-none transition-colors"
+          className="min-w-0 flex-1 border-none bg-transparent transition-colors outline-none"
           style={{ font: '400 14px/1 var(--font-ui)', color: 'var(--text-primary)' }}
         />
         <kbd
@@ -128,7 +128,7 @@ export function FilterBar<T extends string = string>({
             const activeInk = opt.activeColor?.ink || 'var(--blue-500)';
             const activeTint = opt.activeColor?.tint || 'var(--blue-50)';
             const activeBorder = opt.activeColor?.border || 'var(--blue-200)';
-            
+
             return (
               <button
                 key={opt.id}
@@ -216,7 +216,10 @@ export function FilterBar<T extends string = string>({
               style={{
                 background: viewMode === 'list' ? 'var(--surface-raised)' : 'transparent',
                 color: viewMode === 'list' ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px var(--border-subtle)' : 'none',
+                boxShadow:
+                  viewMode === 'list'
+                    ? '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px var(--border-subtle)'
+                    : 'none',
               }}
             >
               <IconList size={16} stroke={1.5} />
@@ -230,7 +233,10 @@ export function FilterBar<T extends string = string>({
               style={{
                 background: viewMode === 'grid' ? 'var(--surface-raised)' : 'transparent',
                 color: viewMode === 'grid' ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px var(--border-subtle)' : 'none',
+                boxShadow:
+                  viewMode === 'grid'
+                    ? '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px var(--border-subtle)'
+                    : 'none',
               }}
             >
               <IconLayoutGrid size={16} stroke={1.5} />

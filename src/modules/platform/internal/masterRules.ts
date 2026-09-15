@@ -114,10 +114,7 @@ export async function publishMasterRules(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
-      const [root] = await tx
-        .select({ id: masterAiRules.id })
-        .from(masterAiRules)
-        .limit(1);
+      const [root] = await tx.select({ id: masterAiRules.id }).from(masterAiRules).limit(1);
 
       if (!root) {
         /* The singleton is seeded with the database. Its absence is a broken

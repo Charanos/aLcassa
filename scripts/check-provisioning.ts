@@ -130,7 +130,7 @@ async function main() {
     console.log(
       '\n      These were created before `provisionTenant` wrote a subscription row.\n' +
         '      They show "—" in the plan column and have no ceilings. Assign a plan\n' +
-        '      from the workspace\'s billing tab, which is audited and does the same\n' +
+        "      from the workspace's billing tab, which is audited and does the same\n" +
         '      write correctly.',
     );
   }

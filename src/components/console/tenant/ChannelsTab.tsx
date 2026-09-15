@@ -206,11 +206,10 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
         keyboard or touch reader actually reaches.
       */}
       <ReasonNote>
-        Nothing on this tab can act yet. The channel runtime is Phase 2 &mdash; the adapter
-        contract is written and nothing sits above it &mdash; so connecting an endpoint and
-        pinging one are both waiting on the same work. A workspace&rsquo;s existing channel
-        settings are theirs to change; the platform reaches them through a logged support
-        session, not from here.
+        Nothing on this tab can act yet. The channel runtime is Phase 2 &mdash; the adapter contract
+        is written and nothing sits above it &mdash; so connecting an endpoint and pinging one are
+        both waiting on the same work. A workspace&rsquo;s existing channel settings are theirs to
+        change; the platform reaches them through a logged support session, not from here.
       </ReasonNote>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">

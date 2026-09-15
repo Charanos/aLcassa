@@ -61,7 +61,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       this.props.fallback ?? (
         <div
           className="rounded-panel border p-5 text-center"
-          style={{ borderColor: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))', background: 'var(--red-100)' }}
+          style={{
+            borderColor: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))',
+            background: 'var(--red-100)',
+          }}
         >
           <IconAlertTriangle
             size={20}

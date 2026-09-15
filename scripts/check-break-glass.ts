@@ -42,7 +42,9 @@ class Rollback extends Error {}
 
 /** The reader, exactly as `breakGlassState` expresses it. */
 async function readState(tx: postgres.TransactionSql) {
-  const [row] = await tx<{ action: string; actor_label: string; reason: string | null; occurred_at: Date }[]>`
+  const [row] = await tx<
+    { action: string; actor_label: string; reason: string | null; occurred_at: Date }[]
+  >`
     select action, actor_label, reason, occurred_at
       from platform_audit_log
      where action in ('support.lock_engaged', 'support.lock_released')
@@ -73,7 +75,9 @@ async function main() {
     await sql.begin(async (tx) => {
       // ── 1 · a support session to be caught by the lock ───────────────────
       console.log('1. An open support session');
-      const [tenant] = await tx<{ id: string; slug: string }[]>`select id, slug from tenants where deleted_at is null limit 1`;
+      const [tenant] = await tx<
+        { id: string; slug: string }[]
+      >`select id, slug from tenants where deleted_at is null limit 1`;
       if (!tenant) {
         bad('no tenant to open a session against');
         throw new Rollback();
@@ -146,7 +150,9 @@ async function main() {
   else bad('the probe changed the real lock state — investigate immediately');
 
   console.log(
-    failures === 0 ? '\nBreak glass locks, releases, and remembers.\n' : `\n${failures} problems.\n`,
+    failures === 0
+      ? '\nBreak glass locks, releases, and remembers.\n'
+      : `\n${failures} problems.\n`,
   );
 }
 

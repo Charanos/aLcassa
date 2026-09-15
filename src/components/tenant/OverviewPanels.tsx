@@ -92,10 +92,7 @@ export function QueuePanel({ items, total }: { items: QueueItem[]; total: number
 
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
-                    <span
-                      className="t-body truncate"
-                      style={{ color: 'var(--text-primary)' }}
-                    >
+                    <span className="t-body truncate" style={{ color: 'var(--text-primary)' }}>
                       {item.name}
                     </span>
                     <span

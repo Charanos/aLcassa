@@ -51,10 +51,7 @@ export function OverviewChart({
 }) {
   const chartId = useId();
 
-  const data = useMemo(
-    () => series.map((m) => ({ day: m.month, volume: m.mrr })),
-    [series],
-  );
+  const data = useMemo(() => series.map((m) => ({ day: m.month, volume: m.mrr })), [series]);
 
   /**
    * The headline and its delta, computed from the series rather than typed.
@@ -87,7 +84,7 @@ export function OverviewChart({
       />
 
       {/* t-eyebrow: refined typography with premium tracking */}
-      <div className="absolute top-6 left-6 z-10 pointer-events-none">
+      <div className="pointer-events-none absolute top-6 left-6 z-10">
         <p
           className="t-eyebrow mb-2.5"
           style={{
@@ -152,16 +149,18 @@ export function OverviewChart({
                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
               </filter>
             </defs>
-            <CartesianGrid
-              strokeDasharray="4 6"
-              vertical={false}
-              stroke="rgba(255,255,255,0.06)"
-            />
+            <CartesianGrid strokeDasharray="4 6" vertical={false} stroke="rgba(255,255,255,0.06)" />
             <XAxis
               dataKey="day"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: 'var(--invert-card-fg)', opacity: 0.4, fontSize: 10, fontWeight: 500, letterSpacing: '0.02em' }}
+              tick={{
+                fill: 'var(--invert-card-fg)',
+                opacity: 0.4,
+                fontSize: 10,
+                fontWeight: 500,
+                letterSpacing: '0.02em',
+              }}
               dy={14}
               minTickGap={32}
             />
@@ -178,18 +177,28 @@ export function OverviewChart({
                       style={{
                         background: 'rgba(15, 23, 42, 0.75)',
                         borderColor: 'rgba(255, 255, 255, 0.1)',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.08)',
+                        boxShadow:
+                          '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.08)',
                       }}
                     >
                       <div
                         className="t-eyebrow mb-1.5 uppercase"
-                        style={{ color: 'var(--invert-card-fg)', opacity: 0.6, fontSize: '9px', letterSpacing: '0.06em' }}
+                        style={{
+                          color: 'var(--invert-card-fg)',
+                          opacity: 0.6,
+                          fontSize: '9px',
+                          letterSpacing: '0.06em',
+                        }}
                       >
                         {(data.payload as { day?: string })?.day}
                       </div>
                       <div
                         className="flex items-center gap-2 font-mono"
-                        style={{ color: 'var(--invert-card-fg)', fontSize: '13px', fontWeight: 500 }}
+                        style={{
+                          color: 'var(--invert-card-fg)',
+                          fontSize: '13px',
+                          fontWeight: 500,
+                        }}
                       >
                         <span className="size-1.5 rounded-full bg-[var(--invert-card-fg)] opacity-80 shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
                         {new Intl.NumberFormat('en-GB').format((data.value as number) || 0)}{' '}

@@ -41,10 +41,7 @@ function SessionRow({ session }: { session: AccountSession }) {
   }
 
   return (
-    <li
-      className="border-t px-4 py-3.5 first:border-t-0"
-      style={{ borderColor: 'var(--ink-100)' }}
-    >
+    <li className="border-t px-4 py-3.5 first:border-t-0" style={{ borderColor: 'var(--ink-100)' }}>
       <div className="flex items-center gap-3.5">
         <span
           className="grid size-8 shrink-0 place-items-center rounded-panel"

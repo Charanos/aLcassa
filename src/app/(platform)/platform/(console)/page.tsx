@@ -58,8 +58,6 @@ export const metadata: Metadata = { title: 'Overview' };
  *    checking the ones that are.
  */
 
-
-
 /**
  * ⚠ KEYED BY THE MODEL'S OWN UNION RATHER THAN BY `string`.
  *
@@ -160,14 +158,17 @@ export default async function ConsoleOverviewPage() {
         }}
       >
         {/* ── Premium Ambient Background Art ── */}
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
+          aria-hidden="true"
+        >
           {/* Deep atmospheric glows */}
           <div
             className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-[0.18] blur-[120px]"
             style={{ background: 'var(--blue-500)' }}
           />
           <div
-            className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
+            className="absolute -right-32 -bottom-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
             style={{ background: 'var(--blue-700)' }}
           />
 
@@ -222,7 +223,7 @@ export default async function ConsoleOverviewPage() {
           <div className="relative flex flex-1 flex-col justify-between p-8 lg:p-12 lg:pr-8">
             <div className="relative z-10">
               <p
-                className="mb-4 font-mono uppercase tracking-[0.15em]"
+                className="mb-4 font-mono tracking-[0.15em] uppercase"
                 style={{
                   color: 'var(--invert-card-fg)',
                   opacity: 0.5,
@@ -249,7 +250,8 @@ export default async function ConsoleOverviewPage() {
                   style={{
                     fontWeight: 'inherit',
                     color: 'var(--accent-mark)',
-                    background: 'linear-gradient(90deg, var(--accent-mark) 0%, var(--orange-300) 100%)',
+                    background:
+                      'linear-gradient(90deg, var(--accent-mark) 0%, var(--orange-300) 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                   }}
@@ -314,12 +316,12 @@ export default async function ConsoleOverviewPage() {
         {/* Bottom Bar: Signals - Telemetry Ribbon */}
         <div className="relative z-10 px-8 pb-8 lg:px-12 lg:pb-12">
           {/* Elegant sweeping gradient line instead of a hard border */}
-          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.15)] to-transparent opacity-60 lg:left-12 lg:right-12" />
+          <div className="absolute top-0 right-8 left-8 h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.15)] to-transparent opacity-60 lg:right-12 lg:left-12" />
 
           <div className="grid w-full grid-cols-1 gap-6 pt-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             {model.signals.map((s, i) => {
               const Icon = SIGNAL_ICON[s.icon] ?? IconActivity;
-              
+
               // Custom data parsing for premium presentation
               const isPositive = s.note.startsWith('Up ');
               const noteText = s.note.replace(/^Up /, '');
@@ -328,22 +330,22 @@ export default async function ConsoleOverviewPage() {
                 <Link
                   key={s.id}
                   href={s.href}
-                  className="group relative flex cursor-pointer flex-col justify-between rounded-xl px-5 -m-5 py-3 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                  className="group relative -m-5 flex cursor-pointer flex-col justify-between rounded-xl px-5 py-3 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                 >
                   {/* Absolute Background Artwork Icon */}
-                  <div className="pointer-events-none absolute -bottom-4 right-2 z-0 text-[var(--invert-card-fg)] opacity-[0.10] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.18]">
+                  <div className="pointer-events-none absolute right-2 -bottom-4 z-0 text-[var(--invert-card-fg)] opacity-[0.10] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.18]">
                     <Icon size={140} stroke={1} aria-hidden />
                   </div>
 
                   {/* Subtle right divider for grid columns */}
                   {i < model.signals.length - 1 && (
-                    <div className="pointer-events-none absolute -right-4 top-1/2 hidden h-24 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[rgba(255,255,255,0.12)] to-transparent lg:block" />
+                    <div className="pointer-events-none absolute top-1/2 -right-4 hidden h-24 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[rgba(255,255,255,0.12)] to-transparent lg:block" />
                   )}
 
                   <div className="relative z-10 mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <span
-                        className="font-mono text-[10.5px] font-medium uppercase tracking-[0.15em]"
+                        className="font-mono text-[10.5px] font-medium tracking-[0.15em] uppercase"
                         style={{ color: 'var(--invert-card-fg)', opacity: 0.55 }}
                       >
                         {s.label}
@@ -395,7 +397,7 @@ export default async function ConsoleOverviewPage() {
       </section>
 
       {/* ── Queue + rail ─────────────────────────────────────────────────── */}
-      <div className="md:mt-24 mb-6">
+      <div className="mb-6 md:mt-24">
         <SectionHeading
           title="Command & Telemetry"
           note="The actionable queue, ordered by what it costs to ignore, alongside live platform vitals and recent audit logs."
@@ -457,5 +459,3 @@ export default async function ConsoleOverviewPage() {
     </ConsolePage>
   );
 }
-
-

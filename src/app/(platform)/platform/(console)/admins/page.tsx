@@ -128,10 +128,10 @@ export default async function AdminsPage() {
           */}
           <div className="mt-3 max-w-[64ch]">
             <ReasonNote>
-              There is no invite flow for this list, and that is the design rather than a gap:
-              an invitation is scoped to a workspace, and platform access is not. Someone is
-              added here directly, by an existing platform admin, which keeps the grant a
-              deliberate act with a name against it.
+              There is no invite flow for this list, and that is the design rather than a gap: an
+              invitation is scoped to a workspace, and platform access is not. Someone is added here
+              directly, by an existing platform admin, which keeps the grant a deliberate act with a
+              name against it.
             </ReasonNote>
           </div>
         </div>
@@ -375,9 +375,9 @@ export default async function AdminsPage() {
           {invitations.length > 0 ? (
             <p className="t-compact px-5 py-3.5" style={{ color: 'var(--text-tertiary)' }}>
               Invitations expire after seven days and can only be issued by an existing platform
-              admin. Revoking one early needs a record of who revoked it and when, and that
-              record does not exist yet &mdash; so the control is held rather than shipped
-              silently doing nothing. An invitation left alone still lapses on its own.
+              admin. Revoking one early needs a record of who revoked it and when, and that record
+              does not exist yet &mdash; so the control is held rather than shipped silently doing
+              nothing. An invitation left alone still lapses on its own.
             </p>
           ) : null}
         </Panel>

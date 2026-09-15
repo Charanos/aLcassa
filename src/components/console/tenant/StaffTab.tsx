@@ -206,9 +206,9 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
             <ReasonNote>
               Inviting, removing or re-roling a member happens inside the workspace, through a
               logged support session &mdash; so the change lands in the customer&rsquo;s own
-              activity log with a name and a reason against it, rather than arriving from
-              outside with neither. What the platform changes directly is the seat ceiling,
-              which is a property of their plan and is on the billing tab.
+              activity log with a name and a reason against it, rather than arriving from outside
+              with neither. What the platform changes directly is the seat ceiling, which is a
+              property of their plan and is on the billing tab.
             </ReasonNote>
           }
         >
@@ -409,7 +409,11 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                         disabled
                         title="Membership changes happen inside the workspace, through a logged support session."
                         className="rounded-md p-1 transition-colors hover:bg-[var(--surface-inset)]"
-                        style={{ opacity: 0.45, cursor: 'not-allowed', color: 'var(--text-tertiary)' }}
+                        style={{
+                          opacity: 0.45,
+                          cursor: 'not-allowed',
+                          color: 'var(--text-tertiary)',
+                        }}
                       >
                         <IconDotsVertical size={14} stroke={1.5} />
                       </button>

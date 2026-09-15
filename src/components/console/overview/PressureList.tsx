@@ -47,9 +47,9 @@ export function PressureList({ rows, total }: { rows: PressureRow[]; total: numb
             <li key={`${row.slug}-${row.metric}`}>
               <Link
                 href={`/platform/tenants/${row.slug}`}
-                className="group block rounded-[10px] p-3 transition-colors duration-300 hover:bg-[var(--surface-sunken)] -mx-3"
+                className="group -mx-3 block rounded-[10px] p-3 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
               >
-                <div className="flex items-baseline justify-between gap-3 mb-2.5">
+                <div className="mb-2.5 flex items-baseline justify-between gap-3">
                   <span
                     className="truncate transition-colors duration-300 group-hover:text-[var(--text-action)]"
                     style={{ font: '500 13px/1 var(--font-ui)', color: 'var(--text-primary)' }}
@@ -124,7 +124,10 @@ export function PressureList({ rows, total }: { rows: PressureRow[]; total: numb
             aria-hidden
           />
           <span>
-            The other <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>{resting}</span>{' '}
+            The other{' '}
+            <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+              {resting}
+            </span>{' '}
             {resting === 1 ? 'workspace has' : 'workspaces have'} headroom.
           </span>
         </p>
@@ -153,8 +156,8 @@ function NothingAtCeiling() {
         className="t-caption"
         style={{ color: 'var(--text-secondary)', maxWidth: '34ch', textWrap: 'pretty' }}
       >
-        Nothing is within {100 - PRESSURE_THRESHOLD}% of a limit. A workspace appears here before
-        it is blocked, not after.
+        Nothing is within {100 - PRESSURE_THRESHOLD}% of a limit. A workspace appears here before it
+        is blocked, not after.
       </p>
     </div>
   );

@@ -56,7 +56,7 @@ const INTENT_INK: Record<BadgeIntent, string | null> = {
 export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
   (
     { intent = 'neutral', indicator = false, crisp = true, children, className, style, ...props },
-    ref
+    ref,
   ) => {
     const ink = INTENT_INK[intent];
     const fg = ink ?? 'var(--chrome-fg-muted)';
@@ -109,7 +109,7 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
         {children}
       </span>
     );
-  }
+  },
 );
 
 Badge.displayName = 'Badge';

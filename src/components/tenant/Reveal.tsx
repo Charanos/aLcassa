@@ -46,13 +46,13 @@ export function Reveal({ children }: { children: React.ReactNode }) {
             stagger: 0.08,
             ease: 'power3.out',
             clearProps: 'transform',
-          }
+          },
         );
       });
 
       return () => mm.revert();
     },
-    { scope }
+    { scope },
   );
 
   return (

@@ -97,9 +97,7 @@ async function main() {
   eq('the revenue queue has a row per debtor', revenue.collections.length, IN_ARREARS.length);
 
   // ⚠ The failure that started this: debtors who do not exist.
-  const ghosts = revenue.collections.filter(
-    (c) => !PORTFOLIO.some((w) => w.slug === c.slug),
-  );
+  const ghosts = revenue.collections.filter((c) => !PORTFOLIO.some((w) => w.slug === c.slug));
   if (ghosts.length === 0) ok('every debtor is a real workspace');
   else bad(`${ghosts.length} debtor(s) name no workspace: ${ghosts.map((g) => g.slug).join(', ')}`);
 
@@ -110,8 +108,12 @@ async function main() {
   // to a slug that resolved to nothing.
   console.log(String.fromCharCode(10) + '1b. The queue');
   const queueGhosts = overview.queue.filter((q) => !PORTFOLIO.some((w) => w.slug === q.slug));
-  if (queueGhosts.length === 0) ok(`every queue row is a real workspace (${overview.queue.length})`);
-  else bad(`${queueGhosts.length} row(s) name no workspace: ${queueGhosts.map((g) => g.slug).join(', ')}`);
+  if (queueGhosts.length === 0)
+    ok(`every queue row is a real workspace (${overview.queue.length})`);
+  else
+    bad(
+      `${queueGhosts.length} row(s) name no workspace: ${queueGhosts.map((g) => g.slug).join(', ')}`,
+    );
 
   const RANK = { danger: 0, warning: 1, info: 2, inert: 3 } as const;
   const misordered = overview.queue.findIndex((q, i) => {
@@ -131,7 +133,19 @@ async function main() {
   // ── 2 · the attention count, which the headline opens with ──────────────
   console.log('\n2. Attention');
   const spelled = overview.headline.lead.match(/^(\w+)/)?.[1] ?? '';
-  const WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'];
+  const WORDS = [
+    'No',
+    'One',
+    'Two',
+    'Three',
+    'Four',
+    'Five',
+    'Six',
+    'Seven',
+    'Eight',
+    'Nine',
+    'Ten',
+  ];
   eq('the headline spells the attention count', WORDS.indexOf(spelled), NEEDING_ATTENTION);
 
   const attentionSignal = overview.signals.find((s) => s.id === 'attention');
@@ -190,9 +204,7 @@ async function main() {
   console.log(String.fromCharCode(10) + '6. No retired plans');
   const RETIRED = ['Starter', 'Growth', 'Scale'];
   const surfaces = JSON.stringify([overview, revenue, plansModel]);
-  const survivors = RETIRED.filter((name) =>
-    new RegExp(`"[^"]*\b${name}\b[^"]*"`).test(surfaces),
-  );
+  const survivors = RETIRED.filter((name) => new RegExp(`"[^"]*\b${name}\b[^"]*"`).test(surfaces));
   if (survivors.length === 0) ok('Trial, Starter, Growth and Scale appear nowhere');
   else bad(`retired plan name(s) still rendered: ${survivors.join(', ')}`);
 
@@ -203,7 +215,10 @@ async function main() {
 
   const misaligned = plansModel.rows.filter((r) => r.values.length !== plansModel.plans.length);
   if (misaligned.length === 0) ok('every entitlement row has one value per plan column');
-  else bad(`${misaligned.length} row(s) have the wrong number of values: ${misaligned.map((r) => r.label).join(', ')}`);
+  else
+    bad(
+      `${misaligned.length} row(s) have the wrong number of values: ${misaligned.map((r) => r.label).join(', ')}`,
+    );
 
   console.log(
     failures === 0

@@ -116,7 +116,9 @@ export function DataList<T>({
                     className={[column.mono ? 't-data' : 't-compact', 'px-4 py-3 align-top'].join(
                       ' ',
                     )}
-                    style={{ color: column.muted ? 'var(--text-secondary)' : 'var(--text-primary)' }}
+                    style={{
+                      color: column.muted ? 'var(--text-secondary)' : 'var(--text-primary)',
+                    }}
                   >
                     {column.cell(row)}
                   </td>

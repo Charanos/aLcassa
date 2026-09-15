@@ -584,10 +584,10 @@ export function SettingsPanel({
                   cannot recover it — not for you, not for support.
                 </p>
                 <p className="t-compact mt-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                  Issuing and revoking are held here because a credential belongs to the
-                  workspace that uses it: these are read-only copies of what each one holds, and
-                  the controls that change them sit on the workspace, where the change is
-                  recorded against the customer who owns it.
+                  Issuing and revoking are held here because a credential belongs to the workspace
+                  that uses it: these are read-only copies of what each one holds, and the controls
+                  that change them sit on the workspace, where the change is recorded against the
+                  customer who owns it.
                 </p>
               </div>
             </section>
@@ -826,7 +826,9 @@ function BreakGlassPanel({
               {lockedReason ? (
                 <>
                   <br />
-                  <span style={{ color: 'var(--text-secondary)' }}>&ldquo;{lockedReason}&rdquo;</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    &ldquo;{lockedReason}&rdquo;
+                  </span>
                 </>
               ) : null}
             </p>
@@ -864,7 +866,10 @@ function BreakGlassPanel({
             : 'This ends any open support session immediately and blocks new ones, for every admin, including you. It does not affect customer sign-ins.'
         }
         details={
-          <div className="grid gap-1.5 border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
+          <div
+            className="grid gap-1.5 border-t pt-4"
+            style={{ borderColor: 'var(--border-subtle)' }}
+          >
             {/*
               ⚠ REQUIRED IN BOTH DIRECTIONS, AND THE RELEASE IS THE ONE PEOPLE
               SKIP. "We locked support at 14:02" with no matching account of
@@ -907,7 +912,7 @@ function BreakGlassPanel({
           /* The server enforces the minimum too; this keeps the button honest
              about whether pressing it can succeed. */
           if (reason.trim().length >= 8) submit();
-          else setError(active ? "Say why it is safe to reopen." : "Say what happened.");
+          else setError(active ? 'Say why it is safe to reopen.' : 'Say what happened.');
         }}
       />
     </section>

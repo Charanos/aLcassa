@@ -32,9 +32,21 @@ type ToastInput = Omit<Toast, 'id'>;
 
 const TONE: Record<ToastTone, { icon: TablerIcon; ink: string; rule: string }> = {
   info: { icon: IconInfoCircle, ink: 'var(--ink-600)', rule: 'var(--ink-300)' },
-  success: { icon: IconCircleCheck, ink: 'var(--green-500)', rule: 'color-mix(in oklab, var(--green-500) 38%, var(--surface-base))' },
-  attention: { icon: IconAlertTriangle, ink: 'var(--amber-500)', rule: 'color-mix(in oklab, var(--amber-500) 38%, var(--surface-base))' },
-  failure: { icon: IconAlertOctagon, ink: 'var(--red-500)', rule: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))' },
+  success: {
+    icon: IconCircleCheck,
+    ink: 'var(--green-500)',
+    rule: 'color-mix(in oklab, var(--green-500) 38%, var(--surface-base))',
+  },
+  attention: {
+    icon: IconAlertTriangle,
+    ink: 'var(--amber-500)',
+    rule: 'color-mix(in oklab, var(--amber-500) 38%, var(--surface-base))',
+  },
+  failure: {
+    icon: IconAlertOctagon,
+    ink: 'var(--red-500)',
+    rule: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))',
+  },
 };
 
 const MAX_STACKED = 3;
@@ -136,7 +148,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <div className="min-w-0 flex-1">
                 <p className="t-compact text-[var(--text-primary)]">{toast.title}</p>
                 {toast.description ? (
-                  <p className="t-caption mt-0.5 text-[var(--text-tertiary)]">{toast.description}</p>
+                  <p className="t-caption mt-0.5 text-[var(--text-tertiary)]">
+                    {toast.description}
+                  </p>
                 ) : null}
               </div>
 

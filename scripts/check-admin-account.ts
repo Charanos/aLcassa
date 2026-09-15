@@ -97,7 +97,9 @@ async function main(): Promise<void> {
     if (refs.db === refs.api) {
       ok(`the seed and the app share one Supabase project (${refs.db})`);
     } else {
-      bad(`DIFFERENT Supabase projects: the seed writes to "${refs.db}", the app signs in against "${refs.api}"`);
+      bad(
+        `DIFFERENT Supabase projects: the seed writes to "${refs.db}", the app signs in against "${refs.api}"`,
+      );
       console.log(
         '\n  This is the failure that looks exactly like a wrong password: the\n' +
           '  account is created in one project and looked for in another. Point\n' +
@@ -184,7 +186,8 @@ async function main(): Promise<void> {
     ok('the id matches the one the application tables point at');
   }
 
-  if (!user.has_password) bad('the row has no password hash — this account cannot sign in with one');
+  if (!user.has_password)
+    bad('the row has no password hash — this account cannot sign in with one');
   else ok('a password hash is stored');
 
   if (!user.confirmed) bad('email_confirmed_at is null — GoTrue will refuse the sign-in');
@@ -317,12 +320,12 @@ function explainConnectionFailure(error: unknown): string | null {
       'the username in DATABASE_URL_ADMIN.',
       '',
       '  "tenant" there is Supavisor\'s word for a Supabase PROJECT. It is not',
-      '  one of this product\'s tenants, and nothing is wrong with the schema.',
+      "  one of this product's tenants, and nothing is wrong with the schema.",
       '',
       'Check, in order:',
       '  1. does <ref>.supabase.co resolve? If not, the project is gone and the',
       '     connection string, NEXT_PUBLIC_SUPABASE_URL and the keys all need',
-      '     replacing with a new project\'s.',
+      "     replacing with a new project's.",
       '  2. is the project paused? Free-tier projects pause when idle.',
       '  3. is the region in the pooler host right? A pooler in one region does',
       '     not know a project in another, and says exactly this when asked.',

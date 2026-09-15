@@ -48,7 +48,7 @@ export default async function VerifyPage({
           Incorrect email address?{' '}
           <Link
             href="/sign-up"
-            className="font-medium text-[var(--blue-600)] hover:text-[var(--blue-700)] underline underline-offset-4 transition-colors"
+            className="font-medium text-[var(--blue-600)] underline underline-offset-4 transition-colors hover:text-[var(--blue-700)]"
           >
             Start over
           </Link>
@@ -61,16 +61,17 @@ export default async function VerifyPage({
             <IconMail size={22} stroke={2} aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="text-[11px] font-mono text-[var(--text-tertiary)] uppercase tracking-wider block">
+            <span className="block font-mono text-[11px] tracking-wider text-[var(--text-tertiary)] uppercase">
               Recipient Address
             </span>
-            <span className="font-mono text-[13px] font-medium text-[var(--text-primary)] truncate block">
+            <span className="block truncate font-mono text-[13px] font-medium text-[var(--text-primary)]">
               {email ?? 'your workspace email'}
             </span>
           </div>
         </div>
-        <p className="mt-3.5 text-[12px] leading-relaxed text-[var(--text-secondary)] border-t border-[var(--ink-200)]/70 pt-3">
-          Click the link in the message to activate your workspace and complete setup. Links remain valid for 24 hours.
+        <p className="mt-3.5 border-t border-[var(--ink-200)]/70 pt-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
+          Click the link in the message to activate your workspace and complete setup. Links remain
+          valid for 24 hours.
         </p>
       </div>
 
@@ -84,8 +85,8 @@ export default async function VerifyPage({
             borderColor: 'var(--success-fg)',
           }}
         >
-          Sent again. If it still does not arrive, check your spam folder — or
-          continue into your workspace and confirm later.
+          Sent again. If it still does not arrive, check your spam folder — or continue into your
+          workspace and confirm later.
         </div>
       ) : null}
 
