@@ -733,7 +733,18 @@ export type Meter = {
   label: string;
   icon: 'seat' | 'bolt' | 'mail' | 'db' | 'key';
   used: number;
-  limit: number;
+  /**
+   * NULL IS UNLIMITED, and it is null rather than zero.
+   *
+   * ⚠ ZERO WAS USED FOR THIS AND IT DIVIDED BY IT. The drawer computes
+   * `used / limit` to size a bar and print a percentage, so an "unlimited"
+   * credential allowance on a Custom workspace rendered `Infinity%` above a
+   * bar of infinite width. `plan_entitlements.limit_value` has been nullable
+   * for exactly this reason since the first migration, and `SEAT_LIMIT` in
+   * `portfolio.ts` already spells it `number | null` — this type was the only
+   * place in the chain that could not say "no ceiling".
+   */
+  limit: number | null;
   unit?: string;
   /**
    * ⚠ WHICH TABLE ANSWERS THIS NUMBER.
@@ -954,7 +965,9 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
   if (row.status === 'past due') {
     alert = {
       title: 'Payment past due · 6 days outstanding',
-      body: `Invoice INV-2026-0841 for KES ${planMeta.num.toLocaleString('en-GB')} was declined. Two automatic retries failed. Access continues until next period threshold.`,
+      body: record?.arrears
+        ? `Invoice ${record.arrears.invoice} for KES ${record.arrears.amount.toLocaleString('en-GB')} is ${record.arrears.days} days late; retries ${record.arrears.attempts}. Access continues until it is suspended.`
+        : 'Payment is past due. Access continues until the workspace is suspended.',
     };
   } else if (row.status === 'suspended') {
     alert = {
@@ -983,35 +996,54 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
     };
   }
 
+  /**
+   * ⚠ EVERY INVOICE NUMBER ON THIS TAB WAS FORTY-SEVEN CHARACTERS OF UUID.
+   *
+   * They were built as ``INV-2026-08${row.id.replace('w_', '4')}`` — a
+   * substitution that worked when workspace ids looked like `w_03` and became a
+   * no-op the moment they became UUIDs, so the billing tab listed
+   * `INV-2026-0800000000-0000-4000-8000-000000000012`. It typechecked, because
+   * a string is a string.
+   *
+   * A reference is now the period plus a short, stable suffix from the id, and
+   * the CURRENT one comes from the workspace's own `arrears` where it has any —
+   * so the number on this tab is the number the collection queue is chasing,
+   * rather than a second invented one.
+   */
+  const ref = (monthsAgo: number): string => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - monthsAgo);
+    const period = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
+    return `INV-${period}-${row.id.replace(/[^0-9a-f]/gi, '').slice(-4).toUpperCase()}`;
+  };
+
+  const issuedOn = (monthsAgo: number): string => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - monthsAgo);
+    d.setDate(4);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
   const invoices: Invoice[] =
     row.status === 'trial' || row.status === 'pending'
       ? []
-      : [
-          {
-            id: `INV-2026-08${row.id.replace('w_', '4')}`,
-            issued: '04 Aug 2026',
-            period: 'Aug 2026',
-            amount: planMeta.num.toLocaleString('en-GB'),
-            status: row.status === 'past due' ? 'failed' : 'paid',
-            paid: row.status === 'past due' ? '—' : '05 Aug',
-          },
-          {
-            id: `INV-2026-07${row.id.replace('w_', '3')}`,
-            issued: '04 Jul 2026',
-            period: 'Jul 2026',
-            amount: planMeta.num.toLocaleString('en-GB'),
-            status: 'paid',
-            paid: '04 Jul',
-          },
-          {
-            id: `INV-2026-06${row.id.replace('w_', '2')}`,
-            issued: '04 Jun 2026',
-            period: 'Jun 2026',
-            amount: planMeta.num.toLocaleString('en-GB'),
-            status: 'paid',
-            paid: '04 Jun',
-          },
-        ];
+      : [0, 1, 2].map((monthsAgo) => {
+          const failed = monthsAgo === 0 && record?.arrears !== undefined;
+          return {
+            id: failed && record?.arrears ? record.arrears.invoice : ref(monthsAgo),
+            issued: issuedOn(monthsAgo),
+            period: (() => {
+              const d = new Date();
+              d.setMonth(d.getMonth() - monthsAgo);
+              return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+            })(),
+            amount: (failed && record?.arrears ? record.arrears.amount : fee).toLocaleString(
+              'en-GB',
+            ),
+            status: failed ? ('failed' as const) : ('paid' as const),
+            paid: failed ? '—' : issuedOn(monthsAgo),
+          };
+        });
 
   return {
     id: `tnt_${row.id}_${row.slug.slice(0, 6)}`,
@@ -1061,7 +1093,7 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
         label: 'API credentials',
         icon: 'key',
         used: record?.plan === 'custom' ? 4 : record?.plan === 'business' ? 3 : 1,
-        limit: record?.plan === 'custom' ? 0 : record?.plan === 'business' ? 10 : 2,
+        limit: record?.plan === 'custom' ? null : record?.plan === 'business' ? 10 : 2,
         source: 'api_credentials',
       },
     ],
@@ -1111,6 +1143,25 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
       channels: `${ownerInfo.channels ?? 3} active`,
     },
     residency: ownerInfo.residency ?? 'af-south-1 · Nairobi (RLS)',
+    /**
+     * ⚠ THE FOURTH CARD READ "Collection rate · 92% · Past 12 billing cycles",
+     *   AND THERE ARE NO BILLING CYCLES RECORDED ANYWHERE.
+     *
+     * Nothing in this schema stores a collection history: there is no gateway,
+     * no invoice ledger and no settled/failed record to compute a rate from.
+     * It was a plausible-looking percentage on a customer's billing tab, which
+     * is the worst place in the console to invent one — it is the number
+     * somebody would quote in a renewal conversation.
+     *
+     * "Lifetime value · estimated total" went with it. `planMeta.ltv` is fee ×
+     * months as a customer — billed to date, a fact — not a forecast, and a
+     * card labelled "estimated" invites exactly the forward-looking reading the
+     * figure cannot support.
+     *
+     * Outstanding now comes from the workspace's own `arrears`, so this card,
+     * the revenue screen's ageing chart and the hero's headline are three
+     * renderings of one number instead of three numbers.
+     */
     billingStats: [
       {
         label: 'Monthly recurring',
@@ -1118,20 +1169,26 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
         note: `KES · ${row.plan || 'Trial'}`,
       },
       {
-        label: 'Lifetime value',
+        label: 'Billed to date',
         value: planMeta.ltv.replace('KES ', ''),
-        note: 'KES estimated total',
+        note: `KES over ${ageMonths} ${ageMonths === 1 ? 'month' : 'months'}`,
       },
       {
         label: 'Outstanding',
-        value: row.status === 'past due' ? planMeta.num.toLocaleString('en-GB') : '0',
-        note: row.status === 'past due' ? 'One invoice failed' : 'All accounts settled',
-        tone: row.status === 'past due' ? 'danger' : undefined,
+        value: (record?.arrears?.amount ?? 0).toLocaleString('en-GB'),
+        note: record?.arrears
+          ? `KES · ${record.arrears.days} days late, retries ${record.arrears.attempts}`
+          : 'KES · nothing owed',
+        tone: record?.arrears ? ('danger' as const) : undefined,
       },
       {
-        label: 'Collection rate',
-        value: row.status === 'past due' ? '92%' : '100%',
-        note: 'Past 12 billing cycles',
+        label: 'Billing',
+        /* What the platform actually does, since it does not charge cards. */
+        value: row.status === 'trial' ? 'Trial' : 'Manual',
+        note:
+          row.status === 'trial'
+            ? 'No card on file yet'
+            : 'Invoiced and collected by hand · no gateway in Phase 1',
       },
     ],
     invoices,

@@ -1033,3 +1033,76 @@ failures. Round-trip latency to Supabase measured at ~200ms, and the isolation
 matrix runs many queries per case, so the per-test budget was simply too small
 for the connection rather than for the code. Nothing in this round touches a
 schema or a policy: `git status src/db/` is empty.
+
+## 18. The drawer's tab bodies, and a claim that kept coming back · 15 Sep 2026
+
+### A meter with no ceiling divided by it
+
+`Meter.limit` was `number`, so "unlimited" had to be spelled `0` — and both
+renderers compute `used / limit` to size a bar and print a percentage. A Custom
+workspace's credential allowance therefore rendered **`Infinity%` above a bar of
+infinite width**. `plan_entitlements.limit_value` has been nullable since the
+first migration and `SEAT_LIMIT` already reads `number | null`; this type was the
+only link in the chain that could not say "no ceiling". Making it nullable
+surfaced five call sites that had all assumed one.
+
+A track is a proportion, so where there is nothing to be a proportion of, the row
+now carries its count and stops rather than drawing a bar that is either always
+full or always empty and means neither.
+
+### Invoice numbers forty-seven characters long
+
+The billing tab built references as ``INV-2026-08${row.id.replace('w_', '4')}``
+— a substitution that worked when workspace ids looked like `w_03` and became a
+no-op the moment they became UUIDs. It listed
+`INV-2026-0800000000-0000-4000-8000-000000000012`. It typechecked, because a
+string is a string. References derive from the period and a short suffix now,
+and the current one comes from the workspace's own `arrears`, so the number on
+the billing tab is the number the collection queue is chasing.
+
+### "Collection rate · 92% · Past 12 billing cycles"
+
+Invented. Nothing stores a collection history — no gateway, no invoice ledger, no
+settled/failed record to compute a rate from — and it sat on a customer's
+billing tab, which is the worst place in the console to invent a percentage,
+because it is the number somebody would quote in a renewal conversation. The
+card now states how billing actually works: invoiced and collected by hand.
+
+### The claim that kept coming back
+
+Four places said the product isolates by schema, or encrypts something it does
+not:
+
+- the trial banner: *"row-level encryption enabled"*
+- the workspace facts: *"Compliance & RLS · Active · Schema isolated"*
+- the drawer's stat card: *"RLS isolated schema"*
+- the tenant page ribbon: *"Isolated Schema"*
+
+And in the access tab, two sentences wrong in **opposite** directions:
+*"physically segmented with Row-Level Security policies"* — the segmentation is
+logical, policies evaluated per query against a shared schema, and calling it
+physical is the schema claim in different words — and *"zero visibility into
+conversation bodies outside active support sessions"*, which implies visibility
+inside one. There is none: the capability matrix has `support: false` for "read
+a customer message body", and two isolation tests assert a support session
+"reads nothing at all" from customer records. The drawer was claiming **weaker**
+protection than the product actually gives, on the panel that exists to describe
+it.
+
+All four now say the true thing, which is also the stronger one: every query is
+filtered by a policy, including ours.
+
+One more of the same kind outside the console: the engagement tracker described
+an *"encrypted credential store"*. `credentials.key_hash` is argon2id and is
+never selected by any application route. Encrypted implies recoverable; a reader
+taking it at face value would expect a lost key to be retrievable, which is
+exactly what the design refuses to be able to do.
+
+### Left for a decision
+
+`components/marketing/FaqSection.tsx` makes public compliance claims I have not
+touched, because marketing copy may be deliberate and signed off: "envelope
+encryption", "isolated tenant credential vault", "AES-256 at rest", "TLS 1.3",
+and GDPR / Kenya Data Protection Act conformance. The argon2id claim there is
+correct. The others are worth a read by whoever owns that page — they are public
+and they are the same class as the four above.

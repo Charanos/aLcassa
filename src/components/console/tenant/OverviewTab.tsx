@@ -93,7 +93,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
               {seatsMeter ? seatsMeter.used : w.team.staff}
             </span>
             <span className="font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
-              / {seatsMeter ? seatsMeter.limit : '—'} limit
+              {seatsMeter?.limit == null ? 'no limit' : `/ ${seatsMeter.limit} limit`}
             </span>
           </div>
           <div
@@ -125,7 +125,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
               {eventsMeter ? fmtNum(eventsMeter.used) : '0'}
             </span>
             <span className="font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
-              / {eventsMeter ? fmtNum(eventsMeter.limit) : '—'}
+              {eventsMeter?.limit == null ? 'no limit' : `/ ${fmtNum(eventsMeter.limit)}`}
             </span>
           </div>
           <div
@@ -147,18 +147,32 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
         {/* Metric 4: Health & Isolation */}
         <div className="relative flex-1 p-5 sm:p-6 sm:pl-8">
           <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
-            Topology & RLS
+            Isolation
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span
               className="inline-flex size-2 rounded-full"
               style={{ background: 'var(--success-fg)' }}
             />
+            {/*
+              ⚠ THIS SAID "Isolated Schema", WHICH IS NOT WHAT THIS PRODUCT
+                DOES — the third place that claim appeared.
+
+              Isolation here is Row Level Security over a SHARED schema:
+              policies on every tenant-scoped table, evaluated per query, and a
+              generated suite that proves ten cases against each of them.
+              "Isolated schema" claims schema-per-tenant — a different
+              architecture with different guarantees — and it sat on the ribbon
+              of the page a client is walked through.
+
+              The true claim is also the stronger one, and it is the only one
+              the isolation suite actually backs.
+            */}
             <span
               className="font-mono text-base font-medium sm:text-lg"
               style={{ color: 'var(--invert-card-fg)' }}
             >
-              Isolated Schema
+              Row Level Security
             </span>
           </div>
           <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
@@ -266,7 +280,11 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
           >
             <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
               {w.meters.map((m) => {
-                const pct = m.used / m.limit;
+                /* Null is unlimited — see `Meter.limit`. Dividing by it gave
+                   `Infinity%` and a bar of infinite width on any Custom
+                   workspace. Bound to a local so the check narrows. */
+                const limit = m.limit;
+                const pct = limit === null ? 0 : m.used / limit;
                 const Icon = METER_ICON[m.icon] ?? IconCpu;
                 const color =
                   pct >= 1
@@ -276,7 +294,12 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                       : 'var(--blue-500)';
 
                 const usedStr = m.unit ? `${m.used}${m.unit}` : m.used.toLocaleString('en-GB');
-                const limitStr = m.unit ? `${m.limit}${m.unit}` : m.limit.toLocaleString('en-GB');
+                const limitStr =
+                  limit === null
+                    ? 'no limit'
+                    : m.unit
+                      ? `${limit}${m.unit}`
+                      : limit.toLocaleString('en-GB');
 
                 return (
                   <div key={m.label} className="flex flex-col gap-2 py-3.5 first:pt-1 last:pb-1">

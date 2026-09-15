@@ -21,6 +21,7 @@ import {
   IconWorld,
   IconRefresh,
   IconFileText,
+  type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import {
   fetchSuspensionImpact,
@@ -28,13 +29,14 @@ import {
   suspendWorkspace,
   type SuspensionImpact,
 } from '@/app/(platform)/platform/(console)/actions';
-import type { WorkspaceDetail, WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
+import type { Meter, WorkspaceDetail, WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
 import Link from 'next/link';
 import { gsapSafe } from '@/lib/motion';
 import { DestructiveConfirm } from '@/components/primitives/ConfirmDialog';
 import { StartSessionDialog } from './StartSessionDialog';
 import { ProfileCardDialog } from './ProfileCardDialog';
 import { InitialsTile } from '@/components/primitives/InitialsTile';
+import { IconTile } from '@/components/primitives/IconTile';
 import { useToast } from '@/components/primitives/Toast';
 
 /* ─ Types ─────────────────────────────────────────────────────────────────── */
@@ -107,8 +109,9 @@ function fmtNum(n: number): string {
   return `${n}`;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const METER_ICONS: Record<string, React.ElementType<any>> = {
+/* Typed as the icon set rather than as `ElementType<any>`: `IconTile` takes a
+   Tabler icon, and a loose element type let a string through. */
+const METER_ICONS: Record<Meter['icon'], TablerIcon> = {
   seat: IconUsersGroup,
   bolt: IconCpu,
   mail: IconMail,
@@ -850,10 +853,29 @@ export function WorkspaceDetailDrawer({
                   <div className="flex flex-col gap-4">
                     {detail.meters.map((m) => {
                       const Icon = METER_ICONS[m.icon] ?? IconCpu;
-                      const pct = m.used / m.limit;
+                      /**
+                       * ⚠ AN UNLIMITED METER HAS NO PERCENTAGE, AND ASKING FOR
+                       *   ONE PRODUCED `Infinity%` OVER A BAR OF INFINITE WIDTH.
+                       *
+                       * `used / limit` with a null ceiling is not a smaller
+                       * number — it is not a number. A Custom workspace's
+                       * credential allowance has no ceiling by contract, so
+                       * there is nothing to be a proportion OF, and the honest
+                       * rendering is the count with no track rather than a
+                       * track filled to an imaginary edge.
+                       */
+                      /* Bound to a local so the null check narrows — reading
+                         `m.limit` through a separate boolean does not. */
+                      const limit = m.limit;
+                      const pct = limit === null ? 0 : m.used / limit;
                       const color = meterColor(pct);
                       const usedStr = m.unit ? `${m.used}${m.unit}` : fmtNum(m.used);
-                      const limitStr = m.unit ? `${m.limit}${m.unit}` : fmtNum(m.limit);
+                      const limitStr =
+                        limit === null
+                          ? 'no limit'
+                          : m.unit
+                            ? `${limit}${m.unit}`
+                            : fmtNum(limit);
 
                       return (
                         <div
@@ -867,20 +889,11 @@ export function WorkspaceDetailDrawer({
                         >
                           <div className="mb-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div
-                                className="rounded-xl p-2"
-                                style={{
-                                  background: 'var(--surface-sunken)',
-                                  boxShadow: 'var(--neu-inset)',
-                                }}
-                              >
-                                <Icon
-                                  size={16}
-                                  stroke={1.5}
-                                  style={{ color: 'var(--text-secondary)' }}
-                                  aria-hidden
-                                />
-                              </div>
+                              {/* The raised tile, not a glyph sunk into an
+                                  inset well — a meter's mark sits ON the card
+                                  the way every other leading mark in the
+                                  console now does. */}
+                              <IconTile icon={Icon} size="sm" />
                               <span
                                 className="text-sm font-medium tracking-tight"
                                 style={{ color: 'var(--text-primary)' }}
@@ -899,41 +912,49 @@ export function WorkspaceDetailDrawer({
                                 className="font-mono text-xs"
                                 style={{ color: 'var(--text-tertiary)' }}
                               >
-                                / {limitStr}
+                                {limit === null ? limitStr : `/ ${limitStr}`}
                               </span>
-                              <span
-                                className="rounded-md px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-wide"
-                                style={{
-                                  background:
-                                    pct >= NEAR_LIMIT
-                                      ? 'var(--warning-bg)'
-                                      : 'var(--surface-inset)',
-                                  color: pct >= NEAR_LIMIT ? color : 'var(--text-secondary)',
-                                  boxShadow: 'var(--glass-highlight)',
-                                }}
-                              >
-                                {Math.round(pct * 100)}%
-                              </span>
+                              {limit === null ? null : (
+                                <span
+                                  className="rounded-md px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-wide"
+                                  style={{
+                                    background:
+                                      pct >= NEAR_LIMIT
+                                        ? 'var(--warning-bg)'
+                                        : 'var(--surface-inset)',
+                                    color: pct >= NEAR_LIMIT ? color : 'var(--text-secondary)',
+                                    boxShadow: 'var(--glass-highlight)',
+                                  }}
+                                >
+                                  {Math.round(pct * 100)}%
+                                </span>
+                              )}
                             </div>
                           </div>
 
-                          {/* Meter Bar */}
-                          <div
-                            className="h-2.5 w-full overflow-hidden rounded-full"
-                            style={{
-                              background: 'var(--surface-sunken)',
-                              boxShadow: 'var(--neu-inset)',
-                            }}
-                          >
+                          {/* A track is a proportion. With no ceiling there is
+                              nothing to be a proportion of, so the row carries
+                              its count and stops — rather than drawing a bar
+                              that is either always full or always empty and
+                              means neither. */}
+                          {limit === null ? null : (
                             <div
-                              className="h-full rounded-full transition-all duration-500"
+                              className="h-2.5 w-full overflow-hidden rounded-full"
                               style={{
-                                width: `${Math.min(100, pct * 100)}%`,
-                                background: color,
-                                boxShadow: `0 1px 3px ${color}40`,
+                                background: 'var(--surface-sunken)',
+                                boxShadow: 'var(--neu-inset)',
                               }}
-                            />
-                          </div>
+                            >
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{
+                                  width: `${Math.min(100, pct * 100)}%`,
+                                  background: color,
+                                  boxShadow: `0 1px 3px ${color}40`,
+                                }}
+                              />
+                            </div>
+                          )}
 
                           {/* Sheet 06: every number names its source, so a figure
                                 on screen can be traced to a row in the schema. */}
@@ -1200,24 +1221,14 @@ export function WorkspaceDetailDrawer({
                       boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
                     }}
                   >
-                    <div
-                      className="flex size-11 shrink-0 items-center justify-center rounded-full"
-                      style={{
-                        background: 'var(--surface-raised)',
-                        boxShadow: 'var(--shadow-md), inset 0 0 0 1px var(--border-subtle), var(--glass-highlight)',
-                      }}
-                    >
-                      <IconWorld
-                        size={18}
-                        stroke={1.5}
-                        style={{ color: 'var(--text-primary)' }}
-                        aria-hidden
-                      />
-                    </div>
+                    <IconTile icon={IconWorld} size="lg" />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
+                        {/* ⚠ "& Encryption" NAMED A FEATURE THAT DOES NOT
+                            EXIST — the fourth place a security claim outran the
+                            product. Residency is real and is the subject here. */}
                         <p className="text-sm font-medium tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                          Data Residency & Encryption
+                          Residency and isolation
                         </p>
                         <span
                           className="rounded-full px-2.5 py-1 font-mono text-[9px] font-medium tracking-wide uppercase"
@@ -1228,7 +1239,7 @@ export function WorkspaceDetailDrawer({
                             boxShadow: 'var(--glass-highlight)',
                           }}
                         >
-                          RLS Isolated
+                          Policy-enforced
                         </span>
                       </div>
                       <p
@@ -1237,10 +1248,29 @@ export function WorkspaceDetailDrawer({
                       >
                         {detail.residency}
                       </p>
+                      {/*
+                        ⚠ TWO SENTENCES, BOTH WRONG, IN OPPOSITE DIRECTIONS.
+
+                        "Physically segmented with Row-Level Security policies"
+                        inverts what RLS is: the segmentation is LOGICAL —
+                        policies evaluated per query against a shared schema —
+                        and calling it physical is the "isolated schema" claim
+                        again in different words.
+
+                        "Zero visibility into conversation bodies OUTSIDE active
+                        support sessions" implies visibility INSIDE one. There
+                        is none. The capability matrix on the admins page has
+                        `support: false` for "read a customer message body", and
+                        two isolation tests assert a support session "reads
+                        nothing at all" from customer records. The drawer was
+                        claiming weaker protection than the product actually
+                        gives, on the panel that exists to describe it.
+                      */}
                       <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
-                        Tenant data is physically segmented with Row-Level Security policies.
-                        Platform operators have zero visibility into conversation bodies outside
-                        active support sessions.
+                        Every query against this workspace is filtered by a Row Level Security
+                        policy — including ours. A support session is scoped, expiring and written
+                        to the customer&rsquo;s own log, and it reads nothing at all from customer
+                        records: not outside one, and not inside one either.
                       </p>
                     </div>
                   </div>

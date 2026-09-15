@@ -67,7 +67,7 @@ export const REQUIREMENTS = [
     n: 5,
     requirement: 'Tenant settings: company profile, secure API credentials',
     delivery:
-      'Company profile and branding, team management, encrypted credential store with masked display, rotation and last-used tracking, plus designed placeholder surfaces for Messaging Inbox and Billing.',
+      'Company profile and branding, team management, a credential store that hashes with argon2id and shows a value once, with masked display, rotation and last-used tracking, plus designed placeholder surfaces for Messaging Inbox and Billing.',
     milestone: 'M5',
   },
   {
@@ -192,7 +192,12 @@ export const MILESTONES = [
     id: 'M5',
     name: 'Tenant settings',
     week: '7',
-    lands: 'Company profile, team management, encrypted credential store.',
+    /* ⚠ HASHED, NOT ENCRYPTED, AND THE DIFFERENCE IS THE FEATURE. Encrypted
+       implies recoverable; `credentials.key_hash` is argon2id and is never
+       selected by any application route. A reader who takes "encrypted" at
+       face value would expect us to be able to retrieve a lost key — which is
+       precisely the thing the design refuses to be able to do. */
+    lands: 'Company profile, team management, a credential store that hashes and never reveals.',
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'upcoming' as MilestoneStatus,
