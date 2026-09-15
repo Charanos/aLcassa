@@ -4,7 +4,7 @@ import { PRESSURE_THRESHOLD, type PressureRow } from '@/lib/console/data';
 import { BandLink } from './shared';
 
 /** How many rows before the list defers to the workspace table. */
-const SHOWN = 5;
+const SHOWN = 4;
 
 /**
  * WORKSPACES AT A CEILING.

@@ -9,10 +9,17 @@ import {
   IconDashboard,
   IconChartPie,
   IconBolt,
+  IconUsers,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage, Panel, SectionHeading } from '@/components/console/Surface';
-import { getOverview, getOverviewInsights, PORTFOLIO_COUNT, greeting } from '@/lib/console/data';
+import {
+  getOverview,
+  getOverviewInsights,
+  PORTFOLIO_COUNT,
+  greeting,
+  type Signal,
+} from '@/lib/console/data';
 import { getLiveOverview } from '@/lib/console/live';
 import { resolveSupportSession } from '@/lib/console/session';
 import { OverviewChart } from '@/components/console/OverviewChart';
@@ -53,11 +60,22 @@ export const metadata: Metadata = { title: 'Overview' };
 
 
 
-const SIGNAL_ICON: Record<string, TablerIcon> = {
+/**
+ * ⚠ KEYED BY THE MODEL'S OWN UNION RATHER THAN BY `string`.
+ *
+ * `Record<string, TablerIcon>` accepts a lookup for a key that was never
+ * added, so widening `Signal['icon']` and forgetting this map would have
+ * fallen through to the `?? IconActivity` default in silence — a signal
+ * rendering the generic glyph, which reads as a design choice rather than as
+ * the omission it is. Typed against the union, the same mistake is a build
+ * error.
+ */
+const SIGNAL_ICON: Record<Signal['icon'], TablerIcon> = {
   coin: IconCoin,
   pulse: IconCreditCard,
   building: IconBuildings,
   bolt: IconBolt,
+  users: IconUsers,
 };
 
 export default async function ConsoleOverviewPage() {
@@ -274,9 +292,22 @@ export default async function ConsoleOverviewPage() {
             </div>
           </div>
 
-          {/* Right Column: Recharts Data Viz - uncarded */}
+          {/*
+            Right column: the chart.
+
+            ⚠ IT TAKES ITS SERIES AS A PROP NOW. It used to generate a
+            `Math.random()` walk internally and label it "platform throughput"
+            under a hardcoded 3.42M — a figure unrelated to the line beneath it,
+            over data that was different on the server and the client. See the
+            note at the top of `OverviewChart`.
+
+            `insights.revenue.mrr` is twelve months of recurring revenue derived
+            from the same twelve workspaces everything else on this page counts,
+            so the hero's line, the signals under it and the revenue screen the
+            button leads to are one set of numbers.
+          */}
           <div className="relative min-h-[260px] flex-1 lg:min-h-[280px]">
-            <OverviewChart />
+            <OverviewChart series={insights.revenue.mrr} />
           </div>
         </div>
 

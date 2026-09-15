@@ -2,7 +2,12 @@
 
 import { useState, useTransition } from 'react';
 import { rollbackMasterRulesAction } from '@/app/(platform)/platform/(console)/rules-actions';
-import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
+import { IconArrowBackUp, IconStack2 } from '@tabler/icons-react';
+import {
+  ConsoleDialog,
+  DialogActions,
+  DialogFact,
+} from '@/components/primitives/ConsoleDialog';
 import { useToast } from '@/components/primitives/Toast';
 
 /**
@@ -69,68 +74,68 @@ export function RestoreVersion({
         restore
       </button>
 
-      <ConfirmDialog
+      <ConsoleDialog
         open={open}
-        onOpenChange={(next) => {
-          if (!pending) setOpen(next);
-        }}
+        onOpenChange={(next) => setOpen(next)}
+        dismissible={!pending}
+        eyebrow="Master AI rules"
         title={`Restore v${versionNumber}`}
-        consequence="The rules every workspace inherits change on their next generated reply."
-        details={
+        width="md"
+        operation="rules.rolled_back"
+        description="The rules every workspace inherits change on their next generated reply. Replies already sent are unaffected."
+        facts={
           <>
-            <ul
-              className="grid list-none gap-2 border-t p-0 pt-4"
-              style={{ borderColor: 'var(--border-subtle)' }}
-            >
-              <li className="t-compact" style={{ color: 'var(--text-primary)' }}>
-                v{versionNumber} becomes live; v{currentVersionNumber} stops being the floor.
-              </li>
-              <li className="t-compact" style={{ color: 'var(--text-primary)' }}>
-                All {workspaceCount} workspaces pick it up on their next generated reply. Replies
-                already sent are unaffected.
-              </li>
-              <li className="t-compact" style={{ color: 'var(--text-secondary)' }}>
-                {/* The reassurance that is actually true, because the table is
-                    append-only: this is reversible in one click. */}
-                Nothing is deleted. Every version between the two stays where it is, so restoring
-                v{currentVersionNumber} afterwards is the same single action.
-              </li>
-            </ul>
-
-            <div
-              className="grid gap-1.5 border-t pt-4"
-              style={{ borderColor: 'var(--border-subtle)' }}
-            >
-              <label
-                htmlFor="rollback-reason"
-                className="t-label"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                Why &middot; goes in the platform log
-              </label>
-              <textarea
-                id="rollback-reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                rows={2}
-                placeholder={`v${currentVersionNumber} escalated too aggressively; three workspaces reported it.`}
-                className="rounded-panel border px-3 py-2"
-                style={{
-                  borderColor: 'var(--border-subtle)',
-                  background: 'var(--surface-raised)',
-                  color: 'var(--text-primary)',
-                  font: '400 var(--text-sm)/1.5 var(--font-ui)',
-                }}
-              />
-            </div>
+            <DialogFact icon={IconArrowBackUp}>
+              v{versionNumber} becomes live; <em>v{currentVersionNumber}</em> stops being the
+              floor for all {workspaceCount} workspaces.
+            </DialogFact>
+            <DialogFact icon={IconStack2}>
+              {/* The reassurance that is actually true, because the table is
+                  append-only: this is reversible in one click. */}
+              Nothing is deleted. Every version between the two stays where it is, so restoring
+              v{currentVersionNumber} afterwards is <em>the same single action</em>.
+            </DialogFact>
           </>
         }
-        confirmLabel={`Restore v${versionNumber}`}
-        loading={pending}
         error={error}
-        tone="destructive"
-        onConfirm={submit}
-      />
+        actions={
+          <DialogActions
+            confirmLabel={`Restore v${versionNumber}`}
+            confirmIcon={IconArrowBackUp}
+            onConfirm={submit}
+            disabled={reason.trim().length < 8}
+            loading={pending}
+            tone="destructive"
+          />
+        }
+      >
+        <label className="block">
+          <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
+            Why{' '}
+            <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>
+              · required, and it goes in the platform log
+            </span>
+          </span>
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            rows={2}
+            placeholder={`v${currentVersionNumber} escalated too aggressively; three workspaces reported it.`}
+            className="t-body w-full rounded-chip px-3 py-2.5 outline-none transition-colors"
+            style={{
+              border: '1px solid var(--border-strong)',
+              background: 'var(--surface-raised)',
+              color: 'var(--text-primary)',
+              resize: 'vertical',
+              lineHeight: 1.55,
+            }}
+          />
+          <span className="t-caption mt-1.5 block" style={{ color: 'var(--text-tertiary)' }}>
+            &ldquo;rules.rolled_back&rdquo; alone does not say what went wrong with the version
+            being abandoned.
+          </span>
+        </label>
+      </ConsoleDialog>
     </>
   );
 }

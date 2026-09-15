@@ -31,6 +31,9 @@ import {
 import { getLiveWorkspaceDetail, getLiveWorkspaces } from '@/lib/console/liveWorkspaces';
 import { getLivePlans } from '@/lib/console/live';
 import { withoutTenantContext } from '@/lib/db';
+import { sql, eq } from 'drizzle-orm';
+import { platformAuditLog } from '@/db/schema';
+import { AUDIT_ACTIONS } from '@/lib/audit';
 
 /**
  * Console server actions.
@@ -627,5 +630,56 @@ export async function provisionWorkspace(input: {
     if (isAppError(error)) return { ok: false, error: error.message };
     logger.error('workspace provisioning failed', { error });
     return { ok: false, error: 'That did not go through. The platform log has the detail.' };
+  }
+}
+
+/* ── Support session references ───────────────────────────────────────────── */
+
+/**
+ * The next support-session reference, so the operator does not invent one.
+ *
+ * ⚠ THE PLACEHOLDER WAS DOING THE WORK OF A FEATURE. The dialog's reason field
+ * reads `Ticket 4829 · verifying a duplicated WhatsApp thread` in grey, which
+ * tells an operator the house style and then leaves them to make up a number —
+ * so the references in the audit log are whatever each person typed, and the
+ * one column that should let somebody join a session to a support ticket is
+ * unjoinable.
+ *
+ * ⚠ IT IS DERIVED FROM THE LOG RATHER THAN FROM A SEQUENCE TABLE. Every
+ * support session already writes `support.entered` to `platform_audit_log`, and
+ * that table is append-only, so counting it IS the sequence — the same
+ * reasoning break glass uses for its lock. A `nextval()` would need a
+ * migration and would then be a second source that can disagree with the log
+ * about how many sessions there have been.
+ *
+ * The date makes it readable at a glance and keeps the counter meaningful
+ * across a year: `TKT-20260915-013` sorts, groups by day, and cannot be
+ * confused with a workspace id.
+ */
+export async function nextSupportReference(): Promise<string> {
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Nairobi',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+    .format(new Date())
+    .replace(/-/g, '');
+
+  try {
+    const ctx = await currentPlatformSession();
+    const n = await withoutTenantContext(ctx.requestId, async (tx) => {
+      const [row] = await tx
+        .select({ n: sql<number>`count(*)::int` })
+        .from(platformAuditLog)
+        .where(eq(platformAuditLog.action, AUDIT_ACTIONS.SUPPORT_ENTERED));
+      return row?.n ?? 0;
+    });
+    return `TKT-${today}-${String(n + 1).padStart(3, '0')}`;
+  } catch (error) {
+    /* A reference the operator can still type over is worth more than a failed
+       dialog. The count is a convenience; the reason field is the requirement. */
+    logger.warn('support reference could not be numbered', { error });
+    return `TKT-${today}`;
   }
 }

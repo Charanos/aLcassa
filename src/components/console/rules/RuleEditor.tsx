@@ -1,9 +1,13 @@
 'use client';
 
 import { useMemo, useState, useTransition } from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
-import { IconLoader2, IconPencil, IconX } from '@tabler/icons-react';
+import { IconBroadcast, IconPencil, IconStack2, IconUpload } from '@tabler/icons-react';
 import { publishMasterRulesAction } from '@/app/(platform)/platform/(console)/rules-actions';
+import {
+  ConsoleDialog,
+  DialogActions,
+  DialogFact,
+} from '@/components/primitives/ConsoleDialog';
 import { useToast } from '@/components/primitives/Toast';
 import type { MasterRuleField } from '@/lib/console/data';
 
@@ -64,8 +68,7 @@ export function RuleEditor({
     setError(null);
   }
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
+  function submit() {
     if (!ready || pending) return;
     setError(null);
 
@@ -101,215 +104,143 @@ export function RuleEditor({
   }
 
   return (
-    <Dialog.Root
-      open={open}
-      onOpenChange={(n) => {
-        if (pending) return;
-        setOpen(n);
-        if (n) reset();
-      }}
-    >
-      <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className="inline-flex h-[30px] shrink-0 items-center gap-1.5 rounded-panel px-3 text-[12.5px] font-medium transition-colors hover:bg-[var(--surface-inset)]"
-          style={{
-            border: '1px solid var(--border-strong)',
-            background: 'var(--surface-raised)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <IconPencil size={13} stroke={1.5} aria-hidden />
-          Edit rules
-        </button>
-      </Dialog.Trigger>
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          reset();
+          setOpen(true);
+        }}
+        className="inline-flex h-[30px] shrink-0 items-center gap-1.5 rounded-panel px-3 transition-colors hover:bg-[var(--surface-inset)]"
+        style={{
+          border: '1px solid var(--border-strong)',
+          background: 'var(--surface-raised)',
+          color: 'var(--text-primary)',
+          font: '500 12.5px/1 var(--font-ui)',
+        }}
+      >
+        <IconPencil size={13} stroke={1.5} aria-hidden />
+        Edit rules
+      </button>
 
-      <Dialog.Portal>
-        <Dialog.Overlay
-          className="fixed inset-0 z-[150]"
-          style={{ background: 'var(--surface-overlay)', backdropFilter: 'blur(4px)' }}
-        />
-        {/* Centring on the wrapper, never on a transform. */}
-        <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
-          <Dialog.Content className="surface-glass-strong pointer-events-auto flex max-h-[90vh] w-full max-w-[760px] flex-col overflow-hidden rounded-3xl">
-            <form onSubmit={submit} className="flex min-h-0 flex-col">
-              <div
-                className="flex items-start justify-between gap-4 px-7 pt-7 pb-4"
-                style={{ borderBottom: '1px solid var(--border-subtle)' }}
-              >
-                <div className="min-w-0">
-                  <Dialog.Title
-                    className="text-[19px] tracking-tight"
-                    style={{ color: 'var(--text-primary)', fontWeight: 500 }}
-                  >
-                    Edit the master rules
-                  </Dialog.Title>
-                  {/*
-                    The blast radius, stated before the submit is reachable —
-                    the same call the suspend dialog makes. This is the only
-                    screen in the product whose save reaches every customer at
-                    once, and a reader who does not know that cannot weigh it.
-                  */}
-                  <Dialog.Description
-                    className="mt-2 text-[13px] leading-relaxed"
-                    style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
-                  >
-                    Publishing appends v{versionNumber + 1} and points the platform at it. All{' '}
-                    {workspaceCount} workspaces inherit the change on their next generated reply.
-                    Nothing is overwritten &mdash; v{versionNumber} stays, and restoring it is one
-                    click.
-                  </Dialog.Description>
-                </div>
-                <Dialog.Close asChild>
-                  <button
-                    type="button"
-                    aria-label="Close"
-                    className="grid size-8 shrink-0 place-items-center rounded-full transition-colors hover:bg-[var(--surface-inset)]"
-                    style={{ color: 'var(--text-tertiary)' }}
-                  >
-                    <IconX size={16} stroke={1.5} />
-                  </button>
-                </Dialog.Close>
-              </div>
-
-              <div className="scrollbar-slim grid min-h-0 flex-1 gap-5 overflow-y-auto px-7 py-5">
-                {fields.map((f) => {
-                  const value = draft[f.key] ?? '';
-                  const isChanged = value !== f.value;
-                  const isList = f.key === 'prohibitedTopics';
-                  return (
-                    <div key={f.key} className="grid gap-1.5">
-                      <div className="flex items-baseline justify-between gap-3">
-                        <label
-                          htmlFor={`rule-${f.key}`}
-                          className="t-label"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {f.label}
-                        </label>
-                        <span
-                          className="shrink-0 whitespace-nowrap"
-                          style={{
-                            font: '500 10.5px/1 var(--font-mono)',
-                            letterSpacing: '0.06em',
-                            color: isChanged ? 'var(--accent-mark-text)' : 'var(--text-tertiary)',
-                          }}
-                        >
-                          {isChanged ? 'changed' : f.locked ? 'floor' : 'default'}
-                        </span>
-                      </div>
-                      <textarea
-                        id={`rule-${f.key}`}
-                        value={value}
-                        rows={isList ? 4 : 3}
-                        onChange={(e) => setDraft((d) => ({ ...d, [f.key]: e.target.value }))}
-                        placeholder={
-                          isList
-                            ? 'One topic per line. Leave empty to say nothing here.'
-                            : 'Leave empty to say nothing here — each workspace then decides alone.'
-                        }
-                        className="w-full rounded-chip px-3 py-2.5 outline-none transition-colors focus:border-[var(--blue-500)]"
-                        style={{
-                          border: `1px solid ${isChanged ? 'var(--blue-500)' : 'var(--border-strong)'}`,
-                          background: 'var(--surface-raised)',
-                          boxShadow: 'var(--neu-inset)',
-                          color: 'var(--text-primary)',
-                          font: '400 var(--text-sm)/1.5 var(--font-ui)',
-                          resize: 'vertical',
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div
-                className="grid gap-1.5 px-7 pt-4"
-                style={{ borderTop: '1px solid var(--border-subtle)' }}
-              >
-                <label
-                  htmlFor="rule-note"
-                  className="t-label"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  What changed &middot; goes in the platform log
-                </label>
-                <input
-                  id="rule-note"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Tightened escalation: anything mentioning a refund goes to a human."
-                  className="h-[38px] w-full rounded-chip px-3 outline-none"
-                  style={{
-                    border: '1px solid var(--border-strong)',
-                    background: 'var(--surface-raised)',
-                    boxShadow: 'var(--neu-inset)',
-                    color: 'var(--text-primary)',
-                    font: '400 var(--text-sm)/1 var(--font-ui)',
-                  }}
-                />
-                <p className="t-caption" style={{ color: 'var(--text-tertiary)' }}>
-                  Required. In six months this sentence is the only explanation of why v
-                  {versionNumber + 1} differs from v{versionNumber}.
-                </p>
-              </div>
-
-              {error ? (
-                <p
-                  role="alert"
-                  className="mx-7 mt-4 rounded-panel px-3.5 py-3 text-[13px] leading-relaxed"
-                  style={{
-                    background: 'var(--badge-danger-bg)',
-                    border: '1px solid var(--badge-danger-edge)',
-                    color: 'var(--danger-fg)',
-                  }}
-                >
-                  {error}
-                </p>
-              ) : null}
-
-              <div className="flex items-center justify-between gap-4 px-7 py-5">
-                <p className="t-caption min-w-0" style={{ color: 'var(--text-tertiary)' }}>
-                  {changed.length === 0
-                    ? 'No changes yet.'
-                    : `${changed.length} ${changed.length === 1 ? 'field' : 'fields'} changed: ${changed.map((f) => f.label.toLowerCase()).join(', ')}.`}
-                </p>
-                <div className="flex shrink-0 items-center gap-2">
-                  <Dialog.Close asChild>
-                    <button
-                      type="button"
-                      disabled={pending}
-                      className="h-[34px] rounded-lg px-4 text-[13px] font-medium transition-colors hover:bg-[var(--surface-inset)]"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      Cancel
-                    </button>
-                  </Dialog.Close>
-                  <button
-                    type="submit"
-                    disabled={!ready || pending}
-                    className="inline-flex h-[34px] items-center gap-2 rounded-lg px-4 text-[13px] font-medium transition-all"
+      <ConsoleDialog
+        open={open}
+        onOpenChange={(n) => {
+          setOpen(n);
+          if (n) reset();
+        }}
+        dismissible={!pending}
+        eyebrow="Master AI rules"
+        title="Edit the rules every workspace inherits"
+        /* ⚠ `xl`, AND THE WIDTH IS THE POINT. Six prose fields at 600px is a
+           column of three-word lines that reads like a receipt — the operator
+           is editing PARAGRAPHS an assistant will speak, and they have to be
+           able to see the shape of what they are writing. */
+        width="xl"
+        operation="rules.published"
+        description={`Publishing appends v${versionNumber + 1} and points the platform at it. All ${workspaceCount} workspaces inherit the change on their next generated reply — nothing is overwritten, and restoring v${versionNumber} is one click.`}
+        facts={
+          <>
+            <DialogFact icon={IconStack2}>
+              Versions are <em>append-only</em>. Publishing moves a pointer, so every earlier set
+              stays readable and a rollback restores rather than rebuilds.
+            </DialogFact>
+            <DialogFact icon={IconBroadcast}>
+              It reaches every workspace on their <em>next generated reply</em>. Replies already
+              sent are unaffected.
+            </DialogFact>
+          </>
+        }
+        error={error}
+        actions={
+          <DialogActions
+            confirmLabel={`Publish v${versionNumber + 1}`}
+            confirmIcon={IconUpload}
+            onConfirm={submit}
+            disabled={!ready}
+            loading={pending}
+          />
+        }
+      >
+        {/*
+          Two columns at xl. Six fields in one column is a scroll; six in two is
+          a document an operator can read the shape of.
+        */}
+        <div className="grid gap-5 lg:grid-cols-2">
+          {fields.map((f) => {
+            const value = draft[f.key] ?? '';
+            const isChanged = value !== f.value;
+            const isList = f.key === 'prohibitedTopics';
+            return (
+              <label key={f.key} className={isList ? 'block lg:col-span-2' : 'block'}>
+                <span className="mb-1.5 flex items-baseline justify-between gap-3">
+                  <span className="t-label" style={{ color: 'var(--text-primary)' }}>
+                    {f.label}
+                  </span>
+                  <span
+                    className="shrink-0 whitespace-nowrap"
                     style={{
-                      background: ready && !pending ? 'var(--blue-500)' : 'var(--surface-sunken)',
-                      color: ready && !pending ? 'var(--text-inverse)' : 'var(--text-disabled)',
-                      cursor: ready && !pending ? 'pointer' : 'not-allowed',
+                      font: '500 10.5px/1 var(--font-mono)',
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      color: isChanged ? 'var(--accent-mark-text)' : 'var(--text-tertiary)',
                     }}
                   >
-                    {pending ? (
-                      <>
-                        <IconLoader2 size={15} stroke={1.5} className="animate-spin" aria-hidden />
-                        Publishing
-                      </>
-                    ) : (
-                      `Publish v${versionNumber + 1}`
-                    )}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </Dialog.Content>
+                    {isChanged ? 'changed' : f.locked ? 'floor' : 'default'}
+                  </span>
+                </span>
+                <textarea
+                  value={value}
+                  rows={isList ? 4 : 3}
+                  onChange={(e) => setDraft((d) => ({ ...d, [f.key]: e.target.value }))}
+                  placeholder={
+                    isList
+                      ? 'One topic per line. Leave empty to say nothing here.'
+                      : 'Leave empty to say nothing here — each workspace then decides alone.'
+                  }
+                  className="t-body w-full rounded-chip px-3 py-2.5 outline-none transition-colors"
+                  style={{
+                    border: `1px solid ${isChanged ? 'var(--blue-500)' : 'var(--border-strong)'}`,
+                    background: 'var(--surface-raised)',
+                    color: 'var(--text-primary)',
+                    resize: 'vertical',
+                    lineHeight: 1.55,
+                  }}
+                />
+              </label>
+            );
+          })}
+
+          <label className="block lg:col-span-2">
+            <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
+              What changed{' '}
+              <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>
+                · required, and it goes in the platform log
+              </span>
+            </span>
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Tightened escalation: anything mentioning a refund goes to a human."
+              className="t-body w-full rounded-chip px-3 outline-none transition-colors"
+              style={{
+                height: 38,
+                border: '1px solid var(--border-strong)',
+                background: 'var(--surface-raised)',
+                color: 'var(--text-primary)',
+              }}
+            />
+            <span
+              className="t-caption mt-1.5 block"
+              style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
+            >
+              {changed.length === 0
+                ? `In six months this sentence is the only explanation of why v${versionNumber + 1} differs from v${versionNumber}.`
+                : `${changed.length} ${changed.length === 1 ? 'field' : 'fields'} changed: ${changed.map((f) => f.label.toLowerCase()).join(', ')}.`}
+            </span>
+          </label>
         </div>
-      </Dialog.Portal>
-    </Dialog.Root>
+      </ConsoleDialog>
+    </>
   );
 }

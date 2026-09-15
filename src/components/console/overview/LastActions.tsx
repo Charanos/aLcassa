@@ -3,6 +3,7 @@ import { IconHistory } from '@tabler/icons-react';
 import { Panel } from '../Surface';
 import { SkeletonGroup } from '@/components/primitives/Skeleton';
 import type { AuditLine } from '@/lib/console/data';
+import { AUDIT_TONE, describeAction } from '@/lib/console/auditVocabulary';
 
 /**
  * LAST ACTIONS. The overview's right rail, lower card.
@@ -24,11 +25,23 @@ import type { AuditLine } from '@/lib/console/data';
  * button, and it is the audit log, which has filters, a volume histogram and a
  * range export. The link is the pagination.
  *
- * ⚠ WHY EACH ROW SHOWS ITS ACTION NAME IN MONO. `tenant.plan_assign` is the
- * string an operator will later search the audit log for. Rendering a friendly
- * paraphrase would be kinder to read and useless at the moment it matters —
- * the same argument the support dialog makes for showing `support_session.start`
- * beside its confirm button.
+ * ⚠ THE ROWS USED TO LEAD WITH THE RAW ACTION KEY IN MONO, AND THE ARGUMENT
+ *   FOR IT DOES NOT SURVIVE BEING APPLIED TO THIS PARTICULAR PANEL.
+ *
+ * The reasoning was: `tenant.plan_assign` is the string an operator will later
+ * search the audit log for, so a friendly paraphrase is "kinder to read and
+ * useless at the moment it matters". That is sound on the AUDIT PAGE, which is
+ * where somebody goes to filter — and it still shows the key there.
+ *
+ * It is wrong here. This is five rows on a briefing screen that is read every
+ * morning, by Brian, at a glance, to decide what to do next; nobody
+ * copy-pastes an action code out of a tail of five. Leading with the machine
+ * key made the one panel that answers "what just happened" the least
+ * answerable thing on the page.
+ *
+ * `describeAction` supplies the sentence and the glyph, and the same vocabulary
+ * serves the audit page and the tenant activity tab — so the three surfaces
+ * cannot drift into calling the same event three different things.
  */
 export function LastActions({ recent }: { recent: AuditLine[] }) {
   return (
@@ -57,35 +70,56 @@ export function LastActions({ recent }: { recent: AuditLine[] }) {
 
 function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
   // Semantic color mapping for audit rail prowess
-  let accentColor = 'var(--text-primary)';
-  if (line.action.includes('suspend') || line.action.includes('delete')) accentColor = 'var(--danger-fg)';
-  else if (line.action.includes('grant') || line.action.includes('auth')) accentColor = 'var(--warning-fg)';
-  else if (line.action.includes('assign') || line.action.includes('create')) accentColor = 'var(--success-fg)';
-  else if (line.action.includes('update') || line.action.includes('master')) accentColor = 'var(--accent-mark)';
+  /**
+   * ⚠ THIS USED TO SUBSTRING-MATCH THE RAW ACTION STRING, AND TWO OF ITS FOUR
+   *   BRANCHES COULD NEVER FIRE.
+   *
+   * The old mapping asked `line.action.includes('master')` — no action in the
+   * catalogue contains "master" — and `includes('auth')`, likewise. Meanwhile
+   * `tenant.provisioned` fell through every branch to the default, so the one
+   * event most worth spotting in a tail of five looked like everything else.
+   *
+   * Substring-matching a machine key to pick a colour is the same defect as
+   * keying a map by a display string (18 §9): it breaks silently the first
+   * time somebody renames an action, and it was already broken on arrival.
+   * `describeAction` is one vocabulary, shared with the audit page and the
+   * tenant activity tab, so the three surfaces cannot disagree about what an
+   * event is called or what colour it is.
+   */
+  const described = describeAction(line.action);
+  const tone = AUDIT_TONE[described.tone];
+  const accentColor = tone.ink;
+  const Glyph = described.icon;
 
   return (
     <div 
       className="group/row relative flex gap-3 px-2 py-3 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
       style={{ '--row-accent': accentColor } as React.CSSProperties}
     >
-      {/* Timeline axis */}
+      {/*
+        Timeline axis.
+
+        ⚠ THE NODE IS THE EVENT'S OWN GLYPH NOW, NOT A DOT.
+
+        Five identical grey dots down a rail is a decoration that reads as a
+        list of one thing repeated. The glyph answers "what happened" before
+        the words are read — a door for a support session, a padlock for the
+        platform lock, a building for a new workspace — which is the entire job
+        of a five-row tail an operator glances at. The rail behind it still
+        does the sequencing work.
+      */}
       <div className="relative flex shrink-0 flex-col items-center pl-1">
-        <div className="mt-0.5 flex h-4 w-4 items-center justify-center">
-          {/*
-            The node grows and fills on hover. `motion-reduce` stops the scale
-            rather than the colour — a reader who has asked for less motion
-            still wants to know which row the pointer is on.
-          */}
-          <span
-            aria-hidden
-            className="z-10 h-1.5 w-1.5 rounded-full border-[1.5px] bg-transparent transition-all duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] group-hover/row:scale-[1.75] group-hover/row:border-[color:var(--row-accent)] group-hover/row:bg-[color:var(--row-accent)] group-hover/row:shadow-[0_0_12px_color-mix(in_srgb,var(--row-accent)_50%,transparent)] motion-reduce:transition-none motion-reduce:group-hover/row:scale-100"
-            style={{ borderColor: 'var(--text-tertiary)' }}
-          />
-        </div>
+        <span
+          aria-hidden
+          className="z-10 grid size-[22px] place-items-center rounded-full transition-all duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] group-hover/row:scale-110 motion-reduce:transition-none motion-reduce:group-hover/row:scale-100"
+          style={{ background: tone.bg, border: `1px solid ${tone.edge}`, color: tone.ink }}
+        >
+          <Glyph size={12} stroke={1.75} />
+        </span>
         {!isLast && (
           <span
             aria-hidden
-            className="absolute top-4 -bottom-3 w-px transition-all duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] group-hover/row:bg-[color:var(--row-accent)] group-hover/row:shadow-[0_0_8px_color-mix(in_srgb,var(--row-accent)_30%,transparent)] motion-reduce:transition-none"
+            className="absolute top-[22px] -bottom-3 w-px transition-all duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] group-hover/row:bg-[color:var(--row-accent)] motion-reduce:transition-none"
             style={{ background: 'var(--border-subtle)' }}
           />
         )}
@@ -93,22 +127,25 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
 
       <div className="flex min-w-0 flex-1 justify-between gap-4">
         <div className="flex min-w-0 flex-col justify-start gap-1.5">
-          <span className="flex items-center">
-            <span
-              className="rounded-[4px] px-1.5 py-0.5 font-mono text-[11px] leading-none font-medium transition-colors duration-200 group-hover/row:bg-[color:var(--row-accent)] group-hover/row:text-[var(--text-inverse)] group-hover/row:shadow-sm"
-              style={{
-                background: 'var(--surface-inset)',
-                color: 'var(--text-secondary)',
-                letterSpacing: '-0.02em',
-                border: '1px solid var(--border-subtle)',
-              }}
-            >
-              {line.action}
-            </span>
+          {/*
+            ⚠ THE SENTENCE IS THE HEADLINE; THE MACHINE KEY IS GONE FROM HERE.
+
+            This row led with `password.changed` in a mono chip — the constant's
+            own value, on a briefing screen a non-engineer reads every morning.
+            The human sentence leads now and the key is not shown at all: the
+            audit PAGE is where somebody goes to filter by action, and it keeps
+            the raw string for exactly that reason. A rail of five is for
+            glancing, not for querying.
+          */}
+          <span
+            className="text-[13px] leading-snug font-medium"
+            style={{ color: 'var(--text-primary)', textWrap: 'pretty' }}
+          >
+            {described.label}
           </span>
           <span
-            className="text-[13px] leading-relaxed font-medium"
-            style={{ color: 'var(--text-primary)', textWrap: 'pretty' }}
+            className="truncate text-[12px] leading-relaxed"
+            style={{ color: 'var(--text-tertiary)' }}
           >
             {line.target}
           </span>

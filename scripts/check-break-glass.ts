@@ -42,17 +42,17 @@ class Rollback extends Error {}
 
 /** The reader, exactly as `breakGlassState` expresses it. */
 async function readState(tx: postgres.TransactionSql) {
-  const [row] = await tx`
+  const [row] = await tx<{ action: string; actor_label: string; reason: string | null; occurred_at: Date }[]>`
     select action, actor_label, reason, occurred_at
       from platform_audit_log
      where action in ('support.lock_engaged', 'support.lock_released')
      order by occurred_at desc
      limit 1`;
-  if (!row) return { locked: false, by: null as string | null, reason: null as string | null };
+  if (!row) return { locked: false, by: null, reason: null };
   return {
     locked: row.action === 'support.lock_engaged',
-    by: row.actor_label as string,
-    reason: row.reason as string | null,
+    by: row.actor_label,
+    reason: row.reason,
   };
 }
 
@@ -73,15 +73,19 @@ async function main() {
     await sql.begin(async (tx) => {
       // ── 1 · a support session to be caught by the lock ───────────────────
       console.log('1. An open support session');
-      const [tenant] = await tx`select id, slug from tenants where deleted_at is null limit 1`;
+      const [tenant] = await tx<{ id: string; slug: string }[]>`select id, slug from tenants where deleted_at is null limit 1`;
       if (!tenant) {
         bad('no tenant to open a session against');
         throw new Rollback();
       }
-      const [session] = await tx`
+      const [session] = await tx<{ id: string }[]>`
         insert into sessions (user_id, kind, tenant_id, effective_role, expires_at, last_activity_at)
         values (${admin.user_id}, 'support', ${tenant.id}, 'support', now() + interval '30 minutes', now())
         returning id`;
+      if (!session) {
+        bad('the probe session row was not returned');
+        throw new Rollback();
+      }
       ok(`open against ${tenant.slug}`);
 
       // ── 2 · engage ───────────────────────────────────────────────────────
@@ -104,8 +108,8 @@ async function main() {
         returning id`;
       ok(`${revoked.length} revoked`);
 
-      const [still] = await tx`
-        select revoked_at from sessions where id = ${session!.id}`;
+      const [still] = await tx<{ revoked_at: Date | null }[]>`
+        select revoked_at from sessions where id = ${session.id}`;
       if (still?.revoked_at) ok('the probe session is closed');
       else bad('the probe session is still open after the lock');
 

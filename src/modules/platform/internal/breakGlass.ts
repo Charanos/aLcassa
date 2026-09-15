@@ -5,7 +5,6 @@ import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import type { Transaction } from '@/lib/db/client';
-import type { ServiceTransaction } from '@/lib/db/serviceClient';
 import type { PlatformActor } from './subscriptions';
 
 /**
@@ -71,9 +70,7 @@ const LOCK_ACTIONS = [
  * exists for a read worth recording; this one is not, and a log full of reads is
  * a log nobody filters.
  */
-export async function breakGlassState(
-  tx: Transaction | ServiceTransaction,
-): Promise<BreakGlassState> {
+export async function breakGlassState(tx: Transaction): Promise<BreakGlassState> {
   const rows = await tx
     .select({
       action: platformAuditLog.action,

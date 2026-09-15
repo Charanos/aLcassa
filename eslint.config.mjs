@@ -22,6 +22,11 @@ export default tseslint.config(
       'project-docs/**',
       'design-docs/**',
       'src/db/migrations/**',
+      // A one-off token migration run during the landing-page revamp and kept
+      // for reference. It is a standalone .mjs outside tsconfig, so the typed
+      // rules cannot resolve it — and there is nothing to gain by linting a
+      // script that has already done its single job.
+      'migrate-tokens.mjs',
       // Third-party design-tool assets copied verbatim into public/, not
       // authored here and not meant to pass this project's rules.
       'public/design/**',

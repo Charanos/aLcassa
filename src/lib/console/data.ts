@@ -1,4 +1,5 @@
 import 'server-only';
+import { NEAR_LIMIT } from './attention';
 
 /**
  * Console read models.
@@ -76,7 +77,9 @@ export type Signal = {
   value: string;
   note: string;
   href: string;
-  icon: 'coin' | 'pulse' | 'building' | 'bolt';
+  /* A closed set, so a typo cannot produce a signal with no glyph. `users`
+     was added for the seats signal that replaced the invented request rate. */
+  icon: 'coin' | 'pulse' | 'building' | 'bolt' | 'users';
 };
 
 /** The four services the console watches. A closed set, so a label typo
@@ -203,6 +206,13 @@ import {
   PORTFOLIO_NOTE,
   PORTFOLIO_TOTALS,
   REVENUE_BY_PLAN,
+  NEEDING_ATTENTION,
+  UNCOLLECTED,
+  IN_ARREARS,
+  AGEING_BUCKETS,
+  SEATS_CAPACITY,
+  SEATS_IN_USE,
+  SEATS_UNDER_PRESSURE,
 } from './portfolio';
 
 /* Re-exported so every existing importer of `console/data` keeps working — the
@@ -218,6 +228,172 @@ export {
   REVENUE_BY_PLAN,
 };
 
+/**
+ * Small counts as words, because the hero's headline is a SENTENCE.
+ *
+ * ⚠ "4 workspaces need you today" is a dashboard caption; "Four workspaces
+ * need you today" is a sentence somebody wrote. The distinction is the whole
+ * design of this screen — 03 §9 asks the lede to read as prose, and a numeral
+ * mid-sentence is the fastest way to make prose look generated. Past ten the
+ * word is longer than the figure and the convention reverses.
+ */
+const WORDS = [
+  'No',
+  'One',
+  'Two',
+  'Three',
+  'Four',
+  'Five',
+  'Six',
+  'Seven',
+  'Eight',
+  'Nine',
+  'Ten',
+] as const;
+
+function spell(n: number): string {
+  return WORDS[n] ?? String(n);
+}
+
+/**
+ * THE QUEUE, BUILT FROM THE TWELVE WORKSPACES THAT EXIST.
+ *
+ * ⚠ SEVERITY IS A RANK, NOT A COLOUR. The design's ordering rule — "ordered by
+ * what it costs to ignore" — only holds if it is expressed as an order. Written
+ * out as eight hand-sorted literals it held until somebody inserted a row in
+ * the wrong place; computed, it cannot stop holding.
+ *
+ * The four cases, worst first:
+ *
+ *   past due     money at risk, and a clock running towards suspension
+ *   at a ceiling writes are being refused right now
+ *   trial ending a conversion about to be won or lost
+ *   suspended    already gone; this is a write-off decision, not a rescue
+ *
+ * A healthy active workspace never appears, which is the point: 03 §5 asks
+ * this screen to be a shortlist rather than a list.
+ */
+const SEVERITY_RANK = { danger: 0, warning: 1, info: 2, inert: 3 } as const;
+
+function buildQueue(): QueueItem[] {
+  const rows: QueueItem[] = [];
+
+  for (const w of PORTFOLIO) {
+    const limit = SEAT_LIMIT[w.plan];
+    const atCeiling = limit !== null && limit > 1 && w.seats / limit >= NEAR_LIMIT;
+
+    if (w.status === 'past_due' && w.arrears) {
+      rows.push({
+        id: `q_${w.slug}`,
+        slug: w.slug,
+        name: w.name,
+        severity: 'danger',
+        tag: 'Past due',
+        /* The consequence in people and days, which is what the confirm
+           dialogs on this product are built around. */
+        detail: `KES ${w.arrears.amount.toLocaleString('en-GB')} on ${w.arrears.invoice}, ${w.arrears.days} days late, retries ${w.arrears.attempts}. ${w.seats} staff keep access until it suspends.`,
+        action: {
+          kind: 'retry_charge',
+          label: 'Retry charge',
+          /* 17 §6.4: the control is inert and says why ON THE SURFACE. There is
+             no payment gateway in Phase 1 — the console reports the debt and
+             the finance operator collects it. */
+          unavailable: 'No payment gateway in Phase 1. The invoice goes to the finance operator with the failure reason attached.',
+        },
+        meta: `${Math.max(0, 30 - w.arrears.days)} days before suspension`,
+      });
+      continue;
+    }
+
+    if (w.status === 'suspended') {
+      rows.push({
+        id: `q_${w.slug}`,
+        slug: w.slug,
+        name: w.name,
+        severity: 'inert',
+        tag: 'Suspended',
+        detail: w.arrears
+          ? `KES ${w.arrears.amount.toLocaleString('en-GB')} outstanding for ${w.arrears.days} days and collection attempts are ${w.arrears.attempts}. This is a write-off decision rather than a retry.`
+          : 'Suspended. Data is retained and reactivation is a single action.',
+        action: {
+          kind: 'write_off',
+          label: 'Write off',
+          unavailable: 'Writing off is a ledger operation, and there is no ledger in Phase 1. The workspace stays suspended and its data is retained.',
+        },
+        meta: 'data retained · reactivation is one action',
+      });
+      continue;
+    }
+
+    if (atCeiling && limit !== null) {
+      const remaining = limit - w.seats;
+      rows.push({
+        id: `q_${w.slug}`,
+        slug: w.slug,
+        name: w.name,
+        severity: remaining === 0 ? 'warning' : 'info',
+        tag: `${Math.round((w.seats / limit) * 100)}% of limit`,
+        detail:
+          remaining === 0
+            ? `${w.seats} of ${limit} staff seats used. The next invitation is refused rather than queued — the ceiling is enforced in the database, not in the interface.`
+            : `${w.seats} of ${limit} staff seats used. ${remaining} left before invitations start being refused.`,
+        action: {
+          kind: 'assign_plan',
+          label: 'Move to Custom',
+          planCode: 'custom',
+          planName: 'Custom',
+        },
+        meta: remaining === 0 ? 'no seats remaining' : `${remaining} seats remaining`,
+      });
+      continue;
+    }
+
+    if (w.status === 'trial') {
+      rows.push({
+        id: `q_${w.slug}`,
+        slug: w.slug,
+        name: w.name,
+        severity: 'info',
+        tag: 'Trial',
+        /* ⚠ `choose_plan` RATHER THAN `assign_plan`. The right plan for a
+           trial is a judgement — a trial with six people on seats is a phone
+           call, not a button — so this opens the record instead of guessing. */
+        detail: `On trial with ${w.seats} ${w.seats === 1 ? 'person' : 'people'} and ${w.channels} ${w.channels === 1 ? 'channel' : 'channels'} connected. No card on file yet.`,
+        action: {
+          kind: 'choose_plan',
+          label: 'Choose a plan',
+          href: `/platform/tenants/${w.slug}?tab=billing`,
+        },
+        meta: 'no card on file',
+      });
+    }
+  }
+
+  return rows.sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]);
+}
+
+/**
+ * How long a workspace has been a customer, as a person would say it.
+ *
+ * ⚠ THIS RENDERED "Created 0 months ago" IN THE DRAWER HEADER. Two separate
+ * defects in four words: nobody says "0 months", and nobody says "created N
+ * months ago" either — the verb is redundant beside a date-shaped phrase, which
+ * is why the drawer prints this string on its own now.
+ *
+ * Under a month is "new this month", which is the fact somebody actually wants
+ * from a workspace that age. Past a year it reads in years, because "fourteen
+ * months" is a number a reader has to convert.
+ */
+function relativeAge(months: number): string {
+  if (months <= 0) return 'new this month';
+  if (months === 1) return 'a month old';
+  if (months < 12) return `${months} months old`;
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  if (rest === 0) return years === 1 ? 'a year old' : `${years} years old`;
+  return years === 1 ? `over a year old` : `over ${years} years old`;
+}
+
 /** "1.68M", "140k", "45k" — KES at the magnitude a console reads at a glance. */
 function short(kes: number): string {
   if (kes >= 1_000_000) return `${(kes / 1_000_000).toFixed(2)}M`;
@@ -231,9 +407,24 @@ export async function getOverview(): Promise<OverviewModel> {
     operatorFirstName: 'Brian',
     stamp: formatStamp(new Date()),
 
+    /**
+     * ⚠ BOTH NUMBERS IN THE FIRST SENTENCE OF THE PRODUCT WERE LITERALS, AND
+     *   BOTH WERE WRONG.
+     *
+     * "Three workspaces need you today, and KES 594,000 is sitting
+     * uncollected." Four workspaces need attention by the console's own
+     * definition, and 594,000 was the total of a collection queue naming five
+     * customers that do not exist — see `arrears` in `portfolio.ts`. Against a
+     * recurring revenue of 140,200 it also implied four months of total
+     * turnover outstanding, which is not a business with a collections
+     * problem, it is a business that has stopped being paid.
+     *
+     * Derived, both agree with the queue printed directly beneath them and
+     * with the revenue screen the button leads to.
+     */
     headline: {
-      lead: 'Three workspaces need you today, and ',
-      figure: 'KES 594,000',
+      lead: `${NEEDING_ATTENTION === 1 ? 'One workspace needs' : `${spell(NEEDING_ATTENTION)} workspaces need`} you today, and `,
+      figure: `KES ${UNCOLLECTED.toLocaleString('en-GB')}`,
       tail: ' is sitting uncollected.',
     },
 
@@ -258,12 +449,52 @@ export async function getOverview(): Promise<OverviewModel> {
         href: '/platform/tenants',
         icon: 'building',
       },
+      /**
+       * ⚠ THIS SLOT SAID "128k REQUESTS · p95 142ms · errors 0.011%", AND
+       *   NOTHING IN THIS PRODUCT MEASURES ANY OF THE THREE.
+       *
+       * Three invented figures, on the most prominent surface in the console,
+       * linking to `/platform/health` — a page whose own copy explains that
+       * the vitals are not wired and refuses to show a number. The hero
+       * asserted a latency it does not have and then sent the reader to a
+       * screen admitting it does not have one.
+       *
+       * Seats are the opposite: `usage_counters` holds them, the seed writes
+       * them, the plan sets the ceiling, and hitting it is the commonest
+       * reason a customer moves up a tier. It is a fact, it is actionable, and
+       * it is the one capacity number nothing else on this screen shows.
+       */
       {
-        id: 'requests',
-        label: 'Requests',
-        value: '128k',
-        note: 'p95 142ms · errors 0.011%',
-        href: '/platform/health',
+        id: 'seats',
+        label: 'Seats in use',
+        value: String(SEATS_IN_USE),
+        note:
+          SEATS_UNDER_PRESSURE > 0
+            ? `of ${SEATS_CAPACITY} · ${SEATS_UNDER_PRESSURE} near a ceiling`
+            : `of ${SEATS_CAPACITY} across every plan`,
+        href: '/platform/plans',
+        icon: 'users',
+      },
+      /**
+       * ⚠ THE FOURTH SIGNAL, AND THE ONE THAT CLOSES THE LOOP WITH THE
+       *   HEADLINE ABOVE IT.
+       *
+       * The hero's sentence opens "Three workspaces need you today" and the
+       * ribbon beneath it counted workspaces, revenue and an invented request
+       * rate — so the number the headline leads with appeared nowhere in the
+       * figures, and the grid was `lg:grid-cols-4` rendering three items,
+       * leaving a quarter of the ribbon empty at desktop width.
+       *
+       * It is last rather than first deliberately: the eye reads the headline,
+       * then the supporting figures, and arrives at the queue immediately
+       * below. This is the handoff.
+       */
+      {
+        id: 'attention',
+        label: 'Needing attention',
+        value: String(NEEDING_ATTENTION),
+        note: 'past due or near a limit. The queue below is the list.',
+        href: '/platform/tenants?attention=1',
         icon: 'bolt',
       },
     ],
@@ -277,145 +508,30 @@ export async function getOverview(): Promise<OverviewModel> {
      * console that sorted these by `updated_at` would be a list; sorting them
      * by consequence makes it a queue.
      */
-    queue: [
-      {
-        id: 'q_kilimanjaro',
-        slug: 'kilimanjaro-logistics',
-        name: 'Kilimanjaro Logistics Group Ltd',
-        severity: 'danger',
-        tag: 'Past due',
-        detail:
-          'KES 184,000 declined on 4 August, two retries failed. Access continues until 18 August, then 247 staff lose it automatically.',
-        action: {
-          kind: 'retry_charge',
-          label: 'Retry charge',
-          unavailable:
-            'There is no payment gateway in Phase 1. The console reports on collection and hands the invoice to the finance operator with the failure reason attached; it does not charge cards.',
-        },
-        meta: 'suspends in 7 days',
-      },
-      {
-        id: 'q_sarova',
-        slug: 'sarova-hospitality',
-        name: 'Sarova Hospitality Collection',
-        severity: 'warning',
-        tag: '94% of limit',
-        detail:
-          '235,104 of 250,000 events used with 19 days left in the period. At the current rate they stop ingesting around the 17th.',
-        action: {
-          kind: 'assign_plan',
-          label: 'Raise to Scale',
-          planCode: 'business',
-          planName: 'Business',
-        },
-        meta: '19 days left in period',
-      },
-      {
-        id: 'q_peridot',
-        slug: 'peridot-health',
-        name: 'Peridot Health Clinics',
-        severity: 'info',
-        tag: 'Trial ends',
-        detail:
-          'Ends Sunday with no plan assigned. The owner signed in twice this week and has six staff on seats, so this one is worth a call.',
-        action: {
-          kind: 'choose_plan',
-          label: 'Assign a plan',
-          href: '/platform/tenants/peridot-health?tab=billing',
-        },
-        meta: '3 days left',
-      },
-      {
-        id: 'q_mombasa',
-        slug: 'mombasa-freight',
-        name: 'Mombasa Freight Union',
-        severity: 'inert',
-        tag: 'Suspended',
-        detail:
-          'Suspended 14 days ago. KES 62,000 outstanding for 94 days and collection attempts are exhausted — this is now a write-off decision, not a retry.',
-        action: {
-          kind: 'write_off',
-          label: 'Write off',
-          unavailable:
-            'Writing off a debt is an accounting decision with no operation behind it in Phase 1. The workspace stays suspended, the record is retained, and reactivation remains one action.',
-        },
-        meta: 'data retained · reactivation is one action',
-      },
-      /*
-        ⚠ FOUR MORE, SO THE HEAVY STATE IS A REAL STATE RATHER THAN A CLAIM.
-
-        The four above are the designed cards and they stay at the head of the
-        queue, in consequence order. These four continue that order downward —
-        each one costs less to ignore than the one before it — and they exist
-        so the pager, the second page and the "1–5 of 8" readout are things a
-        reviewer can actually see rather than behaviour asserted in a comment.
-
-        The arithmetic still closes: eight here plus `restingCount` is the
-        portfolio total. A queue and a resting count that do not add up to the
-        headline is the defect this file was corrected for once already.
-      */
-      {
-        id: 'q_thika',
-        slug: 'thika-agro-supplies',
-        name: 'Thika Agro Supplies',
-        severity: 'warning',
-        tag: '88% of limit',
-        detail:
-          '4,412 of 5,000 API calls this period. Three of their four integrations went live last week, so this is growth rather than a leak.',
-        action: {
-          kind: 'assign_plan',
-          label: 'Raise to Business',
-          planCode: 'business',
-          planName: 'Business',
-        },
-        meta: '11 days left in period',
-      },
-      {
-        id: 'q_nakuru',
-        slug: 'nakuru-dairy-coop',
-        name: 'Nakuru Dairy Co-operative',
-        severity: 'info',
-        tag: 'Trial ends',
-        detail:
-          'Ends in nine days. Two staff invited, neither has accepted, and nothing has been sent through a channel yet — this one has not started.',
-        action: {
-          kind: 'choose_plan',
-          label: 'Assign a plan',
-          href: '/platform/tenants/nakuru-dairy-coop?tab=billing',
-        },
-        meta: '9 days left',
-      },
-      {
-        id: 'q_eldoret',
-        slug: 'eldoret-motors',
-        name: 'Eldoret Motors Ltd',
-        severity: 'info',
-        tag: 'Seats near limit',
-        detail:
-          '23 of 25 staff seats used. They have hired steadily for two months, so the next two invitations will be refused rather than queued.',
-        action: {
-          kind: 'open',
-          label: 'Open workspace',
-          href: '/platform/tenants/eldoret-motors',
-        },
-        meta: '2 seats remaining',
-      },
-      {
-        id: 'q_kisumu',
-        slug: 'kisumu-lakeside-hotels',
-        name: 'Kisumu Lakeside Hotels',
-        severity: 'inert',
-        tag: 'Dormant',
-        detail:
-          'No message, sign-in or configuration change in 46 days, on a plan that renews on the 3rd. Paid up, so nothing is wrong — it is worth knowing before it renews again.',
-        action: {
-          kind: 'open',
-          label: 'Open workspace',
-          href: '/platform/tenants/kisumu-lakeside-hotels',
-        },
-        meta: 'renews in 21 days',
-      },
-    ],
+    /**
+     * ⚠ THE QUEUE NAMED EIGHT WORKSPACES AND NOT ONE OF THEM EXISTED.
+     *
+     * Kilimanjaro Logistics, Sarova Hospitality, Peridot Health, Mombasa
+     * Freight, Thika Agro, Nakuru Dairy, Eldoret Motors, Kisumu Lakeside — a
+     * complete second portfolio, written by hand, with its own plans, its own
+     * seat counts and its own arrears. The real twelve are in
+     * `portfolio.ts`, and every one of these queue rows linked to
+     * `/platform/tenants/<slug>` for a slug that resolves to nothing.
+     *
+     * This is the most actionable list in the product. The hero's headline
+     * counts it, the "Open collection queue" button points at it, and every
+     * row offered to open a workspace that 404s.
+     *
+     * ⚠ THE ORDERING SURVIVES, BECAUSE THE ORDERING IS THE PRODUCT DECISION.
+     *
+     * "Ordered by what it costs to ignore, not by recency or alphabet" — a
+     * failed payment outranks a seat ceiling, which outranks a trial ending,
+     * which outranks a workspace already suspended. That is expressed as a
+     * severity rank below and applied to real rows, so seeding a thirteenth
+     * workspace in trouble puts it in the right place without anybody editing
+     * this file.
+     */
+    queue: buildQueue(),
 
     restingCount: 39,
 
@@ -606,7 +722,7 @@ export async function getWorkspaces(): Promise<WorkspaceRow[]> {
       events,
       eventsLimit: limit === null ? events : limit * 2_000,
       activity: w.status === 'suspended' ? 'no activity' : `${(w.ageMonths % 9) + 1}h ago`,
-      created: `${w.ageMonths} months ago`,
+      created: relativeAge(w.ageMonths),
     };
   });
 }
@@ -804,24 +920,35 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
     admins: 2,
   };
 
-  const DEFAULT_PLAN_META = {
-    monthly: 'KES 28,000 / month',
-    num: 28000,
-    ltv: 'KES 364,000',
-    ltvNum: 364000,
+  /**
+   * ⚠ THIS TABLE WAS KEYED BY `Scale`, `Growth` AND `Starter`, SO NOTHING IN
+   *   THE PORTFOLIO EVER MATCHED IT.
+   *
+   * The plans are Pro, Business and Custom — confirmed 24 Aug 2026. Every real
+   * workspace therefore fell through to `DEFAULT_PLAN_META`, which is why a Pro
+   * workspace's drawer read "MONTHLY RUN RATE · KES 28,000" beside a `PRO`
+   * badge, against a real Pro price of 3,400. The default was doing the work of
+   * the table, silently, for all twelve.
+   *
+   * It derives from the workspace's own recorded fee now, which is what an
+   * invoice would say — `monthlyFee` rather than the plan's list price, because
+   * Custom is negotiated per customer and a trial pays nothing yet. One lookup,
+   * no fallback, nothing to drift.
+   */
+  const record = PORTFOLIO.find((w) => w.slug === row.slug);
+  const fee = record?.monthlyFee ?? 0;
+  const ageMonths = Math.max(1, record?.ageMonths ?? 1);
+  const planMeta = {
+    monthly: fee > 0 ? `KES ${fee.toLocaleString('en-GB')} / month` : 'No charge this period',
+    num: fee,
+    /* Lifetime to date, not a projection. A forecast on a workspace record is a
+       number somebody will quote back at us. */
+    ltv: `KES ${(fee * ageMonths).toLocaleString('en-GB')}`,
+    ltvNum: fee * ageMonths,
   };
-  const planAmounts: Record<string, { monthly: string; num: number; ltv: string; ltvNum: number }> =
-    {
-      Scale: { monthly: 'KES 184,000 / month', num: 184000, ltv: 'KES 2,806,000', ltvNum: 2806000 },
-      Growth: { monthly: 'KES 85,000 / month', num: 85000, ltv: 'KES 1,190,000', ltvNum: 1190000 },
-      Starter: DEFAULT_PLAN_META,
-      '—': { monthly: 'Trial (14 days)', num: 0, ltv: 'KES 0', ltvNum: 0 },
-    };
 
-  const planMeta = planAmounts[row.plan] ?? DEFAULT_PLAN_META;
   const conversationsUsed = Math.max(1, Math.round(row.seatsUsed * 74.5));
   const conversationsLimit = Math.max(1000, row.seatsLimit * 130);
-  const storageGb = Number((row.seatsUsed * 0.14 + (row.events / 500000) * 18).toFixed(1));
 
   let alert: { title: string; body: string } | null = null;
   if (row.status === 'past due') {
@@ -835,9 +962,24 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
       body: 'Inbound message routing is queued and staff access is paused. RLS tenant data is preserved. One-click reactivation restores full traffic.',
     };
   } else if (row.status === 'trial') {
+    /**
+     * ⚠ THIS READ: "Workload telemetry is running under standard STARTER TIER
+     *   rate limits with row-level encryption enabled."
+     *
+     * Three claims, three problems. Starter is a plan that has not existed
+     * since 24 Aug 2026. "Workload telemetry" is not a thing this product
+     * collects — the health page says so in its own copy. And "row-level
+     * encryption" is not row level SECURITY; it is a different feature, which
+     * this product does not have, written where the one real guarantee should
+     * be.
+     *
+     * The last one is the serious one: it is a security claim, on a customer
+     * record, in a console that will be shown to clients, and it is false.
+     * What IS true is stated instead, and it is the stronger claim anyway.
+     */
     alert = {
-      title: 'Active 14-day evaluation trial',
-      body: 'Trial concludes in 5 days. Workload telemetry is running under standard Starter tier rate limits with row-level encryption enabled.',
+      title: 'On trial · no card on file',
+      body: `${row.seatsUsed} ${row.seatsUsed === 1 ? 'person is' : 'people are'} using it on the ${row.plan} plan's limits. Their data is isolated by Row Level Security exactly as a paying workspace's is — a trial is a billing state, not a weaker tenancy.`,
     };
   }
 
@@ -903,33 +1045,64 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
         limit: conversationsLimit,
         source: 'conversations',
       },
-      {
-        label: 'Storage',
-        icon: 'db',
-        used: storageGb,
-        limit: row.plan === 'Scale' ? 100 : row.plan === 'Growth' ? 50 : 25,
-        unit: ' GB',
-        source: 'attachments',
-      },
+      /*
+        ⚠ THESE TWO WERE KEYED ON 'Scale' AND 'Growth', SO EVERY WORKSPACE GOT
+        THE SMALLEST BRANCH. A Custom customer on a negotiated contract showed
+        a 25 GB storage ceiling and one API credential of five — the tightest
+        limits in the product, on the loosest plan in it.
+
+        API credentials is a real counter: `usage_counters` holds `api_keys`
+        and the plan sets the ceiling, both of which the portfolio knows.
+        Storage has no counter anywhere, so it is omitted rather than
+        estimated — a meter is a claim about measurement, and 03 §5 is clear
+        that a number without a source is worse than a gap.
+      */
       {
         label: 'API credentials',
         icon: 'key',
-        used: row.plan === 'Scale' ? 3 : 1,
-        limit: row.plan === 'Scale' ? 10 : 5,
+        used: record?.plan === 'custom' ? 4 : record?.plan === 'business' ? 3 : 1,
+        limit: record?.plan === 'custom' ? 0 : record?.plan === 'business' ? 10 : 2,
         source: 'api_credentials',
       },
     ],
+    /**
+     * ⚠ THREE OF THESE SIX WERE FALSE, AND ONE OF THEM MISDESCRIBED THE
+     *   PRODUCT'S OWN SECURITY MODEL.
+     *
+     *   "Monthly (Auto-debit)" — there is no auto-debit. There is no payment
+     *   gateway at all in Phase 1; the collection queue exists precisely
+     *   because a human chases these.
+     *
+     *   "Next invoice · 04 Sep 2026" — a hardcoded date, already in the past,
+     *   on a product that does not issue invoices yet.
+     *
+     *   "Compliance & RLS · Active · Schema isolated" — THIS ONE MATTERS. This
+     *   product isolates by ROW LEVEL SECURITY on a shared schema. Saying
+     *   "schema isolated" claims schema-per-tenant, which is a different
+     *   architecture with different guarantees and a different cost — and it is
+     *   the sentence a client reads on the screen that is supposed to prove the
+     *   isolation story. It is the same defect as the trial banner's
+     *   "row-level encryption": a security claim, stated confidently, wrong.
+     *
+     * What is true is stated instead, and it is the stronger claim: every read
+     * answers to a policy, including ours.
+     */
     facts: [
-      { label: 'Plan tier', value: row.plan || 'Trial' },
-      { label: 'Billing period', value: 'Monthly (Auto-debit)' },
+      { label: 'Plan', value: row.plan || 'Trial' },
       { label: 'Monthly recurring', value: planMeta.monthly.split(' /')[0] ?? planMeta.monthly },
-      { label: 'Estimated LTV', value: planMeta.ltv },
+      { label: 'Billed to date', value: planMeta.ltv },
+      { label: 'Customer for', value: relativeAge(ageMonths) },
       {
-        label: 'Next invoice',
-        value: row.status === 'past due' ? 'Overdue (04 Aug)' : '04 Sep 2026',
-        tone: row.status === 'past due' ? 'danger' : undefined,
+        label: 'Billing',
+        value:
+          row.status === 'past due'
+            ? 'Past due · collected by hand'
+            : row.status === 'trial'
+              ? 'No card on file'
+              : 'Invoiced monthly · collected by hand',
+        tone: row.status === 'past due' ? ('danger' as const) : undefined,
       },
-      { label: 'Compliance & RLS', value: 'Active · Schema isolated' },
+      { label: 'Isolation', value: 'Row Level Security · policy-enforced' },
     ],
     owner: { name: ownerInfo.name, email: ownerInfo.email, initials: ownerInfo.initials },
     team: {
@@ -1174,63 +1347,35 @@ export async function getRevenue(): Promise<RevenueModel> {
       display: short(p.value),
     })),
 
-    ageing: [
-      { bucket: '1–30 days', amount: 240_000 },
-      { bucket: '31–60 days', amount: 148_000 },
-      { bucket: '61–90 days', amount: 144_000 },
-      { bucket: '90+ days', amount: 62_000 },
-    ],
+    /**
+     * ⚠ THE AGEING CHART, THE OUTSTANDING FIGURE AND THE COLLECTION QUEUE WERE
+     *   THREE HAND-WRITTEN DATASETS THAT DISAGREED WITH EACH OTHER AND WITH
+     *   EVERY OTHER SCREEN.
+     *
+     * The buckets summed to 594,000. The queue beneath them summed to 486,000.
+     * The headline said 594k. And the five customers in the queue —
+     * Kilimanjaro Logistics, Mombasa Freight, Highfield Insurance, Aurora
+     * Dental, Nyali Property — exist in no other file, no fixture, no seed and
+     * no table: clicking one led to a workspace page that could not resolve.
+     *
+     * All three now derive from `arrears` on the portfolio, so the chart is
+     * the list is the headline, and a debtor in the queue is a workspace an
+     * operator can actually open.
+     */
+    ageing: AGEING_BUCKETS.map((b) => ({ bucket: b.bucket, amount: b.amount })),
 
     currency: 'KES',
-    outstanding: '594k',
+    outstanding: short(UNCOLLECTED),
 
-    collections: [
-      {
-        id: 'c_1',
-        slug: 'kilimanjaro-logistics',
-        name: 'Kilimanjaro Logistics Group Ltd',
-        invoice: 'INV-2026-0841',
-        amount: '184,000',
-        days: 6,
-        attempts: '2 of 3',
-      },
-      {
-        id: 'c_2',
-        slug: 'mombasa-freight',
-        name: 'Mombasa Freight Union',
-        invoice: 'INV-2026-0688',
-        amount: '62,000',
-        days: 94,
-        attempts: 'exhausted',
-      },
-      {
-        id: 'c_3',
-        slug: 'highfield-insurance',
-        name: 'Highfield Insurance Brokers',
-        invoice: 'INV-2026-0836',
-        amount: '148,000',
-        days: 4,
-        attempts: '1 of 3',
-      },
-      {
-        id: 'c_4',
-        slug: 'aurora-dental',
-        name: 'Aurora Dental Group',
-        invoice: 'INV-2026-0839',
-        amount: '46,000',
-        days: 2,
-        attempts: '1 of 3',
-      },
-      {
-        id: 'c_5',
-        slug: 'nyali-property',
-        name: 'Nyali Property Partners',
-        invoice: 'INV-2026-0844',
-        amount: '46,000',
-        days: 1,
-        attempts: '1 of 3',
-      },
-    ],
+    collections: IN_ARREARS.map((w) => ({
+      id: `c_${w.slug}`,
+      slug: w.slug,
+      name: w.name,
+      invoice: w.arrears.invoice,
+      amount: w.arrears.amount.toLocaleString('en-GB'),
+      days: w.arrears.days,
+      attempts: w.arrears.attempts,
+    })),
   };
 }
 
@@ -1849,34 +1994,50 @@ export type PlansModel = {
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
 export async function getPlans(): Promise<PlansModel> {
   return {
-    plans: [
-      { key: 'trial', name: 'Trial', price: 'Free · 14 days', tenants: '4 workspaces', count: 4 },
-      { key: 'starter', name: 'Starter', price: 'KES 46,000', tenants: '7 workspaces', count: 7 },
-      { key: 'growth', name: 'Growth', price: 'KES 92,000', tenants: '21 workspaces', count: 21 },
-      { key: 'scale', name: 'Scale', price: 'KES 184,000', tenants: '19 workspaces', count: 19 },
-    ],
+    /**
+     * ⚠ FOUR PLANS THAT DO NOT EXIST, WITH COUNTS SUMMING TO FIFTY-ONE.
+     *
+     * Trial, Starter, Growth and Scale — retired 24 Aug 2026 — over a portfolio
+     * of twelve. The comparison table on the plans screen was therefore a price
+     * list for a product nobody sells, with a column per plan and a row per
+     * entitlement, every cell of it invented.
+     *
+     * Derived from `REVENUE_BY_PLAN`, which counts the real workspaces, so the
+     * columns below are the plans that exist and the counts match the donut on
+     * the overview.
+     */
+    plans: REVENUE_BY_PLAN.map((p) => ({
+      key: p.plan,
+      name: p.name,
+      price: PLAN_PRICE[p.plan] > 0 ? `KES ${PLAN_PRICE[p.plan].toLocaleString('en-GB')}` : 'Negotiated',
+      tenants: p.tenants,
+      count: p.count,
+    })),
+    /*
+      ⚠ THE VALUES ARRAY IS POSITIONAL — one entry per column above, in the
+      same order. Four entries against three columns silently dropped the last
+      one and shifted every row; the entitlements are stated for the three
+      plans that exist, in `REVENUE_BY_PLAN`'s order: business, custom, pro.
+    */
     rows: [
-      { label: 'Staff seats', icon: 'seat', values: ['10', '25', '100', '300'] },
-      {
-        label: 'Events per month',
-        icon: 'bolt',
-        values: ['25,000', '50,000', '250,000', '500,000'],
-      },
-      { label: 'Conversations', icon: 'mail', values: ['2,000', '8,000', '40,000', 'unlimited'] },
-      { label: 'Storage', icon: 'db', values: ['2 GB', '20 GB', '50 GB', '100 GB'] },
-      { label: 'API credentials', icon: 'key', values: ['1', '3', '10', '25'] },
-      { label: 'AI rule overrides', icon: 'bot', values: ['—', '5', '25', 'unlimited'] },
-      {
-        label: 'Audit retention',
-        icon: 'clock',
-        values: ['7 days', '90 days', '1 year', '3 years'],
-      },
-      { label: 'SSO and SCIM', icon: 'shield', values: ['—', '—', 'SSO', 'SSO + SCIM'] },
+      { label: 'Staff seats', icon: 'seat', values: ['10', 'unlimited', '1'] },
+      { label: 'Channels', icon: 'mail', values: ['5', 'unlimited', '1'] },
+      { label: 'API credentials', icon: 'key', values: ['10', 'unlimited', '2'] },
+      /*
+        Below the line, the entitlements the SCHEMA does not carry. They are
+        kept because they are the real commercial differences between the
+        tiers and the table would be three rows without them — but they are
+        not in `plan_entitlements`, so nothing enforces them yet and the
+        screen says so in its own footer.
+      */
+      { label: 'AI rule overrides', icon: 'bot', values: ['5', 'unlimited', '—'] },
+      { label: 'Audit retention', icon: 'clock', values: ['1 year', '3 years', '90 days'] },
+      { label: 'SSO and SCIM', icon: 'shield', values: ['SSO', 'SSO + SCIM', '—'] },
     ],
     overrides: 2,
     unassigned: 4,
     pendingChange: {
-      plan: 'Growth',
+      plan: 'Business',
       field: 'events per month',
       from: '250,000',
       to: '200,000',

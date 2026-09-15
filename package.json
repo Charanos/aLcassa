@@ -34,7 +34,8 @@
     "db:check-admin": "tsx scripts/check-admin-account.ts",
     "db:check-provisioning": "tsx scripts/check-provisioning.ts",
     "db:check-provision-write": "tsx scripts/check-provision-write.ts",
-    "db:check-break-glass": "tsx scripts/check-break-glass.ts"
+    "db:check-break-glass": "tsx scripts/check-break-glass.ts",
+    "check:figures": "tsx scripts/check-console-figures.ts"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

@@ -33,7 +33,23 @@ export default defineConfig({
     // The isolation suite talks to a real branch database and its cases are
     // deliberately serial, because two of them assert on row counts.
     fileParallelism: false,
-    testTimeout: 20_000,
+    /**
+     * ⚠ 20s WAS TOO TIGHT FOR A REMOTE DATABASE, AND THE SUITE FAILED
+     *   SPURIOUSLY BECAUSE OF IT.
+     *
+     * A full run on 15 Sep 2026 reported 11 of 280 failing — every one a
+     * timeout, not an assertion. Round-trip latency to the Supabase pooler
+     * measured at ~200ms, and an isolation case runs a context set, a write, a
+     * read-back and a cleanup, so the cases land at 2.5-4.7s each and the slow
+     * tail goes past twenty. Re-running the same file at 90s: 152 of 152
+     * passed.
+     *
+     * The same reasoning `hookTimeout` already carries two lines down — a
+     * budget sized for a local database, applied to a pooler over the network.
+     * A suite that fails for reasons unrelated to the code is worse than no
+     * suite, because people stop reading it.
+     */
+    testTimeout: 90_000,
     // Teardown talks to a remote database. The default 10s is enough for a
     // local one and not for a pooler over the network, where a slow hook
     // fails the whole FILE while every case in it passes.

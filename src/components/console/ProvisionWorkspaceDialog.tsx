@@ -466,7 +466,7 @@ export function ProvisionWorkspaceDialog({
                       Plan
                     </p>
 
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {model.plans.map((p) => {
                         const on = plan === p.key;
                         return (

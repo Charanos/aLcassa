@@ -1,33 +1,30 @@
 'use client';
 
-import { useRef, useState, useTransition } from 'react';
-import { IconAlertTriangle, IconClock, IconHistory, IconPlayerPlay } from '@tabler/icons-react';
-import * as Dialog from '@radix-ui/react-dialog';
-import { gsapSafe } from '@/lib/motion';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { IconClock, IconHistory, IconPlayerPlay, IconShieldLock } from '@tabler/icons-react';
+import { nextSupportReference } from '@/app/(platform)/platform/(console)/actions';
+import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
 import type { ConsoleWorkspace } from './types';
 
 /**
- * The confirmation that stands between the switcher and a workspace.
+ * Enter a customer's workspace.
  *
- * 09 §4: selecting a workspace NEVER navigates straight in. The friction is
- * the feature. What this dialog is really doing is making the operator write
- * something a customer will read, at the moment they still remember why.
+ * ⚠ THIS DIALOG SET THE HOUSE STYLE AND NOW USES IT. Its eyebrow, its fact
+ * list, its sunken footer carrying `support_session.start` in mono — that
+ * vocabulary is `ConsoleDialog` now, extracted so the four modals written after
+ * it stop being four approximations of this one. Nothing here is lost; the
+ * padding, the borders and the footer are the same rhythm, defined once.
  *
- * The two facts on it are chosen for what they defuse rather than for what
- * they describe. "Not a master key" answers the fear the customer has when
- * they see the banner; "they can end the session themselves" answers the one
- * they have immediately afterwards. Both are load-bearing product claims, so
- * the copy states them plainly and does not soften them.
+ * Two things this file gains by the move:
  *
- * ⚠ VALIDATION IS SERVER-AUTHORITATIVE. The inline error below is UX; the
- * refusal lives in `startSupportSession`. This component surfaces whatever the
- * action returns rather than deciding for itself, so the two can never
- * disagree about what counts as an acceptable reason.
+ *   · The entrance animation no longer replays on every keystroke. It was on an
+ *     inline callback ref, which React re-invokes whenever the function's
+ *     identity changes — every render, for an inline arrow.
+ *   · The title stops being `display display-md`. "Enter Kilimanjaro Logistics
+ *     Group Ltd" at 38px wrapped to three lines and pushed the reason field
+ *     below the fold on a laptop.
  *
- * Built directly on Radix `Dialog` rather than `ConfirmDialog` — the reason
- * field makes this more than a title-and-consequence confirm — which is what
- * gets it the focus trap, Escape handling, scroll lock and focus-restore that
- * the hand-rolled version never had.
+ * ⚠ THE REFERENCE IS GENERATED, NOT INVENTED. See `nextSupportReference`.
  */
 export function StartSessionDialog({
   workspace,
@@ -39,12 +36,48 @@ export function StartSessionDialog({
   onConfirm: (reason: string) => Promise<{ ok: true } | { ok: false; error: string }>;
 }) {
   const [reason, setReason] = useState('');
+  const [reference, setReference] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * ⚠ THE REFERENCE PREFIXES THE FIELD, AND THE OPERATOR WRITES AFTER IT.
+   *
+   * Two rejected alternatives, both worse. Putting it in a separate read-only
+   * input costs a field for a string nobody edits. Appending it on the server
+   * would mean the operator cannot see, at the moment they confirm, the exact
+   * text the customer is about to read in their own activity log — and that
+   * text being legible before it is written is the whole point of the field.
+   */
+  useEffect(() => {
+    let live = true;
+    void nextSupportReference().then((ref) => {
+      if (!live) return;
+      setReference(ref);
+      setReason((current) => (current === '' ? `${ref} · ` : current));
+      /* Caret to the end, so typing continues the sentence rather than
+         landing in front of the reference. */
+      requestAnimationFrame(() => {
+        const el = inputRef.current;
+        if (!el) return;
+        el.focus();
+        el.setSelectionRange(el.value.length, el.value.length);
+      });
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  /* The reference alone is not a reason. The server requires eight characters;
+     this requires eight BEYOND the generated prefix, so pressing confirm on an
+     untouched field is not possible. */
+  const written = reference ? reason.replace(`${reference} · `, '').trim() : reason.trim();
+  const ready = written.length >= 8;
 
   function submit() {
+    if (!ready || pending) return;
     setError(null);
     startTransition(async () => {
       const result = await onConfirm(reason);
@@ -53,171 +86,80 @@ export function StartSessionDialog({
   }
 
   return (
-    <Dialog.Root
+    <ConsoleDialog
       open
       onOpenChange={(next) => {
         if (!next && !pending) onCancel();
       }}
-    >
-      <Dialog.Portal>
-        <Dialog.Overlay
-          className="fixed inset-0 z-[150]"
-          style={{ background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(6px)' }}
+      dismissible={!pending}
+      eyebrow="Support session"
+      title={`Enter ${workspace.name}`}
+      width="md"
+      operation="support_session.start"
+      description="You will see this workspace under the same Row Level Security rules its own staff work under. Not a master key."
+      facts={
+        <>
+          <DialogFact icon={IconClock}>
+            Read-only, and it expires after <em>30 minutes</em>. There is no extension.
+          </DialogFact>
+          <DialogFact icon={IconHistory}>
+            Written to <em>the customer&rsquo;s own activity log</em>, with your name and this
+            reason. They can read it, and they can end the session themselves.
+          </DialogFact>
+          <DialogFact icon={IconShieldLock}>
+            Reference <em>{reference ?? 'pending'}</em>, taken from the platform log rather than
+            typed — so the session can be joined to a ticket afterwards.
+          </DialogFact>
+        </>
+      }
+      error={error}
+      actions={
+        <DialogActions
+          confirmLabel="Start 30-minute session"
+          confirmIcon={IconPlayerPlay}
+          onConfirm={submit}
+          disabled={!ready}
+          loading={pending}
         />
-        <Dialog.Content
-          ref={(el) => {
-            dialogRef.current = el;
-            if (el) {
-              gsapSafe.fromTo(
-                el,
-                { opacity: 0, y: 18, xPercent: -50, yPercent: -50, scale: 0.94 },
-                { opacity: 1, y: 0, xPercent: -50, yPercent: -50, scale: 1, duration: 0.34, ease: 'power3.out' },
-              );
-            }
+      }
+    >
+      <label className="block">
+        <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
+          Reason{' '}
+          <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>
+            · required, and the customer reads it
+          </span>
+        </span>
+        <input
+          ref={inputRef}
+          type="text"
+          value={reason}
+          onChange={(e) => {
+            setReason(e.target.value);
+            if (error) setError(null);
           }}
-          onOpenAutoFocus={(e) => {
-            e.preventDefault();
-            inputRef.current?.focus();
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !pending) submit();
           }}
-          className="surface-glass-strong fixed top-1/2 left-1/2 z-[150] w-[560px] max-w-[92vw] overflow-hidden rounded-overlay"
-          style={{ boxShadow: 'var(--glass-highlight), var(--shadow-lg)' }}
+          placeholder="verifying a duplicated WhatsApp thread"
+          aria-invalid={error ? true : undefined}
+          className="t-body w-full rounded-chip px-3 outline-none transition-colors"
+          style={{
+            height: 38,
+            border: `1px solid ${error ? 'var(--danger-fg)' : 'var(--border-strong)'}`,
+            background: 'var(--surface-raised)',
+            color: 'var(--text-primary)',
+          }}
+        />
+        <span
+          className="t-caption mt-1.5 block min-h-[1.2em]"
+          style={{ color: 'var(--text-tertiary)' }}
         >
-          <div className="p-6">
-            <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-              Support session
-            </p>
-            <Dialog.Title asChild>
-              <h2 className="display display-md mt-2.5" style={{ color: 'var(--text-primary)' }}>
-                Enter {workspace.name}
-              </h2>
-            </Dialog.Title>
-            <Dialog.Description asChild>
-              <p
-                className="t-body mt-3"
-                style={{ color: 'var(--text-secondary)', maxWidth: '56ch' }}
-              >
-                You will see this workspace under the same Row Level Security rules its own staff
-                work under. Not a master key.
-              </p>
-            </Dialog.Description>
-
-            <ul
-              className="mt-4 grid list-none gap-2.5 border-t p-0 pt-4"
-              style={{ borderColor: 'var(--border-subtle)' }}
-            >
-              <Fact icon={IconClock}>
-                Read-only, and it expires after <em>30 minutes</em>. There is no extension.
-              </Fact>
-              <Fact icon={IconHistory}>
-                Written to <em>the customer&rsquo;s own activity log</em>, with your name and this
-                reason. They can read it, and they can end the session themselves.
-              </Fact>
-            </ul>
-
-            <label className="mt-5 block">
-              <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
-                Reason{' '}
-                <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>
-                  · required, and the customer reads it
-                </span>
-              </span>
-              <input
-                ref={inputRef}
-                type="text"
-                value={reason}
-                onChange={(e) => {
-                  setReason(e.target.value);
-                  if (error) setError(null);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !pending) submit();
-                }}
-                placeholder="Ticket 4829 · verifying a duplicated WhatsApp thread"
-                aria-invalid={error ? true : undefined}
-                aria-describedby={error ? 'start-session-error' : undefined}
-                className="t-body w-full rounded-chip px-3"
-                style={{
-                  height: 38,
-                  border: `1px solid ${error ? 'var(--danger-fg)' : 'var(--border-strong)'}`,
-                  background: 'var(--surface-raised)',
-                  color: 'var(--text-primary)',
-                }}
-              />
-            </label>
-
-            {error ? (
-              <p
-                id="start-session-error"
-                role="alert"
-                className="t-compact mt-2 flex items-center gap-1.5"
-                style={{ color: 'var(--danger-fg)' }}
-              >
-                <IconAlertTriangle size={15} stroke={1.5} className="shrink-0" aria-hidden />
-                {error}
-              </p>
-            ) : null}
-          </div>
-
-          <div
-            className="flex items-center gap-2.5 border-t px-6 py-3.5"
-            style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
-          >
-            {/* The operation's real name, in mono. An operator who is about to
-                do something audited should be able to see what it is called in
-                the log they will later search. */}
-            <span className="t-caption numeric flex-1" style={{ color: 'var(--text-tertiary)' }}>
-              support_session.start
-            </span>
-            <Dialog.Close asChild>
-              <button
-                type="button"
-                disabled={pending}
-                className="t-compact rounded-panel px-3.5 transition-colors"
-                style={{
-                  height: 36,
-                  border: '1px solid var(--border-strong)',
-                  background: 'var(--surface-raised)',
-                  color: 'var(--text-primary)',
-                }}
-              >
-                Cancel
-              </button>
-            </Dialog.Close>
-            <button
-              type="button"
-              onClick={submit}
-              disabled={pending}
-              className="t-compact inline-flex items-center gap-2 rounded-panel px-4 transition-colors"
-              style={{
-                height: 36,
-                border: 'none',
-                background: 'var(--blue-500)',
-                color: 'var(--text-inverse)',
-                fontWeight: 500,
-                opacity: pending ? 0.75 : 1,
-              }}
-            >
-              <IconPlayerPlay size={15} stroke={1.5} aria-hidden />
-              {pending ? 'Starting…' : 'Start 30-minute session'}
-            </button>
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
-  );
-}
-
-function Fact({ icon: Icon, children }: { icon: typeof IconClock; children: React.ReactNode }) {
-  return (
-    <li className="t-compact flex items-start gap-2.5" style={{ color: 'var(--text-primary)' }}>
-      <Icon
-        size={16}
-        stroke={1.5}
-        className="mt-0.5 shrink-0"
-        style={{ color: 'var(--text-tertiary)' }}
-        aria-hidden
-      />
-      <span>{children}</span>
-    </li>
+          {ready
+            ? 'Written as it appears here.'
+            : 'Say what you are checking. "." satisfies a length test and tells the customer nothing.'}
+        </span>
+      </label>
+    </ConsoleDialog>
   );
 }

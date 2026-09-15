@@ -1,13 +1,17 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { IconAlertTriangle, IconSettings } from '@tabler/icons-react';
+import { IconAlertTriangle, IconSettings, IconUsers } from '@tabler/icons-react';
 import {
   changePlanLimit,
   previewPlanLimit,
 } from '@/app/(platform)/platform/(console)/plan-actions';
 import type { PlanLimitImpact } from '@/modules/platform';
-import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
+import {
+  ConsoleDialog,
+  DialogActions,
+  DialogFact,
+} from '@/components/primitives/ConsoleDialog';
 import { useToast } from '@/components/primitives/Toast';
 import type { HeadroomRow } from '@/lib/console/data';
 
@@ -90,7 +94,7 @@ export function LimitEditor({
     startTransition(async () => {
       const result = await changePlanLimit({
         entitlementId,
-        to: unlimited ? null : (parsed as number),
+        to: unlimited ? null : parsed,
         reason,
       });
       if (result.ok) {
@@ -146,22 +150,48 @@ export function LimitEditor({
         )}
       </button>
 
-      <ConfirmDialog
+      <ConsoleDialog
         open={open}
-        onOpenChange={(n) => {
-          if (!pending) setOpen(n);
-        }}
+        onOpenChange={(n) => setOpen(n)}
+        dismissible={!pending}
+        eyebrow="Plan catalogue"
         title={`${planName} · ${row.label}`}
-        consequence="A limit belongs to the plan, so this changes what every workspace on it is entitled to."
-        details={
-          <div className="grid gap-4 border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
-            <div className="grid gap-1.5">
-              <label htmlFor="limit-value" className="t-label" style={{ color: 'var(--text-secondary)' }}>
+        width="lg"
+        operation="plan.limit_changed"
+        description="A limit belongs to the plan, so this changes what every workspace on it is entitled to. To lift a ceiling for one customer instead, grant an override on that workspace."
+        facts={
+          <>
+            <DialogFact icon={IconUsers}>
+              Nobody is removed. A workspace already above the new number{' '}
+              <em>keeps what it has</em> and cannot add more.
+            </DialogFact>
+            <DialogFact icon={IconAlertTriangle}>
+              The count below is read from the database when the value changes, not estimated —
+              the bars on the card behind this show a median and a maximum, which are not a count
+              against a number you just typed.
+            </DialogFact>
+          </>
+        }
+        error={error}
+        actions={
+          <DialogActions
+            confirmLabel="Change the limit"
+            confirmIcon={IconSettings}
+            onConfirm={submit}
+            disabled={!ready}
+            loading={pending}
+            tone="destructive"
+          />
+        }
+      >
+        <div className="grid gap-5">
+          <div className="grid gap-4 sm:grid-cols-[200px_minmax(0,1fr)] sm:items-start">
+            <label className="block">
+              <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
                 New limit
-              </label>
-              <div className="flex items-center gap-3">
+              </span>
+              <div className="flex items-center gap-2.5">
                 <input
-                  id="limit-value"
                   type="number"
                   min={1}
                   value={value}
@@ -171,104 +201,109 @@ export function LimitEditor({
                     const n = Number.parseInt(value, 10);
                     if (Number.isInteger(n) && n >= 1) check(n);
                   }}
-                  className="h-[38px] w-[120px] rounded-chip px-3 outline-none"
+                  className="t-body w-[110px] rounded-chip px-3 outline-none"
                   style={{
+                    height: 38,
                     border: '1px solid var(--border-strong)',
                     background: unlimited ? 'var(--surface-sunken)' : 'var(--surface-raised)',
-                    boxShadow: 'var(--neu-inset)',
                     color: unlimited ? 'var(--text-disabled)' : 'var(--text-primary)',
-                    font: '400 var(--text-base)/1 var(--font-mono)',
+                    fontFamily: 'var(--font-mono)',
                   }}
                 />
-                <label className="t-compact flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
-                  <input
-                    type="checkbox"
-                    checked={unlimited}
-                    onChange={(e) => {
-                      setUnlimited(e.target.checked);
-                      check(e.target.checked ? null : Number.parseInt(value, 10));
-                    }}
-                  />
-                  Unlimited
-                </label>
-                <span className="t-caption" style={{ color: 'var(--text-tertiary)' }}>
-                  was {row.limit === null ? 'unlimited' : row.limit}
+                <span className="t-caption whitespace-nowrap" style={{ color: 'var(--text-tertiary)' }}>
+                  was {row.limit === null ? '∞' : row.limit}
                 </span>
               </div>
-            </div>
+              <label className="t-caption mt-2.5 flex w-fit items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+                <input
+                  type="checkbox"
+                  checked={unlimited}
+                  onChange={(e) => {
+                    setUnlimited(e.target.checked);
+                    check(e.target.checked ? null : Number.parseInt(value, 10));
+                  }}
+                />
+                Unlimited
+              </label>
+            </label>
 
-            {checking ? (
-              <p className="t-caption" style={{ color: 'var(--text-tertiary)' }}>
-                Checking what this affects…
-              </p>
-            ) : impact ? (
-              <ul
-                className="grid list-none gap-2 p-0"
-                aria-live="polite"
-              >
-                <li className="t-compact" style={{ color: 'var(--text-primary)' }}>
-                  {impact.affected} {impact.affected === 1 ? 'workspace is' : 'workspaces are'} on{' '}
-                  {impact.planName}.
-                </li>
-                {impact.stranded > 0 ? (
-                  <li
-                    className="flex items-start gap-2.5 rounded-panel px-3 py-2.5"
-                    style={{
-                      background: 'var(--badge-warning-bg)',
-                      border: '1px solid var(--badge-warning-edge)',
-                    }}
-                  >
-                    <IconAlertTriangle
-                      size={15}
-                      stroke={1.5}
-                      aria-hidden
-                      style={{ color: 'var(--warning-fg)', marginTop: '1px', flexShrink: 0 }}
-                    />
-                    <span className="t-compact" style={{ color: 'var(--text-primary)' }}>
-                      {impact.stranded} {impact.stranded === 1 ? 'is' : 'are'} already above this.{' '}
-                      <span style={{ color: 'var(--text-secondary)' }}>
-                        Nobody is removed &mdash; they keep what they have and cannot add more. Grant
-                        an override on those workspaces if that is not what you want.
+            {/*
+              ⚠ THE IMPACT PANEL RESERVES ITS HEIGHT. It used to appear and
+              disappear as the preview resolved, which moved the reason field
+              up and down under the operator's cursor while they typed into it.
+            */}
+            <div
+              className="grid gap-2 rounded-panel px-4 py-3.5"
+              style={{ background: 'var(--surface-sunken)', minHeight: 104 }}
+              aria-live="polite"
+            >
+              {checking ? (
+                <span className="t-compact" style={{ color: 'var(--text-tertiary)' }}>
+                  Checking what this affects…
+                </span>
+              ) : impact ? (
+                <>
+                  <span className="t-compact" style={{ color: 'var(--text-primary)' }}>
+                    <span className="numeric">{impact.affected}</span>{' '}
+                    {impact.affected === 1 ? 'workspace is' : 'workspaces are'} on {impact.planName}.
+                  </span>
+                  {impact.stranded > 0 ? (
+                    <span
+                      className="t-compact flex items-start gap-2 rounded-panel px-3 py-2"
+                      style={{
+                        background: 'var(--badge-warning-bg)',
+                        border: '1px solid var(--badge-warning-edge)',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
+                      <IconAlertTriangle
+                        size={15}
+                        stroke={1.5}
+                        aria-hidden
+                        style={{ color: 'var(--warning-fg)', marginTop: 1, flexShrink: 0 }}
+                      />
+                      <span>
+                        <span className="numeric">{impact.stranded}</span>{' '}
+                        {impact.stranded === 1 ? 'is' : 'are'} already above this. Grant an override
+                        on those workspaces if that is not what you want.
                       </span>
                     </span>
-                  </li>
-                ) : (
-                  <li className="t-compact" style={{ color: 'var(--text-secondary)' }}>
-                    None is above the new ceiling.
-                  </li>
-                )}
-              </ul>
-            ) : null}
-
-            <div className="grid gap-1.5">
-              <label htmlFor="limit-reason" className="t-label" style={{ color: 'var(--text-secondary)' }}>
-                Why &middot; goes in the platform log
-              </label>
-              <input
-                id="limit-reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Growth seats raised to 30 for the Q4 price list."
-                className="h-[38px] w-full rounded-chip px-3 outline-none"
-                style={{
-                  border: '1px solid var(--border-strong)',
-                  background: 'var(--surface-raised)',
-                  boxShadow: 'var(--neu-inset)',
-                  color: 'var(--text-primary)',
-                  font: '400 var(--text-sm)/1 var(--font-ui)',
-                }}
-              />
+                  ) : (
+                    <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
+                      None is above the new ceiling.
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="t-compact" style={{ color: 'var(--text-tertiary)' }}>
+                  Enter a limit to see what it would affect.
+                </span>
+              )}
             </div>
           </div>
-        }
-        confirmLabel={ready ? 'Change the limit' : 'Change the limit'}
-        loading={pending}
-        error={error}
-        tone="destructive"
-        onConfirm={() => {
-          if (ready) submit();
-        }}
-      />
+
+          <label className="block">
+            <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
+              Why{' '}
+              <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>
+                · required, and it goes in the platform log
+              </span>
+            </span>
+            <input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Growth seats raised to 30 for the Q4 price list."
+              className="t-body w-full rounded-chip px-3 outline-none"
+              style={{
+                height: 38,
+                border: '1px solid var(--border-strong)',
+                background: 'var(--surface-raised)',
+                color: 'var(--text-primary)',
+              }}
+            />
+          </label>
+        </div>
+      </ConsoleDialog>
     </>
   );
 }

@@ -725,3 +725,311 @@ global switch would destroy each admin's own setting on unlock. The gate itself
 belongs in `startSupportSession` rather than in `withTenantContext` — refuse the
 grant and no session exists to carry support mode — which makes it a small
 change once the storage question is answered. That question is Brian's.
+
+## 15. The hero, and what the console was asserting · 15 Sep 2026
+
+Dennis: *"cant believe you did not notice the outdated plan on the provisioning
+tenant modal, are we sure that provisioning actually works"* — and then, on the
+hero: *"make sure the chart and thoroughput data is legit."*
+
+Both were right, and the second one is the larger finding. Four surfaces were
+stating figures that came from nowhere, and every one of them was defensible in
+isolation.
+
+### Provisioning did not work
+
+The modal offered `starter`, `growth`, `scale` and `custom`. Three of those have
+never existed in this product — the plans are `pro`, `business`, `custom`,
+confirmed 24 Aug 2026 and recorded on `plans.code` — and the DEFAULT selection
+was `growth`. The prices beside them were wrong for the two that survived.
+
+That was the visible half. The invisible half: `provisionTenantSchema` had no
+plan field at all, so the operator's choice was dropped before it reached the
+service, and `provisionTenant` wrote a tenant, its settings, the owner profile
+and the membership — **and no subscription row**. A workspace came out of it
+with no plan, no entitlements and no ceilings, while step 2 of the modal's own
+five-step panel promised "plan entitlements resolved and snapshotted onto the
+workspace".
+
+It was invisible from the console because the twelve seeded workspaces were
+seeded with their subscriptions directly, never through this path. `pnpm
+db:check-provision-write` runs the write against the real database inside a
+transaction and rolls it back, which is the only way to catch it: plan resolves,
+subscription lands, eight limits apply, the one-per-tenant index holds, nothing
+is kept. `growth` is asserted NOT to resolve, so the regression cannot return
+quietly.
+
+The modal now reads the live catalogue. The fixture behind it was corrected too,
+and its prices derive from `PLAN_PRICE` — a fallback that lies is how this
+survived, since a screen that looks plausible is never checked against the
+database.
+
+### The hero was asserting things nothing measures
+
+- The chart generated a **`Math.random()` walk**, relabelled every mount, and
+  hydration-mismatched — the server's walk and the client's were different
+  numbers.
+- **`3.42M`** was hardcoded above that random line, so the headline and the line
+  it labelled were unrelated.
+- **`+12.4% vs last month`** was hardcoded, in success green, with no way to
+  ever render a fall.
+- The third signal claimed **"128k requests · p95 142ms · errors 0.011%"** and
+  linked to `/platform/health` — a page whose own copy explains that the vitals
+  are not wired. The hero asserted a latency and then sent the reader to a
+  screen admitting there is no latency.
+
+The chart takes its series as a prop now: twelve months of recurring revenue
+from `revenueSeries()`, already reconciled per month. Revenue rather than a
+request rate because it is the one twelve-month series this database can
+actually answer — a chart of a number we have beats a beautiful chart of a
+number we do not.
+
+### The collection queue was a second, parallel portfolio
+
+The revenue screen's ageing buckets summed to 594,000. Its collection queue,
+printed three hundred pixels below the chart, summed to 486,000. The hero quoted
+594k. And the five debtors — Kilimanjaro Logistics, Mombasa Freight, Highfield
+Insurance, Aurora Dental, Nyali Property — exist in no fixture, no seed and no
+table, so clicking one led to a workspace page that could not resolve.
+
+Debt is now `arrears` on the workspace that owes it, in `portfolio.ts`. The
+outstanding figure, the ageing chart and the queue are the same rows counted
+three ways. The total falls from an invented 594,000 to a derived **27,200** —
+and the old figure was never coherent anyway: against an MRR of 140,200 it
+implied four months of total turnover outstanding, which is not a collections
+problem but a business that has stopped being paid.
+
+### Two data bugs the derivation exposed
+
+**A one-seat plan is not under pressure for having its one seat.** Pro is a
+single-seat plan, so every Pro workspace sits at exactly 1 of 1 forever. A
+percentage test read that as 100% and filed five of twelve workspaces as needing
+attention — burying the one that genuinely was. Pressure requires a ceiling
+greater than one, because pressure means "there is room here and it is running
+out". The attention count falls from 8 to 4.
+
+**A ratio must be over the population it is a ratio of.** Total seats counted the
+24 on the uncapped `custom` workspace; total capacity could not. The hero would
+have read "68 of 65" — a platform 105% full. Both halves now exclude the uncapped
+plans and the uncapped seats are stated separately.
+
+### The fourth KPI
+
+The ribbon was `lg:grid-cols-4` rendering three, leaving a quarter of it empty at
+desktop width. It now carries Recurring, Workspaces, **Seats in use** (which
+replaced the invented request rate — a real capacity fact, and the commonest
+reason a customer moves up a tier) and **Needing attention**, which is the number
+the headline sentence opens with and which appeared nowhere in the figures
+beneath it.
+
+Both numbers in that headline were literals too — "Three workspaces" and "KES
+594,000". They derive now, so the sentence agrees with the queue printed
+directly underneath it.
+
+`pnpm check:figures` asserts all of this as arithmetic, with no database, in a
+second: the buckets sum to the headline, every debtor is a real workspace, the
+attention count matches in all three places it appears, capped seats never
+exceed capacity, every month of revenue reconciles, and no signal claims a
+metric this product does not collect.
+
+### Break glass
+
+Wired, having refused for a phase. The reason it gave described a design nobody
+built — a flag at `app.support_lock` checked by `withTenantContext` on every
+request, for a control used twice a year.
+
+The lock has no column. The most recent `support.lock_engaged` /
+`support.lock_released` row in the platform audit log **is** the state: the state
+and its record are the same row, so they cannot drift, the history is intrinsic,
+and it needed no migration. Enforcement is at the mint — refuse the session and
+there is nothing for `withTenantContext` to widen — and engaging it revokes every
+open session rather than letting colleagues run out their thirty minutes inside
+customer workspaces during an incident somebody just declared. Verified by `pnpm
+db:check-break-glass`.
+
+### One vocabulary for the audit log
+
+Thirty-six action codes were being printed raw — `password.changed`,
+`support.lock_engaged` — on three surfaces at once. `auditVocabulary.ts` gives
+each a sentence, a glyph and a tone, shared by the overview rail, the audit page
+and the tenant activity tab so they cannot drift into calling one event three
+things. The overview's colour mapping was substring-matching the raw string, and
+two of its four branches (`includes('master')`, `includes('auth')`) could never
+fire, while `tenant.provisioned` fell through to the default.
+
+### The queue was a second portfolio too
+
+Found while verifying the hero: the overview's queue named eight workspaces —
+Kilimanjaro Logistics, Sarova Hospitality, Peridot Health, Mombasa Freight,
+Thika Agro, Nakuru Dairy, Eldoret Motors, Kisumu Lakeside — with their own
+plans, seat counts and arrears, and not one of them exists. Every row linked to
+`/platform/tenants/<slug>` for a slug that resolves to nothing.
+
+It is the most actionable list in the product, the headline counts it, and the
+hero's primary button points at it.
+
+It derives now, and the ordering rule survives as an ordering rather than as
+eight hand-sorted literals: past due, then at a ceiling, then trial, then
+suspended — "what it costs to ignore". Seeding a thirteenth workspace in trouble
+puts it in the right place without anybody editing a fixture. Six real rows
+replace eight invented ones.
+
+`pnpm check:figures` now also asserts that every queue row is a real workspace,
+that the severity order holds, and that no healthy workspace appears in a list
+whose whole job is to be a shortlist.
+
+## 16. One modal, and the plans that would not die · 15 Sep 2026
+
+Dennis, on the support-session dialog: *"very sleek elegant design that i need
+replicated to this other modal you created along this pass just look like some
+generic make shift modals"* — with two corrections: *"not so much with the
+gigantic header"*, and *"i like modals not to be shy with their widths if they
+got excessive content then no need to cram em up."*
+
+### `ConsoleDialog`
+
+The support-session dialog had a real vocabulary — mono eyebrow, one sentence of
+description, a hairline-separated fact list, one padding rhythm, and a footer on
+sunken ground carrying the OPERATION'S OWN NAME beside the actions. Four modals
+written after it copied some of that and improvised the rest, which is how the
+console ended up with four paddings, three title sizes, three button heights and
+two footer grounds.
+
+It is one component now, and all five use it. Three deliberate departures from
+the original, all corrections:
+
+**The title is `display-sm`, not `display-md`.** At 38px "Enter Kilimanjaro
+Logistics Group Ltd" wrapped to three lines and ate half the panel before a word
+of content. A dialog title labels a task; it is not a page heading.
+
+**Width is a prop and it is generous** — 480 / 600 / 760 / 940. The instinct to
+keep a modal narrow is right for a confirmation and wrong for a form: the rules
+editor has six prose fields, and at 560px they became a column of three-word
+lines that read like a receipt. It is `xl` now and two columns wide, because the
+operator is editing paragraphs an assistant will speak.
+
+**Centring is on a wrapper, never on a transform** — the fix from §14, now
+structural rather than repeated.
+
+Two bugs fixed by the extraction. Every one of these dialogs animated from an
+inline callback ref, which React re-invokes whenever the function's identity
+changes — every render — so each replayed its entrance on every keystroke in its
+own form. And `DialogFact`'s glyph is an `IconTile` now: the raised
+gradient-and-hairline treatment the demo doors use, rather than a flat 16px
+stroke sitting in the text run with nothing for the eye to anchor on.
+
+### The reference is generated
+
+The reason field's placeholder read `Ticket 4829 · verifying a duplicated
+WhatsApp thread` — house style, and then the operator invents a number. So the
+references in the audit log were whatever each person typed, and the one column
+that should join a session to a support ticket was unjoinable.
+
+`nextSupportReference()` counts `support.entered` in the platform audit log and
+returns `TKT-20260915-013`. Derived rather than sequenced for the same reason
+break glass has no column: the log is append-only, so counting it IS the
+sequence, and a `nextval()` would be a second source that can disagree with the
+log about how many sessions there have been. It prefills the field with the
+caret after it, so the operator writes the sentence and the reference is already
+correct — and the confirm still requires eight characters BEYOND the prefix, so
+an untouched field cannot be submitted.
+
+### "What are these zeros supposed to be"
+
+`00000000-0000-4000-8000-000000000012` is the workspace's real primary key. The
+seed writes readable, sequential UUIDs so the isolation suite can pin three of
+them by value — that part is deliberate and load-bearing.
+
+Rendering all thirty-six characters in the drawer header was not. It is noise in
+the one line a reader uses to confirm they opened the right customer, and an id
+whose first twenty characters are zeros reads as placeholder data — which is the
+exact impression a console being shown to a client must not give. The first
+segment shows as a handle, the full value goes to the clipboard, and the title
+attribute carries it for anyone who wants to read it without copying.
+
+"Created 0 months ago" went with it. Nobody says "0 months", and nobody says
+"created N months ago" either — it reads "new this month" now, which is the fact
+somebody actually wants from a workspace that age.
+
+### The retired plans, everywhere
+
+Chasing the drawer's "MONTHLY RUN RATE · KES 28,000" on a `PRO` badge turned up
+the same defect in six more places. Trial, Starter, Growth and Scale were
+replaced by Pro / Business / Custom on **24 Aug 2026**, and the old names were
+still keyed into:
+
+- the workspace drawer's price table — so every real workspace fell through to a
+  default of 28,000 against a true Pro price of 3,400
+- its storage and API-credential meters, where a Custom customer on a negotiated
+  contract showed the tightest limits in the product
+- the trial banner's copy — which also claimed "workload telemetry" this product
+  does not collect and **"row-level encryption"**, which is not row level
+  security, is not a feature we have, and was written exactly where the one real
+  guarantee should be
+- the plans comparison table, whose four columns and eight entitlement rows were
+  a price list for a product nobody sells, with counts summing to fifty-one
+- the overview's plan-mix icon map, which gave three identical box glyphs to a
+  legend whose whole job is telling three plans apart
+
+Every one failed **silently**. An unmatched key falls to a fallback, and a
+fallback that renders is indistinguishable from a value that is right.
+
+`pnpm check:figures` now searches the rendered read models for those four names
+and fails if any survives, checks the plans table names Business / Custom / Pro,
+and asserts every entitlement row has exactly one value per column — the
+positional `values` array had four entries against three columns, which shifts
+every row silently.
+
+## 17. The dialog kit, and the initials that were three components · 15 Sep 2026
+
+### `InitialsTile`
+
+The workspace mark — two letters on a round surface — existed three times: the
+table's row, the same table's card layout, and the drawer header, at 40px, 48px
+and 56px, each computing the initials itself and each positioning the status dot
+slightly differently.
+
+All three were also FLAT, while `IconTile` beside them lifts with a
+light-to-dark gradient. On a screen carrying both, a glyph tile read as raised
+and a workspace mark read as a hole in the surface — the same object at the same
+altitude, drawn two ways. And all three were weight 600, which the console does
+not have: 03 §5 caps it at 500, so two letters were the heaviest text on the
+screen, on the least important word in each row.
+
+The queue cards moved from `IconPill variant="tinted"` to `IconTile` for the
+same reason. A flat tinted disc is right for a status chip, which is what
+`IconPill` was built for, and wrong as the leading mark on a card an operator
+works through four deep.
+
+### The drawer's structure
+
+**The spec panel split its facts at a hardcoded three.** `slice(0, 3)` and
+`slice(3)` are even for exactly six facts. A seventh gives the left column three
+against the right's four; a fifth gives it three against two. Either way the
+divider stops being a centre line. It is `Math.ceil(length / 2)` now, so the
+left column is the longer one when the count is odd — the direction a reader
+scanning top-left expects.
+
+**Three of the six facts were false**, and the third is the one that matters:
+
+- *"Monthly (Auto-debit)"* — there is no auto-debit, and no gateway at all.
+- *"Next invoice · 04 Sep 2026"* — hardcoded, already in the past.
+- *"Compliance & RLS · Active · Schema isolated"* — this product isolates by
+  **Row Level Security on a shared schema**. "Schema isolated" claims
+  schema-per-tenant: a different architecture, different guarantees, different
+  cost. It sat on the screen whose job is to prove the isolation story, and the
+  stat card beside it said the same thing backwards as *"RLS isolated schema"*.
+
+Same class as the trial banner's *"row-level encryption"* — a confident security
+claim, in a console being shown to clients, that is not what the product does.
+What is true is stated instead, and it is the stronger claim: every read answers
+to a policy, including ours.
+
+### On the test suite
+
+The full run took **70 minutes** and 11 of 280 tests failed, every one of them a
+20-second timeout inside `tests/isolation/generated.test.ts` — no assertion
+failures. Round-trip latency to Supabase measured at ~200ms, and the isolation
+matrix runs many queries per case, so the per-test budget was simply too small
+for the connection rather than for the code. Nothing in this round touches a
+schema or a policy: `git status src/db/` is empty.

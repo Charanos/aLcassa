@@ -34,6 +34,7 @@ import { gsapSafe } from '@/lib/motion';
 import { DestructiveConfirm } from '@/components/primitives/ConfirmDialog';
 import { StartSessionDialog } from './StartSessionDialog';
 import { ProfileCardDialog } from './ProfileCardDialog';
+import { InitialsTile } from '@/components/primitives/InitialsTile';
 import { useToast } from '@/components/primitives/Toast';
 
 /* ─ Types ─────────────────────────────────────────────────────────────────── */
@@ -341,22 +342,12 @@ export function WorkspaceDetailDrawer({
           <div className="flex flex-col justify-between gap-4 pr-4 sm:flex-row sm:items-center">
             <div className="flex items-start gap-4">
               {/* 48px Avatar with Live Beacon */}
-              <div
-                className="relative flex size-14 shrink-0 items-center justify-center rounded-full text-sm font-medium transition-transform duration-300 hover:scale-105"
-                style={{
-                  background: 'var(--surface-raised)',
-                  boxShadow: 'inset 0 0 0 1px var(--border-subtle), var(--shadow-sm)',
-                  color: 'var(--text-primary)',
-                  font: '600 16px var(--font-ui)',
-                }}
-                aria-hidden="true"
-              >
-                {initials}
-                <span
-                  className="absolute top-0 -right-0.5 size-3.5 rounded-full border-2"
-                  style={{ background: st.dot, borderColor: 'var(--surface-base)' }}
-                />
-              </div>
+              <InitialsTile
+                name={row.name}
+                size="lg"
+                dot={st.dot}
+                className="transition-transform duration-300 hover:scale-105"
+              />
 
               {/* Workspace Name & Identifiers */}
               <div className="min-w-0">
@@ -392,17 +383,37 @@ export function WorkspaceDetailDrawer({
 
                   <span style={{ color: 'var(--border-strong)' }}>·</span>
 
+                  {/*
+                    ⚠ THE UUID IS ABBREVIATED, AND THE WHOLE THING IS STILL WHAT
+                      GETS COPIED.
+
+                    It rendered in full — `00000000-0000-4000-8000-000000000012`,
+                    thirty-six characters of mono at the same weight as the
+                    workspace's name. Two things wrong with that. It is visual
+                    noise in the one line a reader uses to confirm they opened
+                    the right customer; and a seeded id whose first twenty
+                    characters are zeros reads as placeholder data rather than
+                    as a real primary key, which is exactly the impression a
+                    console being shown to a client must not give.
+
+                    It IS a real key and it does belong here: a support question
+                    is answered by pasting it into a query. So the first segment
+                    is shown as a recognisable handle, the full value is on the
+                    clipboard, and the title carries it for anyone who wants to
+                    read it without copying.
+                  */}
                   <button
                     type="button"
                     onClick={() => handleCopy(row.id, 'id')}
-                    title="Click to copy tenant ID"
+                    title={`Workspace id · click to copy\n${row.id}`}
                     className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
                     style={{
                       color: 'var(--text-tertiary)',
                       border: '1px solid var(--border-subtle)',
                     }}
                   >
-                    <span>{row.id}</span>
+                    <span style={{ opacity: 0.6 }}>id</span>
+                    <span>{row.id.slice(0, 8)}</span>
                     {copiedKey === 'id' ? (
                       <IconCheck size={12} stroke={2} style={{ color: 'var(--success-fg)' }} />
                     ) : (
@@ -411,7 +422,9 @@ export function WorkspaceDetailDrawer({
                   </button>
 
                   <span style={{ color: 'var(--border-strong)' }}>·</span>
-                  <span style={{ color: 'var(--text-tertiary)' }}>Created {row.created}</span>
+                  {/* "Created 0 months ago" is not a sentence anybody writes.
+                      See `relativeAge`. */}
+                  <span style={{ color: 'var(--text-tertiary)' }}>{row.created}</span>
                 </div>
               </div>
             </div>
@@ -642,9 +655,22 @@ export function WorkspaceDetailDrawer({
                       {
                         label: 'Monthly Run Rate',
                         value: detail.monthlyValue.split(' /')[0],
-                        note: detail.plan || 'Trial tier',
+                        note: detail.plan || 'On trial',
                       },
-                      { label: 'Data Residency', value: 'af-south-1', note: 'RLS isolated schema' },
+                      /*
+                        ⚠ "RLS ISOLATED SCHEMA" SAYS THE SAME WRONG THING THE
+                        facts PANEL DID, BACKWARDS. Isolation here is Row Level
+                        Security over a SHARED schema — policies on every table,
+                        evaluated per query. "Isolated schema" claims
+                        schema-per-tenant, a different architecture the product
+                        does not use, on the card that exists to describe where
+                        a customer's data lives.
+                      */
+                      {
+                        label: 'Data residency',
+                        value: 'af-south-1',
+                        note: 'Nairobi · row-level policies',
+                      },
                     ].map((item) => (
                       <div
                         key={item.label}
@@ -696,12 +722,27 @@ export function WorkspaceDetailDrawer({
                         Workspace Specifications
                       </span>
                     </div>
+                    {/*
+                      ⚠ THE SPLIT WAS HARDCODED AT THREE, AND THE COLUMNS ONLY
+                      BALANCED BY COINCIDENCE.
+
+                      `slice(0, 3)` and `slice(3)` are even for exactly six
+                      facts. Add a seventh and the left column keeps three while
+                      the right grows to four; drop to five and the right column
+                      shrinks to two beside a full left one. Either way the
+                      divider stops being a centre line and the panel reads as
+                      broken rather than as uneven.
+
+                      Half, rounded up, so the left column is the longer one
+                      when the count is odd — which is the direction a reader
+                      scanning top-left expects.
+                    */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 relative">
                       {/* Very subtle center divider on desktop */}
                       <div className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
                       
                       <div>
-                        {detail.facts.slice(0, 3).map((f) => (
+                        {detail.facts.slice(0, Math.ceil(detail.facts.length / 2)).map((f) => (
                           <div
                             key={f.label}
                             className="flex items-center justify-between px-5 py-4"
@@ -729,7 +770,7 @@ export function WorkspaceDetailDrawer({
                         ))}
                       </div>
                       <div>
-                        {detail.facts.slice(3).map((f) => (
+                        {detail.facts.slice(Math.ceil(detail.facts.length / 2)).map((f) => (
                           <div
                             key={f.label}
                             className="flex items-center justify-between px-5 py-4"

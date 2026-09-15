@@ -8,7 +8,7 @@ import {
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import type { QueueItem, QueueSeverity } from '@/lib/console/data';
-import { IconPill } from '../../primitives/IconPill';
+import { IconTile } from '../../primitives/IconTile';
 import { PagedList } from '../../primitives/Pagination';
 import { SkeletonGroup, SkeletonText } from '../../primitives/Skeleton';
 import { StatusBadge, type StatusBadgeTone } from '../../ui/StatusBadge';
@@ -83,11 +83,25 @@ export function QueueCard({ item }: { item: QueueItem }) {
         {/* Top Header Row: Icon, Name, and Right-Aligned Badge */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
-            <IconPill
+            {/*
+              ⚠ A RAISED TILE, NOT A FLAT TINTED CIRCLE.
+
+              `IconPill variant="tinted"` paints a badge-coloured disc — correct
+              for a status chip, which is what it was built for, and wrong as
+              the leading mark on a card. The queue is the one list an operator
+              works THROUGH, four or five cards deep, and a flat disc in a
+              tinted wash has no edge to separate it from the card behind it.
+
+              `IconTile` is the treatment the demo doors use: a light-to-dark
+              gradient, a hairline and a small shadow, so the glyph sits ON the
+              card. `lg` at 40px, because this is the first thing the eye lands
+              on in a row — the dialogs use `sm` for a supporting fact, and the
+              difference in weight is the difference in job.
+            */}
+            <IconTile
               icon={s.icon}
-              iconSize={14}
-              variant="tinted"
-              tone={s.tone}
+              size="lg"
+              tone={s.tone === 'neutral' ? 'neutral' : s.tone}
               className="transition-transform duration-300 group-hover:scale-105"
             />
             <Link

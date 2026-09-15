@@ -59,7 +59,7 @@ async function main() {
     await sql.begin(async (tx) => {
       // ── 1 · resolve the plan, as the service now does ────────────────────
       console.log('1. Plan resolution');
-      const [plan] = await tx`
+      const [plan] = await tx<{ id: string; code: string; trial_days: number }[]>`
         select id, code, trial_days from plans
          where code = 'pro' and is_active = true limit 1`;
 
@@ -69,14 +69,14 @@ async function main() {
       }
       ok(`pro → ${String(plan.id).slice(0, 8)}… (trial_days ${plan.trial_days})`);
 
-      const [ghost] = await tx`
+      const [ghost] = await tx<{ id: string }[]>`
         select id from plans where code = 'growth' and is_active = true limit 1`;
       if (ghost) bad('`growth` resolves — the retired code is back in the catalogue.');
       else ok('`growth` does not resolve, so the service would refuse before writing');
 
       // ── 2 · the transaction the service runs ─────────────────────────────
       console.log('\n2. The writes');
-      const [tenant] = await tx`
+      const [tenant] = await tx<{ id: string }[]>`
         insert into tenants (slug, name, status, provisioned_at)
         values (${slug}, ${'Probe Workspace'}, 'trial', now())
         returning id`;
@@ -101,7 +101,7 @@ async function main() {
 
       // The period, computed the way the service computes it.
       const trialDays = Number(plan.trial_days);
-      const [sub] = await tx`
+      const [sub] = await tx<{ id: string; status: string; current_period_end: string; trial_ends_at: string | null }[]>`
         insert into subscriptions
           (tenant_id, plan_id, status, current_period_start, current_period_end, trial_ends_at)
         values (
@@ -118,7 +118,16 @@ async function main() {
 
       // ── 3 · read it back the way the console reads it ────────────────────
       console.log('\n3. Read back, as the console reads it');
-      const [readback] = await tx`
+      const [readback] = await tx<{
+        slug: string;
+        tenant_status: string;
+        plan_code: string;
+        plan_name: string;
+        sub_status: string;
+        trial_ends_at: string | null;
+        limits: number;
+        owners: number;
+      }[]>`
         select t.slug, t.status as tenant_status,
                p.code as plan_code, p.name as plan_name,
                s.status as sub_status, s.trial_ends_at,
@@ -143,7 +152,7 @@ async function main() {
       } else {
         ok(
           readback.trial_ends_at
-            ? `trial ends ${new Date(readback.trial_ends_at as string).toISOString().slice(0, 10)}`
+            ? `trial ends ${new Date(readback.trial_ends_at).toISOString().slice(0, 10)}`
             : 'no trial (plan has none)',
         );
       }
@@ -170,7 +179,7 @@ async function main() {
 
   // ── 5 · nothing survived ───────────────────────────────────────────────
   console.log('\n5. Rollback');
-  const [left] = await sql`select count(*)::int as n from tenants where slug = ${slug}`;
+  const [left] = await sql<{ n: number }[]>`select count(*)::int as n from tenants where slug = ${slug}`;
   if ((left?.n ?? 0) === 0) ok('nothing was kept');
   else bad(`${left?.n} probe row(s) survived — clean up ${slug} by hand.`);
 

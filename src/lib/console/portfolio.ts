@@ -102,6 +102,36 @@ export type PortfolioWorkspace = {
    * business that never had the customer at all.
    */
   churnedMonthsAgo?: number;
+  /**
+   * What this workspace owes, when it owes anything.
+   *
+   * ⚠ ADDED BECAUSE THE COLLECTION QUEUE WAS A SECOND, PARALLEL PORTFOLIO.
+   *
+   * `getRevenue()` shipped a hand-written queue of five debtors —
+   * `kilimanjaro-logistics`, `mombasa-freight`, `highfield-insurance`,
+   * `aurora-dental`, `nyali-property` — and not one of them exists in this
+   * file, the seed, or the database. Its ageing buckets and its "594k
+   * outstanding" were totals of that fiction, and the overview's headline
+   * sentence quoted the same 594k as the first number a reader sees in the
+   * product.
+   *
+   * So the most prominent figure in the console described customers who do not
+   * exist, and the "Open collection queue" button beside it led to a list of
+   * them. This is the same drift that put three retired plans in the
+   * provisioning modal, and it gets the same fix: the debt belongs to the
+   * workspace that owes it, in the one file both the seed and the fixtures
+   * read.
+   */
+  arrears?: {
+    /** Invoice reference, as it appears on the customer's statement. */
+    invoice: string;
+    /** Whole days since the invoice fell due. Drives the ageing buckets. */
+    days: number;
+    /** Amount owed in whole KES. May exceed one month for a long debt. */
+    amount: number;
+    /** Retry state, as prose. "2 of 3", "exhausted". */
+    attempts: string;
+  };
 };
 
 /**
@@ -157,6 +187,9 @@ export const PORTFOLIO: readonly PortfolioWorkspace[] = [
     ageMonths: 9,
     /* Paid for eight months, then stopped. This is the churn bar. */
     churnedMonthsAgo: 1,
+    /* Three months of a Pro subscription, unpaid, retries gone. This is the
+       write-off decision the debt card is built to put in front of somebody. */
+    arrears: { invoice: 'INV-2026-0688', days: 94, amount: 10_200, attempts: 'exhausted' },
   },
   {
     id: '00000000-0000-4000-8000-00000000000d',
@@ -227,6 +260,9 @@ export const PORTFOLIO: readonly PortfolioWorkspace[] = [
        money lost — the distinction the debt card exists to draw. */
     monthlyFee: 17_000,
     ageMonths: 8,
+    /* One month, six days late, two retries spent. Still recoverable, which is
+       what separates it from the row above. */
+    arrears: { invoice: 'INV-2026-0841', days: 6, amount: 17_000, attempts: '2 of 3' },
   },
   {
     id: '00000000-0000-4000-8000-000000000012',
@@ -369,16 +405,150 @@ export const SEAT_LIMIT: Record<PortfolioPlan, number | null> = {
 /**
  * Workspaces at or near their seat ceiling — what the queue and the headroom
  * band are for. Unlimited plans can never appear.
+ *
+ * ⚠ A ONE-SEAT PLAN IS NOT UNDER PRESSURE FOR HAVING ITS ONE SEAT, AND THIS
+ *   USED TO REPORT FIVE WORKSPACES IN DISTRESS THAT WERE SIMPLY SOLO.
+ *
+ * Pro is a single-seat plan — KES 3,400 for one person, which is the right
+ * shape for the sole traders it is sold to, and it is what `plan_entitlements`
+ * holds. So every Pro workspace sits at exactly 1 of 1, permanently, from the
+ * day it is created. A percentage test called that 100% and filed five of
+ * twelve workspaces as needing attention, which made the overview's headline
+ * ("N workspaces need you today") disagree with the queue printed beneath it
+ * and buried the ONE workspace that was genuinely about to run out.
+ *
+ * Pressure means "there is room here and it is running out". A ceiling of one
+ * has no room to run out of: the event that matters for a solo plan is the
+ * customer trying to add a second person, which arrives as a REFUSED seat
+ * rather than as a percentage, and belongs in the queue as an upgrade
+ * conversation rather than here as a warning.
+ *
+ * So a ceiling must be greater than one to be capable of pressure at all.
  */
 export function seatPressure(): Array<{ workspace: PortfolioWorkspace; percent: number }> {
   return PORTFOLIO.flatMap((workspace) => {
     const limit = SEAT_LIMIT[workspace.plan];
-    if (limit === null) return [];
+    if (limit === null || limit <= 1) return [];
     return [{ workspace, percent: Math.round((workspace.seats / limit) * 100) }];
   })
     .filter((row) => row.percent >= 80)
     .sort((a, b) => b.percent - a.percent);
 }
+
+/**
+ * Seats in use across the portfolio, and the ceiling they sit under.
+ *
+ * ⚠ ADDED BECAUSE THE OVERVIEW HERO WAS CLAIMING "128k REQUESTS · p95 142ms ·
+ *   errors 0.011%" AND NOTHING IN THIS PRODUCT MEASURES ANY OF THE THREE.
+ *
+ * That signal linked to `/platform/health`, which says in its own copy that
+ * the vitals are not wired — so the hero asserted a latency figure and then
+ * sent a reader to a page admitting there is no latency figure. Seats are the
+ * opposite kind of number: `usage_counters` holds them, the seed writes them,
+ * the plan sets the ceiling, and running out of them is the single most common
+ * reason a customer moves up a plan. It is the capacity fact the business
+ * actually runs on.
+ *
+ * `custom` has no ceiling, so it contributes seats to the numerator and
+ * nothing to the denominator — the honest arithmetic, and the reason this is
+ * a function here rather than a sum at the call site.
+ */
+export const SEATS_IN_USE = PORTFOLIO.reduce((sum, w) => sum + w.seats, 0);
+
+/**
+ * ⚠ THE DENOMINATOR COUNTS ONLY THE WORKSPACES IT CAN. The first version of
+ * this summed every ceiling and compared it to every seat — including the 24
+ * seats on the one `custom` workspace, which has no ceiling to contribute. The
+ * hero would have read "68 of 65", a platform apparently 105% full, which is
+ * not a number anybody can act on and not one anybody would believe.
+ *
+ * Both halves now exclude the uncapped plans, and the uncapped seats are
+ * reported separately rather than folded in — a ratio is only meaningful over
+ * the population it is a ratio of.
+ */
+const CAPPED = PORTFOLIO.filter((w) => SEAT_LIMIT[w.plan] !== null);
+
+export const SEATS_ON_CAPPED_PLANS = CAPPED.reduce((sum, w) => sum + w.seats, 0);
+
+export const SEATS_CAPACITY = CAPPED.reduce((sum, w) => sum + (SEAT_LIMIT[w.plan] ?? 0), 0);
+
+/** Seats on plans with no ceiling. Stated, never averaged into a percentage. */
+export const SEATS_UNCAPPED = SEATS_IN_USE - SEATS_ON_CAPPED_PLANS;
+
+/** Workspaces a plan ceiling is already pressing on. `seatPressure`'s count. */
+export const SEATS_UNDER_PRESSURE = seatPressure().length;
+
+/**
+ * Workspaces that need somebody today.
+ *
+ * ⚠ THE SAME DEFINITION `lib/console/attention.ts` APPLIES TO LIVE ROWS, so
+ * the designed hero and the live one count the same thing: a workspace is
+ * asking for attention when it is past due, already suspended, or pressing on
+ * a seat ceiling.
+ *
+ * It matters that this is derived rather than typed out, because the hero's
+ * headline sentence opens by naming this number — "Three workspaces need you
+ * today" — and a literal there would drift from the queue printed directly
+ * underneath it the first time the portfolio changed.
+ */
+/**
+ * Money billed and not paid: what the past-due and suspended workspaces owe.
+ *
+ * ⚠ THE HERO'S HEADLINE ASSERTED "KES 594,000 IS SITTING UNCOLLECTED" AS A
+ *   LITERAL, and no workspace in the portfolio adds up to it.
+ *
+ * It is the first sentence on the first screen of the product, it is the
+ * number the "Open collection queue" button sends somebody to act on, and the
+ * collection queue underneath it was totalling something else entirely. A
+ * headline figure that disagrees with the list it introduces is worse than no
+ * headline figure: it teaches the reader that the sentence is decoration.
+ *
+ * Counted as months owed × the monthly fee, so a workspace three months behind
+ * contributes three months. `monthsOverdue` is on the record for exactly this.
+ */
+export const IN_ARREARS = PORTFOLIO.filter(
+  (w): w is PortfolioWorkspace & { arrears: NonNullable<PortfolioWorkspace['arrears']> } =>
+    w.arrears !== undefined,
+).sort((a, b) => b.arrears.days - a.arrears.days);
+
+export const UNCOLLECTED = IN_ARREARS.reduce((sum, w) => sum + w.arrears.amount, 0);
+
+/**
+ * The ageing buckets, derived rather than typed out.
+ *
+ * ⚠ THE FIXTURE'S FOUR BUCKETS SUMMED TO 594,000 AND ITS COLLECTION QUEUE
+ *   SUMMED TO 486,000 — two totals for one debt, on one screen, three hundred
+ *   pixels apart. Neither matched any workspace that exists. Derived from the
+ *   arrears above, the chart and the list cannot disagree, because they are
+ *   the same rows counted two ways.
+ *
+ * A bucket with nothing in it is kept rather than dropped: an ageing chart is
+ * read as a SHAPE — debt sliding rightwards over time is the thing it exists
+ * to show — and a missing column silently rescales the axis and flatters the
+ * picture.
+ */
+export const AGEING_BUCKETS: ReadonlyArray<{ bucket: string; amount: number }> = [
+  { bucket: '1–30 days', max: 30 },
+  { bucket: '31–60 days', max: 60 },
+  { bucket: '61–90 days', max: 90 },
+  { bucket: '90+ days', max: Infinity },
+].map(({ bucket, max }, i, all) => {
+  const min = i === 0 ? 0 : (all[i - 1]?.max ?? 0);
+  return {
+    bucket,
+    amount: IN_ARREARS.filter((w) => w.arrears.days > min && w.arrears.days <= max).reduce(
+      (sum, w) => sum + w.arrears.amount,
+      0,
+    ),
+  };
+});
+
+export const NEEDING_ATTENTION = new Set([
+  ...PORTFOLIO.filter((w) => w.status === 'past_due' || w.status === 'suspended').map((w) => w.slug),
+  ...seatPressure()
+    .filter((row) => row.percent >= 90)
+    .map((row) => row.workspace.slug),
+]).size;
 
 /** List price per plan, matching `SEED_PLANS`. Custom is negotiated per row. */
 export const PLAN_PRICE: Record<PortfolioPlan, number> = {

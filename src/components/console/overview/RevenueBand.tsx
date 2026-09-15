@@ -2,12 +2,30 @@ import {
   IconRocket,
   IconBolt,
   IconBox,
+  type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { AgeingChart, MrrChart, PlanMixChart } from '../Charts';
 import { Panel, SectionHeading } from '../Surface';
 import { BandLink } from './shared';
 import { DebtStack } from './DebtStack';
 import type { OverviewInsights } from '@/lib/console/data';
+
+/**
+ * One glyph per plan.
+ *
+ * ⚠ THIS WAS AN INLINE TERNARY ON 'Scale' AND 'Growth', SO EVERY SLICE GOT THE
+ * FALLBACK. Both plans were retired on 24 Aug 2026, which meant three identical
+ * box glyphs down a legend whose entire job is to tell three plans apart.
+ *
+ * A map rather than a ternary because 03 §7a is explicit: one icon per concept,
+ * resolved in one place. A chain of equality checks inside a render is where
+ * the next plan gets forgotten.
+ */
+const PLAN_ICON: Record<string, TablerIcon> = {
+  Pro: IconBox,
+  Business: IconBolt,
+  Custom: IconRocket,
+};
 
 export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] }) {
   return (
@@ -42,7 +60,7 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
           <PlanMixChart data={revenue.planMix} />
           <ul className="mt-5 grid border-t border-[var(--border-subtle)]/40 pt-2">
             {revenue.planMix.map((slice, i) => {
-              const Icon = slice.name === 'Scale' ? IconRocket : slice.name === 'Growth' ? IconBolt : IconBox;
+              const Icon = PLAN_ICON[slice.name] ?? IconBox;
               const accentColor = i === 0 ? 'var(--text-primary)' : i === 1 ? 'var(--blue-500)' : 'var(--text-disabled)';
               
               return (

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { IconInfoCircle, IconUsers, IconKey, IconHash, IconCircleDot, IconSettings, type Icon as TablerIcon } from '@tabler/icons-react';
+import { IconInfoCircle, IconUsers, IconKey, IconHash, IconCircleDot, type Icon as TablerIcon } from '@tabler/icons-react';
 import { type HeadroomRow, type HeadroomModel } from '@/lib/console/data';
 import { LimitEditor } from './LimitEditor';
 

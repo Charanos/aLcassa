@@ -16,6 +16,7 @@ import {
   IconActivityHeartbeat,
 } from '@tabler/icons-react';
 import { EmptyState } from '@/components/primitives/EmptyState';
+import { InitialsTile } from '@/components/primitives/InitialsTile';
 import { FilterBar } from '@/components/primitives/FilterBar';
 import type { FilterOption } from '@/components/primitives/FilterBar';
 import { StartSessionDialog } from './StartSessionDialog';
@@ -726,7 +727,6 @@ export function WorkspaceTable({
                   const seatPct = r.seatsUsed / r.seatsLimit;
                   const eventPct = r.events / r.eventsLimit;
                   const st = STATUS_INK[r.status];
-                  const initials = toWorkspace(r).initials;
                   const isRecent = r.activity.includes('min') || r.activity === 'just now';
                   const seatsLeft = Math.max(0, r.seatsLimit - r.seatsUsed);
                   const eventsLeft = Math.max(0, r.eventsLimit - r.events);
@@ -745,22 +745,12 @@ export function WorkspaceTable({
                       {/* Workspace & Meta */}
                       <td className="py-5 pr-4 pl-6 relative">
                         <div className="flex items-center gap-3.5">
-                          <div
-                            className="relative flex size-10 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105"
-                            style={{
-                              background: 'var(--surface-raised)',
-                              boxShadow: 'inset 0 0 0 1px var(--border-subtle), var(--shadow-sm)',
-                              color: 'var(--text-primary)',
-                              font: '600 13px var(--font-ui)',
-                            }}
-                            aria-hidden="true"
-                          >
-                            {initials}
-                            <span
-                              className="absolute top-0 -right-0.5 size-2.5 rounded-full border-2"
-                              style={{ background: st.dot, borderColor: 'var(--surface-base)' }}
-                            />
-                          </div>
+                          <InitialsTile
+                            name={r.name}
+                            size="md"
+                            dot={st.dot}
+                            className="transition-transform duration-300 group-hover:scale-105"
+                          />
 
                           <div className="min-w-0">
                             <button
@@ -862,7 +852,7 @@ export function WorkspaceTable({
                             className="font-mono text-[11px]"
                             style={{ color: 'var(--text-tertiary)' }}
                           >
-                            Created {r.created}
+                            {r.created}
                           </span>
                         </div>
                       </td>
@@ -927,7 +917,6 @@ export function WorkspaceTable({
               const st = STATUS_INK[r.status];
               const eventPct = r.events / r.eventsLimit;
               const seatPct = r.seatsUsed / r.seatsLimit;
-              const initials = toWorkspace(r).initials;
               const seatsLeft = Math.max(0, r.seatsLimit - r.seatsUsed);
               const eventsLeft = Math.max(0, r.eventsLimit - r.events);
 
@@ -951,22 +940,12 @@ export function WorkspaceTable({
 
                   <div className="relative z-10 p-5">
                     <div className="flex items-start gap-3.5">
-                      <div
-                        className="relative flex size-12 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105"
-                        style={{
-                          background: 'var(--surface-raised)',
-                          boxShadow: 'inset 0 0 0 1px var(--border-subtle), var(--shadow-sm)',
-                          color: 'var(--text-primary)',
-                          font: '600 15px var(--font-ui)',
-                        }}
-                        aria-hidden="true"
-                      >
-                        {initials}
-                        <span
-                          className="absolute top-0 -right-0.5 size-3 rounded-full border-2"
-                          style={{ background: st.dot, borderColor: 'var(--surface-base)' }}
-                        />
-                      </div>
+                      <InitialsTile
+                        name={r.name}
+                        size="lg"
+                        dot={st.dot}
+                        className="transition-transform duration-300 group-hover:scale-105"
+                      />
 
                       <div className="min-w-0 flex-1">
                         <button
@@ -1005,7 +984,7 @@ export function WorkspaceTable({
                       <PlanBadge plan={r.plan} />
                       <span className="flex items-center gap-1.5 font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
                         <IconCalendar size={13} stroke={1.5} />
-                        Created {r.created}
+                        {r.created}
                       </span>
                     </div>
 
