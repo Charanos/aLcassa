@@ -66,7 +66,7 @@ export function TrackerDashboardHero({
           <a
             href="#documents"
             className="t-compact inline-flex items-center rounded-[12px] px-4 py-2 text-[var(--text-primary)] transition-all hover:bg-[var(--surface-raised)]"
-            style={{ boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)', background: 'white', minHeight: 'var(--control-md)' }}
+            style={{ boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)', background: 'var(--surface-raised)', minHeight: 'var(--control-md)' }}
           >
             Project Documents
           </a>
@@ -107,7 +107,7 @@ export function TrackerDashboardHero({
         <div
           className="rounded-[16px] px-6 py-5 transition-all"
           style={{
-            background: 'white',
+            background: 'var(--surface-raised)',
             boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
           }}
         >
@@ -129,11 +129,33 @@ export function TrackerDashboardHero({
           </div>
         </div>
 
-        {/* Blocking Decisions */}
+        {/*
+          Blocking decisions.
+
+          ⚠ NO FULL TINTED FILL. 03 §20 lists "coloured backgrounds on whole
+          panels to signal state" as an anti-pattern, and the reason is visible
+          on this row: one solid tinted card beside two plain ones reads as an
+          alarm rather than as a count, and it pulls the eye off the progress
+          figure, which is the more important number.
+
+          So the card keeps the standard surface and mixes its AMBIENT SHADOW
+          from the hue instead of from neutral graphite — it glows faintly the
+          colour of its own state. The count is already amber and the glyph is
+          already a warning triangle, so the state is named twice before the
+          glow is read at all.
+
+          ⚠ THIS REASONING CAME BACK FROM main DURING THE MERGE OF 15 SEP 2026,
+          where it had been written against `--ochre-rule`, `--ochre-ink`,
+          `--rule-soft` and `--shadow-card` — four tokens the consolidation on
+          this branch removed. Taking that version verbatim would have produced
+          four undefined variables and silently unstyled the card, which is the
+          `--indigo-500` failure exactly. The argument survives; the token names
+          are the current ones.
+        */}
         <div
           className="rounded-[16px] px-6 py-5 transition-all"
           style={{
-            background: 'white',
+            background: 'var(--surface-raised)',
             boxShadow:
               blockingCount > 0
                 ? '-3px -3px 12px color-mix(in oklab, var(--amber-500) 8%, transparent), 4px 5px 18px color-mix(in oklab, var(--amber-500) 8%, transparent), 0 0 0 1px color-mix(in oklab, var(--amber-500) 30%, var(--border-subtle) 70%), var(--shadow-sm)'
@@ -161,7 +183,7 @@ export function TrackerDashboardHero({
         <div
           className="rounded-[16px] px-6 py-5 transition-all"
           style={{
-            background: 'white',
+            background: 'var(--surface-raised)',
             boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
           }}
         >
@@ -186,7 +208,7 @@ export function TrackerDashboardHero({
         <div
           className="rounded-[16px] px-6 py-5 transition-all"
           style={{
-            background: 'white',
+            background: 'var(--surface-raised)',
             boxShadow: complianceNeedsYou > 0
               ? '-3px -3px 12px color-mix(in oklab, var(--red-500) 8%, transparent), 4px 5px 18px color-mix(in oklab, var(--red-500) 8%, transparent), 0 0 0 1px color-mix(in oklab, var(--red-500) 30%, var(--border-subtle) 70%), var(--shadow-sm)'
               : 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
