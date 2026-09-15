@@ -37,7 +37,8 @@
     "db:check-break-glass": "tsx scripts/check-break-glass.ts",
     "check:figures": "tsx scripts/check-console-figures.ts",
     "test:report": "vitest run --reporter=default --reporter=json --outputFile=.test-report/results.json",
-    "test:prove": "tsx scripts/prove-tests.ts"
+    "test:prove": "tsx scripts/prove-tests.ts",
+    "check:email": "tsx scripts/check-email.ts"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
