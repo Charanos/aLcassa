@@ -1,11 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  IconChevronRight,
-  IconPlus,
-  IconX,
-} from '@tabler/icons-react';
+import { IconChevronRight, IconPlus, IconX } from '@tabler/icons-react';
 
 interface FaqItem {
   id: string;
@@ -20,6 +16,51 @@ interface CategoryGroup {
   faqs: FaqItem[];
 }
 
+/**
+ * THE PUBLIC ANSWERS, AND EVERY ONE OF THEM CHECKABLE.
+ *
+ * ⚠ THIS BLOCK WAS THE MOST CONFIDENT PROSE IN THE REPOSITORY AND THE LEAST
+ *   SUPPORTED. It is a marketing page, so nobody reviewed it the way a policy
+ *   file gets reviewed — and it is also the page a prospect reads BEFORE the
+ *   contract, which makes an overstatement here not a rough edge but a
+ *   representation.
+ *
+ * What it said, against what the code does:
+ *
+ *   · "zero master keys exist anywhere on the platform" — `asService()` and
+ *     `DATABASE_URL_ADMIN` exist. The claim is not an exaggeration of the
+ *     design, it is its opposite. The real design is better and is now stated:
+ *     the elevated path exists, a lint rule confines it to `modules/platform`,
+ *     and it cannot run without writing an audit row.
+ *   · "SET LOCAL app.current_tenant_id" — the setting is `app.tenant_id`. A
+ *     prospect's engineer who greps for that string finds nothing.
+ *   · "mathematically impossible" — nothing here is proved mathematically. What
+ *     exists is better evidence for a buyer anyway: 152 isolation cases that
+ *     block the build.
+ *   · "isolated tenant credential vault with envelope encryption" — there is no
+ *     vault and no envelope encryption. There is an argon2id hash in a
+ *     row-level-secured table, and a projection type that makes returning it a
+ *     compile error, which is the stronger claim and the true one.
+ *   · "encrypted at rest with AES-256", "meeting compliance requirements under
+ *     the Kenya Data Protection Act 2019 (ODPC) and GDPR" — a legal conclusion
+ *     nobody has signed, on a platform whose retention and erasure work is
+ *     explicitly out of Phase 1 scope.
+ *   · "prorated billing", "100MB PDF delivery", "10,000+ simultaneous inbound
+ *     messages", "real-time WebSocket protocol", "Team Leads" — the inbox and
+ *     billing are designed placeholder surfaces in Phase 1, there is no payment
+ *     gateway, there is no WebSocket in the repository, and `member_role` is
+ *     exactly `owner | admin | agent`.
+ *
+ * ⚠ THE FIX IS NOT TO DELETE THE ANSWERS. A buyer asking "can you handle a
+ * campaign spike" needs an answer, and "we will not say" loses the deal as
+ * surely as a false yes loses the renewal. Each answer now states what Phase 1
+ * does and names what is scheduled rather than implying it already runs —
+ * which is the rule the product's own surfaces already follow, where every
+ * unwired control refuses by name and says which milestone wires it.
+ *
+ * ⚠ ONE RULE FOR ANYTHING ADDED HERE: if you cannot point at the file, the
+ * migration or the CI job that makes the sentence true, do not write it.
+ */
 const FAQ_CATEGORIES: CategoryGroup[] = [
   {
     id: 'architecture-rls',
@@ -29,22 +70,29 @@ const FAQ_CATEGORIES: CategoryGroup[] = [
         id: 'rls-isolation',
         question: 'How does aLcassa enforce strict data isolation between client workspaces?',
         answer:
-          'Every tenant operates under strict PostgreSQL Row Level Security (RLS). When your agents query the inbox, the database engine enforces tenant_id boundaries at the kernel query layer. There are no shared memory caches across tenants, and zero master keys exist anywhere on the platform.',
-        tag: 'PostgreSQL RLS · Zero Cross-Leakage',
+          'Every tenant-scoped table carries a PostgreSQL Row Level Security policy, and the application connects as a role that does not hold BYPASSRLS — so the boundary is enforced by the database engine rather than by application code remembering to filter. A table without a policy fails the build, and 152 isolation cases run against a real database on every push with no override path.',
+        tag: 'PostgreSQL RLS · Enforced In CI',
       },
       {
         id: 'query-leakage-safety',
         question: 'Can database queries accidentally leak data during high-traffic webhook bursts?',
         answer:
-          'No. Every database connection checkout from our PgBouncer pool executes SET LOCAL app.current_tenant_id within a dedicated transaction envelope. Cross-tenant leakage is mathematically impossible at the database engine level regardless of concurrency.',
-        tag: 'Scoped Connection Pool',
+          'Tenant context is set inside the transaction that uses it, as a transaction-local setting — so it is discarded when the transaction ends and cannot persist on a pooled connection into somebody else’s request, which matters because the pooler runs in transaction mode. With no context set, the policies resolve to null and queries return zero rows rather than everything.',
+        tag: 'Transaction-Local Context',
+      },
+      {
+        id: 'master-keys',
+        question: 'Does anyone at aLcassa hold a key that reads across every workspace?',
+        answer:
+          'There is one elevated database path, and we would rather describe it than claim it does not exist. A lint rule confines it to the platform module and fails the build anywhere else, every call writes an audit row before it runs, and no customer-facing route can reach it. A platform owner entering a workspace does not use it — they open a scoped support session instead, under the same rules that workspace’s own staff work under.',
+        tag: 'Audited, Not Absent',
       },
       {
         id: 'credential-vault',
         question: 'Where are tenant cryptographic credentials and API tokens stored?',
         answer:
-          'Client webhook signing secrets and access tokens are hashed using Argon2id and stored in an isolated tenant credential vault with envelope encryption. Credentials cannot be read back by unauthorized platform processes.',
-        tag: 'Argon2id Vault Encryption',
+          'API keys are hashed with argon2id and are never recoverable — a key is shown once, at creation, and afterwards only its masked prefix and last-used time. The hash column is absent from the type every route reads, so returning it is a compile error rather than something a reviewer has to catch. The credentials table is row-level secured like every other tenant table.',
+        tag: 'argon2id · Shown Once',
       },
     ],
   },
@@ -54,78 +102,82 @@ const FAQ_CATEGORIES: CategoryGroup[] = [
     faqs: [
       {
         id: 'whatsapp-waba',
-        question: 'Can we connect our existing WhatsApp Business Number without interrupting live chats?',
+        question:
+          'Can we connect our existing WhatsApp Business Number without interrupting live chats?',
         answer:
-          'Yes. aLcassa connects directly through the official Meta Cloud API webhook gateway. You retain full ownership of your WhatsApp Business Account (WABA), phone number display name, and Meta verification badge. Inbound message routing switches over instantaneously with zero message drops.',
+          'Yes — the integration is built against the official Meta Cloud API, so you keep ownership of your WhatsApp Business Account, your display name and your verification badge. Nothing moves to a number we control, which is what makes a switchover reversible.',
         tag: 'Official Meta Cloud API',
       },
       {
         id: 'media-payloads',
         question: 'Does aLcassa support rich media, voice notes, and PDF delivery receipts?',
         answer:
-          'Full bidirectional rich media streaming is natively supported. Send and receive PDF delivery invoices (up to 100MB), dispatch location pins, voice notes, high-res photos, and interactive quick-reply button templates directly from the unified inbox.',
-        tag: 'Rich Media & Files',
+          'The channel contract covers documents, images, voice notes, location and quick-reply templates. The unified inbox is a designed surface in Phase 1 rather than a running one, and the size and format limits will be Meta’s rather than ours — we would rather quote them once the inbox is wired than quote a number now and correct it later.',
+        tag: 'Designed · Phase 2',
       },
       {
         id: 'campaign-spikes',
-        question: 'How does the system handle high-urgency message spikes during peak sales campaigns?',
+        question:
+          'How does the system handle high-urgency message spikes during peak sales campaigns?',
         answer:
-          'Webhook ingest runs on distributed edge consumers with automated queue buffering. Spikes of 10,000+ simultaneous inbound messages are ingested without loss and prioritized by your auto-triage rules.',
-        tag: 'Edge Queue Buffering',
+          'Webhook ingest is designed to acknowledge first and queue, so a burst is absorbed rather than dropped and triage runs behind the acknowledgement. It has not been load-tested yet, so there is no throughput figure on this page: the number you are given at handover will be one we measured.',
+        tag: 'Not Yet Measured',
       },
     ],
   },
   {
     id: 'ai-rule-engine',
-    title: 'AI Assistant & Rule Engine',
+    title: 'AI & Rule Engine',
     faqs: [
       {
         id: 'rule-propagation',
         question: 'How fast do custom AI assistant rules and triage routing updates take effect?',
         answer:
-          'Assistant instructions, sentiment classifiers, and keyword routing policies compile down to an optimized machine-readable rule cache that propagates to edge event brokers in under 5 seconds. Frontline agents and automated engines operate on updated guidelines immediately.',
-        tag: '< 5s Rule Sync',
+          'Rules compile to a cached, versioned form keyed by workspace, and publishing bumps the version — so the next request reads the new rules rather than waiting for a cache to expire. A platform-wide rule change invalidates every workspace at publish. Propagation is a cache invalidation, not a scheduled sync.',
+        tag: 'Versioned Rule Cache',
       },
       {
         id: 'kenyan-vernacular',
-        question: 'Can we customize brand tone and support Sheng / Swahili vernacular for Kenyan customers?',
+        question:
+          'Can we customize brand tone and support Sheng / Swahili vernacular for Kenyan customers?',
         answer:
-          'Yes. aLcassa rule templates support multilingual natural language processing. You can configure rules for Sheng, Swahili, and formal English with custom persona guardrails (e.g. Warm Professional, Direct Corporate, or Conversational).',
-        tag: 'Multilingual & Sheng',
+          'Rules and persona guidance are authored as instructions rather than chosen from a fixed language list, so Sheng, Swahili and English are a matter of how you write them rather than of a feature we have to ship. How well a given model handles Sheng specifically is worth testing against your own conversations during onboarding.',
+        tag: 'Instruction-Authored',
       },
       {
         id: 'hallucination-safeguards',
-        question: 'What safeguards prevent AI hallucinations on sensitive customer orders or pricing?',
+        question: 'What stops the assistant from inventing an answer on a high-stakes enquiry?',
         answer:
-          'AI resolution operates under strict deterministic fallback boundaries. If a customer inquiry matches high financial urgency or unverified order changes, the rule engine automatically flags and transfers the ticket to a human supervisor.',
-        tag: 'Deterministic Fallbacks',
+          'Escalation is a rule you write rather than a behaviour you hope for: a matching enquiry goes to a named human instead of being answered. The rule engine is deterministic, so the same enquiry routes the same way twice — which is the property that makes an escalation policy auditable at all.',
+        tag: 'Deterministic Escalation',
       },
     ],
   },
   {
     id: 'security-audit-dpa',
-    title: 'Security, Audit & DPA 2019',
+    title: 'Security, Audit & Data Protection',
     faqs: [
       {
         id: 'kenya-dpa-compliance',
-        question: 'Is customer message data compliant with the Kenya Data Protection Act (DPA 2019)?',
+        question:
+          'Is customer message data compliant with the Kenya Data Protection Act (DPA 2019)?',
         answer:
-          'Yes. All customer identifiers, phone numbers, and message payloads are encrypted in transit via TLS 1.3 and at rest with AES-256. Audit streams are append-only and immutable, meeting compliance requirements under the Kenya Data Protection Act 2019 (ODPC) and GDPR standards.',
-        tag: 'Kenya DPA 2019',
+          'We will not claim a compliance finding nobody has signed. What is built: data sits in a managed Postgres service with encryption in transit and at rest, tenant separation is enforced by the database rather than by application code, and every access is written to an append-only trail you can read. Retention and erasure automation are scoped work, flagged rather than quietly omitted, and a data processing agreement is a document your counsel should review rather than a tag on this page.',
+        tag: 'Stated, Not Certified',
       },
       {
         id: 'support-protocol',
         question: 'What happens if our team requests technical assistance from aLcassa engineers?',
         answer:
-          'Technical support requests utilize our Zero-Trust Scoped Support Protocol. Instead of universal superadmin access, engineers are granted a temporary, read-only token strictly bound to your tenant boundary that auto-expires in 30 minutes. Every query is logged to your workspace audit feed, and your admin can revoke access instantly with a single click.',
-        tag: '30-Min Scoped Token',
+          'An engineer opens a session scoped to your workspace alone, which expires after 30 minutes with no extension. They see your data under the same Row Level Security rules your own staff work under — not a superadmin view. The session is written to your own activity log with the engineer’s name, a stated reason and a reference number, so you read why it happened rather than being told.',
+        tag: '30-Minute Scoped Session',
       },
       {
         id: 'audit-exports',
         question: 'Can workspace administrators export audit trail logs for regulatory compliance?',
         answer:
-          'Admins have full access to cryptographically signed JSON and CSV audit streams detailing every agent login, message read, permission update, and external API event.',
-        tag: 'Immutable Audit Feed',
+          'Administrators can read their workspace’s full activity trail in the product today, support sessions opened by us included. The trail is append-only and that is enforced by policy — it grants select and grants no update or delete, so no one can edit it, ourselves included. Downloadable CSV and JSON export is built for the platform owner and is being extended to workspace administrators.',
+        tag: 'Append-Only By Policy',
       },
     ],
   },
@@ -135,24 +187,25 @@ const FAQ_CATEGORIES: CategoryGroup[] = [
     faqs: [
       {
         id: 'team-rbac-roles',
-        question: 'Can we assign different channel access or permission levels to different team members?',
+        question:
+          'Can we assign different channel access or permission levels to different team members?',
         answer:
-          'aLcassa includes granular Role-Based Access Control (RBAC). Workspace owners can designate Admins, Team Leads, and Frontline Agents. You can restrict specific channels (e.g. VIP billing inquiries or WhatsApp dispatch) to selected agents while maintaining unified supervisor visibility.',
-        tag: 'Multi-Tenant RBAC',
+          'There are three workspace roles — owner, admin and agent — and the boundary between them is enforced by database policy rather than by hiding buttons: an agent cannot write an admin-only table even with a crafted request. Per-channel assignment within a workspace is not modelled yet, and we would rather say so than have you plan a rollout around it.',
+        tag: 'Owner · Admin · Agent',
       },
       {
         id: 'seat-expansion',
         question: 'How does agent seat expansion work when onboarding seasonal support teams?',
         answer:
-          'Administrators can provision additional agent seats on-demand directly from Settings > Team. New invitations activate immediately with prorated billing and automatic workspace provisioning.',
-        tag: 'Prorated Metering',
+          'Owners and admins invite staff from Settings, and seat limits are entitlements on your plan, checked when the invitation is issued rather than discovered at the end of the month. Phase 1 carries no payment gateway, so raising a limit is a conversation and an invoice rather than a self-service charge.',
+        tag: 'Entitlement-Enforced',
       },
       {
         id: 'concurrency-limits',
         question: 'Is there a limit on the number of simultaneous active agent sessions?',
         answer:
-          'No. Multi-agent concurrency is built into our real-time WebSocket protocol. Hundreds of frontline support reps can work inside the same shared workspace without collisions or sync latency.',
-        tag: 'Concurrent WebSocket',
+          'No fixed cap. Every request carries its own transaction-scoped tenant context, so concurrent staff never contend for shared per-connection state — the property that makes concurrency safe here rather than merely fast. Live collaborative presence inside the inbox is Phase 2 work.',
+        tag: 'No Fixed Cap',
       },
     ],
   },
@@ -160,7 +213,7 @@ const FAQ_CATEGORIES: CategoryGroup[] = [
 
 export function FaqSection() {
   const [activeCategoryId, setActiveCategoryId] = useState<string>('architecture-rls');
-  
+
   // Track open accordion item per category
   const [openFaqIds, setOpenFaqIds] = useState<Record<string, string>>({
     'architecture-rls': 'rls-isolation',
@@ -206,34 +259,47 @@ export function FaqSection() {
           stroke="url(#faq-arch-grad)"
           strokeWidth="0.85"
         />
-        <ellipse cx="8%" cy="40%" rx="380" ry="220" stroke="url(#faq-arch-grad)" strokeWidth="0.7" />
-        <ellipse cx="92%" cy="30%" rx="440" ry="250" stroke="url(#faq-arch-grad)" strokeWidth="0.7" />
+        <ellipse
+          cx="8%"
+          cy="40%"
+          rx="380"
+          ry="220"
+          stroke="url(#faq-arch-grad)"
+          strokeWidth="0.7"
+        />
+        <ellipse
+          cx="92%"
+          cy="30%"
+          rx="440"
+          ry="250"
+          stroke="url(#faq-arch-grad)"
+          strokeWidth="0.7"
+        />
       </svg>
 
       <div className="relative z-10">
-        
         {/* ── Right-Aligned Section Header (Alternating Rhythm) ── */}
-        <div className="flex flex-col items-end text-right max-w-3xl ml-auto mb-12 sm:mb-16">
+        <div className="mb-12 ml-auto flex max-w-3xl flex-col items-end text-right sm:mb-16">
           <div className="inline-flex items-center gap-2">
-            <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-[var(--orange-500)]">
+            <p className="font-mono text-[11px] font-medium tracking-wider text-[var(--orange-500)] uppercase">
               Frequently Asked Questions
             </p>
             <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
           </div>
-          <h2 className="display text-[32px] sm:text-[42px] font-normal tracking-tight text-[var(--text-primary)] mt-3 leading-tight">
-            Clear answers on architecture,<br className="hidden sm:block" /> privacy, and onboarding.
+          <h2 className="display mt-3 text-[32px] leading-tight font-normal tracking-tight text-[var(--text-primary)] sm:text-[42px]">
+            Clear answers on architecture,
+            <br className="hidden sm:block" /> privacy, and onboarding.
           </h2>
-          <p className="text-[15px] sm:text-[16px] text-[var(--text-secondary)] mt-3 leading-relaxed">
-            Everything you need to know about our PostgreSQL tenant isolation, Meta Cloud APIs,
-            and Kenyan enterprise workflows.
+          <p className="mt-3 text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-[16px]">
+            Everything you need to know about our PostgreSQL tenant isolation, Meta Cloud APIs, and
+            Kenyan enterprise workflows.
           </p>
         </div>
 
         {/* ── Two-Column Unboxed Master-Detail Layout ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
-          
+        <div className="grid grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-12">
           {/* Left 5 Cols: Unboxed Category Tabs */}
-          <div className="lg:col-span-5 flex flex-col gap-2">
+          <div className="flex flex-col gap-2 lg:col-span-5">
             {FAQ_CATEGORIES.map((category) => {
               const isActive = category.id === activeCategoryId;
 
@@ -242,22 +308,20 @@ export function FaqSection() {
                   key={category.id}
                   type="button"
                   onClick={() => setActiveCategoryId(category.id)}
-                  className={`group flex items-center justify-between w-full px-5 py-4 rounded-2xl text-left transition-all duration-200 cursor-pointer ${
+                  className={`group flex w-full cursor-pointer items-center justify-between rounded-2xl px-5 py-4 text-left transition-all duration-200 ${
                     isActive
-                      ? 'bg-white text-[var(--text-primary)] font-medium shadow-[0_4px_25px_rgba(0,0,0,0.06)] border border-[var(--border-subtle)] translate-x-1 sm:translate-x-1.5'
-                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/50 font-medium'
+                      ? 'translate-x-1 border border-[var(--border-subtle)] bg-white font-medium text-[var(--text-primary)] shadow-[0_4px_25px_rgba(0,0,0,0.06)] sm:translate-x-1.5'
+                      : 'font-medium text-[var(--text-tertiary)] hover:bg-white/50 hover:text-[var(--text-primary)]'
                   }`}
                 >
-                  <span className="text-[14.5px] sm:text-[15px] truncate">
-                    {category.title}
-                  </span>
+                  <span className="truncate text-[14.5px] sm:text-[15px]">{category.title}</span>
 
                   <IconChevronRight
                     size={16}
                     className={`shrink-0 transition-transform duration-200 ${
                       isActive
-                        ? 'text-[var(--text-primary)] translate-x-0.5'
-                        : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] group-hover:translate-x-0.5'
+                        ? 'translate-x-0.5 text-[var(--text-primary)]'
+                        : 'text-[var(--text-tertiary)] group-hover:translate-x-0.5 group-hover:text-[var(--text-primary)]'
                     }`}
                   />
                 </button>
@@ -266,17 +330,17 @@ export function FaqSection() {
           </div>
 
           {/* Right 7 Cols: Unboxed Accordion Cards */}
-          <div className="lg:col-span-7 flex flex-col gap-3.5">
+          <div className="flex flex-col gap-3.5 lg:col-span-7">
             {activeCategory.faqs.map((faq) => {
               const isOpen = openFaqIds[activeCategory.id] === faq.id;
 
               return (
                 <div
                   key={faq.id}
-                  className={`transition-all duration-200 overflow-hidden ${
+                  className={`overflow-hidden transition-all duration-200 ${
                     isOpen
-                      ? 'bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-[var(--ink-200)] p-6'
-                      : 'bg-white/60 hover:bg-white/90 rounded-2xl border border-[var(--border-subtle)] hover:border-[var(--ink-200)] p-4.5 sm:p-5 shadow-xs'
+                      ? 'rounded-2xl border border-[var(--ink-200)] bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.05)]'
+                      : 'rounded-2xl border border-[var(--border-subtle)] bg-white/60 p-4.5 shadow-xs hover:border-[var(--ink-200)] hover:bg-white/90 sm:p-5'
                   }`}
                 >
                   {/* Trigger Header */}
@@ -284,16 +348,16 @@ export function FaqSection() {
                     type="button"
                     onClick={() => toggleFaq(activeCategory.id, faq.id)}
                     aria-expanded={isOpen}
-                    className="w-full flex items-start justify-between gap-4 text-left cursor-pointer select-none"
+                    className="flex w-full cursor-pointer items-start justify-between gap-4 text-left select-none"
                   >
-                    <div className="flex-1 min-w-0 pr-2">
+                    <div className="min-w-0 flex-1 pr-2">
                       {isOpen && faq.tag && (
-                        <span className="inline-flex items-center font-mono text-[10px] uppercase font-medium tracking-wider text-emerald-700 bg-emerald-50/90 border border-emerald-200/60 px-2 py-0.5 rounded-md mb-2">
+                        <span className="mb-2 inline-flex items-center rounded-md border border-emerald-200/60 bg-emerald-50/90 px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider text-emerald-700 uppercase">
                           {faq.tag}
                         </span>
                       )}
                       <h3
-                        className={`text-[14.5px] sm:text-[15.5px] leading-snug transition-colors ${
+                        className={`text-[14.5px] leading-snug transition-colors sm:text-[15.5px] ${
                           isOpen
                             ? 'font-medium text-[var(--text-primary)]'
                             : 'font-medium text-[var(--text-primary)] group-hover:text-[var(--blue-600)]'
@@ -305,24 +369,30 @@ export function FaqSection() {
 
                     {/* Plus / Close Icon */}
                     <div
-                      className={`size-7 rounded-xl flex items-center justify-center shrink-0 transition-colors mt-0.5 ${
+                      className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-xl transition-colors ${
                         isOpen
                           ? 'text-[var(--text-primary)] hover:bg-slate-100'
                           : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'
                       }`}
                     >
-                      {isOpen ? <IconX size={17} stroke={1.75} /> : <IconPlus size={17} stroke={1.75} />}
+                      {isOpen ? (
+                        <IconX size={17} stroke={1.75} />
+                      ) : (
+                        <IconPlus size={17} stroke={1.75} />
+                      )}
                     </div>
                   </button>
 
                   {/* Expanded Content */}
                   {isOpen && (
-                    <div className="mt-4 pt-4 border-t border-[var(--ink-100)]/70 text-[13.5px] sm:text-[14px] text-[var(--text-secondary)] leading-relaxed"
-                    /* tailwindcss-animate is not installed in this project, so the
+                    <div
+                      className="mt-4 border-t border-[var(--ink-100)]/70 pt-4 text-[13.5px] leading-relaxed text-[var(--text-secondary)] sm:text-[14px]"
+                      /* tailwindcss-animate is not installed in this project, so the
              animate-in/fade-in/slide-in-* utilities were inert — this
              arrived with no transition at all. globals.css already defines
              the keyframes below, and its reduced-motion block covers them. */
-                    style={{ animation: 'overlay-in var(--duration-base) var(--ease-standard)' }}>
+                      style={{ animation: 'overlay-in var(--duration-base) var(--ease-standard)' }}
+                    >
                       <p>{faq.answer}</p>
                     </div>
                   )}
@@ -330,9 +400,7 @@ export function FaqSection() {
               );
             })}
           </div>
-
         </div>
-
       </div>
     </div>
   );

@@ -4,16 +4,17 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { IconClock, IconHistory, IconPlayerPlay, IconShieldLock } from '@tabler/icons-react';
 import { nextSupportReference } from '@/app/(platform)/platform/(console)/actions';
 import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
+import { REFERENCE_SEPARATOR } from '@/lib/console/references';
 import type { ConsoleWorkspace } from './types';
 
 /**
  * Enter a customer's workspace.
  *
  * ⚠ THIS DIALOG SET THE HOUSE STYLE AND NOW USES IT. Its eyebrow, its fact
- * list, its sunken footer carrying `support_session.start` in mono — that
- * vocabulary is `ConsoleDialog` now, extracted so the four modals written after
- * it stop being four approximations of this one. Nothing here is lost; the
- * padding, the borders and the footer are the same rhythm, defined once.
+ * list, its sunken footer — that vocabulary is `ConsoleDialog` now, extracted
+ * so the four modals written after it stop being four approximations of this
+ * one. Nothing here is lost; the padding, the borders and the footer are the
+ * same rhythm, defined once.
  *
  * Two things this file gains by the move:
  *
@@ -24,7 +25,11 @@ import type { ConsoleWorkspace } from './types';
  *     Group Ltd" at 38px wrapped to three lines and pushed the reason field
  *     below the fold on a laptop.
  *
- * ⚠ THE REFERENCE IS GENERATED, NOT INVENTED. See `nextSupportReference`.
+ * ⚠ THE REFERENCE IS GENERATED, NOT INVENTED, AND NOT EDITABLE. It is numbered
+ * from the platform log by `nextSupportReference` and rendered as fixed text
+ * inside the reason field. It shares its grammar with the invoice numbers on
+ * the billing tab — `TKT-260915-013` beside `INV-2609-2468` — because both
+ * come from `lib/console/references.ts`.
  */
 export function StartSessionDialog({
   workspace,
@@ -39,48 +44,58 @@ export function StartSessionDialog({
   const [reference, setReference] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   /**
-   * ⚠ THE REFERENCE PREFIXES THE FIELD, AND THE OPERATOR WRITES AFTER IT.
+   * ⚠ THE REFERENCE IS NOT IN THE FIELD'S VALUE ANY MORE, AND THAT WAS A BUG.
    *
-   * Two rejected alternatives, both worse. Putting it in a separate read-only
-   * input costs a field for a string nobody edits. Appending it on the server
-   * would mean the operator cannot see, at the moment they confirm, the exact
-   * text the customer is about to read in their own activity log — and that
-   * text being legible before it is written is the whole point of the field.
+   * It used to be prefilled as text — the reference, a separator, and the caret
+   * parked after it. Which meant the operator could select it and delete it,
+   * could type in front of it, and could backspace through it one character at
+   * a time while trying to correct a typo; and the readiness check had to
+   * string-replace the prefix back out of the value to find out whether
+   * anything had actually been written. A value the product depends on and the
+   * user can silently destroy is not a prefill, it is a trap.
+   *
+   * So the reference is a `<span>` inside the field's frame. It cannot be
+   * edited because it is not editable — no `readOnly`, no `onKeyDown` guard, no
+   * "put it back if they deleted it" repair pass. The input beside it holds
+   * ONLY the operator's own words, and the two are joined once, on submit.
+   *
+   * Rejected: a separate read-only input above the reason, which spends a whole
+   * field on a string nobody edits; and appending it server-side, which would
+   * mean the operator cannot read — at the moment they confirm — the exact
+   * sentence the customer is about to see in their own activity log, and that
+   * sentence being legible before it is written is the point of the field.
    */
   useEffect(() => {
     let live = true;
     void nextSupportReference().then((ref) => {
       if (!live) return;
       setReference(ref);
-      setReason((current) => (current === '' ? `${ref} · ` : current));
-      /* Caret to the end, so typing continues the sentence rather than
-         landing in front of the reference. */
-      requestAnimationFrame(() => {
-        const el = inputRef.current;
-        if (!el) return;
-        el.focus();
-        el.setSelectionRange(el.value.length, el.value.length);
-      });
+      /* Focus once the reference has landed, so the field the operator starts
+         typing into is the finished one. */
+      requestAnimationFrame(() => inputRef.current?.focus());
     });
     return () => {
       live = false;
     };
   }, []);
 
-  /* The reference alone is not a reason. The server requires eight characters;
-     this requires eight BEYOND the generated prefix, so pressing confirm on an
-     untouched field is not possible. */
-  const written = reference ? reason.replace(`${reference} · `, '').trim() : reason.trim();
-  const ready = written.length >= 8;
+  /* The reference is not a reason, and it can no longer masquerade as one:
+     `reason` holds nothing but what was typed. Eight characters, which is the
+     same floor the server enforces. */
+  const ready = reason.trim().length >= 8;
+
+  /** What the customer will read, assembled exactly as the field displays it. */
+  const sentence = reference ? `${reference}${REFERENCE_SEPARATOR}${reason.trim()}` : reason.trim();
 
   function submit() {
     if (!ready || pending) return;
     setError(null);
     startTransition(async () => {
-      const result = await onConfirm(reason);
+      const result = await onConfirm(sentence);
       if (!result.ok) setError(result.error);
     });
   }
@@ -107,8 +122,9 @@ export function StartSessionDialog({
             reason. They can read it, and they can end the session themselves.
           </DialogFact>
           <DialogFact icon={IconShieldLock}>
-            Reference <em>{reference ?? 'pending'}</em>, taken from the platform log rather than
-            typed — so the session can be joined to a ticket afterwards.
+            Numbered <em>{reference ?? 'from the platform log'}</em> — the day&rsquo;s queue
+            position, taken from the log rather than typed, so the session joins to a ticket
+            afterwards.
           </DialogFact>
         </>
       }
@@ -130,33 +146,83 @@ export function StartSessionDialog({
             · required, and the customer reads it
           </span>
         </span>
-        <input
-          ref={inputRef}
-          type="text"
-          value={reason}
-          onChange={(e) => {
-            setReason(e.target.value);
-            if (error) setError(null);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !pending) submit();
-          }}
-          placeholder="verifying a duplicated WhatsApp thread"
-          aria-invalid={error ? true : undefined}
-          className="t-body w-full rounded-chip px-3 outline-none transition-colors"
+
+        {/*
+          ⚠ THE FRAME IS THE CONTROL; THE INPUT INSIDE IT HAS NO BORDER.
+
+          The reference has to sit INSIDE the field rather than beside it —
+          `TKT-260915-013 · verifying a duplicated WhatsApp thread` is one
+          sentence, and splitting it across two bordered boxes would say it is
+          two facts. So the shell carries the border, the height, the radius
+          and the focus ring, and the input is a transparent slot within it.
+
+          The focus ring is tracked in state rather than done with
+          `focus-within:` because the border colour also answers to `error`,
+          and a Tailwind variant cannot express "blue unless red".
+        */}
+        <div
+          className="flex w-full items-stretch overflow-hidden rounded-chip transition-shadow"
           style={{
             height: 38,
-            border: `1px solid ${error ? 'var(--danger-fg)' : 'var(--border-strong)'}`,
+            border: `1px solid ${
+              error ? 'var(--danger-fg)' : focused ? 'var(--blue-500)' : 'var(--border-strong)'
+            }`,
             background: 'var(--surface-raised)',
-            color: 'var(--text-primary)',
+            boxShadow: focused && !error ? 'var(--focus-ring)' : undefined,
           }}
-        />
+        >
+          {/*
+            ⚠ A SPAN, WHICH IS WHY IT IS UNEDITABLE.
+
+            `select-all` so one click copies the whole reference into a ticket
+            system — the one thing an operator actually wants to do with it.
+            `aria-hidden` would be wrong: a screen-reader user needs to hear
+            the reference their session will be filed under, so it is labelled
+            instead and read before the field it prefixes.
+          */}
+          <span
+            role="note"
+            aria-label={reference ? `Session reference ${reference}` : 'Session reference, loading'}
+            className="numeric grid shrink-0 place-items-center border-r px-3 select-all"
+            style={{
+              borderColor: 'var(--border-subtle)',
+              background: 'var(--surface-sunken)',
+              color: reference ? 'var(--text-secondary)' : 'var(--text-disabled)',
+              font: '500 11.5px/1 var(--font-mono)',
+              letterSpacing: '0.02em',
+            }}
+          >
+            {/* Same character count as the real thing, so the field does not
+                resize under the cursor when it arrives. 03 §15. */}
+            {reference ?? 'TKT-••••••-•••'}
+          </span>
+
+          <input
+            ref={inputRef}
+            type="text"
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value);
+              if (error) setError(null);
+            }}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !pending) submit();
+            }}
+            placeholder="verifying a duplicated WhatsApp thread"
+            aria-invalid={error ? true : undefined}
+            className="t-body min-w-0 flex-1 bg-transparent px-3 outline-none"
+            style={{ color: 'var(--text-primary)' }}
+          />
+        </div>
+
         <span
           className="t-caption mt-1.5 block min-h-[1.2em]"
           style={{ color: 'var(--text-tertiary)' }}
         >
           {ready
-            ? 'Written as it appears here.'
+            ? 'Written to the customer’s log exactly as it reads here.'
             : 'Say what you are checking. "." satisfies a length test and tells the customer nothing.'}
         </span>
       </label>

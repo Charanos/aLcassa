@@ -38,6 +38,8 @@
  * and seat usage are part of what the suite tests, not decoration.
  */
 
+import { invoiceReference } from './references';
+
 /** Fixed ids for the three the isolation suite names. See `db/seed/constants`. */
 export const TENANT_A = '00000000-0000-4000-8000-00000000000a';
 export const TENANT_B = '00000000-0000-4000-8000-00000000000b';
@@ -123,8 +125,16 @@ export type PortfolioWorkspace = {
    * read.
    */
   arrears?: {
-    /** Invoice reference, as it appears on the customer's statement. */
-    invoice: string;
+    /**
+     * ⚠ THE REFERENCE USED TO BE TYPED HERE AND IT WAS THE WRONG ONE.
+     *
+     * `INV-2026-0688` was written by hand in this file while the billing tab
+     * generated `INV-202609-0012` for the same workspace from the tail of its
+     * UUID. So the collection queue chased one number and the customer's own
+     * statement showed another, for one debt. The reference is now derived by
+     * `arrearsInvoice()` from the same generator the billing tab uses, which
+     * makes them the same number because they cannot be anything else.
+     */
     /** Whole days since the invoice fell due. Drives the ageing buckets. */
     days: number;
     /** Amount owed in whole KES. May exceed one month for a long debt. */
@@ -189,7 +199,7 @@ export const PORTFOLIO: readonly PortfolioWorkspace[] = [
     churnedMonthsAgo: 1,
     /* Three months of a Pro subscription, unpaid, retries gone. This is the
        write-off decision the debt card is built to put in front of somebody. */
-    arrears: { invoice: 'INV-2026-0688', days: 94, amount: 10_200, attempts: 'exhausted' },
+    arrears: { days: 94, amount: 10_200, attempts: 'exhausted' },
   },
   {
     id: '00000000-0000-4000-8000-00000000000d',
@@ -262,7 +272,7 @@ export const PORTFOLIO: readonly PortfolioWorkspace[] = [
     ageMonths: 8,
     /* One month, six days late, two retries spent. Still recoverable, which is
        what separates it from the row above. */
-    arrears: { invoice: 'INV-2026-0841', days: 6, amount: 17_000, attempts: '2 of 3' },
+    arrears: { days: 6, amount: 17_000, attempts: '2 of 3' },
   },
   {
     id: '00000000-0000-4000-8000-000000000012',
@@ -514,6 +524,21 @@ export const IN_ARREARS = PORTFOLIO.filter(
 export const UNCOLLECTED = IN_ARREARS.reduce((sum, w) => sum + w.arrears.amount, 0);
 
 /**
+ * The reference on the unpaid invoice — the one number the debt card, the
+ * collection queue and the workspace's own billing tab must all quote.
+ *
+ * The period is the month the invoice fell due, which is `days` ago; the
+ * account number is the workspace's, so the reference names the customer as
+ * well as the month. Both come from `references.ts`, so an invoice raised on
+ * the billing tab and a debt chased from revenue carry the same string.
+ */
+export function arrearsInvoice(slug: string, daysLate: number): string {
+  const due = new Date();
+  due.setDate(due.getDate() - daysLate);
+  return invoiceReference(slug, due);
+}
+
+/**
  * The ageing buckets, derived rather than typed out.
  *
  * ⚠ THE FIXTURE'S FOUR BUCKETS SUMMED TO 594,000 AND ITS COLLECTION QUEUE
@@ -544,7 +569,9 @@ export const AGEING_BUCKETS: ReadonlyArray<{ bucket: string; amount: number }> =
 });
 
 export const NEEDING_ATTENTION = new Set([
-  ...PORTFOLIO.filter((w) => w.status === 'past_due' || w.status === 'suspended').map((w) => w.slug),
+  ...PORTFOLIO.filter((w) => w.status === 'past_due' || w.status === 'suspended').map(
+    (w) => w.slug,
+  ),
   ...seatPressure()
     .filter((row) => row.percent >= 90)
     .map((row) => row.workspace.slug),

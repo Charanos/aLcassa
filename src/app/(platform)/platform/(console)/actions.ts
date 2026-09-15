@@ -31,9 +31,10 @@ import {
 import { getLiveWorkspaceDetail, getLiveWorkspaces } from '@/lib/console/liveWorkspaces';
 import { getLivePlans } from '@/lib/console/live';
 import { withoutTenantContext } from '@/lib/db';
-import { sql, eq } from 'drizzle-orm';
+import { sql, eq, and } from 'drizzle-orm';
 import { platformAuditLog } from '@/db/schema';
 import { AUDIT_ACTIONS } from '@/lib/audit';
+import { supportReference } from '@/lib/console/references';
 
 /**
  * Console server actions.
@@ -335,8 +336,7 @@ export type SuspensionImpact = {
 };
 
 export type FetchSuspensionImpactResult =
-  | { ok: true; impact: SuspensionImpact }
-  | { ok: false; error: string };
+  { ok: true; impact: SuspensionImpact } | { ok: false; error: string };
 
 /**
  * What suspending this workspace would cost, read at the moment the dialog
@@ -493,8 +493,7 @@ export async function applyPlanChange(input: {
 /* ── Break glass ───────────────────────────────────────────────────────────── */
 
 export type ToggleBreakGlassResult =
-  | { ok: true; locked: boolean; revoked: number }
-  | { ok: false; error: string };
+  { ok: true; locked: boolean; revoked: number } | { ok: false; error: string };
 
 /**
  * Lock or re-enable support-session access platform-wide.
@@ -550,8 +549,7 @@ export async function fetchBreakGlassState(): Promise<BreakGlassState> {
 /* ── Provisioning ─────────────────────────────────────────────────────────── */
 
 export type ProvisionWorkspaceResult =
-  | { ok: true; slug: string }
-  | { ok: false; error: string; field?: 'name' | 'slug' | 'ownerEmail' };
+  { ok: true; slug: string } | { ok: false; error: string; field?: 'name' | 'slug' | 'ownerEmail' };
 
 /**
  * Provision a workspace from the console's own dialog.
@@ -652,34 +650,45 @@ export async function provisionWorkspace(input: {
  * migration and would then be a second source that can disagree with the log
  * about how many sessions there have been.
  *
- * The date makes it readable at a glance and keeps the counter meaningful
- * across a year: `TKT-20260915-013` sorts, groups by day, and cannot be
- * confused with a workspace id.
+ * ⚠ THE SHAPE IS THE CONSOLE'S, NOT THIS FILE'S. `TKT-260915-013` is the same
+ * grammar as `INV-2609-2468` — kind, period, place in the period — and it is
+ * built by `supportReference` in `lib/console/references.ts` so the two
+ * numbers a client sees cannot drift into different shapes. See the note at
+ * the head of that file for why it is a plain module rather than living here:
+ * a `'use server'` file may export nothing but async functions.
+ *
+ * ⚠ THE COUNT IS OF TODAY'S SESSIONS, NOT OF EVERY SESSION EVER. It used to be
+ * `count(*)` over the whole log, which meant the number after the date was a
+ * lifetime total — `TKT-260915-482` on the first session of the day, and the
+ * same 482 rolling into tomorrow's reference. The sequence is the position
+ * within the period the reference names, or it is not a sequence.
  */
 export async function nextSupportReference(): Promise<string> {
-  const today = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Africa/Nairobi',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
-    .format(new Date())
-    .replace(/-/g, '');
-
   try {
     const ctx = await currentPlatformSession();
     const n = await withoutTenantContext(ctx.requestId, async (tx) => {
       const [row] = await tx
         .select({ n: sql<number>`count(*)::int` })
         .from(platformAuditLog)
-        .where(eq(platformAuditLog.action, AUDIT_ACTIONS.SUPPORT_ENTERED));
+        .where(
+          and(
+            eq(platformAuditLog.action, AUDIT_ACTIONS.SUPPORT_ENTERED),
+            /* Midnight in Nairobi, not in UTC. A session opened at 01:00 EAT
+               belongs to the day the operator is having. */
+            sql`${platformAuditLog.occurredAt} >= date_trunc('day', now() at time zone 'Africa/Nairobi') at time zone 'Africa/Nairobi'`,
+          ),
+        );
       return row?.n ?? 0;
     });
-    return `TKT-${today}-${String(n + 1).padStart(3, '0')}`;
+    return supportReference(n + 1);
   } catch (error) {
-    /* A reference the operator can still type over is worth more than a failed
-       dialog. The count is a convenience; the reason field is the requirement. */
+    /* ⚠ A REFERENCE THAT CANNOT BE NUMBERED IS STILL A REFERENCE. The dialog
+       renders it as fixed text, so returning nothing would leave the operator
+       with a field that says the session is unjoinable — worse than a
+       reference whose sequence position is provisional. Sequence 1 is the
+       honest fallback: it says "the first of today" and the log, which carries
+       its own ids, is what actually distinguishes two sessions. */
     logger.warn('support reference could not be numbered', { error });
-    return `TKT-${today}`;
+    return supportReference(1);
   }
 }

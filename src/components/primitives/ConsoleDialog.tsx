@@ -2,11 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import {
-  IconAlertTriangle,
-  IconX,
-  type Icon as TablerIcon,
-} from '@tabler/icons-react';
+import { IconAlertTriangle, IconX, type Icon as TablerIcon } from '@tabler/icons-react';
 import { IconTile, type IconTileTone } from './IconTile';
 import { gsapSafe } from '@/lib/motion';
 
@@ -18,12 +14,11 @@ import { gsapSafe } from '@/lib/motion';
  *
  * The support-session dialog established a real vocabulary: a mono eyebrow over
  * the title, one sentence of description, a hairline-separated list of facts,
- * one padding rhythm, and a footer on sunken ground carrying the OPERATION'S
- * OWN NAME on the left with the actions on the right. Every dialog written
+ * one padding rhythm, and a footer on sunken ground. Every dialog written
  * after it copied some of that and improvised the rest, which is how four
  * modals ended up with four paddings, three title sizes and two footer grounds.
  *
- * Three deliberate departures from the original, all of them corrections:
+ * Four deliberate departures from the original, all of them corrections:
  *
  * ⚠ 1 · THE TITLE IS NOT `display display-md`. At 38px "Enter Kilimanjaro
  * Logistics Group Ltd" wrapped to three lines and ate half the panel before a
@@ -43,6 +38,8 @@ import { gsapSafe } from '@/lib/motion';
  * Three dialogs rendered with their top-left corner at the middle of the
  * screen because of this. The grid wrapper owns position, the panel owns
  * transform, and nothing added later can decentre it. 17 §14.
+ *
+ * ⚠ 4 · THE FOOTER DOES NOT PRINT THE OPERATION KEY. See the `operation` prop.
  */
 
 const WIDTHS = {
@@ -81,12 +78,22 @@ export function ConsoleDialog({
   description?: React.ReactNode;
   width?: ConsoleDialogWidth;
   /**
-   * The operation's real name, in the footer.
+   * The operation's real name — `support_session.start`, `plan.limit_changed`.
    *
-   * ⚠ NOT DECORATION. `StartSessionDialog` put `support_session.start` there
-   * deliberately: an operator about to do something audited should be able to
-   * read the string they will later search the log for. It is the one place in
-   * the console where a machine key belongs in front of a person.
+   * ⚠ IT IS NO LONGER PRINTED IN THE FOOTER, AND THAT WAS THE RIGHT CALL.
+   *
+   * The original argument for showing it was that an operator about to do
+   * something audited should be able to read the string they will later search
+   * the log for. That reasoning holds for an internal tool and fails for this
+   * one: the console is put in front of clients, and every dialog opened in
+   * front of them carried a snake_case key along its bottom edge — which reads
+   * as a debug affordance left switched on, not as a considered detail. The
+   * operator who genuinely needs the key is looking at the audit log, where it
+   * is a column.
+   *
+   * It stays in the API and lands on the panel as `data-operation`, so the key
+   * is still discoverable by anyone inspecting the DOM and still names the
+   * dialog for a test — without being typography.
    */
   operation?: string;
   /** The hairline-separated fact list. Use `DialogFact`. */
@@ -140,6 +147,7 @@ export function ConsoleDialog({
         <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
           <Dialog.Content
             ref={panelRef}
+            data-operation={operation}
             className="surface-glass-strong pointer-events-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-overlay"
             style={{
               maxWidth: WIDTHS[width],
@@ -234,17 +242,15 @@ export function ConsoleDialog({
               </div>
             ) : null}
 
-            {/* ── Foot ──────────────────────────────────────────────────── */}
+            {/* ── Foot ──────────────────────────────────────────────────────
+                Right-aligned, because there is no longer anything on the left.
+                `justify-end` rather than a spacer element: an empty flex child
+                holding a gap open is the kind of thing that survives three
+                refactors and nobody can explain. */}
             <div
-              className="flex shrink-0 flex-wrap items-center gap-2.5 border-t px-6 py-3.5"
+              className="flex shrink-0 flex-wrap items-center justify-end gap-2.5 border-t px-6 py-3.5"
               style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
             >
-              <span
-                className="t-caption numeric min-w-0 flex-1 truncate"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
-                {operation}
-              </span>
               {actions}
             </div>
           </Dialog.Content>

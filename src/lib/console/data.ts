@@ -213,7 +213,9 @@ import {
   SEATS_CAPACITY,
   SEATS_IN_USE,
   SEATS_UNDER_PRESSURE,
+  arrearsInvoice,
 } from './portfolio';
+import { invoiceReference } from './references';
 
 /* Re-exported so every existing importer of `console/data` keeps working — the
    values simply stopped being literals. */
@@ -291,14 +293,15 @@ function buildQueue(): QueueItem[] {
         tag: 'Past due',
         /* The consequence in people and days, which is what the confirm
            dialogs on this product are built around. */
-        detail: `KES ${w.arrears.amount.toLocaleString('en-GB')} on ${w.arrears.invoice}, ${w.arrears.days} days late, retries ${w.arrears.attempts}. ${w.seats} staff keep access until it suspends.`,
+        detail: `KES ${w.arrears.amount.toLocaleString('en-GB')} on ${arrearsInvoice(w.slug, w.arrears.days)}, ${w.arrears.days} days late, retries ${w.arrears.attempts}. ${w.seats} staff keep access until it suspends.`,
         action: {
           kind: 'retry_charge',
           label: 'Retry charge',
           /* 17 §6.4: the control is inert and says why ON THE SURFACE. There is
              no payment gateway in Phase 1 — the console reports the debt and
              the finance operator collects it. */
-          unavailable: 'No payment gateway in Phase 1. The invoice goes to the finance operator with the failure reason attached.',
+          unavailable:
+            'No payment gateway in Phase 1. The invoice goes to the finance operator with the failure reason attached.',
         },
         meta: `${Math.max(0, 30 - w.arrears.days)} days before suspension`,
       });
@@ -318,7 +321,8 @@ function buildQueue(): QueueItem[] {
         action: {
           kind: 'write_off',
           label: 'Write off',
-          unavailable: 'Writing off is a ledger operation, and there is no ledger in Phase 1. The workspace stays suspended and its data is retained.',
+          unavailable:
+            'Writing off is a ledger operation, and there is no ledger in Phase 1. The workspace stays suspended and its data is retained.',
         },
         meta: 'data retained · reactivation is one action',
       });
@@ -966,7 +970,7 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
     alert = {
       title: 'Payment past due · 6 days outstanding',
       body: record?.arrears
-        ? `Invoice ${record.arrears.invoice} for KES ${record.arrears.amount.toLocaleString('en-GB')} is ${record.arrears.days} days late; retries ${record.arrears.attempts}. Access continues until it is suspended.`
+        ? `Invoice ${arrearsInvoice(record.slug, record.arrears.days)} for KES ${record.arrears.amount.toLocaleString('en-GB')} is ${record.arrears.days} days late; retries ${record.arrears.attempts}. Access continues until it is suspended.`
         : 'Payment is past due. Access continues until the workspace is suspended.',
     };
   } else if (row.status === 'suspended') {
@@ -1005,45 +1009,78 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
    * `INV-2026-0800000000-0000-4000-8000-000000000012`. It typechecked, because
    * a string is a string.
    *
-   * A reference is now the period plus a short, stable suffix from the id, and
-   * the CURRENT one comes from the workspace's own `arrears` where it has any —
-   * so the number on this tab is the number the collection queue is chasing,
-   * rather than a second invented one.
+   * ⚠ THE REPLACEMENT WAS A SECOND SHAPE, NOT A FIX. It produced
+   * `INV-202609-0012` — a six-digit period against the collection queue's
+   * four, and a suffix that is the tail of a seeded UUID, so eleven of the
+   * twelve workspaces billed under a number that is zeros with one digit on the
+   * end. Both now come from `references.ts`: one grammar, one generator, and
+   * an account number derived from the slug rather than from the seed's
+   * insertion order.
    */
-  const ref = (monthsAgo: number): string => {
+  const monthsBack = (monthsAgo: number): Date => {
     const d = new Date();
+    d.setDate(1);
     d.setMonth(d.getMonth() - monthsAgo);
-    const period = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
-    return `INV-${period}-${row.id.replace(/[^0-9a-f]/gi, '').slice(-4).toUpperCase()}`;
+    return d;
   };
 
   const issuedOn = (monthsAgo: number): string => {
-    const d = new Date();
-    d.setMonth(d.getMonth() - monthsAgo);
+    const d = monthsBack(monthsAgo);
     d.setDate(4);
     return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
+  /**
+   * ⚠ WHICH ROW IS THE FAILED ONE IS A CALCULATION, NOT ALWAYS ROW ZERO.
+   *
+   * It used to be hardcoded as the most recent month and then have the
+   * collection queue's reference pasted over it — so Tamarind, ninety-four days
+   * past due, showed a September invoice numbered for June. The row the debt
+   * belongs to is the one whose period contains the due date, and because both
+   * the row and the queue now number themselves from `invoiceReference`, they
+   * agree without either of them being told to.
+   */
+  const overdueIndex = record?.arrears
+    ? (() => {
+        const due = new Date();
+        due.setDate(due.getDate() - record.arrears.days);
+        const now = new Date();
+        return (now.getFullYear() - due.getFullYear()) * 12 + (now.getMonth() - due.getMonth());
+      })()
+    : -1;
+
   const invoices: Invoice[] =
     row.status === 'trial' || row.status === 'pending'
       ? []
-      : [0, 1, 2].map((monthsAgo) => {
-          const failed = monthsAgo === 0 && record?.arrears !== undefined;
-          return {
-            id: failed && record?.arrears ? record.arrears.invoice : ref(monthsAgo),
-            issued: issuedOn(monthsAgo),
-            period: (() => {
-              const d = new Date();
-              d.setMonth(d.getMonth() - monthsAgo);
-              return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-            })(),
-            amount: (failed && record?.arrears ? record.arrears.amount : fee).toLocaleString(
-              'en-GB',
-            ),
-            status: failed ? ('failed' as const) : ('paid' as const),
-            paid: failed ? '—' : issuedOn(monthsAgo),
-          };
-        });
+      : /* The three most recent periods, plus the overdue one when the debt is
+           older than that — a statement that omits the invoice being chased is
+           the one thing this table must never do.
+
+           ⚠ AND NOTHING FOR A PERIOD THAT WAS NEVER BILLED. A suspended
+           workspace's `monthlyFee` is 0 because billing has stopped, and the
+           table happily listed three "paid" invoices for KES 0 against it —
+           Tamarind, which has not paid since June, appeared to have settled
+           July, August and September. An invoice that was never raised has no
+           row; the one it owes still does. */
+        Array.from(new Set([0, 1, 2, ...(overdueIndex > 2 ? [overdueIndex] : [])]))
+          .sort((a, b) => a - b)
+          .filter((monthsAgo) => monthsAgo === overdueIndex || fee > 0)
+          .map((monthsAgo) => {
+            const failed = monthsAgo === overdueIndex;
+            return {
+              id: invoiceReference(row.slug, monthsBack(monthsAgo)),
+              issued: issuedOn(monthsAgo),
+              period: monthsBack(monthsAgo).toLocaleDateString('en-GB', {
+                month: 'short',
+                year: 'numeric',
+              }),
+              amount: (failed && record?.arrears ? record.arrears.amount : fee).toLocaleString(
+                'en-GB',
+              ),
+              status: failed ? ('failed' as const) : ('paid' as const),
+              paid: failed ? '—' : issuedOn(monthsAgo),
+            };
+          });
 
   return {
     id: `tnt_${row.id}_${row.slug.slice(0, 6)}`,
@@ -1428,7 +1465,7 @@ export async function getRevenue(): Promise<RevenueModel> {
       id: `c_${w.slug}`,
       slug: w.slug,
       name: w.name,
-      invoice: w.arrears.invoice,
+      invoice: arrearsInvoice(w.slug, w.arrears.days),
       amount: w.arrears.amount.toLocaleString('en-GB'),
       days: w.arrears.days,
       attempts: w.arrears.attempts,
@@ -2066,7 +2103,8 @@ export async function getPlans(): Promise<PlansModel> {
     plans: REVENUE_BY_PLAN.map((p) => ({
       key: p.plan,
       name: p.name,
-      price: PLAN_PRICE[p.plan] > 0 ? `KES ${PLAN_PRICE[p.plan].toLocaleString('en-GB')}` : 'Negotiated',
+      price:
+        PLAN_PRICE[p.plan] > 0 ? `KES ${PLAN_PRICE[p.plan].toLocaleString('en-GB')}` : 'Negotiated',
       tenants: p.tenants,
       count: p.count,
     })),
