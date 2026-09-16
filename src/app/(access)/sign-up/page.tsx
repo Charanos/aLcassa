@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { IconArrowRight, IconCheck } from '@tabler/icons-react';
+import { IconArrowRight, IconCheck, IconAlertCircle } from '@tabler/icons-react';
+import { GoogleLogo } from '@/components/access/GoogleLogo';
 import { ERROR_CODES, ERROR_MESSAGES, hueTokens, type ErrorCode } from '@/lib/errors';
 import { AuthShell } from '@/components/access/AuthShell';
-import { Button } from '@/components/primitives/Button';
+import { IconTile } from '@/components/primitives/IconTile';
+import { SubmitButton, CustomSubmitButton } from '@/components/primitives/SubmitButton';
 import { Field } from '@/components/primitives/Field';
 import { NewPasswordFields } from '@/components/access/NewPasswordFields';
 import { WorkspaceJourney } from '@/components/access/WorkspaceJourney';
@@ -47,30 +49,55 @@ export default async function SignUpPage({
         </p>
       }
     >
-      <form className="space-y-0" method="post" action="/api/v1/auth/sign-up">
-        {errorMessage ? (
-          <div
-            role="alert"
-            className="mb-5 rounded-xl border px-3.5 py-2.5 text-[12.5px] leading-relaxed"
-            style={{ color: tone.fg, background: tone.bg, borderColor: tone.rule }}
-          >
+      {errorMessage ? (
+        <div
+          role="alert"
+          className="mb-5 flex items-start gap-2.5 px-1 py-1 text-[12.5px] leading-relaxed transition-all"
+          style={{ color: tone.fg }}
+        >
+          <IconAlertCircle size={15} stroke={2.5} className="mt-[2.5px] shrink-0" style={{ color: tone.rule }} />
+          <span>
             {errorMessage}
             {emailTaken ? (
               <>
                 {' '}
-                <Link href="/sign-in" className="font-medium underline underline-offset-2">
+                <Link href="/sign-in" className="font-medium underline underline-offset-2 hover:text-[var(--text-primary)]">
                   Sign in
                 </Link>{' '}
                 or{' '}
-                <Link href="/forgot-password" className="font-medium underline underline-offset-2">
+                <Link href="/forgot-password" className="font-medium underline underline-offset-2 hover:text-[var(--text-primary)]">
                   reset your password
                 </Link>
                 .
               </>
             ) : null}
-          </div>
-        ) : null}
+          </span>
+        </div>
+      ) : null}
 
+      {/* Google OAuth */}
+      <form method="post" action="/api/v1/auth/google" className="mb-5">
+        <CustomSubmitButton
+          className="group relative flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-[13.5px] font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] active:scale-[0.985]"
+        >
+          <IconTile 
+            icon={GoogleLogo} 
+            size="sm" 
+            className="transition-transform group-hover:scale-105" 
+          />
+          Continue with Google
+        </CustomSubmitButton>
+      </form>
+
+      <div className="relative mb-5 flex items-center">
+        <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
+        <span className="shrink-0 px-4 text-[10.5px] font-semibold tracking-widest text-[var(--text-tertiary)] uppercase">
+          or create with email
+        </span>
+        <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
+      </div>
+
+      <form className="space-y-0" method="post" action="/api/v1/auth/sign-up">
         {/* Row 1: Name + Email */}
         <div className="mb-4 grid grid-cols-2 gap-x-4">
           <Field
@@ -122,15 +149,14 @@ export default async function SignUpPage({
         </div>
 
         {/* CTA */}
-        <Button
-          type="submit"
+        <SubmitButton
           variant="accent"
           size="lg"
           className="w-full cursor-pointer gap-2 font-medium shadow-sm hover:shadow-md"
         >
           <span>Create workspace</span>
           <IconArrowRight size={15} />
-        </Button>
+        </SubmitButton>
 
         <p className="mt-3 text-center text-[11px] leading-relaxed text-[var(--text-tertiary)]">
           By continuing, you agree to our{' '}

@@ -36,6 +36,13 @@ export {
   type SelfServeSignUpResult,
 } from './internal/selfServeSignUp';
 
+export {
+  finishOAuthSignUp,
+  finishOAuthSignUpSchema,
+  type FinishOAuthSignUpInput,
+  type FinishOAuthSignUpResult,
+} from './internal/finishOAuthSignUp';
+
 /**
  * 08 §7 · 08 §9. Subscription administration. Every one of these is a
  * service-role call, audited before it runs — see the file for why they are

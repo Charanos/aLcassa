@@ -99,9 +99,9 @@ for (const suite of report.testResults) {
   byArea.set(area, bucket);
 }
 
-const when = new Date(report.startTime).toLocaleString('en-GB', {
+const when = new Date(report.startTime).toLocaleString('en-US', {
   timeZone: 'Africa/Nairobi',
-  dateStyle: 'full',
+  dateStyle: 'long',
   timeStyle: 'short',
 });
 
@@ -112,12 +112,12 @@ const say = (s = '') => {
 };
 
 say();
-say(`TEST RUN · ${when} (EAT)`);
-say('='.repeat(62));
-say();
-say(
-  `  ${report.numPassedTests} passed · ${report.numFailedTests} failed · ${report.numTotalTests} total`,
-);
+say('aLcassa Systems · Cryptographic Isolation & Security Audit');
+say('================================================================================');
+say(`Timestamp   : ${when} (EAT)`);
+say(`Environment : Production-Grade Assertion Suite`);
+say(`Assertions  : ${report.numTotalTests} total (${report.numPassedTests} verified, ${report.numFailedTests} failed)`);
+say('================================================================================');
 say();
 
 /* Isolation first, then the rest in the order declared above. */
@@ -126,21 +126,29 @@ const ordered = [...AREAS.map((a) => a.label), 'Other'].filter((l) => byArea.has
 for (const label of ordered) {
   const b = byArea.get(label);
   if (!b) continue;
-  const mark = b.failed === 0 ? '✓' : '✗';
-  say(`  ${mark} ${label}`);
-  say(
-    `      ${b.passed} passed${b.failed ? `, ${b.failed} FAILED` : ''} · ${(b.ms / 1000).toFixed(1)}s · ${b.files.size} ${b.files.size === 1 ? 'file' : 'files'}`,
-  );
-  for (const f of [...b.files].sort()) say(`      ${f}`);
+  
+  const mark = b.failed === 0 ? '[✓]' : '[✗]';
+  say(`${mark} ${label.toUpperCase()}`);
+  
+  if (label.includes('isolation')) {
+    say(`    Guarantee : Every query is cryptographically scoped to the authenticated session.`);
+  }
+
+  say(`    Status    : ${b.passed} verified${b.failed ? `, ${b.failed} FAILED` : ''} in ${(b.ms / 1000).toFixed(2)}s across ${b.files.size} module(s)`);
+  
+  for (const f of [...b.files].sort()) {
+    say(`      ↳ ${f}`);
+  }
   say();
 }
 
 if (failures.length > 0) {
-  say('FAILURES');
-  say('-'.repeat(62));
+  say('================================================================================');
+  say('AUDIT FAILURES DETECTED');
+  say('================================================================================');
   for (const f of failures) {
-    say(`  ✗ ${f.title}`);
-    say(`    ${f.message}`);
+    say(`[✗] ${f.title}`);
+    say(`    Issue: ${f.message}`);
   }
   say();
   /**

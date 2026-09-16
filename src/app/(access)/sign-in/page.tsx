@@ -1,10 +1,13 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { IconAlertCircle, IconInfoCircle } from '@tabler/icons-react';
+import { GoogleLogo } from '@/components/access/GoogleLogo';
 import { DemoDoors } from '@/components/access/DemoDoors';
 import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 import { ERROR_CODES, ERROR_MESSAGES, hueTokens, type ErrorCode } from '@/lib/errors';
 import { AuthShell } from '@/components/access/AuthShell';
-import { Button } from '@/components/primitives/Button';
+import { IconTile } from '@/components/primitives/IconTile';
+import { SubmitButton, CustomSubmitButton } from '@/components/primitives/SubmitButton';
 import { Field, PasswordField } from '@/components/primitives/Field';
 
 export const metadata: Metadata = {
@@ -78,6 +81,28 @@ export default async function SignInPage({
         </div>
       }
     >
+      <form method="post" action="/api/v1/auth/google" className="mb-6">
+        {next ? <input type="hidden" name="next" value={next} /> : null}
+        <CustomSubmitButton
+          className="group relative flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-[13.5px] font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] active:scale-[0.985]"
+        >
+          <IconTile 
+            icon={GoogleLogo} 
+            size="sm" 
+            className="transition-transform group-hover:scale-105" 
+          />
+          Continue with Google
+        </CustomSubmitButton>
+      </form>
+
+      <div className="relative mb-6 flex items-center">
+        <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
+        <span className="shrink-0 px-4 text-[10.5px] font-semibold tracking-widest text-[var(--text-tertiary)] uppercase">
+          or sign in with email
+        </span>
+        <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
+      </div>
+
       <form className="grid gap-4" method="post" action="/api/v1/auth/sign-in">
         {next ? <input type="hidden" name="next" value={next} /> : null}
 
@@ -85,10 +110,11 @@ export default async function SignInPage({
         {errorMessage ? (
           <div
             role="alert"
-            className="rounded-xl border px-3.5 py-2.5 text-[12.5px] leading-relaxed transition-all"
-            style={{ color: tone.fg, background: tone.bg, borderColor: tone.rule }}
+            className="flex items-start gap-2.5 px-1 py-1 text-[12.5px] leading-relaxed transition-all"
+            style={{ color: tone.fg }}
           >
-            {errorMessage}
+            <IconAlertCircle size={15} stroke={2.5} className="mt-[2.5px] shrink-0" style={{ color: tone.rule }} />
+            <span>{errorMessage}</span>
           </div>
         ) : null}
 
@@ -96,15 +122,13 @@ export default async function SignInPage({
         {reset ? (
           <div
             role="status"
-            className="rounded-xl border px-3.5 py-2.5 text-[12.5px] leading-relaxed"
-            style={{
-              color: 'var(--ink-700)',
-              background: 'var(--surface-sunken)',
-              borderColor: 'var(--border-subtle)',
-            }}
+            className="flex items-start gap-2.5 px-1 py-1 text-[12.5px] leading-relaxed text-[var(--text-secondary)]"
           >
-            Your password has been changed, and every other active session was signed out. Please
-            sign in with your new password.
+            <IconInfoCircle size={15} stroke={2.5} className="mt-[2.5px] shrink-0 text-[var(--text-tertiary)]" />
+            <span>
+              Your password has been changed, and every other active session was signed out. Please
+              sign in with your new password.
+            </span>
           </div>
         ) : null}
 
@@ -134,14 +158,13 @@ export default async function SignInPage({
           </div>
         </div>
 
-        <Button
-          type="submit"
+        <SubmitButton
           variant="primary"
           size="lg"
           className="w-full font-medium shadow-sm hover:shadow-md"
         >
           Sign in
-        </Button>
+        </SubmitButton>
       </form>
     </AuthShell>
   );
