@@ -59,7 +59,10 @@ async function signIn(page: Page) {
   /* `networkidle`, not `domcontentloaded`: the form is a client component,
      and a submit before it hydrates goes nowhere — which is how the first
      version of this script timed out on a page that works by hand. */
-  await page.goto(`${BASE}/sign-in`, { waitUntil: 'networkidle' });
+  /* Land on the lightest console page rather than the default overview: a
+     dev server compiles each route on first visit, and the overview is the
+     heaviest one to wait for. */
+  await page.goto(`${BASE}/sign-in?next=%2Fplatform%2Fsettings`, { waitUntil: 'networkidle' });
   await page.getByLabel('Email address').fill(EMAIL);
   await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
   await Promise.all([
@@ -98,6 +101,10 @@ async function main() {
            wants to see and what 03 §15 says the page must look like anyway. */
         reducedMotion: 'reduce',
       });
+      /* A dev server compiles a route on its first request; thirty seconds
+         is not enough for a cold console route after an edit. */
+      context.setDefaultTimeout(120_000);
+      context.setDefaultNavigationTimeout(120_000);
       const page = await context.newPage();
       await signIn(page);
 
