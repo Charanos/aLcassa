@@ -19,7 +19,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     await enforceRateLimit(request, RATE_LIMITS.signIn);
 
     const supabase = await createSupabaseServerClient();
-    
+
     // We construct the callback URL to which Google (via Supabase) will redirect.
     const url = new URL(request.url);
     const callbackUrl = new URL('/api/v1/auth/callback', url.origin).toString();

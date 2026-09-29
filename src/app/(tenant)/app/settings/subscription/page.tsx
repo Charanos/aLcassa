@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/structure/PageHeader';
-import { Badge, SUBSCRIPTION_STATUS_TONE } from '@/components/feedback/Badge';
+import { Badge, SUBSCRIPTION_STATUS_TONE } from '@/components/primitives/Badge';
 import { LimitBar } from '@/components/domain/LimitBar';
 import { getSubscription } from '@/lib/tenant/data';
 import { getLiveSubscription } from '@/lib/tenant/live';

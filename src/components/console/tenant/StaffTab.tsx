@@ -39,7 +39,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
     <div className="flex flex-col gap-6">
       {/* ── Inverted Staff Capacity Ribbon ───────────────────────────────── */}
       <div
-        className="flex flex-col overflow-hidden rounded-2xl sm:flex-row"
+        className="flex flex-col overflow-hidden rounded-card sm:flex-row"
         style={{
           background: 'var(--invert-card-bg)',
           color: 'var(--invert-card-fg)',
@@ -107,7 +107,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
               of {staff.length} team members
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             MFA enforced policy
           </p>
           <div
@@ -142,7 +142,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
               free seats
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Instant provisioning enabled
           </p>
           <div
@@ -178,7 +178,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
               SAML 2.0 Active
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Google Workspace sync
           </p>
         </div>
@@ -194,7 +194,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
               type="button"
               disabled
               title="Membership changes happen inside the workspace, through a logged support session."
-              className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
+              className="inline-flex h-8 items-center gap-1.5 rounded-overlay px-3 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
               style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
             >
               <IconUserPlus size={14} stroke={1.5} />
@@ -228,7 +228,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                 placeholder="Filter members by name or email…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-8 w-full rounded-lg pr-3 pl-8 text-xs transition-colors outline-none"
+                className="h-8 w-full rounded-overlay pr-3 pl-8 text-xs transition-colors outline-none"
                 style={{
                   background: 'var(--surface-sunken)',
                   border: '1px solid var(--border-subtle)',
@@ -237,13 +237,13 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
               />
             </div>
 
-            <div className="flex items-center gap-1 self-start rounded-lg bg-[var(--surface-inset)] p-0.5 text-xs sm:self-auto">
+            <div className="flex items-center gap-1 self-start rounded-overlay bg-[var(--surface-inset)] p-0.5 text-xs sm:self-auto">
               {(['all', 'admin', 'staff'] as const).map((r) => (
                 <button
                   key={r}
                   type="button"
                   onClick={() => setRoleFilter(r)}
-                  className="rounded-md px-2.5 py-1 font-medium capitalize transition-all"
+                  className="rounded-panel px-2.5 py-1 font-medium capitalize transition-all"
                   style={{
                     background: roleFilter === r ? 'var(--surface-raised)' : 'transparent',
                     color: roleFilter === r ? 'var(--text-primary)' : 'var(--text-tertiary)',
@@ -262,7 +262,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
               <thead>
                 <tr style={{ background: 'var(--surface-sunken)' }}>
                   <th
-                    className="px-5 py-3 text-[11px] font-medium tracking-wider uppercase"
+                    className="px-5 py-3 text-xs font-medium tracking-wider uppercase"
                     style={{
                       color: 'var(--text-tertiary)',
                       borderBottom: '1px solid var(--border-subtle)',
@@ -271,7 +271,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                     Team Member
                   </th>
                   <th
-                    className="px-5 py-3 text-[11px] font-medium tracking-wider uppercase"
+                    className="px-5 py-3 text-xs font-medium tracking-wider uppercase"
                     style={{
                       color: 'var(--text-tertiary)',
                       borderBottom: '1px solid var(--border-subtle)',
@@ -280,7 +280,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                     Role
                   </th>
                   <th
-                    className="px-5 py-3 text-[11px] font-medium tracking-wider uppercase"
+                    className="px-5 py-3 text-xs font-medium tracking-wider uppercase"
                     style={{
                       color: 'var(--text-tertiary)',
                       borderBottom: '1px solid var(--border-subtle)',
@@ -289,7 +289,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                     Status
                   </th>
                   <th
-                    className="px-5 py-3 text-[11px] font-medium tracking-wider uppercase"
+                    className="px-5 py-3 text-xs font-medium tracking-wider uppercase"
                     style={{
                       color: 'var(--text-tertiary)',
                       borderBottom: '1px solid var(--border-subtle)',
@@ -298,7 +298,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                     Last Active
                   </th>
                   <th
-                    className="px-3 py-3 text-right text-[11px] font-medium tracking-wider uppercase"
+                    className="px-3 py-3 text-right text-xs font-medium tracking-wider uppercase"
                     style={{
                       color: 'var(--text-tertiary)',
                       borderBottom: '1px solid var(--border-subtle)',
@@ -315,7 +315,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div
-                          className="flex size-8 items-center justify-center rounded-lg text-xs font-medium"
+                          className="flex size-8 items-center justify-center rounded-overlay text-xs font-medium"
                           style={{
                             background: 'var(--surface-inset)',
                             border: '1px solid var(--border-strong)',
@@ -336,7 +336,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                             {s.name}
                           </p>
                           <p
-                            className="font-mono text-[11px]"
+                            className="font-mono text-xs"
                             style={{ color: 'var(--text-tertiary)' }}
                           >
                             {s.email}
@@ -348,7 +348,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                       <div className="inline-flex items-center gap-1.5 text-xs font-medium">
                         {s.role === 'admin' ? (
                           <span
-                            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[11px]"
+                            className="inline-flex items-center gap-1 rounded-panel px-2 py-0.5 font-mono text-xs"
                             style={{
                               background: 'var(--badge-warning-bg)',
                               color: 'var(--warning-fg)',
@@ -360,7 +360,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                           </span>
                         ) : (
                           <span
-                            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[11px]"
+                            className="inline-flex items-center gap-1 rounded-panel px-2 py-0.5 font-mono text-xs"
                             style={{
                               background: 'var(--surface-inset)',
                               color: 'var(--text-secondary)',
@@ -374,7 +374,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                     </td>
                     <td className="px-5 py-3.5">
                       <span
-                        className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-mono text-[10px] font-medium uppercase"
+                        className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-mono text-2xs font-medium uppercase"
                         style={{
                           background:
                             s.status === 'active'
@@ -408,7 +408,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                         type="button"
                         disabled
                         title="Membership changes happen inside the workspace, through a logged support session."
-                        className="rounded-md p-1 transition-colors hover:bg-[var(--surface-inset)]"
+                        className="rounded-panel p-1 transition-colors hover:bg-[var(--surface-inset)]"
                         style={{
                           opacity: 0.45,
                           cursor: 'not-allowed',
@@ -461,7 +461,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                   {Math.round((used / limit) * 100)}%
                 </span>
                 <span
-                  className="font-mono text-[10px] uppercase"
+                  className="font-mono text-2xs uppercase"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   Occupied
@@ -498,7 +498,7 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
           </Panel>
 
           <div
-            className="rounded-xl p-4"
+            className="rounded-overlay p-4"
             style={{
               background: 'var(--surface-sunken)',
               border: '1px solid var(--border-subtle)',

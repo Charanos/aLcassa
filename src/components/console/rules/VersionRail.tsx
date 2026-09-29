@@ -62,7 +62,7 @@ export function VersionRail({
               <span className="flex items-center gap-2">
                 <span
                   className="numeric"
-                  style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}
+                  style={{ fontSize: 'var(--type-compact)', color: 'var(--text-primary)' }}
                 >
                   v{v.versionNumber}
                 </span>

@@ -69,7 +69,7 @@ export default async function SignInPage({
           */}
           {demoAccessEnabled() ? <DemoDoors /> : null}
 
-          <p className="pt-2 text-center text-[12.5px] text-[var(--text-secondary)]">
+          <p className="pt-2 text-center text-sm text-[var(--text-secondary)]">
             Don&apos;t have a workspace yet?{' '}
             <Link
               href="/sign-up"
@@ -83,13 +83,11 @@ export default async function SignInPage({
     >
       <form method="post" action="/api/v1/auth/google" className="mb-6">
         {next ? <input type="hidden" name="next" value={next} /> : null}
-        <CustomSubmitButton
-          className="group relative flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-[13.5px] font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] active:scale-[0.985]"
-        >
-          <IconTile 
-            icon={GoogleLogo} 
-            size="sm" 
-            className="transition-transform group-hover:scale-105" 
+        <CustomSubmitButton className="group relative flex w-full items-center justify-center gap-3 rounded-overlay px-4 py-3.5 text-base font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] active:scale-[0.985]">
+          <IconTile
+            icon={GoogleLogo}
+            size="sm"
+            className="transition-transform group-hover:scale-105"
           />
           Continue with Google
         </CustomSubmitButton>
@@ -97,7 +95,7 @@ export default async function SignInPage({
 
       <div className="relative mb-6 flex items-center">
         <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
-        <span className="shrink-0 px-4 text-[10.5px] font-semibold tracking-widest text-[var(--text-tertiary)] uppercase">
+        <span className="shrink-0 px-4 text-2xs font-semibold tracking-widest text-[var(--text-tertiary)] uppercase">
           or sign in with email
         </span>
         <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
@@ -110,10 +108,15 @@ export default async function SignInPage({
         {errorMessage ? (
           <div
             role="alert"
-            className="flex items-start gap-2.5 px-1 py-1 text-[12.5px] leading-relaxed transition-all"
+            className="flex items-start gap-2.5 px-1 py-1 text-sm leading-relaxed transition-all"
             style={{ color: tone.fg }}
           >
-            <IconAlertCircle size={15} stroke={2.5} className="mt-[2.5px] shrink-0" style={{ color: tone.rule }} />
+            <IconAlertCircle
+              size={15}
+              stroke={2.5}
+              className="mt-[2.5px] shrink-0"
+              style={{ color: tone.rule }}
+            />
             <span>{errorMessage}</span>
           </div>
         ) : null}
@@ -122,9 +125,13 @@ export default async function SignInPage({
         {reset ? (
           <div
             role="status"
-            className="flex items-start gap-2.5 px-1 py-1 text-[12.5px] leading-relaxed text-[var(--text-secondary)]"
+            className="flex items-start gap-2.5 px-1 py-1 text-sm leading-relaxed text-[var(--text-secondary)]"
           >
-            <IconInfoCircle size={15} stroke={2.5} className="mt-[2.5px] shrink-0 text-[var(--text-tertiary)]" />
+            <IconInfoCircle
+              size={15}
+              stroke={2.5}
+              className="mt-[2.5px] shrink-0 text-[var(--text-tertiary)]"
+            />
             <span>
               Your password has been changed, and every other active session was signed out. Please
               sign in with your new password.
@@ -151,7 +158,7 @@ export default async function SignInPage({
           <div className="-mt-2 mb-2 flex justify-end">
             <Link
               href="/forgot-password"
-              className="text-[12px] font-medium text-[var(--blue-600)] underline-offset-2 transition-colors hover:text-[var(--blue-700)] hover:underline"
+              className="text-sm font-medium text-[var(--blue-600)] underline-offset-2 transition-colors hover:text-[var(--blue-700)] hover:underline"
             >
               Forgot your password?
             </Link>

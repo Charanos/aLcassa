@@ -17,7 +17,7 @@ import {
   IconShieldLock,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { StatusBadge } from '@/components/primitives/StatusBadge';
 
 /* ---------------------------------------------------------------------- */
 /*  Content & Data Model (100% Preserved Revamped Type)                  */
@@ -194,15 +194,15 @@ export function ChannelsSection() {
       {/* ── Right-Aligned Section Header (Alternating Cadence) ── */}
       <div className="mb-10 ml-auto flex max-w-3xl flex-col items-end text-right sm:mb-14">
         <div className="mb-2.5 inline-flex items-center gap-2">
-          <p className="font-mono text-[11px] font-medium tracking-wider text-[var(--orange-500)] uppercase">
+          <p className="font-mono text-xs font-medium tracking-wider text-[var(--orange-500)] uppercase">
             Getting in touch
           </p>
           <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden="true" />
         </div>
-        <h2 className="display text-[32px] leading-[1.12] font-normal tracking-tight text-[var(--text-primary)] sm:text-[44px]">
+        <h2 className="display text-2xl leading-[1.12] font-normal tracking-tight text-[var(--text-primary)] sm:text-3xl">
           Customers message you everywhere. You answer from one place.
         </h2>
-        <p className="mt-3.5 text-[16px] leading-relaxed text-[var(--text-secondary)] sm:text-[17px]">
+        <p className="mt-3.5 text-md leading-relaxed text-[var(--text-secondary)] sm:text-md">
           WhatsApp, Instagram, Messenger, your website — every conversation lands in a single inbox,
           answered fast, without anyone digging for the right information.
         </p>
@@ -210,7 +210,7 @@ export function ChannelsSection() {
 
       {/* ── UNIFIED INVERTED SECTION (Deep Slate Canvas with Atmospheric Depth) ── */}
       <div
-        className="relative overflow-hidden rounded-[36px] border text-left transition-all"
+        className="relative overflow-hidden rounded-slab border text-left transition-all"
         style={{
           background: 'linear-gradient(180deg, #0d121c 0%, #080c14 100%)',
           borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -237,7 +237,7 @@ export function ChannelsSection() {
             <div className="order-2 flex justify-center lg:order-1 lg:col-span-7 lg:justify-start">
               <div className="w-full max-w-[590px]">
                 <div
-                  className="rounded-[30px] p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all sm:p-8"
+                  className="rounded-slab p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all sm:p-8"
                   style={{
                     background: '#FFFFFF',
                     color: 'var(--text-primary)',
@@ -247,14 +247,14 @@ export function ChannelsSection() {
                   <div className="mb-5 flex items-center justify-between gap-3 border-b border-[var(--ink-100)] pb-5">
                     <div className="flex min-w-0 items-center gap-3.5">
                       <div
-                        className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-black/5 shadow-xs"
+                        className="flex size-11 shrink-0 items-center justify-center rounded-card border border-black/5 shadow-xs"
                         style={{ backgroundColor: active.accentSoft }}
                       >
                         <active.icon size={22} stroke={1.8} style={{ color: active.accentHex }} />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="truncate text-[16px] font-medium text-[var(--text-primary)]">
+                          <span className="truncate text-md font-medium text-[var(--text-primary)]">
                             {active.handle}
                           </span>
                           <span
@@ -262,7 +262,7 @@ export function ChannelsSection() {
                             aria-hidden="true"
                           />
                         </div>
-                        <span className="mt-0.5 block font-mono text-[11px] text-[var(--text-tertiary)]">
+                        <span className="mt-0.5 block font-mono text-xs text-[var(--text-tertiary)]">
                           Verified Business Channel · via {active.name}
                         </span>
                       </div>
@@ -297,7 +297,7 @@ export function ChannelsSection() {
                           {/* Chat Bubble Container with Explicit Left Alignment for Internal Content */}
                           <div className={`max-w-[90%] text-left sm:max-w-[85%]`}>
                             <div
-                              className="px-5 py-3.5 text-left text-[14.5px] leading-[1.55] shadow-xs"
+                              className="px-5 py-3.5 text-left text-base leading-[1.55] shadow-xs"
                               style={
                                 isCustomer
                                   ? {
@@ -317,7 +317,7 @@ export function ChannelsSection() {
                               <p className="m-0 text-left">{bubble.text}</p>
                             </div>
                             <div
-                              className={`mt-1.5 flex items-center gap-1.5 px-2 font-mono text-[11px] text-[var(--text-tertiary)] ${
+                              className={`mt-1.5 flex items-center gap-1.5 px-2 font-mono text-xs text-[var(--text-tertiary)] ${
                                 isCustomer ? 'justify-start' : 'justify-end'
                               }`}
                             >
@@ -335,7 +335,7 @@ export function ChannelsSection() {
                   </div>
 
                   {/* Resolution Footnote */}
-                  <div className="mt-5 flex items-center justify-between gap-3 border-t border-[var(--ink-100)] pt-4 text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                  <div className="mt-5 flex items-center justify-between gap-3 border-t border-[var(--ink-100)] pt-4 text-sm leading-relaxed text-[var(--text-secondary)]">
                     <div className="flex min-w-0 items-center gap-2.5">
                       <div className="flex size-5 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600">
                         <IconCheck size={12} stroke={2.5} />
@@ -365,14 +365,14 @@ export function ChannelsSection() {
                       onClick={() => setActiveId(channel.id)}
                       aria-pressed={isActive}
                       aria-label={`Show ${channel.name} example conversation`}
-                      className={`group flex min-h-[62px] cursor-pointer items-center gap-4 rounded-2xl px-4.5 py-3.5 text-left transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 ${
+                      className={`group flex min-h-[62px] cursor-pointer items-center gap-4 rounded-card px-4.5 py-3.5 text-left transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 ${
                         isActive
                           ? 'scale-[1.01] border border-white/25 bg-white/[0.12] shadow-xl'
                           : 'border border-white/[0.06] bg-white/[0.03] hover:border-white/15 hover:bg-white/[0.07]'
                       }`}
                     >
                       <div
-                        className="flex size-11 shrink-0 items-center justify-center rounded-xl transition-all duration-200"
+                        className="flex size-11 shrink-0 items-center justify-center rounded-overlay transition-all duration-200"
                         style={{
                           backgroundColor: isActive
                             ? channel.accentHex
@@ -389,13 +389,13 @@ export function ChannelsSection() {
 
                       <div className="min-w-0 flex-1">
                         <span
-                          className="block text-[15.5px] font-medium transition-colors"
+                          className="block text-md font-medium transition-colors"
                           style={{ color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.75)' }}
                         >
                           {channel.name}
                         </span>
                         {isActive && (
-                          <span className="mt-0.5 block text-[13px] leading-snug text-white/65">
+                          <span className="mt-0.5 block text-sm leading-snug text-white/65">
                             {channel.oneLiner}
                           </span>
                         )}
@@ -428,7 +428,7 @@ export function ChannelsSection() {
                         aria-hidden="true"
                       />
                     </div>
-                    <span className="text-[14px] leading-relaxed text-white/80">{bullet}</span>
+                    <span className="text-base leading-relaxed text-white/80">{bullet}</span>
                   </div>
                 ))}
               </div>
@@ -447,10 +447,10 @@ export function ChannelsSection() {
             {/* Left 5 Cols: Editorial Security Guarantees */}
             <div className="space-y-6 lg:col-span-5">
               <div>
-                <h3 className="display mt-1 text-[28px] leading-[1.15] font-normal tracking-tight text-white sm:text-[36px]">
+                <h3 className="display mt-1 text-xl leading-[1.15] font-normal tracking-tight text-white sm:text-2xl">
                   If someone on our team ever opens your account, you’ll know.
                 </h3>
-                <p className="mt-3.5 text-[15px] leading-relaxed text-white/75 sm:text-[16px]">
+                <p className="mt-3.5 text-md leading-relaxed text-white/75 sm:text-md">
                   Nobody at Alcassa has a master key to every business on the platform. When our
                   support team needs to help with your account, they request access to yours
                   specifically. It’s time-limited, it’s read-only, and it shows up in your activity
@@ -461,14 +461,12 @@ export function ChannelsSection() {
               {/* 3 Core Security Invariants */}
               <div className="space-y-4 border-t border-white/10 pt-4">
                 <div className="flex items-start gap-3.5">
-                  <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.07] text-white shadow-xs">
+                  <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-card border border-white/10 bg-white/[0.07] text-white shadow-xs">
                     <IconLock size={18} stroke={1.75} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-[14.5px] font-medium text-white">
-                      No shared master password
-                    </h4>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-white/65">
+                    <h4 className="text-base font-medium text-white">No shared master password</h4>
+                    <p className="mt-0.5 text-sm leading-relaxed text-white/65">
                       Every visit uses a fresh, one-time key tied to one person and one account.
                       Nothing reused, nothing shared.
                     </p>
@@ -476,14 +474,12 @@ export function ChannelsSection() {
                 </div>
 
                 <div className="flex items-start gap-3.5">
-                  <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.07] text-white shadow-xs">
+                  <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-card border border-white/10 bg-white/[0.07] text-white shadow-xs">
                     <IconClock size={18} stroke={1.75} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-[14.5px] font-medium text-white">
-                      Access expires on its own
-                    </h4>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-white/65">
+                    <h4 className="text-base font-medium text-white">Access expires on its own</h4>
+                    <p className="mt-0.5 text-sm leading-relaxed text-white/65">
                       Thirty minutes, then it’s gone — or you can end it yourself, right now, from
                       this screen.
                     </p>
@@ -491,14 +487,14 @@ export function ChannelsSection() {
                 </div>
 
                 <div className="flex items-start gap-3.5">
-                  <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.07] text-white shadow-xs">
+                  <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-card border border-white/10 bg-white/[0.07] text-white shadow-xs">
                     <IconEye size={18} stroke={1.75} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-[14.5px] font-medium text-white">
+                    <h4 className="text-base font-medium text-white">
                       Every visit is on the record
                     </h4>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-white/65">
+                    <p className="mt-0.5 text-sm leading-relaxed text-white/65">
                       Who looked, when, and why — written to your account’s history and impossible
                       to quietly edit out.
                     </p>
@@ -506,7 +502,7 @@ export function ChannelsSection() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 border-t border-white/10 pt-4 font-mono text-[11px] text-white/50">
+              <div className="flex items-center gap-2 border-t border-white/10 pt-4 font-mono text-xs text-white/50">
                 <IconShieldLock size={15} className="text-emerald-400" />
                 <span>Handled under Kenya’s Data Protection Act, 2019.</span>
               </div>
@@ -516,7 +512,7 @@ export function ChannelsSection() {
             <div className="flex justify-center lg:col-span-7 lg:justify-end">
               <div className="w-full max-w-[590px]">
                 <div
-                  className="space-y-6 rounded-[30px] p-7 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all sm:p-9"
+                  className="space-y-6 rounded-slab p-7 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] transition-all sm:p-9"
                   style={{
                     background: '#FFFFFF',
                     color: 'var(--text-primary)',
@@ -525,10 +521,10 @@ export function ChannelsSection() {
                   {/* Permit Header */}
                   <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--ink-100)] pb-4">
                     <div>
-                      <span className="block font-mono text-[11px] text-[var(--text-tertiary)]">
+                      <span className="block font-mono text-xs text-[var(--text-tertiary)]">
                         This is what you’d see right now, in your own dashboard
                       </span>
-                      <h4 className="mt-1 text-[18px] font-medium text-[var(--text-primary)]">
+                      <h4 className="mt-1 text-lg font-medium text-[var(--text-primary)]">
                         Support access to Kwanza Logistics
                       </h4>
                     </div>
@@ -544,20 +540,20 @@ export function ChannelsSection() {
                   </div>
 
                   {/* Who + Why Meta Grid */}
-                  <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[var(--ink-200)]/60 bg-[var(--surface-sunken)]/70 p-4">
+                  <div className="grid grid-cols-2 gap-4 rounded-card border border-[var(--ink-200)]/60 bg-[var(--surface-sunken)]/70 p-4">
                     <div>
-                      <span className="block font-mono text-[11px] text-[var(--text-tertiary)]">
+                      <span className="block font-mono text-xs text-[var(--text-tertiary)]">
                         Opened by
                       </span>
-                      <span className="mt-0.5 block text-[14px] font-medium text-[var(--text-primary)]">
+                      <span className="mt-0.5 block text-base font-medium text-[var(--text-primary)]">
                         Wanjiru, Support
                       </span>
                     </div>
                     <div>
-                      <span className="block font-mono text-[11px] text-[var(--text-tertiary)]">
+                      <span className="block font-mono text-xs text-[var(--text-tertiary)]">
                         Reason given
                       </span>
-                      <span className="mt-0.5 block text-[14px] font-medium text-[var(--text-primary)]">
+                      <span className="mt-0.5 block text-base font-medium text-[var(--text-primary)]">
                         Ticket #4829, invoice question
                       </span>
                     </div>
@@ -565,7 +561,7 @@ export function ChannelsSection() {
 
                   {/* Live Countdown Clock Bar */}
                   <div
-                    className="flex items-center justify-between rounded-2xl border p-4.5 transition-colors"
+                    className="flex items-center justify-between rounded-card border p-4.5 transition-colors"
                     style={{
                       background: granted ? '#fff7ed' : 'var(--surface-sunken)',
                       borderColor: granted ? 'rgba(249, 115, 22, 0.2)' : 'var(--ink-200)',
@@ -579,12 +575,12 @@ export function ChannelsSection() {
                         }
                         aria-hidden="true"
                       />
-                      <span className="text-[14px] font-medium text-[var(--text-primary)]">
+                      <span className="text-base font-medium text-[var(--text-primary)]">
                         {granted ? 'Closes automatically in' : 'Access closed'}
                       </span>
                     </div>
                     <span
-                      className="font-mono text-[22px] font-medium tracking-tight tabular-nums"
+                      className="font-mono text-xl font-medium tracking-tight tabular-nums"
                       style={{ color: granted ? 'var(--orange-500)' : 'var(--text-tertiary)' }}
                       aria-hidden="true"
                     >
@@ -603,7 +599,7 @@ export function ChannelsSection() {
                         setSecondsLeft(SESSION_LENGTH);
                       }
                     }}
-                    className="flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-2 rounded-full py-3.5 text-[14px] font-medium shadow-sm transition-all hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] active:scale-[0.99]"
+                    className="flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-2 rounded-full py-3.5 text-base font-medium shadow-sm transition-all hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] active:scale-[0.99]"
                     style={
                       granted
                         ? { background: 'var(--text-primary)', color: '#fff' }
@@ -625,7 +621,7 @@ export function ChannelsSection() {
 
                   {/* Permission Scope Checklist */}
                   <div className="border-t border-[var(--ink-100)] pt-4">
-                    <span className="mb-2.5 block font-mono text-[11px] tracking-wider text-[var(--text-tertiary)] uppercase">
+                    <span className="mb-2.5 block font-mono text-xs tracking-wider text-[var(--text-tertiary)] uppercase">
                       What this lets them see
                     </span>
                     <div className="flex flex-wrap gap-2">

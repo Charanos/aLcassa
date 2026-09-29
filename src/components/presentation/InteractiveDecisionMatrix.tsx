@@ -98,7 +98,7 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
     <div>
       {/* Summary strip */}
       <div
-        className="mb-5 flex flex-wrap items-center gap-4 rounded-[16px] px-6 py-4"
+        className="mb-5 flex flex-wrap items-center gap-4 rounded-card px-6 py-4"
         style={{
           background: 'white',
           boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
@@ -116,7 +116,7 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
 
       {/* Filter tabs */}
       <div
-        className="mb-4 flex flex-wrap items-center gap-1 rounded-[24px] p-2"
+        className="mb-4 flex flex-wrap items-center gap-1 rounded-hero p-2"
         style={{ background: 'var(--surface-sunken)' }}
         role="tablist"
         aria-label="Filter decisions"
@@ -189,7 +189,7 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
             <div
               key={decision.question}
               data-reveal
-              className="rounded-[16px] transition-all duration-[var(--motion-standard)]"
+              className="rounded-card transition-all duration-[var(--motion-standard)]"
               style={{
                 background: 'white',
                 boxShadow: isBlocking

@@ -301,7 +301,7 @@ export function DialogFact({
  * The two buttons every dialog ends with.
  *
  * ⚠ ONE HEIGHT AND ONE RADIUS, BECAUSE FOUR DIALOGS HAD THREE OF EACH — 34px
- * here, 36 there, 40 in the plan card, with `rounded-lg`, `rounded-panel` and
+ * here, 36 there, 40 in the plan card, with `rounded-overlay`, `rounded-panel` and
  * `rounded-full` between them. Nobody notices one dialog's buttons; everybody
  * notices that the console does not agree with itself.
  */

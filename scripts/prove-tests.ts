@@ -116,7 +116,9 @@ say('aLcassa Systems · Cryptographic Isolation & Security Audit');
 say('================================================================================');
 say(`Timestamp   : ${when} (EAT)`);
 say(`Environment : Production-Grade Assertion Suite`);
-say(`Assertions  : ${report.numTotalTests} total (${report.numPassedTests} verified, ${report.numFailedTests} failed)`);
+say(
+  `Assertions  : ${report.numTotalTests} total (${report.numPassedTests} verified, ${report.numFailedTests} failed)`,
+);
 say('================================================================================');
 say();
 
@@ -126,16 +128,18 @@ const ordered = [...AREAS.map((a) => a.label), 'Other'].filter((l) => byArea.has
 for (const label of ordered) {
   const b = byArea.get(label);
   if (!b) continue;
-  
+
   const mark = b.failed === 0 ? '[✓]' : '[✗]';
   say(`${mark} ${label.toUpperCase()}`);
-  
+
   if (label.includes('isolation')) {
     say(`    Guarantee : Every query is cryptographically scoped to the authenticated session.`);
   }
 
-  say(`    Status    : ${b.passed} verified${b.failed ? `, ${b.failed} FAILED` : ''} in ${(b.ms / 1000).toFixed(2)}s across ${b.files.size} module(s)`);
-  
+  say(
+    `    Status    : ${b.passed} verified${b.failed ? `, ${b.failed} FAILED` : ''} in ${(b.ms / 1000).toFixed(2)}s across ${b.files.size} module(s)`,
+  );
+
   for (const f of [...b.files].sort()) {
     say(`      ↳ ${f}`);
   }

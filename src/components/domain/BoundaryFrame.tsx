@@ -104,7 +104,7 @@ export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFram
       <div
         data-slot="boundary-banner"
         data-mode={isSupport ? 'support' : 'staging'}
-        className="fixed top-0 right-0 left-0 z-50 flex h-[28px] items-center justify-center px-4 font-mono text-[11px] font-medium tracking-widest text-white shadow-md transition-colors"
+        className="fixed top-0 right-0 left-0 z-50 flex h-[28px] items-center justify-center px-4 font-mono text-xs font-medium tracking-widest text-white shadow-md transition-colors"
         style={{
           background: colour,
           color: fgColor,
@@ -132,7 +132,7 @@ export function BoundaryFrame({ supportMode, environment, onExit }: BoundaryFram
             <button
               type="button"
               onClick={onExit}
-              className="rounded-sm bg-white/20 px-3 py-0.5 text-[10px] font-medium hover:bg-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="rounded-chip bg-white/20 px-3 py-0.5 text-2xs font-medium hover:bg-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               {expired ? 'RECONNECT' : 'EXIT'}
             </button>

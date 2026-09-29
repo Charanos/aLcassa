@@ -661,7 +661,7 @@ export function ConsoleShell({
           through the header and sidebar to reach the page. */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:rounded-lg focus:px-4 focus:py-2.5"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:rounded-overlay focus:px-4 focus:py-2.5"
         style={{
           background: 'var(--blue-500)',
           color: 'var(--chrome-fg)',
@@ -789,7 +789,7 @@ export function ConsoleShell({
                 style={{ color: 'var(--chrome-action)' }}
                 aria-hidden
               />
-              <span className="text-[12.5px] whitespace-nowrap">Switch workspace</span>
+              <span className="text-sm whitespace-nowrap">Switch workspace</span>
               <IconChevronDown
                 size={13}
                 stroke={1.25}
@@ -815,11 +815,11 @@ export function ConsoleShell({
                       setOpenMenu(null);
                       setPendingWorkspace(w);
                     }}
-                    className="flex w-full items-center gap-3 rounded-[8px] px-2.5 py-2.5 text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
+                    className="flex w-full items-center gap-3 rounded-panel px-2.5 py-2.5 text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     <span
-                      className="grid size-[30px] shrink-0 place-items-center rounded-[6px]"
+                      className="grid size-[30px] shrink-0 place-items-center rounded-panel"
                       style={{
                         background: 'var(--blue-50)',
                         color: 'var(--blue-600)',
@@ -831,7 +831,7 @@ export function ConsoleShell({
                     </span>
                     <span className="min-w-0 flex-1">
                       <span
-                        className="block truncate text-[13.5px] font-medium"
+                        className="block truncate text-base font-medium"
                         style={{ color: 'var(--text-primary)' }}
                       >
                         {w.name}
@@ -854,7 +854,7 @@ export function ConsoleShell({
                   </button>
                 ))}
                 <p
-                  className="mx-2.5 mt-1.5 mb-1 border-t pt-3 text-[12px] leading-relaxed font-medium"
+                  className="mx-2.5 mt-1.5 mb-1 border-t pt-3 text-sm leading-relaxed font-medium"
                   style={{ borderColor: 'rgba(0,0,0,0.06)', color: 'var(--text-tertiary)' }}
                 >
                   Selecting a workspace opens a confirmation. It never navigates straight in.
@@ -873,7 +873,7 @@ export function ConsoleShell({
               setQuery('');
               setOpenMenu(null);
             }}
-            className="group flex h-[32px] w-full max-w-[340px] cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left transition-all hover:border-[var(--chrome-rule-strong)] hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
+            className="group flex h-[32px] w-full max-w-[340px] cursor-pointer items-center gap-2.5 rounded-overlay px-2.5 text-left transition-all hover:border-[var(--chrome-rule-strong)] hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
             style={{
               border: '1px solid var(--chrome-rule)',
               background: 'rgba(255, 255, 255, 0.02)',
@@ -889,11 +889,11 @@ export function ConsoleShell({
               style={{ color: 'var(--chrome-fg-faint)' }}
               aria-hidden
             />
-            <span className="flex-1 truncate text-[12px] transition-colors group-hover:text-[var(--chrome-fg)]">
+            <span className="flex-1 truncate text-sm transition-colors group-hover:text-[var(--chrome-fg)]">
               Search or jump to...
             </span>
             <kbd
-              className="hidden h-[22px] items-center gap-[3px] rounded-[5px] px-1.5 select-none sm:inline-flex"
+              className="hidden h-[22px] items-center gap-[3px] rounded-panel px-1.5 select-none sm:inline-flex"
               style={{
                 background: 'color-mix(in oklab, var(--chrome-active-bg) 60%, transparent)',
                 border: '1px solid var(--chrome-rule-strong)',
@@ -1001,7 +1001,7 @@ export function ConsoleShell({
                         style={{ borderColor: 'rgba(0,0,0,0.04)' }}
                       >
                         <span
-                          className="grid size-[32px] shrink-0 place-items-center rounded-[8px]"
+                          className="grid size-[32px] shrink-0 place-items-center rounded-panel"
                           style={{
                             background: n.kind === 'plain' ? 'rgba(0,0,0,0.04)' : ink.bg,
                             color: n.kind === 'plain' ? 'var(--text-secondary)' : ink.fg,
@@ -1016,7 +1016,7 @@ export function ConsoleShell({
                         </span>
                         <span className="min-w-0 flex-1">
                           <span
-                            className="block text-[13.5px] font-medium transition-colors group-hover:text-[var(--blue-600)]"
+                            className="block text-base font-medium transition-colors group-hover:text-[var(--blue-600)]"
                             style={{ color: 'var(--text-primary)' }}
                           >
                             {n.title}
@@ -1051,7 +1051,7 @@ export function ConsoleShell({
                 >
                   <Link
                     href="/platform/settings?tab=notifications"
-                    className="text-[13px] font-medium hover:underline"
+                    className="text-sm font-medium hover:underline"
                     style={{ color: 'var(--blue-600)' }}
                   >
                     Notification settings
@@ -1089,7 +1089,7 @@ export function ConsoleShell({
               type="button"
               onClick={(e) => toggleMenu('account', e.currentTarget)}
               aria-expanded={openMenu === 'account'}
-              className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg py-0 pr-2 pl-1 transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
+              className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-overlay py-0 pr-2 pl-1 transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
               style={{
                 border: '1px solid transparent',
                 color: 'var(--chrome-fg)',
@@ -1102,7 +1102,7 @@ export function ConsoleShell({
                   file from this deployment's storage bucket, and initials are
                   the fallback for the accounts — most of them — with none. */}
               <Avatar initials={account.initials} src={account.avatarUrl} size="xs" tone="chrome" />
-              <span className="hidden text-[12.5px] font-medium lg:inline">{account.name}</span>
+              <span className="hidden text-sm font-medium lg:inline">{account.name}</span>
               <IconChevronDown
                 size={12}
                 stroke={1.25}
@@ -1121,7 +1121,7 @@ export function ConsoleShell({
                   <Avatar initials={account.initials} src={account.avatarUrl} size="lg" />
                   <span className="min-w-0 flex-1">
                     <span
-                      className="block truncate text-[14px] font-medium"
+                      className="block truncate text-base font-medium"
                       style={{ color: 'var(--text-primary)' }}
                     >
                       {account.name}
@@ -1327,7 +1327,7 @@ export function ConsoleShell({
             {/* GSAP Smooth Sliding Active Pill Indicator */}
             <div
               ref={indicatorRef}
-              className="pointer-events-none absolute right-2.5 left-2.5 z-0 overflow-hidden rounded-lg"
+              className="pointer-events-none absolute right-2.5 left-2.5 z-0 overflow-hidden rounded-overlay"
               style={{
                 background: 'color-mix(in oklab, var(--chrome-active-bg) 90%, transparent)',
                 boxShadow: 'var(--chrome-highlight), 0 1px 3px rgba(0,0,0,0.3)',
@@ -1404,7 +1404,7 @@ export function ConsoleShell({
                         onClick={(e) => handleNavClick(e, item.href)}
                         onMouseEnter={(e) => handleNavHover(e, item.href)}
                         onMouseLeave={handleNavLeave}
-                        className="group relative z-10 flex h-[36px] cursor-pointer items-center rounded-lg transition-colors select-none hover:text-[var(--chrome-fg)]"
+                        className="group relative z-10 flex h-[36px] cursor-pointer items-center rounded-overlay transition-colors select-none hover:text-[var(--chrome-fg)]"
                         style={{
                           paddingLeft: collapsed ? '11px' : '10px',
                           paddingRight: collapsed ? '11px' : '10px',
@@ -1496,7 +1496,7 @@ export function ConsoleShell({
                 ? `Isolation green · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
                 : `Isolation gap · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
             }
-            className="group flex h-[38px] items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
+            className="group flex h-[38px] items-center rounded-overlay transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
             style={{
               gap: collapsed ? '0px' : '10px',
               marginLeft: collapsed ? '0px' : '8px',
@@ -1605,7 +1605,7 @@ export function ConsoleShell({
             {/* ── Public site exit ─────────────────────────── */}
             <Link
               href="/"
-              className="group flex h-[34px] w-full items-center rounded-lg transition-all hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
+              className="group flex h-[34px] w-full items-center rounded-overlay transition-all hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
               style={{
                 color: 'var(--chrome-fg-muted)',
                 gap: collapsed ? '0px' : '9px',
@@ -1617,7 +1617,7 @@ export function ConsoleShell({
               title={collapsed ? 'Public marketing site' : undefined}
             >
               <span
-                className="flex shrink-0 items-center justify-center rounded-md"
+                className="flex shrink-0 items-center justify-center rounded-panel"
                 style={{
                   width: '22px',
                   height: '22px',
@@ -1646,7 +1646,7 @@ export function ConsoleShell({
 
             {/* ── Account identity ─────────────────────────── */}
             <div
-              className="flex h-[42px] w-full items-center rounded-lg"
+              className="flex h-[42px] w-full items-center rounded-overlay"
               style={{
                 gap: collapsed ? '0px' : '10px',
                 paddingLeft: collapsed ? '15px' : '8px',
@@ -1697,7 +1697,7 @@ export function ConsoleShell({
             <button
               type="button"
               onClick={toggleCollapse}
-              className="group flex h-[34px] w-full cursor-pointer items-center rounded-lg text-[12.5px] transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
+              className="group flex h-[34px] w-full cursor-pointer items-center rounded-overlay text-sm transition-all hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
               style={{
                 background: 'transparent',
                 color: 'var(--chrome-fg-faint)',
@@ -1736,7 +1736,7 @@ export function ConsoleShell({
                 </span>
               </span>
               <kbd
-                className="inline-flex h-[18px] shrink-0 items-center gap-[2px] rounded-[4px] px-1 select-none"
+                className="inline-flex h-[18px] shrink-0 items-center gap-[2px] rounded-chip px-1 select-none"
                 style={{
                   opacity: collapsed ? 0 : 1,
                   transform: collapsed ? 'scale(0.4)' : 'scale(1)',
@@ -1836,7 +1836,7 @@ export function ConsoleShell({
               paletteInput.current?.focus();
             }}
             aria-describedby={undefined}
-            className="fixed top-[10dvh] left-1/2 z-[81] flex w-[620px] max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col overflow-hidden rounded-[16px]"
+            className="fixed top-[10dvh] left-1/2 z-[81] flex w-[620px] max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col overflow-hidden rounded-card"
             style={{
               /*
                * ⚠ `dvh`, NOT `vh`, AND IT MATTERS MOST ON A PHONE. Below `md`
@@ -1947,7 +1947,7 @@ export function ConsoleShell({
                 }}
               />
               <kbd
-                className="flex h-5 items-center justify-center rounded-[4px] px-1.5"
+                className="flex h-5 items-center justify-center rounded-chip px-1.5"
                 style={{
                   background:
                     'linear-gradient(to bottom, var(--surface-raised), var(--surface-sunken))',
@@ -1994,7 +1994,7 @@ export function ConsoleShell({
                       role="option"
                       aria-selected={selected}
                       ref={selected ? selectedHitRef : undefined}
-                      className="group flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-left transition-all"
+                      className="group flex w-full items-center gap-3 rounded-overlay px-3 py-2.5 text-left transition-all"
                       style={{ background: selected ? 'rgba(0,0,0,0.045)' : 'transparent' }}
                     >
                       <span
@@ -2006,7 +2006,7 @@ export function ConsoleShell({
                       </span>
                       <span className="min-w-0 flex-1">
                         <span
-                          className="block truncate text-[14.5px] font-medium tracking-tight transition-colors group-hover:text-[var(--blue-600)]"
+                          className="block truncate text-base font-medium tracking-tight transition-colors group-hover:text-[var(--blue-600)]"
                           style={{ color: 'var(--text-primary)' }}
                         >
                           {hit.label}
@@ -2023,7 +2023,7 @@ export function ConsoleShell({
                       </span>
                       <div className="flex shrink-0 items-center justify-end">
                         <span
-                          className="flex items-center justify-center rounded-[6px] border px-2 py-[3px] text-[11px] font-medium transition-colors group-hover:border-[var(--blue-200)] group-hover:bg-[var(--blue-50)] group-hover:text-[var(--blue-600)]"
+                          className="flex items-center justify-center rounded-panel border px-2 py-[3px] text-xs font-medium transition-colors group-hover:border-[var(--blue-200)] group-hover:bg-[var(--blue-50)] group-hover:text-[var(--blue-600)]"
                           style={{
                             borderColor: 'rgba(0,0,0,0.06)',
                             background: 'var(--surface-sunken)',
@@ -2107,7 +2107,7 @@ function ChromeButton({
       type="button"
       onClick={onClick}
       aria-expanded={expanded}
-      className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg py-0 pr-2.5 pl-2 transition-[background-color,border-color,color] duration-150 hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
+      className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-overlay py-0 pr-2.5 pl-2 transition-[background-color,border-color,color] duration-150 hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
       style={{
         /*
          * ⚠ THE OPEN STATE IS BRAND-TINTED, NOT JUST DARKER.
@@ -2163,7 +2163,7 @@ function ChromeIconButton({
       aria-label={label}
       /* size-8 draws at 32px; `target-44` gives it the 44px hit area sheet 03
          requires without changing the chrome's density. */
-      className="target-44 grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
+      className="target-44 grid size-8 cursor-pointer place-items-center rounded-overlay transition-colors hover:bg-[var(--chrome-hover)] hover:text-[var(--chrome-fg)]"
       style={{
         border: 'none',
         background: active ? 'var(--chrome-hover)' : 'transparent',
@@ -2212,7 +2212,7 @@ function Dropdown({ children, className = '' }: { children: React.ReactNode; cla
   return (
     <div
       ref={ref}
-      className={`absolute top-[42px] overflow-hidden rounded-[12px] ${className}`}
+      className={`absolute top-[42px] overflow-hidden rounded-overlay ${className}`}
       style={{
         background: 'rgba(255, 255, 255, 0.85)',
         backdropFilter: 'blur(16px)',
@@ -2240,7 +2240,7 @@ function MenuSignOut() {
     <form method="post" action="/api/v1/auth/sign-out" className="contents">
       <button
         type="submit"
-        className="group flex h-[36px] w-full items-center gap-3 rounded-[8px] px-2.5 transition-colors hover:bg-[var(--danger-bg)]"
+        className="group flex h-[36px] w-full items-center gap-3 rounded-panel px-2.5 transition-colors hover:bg-[var(--danger-bg)]"
         style={{
           color: 'var(--danger-fg)',
           font: '450 13.5px/1 var(--font-ui)',
@@ -2275,7 +2275,7 @@ function MenuLink({
         const icon = e.currentTarget.querySelector('svg');
         if (icon) gsapSafe.to(icon, { x: 0, duration: 0.25, ease: 'power2.out' });
       }}
-      className="flex h-[36px] w-full items-center gap-3 rounded-[8px] px-2.5 transition-colors hover:bg-[var(--surface-raised)]"
+      className="flex h-[36px] w-full items-center gap-3 rounded-panel px-2.5 transition-colors hover:bg-[var(--surface-raised)]"
       style={{
         color: danger ? 'var(--danger-fg)' : 'var(--text-secondary)',
         font: '450 13.5px/1 var(--font-ui)',

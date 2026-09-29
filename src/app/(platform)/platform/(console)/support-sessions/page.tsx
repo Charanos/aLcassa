@@ -166,7 +166,7 @@ export default async function SupportSessionsPage() {
                           href={`/platform/tenants/${h.slug}`}
                           className="block truncate transition-colors hover:text-[var(--text-action)]"
                           style={{
-                            font: '400 var(--text-sm)/1.3 var(--font-ui)',
+                            font: '400 var(--type-compact)/1.3 var(--font-ui)',
                             color: 'var(--text-primary)',
                           }}
                         >
@@ -191,7 +191,7 @@ export default async function SupportSessionsPage() {
                           className="block truncate"
                           title={h.reason}
                           style={{
-                            font: '400 var(--text-sm)/1.3 var(--font-ui)',
+                            font: '400 var(--type-compact)/1.3 var(--font-ui)',
                             color: 'var(--text-secondary)',
                           }}
                         >
@@ -199,7 +199,7 @@ export default async function SupportSessionsPage() {
                         </span>
                       </td>
                       <td style={{ padding: '0 8px', textAlign: 'right' }}>
-                        <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
+                        <span className="numeric" style={{ fontSize: 'var(--type-compact)' }}>
                           {h.duration}
                         </span>
                       </td>
@@ -237,7 +237,7 @@ export default async function SupportSessionsPage() {
                       href={`/platform/tenants/${h.slug}`}
                       className="min-w-0 flex-1"
                       style={{
-                        font: '500 var(--text-sm)/1.35 var(--font-ui)',
+                        font: '500 var(--type-compact)/1.35 var(--font-ui)',
                         color: 'var(--text-primary)',
                       }}
                     >

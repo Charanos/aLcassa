@@ -67,7 +67,7 @@ export function ProfileCardDialog({
       <div
         ref={cardRef}
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-sm overflow-hidden rounded-[32px]"
+        className="relative w-full max-w-sm overflow-hidden rounded-slab"
         style={{
           background: 'var(--surface-raised)',
           border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -127,7 +127,7 @@ export function ProfileCardDialog({
               {owner.email}
             </p>
             <span
-              className="mt-3 inline-block rounded-full px-3 py-1 text-[10px] font-medium tracking-[0.1em] uppercase"
+              className="mt-3 inline-block rounded-full px-3 py-1 text-2xs font-medium tracking-[0.1em] uppercase"
               style={{
                 background: 'var(--surface-inset)',
                 color: 'var(--text-tertiary)',
@@ -140,7 +140,7 @@ export function ProfileCardDialog({
 
           {/* Debossed Security Well */}
           <div
-            className="mt-6 flex flex-col rounded-2xl"
+            className="mt-6 flex flex-col rounded-card"
             style={{
               background: 'var(--surface-sunken)',
               boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.02), inset 0 1px 2px rgba(0,0,0,0.02)',
@@ -156,7 +156,7 @@ export function ProfileCardDialog({
               <div className="flex items-center gap-2">
                 <IconShieldCheck size={14} stroke={2} style={{ color: 'var(--success-fg)' }} />
                 <span
-                  className="text-[11px] font-medium tracking-wide uppercase"
+                  className="text-xs font-medium tracking-wide uppercase"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   Account Status
@@ -180,7 +180,7 @@ export function ProfileCardDialog({
               <div className="flex items-center gap-2">
                 <IconKey size={14} stroke={2} style={{ color: 'var(--text-secondary)' }} />
                 <span
-                  className="text-[11px] font-medium tracking-wide uppercase"
+                  className="text-xs font-medium tracking-wide uppercase"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   Security
@@ -204,7 +204,7 @@ export function ProfileCardDialog({
               <div className="flex items-center gap-2">
                 <IconUserCheck size={14} stroke={2} style={{ color: 'var(--text-secondary)' }} />
                 <span
-                  className="text-[11px] font-medium tracking-wide uppercase"
+                  className="text-xs font-medium tracking-wide uppercase"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   Access Level
@@ -222,7 +222,7 @@ export function ProfileCardDialog({
               <div className="flex items-center gap-2">
                 <IconClock size={14} stroke={2} style={{ color: 'var(--text-secondary)' }} />
                 <span
-                  className="text-[11px] font-medium tracking-wide uppercase"
+                  className="text-xs font-medium tracking-wide uppercase"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   Joined

@@ -62,7 +62,7 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
       )}
 
       <div
-        className="mt-6 flex flex-col gap-2 rounded-[24px] p-5 sm:flex-row sm:items-center sm:gap-6"
+        className="mt-6 flex flex-col gap-2 rounded-hero p-5 sm:flex-row sm:items-center sm:gap-6"
         style={{
           background: 'var(--surface-sunken)',
           boxShadow: 'var(--neu-inset)',
@@ -83,7 +83,7 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
           />
         </div>
         <div className="flex-1">
-          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             The pale bar is the median workspace on that plan; the mark is the busiest one. A limit
             nothing approaches is not protecting anything, and a limit one workspace is pressed
             against is a conversation with that customer rather than a change to the plan.

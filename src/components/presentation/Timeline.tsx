@@ -47,7 +47,7 @@ export const MILESTONE_STATUS: Record<
 export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
   return (
     <div
-      className="overflow-hidden rounded-[24px]"
+      className="overflow-hidden rounded-hero"
       style={{
         background: 'white',
         boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
@@ -72,10 +72,7 @@ export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
                   <StatusChip tone={status.tone} icon={status.icon} size="sm">
                     {status.label}
                   </StatusChip>
-                  <span
-                    className="t-data text-[13px]"
-                    style={{ color: `var(--${status.tone}-ink)` }}
-                  >
+                  <span className="t-data text-sm" style={{ color: `var(--${status.tone}-ink)` }}>
                     {milestone.id}
                   </span>
                 </div>

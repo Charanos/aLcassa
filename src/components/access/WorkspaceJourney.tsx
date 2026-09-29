@@ -63,7 +63,7 @@ export function WorkspaceJourney({ current }: { current: JourneyStage }) {
      */
     <div className="flex flex-col">
       <p
-        className="font-mono text-[10.5px] tracking-wider uppercase"
+        className="font-mono text-2xs tracking-wider uppercase"
         style={{ color: 'var(--text-tertiary)' }}
       >
         What happens next
@@ -82,7 +82,7 @@ export function WorkspaceJourney({ current }: { current: JourneyStage }) {
                   reads as one path rather than four separate rows. */}
               <div className="flex flex-col items-center" aria-hidden>
                 <span
-                  className="grid size-[22px] shrink-0 place-items-center rounded-full font-mono text-[10px] font-medium"
+                  className="grid size-[22px] shrink-0 place-items-center rounded-full font-mono text-2xs font-medium"
                   style={
                     done
                       ? { background: 'var(--success-fg)', color: 'var(--ink-0)' }
@@ -109,7 +109,7 @@ export function WorkspaceJourney({ current }: { current: JourneyStage }) {
 
               <div className={last ? 'pb-0' : 'pb-4'}>
                 <p
-                  className="text-[12.5px] leading-snug text-balance"
+                  className="text-sm leading-snug text-balance"
                   style={{
                     color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
                     fontWeight: active ? 500 : 400,
@@ -118,7 +118,7 @@ export function WorkspaceJourney({ current }: { current: JourneyStage }) {
                   {stage.title}
                 </p>
                 <p
-                  className="mt-0.5 text-[11.5px] leading-relaxed text-pretty"
+                  className="mt-0.5 text-sm leading-relaxed text-pretty"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   {stage.blurb}
@@ -130,7 +130,7 @@ export function WorkspaceJourney({ current }: { current: JourneyStage }) {
       </ol>
 
       <p
-        className="mt-6 border-t pt-3.5 text-[11px] leading-relaxed text-pretty"
+        className="mt-6 border-t pt-3.5 text-xs leading-relaxed text-pretty"
         style={{ borderColor: 'var(--ink-200)', color: 'var(--text-tertiary)' }}
       >
         About ten minutes end to end. You can stop after any step and pick the rest up from your

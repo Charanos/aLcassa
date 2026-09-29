@@ -38,7 +38,7 @@ export function CommandTrigger({ onOpen }: { onOpen?: () => void }) {
       <IconSearch size={14} stroke={1.75} />
       <span className="t-compact hidden sm:inline">Search or jump to…</span>
       <kbd
-        className="t-eyebrow ml-1 hidden items-center gap-0.5 rounded-sm border px-1.5 py-0.5 sm:flex"
+        className="t-eyebrow ml-1 hidden items-center gap-0.5 rounded-chip border px-1.5 py-0.5 sm:flex"
         style={{ borderColor: 'var(--border-subtle)' }}
       >
         {mac ? '⌘' : 'Ctrl'}K

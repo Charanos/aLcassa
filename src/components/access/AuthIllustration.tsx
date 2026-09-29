@@ -174,20 +174,20 @@ export function AuthIllustration() {
         {/* WORKSPACE HUB (Center) */}
         {/* Sleek, horizontally-proportioned card. Center left is at 500px, width 240px -> 380px to 620px */}
         <div className="absolute top-[50%] left-[50%] w-[240px] -translate-x-1/2 -translate-y-1/2">
-          <div className="relative rounded-xl bg-[#0A0F1A] p-3.5 text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-white/10 backdrop-blur-3xl transition-transform duration-700 hover:scale-[1.02]">
-            <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.04] to-transparent" />
+          <div className="relative rounded-overlay bg-[#0A0F1A] p-3.5 text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-white/10 backdrop-blur-3xl transition-transform duration-700 hover:scale-[1.02]">
+            <div className="pointer-events-none absolute inset-0 rounded-overlay bg-gradient-to-b from-white/[0.04] to-transparent" />
 
             <div className="relative mb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* Sleek, minimal icon box */}
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#3B82F6_0%,#1D4ED8_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-[#0A0F1A]">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-overlay bg-[linear-gradient(135deg,#3B82F6_0%,#1D4ED8_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-[#0A0F1A]">
                   <IconLock size={16} stroke={2} className="text-white drop-shadow-sm" />
                 </div>
                 <div>
-                  <span className="mb-1 block font-sans text-[13px] leading-none font-medium tracking-tight whitespace-nowrap text-white">
+                  <span className="mb-1 block font-sans text-sm leading-none font-medium tracking-tight whitespace-nowrap text-white">
                     Your Workspace
                   </span>
-                  <span className="block font-sans text-[11px] leading-none font-medium tracking-tight whitespace-nowrap text-[var(--blue-200)]/50">
+                  <span className="block font-sans text-xs leading-none font-medium tracking-tight whitespace-nowrap text-[var(--blue-200)]/50">
                     Enterprise Console
                   </span>
                 </div>
@@ -204,7 +204,7 @@ export function AuthIllustration() {
                   <span className="absolute inset-[-2px] animate-pulse rounded-full bg-[var(--success-fg)]/40"></span>
                   <span className="absolute size-1.5 rounded-full bg-[var(--success-fg)]"></span>
                 </div>
-                <span className="font-mono text-[9.5px] font-medium tracking-[0.15em] whitespace-nowrap text-[var(--success-fg)]/90 uppercase">
+                <span className="font-mono text-3xs font-medium tracking-[0.15em] whitespace-nowrap text-[var(--success-fg)]/90 uppercase">
                   Live & Isolated
                 </span>
               </div>
@@ -242,7 +242,7 @@ export function AuthIllustration() {
  *
  * Four inline copies of the same idea — a rounded square holding a glyph, lifted
  * off the surface — and all four had drifted: `p-2.5` here, `p-2` below,
- * `size-8 rounded-xl` on one sign-in page, `size-6 rounded-md` on the other.
+ * `size-8 rounded-overlay` on one sign-in page, `size-6 rounded-panel` on the other.
  * None of them could be reused because none of them was a component.
  *
  * The tile is the right treatment for exactly what these cards hold: a CHANNEL
@@ -268,7 +268,7 @@ function ChannelCard({
 }) {
   return (
     <div
-      className="group flex w-full items-center gap-3.5 rounded-[1.125rem] p-2.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="group flex w-full items-center gap-3.5 rounded-card p-2.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
       style={{
         background: 'color-mix(in oklab, var(--surface-raised) 80%, transparent)',
         boxShadow: 'var(--shadow-sm), inset 0 0 0 1px var(--border-subtle)',
@@ -281,7 +281,7 @@ function ChannelCard({
         className="transition-transform duration-300 group-hover:scale-105 group-hover:rotate-2 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-hover:rotate-0"
       />
       <div
-        className="text-[13px] tracking-tight"
+        className="text-sm tracking-tight"
         style={{ color: 'var(--text-primary)', fontWeight: 500 }}
       >
         {title}
@@ -303,7 +303,7 @@ function FeatureCard({
 }) {
   return (
     <div
-      className="flex w-full items-start gap-3 rounded-[1.125rem] p-3.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="flex w-full items-start gap-3 rounded-card p-3.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
       style={{
         background: 'color-mix(in oklab, var(--surface-raised) 80%, transparent)',
         boxShadow: 'var(--shadow-sm), inset 0 0 0 1px var(--border-subtle)',
@@ -314,13 +314,13 @@ function FeatureCard({
       <IconTile icon={icon} tone={tone} size="lg" className="mt-0.5" />
       <div>
         <div
-          className="mb-1 font-mono text-[9px] leading-tight tracking-[0.1em] uppercase"
+          className="mb-1 font-mono text-3xs leading-tight tracking-[0.1em] uppercase"
           style={{ color: 'var(--text-tertiary)', fontWeight: 500 }}
         >
           {title}
         </div>
         <div
-          className="text-[12px] leading-snug"
+          className="text-sm leading-snug"
           style={{ color: 'var(--text-secondary)', fontWeight: 500 }}
         >
           {subtitle}

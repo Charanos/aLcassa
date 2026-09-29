@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { Badge, MEMBER_STATUS_TONE, type BadgeTone } from '@/components/feedback/Badge';
+import { Badge, MEMBER_STATUS_TONE, type BadgeTone } from '@/components/primitives/Badge';
 import { Button } from '@/components/primitives/Button';
 import { removeMember, revokeInvitation } from '@/app/(tenant)/app/actions';
 import type { Invitation, Member } from '@/lib/tenant/data';

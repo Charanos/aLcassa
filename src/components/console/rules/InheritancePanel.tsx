@@ -61,7 +61,7 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
         {label}
       </span>
-      <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
+      <span className="numeric" style={{ fontSize: 'var(--type-compact)' }}>
         {value}
       </span>
     </div>

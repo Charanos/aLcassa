@@ -30,7 +30,7 @@ import { RevenueBand } from '@/components/console/overview/RevenueBand';
 import { YourQueue } from '@/components/console/overview/YourQueue';
 import { PlatformTelemetry } from '@/components/console/overview/PlatformTelemetry';
 import { LastActions } from '@/components/console/overview/LastActions';
-import { Badge } from '@/components/primitives/Badge';
+import { StatusBadge } from '@/components/primitives/StatusBadge';
 
 export const metadata: Metadata = { title: 'Overview' };
 
@@ -149,7 +149,7 @@ export default async function ConsoleOverviewPage() {
           A completely overhauled inverse chrome section that combines the daily
           briefing with a dynamic Recharts visualization. */}
       <section
-        className="relative mt-6 overflow-hidden rounded-[20px] shadow-2xl transition-all duration-300"
+        className="relative mt-6 overflow-hidden rounded-card shadow-2xl transition-all duration-300"
         style={{
           background: 'var(--chrome-bg-base)',
           border: '1px solid rgba(255,255,255,0.08)',
@@ -265,7 +265,7 @@ export default async function ConsoleOverviewPage() {
             <div className="relative z-10 mt-10 flex flex-wrap items-center gap-4">
               <Link
                 href="/platform/revenue"
-                className="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-lg px-5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(255,255,255,0.15)]"
+                className="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-overlay px-5 whitespace-nowrap transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(255,255,255,0.15)]"
                 style={{
                   background: 'rgba(255,255,255,0.95)',
                   color: 'var(--brand-navy)', // Matches the navy bg
@@ -278,7 +278,7 @@ export default async function ConsoleOverviewPage() {
               </Link>
               <Link
                 href="/platform/tenants"
-                className="inline-flex h-10 cursor-pointer items-center rounded-lg px-5 whitespace-nowrap transition-all duration-300 hover:bg-[rgba(255,255,255,0.08)]"
+                className="inline-flex h-10 cursor-pointer items-center rounded-overlay px-5 whitespace-nowrap transition-all duration-300 hover:bg-[rgba(255,255,255,0.08)]"
                 style={{
                   border: '1px solid rgba(255,255,255,0.15)',
                   color: 'var(--invert-card-fg)',
@@ -330,7 +330,7 @@ export default async function ConsoleOverviewPage() {
                 <Link
                   key={s.id}
                   href={s.href}
-                  className="group relative -m-5 flex cursor-pointer flex-col justify-between rounded-xl px-5 py-3 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                  className="group relative -m-5 flex cursor-pointer flex-col justify-between rounded-overlay px-5 py-3 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                 >
                   {/* Absolute Background Artwork Icon */}
                   <div className="pointer-events-none absolute right-2 -bottom-4 z-0 text-[var(--invert-card-fg)] opacity-[0.10] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.18]">
@@ -345,7 +345,7 @@ export default async function ConsoleOverviewPage() {
                   <div className="relative z-10 mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <span
-                        className="font-mono text-[10.5px] font-medium tracking-[0.15em] uppercase"
+                        className="font-mono text-2xs font-medium tracking-[0.15em] uppercase"
                         style={{ color: 'var(--invert-card-fg)', opacity: 0.55 }}
                       >
                         {s.label}
@@ -383,9 +383,9 @@ export default async function ConsoleOverviewPage() {
                     }}
                   >
                     {isPositive && (
-                      <Badge intent="success" crisp indicator={false} className="shadow-none">
+                      <StatusBadge tone="success" size="sm" dot={false} className="shadow-none">
                         + UP
-                      </Badge>
+                      </StatusBadge>
                     )}
                     <span className="truncate">{noteText}</span>
                   </div>
@@ -414,7 +414,7 @@ export default async function ConsoleOverviewPage() {
               accent="live"
               variant="elevated"
               action={
-                <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
+                <span className="numeric" style={{ fontSize: 'var(--type-compact)' }}>
                   {new Date(session.expiresAt).toLocaleTimeString('en-GB', {
                     hour: '2-digit',
                     minute: '2-digit',

@@ -44,7 +44,7 @@ export default async function VerifyPage({
       aside={<WorkspaceJourney current="confirm" />}
       lede="We have dispatched a secure link to activate your workspace enclave."
       footer={
-        <p className="text-center text-[12.5px] text-[var(--text-secondary)]">
+        <p className="text-center text-sm text-[var(--text-secondary)]">
           Incorrect email address?{' '}
           <Link
             href="/sign-up"
@@ -55,21 +55,21 @@ export default async function VerifyPage({
         </p>
       }
     >
-      <div className="rounded-2xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/60 p-5 shadow-2xs">
+      <div className="rounded-card border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/60 p-5 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--blue-500)]/10 text-[var(--blue-600)]">
+          <div className="grid size-10 shrink-0 place-items-center rounded-overlay bg-[var(--blue-500)]/10 text-[var(--blue-600)]">
             <IconMail size={22} stroke={2} aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="block font-mono text-[11px] tracking-wider text-[var(--text-tertiary)] uppercase">
+            <span className="block font-mono text-xs tracking-wider text-[var(--text-tertiary)] uppercase">
               Recipient Address
             </span>
-            <span className="block truncate font-mono text-[13px] font-medium text-[var(--text-primary)]">
+            <span className="block truncate font-mono text-sm font-medium text-[var(--text-primary)]">
               {email ?? 'your workspace email'}
             </span>
           </div>
         </div>
-        <p className="mt-3.5 border-t border-[var(--ink-200)]/70 pt-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
+        <p className="mt-3.5 border-t border-[var(--ink-200)]/70 pt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
           Click the link in the message to activate your workspace and complete setup. Links remain
           valid for 24 hours.
         </p>
@@ -78,7 +78,7 @@ export default async function VerifyPage({
       {resent ? (
         <div
           role="status"
-          className="mt-4 rounded-xl border px-3.5 py-2.5 text-[12.5px] leading-relaxed"
+          className="mt-4 rounded-overlay border px-3.5 py-2.5 text-sm leading-relaxed"
           style={{
             color: 'var(--success-fg)',
             background: 'var(--success-bg)',
@@ -93,7 +93,7 @@ export default async function VerifyPage({
       {errorMessage ? (
         <div
           role="alert"
-          className="mt-4 rounded-xl border px-3.5 py-2.5 text-[12.5px] leading-relaxed"
+          className="mt-4 rounded-overlay border px-3.5 py-2.5 text-sm leading-relaxed"
           style={{ color: tone.fg, background: tone.bg, borderColor: tone.rule }}
         >
           {errorMessage}
@@ -126,7 +126,7 @@ export default async function VerifyPage({
         The way out. 02 §4's setup checklist is waiting on the overview, and
         it is a far better second step than staring at an inbox.
       */}
-      <p className="mt-3 text-center text-[12px] text-[var(--text-secondary)]">
+      <p className="mt-3 text-center text-sm text-[var(--text-secondary)]">
         <Link
           href="/app"
           className="font-medium text-[var(--blue-600)] underline underline-offset-4 transition-colors hover:text-[var(--blue-700)]"

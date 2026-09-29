@@ -86,7 +86,7 @@ export function AdminProfileCard({
         <div
           role="menu"
           data-slot="admin-profile-menu"
-          className="absolute bottom-[calc(100%+6px)] left-2 z-50 w-56 overflow-hidden rounded-md border py-1"
+          className="absolute bottom-[calc(100%+6px)] left-2 z-50 w-56 overflow-hidden rounded-panel border py-1"
           style={{
             background: 'var(--surface-raised)',
             borderColor: 'var(--border-subtle)',

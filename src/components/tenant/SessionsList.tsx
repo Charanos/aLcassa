@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { IconAlertTriangle, IconDeviceDesktop } from '@tabler/icons-react';
-import { Badge } from '@/components/feedback/Badge';
+import { Badge } from '@/components/primitives/Badge';
 import { Button } from '@/components/primitives/Button';
 import { revokeSession } from '@/app/(tenant)/app/actions';
 import type { AccountSession } from '@/lib/tenant/data';

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { IconAlertTriangle, IconLock } from '@tabler/icons-react';
-import { Badge } from '@/components/feedback/Badge';
+import { Badge } from '@/components/primitives/Badge';
 import { Button } from '@/components/primitives/Button';
 import { publishAiRules } from '@/app/(tenant)/app/actions';
 import type { RuleField, RulesVersion } from '@/lib/tenant/data';

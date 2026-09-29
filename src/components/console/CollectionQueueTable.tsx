@@ -31,7 +31,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
       {/* Desktop table */}
       <div className="hidden p-4 sm:block">
         <div
-          className="relative overflow-hidden rounded-[20px]"
+          className="relative overflow-hidden rounded-card"
           style={{
             background: 'var(--surface-raised)',
             border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
@@ -173,7 +173,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
               <span
                 className="min-w-0 flex-1"
                 style={{
-                  font: '500 var(--text-sm)/1.35 var(--font-ui)',
+                  font: '500 var(--type-compact)/1.35 var(--font-ui)',
                   color: 'var(--text-primary)',
                 }}
               >
@@ -190,7 +190,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
               <span style={{ font: '400 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
                 {c.invoice} · {c.attempts}
               </span>
-              <span className="numeric" style={{ fontSize: 'var(--text-sm)' }}>
+              <span className="numeric" style={{ fontSize: 'var(--type-compact)' }}>
                 {c.amount}
               </span>
             </div>

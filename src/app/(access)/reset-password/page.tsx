@@ -22,7 +22,7 @@ export default async function ResetPasswordPage({
       title="Set new password"
       lede="Enter a strong, unique password to secure your workspace account."
       footer={
-        <p className="text-center text-[12.5px] text-[var(--text-secondary)]">
+        <p className="text-center text-sm text-[var(--text-secondary)]">
           Remembered your password?{' '}
           <Link
             href="/sign-in"
@@ -38,7 +38,7 @@ export default async function ResetPasswordPage({
 
         <NewPasswordFields confirmName="passwordConfirm" />
 
-        <div className="flex items-start gap-2.5 rounded-xl border border-[var(--ink-200)]/80 bg-[var(--ink-50)]/50 p-3 text-[12px] text-[var(--text-secondary)] shadow-2xs">
+        <div className="flex items-start gap-2.5 rounded-overlay border border-[var(--ink-200)]/80 bg-[var(--ink-50)]/50 p-3 text-sm text-[var(--text-secondary)] shadow-2xs">
           <IconShieldCheck
             size={16}
             stroke={2}

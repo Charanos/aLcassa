@@ -63,7 +63,7 @@ function Row({
     >
       <div className="flex items-baseline justify-between gap-3">
         <span
-          className="flex items-center gap-2.5 truncate text-[13px] font-medium tracking-tight"
+          className="flex items-center gap-2.5 truncate text-sm font-medium tracking-tight"
           style={{ color: 'var(--text-primary)' }}
         >
           <Icon size={16} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
@@ -71,7 +71,7 @@ function Row({
         </span>
         <span className="flex shrink-0 items-baseline gap-2">
           <span
-            className="font-mono text-[11px] whitespace-nowrap"
+            className="font-mono text-xs whitespace-nowrap"
             style={{ color: 'var(--text-tertiary)' }}
           >
             {row.tenants === 0
@@ -123,7 +123,7 @@ function Row({
 
       {row.atCeiling > 0 ? (
         <span
-          className="font-mono text-[10px] font-medium tracking-wide whitespace-nowrap uppercase"
+          className="font-mono text-2xs font-medium tracking-wide whitespace-nowrap uppercase"
           style={{ color: 'var(--accent-mark-text)' }}
         >
           {row.atCeiling} {row.atCeiling === 1 ? 'workspace is' : 'workspaces are'} at{' '}
@@ -142,7 +142,7 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
       <Dialog.Trigger asChild>
         <button
           type="button"
-          className="group relative flex w-full flex-col gap-2 rounded-[32px] p-8 text-left transition-all hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="group relative flex w-full flex-col gap-2 rounded-slab p-8 text-left transition-all hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           style={{
             background: 'var(--surface-raised)',
             border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -157,7 +157,7 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
               {plan.name}
             </h3>
             <span
-              className="font-mono text-[11px] font-medium whitespace-nowrap"
+              className="font-mono text-xs font-medium whitespace-nowrap"
               style={{ color: 'var(--text-tertiary)' }}
             >
               {plan.tenants} {plan.tenants === 1 ? 'workspace' : 'workspaces'}
@@ -187,7 +187,7 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
             See `ProvisionWorkspaceDialog` for the full account. */}
         <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
           <Dialog.Content
-            className="surface-glass-strong pointer-events-auto w-[880px] max-w-[92vw] overflow-hidden rounded-[32px]"
+            className="surface-glass-strong pointer-events-auto w-[880px] max-w-[92vw] overflow-hidden rounded-slab"
             style={{
               animation: 'panel-in var(--duration-base) var(--ease-out)',
               border: '1px solid color-mix(in srgb, var(--border-subtle) 50%, transparent)',
@@ -196,14 +196,14 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
             <div className="flex items-center justify-between px-8 pt-8 pb-4">
               <div>
                 <p
-                  className="mb-2 text-[11px] font-medium tracking-[0.1em] uppercase"
+                  className="mb-2 text-xs font-medium tracking-[0.1em] uppercase"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   Plan Headroom Details
                 </p>
                 <Dialog.Title asChild>
                   <h2
-                    className="font-serif text-[32px] leading-none tracking-tight"
+                    className="font-serif text-2xl leading-none tracking-tight"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {plan.name}
@@ -213,13 +213,13 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
               <div className="flex items-center gap-4">
                 <div className="flex flex-col items-end">
                   <span
-                    className="font-mono text-[24px] leading-none font-medium"
+                    className="font-mono text-xl leading-none font-medium"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {plan.tenants}
                   </span>
                   <span
-                    className="mt-1 text-[12px] font-medium"
+                    className="mt-1 text-sm font-medium"
                     style={{ color: 'var(--text-tertiary)' }}
                   >
                     {plan.tenants === 1 ? 'workspace assigned' : 'workspaces assigned'}
@@ -230,7 +230,7 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
 
             <div className="px-8 pt-2 pb-8">
               <div
-                className="mb-8 grid w-full rounded-[24px] p-6"
+                className="mb-8 grid w-full rounded-hero p-6"
                 style={{
                   background: 'var(--surface-raised)',
                   boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
@@ -244,7 +244,7 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
               {plan.workspaces && plan.workspaces.length > 0 && (
                 <div className="mb-8">
                   <h4
-                    className="mb-4 text-[11px] font-medium tracking-[0.1em] uppercase"
+                    className="mb-4 text-xs font-medium tracking-[0.1em] uppercase"
                     style={{ color: 'var(--text-tertiary)' }}
                   >
                     Assigned Workspaces
@@ -259,7 +259,7 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
                     {plan.workspaces.map((ws, i) => (
                       <div
                         key={i}
-                        className="flex cursor-default items-center rounded-full px-3.5 py-1.5 text-[12.5px] font-medium transition-colors hover:bg-[var(--surface-inset)]"
+                        className="flex cursor-default items-center rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors hover:bg-[var(--surface-inset)]"
                         style={{
                           background: 'var(--surface-sunken)',
                           color: 'var(--text-secondary)',
@@ -294,7 +294,7 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
                     />
                   </div>
                   <p
-                    className="max-w-[32ch] text-[13px] leading-relaxed"
+                    className="max-w-[32ch] text-sm leading-relaxed"
                     style={{ color: 'var(--text-secondary)' }}
                   >
                     Median usage provides the typical footprint. The max line shows the absolute
@@ -312,7 +312,7 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
                   one lives.
                 */}
                   <p
-                    className="mt-3 max-w-[36ch] text-[12px] leading-relaxed"
+                    className="mt-3 max-w-[36ch] text-sm leading-relaxed"
                     style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
                   >
                     A limit is a property of the plan, so changing one changes what every workspace

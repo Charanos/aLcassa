@@ -71,7 +71,7 @@ export function RecordRow({
         </div>
         {detail ? (
           <div
-            className="mt-1 text-[13px] leading-relaxed"
+            className="mt-1 text-sm leading-relaxed"
             style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
           >
             {detail}
@@ -132,7 +132,7 @@ export function RowGlyph({
 /**
  * The helper line under a field, and the one above a value.
  *
- * Both were `text-[12px]` / `text-[13px]` inline with a colour, six times over.
+ * Both were `text-sm` / `text-sm` inline with a colour, six times over.
  * They are one thing: small print that qualifies the control above or below it.
  */
 export function Hint({ children, id }: { children: React.ReactNode; id?: string }) {
@@ -215,7 +215,7 @@ export function AuditLine({ children }: { children: React.ReactNode }) {
 export function RailEyebrow({ children }: { children: React.ReactNode }) {
   return (
     <p
-      className="mb-4 font-mono text-[10.5px] uppercase"
+      className="mb-4 font-mono text-2xs uppercase"
       style={{ color: 'var(--text-tertiary)', fontWeight: 500, letterSpacing: '0.15em' }}
     >
       {children}

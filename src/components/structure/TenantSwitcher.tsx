@@ -94,13 +94,13 @@ export function TenantSwitcher({
       >
         <span
           aria-hidden
-          className="flex size-5 items-center justify-center rounded-sm"
+          className="flex size-5 items-center justify-center rounded-chip"
           style={{ background: 'var(--blue-50)', color: 'var(--blue-500)' }}
         >
           <IconBuilding size={12} stroke={2} />
         </span>
         <span className="flex flex-col items-start leading-none">
-          <span className="t-eyebrow mb-0.5 text-[9px] text-[var(--text-tertiary)] opacity-50">
+          <span className="t-eyebrow mb-0.5 text-3xs text-[var(--text-tertiary)] opacity-50">
             Workspace
           </span>
           <span className="t-compact max-w-36 truncate font-medium text-[var(--text-primary)]">
@@ -118,7 +118,7 @@ export function TenantSwitcher({
         <div
           data-slot="tenant-switcher-panel"
           role="listbox"
-          className="absolute top-[calc(100%+6px)] left-0 z-50 w-80 overflow-hidden rounded-md border"
+          className="absolute top-[calc(100%+6px)] left-0 z-50 w-80 overflow-hidden rounded-panel border"
           style={{
             background: 'var(--surface-raised)',
             borderColor: 'var(--border-subtle)',
@@ -139,7 +139,7 @@ export function TenantSwitcher({
               className="t-compact w-full bg-transparent text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
             />
             <kbd
-              className="t-eyebrow shrink-0 rounded-sm border px-1.5 py-0.5 text-[var(--text-tertiary)]"
+              className="t-eyebrow shrink-0 rounded-chip border px-1.5 py-0.5 text-[var(--text-tertiary)]"
               style={{ borderColor: 'var(--border-subtle)' }}
             >
               esc

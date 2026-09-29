@@ -70,17 +70,17 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
                 >
                   <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-[var(--border-subtle)]/40 to-transparent group-last:hidden" />
                   <span
-                    className="font-ui flex items-center gap-2 text-[12.5px] font-medium transition-colors duration-300 group-hover:text-[var(--text-primary)]"
+                    className="font-ui flex items-center gap-2 text-sm font-medium transition-colors duration-300 group-hover:text-[var(--text-primary)]"
                     style={{ color: 'var(--text-secondary)' }}
                   >
                     <Icon size={14} stroke={1.5} style={{ color: accentColor }} />
                     {slice.name}
                   </span>
                   <span
-                    className="font-mono text-[12.5px] font-medium tracking-[0.02em] transition-colors duration-300 group-hover:text-[var(--blue-500)]"
+                    className="font-mono text-sm font-medium tracking-[0.02em] transition-colors duration-300 group-hover:text-[var(--blue-500)]"
                     style={{ color: 'var(--text-primary)' }}
                   >
-                    <span className="mr-1 text-[10px] tracking-[0.08em] text-[var(--text-tertiary)] uppercase">
+                    <span className="mr-1 text-2xs tracking-[0.08em] text-[var(--text-tertiary)] uppercase">
                       {revenue.currency}
                     </span>
                     {slice.display}{' '}
@@ -105,20 +105,20 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
           <div className="flex items-center justify-between border-b border-[var(--border-subtle)]/40 pb-4">
             <div className="flex flex-col">
               <p
-                className="mb-1 font-mono text-[10px] font-medium tracking-[0.12em] uppercase"
+                className="mb-1 font-mono text-2xs font-medium tracking-[0.12em] uppercase"
                 style={{ color: 'var(--text-secondary)' }}
               >
                 Total platform debt
               </p>
               <p className="flex items-baseline gap-1.5">
                 <span
-                  className="font-mono text-[12px] font-medium tracking-widest uppercase"
+                  className="font-mono text-sm font-medium tracking-widest uppercase"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   {revenue.currency}
                 </span>
                 <span
-                  className="font-mono text-[36px] leading-[0.9] font-medium tracking-[-0.02em]"
+                  className="font-mono text-2xl leading-[0.9] font-medium tracking-[-0.02em]"
                   style={{ color: 'var(--text-primary)' }}
                 >
                   {revenue.outstanding}
@@ -134,7 +134,7 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
           <div className="flex h-full flex-col pt-1">
             <div className="mb-6 w-full">
               <p
-                className="font-ui text-[13px] leading-relaxed text-pretty"
+                className="font-ui text-sm leading-relaxed text-pretty"
                 style={{ color: 'var(--text-secondary)' }}
               >
                 Grouped by how far past due each invoice is. Debt gets harder to collect the further
@@ -168,7 +168,7 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
 function Unit({ currency }: { currency: string }) {
   return (
     <span
-      className="font-mono text-[10px] tracking-[0.1em] uppercase"
+      className="font-mono text-2xs tracking-[0.1em] uppercase"
       style={{ color: 'var(--text-tertiary)' }}
     >
       {currency}

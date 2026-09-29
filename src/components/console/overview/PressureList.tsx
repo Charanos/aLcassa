@@ -47,7 +47,7 @@ export function PressureList({ rows, total }: { rows: PressureRow[]; total: numb
             <li key={`${row.slug}-${row.metric}`}>
               <Link
                 href={`/platform/tenants/${row.slug}`}
-                className="group -mx-3 block rounded-[10px] p-3 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
+                className="group -mx-3 block rounded-overlay p-3 transition-colors duration-300 hover:bg-[var(--surface-sunken)]"
               >
                 <div className="mb-2.5 flex items-baseline justify-between gap-3">
                   <span
@@ -56,10 +56,7 @@ export function PressureList({ rows, total }: { rows: PressureRow[]; total: numb
                   >
                     {row.name}
                   </span>
-                  <span
-                    className="shrink-0 font-mono text-[13px] font-medium"
-                    style={{ color: ink }}
-                  >
+                  <span className="shrink-0 font-mono text-sm font-medium" style={{ color: ink }}>
                     {row.pct}%
                   </span>
                 </div>
@@ -84,7 +81,7 @@ export function PressureList({ rows, total }: { rows: PressureRow[]; total: numb
                 </div>
 
                 <p
-                  className="mt-2.5 font-mono text-[11px] font-medium"
+                  className="mt-2.5 font-mono text-xs font-medium"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   {row.metric} · {row.used.toLocaleString('en-KE')} of{' '}
@@ -149,7 +146,7 @@ function NothingAtCeiling() {
   return (
     <div className="mt-3 flex flex-col items-start gap-2">
       <IconCircleCheck size={18} stroke={1.5} style={{ color: 'var(--success-fg)' }} aria-hidden />
-      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         Every workspace has headroom.
       </p>
       <p

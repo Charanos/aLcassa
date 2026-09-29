@@ -16,7 +16,7 @@ export function ProvisionWorkspaceButton() {
         style={{
           background: 'linear-gradient(180deg, var(--blue-500) 0%, var(--blue-600) 100%)',
           color: 'var(--text-inverse)',
-          fontWeight: 600,
+          fontWeight: 500,
           boxShadow: 'inset 0 1px 0px rgba(255,255,255,0.25), 0 2px 10px rgba(56, 182, 255, 0.2)',
           textShadow: '0 1px 2px rgba(0,0,0,0.2)',
           fontSize: '13px',

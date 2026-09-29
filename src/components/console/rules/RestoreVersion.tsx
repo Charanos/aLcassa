@@ -64,7 +64,7 @@ export function RestoreVersion({
           setError(null);
           setOpen(true);
         }}
-        className="shrink-0 rounded-md px-2 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
+        className="shrink-0 rounded-panel px-2 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
         style={{ font: '500 10.5px/1.6 var(--font-mono)', color: 'var(--text-tertiary)' }}
       >
         restore

@@ -118,7 +118,7 @@ export function SupportSessionBanner({
             <span
               className="numeric"
               style={{
-                fontSize: urgent ? 'var(--text-md)' : 'var(--text-base)',
+                fontSize: urgent ? 'var(--type-lede)' : 'var(--type-body)',
                 fontWeight: 500,
                 letterSpacing: '0.02em',
                 transition: 'font-size var(--duration-base) var(--ease-standard)',

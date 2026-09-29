@@ -129,7 +129,7 @@ function Figure({
     >
       <div className="flex items-baseline justify-between gap-4">
         <span
-          className="font-ui text-[13px] font-medium transition-colors group-hover:text-[var(--text-primary)]"
+          className="font-ui text-sm font-medium transition-colors group-hover:text-[var(--text-primary)]"
           style={{ color: 'var(--text-secondary)' }}
         >
           {label}
@@ -148,7 +148,7 @@ function Figure({
       </div>
       {note ? (
         <p
-          className="font-ui text-[12px] leading-snug"
+          className="font-ui text-sm leading-snug"
           style={{ color: 'var(--text-tertiary)', maxWidth: '42ch' }}
         >
           {note}

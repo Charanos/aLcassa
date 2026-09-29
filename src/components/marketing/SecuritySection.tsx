@@ -116,7 +116,7 @@ export function SecuritySection() {
             <div className="mt-4 space-y-3.5">
               <div className="t-compact flex items-center justify-between">
                 <span style={{ color: 'var(--invert-card-subtle)' }}>Target Workspace:</span>
-                <span className="font-mono text-[13px]" style={{ color: 'var(--invert-card-fg)' }}>
+                <span className="font-mono text-sm" style={{ color: 'var(--invert-card-fg)' }}>
                   Acme Logistics (#829)
                 </span>
               </div>
@@ -138,7 +138,7 @@ export function SecuritySection() {
                 <span className="t-compact" style={{ color: 'var(--invert-card-subtle)' }}>
                   Time Remaining:
                 </span>
-                <span className="numeric font-mono text-[14px] font-normal tracking-wider text-danger">
+                <span className="numeric font-mono text-base font-normal tracking-wider text-danger">
                   {formatTime(secondsRemaining)}
                 </span>
               </div>

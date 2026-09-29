@@ -90,20 +90,20 @@ export default async function MarketingPage() {
             className="relative mx-auto flex w-full max-w-[1320px] flex-col items-center justify-center pt-8 text-center md:pt-14"
           >
             {/* Eyebrow status indicator (clean inline, solid non-blinking indicator) */}
-            <div className="inline-flex items-center gap-2.5 font-mono text-[11px] tracking-widest text-[var(--orange-500)] uppercase">
+            <div className="inline-flex items-center gap-2.5 font-mono text-xs tracking-widest text-[var(--orange-500)] uppercase">
               <span className="size-2 rounded-full bg-[var(--orange-500)]" />
               <span className="font-medium">UNIFIED CUSTOMER INBOX PLATFORM</span>
               <span className="size-2 rounded-full bg-[var(--orange-500)]" />
             </div>
 
             {/* Centered Editorial Headline */}
-            <h1 className="display mx-auto mt-6 max-w-[1020px] text-[46px] leading-[1.06] font-medium tracking-tight text-[var(--text-primary)] sm:text-[58px] md:text-[68px] lg:text-[76px]">
+            <h1 className="display mx-auto mt-6 max-w-[1020px] text-hero leading-[1.06] font-medium tracking-tight text-[var(--text-primary)]">
               One inbox for every message
               <br className="hidden sm:inline" /> your customers send.
             </h1>
 
             {/* Centered Lede (Client-Facing, Value-Oriented) */}
-            <p className="t-lede mx-auto mt-6 max-w-[740px] text-[17px] leading-[1.68] text-[var(--text-secondary)] sm:text-[19px]">
+            <p className="t-lede mx-auto mt-6 max-w-[740px] text-md leading-[1.68] text-[var(--text-secondary)] sm:text-lg">
               Unify WhatsApp, Instagram, Messenger, and live website chat into one intelligent
               workspace. Delight your customers with instant AI-powered resolutions and enterprise
               data isolation.
@@ -166,35 +166,35 @@ export default async function MarketingPage() {
             {/* Stats Numerals Bento Strip (Positioned Below Console) */}
             <div className="grid w-full max-w-[1320px] grid-cols-1 gap-6 border-y border-[var(--ink-200)] py-8 sm:grid-cols-3 sm:gap-10">
               <div className="flex flex-col items-center justify-center text-center">
-                <span className="display text-[40px] leading-none font-medium tracking-tight text-[var(--text-primary)] sm:text-[48px]">
+                <span className="display text-3xl leading-none font-medium tracking-tight text-[var(--text-primary)] sm:text-3xl">
                   100%
                 </span>
-                <span className="mt-2 font-mono text-[11.5px] tracking-wider text-[var(--text-tertiary)] uppercase">
+                <span className="mt-2 font-mono text-sm tracking-wider text-[var(--text-tertiary)] uppercase">
                   PostgreSQL RLS Isolation
                 </span>
-                <span className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
+                <span className="mt-0.5 text-sm text-[var(--text-secondary)]">
                   Strict tenant_id boundary segregation
                 </span>
               </div>
               <div className="flex flex-col items-center justify-center text-center sm:border-x sm:border-[var(--ink-200)] sm:px-6">
-                <span className="display text-[40px] leading-none font-medium tracking-tight text-[var(--orange-500)] sm:text-[48px]">
+                <span className="display text-3xl leading-none font-medium tracking-tight text-[var(--orange-500)] sm:text-3xl">
                   &lt; 5s
                 </span>
-                <span className="mt-2 font-mono text-[11.5px] tracking-wider text-[var(--text-tertiary)] uppercase">
+                <span className="mt-2 font-mono text-sm tracking-wider text-[var(--text-tertiary)] uppercase">
                   AI Rule Propagation
                 </span>
-                <span className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
+                <span className="mt-0.5 text-sm text-[var(--text-secondary)]">
                   Machine-readable rule engine cache
                 </span>
               </div>
               <div className="flex flex-col items-center justify-center text-center">
-                <span className="display text-[40px] leading-none font-medium tracking-tight text-[var(--green-500)] sm:text-[48px]">
+                <span className="display text-3xl leading-none font-medium tracking-tight text-[var(--green-500)] sm:text-3xl">
                   0
                 </span>
-                <span className="mt-2 font-mono text-[11.5px] tracking-wider text-[var(--text-tertiary)] uppercase">
+                <span className="mt-2 font-mono text-sm tracking-wider text-[var(--text-tertiary)] uppercase">
                   Master Key Vulnerabilities
                 </span>
-                <span className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
+                <span className="mt-0.5 text-sm text-[var(--text-secondary)]">
                   Scoped Argon2id tenant API credentials
                 </span>
               </div>
@@ -321,12 +321,12 @@ export default async function MarketingPage() {
           {/* ── 1. Centered Closing Call to Action ── */}
           <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
             {/* Editorial Headline */}
-            <h2 className="display text-[38px] leading-[1.08] font-medium tracking-tight text-[var(--text-primary)] sm:text-[50px] md:text-[60px]">
+            <h2 className="display text-section leading-[1.08] font-medium tracking-tight text-[var(--text-primary)]">
               Set your team up now
             </h2>
 
             {/* Lede Prose */}
-            <p className="t-lede mt-4 max-w-[620px] text-[16px] leading-relaxed text-[var(--text-secondary)] sm:text-[17.5px]">
+            <p className="t-lede mt-4 max-w-[620px] text-md leading-relaxed text-[var(--text-secondary)] sm:text-md">
               Your workspace, your team, your credentials and your assistant rules are all live.
               When channels arrive, there is nothing left to configure.
             </p>
@@ -378,7 +378,7 @@ export default async function MarketingPage() {
             )}
 
             {/* Spec Ticker */}
-            <div className="mt-10 flex w-full max-w-xl flex-wrap justify-center gap-6 border-t border-[var(--border-subtle)] pt-6 font-mono text-[11px] text-[var(--text-tertiary)] sm:gap-10">
+            <div className="mt-10 flex w-full max-w-xl flex-wrap justify-center gap-6 border-t border-[var(--border-subtle)] pt-6 font-mono text-xs text-[var(--text-tertiary)] sm:gap-10">
               <span className="flex items-center gap-2">
                 <span className="size-1.5 rounded-full bg-[var(--green-500)]" aria-hidden="true" />
                 Row-Level Isolated
@@ -403,19 +403,19 @@ export default async function MarketingPage() {
               <div className="flex items-center gap-3">
                 <Mark size={26} />
                 <div>
-                  <span className="t-panel text-[18px] font-medium text-[var(--text-primary)]">
+                  <span className="t-panel text-lg font-medium text-[var(--text-primary)]">
                     aLcassa
                   </span>
-                  <p className="t-caption text-[12px] text-[var(--text-tertiary)]">
+                  <p className="t-caption text-sm text-[var(--text-tertiary)]">
                     Multi-tenant customer support engine
                   </p>
                 </div>
               </div>
-              <p className="t-compact max-w-sm text-[13.5px] leading-relaxed text-[var(--text-secondary)]">
+              <p className="t-compact max-w-sm text-base leading-relaxed text-[var(--text-secondary)]">
                 Architected for strict database tenant isolation, machine-readable assistant rules,
                 and zero master key vulnerability.
               </p>
-              <div className="t-eyebrow inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50 px-2.5 py-1 font-mono text-[11px] text-[var(--green-600)]">
+              <div className="t-eyebrow inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50 px-2.5 py-1 font-mono text-xs text-[var(--green-600)]">
                 <span
                   className="size-1.5 animate-pulse rounded-full bg-[var(--green-500)]"
                   aria-hidden="true"
@@ -435,10 +435,10 @@ export default async function MarketingPage() {
             />
 
             <div className="space-y-3">
-              <div className="t-eyebrow font-mono text-[11px] font-medium tracking-wider text-[var(--text-action)] uppercase">
+              <div className="t-eyebrow font-mono text-xs font-medium tracking-wider text-[var(--text-action)] uppercase">
                 Architecture
               </div>
-              <ul className="t-compact space-y-2 text-[13px] text-[var(--text-secondary)]">
+              <ul className="t-compact space-y-2 text-sm text-[var(--text-secondary)]">
                 <li>Postgres RLS policy</li>
                 <li>Argon2 key hashing</li>
                 <li>Multi-tenant RBAC</li>
@@ -462,12 +462,12 @@ export default async function MarketingPage() {
             className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t pt-6"
             style={{ borderColor: 'var(--border-subtle)' }}
           >
-            <div className="t-eyebrow flex items-center gap-2 font-mono text-[11px] text-[var(--text-tertiary)]">
+            <div className="t-eyebrow flex items-center gap-2 font-mono text-xs text-[var(--text-tertiary)]">
               <span>© 2026 Andishi</span>
               <span>·</span>
               <span>Northern Bypass, Nairobi</span>
             </div>
-            <div className="t-micro flex items-center gap-4 font-mono text-[11px] text-[var(--text-disabled)]">
+            <div className="t-micro flex items-center gap-4 font-mono text-xs text-[var(--text-disabled)]">
               <span>Version 1.0.0-beta</span>
               <span>·</span>
               <span>Isolated tenancy</span>

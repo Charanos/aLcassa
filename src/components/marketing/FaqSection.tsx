@@ -281,16 +281,16 @@ export function FaqSection() {
         {/* ── Right-Aligned Section Header (Alternating Rhythm) ── */}
         <div className="mb-12 ml-auto flex max-w-3xl flex-col items-end text-right sm:mb-16">
           <div className="inline-flex items-center gap-2">
-            <p className="font-mono text-[11px] font-medium tracking-wider text-[var(--orange-500)] uppercase">
+            <p className="font-mono text-xs font-medium tracking-wider text-[var(--orange-500)] uppercase">
               Frequently Asked Questions
             </p>
             <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
           </div>
-          <h2 className="display mt-3 text-[32px] leading-tight font-normal tracking-tight text-[var(--text-primary)] sm:text-[42px]">
+          <h2 className="display mt-3 text-2xl leading-tight font-normal tracking-tight text-[var(--text-primary)] sm:text-3xl">
             Clear answers on architecture,
             <br className="hidden sm:block" /> privacy, and onboarding.
           </h2>
-          <p className="mt-3 text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-[16px]">
+          <p className="mt-3 text-md leading-relaxed text-[var(--text-secondary)] sm:text-md">
             Everything you need to know about our PostgreSQL tenant isolation, Meta Cloud APIs, and
             Kenyan enterprise workflows.
           </p>
@@ -308,13 +308,13 @@ export function FaqSection() {
                   key={category.id}
                   type="button"
                   onClick={() => setActiveCategoryId(category.id)}
-                  className={`group flex w-full cursor-pointer items-center justify-between rounded-2xl px-5 py-4 text-left transition-all duration-200 ${
+                  className={`group flex w-full cursor-pointer items-center justify-between rounded-card px-5 py-4 text-left transition-all duration-200 ${
                     isActive
                       ? 'translate-x-1 border border-[var(--border-subtle)] bg-white font-medium text-[var(--text-primary)] shadow-[0_4px_25px_rgba(0,0,0,0.06)] sm:translate-x-1.5'
                       : 'font-medium text-[var(--text-tertiary)] hover:bg-white/50 hover:text-[var(--text-primary)]'
                   }`}
                 >
-                  <span className="truncate text-[14.5px] sm:text-[15px]">{category.title}</span>
+                  <span className="truncate text-base sm:text-md">{category.title}</span>
 
                   <IconChevronRight
                     size={16}
@@ -339,8 +339,8 @@ export function FaqSection() {
                   key={faq.id}
                   className={`overflow-hidden transition-all duration-200 ${
                     isOpen
-                      ? 'rounded-2xl border border-[var(--ink-200)] bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.05)]'
-                      : 'rounded-2xl border border-[var(--border-subtle)] bg-white/60 p-4.5 shadow-xs hover:border-[var(--ink-200)] hover:bg-white/90 sm:p-5'
+                      ? 'rounded-card border border-[var(--ink-200)] bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.05)]'
+                      : 'rounded-card border border-[var(--border-subtle)] bg-white/60 p-4.5 shadow-xs hover:border-[var(--ink-200)] hover:bg-white/90 sm:p-5'
                   }`}
                 >
                   {/* Trigger Header */}
@@ -352,12 +352,12 @@ export function FaqSection() {
                   >
                     <div className="min-w-0 flex-1 pr-2">
                       {isOpen && faq.tag && (
-                        <span className="mb-2 inline-flex items-center rounded-md border border-emerald-200/60 bg-emerald-50/90 px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider text-emerald-700 uppercase">
+                        <span className="mb-2 inline-flex items-center rounded-panel border border-emerald-200/60 bg-emerald-50/90 px-2 py-0.5 font-mono text-2xs font-medium tracking-wider text-emerald-700 uppercase">
                           {faq.tag}
                         </span>
                       )}
                       <h3
-                        className={`text-[14.5px] leading-snug transition-colors sm:text-[15.5px] ${
+                        className={`text-base leading-snug transition-colors sm:text-md ${
                           isOpen
                             ? 'font-medium text-[var(--text-primary)]'
                             : 'font-medium text-[var(--text-primary)] group-hover:text-[var(--blue-600)]'
@@ -369,7 +369,7 @@ export function FaqSection() {
 
                     {/* Plus / Close Icon */}
                     <div
-                      className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                      className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-overlay transition-colors ${
                         isOpen
                           ? 'text-[var(--text-primary)] hover:bg-slate-100'
                           : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]'
@@ -386,7 +386,7 @@ export function FaqSection() {
                   {/* Expanded Content */}
                   {isOpen && (
                     <div
-                      className="mt-4 border-t border-[var(--ink-100)]/70 pt-4 text-[13.5px] leading-relaxed text-[var(--text-secondary)] sm:text-[14px]"
+                      className="mt-4 border-t border-[var(--ink-100)]/70 pt-4 text-base leading-relaxed text-[var(--text-secondary)] sm:text-base"
                       /* tailwindcss-animate is not installed in this project, so the
              animate-in/fade-in/slide-in-* utilities were inert — this
              arrived with no transition at all. globals.css already defines

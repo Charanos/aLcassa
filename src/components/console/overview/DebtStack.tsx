@@ -166,7 +166,7 @@ export function DebtStack({
             rather than a call. The order was right and the label was wrong.
           */}
           <span
-            className="font-ui text-[12.5px] font-medium tracking-wide"
+            className="font-ui text-sm font-medium tracking-wide"
             style={{ color: 'var(--text-secondary)' }}
           >
             Worth chasing first
@@ -249,7 +249,7 @@ export function DebtStack({
 function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
   return (
     <div
-      className="relative flex flex-col overflow-hidden rounded-[20px]"
+      className="relative flex flex-col overflow-hidden rounded-card"
       style={{
         background: 'var(--chrome-bg-base)',
         border: '1px solid var(--chrome-rule-strong)',
@@ -292,7 +292,7 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
       <div className="relative z-10 flex flex-col">
         <div className="px-6 pt-6">
           <p
-            className="mb-2.5 flex items-center gap-1.5 font-mono text-[10.5px] tracking-[0.15em] uppercase"
+            className="mb-2.5 flex items-center gap-1.5 font-mono text-2xs tracking-[0.15em] uppercase"
             style={{ color: 'var(--chrome-danger)' }}
           >
             <IconAlertCircle size={13} stroke={2} aria-hidden />
@@ -316,7 +316,7 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
             debt card naming the amount and not the invoice sends somebody off
             to look it up.
           */}
-          <p className="mt-1.5 font-mono text-[11px]" style={{ color: 'var(--chrome-fg-faint)' }}>
+          <p className="mt-1.5 font-mono text-xs" style={{ color: 'var(--chrome-fg-faint)' }}>
             {debt.invoice}
           </p>
         </div>
@@ -331,13 +331,13 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
         */}
         <p className="mt-4 flex items-baseline gap-2.5 px-6 pb-7">
           <span
-            className="font-mono text-[14px] font-medium tracking-[0.08em] uppercase"
+            className="font-mono text-base font-medium tracking-[0.08em] uppercase"
             style={{ color: 'var(--chrome-fg-faint)' }}
           >
             {currency}
           </span>
           <span
-            className="font-mono text-[42px] leading-none font-medium tracking-tight"
+            className="font-mono text-3xl leading-none font-medium tracking-tight"
             style={{ color: 'var(--chrome-fg)' }}
           >
             {debt.amount}
@@ -385,7 +385,7 @@ function DebtPill({
       type="button"
       onClick={onSelect}
       aria-label={`Show ${debt.name}, ${currency} ${debt.amount}, ${debt.days} days overdue`}
-      className="group/pill flex w-full origin-top items-center gap-3 rounded-[16px] px-5 pt-6 pb-4 transition-[opacity,transform] duration-300 hover:-translate-y-px hover:opacity-100 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="group/pill flex w-full origin-top items-center gap-3 rounded-card px-5 pt-6 pb-4 transition-[opacity,transform] duration-300 hover:-translate-y-px hover:opacity-100 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
       style={{
         background: depth === 0 ? 'var(--deck-near)' : 'var(--deck-far)',
         border: '1px solid var(--deck-rule)',
@@ -395,19 +395,19 @@ function DebtPill({
       }}
     >
       <span
-        className="font-ui min-w-0 flex-1 truncate text-left text-[14px] font-medium"
+        className="font-ui min-w-0 flex-1 truncate text-left text-base font-medium"
         style={{ color: 'var(--chrome-fg-muted)' }}
       >
         {debt.name}
       </span>
       <span
-        className="shrink-0 font-mono text-[10px] tracking-[0.08em] uppercase"
+        className="shrink-0 font-mono text-2xs tracking-[0.08em] uppercase"
         style={{ color: 'var(--chrome-fg-faint)' }}
       >
         {debt.days}d
       </span>
       <span
-        className="shrink-0 font-mono text-[14px] font-medium"
+        className="shrink-0 font-mono text-base font-medium"
         style={{ color: 'var(--chrome-fg)' }}
       >
         <span className="sr-only">{currency} </span>
@@ -433,13 +433,13 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: 'da
   return (
     <div className="flex flex-1 flex-col gap-1 px-6 py-4">
       <dt
-        className="font-mono text-[9px] tracking-[0.1em] uppercase"
+        className="font-mono text-3xs tracking-[0.1em] uppercase"
         style={{ color: 'var(--chrome-fg-faint)' }}
       >
         {label}
       </dt>
       <dd
-        className="font-mono text-[14px] font-medium"
+        className="font-mono text-base font-medium"
         style={{ color: tone === 'danger' ? 'var(--chrome-danger)' : 'var(--chrome-fg)' }}
       >
         {value}
@@ -457,7 +457,7 @@ function NothingOutstanding() {
   return (
     <div className="mt-6 flex flex-col items-start gap-2">
       <IconCircleCheck size={20} stroke={1.5} style={{ color: 'var(--success-fg)' }} aria-hidden />
-      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         Every invoice is settled.
       </p>
       <p

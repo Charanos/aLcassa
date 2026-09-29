@@ -58,7 +58,7 @@ export function CapacityMeter({
     <div className="mt-2.5">
       <div className="mb-3 flex items-end justify-between gap-3">
         <p
-          className="font-mono text-[32px] font-medium tracking-tight"
+          className="font-mono text-2xl font-medium tracking-tight"
           style={{
             color: bounded ? 'var(--text-primary)' : 'var(--text-tertiary)',
             lineHeight: 0.9,
@@ -67,7 +67,7 @@ export function CapacityMeter({
           {bounded ? `${pct}%` : '—'}
         </p>
         <p
-          className="pb-0.5 font-mono text-[12px] font-medium"
+          className="pb-0.5 font-mono text-sm font-medium"
           style={{ color: 'var(--text-secondary)' }}
         >
           {used.toLocaleString('en-KE')}

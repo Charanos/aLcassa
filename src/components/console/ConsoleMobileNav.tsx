@@ -182,7 +182,7 @@ export function ConsoleMobileNav({
           />
           <Dialog.Content
             aria-describedby={undefined}
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[86dvh] flex-col rounded-t-2xl md:hidden"
+            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[86dvh] flex-col rounded-t-card md:hidden"
             style={{
               background: 'var(--chrome-bg-raised)',
               borderTop: '1px solid rgba(255, 255, 255, 0.12)',
@@ -204,14 +204,14 @@ export function ConsoleMobileNav({
 
             <div className="flex items-center justify-between px-4 py-2">
               <Dialog.Title
-                className="font-mono text-[length:var(--text-xs)] tracking-wider uppercase"
+                className="font-mono text-[length:var(--type-chip)] tracking-wider uppercase"
                 style={{ color: 'var(--chrome-fg-faint)' }}
               >
                 Platform console
               </Dialog.Title>
               <Dialog.Close
                 aria-label="Close menu"
-                className="grid size-8 cursor-pointer place-items-center rounded-lg transition-colors hover:bg-[var(--chrome-active-bg)]"
+                className="grid size-8 cursor-pointer place-items-center rounded-overlay transition-colors hover:bg-[var(--chrome-active-bg)]"
                 style={{ color: 'var(--chrome-fg-muted)' }}
               >
                 <IconX size={18} stroke={1.5} />
@@ -222,7 +222,7 @@ export function ConsoleMobileNav({
               {navigation.map((group) => (
                 <div key={group.label} className="mb-4">
                   <p
-                    className="mb-1.5 ml-2 font-mono text-[length:var(--text-xs)] tracking-wider uppercase"
+                    className="mb-1.5 ml-2 font-mono text-[length:var(--type-chip)] tracking-wider uppercase"
                     style={{ color: 'var(--chrome-fg-muted)' }}
                   >
                     {group.label}
@@ -236,7 +236,7 @@ export function ConsoleMobileNav({
                           key={item.href}
                           href={item.href}
                           aria-current={active ? 'page' : undefined}
-                          className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors"
+                          className="flex h-11 items-center gap-3 rounded-overlay px-2.5 text-[length:var(--type-body)] transition-colors"
                           style={{
                             background: active ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
                             color: active ? 'var(--chrome-fg)' : 'var(--chrome-fg-muted)',
@@ -246,7 +246,7 @@ export function ConsoleMobileNav({
                           <span className="flex-1 font-medium">{item.label}</span>
                           {item.badge ? (
                             <span
-                              className="rounded-full px-2 py-0.5 font-mono text-[length:var(--text-xs)] font-medium"
+                              className="rounded-full px-2 py-0.5 font-mono text-[length:var(--type-chip)] font-medium"
                               style={{
                                 background: 'rgba(255, 255, 255, 0.12)',
                                 color: 'var(--chrome-fg)',
@@ -264,7 +264,7 @@ export function ConsoleMobileNav({
 
               {/* Isolation readout */}
               <div
-                className="mb-3 flex items-center gap-2.5 rounded-lg px-3 py-2.5"
+                className="mb-3 flex items-center gap-2.5 rounded-overlay px-3 py-2.5"
                 style={{ background: 'rgba(255,255,255,0.04)' }}
               >
                 <span
@@ -278,13 +278,13 @@ export function ConsoleMobileNav({
                   aria-hidden
                 />
                 <span
-                  className="text-[length:var(--text-sm)] font-medium"
+                  className="text-[length:var(--type-compact)] font-medium"
                   style={{ color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)' }}
                 >
                   {isolationOk ? 'Isolation green' : 'Isolation gap'}
                 </span>
                 <span
-                  className="ml-auto font-mono text-[length:var(--text-xs)]"
+                  className="ml-auto font-mono text-[length:var(--type-chip)]"
                   style={{ color: 'var(--chrome-fg-faint)' }}
                 >
                   {isolation.tablesPoliced}/{isolation.tablesTotal} tables
@@ -293,7 +293,7 @@ export function ConsoleMobileNav({
 
               <Link
                 href="/"
-                className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-[var(--chrome-hover)]"
+                className="flex h-11 items-center gap-3 rounded-overlay px-2.5 text-[length:var(--type-body)] transition-colors hover:bg-[var(--chrome-hover)]"
                 style={{ color: 'var(--chrome-fg-muted)' }}
               >
                 <IconArrowUpRight size={18} stroke={1.5} aria-hidden />
@@ -305,11 +305,11 @@ export function ConsoleMobileNav({
                 style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}
               >
                 <div className="mb-1 px-2.5">
-                  <p className="text-[length:var(--text-sm)] font-medium text-white">
+                  <p className="text-[length:var(--type-compact)] font-medium text-white">
                     {account.name}
                   </p>
                   <p
-                    className="font-mono text-[length:var(--text-xs)]"
+                    className="font-mono text-[length:var(--type-chip)]"
                     style={{ color: 'var(--chrome-fg-faint)' }}
                   >
                     {account.email}
@@ -318,7 +318,7 @@ export function ConsoleMobileNav({
 
                 <Link
                   href="/platform/profile"
-                  className="flex h-11 items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-[var(--chrome-hover)]"
+                  className="flex h-11 items-center gap-3 rounded-overlay px-2.5 text-[length:var(--type-body)] transition-colors hover:bg-[var(--chrome-hover)]"
                   style={{ color: 'var(--chrome-fg-muted)' }}
                 >
                   <IconUser size={18} stroke={1.5} aria-hidden />
@@ -328,7 +328,7 @@ export function ConsoleMobileNav({
                 <form method="post" action="/api/v1/auth/sign-out">
                   <button
                     type="submit"
-                    className="flex h-11 w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 text-[length:var(--text-base)] transition-colors hover:bg-red-500/10"
+                    className="flex h-11 w-full cursor-pointer items-center gap-3 rounded-overlay px-2.5 text-[length:var(--type-body)] transition-colors hover:bg-red-500/10"
                     style={{ color: 'var(--danger-fg)' }}
                   >
                     <IconLogout size={18} stroke={1.5} aria-hidden />

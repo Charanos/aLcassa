@@ -150,7 +150,7 @@ export function Panel({
       data-tone={tone}
       {...(reveal ? { 'data-reveal': '' } : {})}
       className={[
-        'relative min-w-0 overflow-hidden rounded-[16px] px-6 py-5',
+        'relative min-w-0 overflow-hidden rounded-card px-6 py-5',
         'transition-[box-shadow,transform] duration-[var(--motion-base,200ms)]',
         interactive && !tone
           ? 'panel-lift hover:-translate-y-0.5 hover:shadow-[var(--shadow-md),_0_0_0_1px_var(--border-strong)]'
@@ -190,7 +190,7 @@ export function Panel({
 export function Well({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={['rounded-[12px] p-4', className].filter(Boolean).join(' ')}
+      className={['rounded-overlay p-4', className].filter(Boolean).join(' ')}
       style={{
         background: 'var(--surface-sunken)',
         boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02), 0 0 0 1px var(--border-subtle)',
@@ -286,7 +286,7 @@ export function StatTile({
   return (
     <div
       data-reveal
-      className="rounded-[16px] px-6 py-5"
+      className="rounded-card px-6 py-5"
       style={{
         background: 'white',
         boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',

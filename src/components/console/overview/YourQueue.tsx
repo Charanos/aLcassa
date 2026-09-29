@@ -11,7 +11,7 @@ import type { QueueItem, QueueSeverity } from '@/lib/console/data';
 import { IconTile } from '../../primitives/IconTile';
 import { PagedList } from '../../primitives/Pagination';
 import { SkeletonGroup, SkeletonText } from '../../primitives/Skeleton';
-import { StatusBadge, type StatusBadgeTone } from '../../ui/StatusBadge';
+import { StatusBadge, type StatusBadgeTone } from '@/components/primitives/StatusBadge';
 import { QueueAction } from './QueueAction';
 
 /**
@@ -63,7 +63,7 @@ export function QueueCard({ item }: { item: QueueItem }) {
 
   return (
     <article
-      className="group relative flex flex-col rounded-[16px] px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="group relative flex flex-col rounded-card px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
       style={{
         background: 'var(--surface-raised)',
         border: '1px solid var(--border-subtle)',
@@ -72,7 +72,7 @@ export function QueueCard({ item }: { item: QueueItem }) {
     >
       {/* Deep Elegant Hover Shadow */}
       <div
-        className="pointer-events-none absolute inset-0 rounded-[16px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute inset-0 rounded-card opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           boxShadow: 'var(--card-lift)',
         }}
@@ -126,7 +126,7 @@ export function QueueCard({ item }: { item: QueueItem }) {
 
         {/* Detail Text */}
         <p
-          className="mt-2 pl-[42px] text-[13.5px] leading-relaxed opacity-90"
+          className="mt-2 pl-[42px] text-base leading-relaxed opacity-90"
           style={{ color: 'var(--text-secondary)', maxWidth: '80ch', textWrap: 'pretty' }}
         >
           {item.detail}
@@ -143,14 +143,14 @@ export function QueueCard({ item }: { item: QueueItem }) {
             />
             <Link
               href={`/platform/tenants/${item.slug}`}
-              className="t-compact inline-flex h-8 shrink-0 cursor-pointer items-center rounded-lg px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
+              className="t-compact inline-flex h-8 shrink-0 cursor-pointer items-center rounded-overlay px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
               style={{ color: 'var(--text-primary)', fontWeight: 500 }}
             >
               Open workspace
             </Link>
           </div>
           <span
-            className="shrink-0 font-mono text-[10px] font-medium tracking-[0.08em] uppercase opacity-60 transition-opacity duration-300 group-hover:opacity-100"
+            className="shrink-0 font-mono text-2xs font-medium tracking-[0.08em] uppercase opacity-60 transition-opacity duration-300 group-hover:opacity-100"
             style={{ color: 'var(--text-tertiary)' }}
           >
             {item.meta}
@@ -218,7 +218,7 @@ export function YourQueue({ queue, restingCount }: { queue: QueueItem[]; resting
 function QueueClear({ restingCount }: { restingCount: number }) {
   return (
     <div
-      className="relative flex flex-col items-start gap-3 overflow-hidden rounded-[16px] px-6 py-8"
+      className="relative flex flex-col items-start gap-3 overflow-hidden rounded-card px-6 py-8"
       style={{
         border: '1px solid var(--border-subtle)',
         background: 'var(--surface-raised)',
@@ -293,10 +293,7 @@ function RestingNote({ restingCount }: { restingCount: number }) {
         style={{ color: 'var(--text-secondary)', letterSpacing: '-0.01em' }}
       >
         The other{' '}
-        <span
-          className="font-mono text-[14px] font-medium"
-          style={{ color: 'var(--text-primary)' }}
-        >
+        <span className="font-mono text-base font-medium" style={{ color: 'var(--text-primary)' }}>
           {restingCount}
         </span>{' '}
         workspaces are inside every limit, paid up, and active in the last seven days.
@@ -318,7 +315,7 @@ export function QueueSkeleton() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="rounded-[16px] px-6 py-5"
+          className="rounded-card px-6 py-5"
           style={{
             background: 'var(--surface-raised)',
             boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
@@ -346,12 +343,12 @@ export function QueueSkeleton() {
           <div className="mt-4 flex items-center gap-3 pl-[42px]">
             <span
               aria-hidden
-              className="h-8 w-28 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-lg motion-reduce:animate-none motion-reduce:opacity-70"
+              className="h-8 w-28 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-overlay motion-reduce:animate-none motion-reduce:opacity-70"
               style={{ background: 'var(--surface-inset)' }}
             />
             <span
               aria-hidden
-              className="h-8 w-32 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-lg motion-reduce:animate-none motion-reduce:opacity-70"
+              className="h-8 w-32 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-overlay motion-reduce:animate-none motion-reduce:opacity-70"
               style={{ background: 'var(--surface-inset)' }}
             />
           </div>

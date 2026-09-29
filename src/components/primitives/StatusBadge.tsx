@@ -71,13 +71,13 @@ const TONE: Record<StatusBadgeTone, { page: string; chrome: string }> = {
 
 const SHAPE: Record<StatusBadgeVariant, string> = {
   pill: 'rounded-full',
-  squircle: 'rounded-[7px]',
+  squircle: 'rounded-panel',
   glass: 'rounded-full backdrop-blur-xs',
 };
 
 const SIZE: Record<StatusBadgeSize, string> = {
-  sm: 'text-[10.5px] px-2 py-0.5 min-h-[20px] gap-1.5',
-  md: 'text-[11.5px] px-2.5 py-1 min-h-[24px] gap-1.5',
+  sm: 'text-2xs px-2 py-0.5 min-h-[20px] gap-1.5',
+  md: 'text-sm px-2.5 py-1 min-h-[24px] gap-1.5',
 };
 
 export const StatusBadge = forwardRef<HTMLSpanElement, StatusBadgeProps>(function StatusBadge(

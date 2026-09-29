@@ -37,7 +37,7 @@ export function BillingTab({
     <div className="flex flex-col gap-6">
       {/* ── Inverted Command Ribbon for Billing ───────────────────────────── */}
       <div
-        className="flex flex-col overflow-hidden rounded-2xl sm:flex-row"
+        className="flex flex-col overflow-hidden rounded-card sm:flex-row"
         style={{
           background: 'var(--invert-card-bg)',
           color: 'var(--invert-card-fg)',
@@ -197,13 +197,13 @@ export function BillingTab({
         <Panel
           title="Billing History & Invoices"
           action={
-            <div className="flex items-center gap-1 rounded-lg bg-[var(--surface-inset)] p-0.5 text-xs">
+            <div className="flex items-center gap-1 rounded-overlay bg-[var(--surface-inset)] p-0.5 text-xs">
               {(['all', 'paid', 'failed'] as const).map((f) => (
                 <button
                   key={f}
                   type="button"
                   onClick={() => setFilter(f)}
-                  className="rounded-md px-2.5 py-1 font-medium capitalize transition-all"
+                  className="rounded-panel px-2.5 py-1 font-medium capitalize transition-all"
                   style={{
                     background: filter === f ? 'var(--surface-raised)' : 'transparent',
                     color: filter === f ? 'var(--text-primary)' : 'var(--text-tertiary)',
@@ -223,7 +223,7 @@ export function BillingTab({
                 <thead>
                   <tr style={{ background: 'var(--surface-sunken)' }}>
                     <th
-                      className="px-5 py-3 text-[11px] font-medium tracking-wider uppercase"
+                      className="px-5 py-3 text-xs font-medium tracking-wider uppercase"
                       style={{
                         color: 'var(--text-tertiary)',
                         borderBottom: '1px solid var(--border-subtle)',
@@ -232,7 +232,7 @@ export function BillingTab({
                       Invoice ID
                     </th>
                     <th
-                      className="px-5 py-3 text-[11px] font-medium tracking-wider uppercase"
+                      className="px-5 py-3 text-xs font-medium tracking-wider uppercase"
                       style={{
                         color: 'var(--text-tertiary)',
                         borderBottom: '1px solid var(--border-subtle)',
@@ -241,7 +241,7 @@ export function BillingTab({
                       Period
                     </th>
                     <th
-                      className="px-5 py-3 text-right text-[11px] font-medium tracking-wider uppercase"
+                      className="px-5 py-3 text-right text-xs font-medium tracking-wider uppercase"
                       style={{
                         color: 'var(--text-tertiary)',
                         borderBottom: '1px solid var(--border-subtle)',
@@ -250,7 +250,7 @@ export function BillingTab({
                       Amount (KES)
                     </th>
                     <th
-                      className="px-5 py-3 text-[11px] font-medium tracking-wider uppercase"
+                      className="px-5 py-3 text-xs font-medium tracking-wider uppercase"
                       style={{
                         color: 'var(--text-tertiary)',
                         borderBottom: '1px solid var(--border-subtle)',
@@ -259,7 +259,7 @@ export function BillingTab({
                       Status
                     </th>
                     <th
-                      className="px-5 py-3 text-right text-[11px] font-medium tracking-wider uppercase"
+                      className="px-5 py-3 text-right text-xs font-medium tracking-wider uppercase"
                       style={{
                         color: 'var(--text-tertiary)',
                         borderBottom: '1px solid var(--border-subtle)',
@@ -283,7 +283,7 @@ export function BillingTab({
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2.5">
                           <div
-                            className="rounded-lg p-1.5"
+                            className="rounded-overlay p-1.5"
                             style={{ background: 'var(--surface-inset)' }}
                           >
                             <IconFileText
@@ -315,7 +315,7 @@ export function BillingTab({
                       </td>
                       <td className="px-5 py-3.5">
                         <span
-                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-medium uppercase"
+                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-2xs font-medium uppercase"
                           style={{
                             background:
                               inv.status === 'paid'
@@ -358,14 +358,14 @@ export function BillingTab({
         <div className="flex flex-col gap-5">
           <Panel title="Payment Instrument">
             <div
-              className="flex items-start gap-3.5 rounded-xl p-4"
+              className="flex items-start gap-3.5 rounded-overlay p-4"
               style={{
                 background: 'var(--surface-sunken)',
                 border: '1px solid var(--border-subtle)',
               }}
             >
               <div
-                className="rounded-lg p-2"
+                className="rounded-overlay p-2"
                 style={{
                   background: 'var(--surface-raised)',
                   border: '1px solid var(--border-strong)',
@@ -377,13 +377,10 @@ export function BillingTab({
                 <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
                   Standard Chartered KE · Direct Debit
                 </p>
-                <p
-                  className="mt-0.5 font-mono text-[11px]"
-                  style={{ color: 'var(--text-tertiary)' }}
-                >
+                <p className="mt-0.5 font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
                   Account ending in •••• 4912
                 </p>
-                <p className="mt-2 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+                <p className="mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
                   Next debit auto-scheduled for 04 Sep 2026
                 </p>
               </div>
@@ -420,7 +417,7 @@ export function BillingTab({
               <button
                 type="button"
                 disabled
-                className="inline-flex h-8.5 w-full cursor-not-allowed items-center justify-center gap-1.5 rounded-lg text-xs font-medium"
+                className="inline-flex h-8.5 w-full cursor-not-allowed items-center justify-center gap-1.5 rounded-overlay text-xs font-medium"
                 style={{
                   border: '1px solid var(--border-subtle)',
                   background: 'var(--surface-sunken)',
@@ -433,7 +430,7 @@ export function BillingTab({
               <button
                 type="button"
                 disabled
-                className="inline-flex h-8.5 w-full cursor-not-allowed items-center justify-center gap-1.5 rounded-lg text-xs font-medium"
+                className="inline-flex h-8.5 w-full cursor-not-allowed items-center justify-center gap-1.5 rounded-overlay text-xs font-medium"
                 style={{
                   border: '1px solid var(--border-subtle)',
                   background: 'var(--surface-sunken)',
@@ -455,7 +452,7 @@ export function BillingTab({
           </Panel>
 
           <div
-            className="rounded-xl p-4"
+            className="rounded-overlay p-4"
             style={{
               background: 'var(--surface-sunken)',
               border: '1px solid var(--border-subtle)',

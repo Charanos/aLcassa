@@ -108,7 +108,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
     <>
       <div
         className="surface-card mt-5 flex flex-wrap items-center gap-2.5 p-3"
-        style={{ borderRadius: 'var(--radius-lg)' }}
+        style={{ borderRadius: 'var(--radius-modal)' }}
       >
         <label
           className="flex h-[34px] max-w-[340px] min-w-0 flex-1 basis-[260px] items-center gap-2.5 rounded-chip px-3"
@@ -132,7 +132,10 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
             placeholder="Action, actor, or target"
             aria-label="Search the audit log"
             className="min-w-0 flex-1 border-none bg-transparent outline-none"
-            style={{ font: '400 var(--text-sm)/1 var(--font-ui)', color: 'var(--text-primary)' }}
+            style={{
+              font: '400 var(--type-compact)/1 var(--font-ui)',
+              color: 'var(--text-primary)',
+            }}
           />
         </label>
 
@@ -153,7 +156,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
                 border: `1px solid ${on ? 'var(--blue-500)' : 'var(--border-subtle)'}`,
                 background: on ? 'var(--blue-50)' : 'var(--surface-raised)',
                 color: on ? 'var(--blue-600)' : 'var(--text-secondary)',
-                font: '400 var(--text-sm)/1 var(--font-ui)',
+                font: '400 var(--type-compact)/1 var(--font-ui)',
               }}
             >
               <Icon size={13} stroke={1.5} aria-hidden />
@@ -220,7 +223,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
                   className="hidden shrink-0 truncate sm:block"
                   style={{
                     width: 210,
-                    font: '400 var(--text-sm)/1 var(--font-mono)',
+                    font: '400 var(--type-compact)/1 var(--font-mono)',
                     color: 'var(--text-primary)',
                   }}
                 >

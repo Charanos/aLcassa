@@ -64,7 +64,7 @@ export function AppearanceSettings() {
               <button
                 key={accent.id}
                 onClick={() => handleAccentChange(accent.id)}
-                className={`group relative flex flex-col items-center gap-3 rounded-lg border p-4 transition-all duration-200 hover:bg-[var(--surface-inset)] focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:outline-none ${
+                className={`group relative flex flex-col items-center gap-3 rounded-overlay border p-4 transition-all duration-200 hover:bg-[var(--surface-inset)] focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:outline-none ${
                   isActive
                     ? 'border-[var(--border-focus)] bg-[var(--surface-inset)] shadow-sm'
                     : 'border-[var(--ink-100)]'
@@ -100,7 +100,7 @@ export function AppearanceSettings() {
             <div className="flex items-center gap-2 rounded-chip border border-[var(--ink-100)] bg-[var(--surface-inset)] p-1">
               <button
                 onClick={() => toggleSidebarBehavior(true)}
-                className={`rounded-sm px-4 py-1.5 text-sm font-medium transition-colors ${
+                className={`rounded-chip px-4 py-1.5 text-sm font-medium transition-colors ${
                   sidebarHover
                     ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -110,7 +110,7 @@ export function AppearanceSettings() {
               </button>
               <button
                 onClick={() => toggleSidebarBehavior(false)}
-                className={`rounded-sm px-4 py-1.5 text-sm font-medium transition-colors ${
+                className={`rounded-chip px-4 py-1.5 text-sm font-medium transition-colors ${
                   !sidebarHover
                     ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'

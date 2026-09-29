@@ -125,9 +125,41 @@
    * rather than to the browser default. Migration alias. */
   --font-serif: var(--font-display);
 
-  --radius-chip: var(--radius-sm);
-  --radius-panel: var(--radius-md);
-  --radius-overlay: var(--radius-lg);
+  /*
+   * ⚠ THE SOURCE NAMES ARE `--radius-control/surface/modal`, NOT
+   *   `--radius-sm/md/lg`. Tailwind declares the latter itself, and for a
+   *   long time both sets shipped — see the note in `tokens.css`. These five
+   *   are the only radius utilities the console should write.
+   */
+  /*
+   * ⚠ THE SIZE SCALE IS OVERRIDDEN HERE ON PURPOSE.
+   *
+   * Tailwind ships `--text-xs` … `--text-2xl`; this product's steps are
+   * different (11 / 12.5 / 14 …) and used to win by sitting unlayered in
+   * `tokens.css`, which was an accident of the cascade rather than a
+   * decision. Declaring them in `@theme` makes it the decision it always
+   * should have been, and the rendered sizes do not move.
+   */
+  --text-3xs: var(--type-badge);
+  --text-2xs: var(--type-micro);
+  --text-xs: var(--type-chip);
+  --text-sm: var(--type-compact);
+  --text-base: var(--type-body);
+  --text-md: var(--type-lede);
+  --text-lg: var(--type-panel);
+  --text-xl: var(--type-heading);
+  --text-2xl: var(--type-display);
+  --text-3xl: var(--type-hero);
+  --text-hero: var(--type-hero-fluid);
+  --text-section: var(--type-section-fluid);
+
+  --radius-chip: var(--radius-control);
+  --radius-panel: var(--radius-surface);
+  --radius-overlay: var(--radius-modal);
+  --radius-card: var(--radius-card);
+  --radius-hero: var(--radius-hero);
+  --radius-slab: var(--radius-slab);
+  --radius-bar: var(--radius-bar);
 
   /*
    * ⚠ THERE IS NO `--spacing-0`, AND THERE MUST NEVER BE ONE.
@@ -772,7 +804,7 @@
     backdrop-filter: blur(8px);
     border: 1px solid var(--border-subtle);
     box-shadow: var(--glass-highlight), var(--shadow-sm);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-modal);
   }
 
   .neu-raised {

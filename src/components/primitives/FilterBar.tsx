@@ -72,7 +72,7 @@ export function FilterBar<T extends string = string>({
 
   return (
     <div
-      className="mt-6 flex flex-wrap items-center gap-3 rounded-[24px] p-2 transition-all duration-300"
+      className="mt-6 flex flex-wrap items-center gap-3 rounded-hero p-2 transition-all duration-300"
       style={{
         background: 'var(--surface-sunken)',
         border: '1px solid var(--border-subtle)',
@@ -159,7 +159,7 @@ export function FilterBar<T extends string = string>({
                     className="numeric transition-colors duration-300"
                     style={{
                       fontSize: 10,
-                      fontWeight: 700,
+                      fontWeight: 500,
                       color: on ? activeInk : 'var(--text-tertiary)',
                       opacity: on ? 0.8 : 1,
                     }}
@@ -200,7 +200,7 @@ export function FilterBar<T extends string = string>({
         {/* View Toggle */}
         {viewMode && onViewModeChange && (
           <div
-            className="flex items-center rounded-xl p-[3px] transition-all duration-300"
+            className="flex items-center rounded-overlay p-[3px] transition-all duration-300"
             style={{
               background: 'var(--surface-inset)',
               border: '1px solid var(--border-subtle)',
@@ -212,7 +212,7 @@ export function FilterBar<T extends string = string>({
               onClick={() => onViewModeChange('list')}
               aria-pressed={viewMode === 'list'}
               aria-label="List view"
-              className="grid size-[30px] place-items-center rounded-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="grid size-[30px] place-items-center rounded-overlay transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
                 background: viewMode === 'list' ? 'var(--surface-raised)' : 'transparent',
                 color: viewMode === 'list' ? 'var(--text-primary)' : 'var(--text-tertiary)',
@@ -229,7 +229,7 @@ export function FilterBar<T extends string = string>({
               onClick={() => onViewModeChange('grid')}
               aria-pressed={viewMode === 'grid'}
               aria-label="Grid view"
-              className="grid size-[30px] place-items-center rounded-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="grid size-[30px] place-items-center rounded-overlay transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
                 background: viewMode === 'grid' ? 'var(--surface-raised)' : 'transparent',
                 color: viewMode === 'grid' ? 'var(--text-primary)' : 'var(--text-tertiary)',

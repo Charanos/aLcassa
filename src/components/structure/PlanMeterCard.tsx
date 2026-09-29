@@ -47,7 +47,7 @@ export function PlanMeterCard({ meter, collapsed }: { meter: PlanMeter; collapse
           href={meter.href}
           title={`${meter.planName} · ${pct}% used. ${meter.detail}`}
           aria-label={`${meter.planName}, ${pct} percent of the plan used`}
-          className="block rounded-[var(--radius-sm)] p-1"
+          className="block rounded-chip p-1"
         >
           <div
             className="h-1 overflow-hidden rounded-full"
@@ -63,7 +63,7 @@ export function PlanMeterCard({ meter, collapsed }: { meter: PlanMeter; collapse
   return (
     <div className="border-t p-2.5" style={{ borderColor: 'var(--tenant-chrome-rule)' }}>
       <div
-        className="rounded-[var(--radius-md)] border px-3 pt-2.5 pb-3"
+        className="rounded-panel border px-3 pt-2.5 pb-3"
         style={{ background: 'var(--surface-sunken)', borderColor: 'var(--border-subtle)' }}
       >
         <p className="mb-2 flex items-baseline justify-between gap-2">

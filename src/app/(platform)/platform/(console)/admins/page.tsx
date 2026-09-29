@@ -191,7 +191,7 @@ export default async function AdminsPage() {
                   <span
                     className="truncate"
                     style={{
-                      font: '400 var(--text-base)/1.35 var(--font-ui)',
+                      font: '400 var(--type-body)/1.35 var(--font-ui)',
                       color: 'var(--text-primary)',
                     }}
                   >
@@ -345,7 +345,7 @@ export default async function AdminsPage() {
                 <span
                   className="block truncate"
                   style={{
-                    font: '400 var(--text-sm)/1.35 var(--font-mono)',
+                    font: '400 var(--type-compact)/1.35 var(--font-mono)',
                     color: 'var(--text-primary)',
                   }}
                 >

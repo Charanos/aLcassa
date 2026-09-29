@@ -194,15 +194,15 @@ export function PricingSection() {
           <div className="flex max-w-3xl flex-col items-start text-left">
             <div className="inline-flex items-center gap-2">
               <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden />
-              <p className="font-mono text-[11px] font-medium tracking-wider text-[var(--orange-500)] uppercase">
+              <p className="font-mono text-xs font-medium tracking-wider text-[var(--orange-500)] uppercase">
                 Pricing & Workspace Packages
               </p>
             </div>
-            <h2 className="display mt-3 text-[32px] leading-tight font-normal tracking-tight text-[var(--text-primary)] sm:text-[42px]">
+            <h2 className="display mt-3 text-2xl leading-tight font-normal tracking-tight text-[var(--text-primary)] sm:text-3xl">
               Predictable plans for growing teams
               <br className="hidden sm:block" /> & high-throughput enterprises.
             </h2>
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-[16px]">
+            <p className="mt-3 max-w-2xl text-md leading-relaxed text-[var(--text-secondary)] sm:text-md">
               No surprise overages or per-event penalties. Scale your customer support operations on
               dedicated PostgreSQL isolation with transparent billing in Kenyan Shillings (KES).
             </p>
@@ -220,7 +220,7 @@ export function PricingSection() {
                 onClick={() => setBillingCycle('monthly')}
                 role="radio"
                 aria-checked={billingCycle === 'monthly'}
-                className={`cursor-pointer rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${
+                className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
                   billingCycle === 'monthly'
                     ? 'bg-[var(--text-primary)] text-white shadow-xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -233,14 +233,14 @@ export function PricingSection() {
                 onClick={() => setBillingCycle('annual')}
                 role="radio"
                 aria-checked={billingCycle === 'annual'}
-                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
                   billingCycle === 'annual'
                     ? 'bg-[var(--text-primary)] text-white shadow-xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <span>Annual</span>
-                <span className="py-0.2 rounded-full bg-[var(--orange-500)] px-1.5 font-mono text-[10px] font-medium text-white uppercase">
+                <span className="py-0.2 rounded-full bg-[var(--orange-500)] px-1.5 font-mono text-2xs font-medium text-white uppercase">
                   Save 15%
                 </span>
               </button>
@@ -258,7 +258,7 @@ export function PricingSection() {
             return (
               <div
                 key={tier.id}
-                className={`relative flex flex-col justify-between rounded-3xl transition-all duration-300 ${
+                className={`relative flex flex-col justify-between rounded-hero transition-all duration-300 ${
                   tier.isPopular
                     ? 'border-2 border-[var(--blue-500)] bg-white p-7 shadow-[0_20px_60px_-15px_rgba(4,58,225,0.12)] sm:p-9 lg:-translate-y-2'
                     : 'border border-[var(--border-subtle)] bg-white/80 p-7 shadow-xs backdrop-blur-md hover:border-[var(--ink-200)] hover:bg-white hover:shadow-md sm:p-8'
@@ -267,7 +267,7 @@ export function PricingSection() {
                 {/* Popular Pill Badge (Clean typography, no sparkles) */}
                 {tier.isPopular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center rounded-full bg-[var(--blue-500)] px-3.5 py-1 font-mono text-[10px] font-medium tracking-wider text-white uppercase shadow-sm">
+                    <span className="inline-flex items-center rounded-full bg-[var(--blue-500)] px-3.5 py-1 font-mono text-2xs font-medium tracking-wider text-white uppercase shadow-sm">
                       {tier.badge}
                     </span>
                   </div>
@@ -276,32 +276,30 @@ export function PricingSection() {
                 <div>
                   {/* Tier Title & Description */}
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-[22px] font-medium text-[var(--text-primary)]">
-                      {tier.name}
-                    </h3>
+                    <h3 className="text-xl font-medium text-[var(--text-primary)]">{tier.name}</h3>
                     {tier.badge && !tier.isPopular && (
-                      <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-sunken)] px-2.5 py-0.5 font-mono text-[10px] font-medium tracking-wider text-[var(--text-tertiary)] uppercase">
+                      <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-sunken)] px-2.5 py-0.5 font-mono text-2xs font-medium tracking-wider text-[var(--text-tertiary)] uppercase">
                         {tier.badge}
                       </span>
                     )}
                   </div>
-                  <p className="mt-2 min-h-[42px] text-[13.5px] leading-relaxed text-[var(--text-secondary)]">
+                  <p className="mt-2 min-h-[42px] text-base leading-relaxed text-[var(--text-secondary)]">
                     {tier.description}
                   </p>
 
                   {/* Price Block */}
                   <div className="mt-6 border-t border-[var(--ink-100)] pt-6">
                     <div className="flex items-baseline gap-2">
-                      <span className="font-mono text-[32px] font-medium tracking-tight text-[var(--text-primary)] sm:text-[36px]">
+                      <span className="font-mono text-2xl font-medium tracking-tight text-[var(--text-primary)] sm:text-2xl">
                         {formattedPrice}
                       </span>
                       {tier.monthlyPrice > 0 && (
-                        <span className="font-mono text-[12px] text-[var(--text-tertiary)] uppercase">
+                        <span className="font-mono text-sm text-[var(--text-tertiary)] uppercase">
                           / month
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-[11.5px] text-[var(--text-tertiary)]">
+                    <p className="mt-1 text-sm text-[var(--text-tertiary)]">
                       {tier.monthlyPrice > 0
                         ? billingCycle === 'annual'
                           ? 'Billed annually · KES ' +
@@ -313,13 +311,13 @@ export function PricingSection() {
                   </div>
 
                   {/* Key Quick Specs Bento Matrix */}
-                  <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl border border-[var(--ink-100)] bg-[var(--surface-sunken)]/70 p-3">
+                  <div className="mt-6 grid grid-cols-2 gap-2 rounded-card border border-[var(--ink-100)] bg-[var(--surface-sunken)]/70 p-3">
                     {tier.specs.map((spec) => (
                       <div key={spec.label} className="flex flex-col">
-                        <span className="font-mono text-[10px] tracking-wider text-[var(--text-tertiary)] uppercase">
+                        <span className="font-mono text-2xs tracking-wider text-[var(--text-tertiary)] uppercase">
                           {spec.label}
                         </span>
-                        <span className="mt-0.5 text-[12.5px] font-medium text-[var(--text-primary)]">
+                        <span className="mt-0.5 text-sm font-medium text-[var(--text-primary)]">
                           {spec.value}
                         </span>
                       </div>
@@ -328,12 +326,12 @@ export function PricingSection() {
 
                   {/* Checklist of Features & Entitlements */}
                   <div className="mt-6 space-y-3">
-                    <p className="font-mono text-[11px] font-medium tracking-wider text-[var(--text-tertiary)] uppercase">
+                    <p className="font-mono text-xs font-medium tracking-wider text-[var(--text-tertiary)] uppercase">
                       Included in {tier.name}:
                     </p>
                     <ul className="space-y-2.5">
                       {tier.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5 text-[13px] leading-snug">
+                        <li key={idx} className="flex items-start gap-2.5 text-sm leading-snug">
                           <span
                             className={`mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full ${
                               tier.isPopular

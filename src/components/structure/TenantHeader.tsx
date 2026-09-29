@@ -42,7 +42,7 @@ export type WorkspaceSummary = {
 function Initials({ text, size }: { text: string; size: number }) {
   return (
     <span
-      className="grid shrink-0 place-items-center rounded-[var(--radius-sm)]"
+      className="grid shrink-0 place-items-center rounded-chip"
       style={{
         width: size,
         height: size,
@@ -222,7 +222,7 @@ export function NotificationsMenu({
               <HeaderMenuItem key={n.id} asChild>
                 <Link href={n.href} className="items-start">
                   <span
-                    className="mt-0.5 grid size-[26px] shrink-0 place-items-center rounded-[var(--radius-md)]"
+                    className="mt-0.5 grid size-[26px] shrink-0 place-items-center rounded-panel"
                     style={{ background: tone.tint, color: tone.ink }}
                     aria-hidden
                   >

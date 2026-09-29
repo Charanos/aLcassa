@@ -31,14 +31,14 @@ export default function NotFound() {
   return (
     <main id="main" className="mx-auto flex min-h-dvh flex-col items-center justify-center px-6">
       <div
-        className="w-full max-w-[440px] rounded-[24px] p-2"
+        className="w-full max-w-[440px] rounded-hero p-2"
         style={{
           background: 'var(--surface-sunken)',
           boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)',
         }}
       >
         <div
-          className="relative flex flex-col items-center overflow-hidden rounded-[16px] px-8 py-10 text-center"
+          className="relative flex flex-col items-center overflow-hidden rounded-card px-8 py-10 text-center"
           style={{
             background: 'white',
             boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
@@ -49,7 +49,7 @@ export default function NotFound() {
 
           <div className="relative mb-6">
             <span
-              className="grid size-12 place-items-center rounded-2xl"
+              className="grid size-12 place-items-center rounded-card"
               style={{
                 background: 'white',
                 border: '1px solid var(--border-subtle)',
@@ -61,18 +61,18 @@ export default function NotFound() {
           </div>
 
           <p
-            className="relative mb-3 font-mono text-[12px] font-medium tracking-wider uppercase"
+            className="relative mb-3 font-mono text-sm font-medium tracking-wider uppercase"
             style={{ color: 'var(--blue-500)' }}
           >
             404 Not Found
           </p>
 
-          <h1 className="relative text-[20px] font-medium tracking-tight text-[var(--text-primary)]">
+          <h1 className="relative text-lg font-medium tracking-tight text-[var(--text-primary)]">
             That is not here.
           </h1>
 
           <p
-            className="relative mt-2.5 text-[14px] leading-relaxed"
+            className="relative mt-2.5 text-base leading-relaxed"
             style={{ color: 'var(--text-secondary)' }}
           >
             Or you do not have access to it. There is no way to tell which from this page, and that

@@ -72,7 +72,7 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
 
   return (
     <section
-      className="relative flex flex-col rounded-[16px] p-5"
+      className="relative flex flex-col rounded-card p-5"
       style={{
         background: 'var(--surface-sunken)',
         boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
@@ -80,7 +80,7 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
     >
       <header className="mb-4 flex items-center justify-between gap-3">
         <h3
-          className="text-[12px] font-medium tracking-widest uppercase"
+          className="text-sm font-medium tracking-widest uppercase"
           style={{ color: 'var(--text-secondary)' }}
         >
           Platform telemetry
@@ -103,7 +103,7 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
 
           <Link
             href="/platform/health"
-            className="group flex items-center gap-1 text-[12px] font-medium transition-colors hover:underline"
+            className="group flex items-center gap-1 text-sm font-medium transition-colors hover:underline"
             style={{ color: 'var(--text-action)' }}
           >
             Health
@@ -121,7 +121,7 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
       ) : (
         <>
           <div
-            className="mt-2 flex flex-col overflow-hidden rounded-[12px]"
+            className="mt-2 flex flex-col overflow-hidden rounded-overlay"
             style={{
               background: 'var(--surface-raised)',
               border: '1px solid var(--border-subtle)',
@@ -157,10 +157,7 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
                   aria-hidden
                 />
               )}
-              <span
-                className="text-[11.5px] font-medium"
-                style={{ color: 'var(--text-secondary)' }}
-              >
+              <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {healthy} of {vitals.length} within budget
               </span>
             </span>
@@ -171,7 +168,7 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
               to remove.
             */}
             <span
-              className="text-[11px] font-medium tracking-wide"
+              className="text-xs font-medium tracking-wide"
               style={{ color: 'var(--text-tertiary)' }}
             >
               designed figures · no probes in Phase 1
@@ -204,7 +201,7 @@ function ViewTab({
       role="tab"
       aria-selected={active}
       onClick={onSelect}
-      className="relative pb-1 text-[11px] font-medium tracking-widest uppercase transition-colors"
+      className="relative pb-1 text-xs font-medium tracking-widest uppercase transition-colors"
       style={{ color: active ? 'var(--text-primary)' : 'var(--text-tertiary)' }}
     >
       {children}
@@ -254,7 +251,7 @@ function VitalRow({
       >
         <span className="flex min-w-0 items-center gap-3">
           <span
-            className="grid size-6 shrink-0 place-items-center rounded-md transition-transform duration-200 group-hover:scale-105 motion-reduce:transform-none"
+            className="grid size-6 shrink-0 place-items-center rounded-panel transition-transform duration-200 group-hover:scale-105 motion-reduce:transform-none"
             style={{ color: off ? ink : 'var(--blue-400)' }}
             aria-hidden
           >
@@ -263,7 +260,7 @@ function VitalRow({
 
           <span className="flex min-w-0 items-center gap-2">
             <span
-              className="truncate text-[14px] font-medium"
+              className="truncate text-base font-medium"
               style={{ color: 'var(--text-primary)' }}
             >
               {vital.label}
@@ -290,12 +287,12 @@ function VitalRow({
                   whole thing at one size when the design sets them at two.
                 */}
                 <span
-                  className="font-mono text-[14px] font-medium tracking-tight"
+                  className="font-mono text-base font-medium tracking-tight"
                   style={{ color: off ? ink : 'var(--text-primary)' }}
                 >
                   {vital.value}
                 </span>
-                <span className="text-[12px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+                <span className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>
                   {vital.unit}
                 </span>
               </span>
@@ -320,7 +317,7 @@ function VitalRow({
             </span>
           ) : (
             <span
-              className="inline-flex items-center gap-1.5 font-mono text-[11.5px] font-medium tracking-tight"
+              className="inline-flex items-center gap-1.5 font-mono text-sm font-medium tracking-tight"
               style={{ color: off ? ink : 'var(--success-fg)' }}
             >
               {off ? (
@@ -360,11 +357,11 @@ function VitalRow({
                 key={d.label}
                 className="flex items-baseline justify-between gap-1.5 sm:justify-start"
               >
-                <dt className="text-[11px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+                <dt className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>
                   {d.label}
                 </dt>
                 <dd
-                  className="font-mono text-[11.5px] font-medium tracking-tight"
+                  className="font-mono text-sm font-medium tracking-tight"
                   style={{ color: 'var(--text-secondary)' }}
                 >
                   {d.value}
@@ -391,7 +388,7 @@ function VitalRow({
 function TelemetryUnwired() {
   return (
     <div
-      className="relative mt-2 flex flex-col items-center gap-4 overflow-hidden rounded-[16px] px-6 py-10 text-center"
+      className="relative mt-2 flex flex-col items-center gap-4 overflow-hidden rounded-card px-6 py-10 text-center"
       style={{
         background: 'var(--surface-raised)',
         border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
@@ -399,7 +396,7 @@ function TelemetryUnwired() {
       }}
     >
       <div
-        className="flex h-12 w-12 items-center justify-center rounded-[14px]"
+        className="flex h-12 w-12 items-center justify-center rounded-overlay"
         style={{
           background: 'var(--surface-inset)',
           border: '1px solid var(--border-subtle)',
@@ -414,7 +411,7 @@ function TelemetryUnwired() {
       </div>
       <div>
         <p
-          className="text-[14px] font-medium tracking-tight"
+          className="text-base font-medium tracking-tight"
           style={{ color: 'var(--text-primary)' }}
         >
           No probes are reporting yet.
@@ -445,7 +442,7 @@ function TelemetryUnwired() {
 export function PlatformTelemetrySkeleton() {
   return (
     <section
-      className="relative flex flex-col rounded-[16px] p-5"
+      className="relative flex flex-col rounded-card p-5"
       style={{
         background: 'var(--surface-sunken)',
         boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
@@ -453,7 +450,7 @@ export function PlatformTelemetrySkeleton() {
     >
       <header className="mb-4 flex items-center justify-between gap-3">
         <h3
-          className="text-[12px] font-medium tracking-widest uppercase"
+          className="text-sm font-medium tracking-widest uppercase"
           style={{ color: 'var(--text-secondary)' }}
         >
           Platform telemetry
@@ -472,7 +469,7 @@ export function PlatformTelemetrySkeleton() {
 
       <SkeletonGroup label="Loading platform telemetry">
         <div
-          className="mt-2 flex flex-col overflow-hidden rounded-[12px]"
+          className="mt-2 flex flex-col overflow-hidden rounded-overlay"
           style={{
             background: 'var(--surface-raised)',
             border: '1px solid var(--border-subtle)',

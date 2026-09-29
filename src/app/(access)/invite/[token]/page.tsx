@@ -82,20 +82,20 @@ export default async function InvitePage({
       lede="You have been granted access to this workspace. Complete your profile to proceed."
       cardMaxWidth="max-w-[620px]"
     >
-      <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/60 p-4 shadow-2xs">
-        <div className="grid size-8 shrink-0 place-items-center rounded-xl bg-[var(--orange-500)]/10 text-[var(--orange-600)]">
+      <div className="mb-5 flex items-start gap-3 rounded-card border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/60 p-4 shadow-2xs">
+        <div className="grid size-8 shrink-0 place-items-center rounded-overlay bg-[var(--orange-500)]/10 text-[var(--orange-600)]">
           <IconBuilding size={18} stroke={2} aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-1">
-            <span className="text-[13px] font-medium text-[var(--text-primary)]">
+            <span className="text-sm font-medium text-[var(--text-primary)]">
               {inviter} invited you
             </span>
-            <span className="rounded-md bg-[var(--blue-500)]/10 px-2 py-0.5 font-mono text-[10.5px] font-medium text-[var(--blue-600)] capitalize">
+            <span className="rounded-panel bg-[var(--blue-500)]/10 px-2 py-0.5 font-mono text-2xs font-medium text-[var(--blue-600)] capitalize">
               {role}
             </span>
           </div>
-          <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
+          <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
             As a team member on {company}, you can access customer threads and collaborate in
             real-time.
           </p>

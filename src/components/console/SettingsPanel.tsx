@@ -119,7 +119,7 @@ export function SettingsPanel({
               style={{
                 background: on ? 'var(--surface-inset)' : 'transparent',
                 color: on ? 'var(--text-primary)' : 'var(--text-secondary)',
-                font: `${on ? 500 : 400} var(--text-sm)/1 var(--font-ui)`,
+                font: `${on ? 500 : 400} var(--type-compact)/1 var(--font-ui)`,
               }}
             >
               <span
@@ -173,7 +173,7 @@ export function SettingsPanel({
                       border: '1px solid var(--border-strong)',
                       background: 'var(--surface-raised)',
                       boxShadow: 'var(--neu-inset)',
-                      font: '400 var(--text-base)/1 var(--font-mono)',
+                      font: '400 var(--type-body)/1 var(--font-mono)',
                       color: 'var(--text-primary)',
                     }}
                   />
@@ -622,7 +622,7 @@ export function SettingsPanel({
                       <span
                         className="block"
                         style={{
-                          font: '400 var(--text-sm)/1.4 var(--font-mono)',
+                          font: '400 var(--type-compact)/1.4 var(--font-mono)',
                           color: 'var(--text-primary)',
                           overflowWrap: 'anywhere',
                         }}
@@ -656,7 +656,7 @@ export function SettingsPanel({
             switching tabs never resets the dirty bag. ────────────────────── */}
         <div
           className="surface-card sticky bottom-4 flex items-center gap-3 px-5 py-3.5"
-          style={{ borderRadius: 'var(--radius-lg)' }}
+          style={{ borderRadius: 'var(--radius-modal)' }}
         >
           <span
             className="t-compact flex-1"
@@ -899,7 +899,7 @@ function BreakGlassPanel({
                 borderColor: 'var(--border-subtle)',
                 background: 'var(--surface-raised)',
                 color: 'var(--text-primary)',
-                font: '400 var(--text-sm)/1.5 var(--font-ui)',
+                font: '400 var(--type-compact)/1.5 var(--font-ui)',
               }}
             />
           </div>
@@ -981,7 +981,7 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
         style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface-sunken)' }}
       >
         <span
-          style={{ font: '400 var(--text-base)/1 var(--font-mono)', color: 'var(--text-primary)' }}
+          style={{ font: '400 var(--type-body)/1 var(--font-mono)', color: 'var(--text-primary)' }}
         >
           {value}
         </span>

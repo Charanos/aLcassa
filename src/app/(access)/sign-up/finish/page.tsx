@@ -36,10 +36,15 @@ export default async function FinishOAuthSignUpPage({
         {errorMessage ? (
           <div
             role="alert"
-            className="mb-5 flex items-start gap-2.5 px-1 py-1 text-[12.5px] leading-relaxed transition-all"
+            className="mb-5 flex items-start gap-2.5 px-1 py-1 text-sm leading-relaxed transition-all"
             style={{ color: tone.fg }}
           >
-            <IconAlertCircle size={15} stroke={2.5} className="mt-[2.5px] shrink-0" style={{ color: tone.rule }} />
+            <IconAlertCircle
+              size={15}
+              stroke={2.5}
+              className="mt-[2.5px] shrink-0"
+              style={{ color: tone.rule }}
+            />
             <span>{errorMessage}</span>
           </div>
         ) : null}
@@ -55,7 +60,7 @@ export default async function FinishOAuthSignUpPage({
             (line) => (
               <span
                 key={line}
-                className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--text-secondary)]"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-secondary)]"
               >
                 <IconCheck
                   size={12}

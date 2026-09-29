@@ -238,7 +238,7 @@ export function AppShell({
           <div key={group.label} data-slot="nav-group" className="flex flex-col">
             {/* Group Label / Separator */}
             {!collapsed || sidebarHovered || isMobile ? (
-              <h2 className="t-eyebrow mb-1.5 px-2.5 text-[10px] tracking-widest text-[var(--text-tertiary)] uppercase opacity-50 select-none">
+              <h2 className="t-eyebrow mb-1.5 px-2.5 text-2xs tracking-widest text-[var(--text-tertiary)] uppercase opacity-50 select-none">
                 {group.label}
               </h2>
             ) : (
@@ -264,7 +264,7 @@ export function AppShell({
                       aria-current={active ? 'page' : undefined}
                       data-slot="nav-item"
                       data-active={active}
-                      className={`group relative flex items-center rounded-lg text-left transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:outline-none ${
+                      className={`group relative flex items-center rounded-overlay text-left transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-1 focus-visible:outline-none ${
                         active
                           ? navActive.item
                           : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-inset)] hover:text-[var(--text-primary)]'
@@ -320,7 +320,7 @@ export function AppShell({
 
                           {item.badge ? (
                             <span
-                              className={`t-eyebrow flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-normal transition-colors ${
+                              className={`t-eyebrow flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 font-mono text-2xs font-normal transition-colors ${
                                 active
                                   ? navActive.badge
                                   : 'bg-[var(--text-primary)] text-[var(--surface-base)]'
@@ -337,7 +337,7 @@ export function AppShell({
                     {collapsed && !sidebarHovered && !isMobile && isHovered && (
                       <div
                         role="tooltip"
-                        className="pointer-events-none absolute top-1/2 left-[calc(100%+10px)] z-50 flex -translate-y-1/2 items-center gap-2 rounded-md border px-2.5 py-1.5 whitespace-nowrap shadow-md"
+                        className="pointer-events-none absolute top-1/2 left-[calc(100%+10px)] z-50 flex -translate-y-1/2 items-center gap-2 rounded-panel border px-2.5 py-1.5 whitespace-nowrap shadow-md"
                         style={{
                           background: 'var(--surface-panel)',
                           borderColor: 'var(--border-subtle)',
@@ -346,12 +346,12 @@ export function AppShell({
                       >
                         <span className="t-compact font-medium">{item.label}</span>
                         {item.badge ? (
-                          <span className="t-eyebrow rounded-sm bg-[var(--text-primary)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--surface-base)]">
+                          <span className="t-eyebrow rounded-chip bg-[var(--text-primary)] px-1.5 py-0.5 font-mono text-2xs text-[var(--surface-base)]">
                             {item.badge}
                           </span>
                         ) : null}
                         {item.shortcut ? (
-                          <kbd className="t-eyebrow ml-1 font-mono text-[9px] opacity-50">
+                          <kbd className="t-eyebrow ml-1 font-mono text-3xs opacity-50">
                             {item.shortcut}
                           </kbd>
                         ) : null}

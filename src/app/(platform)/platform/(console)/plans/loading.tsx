@@ -15,7 +15,7 @@ import {
  * skeleton omitted entirely. Those cards are ~420px tall each, so the page grew
  * by most of a viewport after it had already been painted.
  *
- * The left block matches the table's `rounded-[32px]` rather than the default
+ * The left block matches the table's `rounded-slab` rather than the default
  * chip radius: at 32px the difference is visible, and a corner that changes
  * shape on arrival reads as a different element replacing the first one.
  */
@@ -26,7 +26,7 @@ export default function PlansLoading() {
         <SkeletonHeader />
 
         <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <SkeletonBlock height={420} className="rounded-[32px]" />
+          <SkeletonBlock height={420} className="rounded-slab" />
           <div className="grid gap-4">
             <SkeletonPanel lines={4} />
             <SkeletonPanel lines={3} />
@@ -36,7 +36,7 @@ export default function PlansLoading() {
         {/* The headroom cards. Three plans, each a card of bars. */}
         <div className="mt-8 grid gap-5 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <SkeletonBlock key={i} height={400} className="rounded-[32px]" />
+            <SkeletonBlock key={i} height={400} className="rounded-slab" />
           ))}
         </div>
       </SkeletonGroup>

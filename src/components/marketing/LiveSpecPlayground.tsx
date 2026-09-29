@@ -143,14 +143,14 @@ export function LiveSpecPlayground() {
 
             {/* Live Query Inspection Window */}
             <div
-              className="mt-4 rounded-chip border p-3.5 font-mono text-[11.5px] leading-relaxed"
+              className="mt-4 rounded-chip border p-3.5 font-mono text-sm leading-relaxed"
               style={{
                 background: 'var(--surface-sunken)',
                 borderColor: 'var(--border-subtle)',
                 color: 'var(--text-secondary)',
               }}
             >
-              <div className="mb-1 text-[10px] font-medium tracking-widest text-success uppercase">
+              <div className="mb-1 text-2xs font-medium tracking-widest text-success uppercase">
                 Active Tenant Context:
               </div>
               <p className="text-[var(--text-primary)]">
@@ -161,7 +161,7 @@ export function LiveSpecPlayground() {
                 SELECT * FROM messages WHERE tenant_id =
                 current_setting(&apos;app.current_tenant_id&apos;);
               </p>
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-success">
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-success">
                 <IconCheck size={14} />
                 <span>Zero cross-tenant leakage guaranteed by database engine</span>
               </div>
@@ -202,7 +202,7 @@ export function LiveSpecPlayground() {
               <select
                 value={ruleTone}
                 onChange={(e) => setRuleTone(e.target.value)}
-                className="flex-1 cursor-pointer rounded-chip border border-[var(--border-subtle)] bg-[var(--surface-sunken)] px-3 py-2 text-[13px] text-[var(--text-primary)] focus:border-[var(--text-action)] focus:outline-none"
+                className="flex-1 cursor-pointer rounded-chip border border-[var(--border-subtle)] bg-[var(--surface-sunken)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--text-action)] focus:outline-none"
               >
                 <option value="technical_warm">Tone: Technical & Empathetic</option>
                 <option value="concise_direct">Tone: Concise & Executive</option>
@@ -216,13 +216,13 @@ export function LiveSpecPlayground() {
 
             {/* Audit stream viewer */}
             <div
-              className="mt-4 space-y-1.5 rounded-chip border p-3.5 font-mono text-[11px]"
+              className="mt-4 space-y-1.5 rounded-chip border p-3.5 font-mono text-xs"
               style={{
                 background: 'var(--surface-sunken)',
                 borderColor: 'var(--border-subtle)',
               }}
             >
-              <div className="mb-2 text-[10px] font-medium tracking-widest text-[var(--text-tertiary)] uppercase">
+              <div className="mb-2 text-2xs font-medium tracking-widest text-[var(--text-tertiary)] uppercase">
                 Live Propagation Stream
               </div>
               {auditLogs.map((log) => (

@@ -21,7 +21,7 @@ import {
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Mark } from '../brand/Mark';
-import { StatusBadge, type StatusBadgeTone } from '@/components/ui/StatusBadge';
+import { StatusBadge, type StatusBadgeTone } from '@/components/primitives/StatusBadge';
 
 type ChannelType = 'whatsapp' | 'instagram' | 'messenger' | 'webchat';
 
@@ -230,7 +230,7 @@ export function HeroInteractiveConsole() {
 
       {/* Atmospheric Ambient Backlight */}
       <div
-        className="hero-console-glow pointer-events-none absolute -inset-6 rounded-[36px] opacity-20 blur-3xl transition-colors duration-700"
+        className="hero-console-glow pointer-events-none absolute -inset-6 rounded-slab opacity-20 blur-3xl transition-colors duration-700"
         style={{
           background: `radial-gradient(circle at 50% 30%, ${active.color} 0%, transparent 65%)`,
         }}
@@ -238,7 +238,7 @@ export function HeroInteractiveConsole() {
       />
 
       {/* Master Workspace Console Frame */}
-      <div className="relative z-10 overflow-hidden rounded-2xl border border-[var(--ink-200)] bg-[var(--ink-0)] shadow-[0_24px_70px_-18px_rgba(0,0,0,0.07)] sm:rounded-3xl">
+      <div className="relative z-10 overflow-hidden rounded-card border border-[var(--ink-200)] bg-[var(--ink-0)] shadow-[0_24px_70px_-18px_rgba(0,0,0,0.07)] sm:rounded-hero">
         {/* Top Header Bar: Workspace Shell */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ink-100)] bg-[var(--ink-50)]/70 px-5 py-3.5 backdrop-blur-md sm:px-6">
           {/* Brand & Workspace breadcrumbs */}
@@ -249,14 +249,14 @@ export function HeroInteractiveConsole() {
               aria-label="aLcassa homepage"
             >
               <Mark size={28} />
-              <span className="text-[13.5px] font-medium tracking-tight text-[var(--text-primary)]">
+              <span className="text-base font-medium tracking-tight text-[var(--text-primary)]">
                 aLcassa
               </span>
             </Link>
             <span className="text-[var(--ink-300)]" aria-hidden="true">
               |
             </span>
-            <div className="flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-secondary)]">
+            <div className="flex items-center gap-1.5 font-mono text-xs text-[var(--text-secondary)]">
               <span className="font-medium text-[var(--text-primary)]">Acme Corp HQ</span>
               <span className="text-[var(--ink-300)]">·</span>
               <span className="text-[var(--text-tertiary)]">Unified Inbound</span>
@@ -264,7 +264,7 @@ export function HeroInteractiveConsole() {
           </div>
 
           {/* Center: Search Bar with "Every channel, one inbox" placeholder */}
-          <div className="hidden w-[280px] items-center gap-2 rounded-xl border border-[var(--ink-200)]/80 bg-[var(--ink-0)] px-3 py-1.5 text-[12px] text-[var(--text-secondary)] shadow-xs transition-all focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-500)]/15 md:flex lg:w-[320px]">
+          <div className="hidden w-[280px] items-center gap-2 rounded-overlay border border-[var(--ink-200)]/80 bg-[var(--ink-0)] px-3 py-1.5 text-sm text-[var(--text-secondary)] shadow-xs transition-all focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-500)]/15 md:flex lg:w-[320px]">
             <IconSearch
               size={14}
               className="shrink-0 text-[var(--text-tertiary)]"
@@ -273,11 +273,11 @@ export function HeroInteractiveConsole() {
             <input
               type="text"
               placeholder="Every channel, one inbox"
-              className="w-full cursor-default bg-transparent text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none"
+              className="w-full cursor-default bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none"
               readOnly
               aria-label="Search inbox"
             />
-            <kbd className="hidden items-center rounded border border-[var(--ink-200)]/80 bg-[var(--ink-50)] px-1.5 py-0.5 font-mono text-[9.5px] text-[var(--text-tertiary)] lg:inline-flex">
+            <kbd className="hidden items-center rounded border border-[var(--ink-200)]/80 bg-[var(--ink-50)] px-1.5 py-0.5 font-mono text-3xs text-[var(--text-tertiary)] lg:inline-flex">
               ⌘K
             </kbd>
           </div>
@@ -316,7 +316,7 @@ export function HeroInteractiveConsole() {
                   <IconMessage size={11} stroke={2.5} />
                 </span>
               </div>
-              <span className="font-mono text-[10.5px] font-medium text-[var(--text-secondary)]">
+              <span className="font-mono text-2xs font-medium text-[var(--text-secondary)]">
                 4 live
               </span>
             </div>
@@ -327,7 +327,7 @@ export function HeroInteractiveConsole() {
             {/* 3. Notification Activity Bell */}
             <button
               type="button"
-              className="relative cursor-pointer rounded-lg p-1.5 text-[var(--text-tertiary)] transition-colors hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]"
+              className="relative cursor-pointer rounded-overlay p-1.5 text-[var(--text-tertiary)] transition-colors hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]"
               aria-label="1 unread inbound notification"
             >
               <IconBell size={16} stroke={1.8} />
@@ -349,7 +349,7 @@ export function HeroInteractiveConsole() {
                 </div>
                 <span className="absolute right-0 bottom-0 size-2 rounded-full bg-emerald-500 ring-[1.5px] ring-white" />
               </div>
-              <span className="hidden font-mono text-[11px] font-medium text-[var(--text-secondary)] xl:inline-block">
+              <span className="hidden font-mono text-xs font-medium text-[var(--text-secondary)] xl:inline-block">
                 Wanjiru M.
               </span>
             </div>
@@ -361,10 +361,10 @@ export function HeroInteractiveConsole() {
           {/* Left Column: Clean Conversation List (No generic left border) */}
           <div className="flex flex-col gap-1.5 bg-[var(--ink-50)]/30 p-3 sm:p-4">
             <div className="mb-1 flex items-center justify-between px-2 py-1">
-              <span className="font-mono text-[11px] font-medium tracking-wider text-[var(--text-tertiary)] uppercase">
+              <span className="font-mono text-xs font-medium tracking-wider text-[var(--text-tertiary)] uppercase">
                 Recent Inbound
               </span>
-              <span className="font-mono text-[10.5px] text-[var(--text-tertiary)]">
+              <span className="font-mono text-2xs text-[var(--text-tertiary)]">
                 {CONVERSATIONS.length} Active
               </span>
             </div>
@@ -381,7 +381,7 @@ export function HeroInteractiveConsole() {
                   onClick={() => setSelectedId(item.id)}
                   aria-pressed={isSelected}
                   aria-label={`Open conversation with ${item.senderName} on ${item.channelName}`}
-                  className={`group relative flex min-h-[64px] cursor-pointer items-start gap-3 rounded-2xl p-3 text-left transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] ${
+                  className={`group relative flex min-h-[64px] cursor-pointer items-start gap-3 rounded-card p-3 text-left transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] ${
                     isSelected
                       ? 'scale-[1.01] border border-[var(--ink-200)]/80 bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)]'
                       : 'border border-transparent hover:bg-white/60'
@@ -420,7 +420,7 @@ export function HeroInteractiveConsole() {
                   {/* Customer & Message Meta */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="truncate text-[13.5px] font-medium text-[var(--text-primary)]">
+                      <span className="truncate text-base font-medium text-[var(--text-primary)]">
                         {item.senderName}
                       </span>
                       {isSelected ? (
@@ -428,13 +428,13 @@ export function HeroInteractiveConsole() {
                           Viewing
                         </StatusBadge>
                       ) : (
-                        <span className="shrink-0 font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                        <span className="shrink-0 font-mono text-2xs text-[var(--text-tertiary)]">
                           {item.time}
                         </span>
                       )}
                     </div>
 
-                    <p className="mt-0.5 truncate text-[12px] text-[var(--text-secondary)]">
+                    <p className="mt-0.5 truncate text-sm text-[var(--text-secondary)]">
                       {sent ? (
                         <span className="inline-flex items-center gap-1 font-medium text-emerald-600">
                           <IconCheck size={12} stroke={2.5} />
@@ -446,7 +446,7 @@ export function HeroInteractiveConsole() {
                     </p>
 
                     <div className="mt-1 flex items-center justify-between gap-1">
-                      <span className="truncate font-mono text-[10px] text-[var(--text-tertiary)]">
+                      <span className="truncate font-mono text-2xs text-[var(--text-tertiary)]">
                         {item.senderBusiness}
                       </span>
                       <StatusBadge tone={getChannelTone(item.id)} variant="squircle" size="sm">
@@ -489,11 +489,11 @@ export function HeroInteractiveConsole() {
 
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="text-[15.5px] font-medium text-[var(--text-primary)]">
+                      <h4 className="text-md font-medium text-[var(--text-primary)]">
                         {active.senderName}
                       </h4>
                     </div>
-                    <p className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
+                    <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
                       {active.senderRole} · {active.senderBusiness}
                     </p>
                   </div>
@@ -509,10 +509,10 @@ export function HeroInteractiveConsole() {
               <div className="mt-6 flex flex-col gap-4">
                 {/* 1. Customer Inbound Bubble (Clean, unboxed styling) */}
                 <div className="max-w-[82%] self-start">
-                  <div className="rounded-2xl rounded-tl-xs bg-[var(--surface-sunken)] p-4 text-left text-[14px] leading-relaxed text-[var(--text-primary)] shadow-xs">
+                  <div className="rounded-card rounded-tl-bar bg-[var(--surface-sunken)] p-4 text-left text-base leading-relaxed text-[var(--text-primary)] shadow-xs">
                     <p>{active.fullMessage}</p>
                   </div>
-                  <div className="mt-1.5 flex items-center gap-1.5 px-1 font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                  <div className="mt-1.5 flex items-center gap-1.5 px-1 font-mono text-2xs text-[var(--text-tertiary)]">
                     <IconClock size={12} />
                     <span>{active.time}</span>
                     <span>·</span>
@@ -522,10 +522,10 @@ export function HeroInteractiveConsole() {
 
                 {/* 2. Co-pilot Pre-Drafted Assistant Resolution */}
                 {!isSent ? (
-                  <div className="mt-2 rounded-2xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-5 text-left transition-all">
+                  <div className="mt-2 rounded-card border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/40 p-5 text-left transition-all">
                     {/* Header: Rule Matching & Latency */}
                     <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ink-100)] pb-3">
-                      <div className="flex items-center gap-2 font-mono text-[11.5px] font-medium text-[var(--text-primary)]">
+                      <div className="flex items-center gap-2 font-mono text-sm font-medium text-[var(--text-primary)]">
                         <IconCpu size={14} className="text-[var(--orange-500)]" />
                         <span>AI Assistant Suggested Reply</span>
                       </div>
@@ -540,7 +540,7 @@ export function HeroInteractiveConsole() {
                     </div>
 
                     {/* Pre-drafted reply copy */}
-                    <p className="text-left text-[14px] leading-relaxed text-[var(--text-primary)]">
+                    <p className="text-left text-base leading-relaxed text-[var(--text-primary)]">
                       {active.suggestedReply}
                     </p>
 
@@ -558,7 +558,7 @@ export function HeroInteractiveConsole() {
                       <button
                         type="button"
                         onClick={handleSendReply}
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[var(--blue-500)] px-5 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-[var(--blue-600)] hover:shadow-md active:scale-95"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[var(--blue-500)] px-5 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-[var(--blue-600)] hover:shadow-md active:scale-95"
                       >
                         <IconSend size={14} aria-hidden="true" />
                         <span>Send this reply</span>
@@ -566,7 +566,7 @@ export function HeroInteractiveConsole() {
 
                       {/* Micro actions to attach */}
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="mr-1 font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                        <span className="mr-1 font-mono text-2xs text-[var(--text-tertiary)]">
                           Attach:
                         </span>
                         {active.quickActions.map((action) => {
@@ -576,7 +576,7 @@ export function HeroInteractiveConsole() {
                               key={action}
                               type="button"
                               onClick={() => toggleAction(action)}
-                              className={`cursor-pointer rounded-full px-3 py-1 text-[11.5px] font-medium transition-all ${
+                              className={`cursor-pointer rounded-full px-3 py-1 text-sm font-medium transition-all ${
                                 isAttached
                                   ? 'border border-blue-300 bg-blue-100 text-[var(--blue-700)]'
                                   : 'border border-[var(--ink-200)] bg-white text-[var(--text-secondary)] hover:bg-[var(--ink-50)]'
@@ -600,15 +600,15 @@ export function HeroInteractiveConsole() {
              the keyframes below, and its reduced-motion block covers them. */
                       style={{ animation: 'panel-in var(--duration-slow) var(--ease-out)' }}
                     >
-                      <div className="rounded-2xl rounded-tr-xs bg-[var(--blue-500)] p-4 text-left text-[14px] leading-relaxed text-white shadow-sm">
+                      <div className="rounded-card rounded-tr-bar bg-[var(--blue-500)] p-4 text-left text-base leading-relaxed text-white shadow-sm">
                         <p>{active.suggestedReply}</p>
                         {activeActions[active.id] && (
-                          <div className="mt-2 border-t border-white/20 pt-2 font-mono text-[11.5px] text-white/90">
+                          <div className="mt-2 border-t border-white/20 pt-2 font-mono text-sm text-white/90">
                             📎 {activeActions[active.id]}
                           </div>
                         )}
                       </div>
-                      <div className="mt-1.5 flex items-center justify-end gap-1.5 px-1 font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                      <div className="mt-1.5 flex items-center justify-end gap-1.5 px-1 font-mono text-2xs text-[var(--text-tertiary)]">
                         <span>Just now</span>
                         <span>·</span>
                         <span className="inline-flex items-center gap-1 font-medium text-emerald-600">
@@ -620,7 +620,7 @@ export function HeroInteractiveConsole() {
 
                     {/* Single-line Resolved Status Banner */}
                     <div
-                      className="mt-2 flex items-center justify-between rounded-xl border border-emerald-200/80 bg-emerald-50/90 px-4 py-2 text-[12.5px] text-emerald-800"
+                      className="mt-2 flex items-center justify-between rounded-overlay border border-emerald-200/80 bg-emerald-50/90 px-4 py-2 text-sm text-emerald-800"
                       style={{ animation: 'overlay-in var(--duration-base) var(--ease-standard)' }}
                     >
                       <span className="flex items-center gap-2">
@@ -630,7 +630,7 @@ export function HeroInteractiveConsole() {
                       <button
                         type="button"
                         onClick={() => handleResetSent(active.id)}
-                        className="cursor-pointer text-[11.5px] font-medium text-emerald-700 hover:underline"
+                        className="cursor-pointer text-sm font-medium text-emerald-700 hover:underline"
                       >
                         Reset demo
                       </button>
@@ -642,7 +642,7 @@ export function HeroInteractiveConsole() {
 
             {/* Bottom Bar: Guided Step Switcher */}
             <div className="mt-6 flex items-center justify-between border-t border-[var(--ink-100)] pt-4">
-              <div className="flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-tertiary)]">
+              <div className="flex items-center gap-1.5 font-mono text-xs text-[var(--text-tertiary)]">
                 <span>
                   Scenario {selectedIndex + 1} of {CONVERSATIONS.length}
                 </span>
@@ -654,7 +654,7 @@ export function HeroInteractiveConsole() {
                 type="button"
                 onClick={handleSimulateNext}
                 disabled={isSimulating}
-                className="group flex min-h-[34px] cursor-pointer items-center gap-2 rounded-full border border-[var(--ink-200)] bg-[var(--ink-0)] px-4 py-1.5 text-[12.5px] font-medium text-[var(--text-secondary)] shadow-xs transition-all hover:border-[var(--ink-300)] hover:bg-[var(--ink-50)] hover:text-[var(--text-primary)] disabled:opacity-60"
+                className="group flex min-h-[34px] cursor-pointer items-center gap-2 rounded-full border border-[var(--ink-200)] bg-[var(--ink-0)] px-4 py-1.5 text-sm font-medium text-[var(--text-secondary)] shadow-xs transition-all hover:border-[var(--ink-300)] hover:bg-[var(--ink-50)] hover:text-[var(--text-primary)] disabled:opacity-60"
               >
                 <span>{isSimulating ? 'Switching…' : 'See next message'}</span>
                 <IconArrowRight

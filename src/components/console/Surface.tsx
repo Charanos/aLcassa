@@ -95,14 +95,14 @@ export function ConsoleHeader({
                 {bc.href ? (
                   <a
                     href={bc.href}
-                    className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-medium tracking-widest uppercase transition-all duration-200 hover:bg-[var(--chrome-hover)] hover:text-[var(--text-primary)]"
+                    className="rounded-full px-2.5 py-1 font-mono text-2xs font-medium tracking-widest uppercase transition-all duration-200 hover:bg-[var(--chrome-hover)] hover:text-[var(--text-primary)]"
                     style={{ color: 'var(--text-secondary)' }}
                   >
                     {bc.label}
                   </a>
                 ) : (
                   <span
-                    className="rounded-full bg-[var(--chrome-hover)] px-2.5 py-1 font-mono text-[10.5px] font-medium tracking-widest uppercase shadow-[var(--chrome-highlight)] ring-1 ring-[var(--chrome-rule)]"
+                    className="rounded-full bg-[var(--chrome-hover)] px-2.5 py-1 font-mono text-2xs font-medium tracking-widest uppercase shadow-[var(--chrome-highlight)] ring-1 ring-[var(--chrome-rule)]"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {bc.label}
@@ -123,7 +123,7 @@ export function ConsoleHeader({
 
         {eyebrow && (
           <p
-            className="mb-2 font-mono text-[10.5px] font-medium tracking-[0.2em] uppercase"
+            className="mb-2 font-mono text-2xs font-medium tracking-[0.2em] uppercase"
             style={{ color: 'var(--text-secondary)', opacity: 0.8 }}
           >
             {eyebrow}
@@ -287,7 +287,7 @@ export function Panel({
 
   return (
     <section
-      className={`group relative flex flex-col ${isElevated || isFlushGlass ? 'rounded-[16px] px-5 py-4' : 'pt-1'} transition-all duration-400`}
+      className={`group relative flex flex-col ${isElevated || isFlushGlass ? 'rounded-card px-5 py-4' : 'pt-1'} transition-all duration-400`}
       style={
         isElevated || isFlushGlass
           ? {
@@ -324,7 +324,7 @@ export function Panel({
               </span>
             ) : null}
             <h3
-              className="font-mono text-[11.5px] font-medium tracking-[0.15em] uppercase"
+              className="font-mono text-sm font-medium tracking-[0.15em] uppercase"
               style={{ color: 'var(--text-secondary)' }}
             >
               {title}
@@ -412,7 +412,7 @@ export function SettingsSection({
 }) {
   return (
     <section
-      className="overflow-hidden rounded-xl"
+      className="overflow-hidden rounded-overlay"
       style={{
         background: 'var(--surface-raised)',
         border: '1px solid var(--border-subtle)',
@@ -429,7 +429,7 @@ export function SettingsSection({
                 the weight ceiling of 500 that 03 §5 sets for the whole console. */}
             {title ? (
               <h2
-                className="text-[15px]"
+                className="text-md"
                 style={{ color: 'var(--text-primary)', fontWeight: 500, letterSpacing: '-0.01em' }}
               >
                 {title}
@@ -481,7 +481,7 @@ export function FactRow({
 
   return (
     <div
-      className="flex items-center justify-between gap-4 rounded-md px-2 py-2.5 transition-colors duration-200 hover:bg-[var(--surface-inset)]/50"
+      className="flex items-center justify-between gap-4 rounded-panel px-2 py-2.5 transition-colors duration-200 hover:bg-[var(--surface-inset)]/50"
       style={{
         borderBottom: last ? 'none' : '1px solid var(--border-subtle)',
       }}

@@ -86,7 +86,10 @@ export default async function WorkspaceDetailPage({
           aria-hidden
         />
         <span
-          style={{ font: '400 var(--text-sm)/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+          style={{
+            font: '400 var(--type-compact)/1 var(--font-mono)',
+            color: 'var(--text-tertiary)',
+          }}
         >
           {w.slug}
         </span>
@@ -180,7 +183,7 @@ export default async function WorkspaceDetailPage({
               className="relative h-10 shrink-0 px-4 leading-10 whitespace-nowrap transition-colors"
               style={{
                 color: on ? 'var(--text-primary)' : 'var(--text-secondary)',
-                font: `${on ? 500 : 400} var(--text-sm)/40px var(--font-ui)`,
+                font: `${on ? 500 : 400} var(--type-compact)/40px var(--font-ui)`,
               }}
             >
               {t.label}
@@ -213,7 +216,7 @@ function Meta({ children, mono }: { children: React.ReactNode; mono?: boolean })
   return (
     <span
       style={{
-        font: `400 var(--text-sm)/1 ${mono ? 'var(--font-mono)' : 'var(--font-ui)'}`,
+        font: `400 var(--type-compact)/1 ${mono ? 'var(--font-mono)' : 'var(--font-ui)'}`,
         color: mono ? 'var(--text-tertiary)' : 'var(--text-secondary)',
       }}
     >

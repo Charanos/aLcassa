@@ -35,21 +35,21 @@ export default function RevenueLoading() {
 
         <SkeletonSectionHeading align="right" />
         <div className="grid items-stretch gap-6 lg:grid-cols-[1.5fr_1fr]">
-          <SkeletonBlock height={300} className="rounded-[16px]" />
-          <SkeletonBlock height={300} className="rounded-[16px]" />
+          <SkeletonBlock height={300} className="rounded-card" />
+          <SkeletonBlock height={300} className="rounded-card" />
         </div>
 
         {/* The movement band: four figures in a row, on the page ground. */}
         <div className="mt-8 mb-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <SkeletonBlock key={i} height={96} className="rounded-[16px]" />
+            <SkeletonBlock key={i} height={96} className="rounded-card" />
           ))}
         </div>
 
         <SkeletonSectionHeading align="right" />
         <div className="grid items-stretch gap-6 lg:grid-cols-[1.1fr_1.5fr]">
-          <SkeletonBlock height={280} className="rounded-[16px]" />
-          <SkeletonBlock height={280} className="rounded-[16px]" />
+          <SkeletonBlock height={280} className="rounded-card" />
+          <SkeletonBlock height={280} className="rounded-card" />
         </div>
       </SkeletonGroup>
     </ConsolePage>

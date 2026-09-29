@@ -48,7 +48,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
             <div className="flex h-full flex-col pt-1">
               <div className="mb-6 w-full">
                 <p
-                  className="font-ui text-[13px] leading-relaxed text-pretty"
+                  className="font-ui text-sm leading-relaxed text-pretty"
                   style={{ color: 'var(--text-secondary)' }}
                 >
                   Tail performance — p95 and p99 — against the median, hour by hour across the last
@@ -75,7 +75,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                 body="Each service answers a probe and appears here with its budget."
               />
             ) : (
-              <div className="group relative overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-5 py-4 shadow-sm transition-shadow duration-300 hover:shadow-md">
+              <div className="group relative overflow-hidden rounded-overlay border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-5 py-4 shadow-sm transition-shadow duration-300 hover:shadow-md">
                 <p
                   className="t-compact relative z-10 font-medium"
                   style={{ color: 'var(--text-primary)' }}
@@ -86,7 +86,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                 </p>
                 {operations.openIncidents > 0 ? (
                   <p
-                    className="relative z-10 mt-1.5 text-[13px] font-medium"
+                    className="relative z-10 mt-1.5 text-sm font-medium"
                     style={{ color: 'var(--warning-fg)' }}
                   >
                     {operations.openIncidents} incident
@@ -94,7 +94,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                   </p>
                 ) : null}
                 <p
-                  className="relative z-10 mt-2.5 text-[12px] font-medium opacity-70"
+                  className="relative z-10 mt-2.5 text-sm font-medium opacity-70"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   {operations.refusals.count24h.toLocaleString('en-KE')} refusals in 24h ·{' '}
@@ -115,7 +115,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
             ) : (
               <div className="px-1 pb-2">
                 <div
-                  className="flex flex-col overflow-hidden rounded-[12px] bg-[var(--surface-raised)] transition-shadow duration-300 hover:shadow-md"
+                  className="flex flex-col overflow-hidden rounded-overlay bg-[var(--surface-raised)] transition-shadow duration-300 hover:shadow-md"
                   style={{
                     border: '1px solid var(--border-subtle)',
                     boxShadow: 'var(--shadow-sm)',
@@ -157,7 +157,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                         <div className="flex items-center justify-between gap-4 px-4 py-3.5">
                           <span className="flex min-w-0 items-center gap-3">
                             <span
-                              className="grid size-6 shrink-0 place-items-center rounded-md transition-transform duration-200 group-hover:scale-105"
+                              className="grid size-6 shrink-0 place-items-center rounded-panel transition-transform duration-200 group-hover:scale-105"
                               style={{ color: active ? ink : 'var(--blue-400)' }}
                               aria-hidden
                             >
@@ -165,7 +165,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                             </span>
                             <span className="flex min-w-0 items-center gap-2">
                               <span
-                                className="truncate text-[14px] font-medium"
+                                className="truncate text-base font-medium"
                                 style={{ color: 'var(--text-primary)' }}
                               >
                                 {q.name}
@@ -184,13 +184,13 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                             <span className="flex flex-col items-end gap-1">
                               <span className="flex items-baseline justify-end gap-1.5">
                                 <span
-                                  className="font-mono text-[14px] font-medium tracking-tight"
+                                  className="font-mono text-base font-medium tracking-tight"
                                   style={{ color: active ? ink : 'var(--text-primary)' }}
                                 >
                                   {q.depth.toLocaleString('en-KE')}
                                 </span>
                                 <span
-                                  className="text-[12px] font-medium"
+                                  className="text-sm font-medium"
                                   style={{ color: 'var(--text-tertiary)' }}
                                 >
                                   · {q.rate}
@@ -247,7 +247,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
           {operations.sessions.length === 0 ? (
             <NoSessionsYet />
           ) : (
-            <div className="flex flex-col overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] shadow-sm transition-shadow duration-300 hover:shadow-md">
+            <div className="flex flex-col overflow-hidden rounded-overlay border border-[var(--border-subtle)] bg-[var(--surface-raised)] shadow-sm transition-shadow duration-300 hover:shadow-md">
               <dl className="flex flex-col divide-y divide-[var(--border-subtle)] sm:flex-row sm:divide-x sm:divide-y-0">
                 {operations.sessions.map((stat) => (
                   <div
@@ -263,13 +263,13 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                     */}
                     <div className="flex flex-col-reverse gap-1.5">
                       <dt
-                        className="text-[12.5px] font-medium tracking-wide uppercase"
+                        className="text-sm font-medium tracking-wide uppercase"
                         style={{ color: 'var(--text-secondary)' }}
                       >
                         {stat.label}
                       </dt>
                       <dd
-                        className="flex items-center gap-3 font-mono text-[36px] leading-none font-medium tracking-tight"
+                        className="flex items-center gap-3 font-mono text-2xl leading-none font-medium tracking-tight"
                         style={{
                           color: stat.tone === 'accent' ? 'var(--blue-500)' : 'var(--text-primary)',
                         }}
@@ -288,7 +288,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                     </div>
                     {stat.note ? (
                       <p
-                        className="mt-2 text-[12px] font-medium opacity-60"
+                        className="mt-2 text-sm font-medium opacity-60"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         {stat.note}
@@ -316,7 +316,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
 function Designed() {
   return (
     <span
-      className="font-mono text-[10px] tracking-[0.1em] uppercase"
+      className="font-mono text-2xs tracking-[0.1em] uppercase"
       style={{ color: 'var(--text-tertiary)' }}
       title="No observability probes in Phase 1. These are the designed figures."
     >
@@ -334,7 +334,7 @@ function NoProbes({ title, body }: { title: string; body: string }) {
   return (
     <div className="flex flex-col items-start gap-2 py-5">
       <IconActivity size={20} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
-      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         {title}
       </p>
       <p
@@ -358,7 +358,7 @@ function NoSessionsYet() {
   return (
     <div className="flex flex-col items-start gap-2 py-4">
       <IconShieldCheck size={20} stroke={1.5} style={{ color: 'var(--success-fg)' }} aria-hidden />
-      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         No support session has been opened.
       </p>
       <p
@@ -383,7 +383,7 @@ export function OperationsBandSkeleton() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
         <Panel title="" variant="elevated">
           <div
-            className="h-[200px] w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[12px] motion-reduce:animate-none motion-reduce:opacity-70"
+            className="h-[200px] w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-overlay motion-reduce:animate-none motion-reduce:opacity-70"
             style={{ background: 'var(--surface-inset)' }}
           />
         </Panel>

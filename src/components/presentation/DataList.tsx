@@ -54,7 +54,7 @@ export function DataList<T>({
   if (rows.length === 0 && empty) {
     return (
       <div
-        className="rounded-[16px] px-4 py-10 text-center"
+        className="rounded-card px-4 py-10 text-center"
         style={{
           background: 'white',
           boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
@@ -75,7 +75,7 @@ export function DataList<T>({
     <>
       {/* ── md and up · the table ─────────────────────────────────────── */}
       <div
-        className="hidden overflow-hidden rounded-[16px] md:block"
+        className="hidden overflow-hidden rounded-card md:block"
         style={{
           background: 'white',
           boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
@@ -134,7 +134,7 @@ export function DataList<T>({
         {rows.map((row) => (
           <li
             key={rowKey(row)}
-            className="rounded-[16px] p-4"
+            className="rounded-card p-4"
             style={{
               background: 'white',
               boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',

@@ -38,7 +38,7 @@ export default async function SignUpPage({
       cardMaxWidth="max-w-[640px]"
       aside={<WorkspaceJourney current="create" />}
       footer={
-        <p className="text-center text-[12px] text-[var(--text-secondary)]">
+        <p className="text-center text-sm text-[var(--text-secondary)]">
           Already have a workspace?{' '}
           <Link
             href="/sign-in"
@@ -52,20 +52,31 @@ export default async function SignUpPage({
       {errorMessage ? (
         <div
           role="alert"
-          className="mb-5 flex items-start gap-2.5 px-1 py-1 text-[12.5px] leading-relaxed transition-all"
+          className="mb-5 flex items-start gap-2.5 px-1 py-1 text-sm leading-relaxed transition-all"
           style={{ color: tone.fg }}
         >
-          <IconAlertCircle size={15} stroke={2.5} className="mt-[2.5px] shrink-0" style={{ color: tone.rule }} />
+          <IconAlertCircle
+            size={15}
+            stroke={2.5}
+            className="mt-[2.5px] shrink-0"
+            style={{ color: tone.rule }}
+          />
           <span>
             {errorMessage}
             {emailTaken ? (
               <>
                 {' '}
-                <Link href="/sign-in" className="font-medium underline underline-offset-2 hover:text-[var(--text-primary)]">
+                <Link
+                  href="/sign-in"
+                  className="font-medium underline underline-offset-2 hover:text-[var(--text-primary)]"
+                >
                   Sign in
                 </Link>{' '}
                 or{' '}
-                <Link href="/forgot-password" className="font-medium underline underline-offset-2 hover:text-[var(--text-primary)]">
+                <Link
+                  href="/forgot-password"
+                  className="font-medium underline underline-offset-2 hover:text-[var(--text-primary)]"
+                >
                   reset your password
                 </Link>
                 .
@@ -77,13 +88,11 @@ export default async function SignUpPage({
 
       {/* Google OAuth */}
       <form method="post" action="/api/v1/auth/google" className="mb-5">
-        <CustomSubmitButton
-          className="group relative flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-[13.5px] font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] active:scale-[0.985]"
-        >
-          <IconTile 
-            icon={GoogleLogo} 
-            size="sm" 
-            className="transition-transform group-hover:scale-105" 
+        <CustomSubmitButton className="group relative flex w-full items-center justify-center gap-3 rounded-overlay px-4 py-3.5 text-base font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] active:scale-[0.985]">
+          <IconTile
+            icon={GoogleLogo}
+            size="sm"
+            className="transition-transform group-hover:scale-105"
           />
           Continue with Google
         </CustomSubmitButton>
@@ -91,7 +100,7 @@ export default async function SignUpPage({
 
       <div className="relative mb-5 flex items-center">
         <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
-        <span className="shrink-0 px-4 text-[10.5px] font-semibold tracking-widest text-[var(--text-tertiary)] uppercase">
+        <span className="shrink-0 px-4 text-2xs font-semibold tracking-widest text-[var(--text-tertiary)] uppercase">
           or create with email
         </span>
         <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
@@ -133,7 +142,7 @@ export default async function SignUpPage({
             (line) => (
               <span
                 key={line}
-                className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--text-secondary)]"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-secondary)]"
               >
                 <IconCheck
                   size={12}
@@ -158,7 +167,7 @@ export default async function SignUpPage({
           <IconArrowRight size={15} />
         </SubmitButton>
 
-        <p className="mt-3 text-center text-[11px] leading-relaxed text-[var(--text-tertiary)]">
+        <p className="mt-3 text-center text-xs leading-relaxed text-[var(--text-tertiary)]">
           By continuing, you agree to our{' '}
           <Link
             href="/legal/terms"

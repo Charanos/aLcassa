@@ -111,7 +111,7 @@ export function OverviewChart({
             {headline}
           </div>
           <span
-            className="font-mono text-[12px]"
+            className="font-mono text-sm"
             style={{ color: 'var(--invert-card-fg)', opacity: 0.45 }}
           >
             {currency} per month
@@ -127,7 +127,7 @@ export function OverviewChart({
           <IconArrowDownRight size={14} stroke={2.5} style={{ color: 'var(--chrome-danger)' }} />
         )}
         <span
-          className="font-mono text-[13px] font-medium"
+          className="font-mono text-sm font-medium"
           style={{ color: rising ? 'var(--chrome-success)' : 'var(--chrome-danger)' }}
         >
           {rising ? '+' : ''}
@@ -173,7 +173,7 @@ export function OverviewChart({
                   if (!data) return null;
                   return (
                     <div
-                      className="rounded-xl border px-3.5 py-2.5 shadow-2xl backdrop-blur-xl"
+                      className="rounded-overlay border px-3.5 py-2.5 shadow-2xl backdrop-blur-xl"
                       style={{
                         background: 'rgba(15, 23, 42, 0.75)',
                         borderColor: 'rgba(255, 255, 255, 0.1)',

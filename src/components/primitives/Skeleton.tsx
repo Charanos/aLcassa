@@ -51,7 +51,7 @@ export function SkeletonBlock({
 export function SkeletonRow() {
   return (
     <div
-      className="flex items-center gap-4 rounded-[12px] px-4 py-4"
+      className="flex items-center gap-4 rounded-overlay px-4 py-4"
       style={{
         background: 'var(--surface-raised)',
         boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
@@ -74,7 +74,7 @@ export function SkeletonPanel({ lines = 3 }: { lines?: number }) {
 
   return (
     <div
-      className="rounded-[16px] p-5"
+      className="rounded-card p-5"
       style={{
         background: 'var(--surface-sunken)',
         boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
@@ -94,7 +94,7 @@ export function SkeletonPanel({ lines = 3 }: { lines?: number }) {
 export function SkeletonMetric() {
   return (
     <div
-      className="rounded-[16px] p-5"
+      className="rounded-card p-5"
       style={{
         background: 'var(--surface-sunken)',
         boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
@@ -173,7 +173,7 @@ export function SkeletonGroup({
 export function SkeletonRibbon({ stats = 4 }: { stats?: number }) {
   return (
     <div
-      className="flex flex-col overflow-hidden rounded-2xl sm:flex-row"
+      className="flex flex-col overflow-hidden rounded-card sm:flex-row"
       style={{
         background: 'var(--invert-card-bg)',
         border: '1px solid var(--invert-card-border)',
@@ -240,7 +240,7 @@ export function SkeletonTable({ rows = 6, columns = 4 }: { rows?: number; column
   const widths = [40, 64, 52, 72, 48, 60];
   return (
     <div
-      className="overflow-hidden rounded-3xl"
+      className="overflow-hidden rounded-hero"
       style={{
         background: 'var(--surface-raised)',
         border: '1px solid var(--border-subtle)',

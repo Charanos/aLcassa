@@ -17,7 +17,7 @@ import {
   IconDatabase,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { StatusBadge } from '@/components/primitives/StatusBadge';
 
 interface FeatureItem {
   id: 'roles' | 'privacy' | 'vault' | 'voice' | 'log';
@@ -229,14 +229,14 @@ export function InteractiveFeatures() {
       <div className="flex max-w-3xl flex-col items-start">
         <div className="mb-2 inline-flex items-center gap-2">
           <span className="size-2 rounded-full bg-[var(--orange-500)]" aria-hidden="true" />
-          <p className="font-mono text-[11px] font-medium tracking-wider text-[var(--orange-500)] uppercase">
+          <p className="font-mono text-xs font-medium tracking-wider text-[var(--orange-500)] uppercase">
             What’s underneath
           </p>
         </div>
-        <h2 className="display mt-1 text-[32px] leading-tight font-normal tracking-tight text-[var(--text-primary)] sm:text-[42px]">
+        <h2 className="display mt-1 text-2xl leading-tight font-normal tracking-tight text-[var(--text-primary)] sm:text-3xl">
           Built to be trusted with your customers, not just used by them.
         </h2>
-        <p className="mt-3 text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-[16px]">
+        <p className="mt-3 text-md leading-relaxed text-[var(--text-secondary)] sm:text-md">
           Before a single message gets routed, your team’s access, your customers’ data, and your AI
           assistant’s voice are all already set up the way you’d want them.
         </p>
@@ -254,7 +254,7 @@ export function InteractiveFeatures() {
                 type="button"
                 onClick={() => setActiveTab(feature.id)}
                 aria-pressed={isActive}
-                className={`group flex min-h-[40px] cursor-pointer items-center gap-2 rounded-full px-4.5 py-2 text-[13px] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--orange-500)] ${
+                className={`group flex min-h-[40px] cursor-pointer items-center gap-2 rounded-full px-4.5 py-2 text-sm transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--orange-500)] ${
                   isActive
                     ? 'border border-[var(--ink-200)]/70 bg-white font-medium text-[var(--text-primary)] shadow-xs'
                     : 'border border-transparent text-[var(--text-secondary)] hover:bg-white/50 hover:text-[var(--text-primary)]'
@@ -278,7 +278,7 @@ export function InteractiveFeatures() {
       </div>
 
       {/* Main Architectural Stage (De-boxed, cohesive 2-column layout) */}
-      <div className="mt-6 grid grid-cols-1 items-stretch gap-8 rounded-3xl border border-[var(--ink-200)] bg-[var(--ink-0)] p-6 shadow-[0_24px_70px_-18px_rgba(0,0,0,0.06)] sm:gap-10 sm:p-9 lg:grid-cols-12">
+      <div className="mt-6 grid grid-cols-1 items-stretch gap-8 rounded-hero border border-[var(--ink-200)] bg-[var(--ink-0)] p-6 shadow-[0_24px_70px_-18px_rgba(0,0,0,0.06)] sm:gap-10 sm:p-9 lg:grid-cols-12">
         {/* Left Column: Core Value Proposition & Interactive Controls */}
         <div className="flex flex-col justify-between lg:col-span-5">
           <div>
@@ -286,11 +286,11 @@ export function InteractiveFeatures() {
               {activeFeature.eyebrow}
             </StatusBadge>
 
-            <h3 className="mt-3.5 text-[23px] leading-snug font-normal tracking-tight text-[var(--text-primary)] sm:text-[26px]">
+            <h3 className="mt-3.5 text-xl leading-snug font-normal tracking-tight text-[var(--text-primary)] sm:text-xl">
               {activeFeature.title}
             </h3>
 
-            <p className="mt-2.5 text-[14px] leading-relaxed text-[var(--text-secondary)]">
+            <p className="mt-2.5 text-base leading-relaxed text-[var(--text-secondary)]">
               {activeFeature.subtitle}
             </p>
 
@@ -302,10 +302,10 @@ export function InteractiveFeatures() {
                     <IconCheck size={12} stroke={2.5} aria-hidden="true" />
                   </div>
                   <div>
-                    <span className="block text-[13.5px] font-medium text-[var(--text-primary)]">
+                    <span className="block text-base font-medium text-[var(--text-primary)]">
                       {benefit.title}
                     </span>
-                    <span className="mt-0.5 block text-[12.5px] leading-normal text-[var(--text-secondary)]">
+                    <span className="mt-0.5 block text-sm leading-normal text-[var(--text-secondary)]">
                       {benefit.description}
                     </span>
                   </div>
@@ -316,7 +316,7 @@ export function InteractiveFeatures() {
 
           {/* Integrated Interactive Controls (Try it) */}
           <div className="mt-8 border-t border-[var(--ink-100)] pt-6">
-            <p className="mb-3 font-mono text-[10.5px] tracking-wider text-[var(--text-tertiary)] uppercase">
+            <p className="mb-3 font-mono text-2xs tracking-wider text-[var(--text-tertiary)] uppercase">
               {activeTab === 'log' ? 'Live Ledger View' : 'Try this setting'}
             </p>
 
@@ -328,7 +328,7 @@ export function InteractiveFeatures() {
                     type="button"
                     onClick={() => setSelectedRole(role)}
                     aria-pressed={selectedRole === role}
-                    className={`min-h-[40px] cursor-pointer rounded-xl px-2.5 py-2 text-center text-xs font-medium transition-all ${
+                    className={`min-h-[40px] cursor-pointer rounded-overlay px-2.5 py-2 text-center text-xs font-medium transition-all ${
                       selectedRole === role
                         ? 'border border-[var(--ink-200)] bg-[var(--surface-base)] font-medium text-[var(--text-primary)] shadow-xs'
                         : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
@@ -346,14 +346,14 @@ export function InteractiveFeatures() {
                   type="button"
                   onClick={() => setSelectedTenant('kwanza')}
                   aria-pressed={selectedTenant === 'kwanza'}
-                  className={`min-h-[44px] cursor-pointer rounded-xl px-3 py-2 text-left text-xs transition-all ${
+                  className={`min-h-[44px] cursor-pointer rounded-overlay px-3 py-2 text-left text-xs transition-all ${
                     selectedTenant === 'kwanza'
                       ? 'border border-[var(--ink-200)] bg-[var(--surface-base)] font-medium text-[var(--text-primary)] shadow-xs'
                       : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <span className="block font-medium">Kwanza Logistics</span>
-                  <span className="font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                  <span className="font-mono text-2xs text-[var(--text-tertiary)]">
                     Nairobi Workspace
                   </span>
                 </button>
@@ -361,14 +361,14 @@ export function InteractiveFeatures() {
                   type="button"
                   onClick={() => setSelectedTenant('savanna')}
                   aria-pressed={selectedTenant === 'savanna'}
-                  className={`min-h-[44px] cursor-pointer rounded-xl px-3 py-2 text-left text-xs transition-all ${
+                  className={`min-h-[44px] cursor-pointer rounded-overlay px-3 py-2 text-left text-xs transition-all ${
                     selectedTenant === 'savanna'
                       ? 'border border-[var(--ink-200)] bg-[var(--surface-base)] font-medium text-[var(--text-primary)] shadow-xs'
                       : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <span className="block font-medium">Studio Savanna</span>
-                  <span className="font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                  <span className="font-mono text-2xs text-[var(--text-tertiary)]">
                     Kilimani Workspace
                   </span>
                 </button>
@@ -411,7 +411,7 @@ export function InteractiveFeatures() {
                     type="button"
                     onClick={() => setRuleTone(tone)}
                     aria-pressed={ruleTone === tone}
-                    className={`min-h-[40px] cursor-pointer rounded-xl px-2.5 py-2 text-left transition-all ${
+                    className={`min-h-[40px] cursor-pointer rounded-overlay px-2.5 py-2 text-left transition-all ${
                       ruleTone === tone
                         ? 'border border-[var(--ink-200)] bg-[var(--surface-base)] font-medium text-[var(--text-primary)] shadow-xs'
                         : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)]'
@@ -424,7 +424,7 @@ export function InteractiveFeatures() {
             )}
 
             {activeTab === 'log' && (
-              <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
+              <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                 A live, cryptographically signed ledger of recent actions from this account is
                 maintained in PostgreSQL.
               </p>
@@ -433,7 +433,7 @@ export function InteractiveFeatures() {
         </div>
 
         {/* Right Column: Architectural Live Visual Demonstration */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/30 shadow-xs lg:col-span-7">
+        <div className="flex flex-col overflow-hidden rounded-card border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/30 shadow-xs lg:col-span-7">
           {/* Top Bar of the Canvas */}
           <div className="flex items-center justify-between border-b border-[var(--ink-100)] bg-white px-5 py-3.5">
             <div className="flex items-center gap-2">
@@ -441,7 +441,7 @@ export function InteractiveFeatures() {
                 className="size-2 animate-pulse rounded-full bg-emerald-500"
                 aria-hidden="true"
               />
-              <span className="font-mono text-[11.5px] font-medium text-[var(--text-secondary)]">
+              <span className="font-mono text-sm font-medium text-[var(--text-secondary)]">
                 {activeTab === 'roles' && 'Role Access Scope Matrix'}
                 {activeTab === 'privacy' && 'Isolated PostgreSQL Tenancy Boundary'}
                 {activeTab === 'vault' && 'Ephemeral Secret Key Vault'}
@@ -449,18 +449,18 @@ export function InteractiveFeatures() {
                 {activeTab === 'log' && 'Immutable Audit Ledger'}
               </span>
             </div>
-            <span className="rounded border border-[var(--ink-200)]/60 bg-[var(--surface-sunken)] px-2 py-0.5 font-mono text-[10px] text-[var(--text-tertiary)]">
+            <span className="rounded border border-[var(--ink-200)]/60 bg-[var(--surface-sunken)] px-2 py-0.5 font-mono text-2xs text-[var(--text-tertiary)]">
               Live Gateway
             </span>
           </div>
 
           {/* Body Canvas */}
-          <div className="flex flex-1 flex-col justify-center p-5 text-[13px] leading-relaxed sm:p-6">
+          <div className="flex flex-1 flex-col justify-center p-5 text-sm leading-relaxed sm:p-6">
             {/* 1. Roles Simulation */}
             {activeTab === 'roles' && (
               <div className="space-y-4">
                 {/* Active Person Header */}
-                <div className="flex items-center justify-between rounded-2xl border border-[var(--ink-200)]/80 bg-white p-4 shadow-xs">
+                <div className="flex items-center justify-between rounded-card border border-[var(--ink-200)]/80 bg-white p-4 shadow-xs">
                   <div className="flex items-center gap-3.5">
                     <div className="relative size-11 overflow-hidden rounded-full shadow-xs ring-1 ring-[var(--ink-200)]">
                       <Image
@@ -473,10 +473,10 @@ export function InteractiveFeatures() {
                       />
                     </div>
                     <div>
-                      <div className="text-[14px] font-medium text-[var(--text-primary)]">
+                      <div className="text-base font-medium text-[var(--text-primary)]">
                         {activePerson.name}
                       </div>
-                      <div className="font-mono text-[11px] text-[var(--text-tertiary)]">
+                      <div className="font-mono text-xs text-[var(--text-tertiary)]">
                         {activePerson.role}
                       </div>
                     </div>
@@ -487,8 +487,8 @@ export function InteractiveFeatures() {
                 </div>
 
                 {/* Permissions Grid */}
-                <div className="space-y-2.5 rounded-2xl border border-[var(--ink-200)]/80 bg-white p-4 shadow-xs">
-                  <span className="mb-2 block font-mono text-[10.5px] tracking-wider text-[var(--text-tertiary)] uppercase">
+                <div className="space-y-2.5 rounded-card border border-[var(--ink-200)]/80 bg-white p-4 shadow-xs">
+                  <span className="mb-2 block font-mono text-2xs tracking-wider text-[var(--text-tertiary)] uppercase">
                     Permissions in this slice
                   </span>
                   {[
@@ -505,7 +505,7 @@ export function InteractiveFeatures() {
                   ].map((perm, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between rounded-xl bg-[var(--surface-sunken)]/70 px-3 py-2 text-xs"
+                      className="flex items-center justify-between rounded-overlay bg-[var(--surface-sunken)]/70 px-3 py-2 text-xs"
                     >
                       <span className="font-normal text-[var(--text-secondary)]">{perm.label}</span>
                       {perm.allowed ? (
@@ -525,11 +525,11 @@ export function InteractiveFeatures() {
 
             {/* 2. Privacy Simulation */}
             {activeTab === 'privacy' && (
-              <div className="space-y-4 rounded-2xl border border-[var(--ink-200)]/80 bg-white p-5 shadow-xs">
+              <div className="space-y-4 rounded-card border border-[var(--ink-200)]/80 bg-white p-5 shadow-xs">
                 <div className="flex items-center justify-between border-b border-[var(--ink-100)] pb-3">
                   <div className="flex items-center gap-2">
                     <IconDatabase size={17} className="text-emerald-600" />
-                    <span className="text-[14px] font-medium text-[var(--text-primary)]">
+                    <span className="text-base font-medium text-[var(--text-primary)]">
                       {selectedTenant === 'kwanza'
                         ? 'Kwanza Logistics Workspace'
                         : 'Studio Savanna Workspace'}
@@ -549,7 +549,7 @@ export function InteractiveFeatures() {
                 <div className="space-y-2 pt-1">
                   {selectedTenant === 'kwanza' ? (
                     <>
-                      <div className="flex items-center justify-between rounded-xl bg-[var(--surface-sunken)]/80 p-3 text-xs">
+                      <div className="flex items-center justify-between rounded-overlay bg-[var(--surface-sunken)]/80 p-3 text-xs">
                         <span className="font-medium text-[var(--text-primary)]">
                           Dispatch questions, WhatsApp
                         </span>
@@ -557,7 +557,7 @@ export function InteractiveFeatures() {
                           14 active · Inbound only
                         </StatusBadge>
                       </div>
-                      <div className="flex items-center justify-between rounded-xl bg-[var(--surface-sunken)]/80 p-3 text-xs">
+                      <div className="flex items-center justify-between rounded-overlay bg-[var(--surface-sunken)]/80 p-3 text-xs">
                         <span className="font-medium text-[var(--text-primary)]">
                           Mombasa fleet updates
                         </span>
@@ -568,7 +568,7 @@ export function InteractiveFeatures() {
                     </>
                   ) : (
                     <>
-                      <div className="flex items-center justify-between rounded-xl bg-[var(--surface-sunken)]/80 p-3 text-xs">
+                      <div className="flex items-center justify-between rounded-overlay bg-[var(--surface-sunken)]/80 p-3 text-xs">
                         <span className="font-medium text-[var(--text-primary)]">
                           Bridal styling requests, Instagram
                         </span>
@@ -576,7 +576,7 @@ export function InteractiveFeatures() {
                           8 active · Inbound only
                         </StatusBadge>
                       </div>
-                      <div className="flex items-center justify-between rounded-xl bg-[var(--surface-sunken)]/80 p-3 text-xs">
+                      <div className="flex items-center justify-between rounded-overlay bg-[var(--surface-sunken)]/80 p-3 text-xs">
                         <span className="font-medium text-[var(--text-primary)]">
                           Lookbook consultations
                         </span>
@@ -588,7 +588,7 @@ export function InteractiveFeatures() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between border-t border-[var(--ink-100)] pt-3 font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                <div className="flex items-center justify-between border-t border-[var(--ink-100)] pt-3 font-mono text-2xs text-[var(--text-tertiary)]">
                   <span>RLS Security Policy #01</span>
                   <span>Cross-tenant queries return 0 rows</span>
                 </div>
@@ -597,11 +597,11 @@ export function InteractiveFeatures() {
 
             {/* 3. Vault Simulation */}
             {activeTab === 'vault' && (
-              <div className="space-y-3.5 rounded-2xl border border-[var(--ink-200)]/80 bg-white p-5 shadow-xs">
+              <div className="space-y-3.5 rounded-card border border-[var(--ink-200)]/80 bg-white p-5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <IconKey size={16} className="text-amber-600" />
-                    <span className="text-[13.5px] font-medium text-[var(--text-primary)]">
+                    <span className="text-base font-medium text-[var(--text-primary)]">
                       WhatsApp channel key
                     </span>
                   </div>
@@ -610,16 +610,16 @@ export function InteractiveFeatures() {
                   </StatusBadge>
                 </div>
 
-                <div className="rounded-xl border border-[var(--ink-200)] bg-[var(--surface-sunken)] p-3.5 font-mono text-[12.5px] tracking-wider text-[var(--text-primary)]">
+                <div className="rounded-overlay border border-[var(--ink-200)] bg-[var(--surface-sunken)] p-3.5 font-mono text-sm tracking-wider text-[var(--text-primary)]">
                   {revealedKey ? 'alc_live_9f83a27e4c19d4b0086a' : 'alc_live_••••••••••••••••••••'}
                 </div>
 
-                <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
+                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                   Save this somewhere safe once you copy it — we only keep a scrambled version on
                   our side, so we can’t show it to you again, and neither can anyone else.
                 </p>
 
-                <div className="flex items-center justify-between border-t border-[var(--ink-100)] pt-2 font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                <div className="flex items-center justify-between border-t border-[var(--ink-100)] pt-2 font-mono text-2xs text-[var(--text-tertiary)]">
                   <span>Argon2id Memory-Hard Hashing</span>
                   <span>Zero Plaintext Persistence</span>
                 </div>
@@ -628,7 +628,7 @@ export function InteractiveFeatures() {
 
             {/* 4. Voice Simulation */}
             {activeTab === 'voice' && (
-              <div className="space-y-3.5 rounded-2xl border border-[var(--ink-200)]/80 bg-white p-5 shadow-xs">
+              <div className="space-y-3.5 rounded-card border border-[var(--ink-200)]/80 bg-white p-5 shadow-xs">
                 <div className="flex items-center justify-between border-b border-[var(--ink-100)] pb-3">
                   <div className="flex items-center gap-2">
                     <IconBrandWhatsapp
@@ -636,7 +636,7 @@ export function InteractiveFeatures() {
                       className="text-[var(--green-600)]"
                       aria-hidden="true"
                     />
-                    <span className="text-[13.5px] font-medium text-[var(--text-primary)]">
+                    <span className="text-base font-medium text-[var(--text-primary)]">
                       Customer Question & AI Response
                     </span>
                   </div>
@@ -647,8 +647,8 @@ export function InteractiveFeatures() {
 
                 {/* Inbound Customer Bubble */}
                 <div className="max-w-[90%] self-start">
-                  <div className="rounded-2xl rounded-tl-xs bg-[var(--surface-sunken)] p-3.5 text-[13px] text-[var(--text-primary)]">
-                    <span className="mb-1 block font-mono text-[10px] text-[var(--text-tertiary)]">
+                  <div className="rounded-card rounded-tl-bar bg-[var(--surface-sunken)] p-3.5 text-sm text-[var(--text-primary)]">
+                    <span className="mb-1 block font-mono text-2xs text-[var(--text-tertiary)]">
                       Customer inquiry:
                     </span>
                     “Habari, can you confirm when my order from Mombasa will arrive in Nairobi?”
@@ -657,13 +657,13 @@ export function InteractiveFeatures() {
 
                 {/* Outbound AI Assistant Bubble */}
                 <div className="ml-auto max-w-[90%] self-end">
-                  <div className="rounded-2xl rounded-tr-xs bg-[var(--blue-500)] p-3.5 text-[13px] leading-relaxed text-white shadow-sm">
-                    <span className="mb-1 block font-mono text-[10px] text-white/80">
+                  <div className="rounded-card rounded-tr-bar bg-[var(--blue-500)] p-3.5 text-sm leading-relaxed text-white shadow-sm">
+                    <span className="mb-1 block font-mono text-2xs text-white/80">
                       AI Assistant ({TONE_LABELS[ruleTone]}):
                     </span>
                     <p>{TONE_REPLIES[ruleTone]}</p>
                   </div>
-                  <div className="mt-1 flex items-center justify-end gap-1.5 px-1 font-mono text-[10px] text-[var(--text-tertiary)]">
+                  <div className="mt-1 flex items-center justify-end gap-1.5 px-1 font-mono text-2xs text-[var(--text-tertiary)]">
                     <span>Instantly dispatched</span>
                     <span>·</span>
                     <span className="font-medium text-emerald-600">✓ Delivered</span>
@@ -675,19 +675,19 @@ export function InteractiveFeatures() {
             {/* 5. Activity Log Simulation */}
             {activeTab === 'log' && (
               <div className="space-y-3">
-                <div className="rounded-2xl border border-[var(--ink-200)]/80 bg-white p-4 shadow-xs">
+                <div className="rounded-card border border-[var(--ink-200)]/80 bg-white p-4 shadow-xs">
                   <div className="flex items-center justify-between gap-2 text-xs">
-                    <span className="text-[13px] font-medium text-[var(--text-primary)]">
+                    <span className="text-sm font-medium text-[var(--text-primary)]">
                       Support session opened · Ticket #8291
                     </span>
-                    <span className="shrink-0 font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                    <span className="shrink-0 font-mono text-2xs text-[var(--text-tertiary)]">
                       2 min ago
                     </span>
                   </div>
                   <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
                     Approved by Japheth Njoroge for a channel connection issue.
                   </p>
-                  <div className="mt-2 flex items-center justify-between border-t border-[var(--ink-100)] pt-2 font-mono text-[10px] text-[var(--text-tertiary)]">
+                  <div className="mt-2 flex items-center justify-between border-t border-[var(--ink-100)] pt-2 font-mono text-2xs text-[var(--text-tertiary)]">
                     <span>Actor: japheth@kwanza.co.ke</span>
                     <StatusBadge tone="success" variant="squircle" size="sm" icon={IconCheck}>
                       Signed hash verified
@@ -695,19 +695,19 @@ export function InteractiveFeatures() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-[var(--ink-200)]/80 bg-white p-4 shadow-xs">
+                <div className="rounded-card border border-[var(--ink-200)]/80 bg-white p-4 shadow-xs">
                   <div className="flex items-center justify-between gap-2 text-xs">
-                    <span className="text-[13px] font-medium text-[var(--text-primary)]">
+                    <span className="text-sm font-medium text-[var(--text-primary)]">
                       WhatsApp escalation rule updated
                     </span>
-                    <span className="shrink-0 font-mono text-[10.5px] text-[var(--text-tertiary)]">
+                    <span className="shrink-0 font-mono text-2xs text-[var(--text-tertiary)]">
                       1 hour ago
                     </span>
                   </div>
                   <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
                     Amina Wanjiku changed which keywords route to a person instead of the AI.
                   </p>
-                  <div className="mt-2 flex items-center justify-between border-t border-[var(--ink-100)] pt-2 font-mono text-[10px] text-[var(--text-tertiary)]">
+                  <div className="mt-2 flex items-center justify-between border-t border-[var(--ink-100)] pt-2 font-mono text-2xs text-[var(--text-tertiary)]">
                     <span>Actor: amina@studiosavanna.ke</span>
                     <StatusBadge tone="success" variant="squircle" size="sm" icon={IconCheck}>
                       Signed hash verified

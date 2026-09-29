@@ -107,6 +107,47 @@ export default tseslint.config(
     },
   },
 
+  /*
+   * 03 §2 · 03 §19 · doc 21 F1 and F2. THE DESIGN SYSTEM, ENFORCED.
+   *
+   * ⚠ THESE THREE RULES EXIST BECAUSE THE SYSTEM WAS BEING BYPASSED ROUGHLY AS
+   *   OFTEN AS IT WAS USED, AND NOTHING SAID SO.
+   *
+   * The audit in doc 21 counted 23 distinct radius spellings against a scale of
+   * four, and 254 arbitrary type sizes against 281 uses of the named scale —
+   * sixteen distinct sizes, nine of them inside a 4px band. None of that is a
+   * mistake anybody made on purpose. Each one is a single reasonable-looking
+   * bracket, written because reaching for a bracket is faster than opening
+   * `tokens.css` to find out what the step is called.
+   *
+   * So the bracket is now the thing that fails. If the value you need is not in
+   * the scale, the scale is missing a step — add it in `tokens.css`, where the
+   * next person will find it, rather than inlining it here where they will not.
+   */
+  {
+    files: ['src/components/**/*.tsx', 'src/app/**/*.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Literal[value=/(?:^|\s)rounded-\[[^\]]*(?:px|rem)\]/]',
+          message:
+            'Arbitrary radius. Use rounded-bar | chip | panel | overlay | card | hero | slab | full. If none fits, add the step to tokens.css — see the RADIUS note there for why bracket values are how the scale came to have 23 spellings.',
+        },
+        {
+          selector: 'Literal[value=/(?:^|\s)text-\[[0-9.]+px\]/]',
+          message:
+            'Arbitrary type size. Use the named scale (text-3xs … text-3xl) or a t-* role class. If none fits, add the step to tokens.css — see the TYPE SIZE note there.',
+        },
+        {
+          selector: 'Property[key.name="fontWeight"][value.value>500]',
+          message:
+            '03 §5 caps font weight at 500. Emphasis comes from the size step or from colour, not from weight.',
+        },
+      ],
+    },
+  },
+
   // The one place the service role client may be imported. 06 §7.
   {
     files: [

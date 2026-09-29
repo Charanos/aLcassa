@@ -37,7 +37,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
     <div className="flex flex-col gap-6">
       {/* ── Inverted Command Ribbon for Overview ─────────────────────────── */}
       <div
-        className="flex flex-col overflow-hidden rounded-2xl sm:flex-row"
+        className="flex flex-col overflow-hidden rounded-card sm:flex-row"
         style={{
           background: 'var(--invert-card-bg)',
           color: 'var(--invert-card-fg)',
@@ -175,7 +175,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
               Row Level Security
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             {w.residency.split(' · ')[0] ?? 'af-south-1'}
           </p>
         </div>
@@ -184,7 +184,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
       {/* ── Active Alert Banner (If Applicable) ───────────────────────── */}
       {w.alert && (
         <div
-          className="flex flex-col items-start justify-between gap-4 rounded-xl p-5 sm:flex-row"
+          className="flex flex-col items-start justify-between gap-4 rounded-overlay p-5 sm:flex-row"
           style={{
             border: `1px solid ${w.status === 'past due' ? 'var(--badge-danger-edge)' : 'var(--badge-warning-edge)'}`,
             background:
@@ -193,7 +193,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
         >
           <div className="flex items-start gap-3.5">
             <span
-              className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg"
+              className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-overlay"
               style={{
                 background:
                   w.status === 'past due' ? 'var(--badge-danger-bg)' : 'var(--badge-warning-bg)',
@@ -245,7 +245,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 type="button"
                 disabled
                 title="There is no payment gateway in Phase 1. A past-due invoice is handed to the finance operator."
-                className="h-8.5 rounded-lg px-3.5 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
+                className="h-8.5 rounded-overlay px-3.5 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
                 style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
               >
                 Retry Charge
@@ -253,7 +253,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
             )}
             <Link
               href={`/platform/tenants/${w.slug}?tab=billing`}
-              className="inline-flex h-8.5 items-center gap-1 rounded-lg px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+              className="inline-flex h-8.5 items-center gap-1 rounded-overlay px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
               style={{
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',
@@ -306,7 +306,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
                         <div
-                          className="rounded-md p-1"
+                          className="rounded-panel p-1"
                           style={{ background: 'var(--surface-inset)' }}
                         >
                           <Icon
@@ -331,13 +331,13 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                           {usedStr}
                         </span>
                         <span
-                          className="font-mono text-[11px]"
+                          className="font-mono text-xs"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           / {limitStr}
                         </span>
                         <span
-                          className="rounded px-1.5 py-0.5 font-mono text-[10px] font-medium"
+                          className="rounded px-1.5 py-0.5 font-mono text-2xs font-medium"
                           style={{
                             background: pct >= 0.9 ? 'var(--warning-bg)' : 'var(--surface-inset)',
                             color: color,
@@ -361,7 +361,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
 
                     {/* Sheet 06: every number names its source. */}
                     <p
-                      className="mt-1.5 font-mono text-[10px]"
+                      className="mt-1.5 font-mono text-2xs"
                       style={{ color: 'var(--text-tertiary)' }}
                     >
                       from {m.source}
@@ -405,7 +405,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
             </div>
             <Link
               href="/platform/plans"
-              className="mt-4 flex h-8.5 w-full items-center justify-center rounded-lg text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
+              className="mt-4 flex h-8.5 w-full items-center justify-center rounded-overlay text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
               style={{
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',
@@ -420,7 +420,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
           <Panel title="Primary Administrator">
             <div className="flex items-center gap-3">
               <div
-                className="grid size-10 shrink-0 place-items-center rounded-xl text-xs font-medium"
+                className="grid size-10 shrink-0 place-items-center rounded-overlay text-xs font-medium"
                 style={{
                   background: 'var(--surface-inset)',
                   border: '1px solid var(--border-strong)',
@@ -447,7 +447,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
               style={{ borderColor: 'var(--border-subtle)' }}
             >
               <div className="px-1">
-                <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>
+                <span className="t-eyebrow text-3xs" style={{ color: 'var(--text-tertiary)' }}>
                   Staff
                 </span>
                 <p
@@ -458,7 +458,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 </p>
               </div>
               <div className="px-2">
-                <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>
+                <span className="t-eyebrow text-3xs" style={{ color: 'var(--text-tertiary)' }}>
                   Admins
                 </span>
                 <p
@@ -469,7 +469,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 </p>
               </div>
               <div className="px-2">
-                <span className="t-eyebrow text-[9px]" style={{ color: 'var(--text-tertiary)' }}>
+                <span className="t-eyebrow text-3xs" style={{ color: 'var(--text-tertiary)' }}>
                   Channels
                 </span>
                 <p
@@ -484,7 +484,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
 
           {/* Data Isolation & Security Seal */}
           <div
-            className="flex flex-col gap-2 rounded-xl p-4"
+            className="flex flex-col gap-2 rounded-overlay p-4"
             style={{
               border: '1px solid var(--border-subtle)',
               background: 'var(--surface-sunken)',
@@ -503,7 +503,7 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 </span>
               </div>
               <span
-                className="rounded px-2 py-0.5 font-mono text-[10px]"
+                className="rounded px-2 py-0.5 font-mono text-2xs"
                 style={{
                   background: 'var(--success-bg)',
                   color: 'var(--success-fg)',
@@ -513,13 +513,10 @@ export function OverviewTab({ w }: { w: WorkspaceDetail }) {
                 Active
               </span>
             </div>
-            <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+            <p className="mt-1 font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
               {w.residency}
             </p>
-            <p
-              className="mt-1 text-[11px] leading-relaxed"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
+            <p className="mt-1 text-xs leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
               Platform operators have zero visibility into conversation bodies or customer secret
               keys outside an active support session.
             </p>

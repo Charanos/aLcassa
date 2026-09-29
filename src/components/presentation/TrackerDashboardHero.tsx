@@ -61,7 +61,7 @@ export function TrackerDashboardHero({
         <div className="flex shrink-0 flex-wrap items-center gap-3">
           <a
             href="#status"
-            className="t-compact inline-flex items-center gap-2 rounded-[12px] border border-transparent px-4 py-2 text-[var(--button-primary-fg)] shadow-sm transition-all hover:bg-[var(--blue-500)]"
+            className="t-compact inline-flex items-center gap-2 rounded-overlay border border-transparent px-4 py-2 text-[var(--button-primary-fg)] shadow-sm transition-all hover:bg-[var(--blue-500)]"
             style={{
               background: 'var(--button-primary-bg)',
               minHeight: 'var(--control-md)',
@@ -71,7 +71,7 @@ export function TrackerDashboardHero({
           </a>
           <a
             href="#documents"
-            className="t-compact inline-flex items-center rounded-[12px] px-4 py-2 text-[var(--text-primary)] transition-all hover:bg-[var(--surface-raised)]"
+            className="t-compact inline-flex items-center rounded-overlay px-4 py-2 text-[var(--text-primary)] transition-all hover:bg-[var(--surface-raised)]"
             style={{
               boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
               background: 'var(--surface-raised)',
@@ -86,66 +86,64 @@ export function TrackerDashboardHero({
       {/* Telemetry Fact Block Grid */}
       <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+          <div className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
             Prepared for
           </div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">{client}</div>
+          <div className="mt-1.5 text-base font-medium text-[var(--text-primary)]">{client}</div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+          <div className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
             Project lead
           </div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">
+          <div className="mt-1.5 text-base font-medium text-[var(--text-primary)]">
             {projectLead}
           </div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+          <div className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
             Against
           </div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">
+          <div className="mt-1.5 text-base font-medium text-[var(--text-primary)]">
             Brief {briefVersion}
           </div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+          <div className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
             Issued
           </div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">
-            {briefDate}
-          </div>
+          <div className="mt-1.5 text-base font-medium text-[var(--text-primary)]">{briefDate}</div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+          <div className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
             Duration
           </div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--text-primary)]">
+          <div className="mt-1.5 text-base font-medium text-[var(--text-primary)]">
             9 working weeks
           </div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+          <div className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
             Status
           </div>
-          <div className="mt-1.5 text-[14px] font-medium text-[var(--amber-500)]">For Review</div>
+          <div className="mt-1.5 text-base font-medium text-[var(--amber-500)]">For Review</div>
         </div>
       </div>
 
       {/* Live Telemetry Gauges Card Row */}
-      <div className="mt-8 grid grid-cols-1 gap-3 rounded-[24px] bg-[var(--surface-sunken)] p-2 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-1 gap-3 rounded-hero bg-[var(--surface-sunken)] p-2 sm:grid-cols-2 lg:grid-cols-4">
         {/* Progress Gauge */}
         <div
-          className="rounded-[16px] px-6 py-5 transition-all"
+          className="rounded-card px-6 py-5 transition-all"
           style={{
             background: 'var(--surface-raised)',
             boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            <span className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
               Overall Progress
             </span>
-            <span className="grid size-7 place-items-center rounded-lg bg-[var(--blue-50)] text-[var(--blue-600)]">
+            <span className="grid size-7 place-items-center rounded-overlay bg-[var(--blue-50)] text-[var(--blue-600)]">
               <IconClock size={15} stroke={2} />
             </span>
           </div>
@@ -153,9 +151,7 @@ export function TrackerDashboardHero({
             <span className="text-4xl font-light tracking-tight text-[var(--text-primary)] tabular-nums">
               {overallProgress}%
             </span>
-            <span className="text-[12px] font-medium text-[var(--green-500)]">
-              Milestone 1 Active
-            </span>
+            <span className="text-sm font-medium text-[var(--green-500)]">Milestone 1 Active</span>
           </div>
           <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-[var(--surface-base)]">
             <div
@@ -189,7 +185,7 @@ export function TrackerDashboardHero({
           are the current ones.
         */}
         <div
-          className="rounded-[16px] px-6 py-5 transition-all"
+          className="rounded-card px-6 py-5 transition-all"
           style={{
             background: 'var(--surface-raised)',
             boxShadow:
@@ -199,10 +195,10 @@ export function TrackerDashboardHero({
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            <span className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
               Blocking Decisions
             </span>
-            <span className="grid size-7 place-items-center rounded-lg bg-[var(--amber-50)] text-[var(--amber-600)]">
+            <span className="grid size-7 place-items-center rounded-overlay bg-[var(--amber-50)] text-[var(--amber-600)]">
               <IconAlertTriangle size={15} stroke={2} />
             </span>
           </div>
@@ -210,11 +206,9 @@ export function TrackerDashboardHero({
             <span className="text-4xl font-light tracking-tight text-[var(--amber-500)] tabular-nums">
               {blockingCount}
             </span>
-            <span className="text-[12px] font-medium text-[var(--amber-600)]">
-              M4a Decision Gate
-            </span>
+            <span className="text-sm font-medium text-[var(--amber-600)]">M4a Decision Gate</span>
           </div>
-          <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-secondary)]">
+          <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
             {blockingCount > 0
               ? 'Whether full support-mode access extends to customer records requires client signoff.'
               : 'No blocking decisions outstanding.'}
@@ -223,35 +217,35 @@ export function TrackerDashboardHero({
 
         {/* Built & Verifiable Gauge */}
         <div
-          className="rounded-[16px] px-6 py-5 transition-all"
+          className="rounded-card px-6 py-5 transition-all"
           style={{
             background: 'var(--surface-raised)',
             boxShadow: 'var(--shadow-sm), 0 0 0 1px var(--border-subtle)',
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            <span className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
               Built & Verifiable
             </span>
-            <span className="grid size-7 place-items-center rounded-lg bg-[var(--ink-50)] text-[var(--ink-600)]">
+            <span className="grid size-7 place-items-center rounded-overlay bg-[var(--ink-50)] text-[var(--ink-600)]">
               <IconCode size={15} stroke={2} />
             </span>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
             <span className="text-4xl font-light tracking-tight text-[var(--text-primary)] tabular-nums">
               {builtCount}{' '}
-              <span className="text-[20px] text-[var(--text-tertiary)]">/ {builtTotal}</span>
+              <span className="text-lg text-[var(--text-tertiary)]">/ {builtTotal}</span>
             </span>
-            <span className="text-[12px] font-medium text-[var(--text-tertiary)]">Foundation</span>
+            <span className="text-sm font-medium text-[var(--text-tertiary)]">Foundation</span>
           </div>
-          <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-secondary)]">
+          <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
             Openable and executable in the repository right now.
           </p>
         </div>
 
         {/* Compliance Meter */}
         <div
-          className="rounded-[16px] px-6 py-5 transition-all"
+          className="rounded-card px-6 py-5 transition-all"
           style={{
             background: 'var(--surface-raised)',
             boxShadow:
@@ -261,11 +255,11 @@ export function TrackerDashboardHero({
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
+            <span className="text-xs font-semibold tracking-wider text-[var(--text-tertiary)] uppercase">
               Compliance Obligations
             </span>
             <span
-              className="grid size-7 place-items-center rounded-lg"
+              className="grid size-7 place-items-center rounded-overlay"
               style={{
                 background: complianceNeedsYou > 0 ? 'var(--red-50)' : 'var(--green-50)',
                 color: complianceNeedsYou > 0 ? 'var(--red-600)' : 'var(--green-600)',
@@ -280,11 +274,11 @@ export function TrackerDashboardHero({
               style={{ color: complianceNeedsYou > 0 ? 'var(--red-500)' : 'var(--green-500)' }}
             >
               {complianceCount}{' '}
-              <span className="text-[20px] text-[var(--text-tertiary)]">/ {complianceTotal}</span>
+              <span className="text-lg text-[var(--text-tertiary)]">/ {complianceTotal}</span>
             </span>
-            <span className="text-[12px] font-medium text-[var(--text-tertiary)]">Met</span>
+            <span className="text-sm font-medium text-[var(--text-tertiary)]">Met</span>
           </div>
-          <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-secondary)]">
+          <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
             {complianceNeedsYou > 0
               ? `${complianceNeedsYou} item(s) currently require a decision from you.`
               : 'Data isolation policy verified by automated test suite.'}

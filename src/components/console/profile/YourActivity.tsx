@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { IconArrowRight, IconShieldLock } from '@tabler/icons-react';
 import type { OperatorAction } from '@/lib/console/data';
 import { PagedList } from '@/components/primitives/Pagination';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { StatusBadge } from '@/components/primitives/StatusBadge';
 import { SettingsSection } from '@/components/console/Surface';
 import { EmptyState } from '@/components/primitives/EmptyState';
 import { RecordRow } from '@/components/console/profile/shared';

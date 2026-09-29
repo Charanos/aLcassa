@@ -95,7 +95,7 @@ export default async function PlansPage() {
               type="button"
               disabled
               title="A new plan is a catalogue and entitlement change, applied as a migration in Phase 1."
-              className="inline-flex h-10 shrink-0 cursor-not-allowed items-center gap-2 rounded-xl px-5 text-[13px] font-medium whitespace-nowrap"
+              className="inline-flex h-10 shrink-0 cursor-not-allowed items-center gap-2 rounded-overlay px-5 text-sm font-medium whitespace-nowrap"
               style={{
                 background: 'var(--surface-sunken)',
                 color: 'var(--text-disabled)',
@@ -122,7 +122,7 @@ export default async function PlansPage() {
 
       <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div
-          className="overflow-hidden rounded-[32px]"
+          className="overflow-hidden rounded-slab"
           style={{
             background: 'var(--surface-raised)',
             border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -145,7 +145,7 @@ export default async function PlansPage() {
                 <tr>
                   <th
                     scope="col"
-                    className="px-4 pt-5 pb-4 text-left text-[11px] font-medium tracking-wide uppercase"
+                    className="px-4 pt-5 pb-4 text-left text-xs font-medium tracking-wide uppercase"
                     style={{
                       background: 'var(--surface-sunken)',
                       color: 'var(--text-tertiary)',
@@ -179,7 +179,7 @@ export default async function PlansPage() {
                         {p.name}
                       </span>
                       <span
-                        className="mt-1.5 block font-mono text-[13px] font-medium"
+                        className="mt-1.5 block font-mono text-sm font-medium"
                         style={{ color: 'var(--text-secondary)' }}
                       >
                         {p.price}
@@ -187,7 +187,7 @@ export default async function PlansPage() {
                       {/* The tenant count sits in the column head on purpose:
                           it is the blast radius of every cell beneath it. */}
                       <span
-                        className="mt-3 inline-flex items-center rounded-full px-2 py-1 font-mono text-[9px] font-medium tracking-wide uppercase"
+                        className="mt-3 inline-flex items-center rounded-full px-2 py-1 font-mono text-3xs font-medium tracking-wide uppercase"
                         style={{
                           background: 'var(--surface-raised)',
                           color: 'var(--text-secondary)',
@@ -248,7 +248,7 @@ export default async function PlansPage() {
                           <div className="absolute inset-y-0 left-px w-px bg-[color-mix(in_oklab,var(--ink-0)_70%,transparent)]" />
 
                           <span
-                            className="font-mono text-[13px] font-medium"
+                            className="font-mono text-sm font-medium"
                             style={{
                               /* Three inks, three meanings: absent, unbounded,
                                  and a real number. "unlimited" is not a value
@@ -278,10 +278,7 @@ export default async function PlansPage() {
               background: 'var(--surface-sunken)',
             }}
           >
-            <p
-              className="flex-1 text-[13px] leading-relaxed"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
+            <p className="flex-1 text-sm leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
               {m.overrides} workspaces carry per-tenant overrides that win over these values.{' '}
               {m.pendingChange.plan
                 ? null
@@ -312,7 +309,7 @@ export default async function PlansPage() {
         <div className="grid gap-6 sm:gap-12">
           <section className="flex flex-col gap-5 pt-4">
             <h2
-              className="text-[10px] font-medium tracking-[0.1em] uppercase"
+              className="text-2xs font-medium tracking-[0.1em] uppercase"
               style={{ color: 'var(--text-tertiary)' }}
             >
               Distribution
@@ -365,13 +362,13 @@ export default async function PlansPage() {
                       }}
                     />
                     <span
-                      className="flex-1 text-[13px] font-medium tracking-tight"
+                      className="flex-1 text-sm font-medium tracking-tight"
                       style={{ color: 'var(--text-primary)' }}
                     >
                       {p.name}
                     </span>
                     <span
-                      className="font-mono text-[13px] font-medium"
+                      className="font-mono text-sm font-medium"
                       style={{ color: 'var(--text-primary)' }}
                     >
                       {p.count}
@@ -383,19 +380,19 @@ export default async function PlansPage() {
           </section>
 
           <section
-            className="flex flex-col gap-4 rounded-[24px] px-5 py-6"
+            className="flex flex-col gap-4 rounded-hero px-5 py-6"
             style={{
               background: 'var(--surface-sunken)',
               boxShadow: 'var(--neu-inset)',
             }}
           >
             <p
-              className="text-[10px] font-medium tracking-[0.1em] uppercase"
+              className="text-2xs font-medium tracking-[0.1em] uppercase"
               style={{ color: 'var(--text-tertiary)' }}
             >
               Blast radius
             </p>
-            <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               Every plan edit states how many workspaces it touches before it commits, and names the
               ones that would be pushed over a limit by the change.
             </p>
@@ -418,13 +415,13 @@ export default async function PlansPage() {
               ).map(([label, value]) => (
                 <div key={label} className="flex items-baseline justify-between gap-4">
                   <span
-                    className="text-[13px] font-medium tracking-tight"
+                    className="text-sm font-medium tracking-tight"
                     style={{ color: 'var(--text-secondary)' }}
                   >
                     {label}
                   </span>
                   <span
-                    className="font-mono text-[13px] font-medium"
+                    className="font-mono text-sm font-medium"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {value}

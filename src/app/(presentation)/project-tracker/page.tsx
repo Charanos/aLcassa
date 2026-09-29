@@ -100,7 +100,7 @@ export default function ProjectTrackerPage() {
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <header className="mb-14">
         <p
-          className="mb-3 font-mono text-[11px] uppercase"
+          className="mb-3 font-mono text-xs uppercase"
           style={{ color: 'var(--text-tertiary)', letterSpacing: '0.2em', fontWeight: 500 }}
         >
           {ENGAGEMENT.studio} · {ENGAGEMENT.phase}
@@ -163,7 +163,7 @@ export default function ProjectTrackerPage() {
             >
               <IconTile icon={item.icon} tone={item.tone} size="lg" />
               <h3
-                className="mt-4 text-[15px]"
+                className="mt-4 text-md"
                 style={{ color: 'var(--text-primary)', fontWeight: 500 }}
               >
                 {item.title}
@@ -279,13 +279,13 @@ function Figure({ label, value, note }: { label: string; value: string; note: st
       style={{ background: 'var(--surface-sunken)', border: '1px solid var(--border-subtle)' }}
     >
       <dt
-        className="font-mono text-[10.5px] uppercase"
+        className="font-mono text-2xs uppercase"
         style={{ color: 'var(--text-tertiary)', letterSpacing: '0.14em', fontWeight: 500 }}
       >
         {label}
       </dt>
       <dd
-        className="numeric mt-2 text-[28px] leading-none"
+        className="numeric mt-2 text-xl leading-none"
         style={{ color: 'var(--text-primary)', fontWeight: 500, letterSpacing: '-0.02em' }}
       >
         {value}

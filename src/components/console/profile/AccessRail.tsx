@@ -40,7 +40,7 @@ export function AccessRail({
       variant="elevated"
       action={
         <span
-          className="inline-flex h-[34px] items-center gap-1.5 rounded-lg px-3"
+          className="inline-flex h-[34px] items-center gap-1.5 rounded-overlay px-3"
           style={{
             background: 'var(--blue-50)',
             border: '1px solid var(--blue-100)',
@@ -72,7 +72,7 @@ export function AccessRail({
             </span>
             <span className="w-full">
               <span
-                className="block text-[14px]"
+                className="block text-base"
                 style={{
                   color: c.granted ? 'var(--text-primary)' : 'var(--text-tertiary)',
                   fontWeight: 500,
@@ -85,7 +85,7 @@ export function AccessRail({
                 {c.granted ? null : <span style={{ fontWeight: 400 }}> &mdash; not granted</span>}
               </span>
               <span
-                className="mt-0.5 block text-[13px] leading-relaxed"
+                className="mt-0.5 block text-sm leading-relaxed"
                 style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
               >
                 {c.detail}
@@ -109,7 +109,7 @@ export function AccessRail({
               pairs every term with the wrong value. Layout here is
               `justify-between`, which changes nothing about source order.
             */}
-            <dt className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+            <dt className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {f.label}
             </dt>
             <dd

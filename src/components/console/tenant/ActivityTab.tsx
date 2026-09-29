@@ -52,7 +52,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
     <div className="flex flex-col gap-6">
       {/* ── Inverted Compliance & Audit Ribbon ────────────────────────────── */}
       <div
-        className="flex flex-col overflow-hidden rounded-2xl sm:flex-row"
+        className="flex flex-col overflow-hidden rounded-card sm:flex-row"
         style={{
           background: 'var(--invert-card-bg)',
           color: 'var(--invert-card-fg)',
@@ -76,7 +76,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
               recorded
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Immutable append-only ledger
           </p>
           <div
@@ -111,7 +111,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
               sessions
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             30-min expiring access grants
           </p>
           <div
@@ -147,7 +147,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
               Cryptographically Signed
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Zero gaps in sequence
           </p>
           <div
@@ -179,7 +179,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
               3 Years
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Regulatory minimum enforced
           </p>
         </div>
@@ -193,7 +193,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
             type="button"
             disabled
             title="A workspace’s own log is reachable only through a logged support session, never directly."
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-overlay px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
             style={{
               opacity: 0.45,
               cursor: 'not-allowed',
@@ -232,7 +232,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
               placeholder="Search audit actions, actors, or targets…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-8 w-full rounded-lg pr-3 pl-8 text-xs transition-colors outline-none"
+              className="h-8 w-full rounded-overlay pr-3 pl-8 text-xs transition-colors outline-none"
               style={{
                 background: 'var(--surface-sunken)',
                 border: '1px solid var(--border-subtle)',
@@ -241,13 +241,13 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
             />
           </div>
 
-          <div className="flex items-center gap-1 self-start overflow-x-auto rounded-lg bg-[var(--surface-inset)] p-0.5 text-xs sm:self-auto">
+          <div className="flex items-center gap-1 self-start overflow-x-auto rounded-overlay bg-[var(--surface-inset)] p-0.5 text-xs sm:self-auto">
             {(['all', 'session', 'plan', 'tenant', 'rules'] as const).map((k) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setKindFilter(k)}
-                className="rounded-md px-2.5 py-1 font-medium whitespace-nowrap capitalize transition-all"
+                className="rounded-panel px-2.5 py-1 font-medium whitespace-nowrap capitalize transition-all"
                 style={{
                   background: kindFilter === k ? 'var(--surface-raised)' : 'transparent',
                   color: kindFilter === k ? 'var(--text-primary)' : 'var(--text-tertiary)',
@@ -302,14 +302,14 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
                             {entry.action}
                           </span>
                           <span
-                            className="rounded px-2 py-0.5 font-mono text-[10px] uppercase"
+                            className="rounded px-2 py-0.5 font-mono text-2xs uppercase"
                             style={{ background: bg, color: color }}
                           >
                             {entry.kind}
                           </span>
                         </div>
                         <span
-                          className="font-mono text-[11px]"
+                          className="font-mono text-xs"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           {entry.time}
@@ -318,7 +318,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
 
                       {/* Entry Box */}
                       <div
-                        className="flex flex-col gap-3 rounded-xl p-4"
+                        className="flex flex-col gap-3 rounded-overlay p-4"
                         style={{
                           background: 'var(--surface-sunken)',
                           border: '1px solid var(--border-subtle)',
@@ -333,7 +333,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
                           </p>
                           <div className="flex shrink-0 items-center gap-1.5">
                             <span
-                              className="flex size-5 items-center justify-center rounded font-mono text-[9px] font-medium"
+                              className="flex size-5 items-center justify-center rounded font-mono text-3xs font-medium"
                               style={{
                                 background: 'var(--surface-raised)',
                                 border: '1px solid var(--border-subtle)',
@@ -343,7 +343,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
                               {entry.initials}
                             </span>
                             <span
-                              className="font-mono text-[11px]"
+                              className="font-mono text-xs"
                               style={{ color: 'var(--text-tertiary)' }}
                             >
                               {entry.actor}
@@ -353,7 +353,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
 
                         {entry.reason && (
                           <div
-                            className="rounded-lg border-l-2 p-3"
+                            className="rounded-overlay border-l-2 p-3"
                             style={{
                               background: 'var(--surface-raised)',
                               borderLeftColor: 'var(--blue-500)',
@@ -362,7 +362,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
                             }}
                           >
                             <span
-                              className="t-eyebrow mb-1 block text-[9px]"
+                              className="t-eyebrow mb-1 block text-3xs"
                               style={{ color: 'var(--text-tertiary)' }}
                             >
                               Customer Audit Reason
@@ -378,7 +378,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
 
                         {entry.diff && entry.diff.length > 0 && (
                           <div
-                            className="overflow-x-auto rounded-lg"
+                            className="overflow-x-auto rounded-overlay"
                             style={{
                               border: '1px solid var(--border-subtle)',
                               background: 'var(--surface-raised)',
@@ -388,19 +388,19 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
                               <thead>
                                 <tr style={{ background: 'var(--surface-inset)' }}>
                                   <th
-                                    className="px-3 py-2 text-[10px] font-medium uppercase"
+                                    className="px-3 py-2 text-2xs font-medium uppercase"
                                     style={{ color: 'var(--text-tertiary)' }}
                                   >
                                     Field
                                   </th>
                                   <th
-                                    className="px-3 py-2 text-[10px] font-medium uppercase"
+                                    className="px-3 py-2 text-2xs font-medium uppercase"
                                     style={{ color: 'var(--text-tertiary)' }}
                                   >
                                     Before
                                   </th>
                                   <th
-                                    className="px-3 py-2 text-[10px] font-medium uppercase"
+                                    className="px-3 py-2 text-2xs font-medium uppercase"
                                     style={{ color: 'var(--text-tertiary)' }}
                                   >
                                     After
@@ -447,7 +447,7 @@ export function ActivityTab({ activity }: { activity: AuditEntry[] }) {
                         )}
 
                         <div
-                          className="flex items-center gap-4 border-t pt-2 font-mono text-[10px]"
+                          className="flex items-center gap-4 border-t pt-2 font-mono text-2xs"
                           style={{
                             borderColor: 'var(--border-subtle)',
                             color: 'var(--text-tertiary)',

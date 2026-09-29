@@ -235,7 +235,7 @@ export function ProvisionWorkspaceDialog({
 
   /* ─────── shared input classes ─────── */
   const inputCls =
-    'w-full rounded-xl border border-[var(--ink-200)] bg-[var(--surface-raised)] px-4 py-3 outline-none transition-all duration-200 focus:border-[var(--blue-500)] focus:ring-2 focus:ring-[var(--blue-100)]';
+    'w-full rounded-overlay border border-[var(--ink-200)] bg-[var(--surface-raised)] px-4 py-3 outline-none transition-all duration-200 focus:border-[var(--blue-500)] focus:ring-2 focus:ring-[var(--blue-100)]';
   const inputStyle = {
     font: '400 14px/1.5 var(--font-ui)',
     color: 'var(--text-primary)',
@@ -279,7 +279,7 @@ export function ProvisionWorkspaceDialog({
         <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
           <Dialog.Content
             ref={panelRef}
-            className="surface-glass-strong pointer-events-auto flex max-h-[88vh] w-full max-w-[920px] flex-col overflow-hidden rounded-3xl"
+            className="surface-glass-strong pointer-events-auto flex max-h-[88vh] w-full max-w-[920px] flex-col overflow-hidden rounded-hero"
           >
             {/* ── Header ─────────────────────────────────────────────── */}
             <div className="relative px-8 pt-7 pb-5">
@@ -288,7 +288,7 @@ export function ProvisionWorkspaceDialog({
               <div className="flex items-start justify-between">
                 <div>
                   <p
-                    className="mb-1.5 font-mono text-[10.5px] font-medium tracking-[0.2em] uppercase"
+                    className="mb-1.5 font-mono text-2xs font-medium tracking-[0.2em] uppercase"
                     style={{ color: 'var(--blue-500)' }}
                   >
                     New tenant
@@ -304,7 +304,7 @@ export function ProvisionWorkspaceDialog({
                     type="button"
                     aria-label="Close"
                     disabled={working}
-                    className="grid size-8 shrink-0 place-items-center rounded-lg transition-colors hover:bg-[var(--surface-inset)]"
+                    className="grid size-8 shrink-0 place-items-center rounded-overlay transition-colors hover:bg-[var(--surface-inset)]"
                     style={{ color: 'var(--text-tertiary)' }}
                   >
                     <IconX size={16} stroke={1.5} />
@@ -345,7 +345,7 @@ export function ProvisionWorkspaceDialog({
                     {/* Identity */}
                     <section>
                       <p
-                        className="mb-5 font-mono text-[11px] font-medium tracking-[0.15em] uppercase"
+                        className="mb-5 font-mono text-xs font-medium tracking-[0.15em] uppercase"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         Identity
@@ -355,7 +355,7 @@ export function ProvisionWorkspaceDialog({
                         {/* Legal name */}
                         <label className="block">
                           <span
-                            className="mb-2 block text-[13px] font-medium"
+                            className="mb-2 block text-sm font-medium"
                             style={{ color: 'var(--text-primary)' }}
                           >
                             Legal name
@@ -375,14 +375,14 @@ export function ProvisionWorkspaceDialog({
                         <label className="block">
                           <span className="mb-2 flex items-center justify-between">
                             <span
-                              className="text-[13px] font-medium"
+                              className="text-sm font-medium"
                               style={{ color: 'var(--text-primary)' }}
                             >
                               Slug
                             </span>
                             {slug ? (
                               <span
-                                className="flex items-center gap-1.5 font-mono text-[10.5px] font-medium tracking-widest uppercase"
+                                className="flex items-center gap-1.5 font-mono text-2xs font-medium tracking-widest uppercase"
                                 style={{
                                   color: slugAvailable ? 'var(--green-500)' : 'var(--red-500)',
                                 }}
@@ -397,7 +397,7 @@ export function ProvisionWorkspaceDialog({
                             ) : null}
                           </span>
                           <span
-                            className="flex h-[46px] items-center overflow-hidden rounded-xl border border-[var(--ink-200)] bg-[var(--surface-raised)] transition-all duration-200 focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-100)]"
+                            className="flex h-[46px] items-center overflow-hidden rounded-overlay border border-[var(--ink-200)] bg-[var(--surface-raised)] transition-all duration-200 focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-100)]"
                             style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)' }}
                           >
                             <span
@@ -432,7 +432,7 @@ export function ProvisionWorkspaceDialog({
                         {/* Owner email */}
                         <label className="block">
                           <span
-                            className="mb-2 block text-[13px] font-medium"
+                            className="mb-2 block text-sm font-medium"
                             style={{ color: 'var(--text-primary)' }}
                           >
                             Owner email
@@ -447,7 +447,7 @@ export function ProvisionWorkspaceDialog({
                             style={inputStyle}
                           />
                           <span
-                            className="mt-1.5 block text-[12.5px]"
+                            className="mt-1.5 block text-sm"
                             style={{ color: 'var(--text-tertiary)' }}
                           >
                             They receive an invitation valid for seven days and choose their own
@@ -460,7 +460,7 @@ export function ProvisionWorkspaceDialog({
                     {/* ── Plan ─────────────────────────────────────── */}
                     <section>
                       <p
-                        className="mb-5 font-mono text-[11px] font-medium tracking-[0.15em] uppercase"
+                        className="mb-5 font-mono text-xs font-medium tracking-[0.15em] uppercase"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         Plan
@@ -476,14 +476,14 @@ export function ProvisionWorkspaceDialog({
                               disabled={working || done}
                               onClick={() => setPlan(p.key)}
                               aria-pressed={on}
-                              className={`relative flex flex-col rounded-2xl p-4 text-left transition-all duration-300 ${
+                              className={`relative flex flex-col rounded-card p-4 text-left transition-all duration-300 ${
                                 on
                                   ? '-translate-y-1 border-2 border-[var(--blue-500)] bg-[var(--surface-raised)] shadow-[0_12px_40px_-10px_rgba(4,58,225,0.12)]'
                                   : 'border border-[var(--border-subtle)] bg-[var(--surface-raised)]/80 hover:border-[var(--ink-200)] hover:bg-[var(--surface-raised)] hover:shadow-md'
                               }`}
                             >
                               <span
-                                className="block text-[14px] font-medium"
+                                className="block text-base font-medium"
                                 style={{
                                   color: on ? 'var(--blue-600)' : 'var(--text-primary)',
                                 }}
@@ -493,13 +493,13 @@ export function ProvisionWorkspaceDialog({
 
                               <div className="mt-3 border-t border-[var(--ink-100)] pt-3">
                                 <span
-                                  className="block font-mono text-[12px] font-medium tracking-tight"
+                                  className="block font-mono text-sm font-medium tracking-tight"
                                   style={{ color: 'var(--text-primary)' }}
                                 >
                                   {p.price}
                                 </span>
                                 <span
-                                  className="mt-1.5 block text-[11px] leading-snug"
+                                  className="mt-1.5 block text-xs leading-snug"
                                   style={{ color: 'var(--text-tertiary)' }}
                                 >
                                   {p.limit}
@@ -538,13 +538,13 @@ export function ProvisionWorkspaceDialog({
                           </Switch.Root>
                           <span className="flex-1">
                             <span
-                              className="block text-[13px] font-medium"
+                              className="block text-sm font-medium"
                               style={{ color: 'var(--text-primary)' }}
                             >
                               Start with a 14-day trial
                             </span>
                             <span
-                              className="mt-0.5 block text-[12px] leading-relaxed"
+                              className="mt-0.5 block text-sm leading-relaxed"
                               style={{ color: 'var(--text-tertiary)' }}
                             >
                               No invoice is raised until the trial ends. The workspace appears under
@@ -560,14 +560,14 @@ export function ProvisionWorkspaceDialog({
                   <div className="grid gap-6">
                     {/* Execution flow */}
                     <section
-                      className="rounded-2xl p-5"
+                      className="rounded-card p-5"
                       style={{
                         border: '1px solid var(--border-subtle)',
                         background: 'var(--surface-sunken)',
                       }}
                     >
                       <p
-                        className="mb-5 font-mono text-[10.5px] font-medium tracking-[0.15em] uppercase"
+                        className="mb-5 font-mono text-2xs font-medium tracking-[0.15em] uppercase"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         What happens on submit
@@ -606,7 +606,7 @@ export function ProvisionWorkspaceDialog({
                                 </span>
                               </div>
                               <span
-                                className="flex-1 pt-[5px] text-[12.5px] leading-relaxed"
+                                className="flex-1 pt-[5px] text-sm leading-relaxed"
                                 style={{ color: 'var(--text-secondary)' }}
                               >
                                 {s.text}
@@ -616,7 +616,7 @@ export function ProvisionWorkspaceDialog({
                         </div>
                       </div>
                       <p
-                        className="mt-5 border-t pt-4 text-[12px]"
+                        className="mt-5 border-t pt-4 text-sm"
                         style={{
                           borderColor: 'var(--border-subtle)',
                           color: 'var(--text-tertiary)',
@@ -637,9 +637,9 @@ export function ProvisionWorkspaceDialog({
                     {submitError ? (
                       <div
                         role="alert"
-                        className="mb-3 rounded-xl border px-3.5 py-2.5"
+                        className="mb-3 rounded-overlay border px-3.5 py-2.5"
                         style={{
-                          font: '400 var(--text-sm)/1.5 var(--font-ui)',
+                          font: '400 var(--type-compact)/1.5 var(--font-ui)',
                           color: 'var(--danger-fg)',
                           background: 'var(--danger-bg)',
                           borderColor: 'color-mix(in oklab, var(--danger-fg) 38%, transparent)',
@@ -657,7 +657,7 @@ export function ProvisionWorkspaceDialog({
                     <button
                       type="submit"
                       disabled={!ready || working || done}
-                      className="group relative flex h-11 w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl transition-all duration-300 focus:ring-2 focus:ring-[var(--blue-400)] focus:ring-offset-2 focus:outline-none"
+                      className="group relative flex h-11 w-full items-center justify-center gap-2.5 overflow-hidden rounded-overlay transition-all duration-300 focus:ring-2 focus:ring-[var(--blue-400)] focus:ring-offset-2 focus:outline-none"
                       style={{
                         border: 'none',
                         background: done
@@ -697,10 +697,7 @@ export function ProvisionWorkspaceDialog({
                             : 'Provision workspace'}
                       </span>
                     </button>
-                    <p
-                      className="text-center text-[12px]"
-                      style={{ color: 'var(--text-tertiary)' }}
-                    >
+                    <p className="text-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
                       {done
                         ? 'Invitation sent. Returning to Workspaces.'
                         : working

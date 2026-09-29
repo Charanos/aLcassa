@@ -285,7 +285,7 @@ export function WorkspaceActions({
                   borderColor: 'var(--border-subtle)',
                   background: 'var(--surface-raised)',
                   color: 'var(--text-primary)',
-                  font: '400 var(--text-sm)/1.5 var(--font-ui)',
+                  font: '400 var(--type-compact)/1.5 var(--font-ui)',
                 }}
               />
             </div>

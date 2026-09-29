@@ -58,13 +58,13 @@ export function AuthShell({
             <Link
               href="/"
               aria-label="Back to aLcassa homepage"
-              className="inline-flex items-center gap-2 rounded-lg transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
+              className="inline-flex items-center gap-2 rounded-overlay transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
             >
               <Wordmark size={24} />
             </Link>
             <Link
               href="/"
-              className="group inline-flex items-center gap-1.5 text-[length:var(--text-sm)] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
+              className="group inline-flex items-center gap-1.5 text-[length:var(--type-compact)] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
             >
               <IconArrowLeft
                 size={13}
@@ -92,7 +92,7 @@ export function AuthShell({
             {(title || lede) && (
               <div className="mb-6 text-left sm:mb-8">
                 {title ? (
-                  <h1 className="font-sans text-[26px] font-medium tracking-tight text-[var(--text-primary)] sm:text-[30px]">
+                  <h1 className="font-sans text-xl font-medium tracking-tight text-[var(--text-primary)] sm:text-2xl">
                     {title}
                   </h1>
                 ) : null}
@@ -100,8 +100,8 @@ export function AuthShell({
                   <p
                     className={`leading-relaxed text-[var(--text-secondary)] ${
                       title
-                        ? 'mt-1.5 text-[length:var(--text-sm)] sm:text-[length:var(--text-base)]'
-                        : 'text-[length:var(--text-base)]'
+                        ? 'mt-1.5 text-[length:var(--type-compact)] sm:text-[length:var(--type-body)]'
+                        : 'text-[length:var(--type-body)]'
                     }`}
                   >
                     {lede}
@@ -198,7 +198,7 @@ export function AuthShell({
         {/* Context Aside or Illustration */}
         {aside ? (
           <aside className="relative z-10 w-full max-w-[460px] p-8 xl:p-12">
-            <div className="rounded-2xl border border-[var(--ink-200)]/60 bg-white/70 p-8 shadow-sm backdrop-blur-xl">
+            <div className="rounded-card border border-[var(--ink-200)]/60 bg-white/70 p-8 shadow-sm backdrop-blur-xl">
               {aside}
             </div>
           </aside>

@@ -99,7 +99,7 @@ function Figure({
         <span
           className="numeric shrink-0"
           style={{
-            fontSize: 'var(--text-md)',
+            fontSize: 'var(--type-lede)',
             color: tone === 'accent' ? 'var(--accent-mark-text)' : 'var(--text-primary)',
           }}
         >

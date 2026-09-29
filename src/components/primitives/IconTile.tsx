@@ -17,8 +17,8 @@ import type { Icon as TablerIcon } from '@tabler/icons-react';
  * a door, a surface, a workspace — and the wrong one for a status.
  *
  * ⚠ IT WAS BUILT TWICE, INLINE, IN TWO SIGN-IN PAGES, and the two copies had
- * already drifted: one at `size-6 rounded-md` on a flat `--danger-bg`, the other
- * at `size-8 rounded-xl` on a gradient with a diagonal wash. The second is
+ * already drifted: one at `size-6 rounded-panel` on a flat `--danger-bg`, the other
+ * at `size-8 rounded-overlay` on a gradient with a diagonal wash. The second is
  * markedly better and neither was reachable from anywhere else, so the treatment
  * could not spread to the places that wanted it. 18 §12 — near-identical
  * siblings are the first thing to extract, and the difference between two copies

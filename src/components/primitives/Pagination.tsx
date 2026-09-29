@@ -127,7 +127,7 @@ export function Pagination({ page, pageSize, total, onPage, noun, label }: Pagin
               onClick={() => onPage(p)}
               aria-label={`Page ${p}`}
               aria-current={p === page ? 'page' : undefined}
-              className={`grid size-8 cursor-pointer place-items-center rounded-[8px] transition-all duration-300 ${
+              className={`grid size-8 cursor-pointer place-items-center rounded-panel transition-all duration-300 ${
                 p === page
                   ? 'bg-[var(--surface-raised)] shadow-sm ring-1 ring-[var(--border-subtle)]'
                   : 'hover:bg-black/[0.03]'
@@ -170,7 +170,7 @@ function Step({
       onClick={onClick}
       disabled={disabled}
       aria-label={direction === 'previous' ? 'Previous page' : 'Next page'}
-      className={`grid size-8 place-items-center rounded-[8px] transition-all duration-300 ${
+      className={`grid size-8 place-items-center rounded-panel transition-all duration-300 ${
         disabled ? '' : 'hover:bg-black/[0.03]'
       }`}
       style={{

@@ -184,15 +184,12 @@ export function HeroDiagram() {
           </span>
           <span className="min-w-0">
             <span
-              className="t-compact block truncate text-[13px] font-medium"
+              className="t-compact block truncate text-sm font-medium"
               style={{ color: 'var(--text-primary)' }}
             >
               {channel.label}
             </span>
-            <span
-              className="t-eyebrow block text-[9.5px]"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
+            <span className="t-eyebrow block text-3xs" style={{ color: 'var(--text-tertiary)' }}>
               Coming soon
             </span>
           </span>
@@ -217,7 +214,7 @@ export function HeroDiagram() {
           <span className="flex items-center gap-2.5">
             <Mark size={20} tone="brand" />
             <span
-              className="t-chip text-[11px] font-medium tracking-wider"
+              className="t-chip text-xs font-medium tracking-wider"
               style={{ color: 'var(--workspace-card-fg)' }}
             >
               YOUR WORKSPACE
@@ -236,7 +233,7 @@ export function HeroDiagram() {
             style={{ background: 'var(--workspace-card-status)' }}
           />
           <span
-            className="t-eyebrow text-[10px] font-normal tracking-wider"
+            className="t-eyebrow text-2xs font-normal tracking-wider"
             style={{ color: 'var(--workspace-card-fg)', opacity: 0.9 }}
           >
             LIVE AND ISOLATED
@@ -291,11 +288,11 @@ function FactCard({
     >
       <Icon size={15} stroke={1.75} className={iconColorClass} aria-hidden />
       <span>
-        <span className="t-eyebrow block text-[9.5px]" style={{ color: 'var(--text-tertiary)' }}>
+        <span className="t-eyebrow block text-3xs" style={{ color: 'var(--text-tertiary)' }}>
           {label}
         </span>
         <span
-          className="t-compact block text-[12.5px] font-medium whitespace-nowrap"
+          className="t-compact block text-sm font-medium whitespace-nowrap"
           style={{ color: 'var(--text-primary)' }}
         >
           {value}

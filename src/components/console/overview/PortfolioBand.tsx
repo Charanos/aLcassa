@@ -113,7 +113,7 @@ function NoWorkspaces() {
   return (
     <div className="flex flex-col items-start gap-2 py-6">
       <IconBuildings size={20} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
-      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         No workspaces yet.
       </p>
       <p
@@ -140,7 +140,7 @@ function NoGrowthYet() {
         style={{ color: 'var(--text-tertiary)' }}
         aria-hidden
       />
-      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         Not enough history yet.
       </p>
       <p

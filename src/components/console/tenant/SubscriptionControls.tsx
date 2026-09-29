@@ -6,7 +6,7 @@ import { IconAlertTriangle, IconArrowsExchange, IconPlayerPause } from '@tabler/
 import { Button } from '@/components/primitives/Button';
 import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
 import { Field } from '@/components/primitives/Field';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { StatusBadge } from '@/components/primitives/StatusBadge';
 import { useToast } from '@/components/primitives/Toast';
 import {
   assignWorkspacePlan,

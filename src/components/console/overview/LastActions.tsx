@@ -138,13 +138,13 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
             glancing, not for querying.
           */}
           <span
-            className="text-[13px] leading-snug font-medium"
+            className="text-sm leading-snug font-medium"
             style={{ color: 'var(--text-primary)', textWrap: 'pretty' }}
           >
             {described.label}
           </span>
           <span
-            className="truncate text-[12px] leading-relaxed"
+            className="truncate text-sm leading-relaxed"
             style={{ color: 'var(--text-tertiary)' }}
           >
             {line.target}
@@ -152,7 +152,7 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
         </div>
 
         <span
-          className="mt-0.5 shrink-0 font-mono text-[10.5px] font-medium tracking-[0.08em] uppercase transition-colors duration-300 group-hover/row:text-[color:var(--row-accent)]"
+          className="mt-0.5 shrink-0 font-mono text-2xs font-medium tracking-[0.08em] uppercase transition-colors duration-300 group-hover/row:text-[color:var(--row-accent)]"
           style={{ color: 'var(--text-tertiary)' }}
         >
           {line.time}
@@ -173,7 +173,7 @@ function ActionRow({ line, isLast }: { line: AuditLine; isLast: boolean }) {
 function NoActionsYet() {
   return (
     <div
-      className="relative mt-1 flex flex-col items-center gap-4 overflow-hidden rounded-[16px] px-6 py-10 text-center"
+      className="relative mt-1 flex flex-col items-center gap-4 overflow-hidden rounded-card px-6 py-10 text-center"
       style={{
         background: 'var(--surface-raised)',
         border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
@@ -181,7 +181,7 @@ function NoActionsYet() {
       }}
     >
       <div
-        className="flex h-12 w-12 items-center justify-center rounded-[14px]"
+        className="flex h-12 w-12 items-center justify-center rounded-overlay"
         style={{
           background: 'var(--surface-inset)',
           border: '1px solid var(--border-subtle)',
@@ -191,7 +191,7 @@ function NoActionsYet() {
       </div>
       <div>
         <p
-          className="text-[14px] font-medium tracking-tight"
+          className="text-base font-medium tracking-tight"
           style={{ color: 'var(--text-primary)' }}
         >
           No platform actions yet.
@@ -235,7 +235,7 @@ export function LastActionsSkeleton() {
             {/* Content */}
             <div className="flex min-w-0 flex-1 flex-col gap-2 pt-0.5">
               <span
-                className="h-4 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[4px] motion-reduce:animate-none motion-reduce:opacity-70"
+                className="h-4 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-chip motion-reduce:animate-none motion-reduce:opacity-70"
                 style={{ width: [110, 85, 130, 95, 120][i], background: 'var(--surface-sunken)' }}
               />
               <span

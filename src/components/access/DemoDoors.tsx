@@ -11,9 +11,9 @@ import { IconTile } from '@/components/primitives/IconTile';
  * copy of this block — the rule, the caption, two tiles, two links, two arrows —
  * and the copies had drifted into two different designs of the same control:
  *
- *   the tenant door   `rounded-2xl`, a gradient tile, a diagonal tone wash,
+ *   the tenant door   `rounded-card`, a gradient tile, a diagonal tone wash,
  *                     `IconTerminal2` and `IconFingerprintScan`, hover lift
- *   the platform door `rounded-xl`, a flat `--danger-bg` square at `size-6`,
+ *   the platform door `rounded-overlay`, a flat `--danger-bg` square at `size-6`,
  *                     `IconShieldLock` and `IconBuildingSkyscraper`, no lift
  *
  * The first is the better design by a distance and the second is what a reviewer
@@ -36,7 +36,7 @@ export function DemoDoors() {
           <div className="w-full border-t" style={{ borderColor: 'var(--border-subtle)' }} />
         </div>
         <span
-          className="relative px-3 font-mono text-[10px] tracking-wider uppercase"
+          className="relative px-3 font-mono text-2xs tracking-wider uppercase"
           style={{ background: 'var(--surface-raised)', color: 'var(--text-tertiary)' }}
         >
           Reviewer &amp; Demo Mode
@@ -75,7 +75,7 @@ function Door({
   return (
     <Link
       href={href}
-      className="group relative flex items-center justify-between rounded-2xl p-2.5 transition-all duration-200 hover:shadow-[var(--shadow-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] motion-reduce:transition-none"
+      className="group relative flex items-center justify-between rounded-card p-2.5 transition-all duration-200 hover:shadow-[var(--shadow-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] motion-reduce:transition-none"
       style={{
         border: '1px solid var(--border-subtle)',
         background: 'var(--surface-raised)',
@@ -85,7 +85,7 @@ function Door({
       <span className="flex items-center gap-3">
         {/* No `label` on the tile: the text beside it already names the door. */}
         <IconTile icon={icon} tone={tone} size="md" />
-        <span className="text-[12.5px]" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+        <span className="text-sm" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
           {label}
         </span>
       </span>

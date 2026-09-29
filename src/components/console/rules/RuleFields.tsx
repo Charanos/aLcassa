@@ -94,7 +94,7 @@ function Field({ field }: { field: MasterRuleField }) {
         </p>
       ) : (
         <div
-          className="relative overflow-hidden rounded-[16px] px-5 py-4"
+          className="relative overflow-hidden rounded-card px-5 py-4"
           style={{
             background: 'var(--surface-raised)',
             border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',

@@ -123,8 +123,8 @@ export function LimitEditor({
         }}
         className={
           variant === 'inline'
-            ? 'inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-0.5 transition-colors hover:bg-[var(--surface-inset)]'
-            : 'inline-flex h-10 items-center justify-center gap-2 rounded-full px-5 text-[13px] font-medium whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]'
+            ? 'inline-flex shrink-0 items-center gap-1 rounded-panel px-2 py-0.5 transition-colors hover:bg-[var(--surface-inset)]'
+            : 'inline-flex h-10 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]'
         }
         style={
           variant === 'inline'

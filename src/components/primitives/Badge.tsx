@@ -1,115 +1,200 @@
-import * as React from 'react';
+import { forwardRef } from 'react';
+import {
+  IconAlertTriangle,
+  IconCircleCheck,
+  IconClockHour3,
+  IconMinus,
+  IconPointer,
+  IconTerminal2,
+} from '@tabler/icons-react';
 
 /**
- * THE CHROME BADGE.
+ * Design sheet 03 · status chips, and 03 §14 · the badge taxonomy.
  *
- * ⚠ THIS IS NOT THE ONLY BADGE IN THE SYSTEM, and the difference is the tier
- * rather than the taste.
+ * CHIPS ARE A CLOSED SET. These six are the whole vocabulary for state in this
+ * product. A state that is not on this table does not get a badge, and a
+ * seventh requires one to be retired.
  *
- * `@/components/feedback/Badge` carries the closed `tone` set from 03 §14 —
- * active, past due, support, and the rest — and renders on the cream page with
- * the muted ink-on-light status scale. This one renders on the CHROME TIER:
- * the near-black slab the console header, rail and hero stand on, where
- * `--green-500` reads as mud. It takes an open `intent` and draws from the
- * lightened chrome status steps for exactly the reason `--chrome-action` is a
- * lightened step rather than `--blue-500`.
+ * HUE IS NEVER ALONE. Every chip carries a glyph AND a word as well as a tint,
+ * so meaning survives colour blindness and survives a printed audit export,
+ * which is the format an auditor actually reads.
  *
- * Two components, two grounds, one meaning per name. If a badge ever needs to
- * cross grounds, that is a third component and a conversation, not a prop.
+ * The one distinction worth internalising:
  *
- * ⚠ NO RAW COLOUR IN HERE. The identity law is that a hex in a component file
- * is a defect; the surface, rim, glow and every intent ink are Tier 4 chrome
- * tokens. The alphas are tokens too, so a rim that is too hot is one edit in
- * `tokens.css` rather than six in this file.
+ *   OCHRE RESOLVES. A refusal the reader can act on: a limit, a rate, a pending
+ *   state. A tenant at 15 of 15 seats has not failed; it has arrived at the
+ *   limit its plan describes, and the console's job there is to offer the tier
+ *   above it.
+ *
+ *   OXIDE REFUSES. A refusal the reader cannot act on, and every destructive
+ *   action.
+ *
+ * The hue tells them whether to try something or to ask someone.
  */
-
-/** Valid colour intents for a badge, each mapping to one chrome status ink. */
-export type BadgeIntent = 'success' | 'warning' | 'danger' | 'info' | 'brand' | 'neutral';
-
-export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  intent?: BadgeIntent;
-  /** Whether to show a glowing dot indicator before the text. */
-  indicator?: boolean;
-  /** The text or elements to display inside the badge. */
-  children: React.ReactNode;
-  /**
-   * If true, uses the ultra-crisp `.t-badge` typography.
-   * If false, uses slightly larger `.t-caption`. Defaults to true.
-   */
-  crisp?: boolean;
-}
 
 /**
- * The ink each intent speaks in. `neutral` is the absence of an intent rather
- * than a sixth colour, so it takes the chrome's own muted foreground and skips
- * the tint entirely.
+ * ⚠ THERE ARE TWO BADGES IN `primitives/` AND THE SPLIT IS DELIBERATE.
+ *
+ * For a while there were three, in three directories, and that was not.
+ * `ui/StatusBadge` (10 importers), `feedback/Badge` (8) and
+ * `primitives/Badge` (1) all shipped, plus a one-line `feedback/StatusBadge`
+ * re-export shim with no importers at all — a migration aid whose migration
+ * had finished. A reader opening a new page had no way to answer "which badge
+ * is the badge", and the answer turned out to be "whichever one the last
+ * author found first".
+ *
+ * What survives, and the rule for choosing:
+ *
+ *   `StatusBadge` takes a SEMANTIC TONE — success, warning, danger, info,
+ *   brand, neutral — and knows nothing about this product. Reach for it when
+ *   you are colouring an outcome.
+ *
+ *   `Badge` — this file — takes a DOMAIN STATE: `active`, `trialing`,
+ *   `nearLimit`, `pastDue`, `archived`, `support`. It owns the mapping from
+ *   those states to ink, tint, rule and glyph, and it owns the default word
+ *   for each. Reach for it when you are labelling a workspace, a subscription,
+ *   a credential or a member.
+ *
+ *   The tone maps at the foot of this file are why: a "past due" chip is one
+ *   decision made once, not a decision each table makes for itself. That is
+ *   the thing a generic badge cannot give you, and the reason both exist.
+ *
+ * The retired `primitives/Badge` offered the same six SEMANTIC intents as
+ * `StatusBadge` against chrome tokens — a third spelling of a decision that
+ * already had two. Its single call site now uses `StatusBadge`.
  */
-const INTENT_INK: Record<BadgeIntent, string | null> = {
-  success: 'var(--chrome-success)',
-  warning: 'var(--chrome-warning)',
-  danger: 'var(--chrome-danger)',
-  info: 'var(--chrome-info)',
-  brand: 'var(--chrome-brand)',
-  neutral: null,
+export type BadgeTone =
+  /** Provisioned, within every limit. Never used for a call to action. */
+  | 'active'
+  /** No subscription record yet. Also: system and machine facts. */
+  | 'trialing'
+  /** Within ten percent of a ceiling. */
+  | 'nearLimit'
+  /** Payment overdue, access unchanged. */
+  | 'pastDue'
+  /** Soft deleted, recoverable. Inert. */
+  | 'archived'
+  /** Owner switched in, scoped session. THE ONLY STATE RENDERED IN COPPER,
+   *  and the only chip that also appears outside a table. */
+  | 'support';
+
+type ToneSpec = {
+  icon: typeof IconCircleCheck;
+  ink: string;
+  tint: string;
+  rule: string;
+  defaultLabel: string;
 };
 
-export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
-  (
-    { intent = 'neutral', indicator = false, crisp = true, children, className, style, ...props },
-    ref,
-  ) => {
-    const ink = INTENT_INK[intent];
-    const fg = ink ?? 'var(--chrome-fg-muted)';
-
-    /*
-      The rim and the glow are the intent ink held back to a tint. `color-mix`
-      does that against a token rather than against a hardcoded rgba, which is
-      the whole reason the ink can stay a variable this far down.
-    */
-    const border = ink
-      ? `color-mix(in srgb, ${ink} calc(var(--chrome-badge-border-alpha) * 100%), transparent)`
-      : 'var(--chrome-badge-border)';
-
-    const shadow = ink
-      ? `var(--chrome-badge-shadow), inset 0 0 12px color-mix(in srgb, ${ink} calc(var(--chrome-badge-glow-alpha) * 100%), transparent)`
-      : 'var(--chrome-badge-shadow)';
-
-    const typographyClass = crisp ? 't-badge' : 't-caption';
-    const paddingClass = crisp ? 'px-[8px] py-[3px]' : 'px-[10px] py-[3px]';
-
-    return (
-      <span
-        ref={ref}
-        className={`inline-flex items-center gap-1.5 rounded-full font-mono whitespace-nowrap ${typographyClass} ${paddingClass} ${className || ''}`}
-        style={{
-          background: 'var(--chrome-badge-bg)',
-          border: `1px solid ${border}`,
-          color: fg,
-          fontWeight: 600,
-          fontFamily: 'var(--font-mono)',
-          boxShadow: shadow,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          ...style,
-        }}
-        {...props}
-      >
-        {indicator && (
-          <span
-            className="shrink-0 rounded-full"
-            style={{
-              width: 5,
-              height: 5,
-              background: fg,
-              boxShadow: `0 0 6px ${fg}`,
-            }}
-            aria-hidden="true"
-          />
-        )}
-        {children}
-      </span>
-    );
+const TONES: Record<BadgeTone, ToneSpec> = {
+  active: {
+    icon: IconCircleCheck,
+    ink: 'var(--green-500)',
+    tint: 'var(--green-100)',
+    rule: 'color-mix(in oklab, var(--green-500) 38%, var(--surface-base))',
+    defaultLabel: 'Active',
   },
-);
+  trialing: {
+    icon: IconTerminal2,
+    ink: 'var(--ink-600)',
+    tint: 'var(--ink-50)',
+    rule: 'var(--ink-300)',
+    defaultLabel: 'Trialing',
+  },
+  nearLimit: {
+    icon: IconClockHour3,
+    ink: 'var(--amber-500)',
+    tint: 'var(--amber-100)',
+    rule: 'color-mix(in oklab, var(--amber-500) 38%, var(--surface-base))',
+    defaultLabel: 'Near limit',
+  },
+  pastDue: {
+    icon: IconAlertTriangle,
+    ink: 'var(--red-500)',
+    tint: 'var(--red-100)',
+    rule: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))',
+    defaultLabel: 'Past due',
+  },
+  archived: {
+    icon: IconMinus,
+    ink: 'var(--ink-500)',
+    tint: 'var(--ink-100)',
+    rule: 'var(--ink-300)',
+    defaultLabel: 'Archived',
+  },
+  support: {
+    icon: IconPointer,
+    ink: 'var(--blue-500)',
+    tint: 'var(--blue-50)',
+    rule: 'var(--blue-200)',
+    defaultLabel: 'Support mode',
+  },
+};
 
-Badge.displayName = 'Badge';
+export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
+  tone: BadgeTone;
+  /** Omit to use the tone's own word. Never omit the word itself. */
+  children?: React.ReactNode;
+};
+
+export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
+  { tone, children, className, ...props },
+  ref,
+) {
+  const spec = TONES[tone];
+  const Icon = spec.icon;
+
+  return (
+    <span
+      ref={ref}
+      data-slot="badge"
+      data-tone={tone}
+      className={['t-chip inline-flex h-5 items-center gap-1 rounded-chip border px-2', className]
+        .filter(Boolean)
+        .join(' ')}
+      style={{ color: spec.ink, background: spec.tint, borderColor: spec.rule }}
+      {...props}
+    >
+      <Icon size={12} stroke={1.5} aria-hidden />
+      {children ?? spec.defaultLabel}
+    </span>
+  );
+});
+
+/**
+ * 03 §14 maps domain states onto the closed set. Keeping the mapping here
+ * rather than at each call site is what stops a "provisioning" badge appearing
+ * in slate on one screen and graphite on another.
+ */
+export const TENANT_STATUS_TONE: Record<string, BadgeTone> = {
+  provisioning: 'trialing',
+  trial: 'trialing',
+  active: 'active',
+  past_due: 'pastDue',
+  suspended: 'pastDue',
+  closed: 'archived',
+};
+
+export const SUBSCRIPTION_STATUS_TONE: Record<string, BadgeTone> = {
+  trialing: 'trialing',
+  active: 'active',
+  past_due: 'pastDue',
+  paused: 'nearLimit',
+  cancelled: 'archived',
+  expired: 'archived',
+};
+
+export const CREDENTIAL_STATUS_TONE: Record<string, BadgeTone> = {
+  active: 'active',
+  rotating: 'nearLimit',
+  revoked: 'pastDue',
+};
+
+/** 03 §14. Member "Active" carries NO badge — absence is the signal, so
+ *  `'active'` is deliberately absent from this map. Call sites render a badge
+ *  only when a status has an entry here. */
+export const MEMBER_STATUS_TONE: Record<string, BadgeTone> = {
+  invited: 'trialing',
+  invitation_expired: 'nearLimit',
+  suspended: 'pastDue',
+};

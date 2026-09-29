@@ -159,7 +159,7 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
           </span>
           <Link
             href="/"
-            className="group inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
+            className="group inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
           >
             <IconArrowLeft
               size={13}

@@ -2,7 +2,7 @@
 
 import { useId } from 'react';
 import { IconAlertTriangle, IconCheck, IconHelpCircle } from '@tabler/icons-react';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { StatusBadge } from '@/components/primitives/StatusBadge';
 import { SettingsSection } from '@/components/console/Surface';
 import { AvatarField } from '@/components/console/profile/AvatarField';
 import { AuditLine, AuditNote, FieldLabel, Hint } from '@/components/console/profile/shared';
@@ -121,7 +121,7 @@ export function IdentityCard({
                 onDiscard();
               }
             }}
-            className="t-body h-10 w-full rounded-lg px-3 transition-colors outline-none focus-visible:border-[var(--blue-500)] focus-visible:ring-1 focus-visible:ring-[var(--blue-500)]"
+            className="t-body h-10 w-full rounded-overlay px-3 transition-colors outline-none focus-visible:border-[var(--blue-500)] focus-visible:ring-1 focus-visible:ring-[var(--blue-500)]"
             style={{
               border: `1px solid ${invalid ? 'var(--danger-fg)' : 'var(--border-strong)'}`,
               background: 'var(--surface-raised)',
@@ -141,7 +141,7 @@ export function IdentityCard({
         <div>
           <FieldLabel>Email</FieldLabel>
           <div
-            className="flex h-10 items-center gap-2.5 rounded-lg px-3"
+            className="flex h-10 items-center gap-2.5 rounded-overlay px-3"
             style={{
               border: '1px solid var(--border-subtle)',
               background: 'var(--surface-sunken)',

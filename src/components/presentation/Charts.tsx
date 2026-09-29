@@ -411,7 +411,7 @@ export function ProportionDonut({
           <li key={segment.label} className="flex items-center gap-2.5">
             <span
               aria-hidden
-              className="size-2.5 shrink-0 rounded-[2px]"
+              className="size-2.5 shrink-0 rounded-bar"
               style={{
                 background: segment.hatch ? undefined : segment.ink,
                 backgroundImage: segment.hatch ? 'var(--hatch-graphite)' : undefined,
@@ -476,7 +476,7 @@ export function StackedMeter({
           <li key={segment.label} className="flex items-center gap-2">
             <span
               aria-hidden
-              className="size-2.5 shrink-0 rounded-[2px]"
+              className="size-2.5 shrink-0 rounded-bar"
               style={{
                 background: segment.hatch ? undefined : segment.fill,
                 backgroundImage: segment.hatch ? 'var(--hatch-graphite)' : undefined,

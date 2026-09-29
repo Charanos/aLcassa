@@ -105,12 +105,12 @@ function UnavailableAction({ label }: { label: string }) {
     <button
       type="button"
       disabled
-      className="t-compact inline-flex h-8 shrink-0 cursor-not-allowed items-center justify-center gap-1.5 rounded-lg px-3.5"
+      className="t-compact inline-flex h-8 shrink-0 cursor-not-allowed items-center justify-center gap-1.5 rounded-overlay px-3.5"
       style={{
         background: 'var(--surface-inset)',
         color: 'var(--text-tertiary)',
         border: '1px solid var(--border-subtle)',
-        fontWeight: 600,
+        fontWeight: 500,
       }}
     >
       <IconLock size={14} stroke={1.75} aria-hidden />
@@ -246,12 +246,12 @@ function AssignPlanAction({
  * than one list.
  */
 const PRIMARY_CLASS =
-  't-compact inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-lg px-4 whitespace-nowrap transition-all duration-300 hover:brightness-110 disabled:cursor-default disabled:hover:brightness-100';
+  't-compact inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-overlay px-4 whitespace-nowrap transition-all duration-300 hover:brightness-110 disabled:cursor-default disabled:hover:brightness-100';
 
 const PRIMARY_STYLE: React.CSSProperties = {
   background: 'var(--blue-500)',
   color: 'var(--text-inverse)',
-  fontWeight: 600,
+  fontWeight: 500,
   boxShadow:
     '0 4px 12px color-mix(in oklab, var(--blue-500) 22%, transparent), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 20%, transparent)',
 };

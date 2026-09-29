@@ -1,7 +1,7 @@
 import { IconDeviceDesktop, IconLifebuoy, IconShieldCheck } from '@tabler/icons-react';
 import type { DeviceSession } from '@/lib/console/data';
 import { PagedList } from '@/components/primitives/Pagination';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { StatusBadge } from '@/components/primitives/StatusBadge';
 import { SectionHeading } from '@/components/console/Surface';
 import { IconTile } from '@/components/primitives/IconTile';
 import { RecordRow } from '@/components/console/profile/shared';
@@ -78,7 +78,7 @@ export function SessionList({
 
       {hidden > 0 ? (
         <div className="mt-4 px-1">
-          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--warning-fg)' }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--warning-fg)' }}>
             {hidden} more live {hidden === 1 ? 'session is' : 'sessions are'} not shown &mdash; this
             screen reads a capped number of rows. Signing out other devices still ends all of them.
           </p>
@@ -96,7 +96,7 @@ function SessionRow({ session, live }: { session: DeviceSession; live: boolean }
 
   return (
     <div
-      className="mb-4 overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
+      className="mb-4 overflow-hidden rounded-overlay border transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
       style={{
         borderColor: 'var(--border-subtle)',
         background: 'var(--surface-raised)',
@@ -128,7 +128,7 @@ function SessionRow({ session, live }: { session: DeviceSession; live: boolean }
         }
         label={
           <span
-            className="flex flex-wrap items-center gap-2 text-[14px]"
+            className="flex flex-wrap items-center gap-2 text-base"
             style={{ color: 'var(--text-primary)', fontWeight: 500 }}
           >
             {session.device}

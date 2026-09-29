@@ -104,7 +104,7 @@ function useTokens(): Tokens {
 function Panel({ label, value, t }: { label: string; value: string; t: Tokens }) {
   return (
     <div
-      className="flex flex-col gap-1 overflow-hidden rounded-[10px] px-3.5 py-2.5"
+      className="flex flex-col gap-1 overflow-hidden rounded-overlay px-3.5 py-2.5"
       style={{
         background: 'color-mix(in srgb, var(--surface-raised) 75%, transparent)',
         backdropFilter: 'blur(20px) saturate(1.2)',
@@ -113,15 +113,12 @@ function Panel({ label, value, t }: { label: string; value: string; t: Tokens })
       }}
     >
       <div
-        className="font-mono text-[10.5px] font-medium tracking-wide uppercase"
+        className="font-mono text-2xs font-medium tracking-wide uppercase"
         style={{ color: t.muted }}
       >
         {label}
       </div>
-      <div
-        className="font-mono text-[13.5px] font-medium tracking-[-0.01em]"
-        style={{ color: t.text }}
-      >
+      <div className="font-mono text-base font-medium tracking-[-0.01em]" style={{ color: t.text }}>
         {value}
       </div>
     </div>
@@ -688,7 +685,7 @@ export function AuditVolumeChart({
                   </div>
                   <div
                     className="numeric mt-0.5"
-                    style={{ fontSize: 'var(--text-sm)', color: t.text }}
+                    style={{ fontSize: 'var(--type-compact)', color: t.text }}
                   >
                     {row.total} {row.total === 1 ? 'action' : 'actions'}
                   </div>
@@ -736,7 +733,7 @@ function Swatch({ colour, children }: { colour: string; children: React.ReactNod
       className="inline-flex items-center gap-1.5 whitespace-nowrap"
       style={{ font: '400 11.5px/1 var(--font-ui)', color: 'var(--text-secondary)' }}
     >
-      <span aria-hidden className="size-2 shrink-0 rounded-[2px]" style={{ background: colour }} />
+      <span aria-hidden className="size-2 shrink-0 rounded-bar" style={{ background: colour }} />
       {children}
     </span>
   );
@@ -834,7 +831,7 @@ export function MovementChart({
                     <div
                       className="numeric mt-0.5"
                       style={{
-                        fontSize: 'var(--text-sm)',
+                        fontSize: 'var(--type-compact)',
                         color: row.net >= 0 ? t.success : t.danger,
                       }}
                     >

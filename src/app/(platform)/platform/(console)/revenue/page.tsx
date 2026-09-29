@@ -81,7 +81,7 @@ export default async function RevenuePage() {
       {/* ── KPIs ───────────────────────────────────
           Dark ambient section matching the Overview aesthetic. */}
       <section
-        className="relative mt-8 mb-12 overflow-hidden rounded-[20px] shadow-2xl transition-all duration-300"
+        className="relative mt-8 mb-12 overflow-hidden rounded-card shadow-2xl transition-all duration-300"
         style={{
           background: 'var(--chrome-bg-base)',
           border: '1px solid var(--chrome-rule-strong)',
@@ -163,7 +163,7 @@ export default async function RevenuePage() {
               return (
                 <div
                   key={k.label}
-                  className="group relative -m-5 flex cursor-default flex-col justify-between rounded-xl px-5 py-3 transition-all duration-300 hover:bg-[var(--chrome-hover)] hover:shadow-[var(--glass-highlight)]"
+                  className="group relative -m-5 flex cursor-default flex-col justify-between rounded-overlay px-5 py-3 transition-all duration-300 hover:bg-[var(--chrome-hover)] hover:shadow-[var(--glass-highlight)]"
                 >
                   <div className="pointer-events-none absolute right-3 -bottom-6 z-0 text-[var(--invert-card-fg)] opacity-[0.08] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.14]">
                     <Icon size={120} stroke={1.5} aria-hidden />
@@ -175,7 +175,7 @@ export default async function RevenuePage() {
 
                   <div className="relative z-10 mb-4 flex items-center justify-between">
                     <span
-                      className="font-mono text-[10.5px] font-medium tracking-[0.15em] uppercase"
+                      className="font-mono text-2xs font-medium tracking-[0.15em] uppercase"
                       style={{ color: 'var(--invert-card-fg)', opacity: 0.5 }}
                     >
                       {k.label}
@@ -283,7 +283,7 @@ export default async function RevenuePage() {
                 </span>
                 <span
                   className="numeric min-w-[74px] text-right whitespace-nowrap"
-                  style={{ fontSize: 'var(--text-sm)' }}
+                  style={{ fontSize: 'var(--type-compact)' }}
                 >
                   {p.display}
                 </span>
@@ -310,7 +310,7 @@ export default async function RevenuePage() {
           action={
             <span
               className="numeric whitespace-nowrap"
-              style={{ fontSize: 'var(--text-sm)', color: 'var(--danger-fg)' }}
+              style={{ fontSize: 'var(--type-compact)', color: 'var(--danger-fg)' }}
             >
               {m.outstanding} outstanding
             </span>

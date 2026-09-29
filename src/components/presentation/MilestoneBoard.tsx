@@ -61,7 +61,7 @@ export function MilestoneBoard() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                     <h3
-                      className="text-[16px]"
+                      className="text-md"
                       style={{
                         color: 'var(--text-primary)',
                         fontWeight: 500,

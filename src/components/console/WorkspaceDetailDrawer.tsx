@@ -335,7 +335,7 @@ export function WorkspaceDetailDrawer({
             type="button"
             onClick={handleClose}
             aria-label="Close workspace details"
-            className="absolute top-4 right-5 grid size-8 place-items-center rounded-lg transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
+            className="absolute top-4 right-5 grid size-8 place-items-center rounded-overlay transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
             style={{ color: 'var(--text-tertiary)' }}
           >
             <IconX size={18} stroke={1.5} />
@@ -370,7 +370,7 @@ export function WorkspaceDetailDrawer({
                     type="button"
                     onClick={() => handleCopy(row.slug, 'slug')}
                     title="Click to copy slug"
-                    className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
+                    className="inline-flex items-center gap-1 rounded-panel px-1.5 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
                     style={{
                       color: 'var(--text-secondary)',
                       border: '1px solid var(--border-subtle)',
@@ -409,7 +409,7 @@ export function WorkspaceDetailDrawer({
                     type="button"
                     onClick={() => handleCopy(row.id, 'id')}
                     title={`Workspace id · click to copy\n${row.id}`}
-                    className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
+                    className="inline-flex items-center gap-1 rounded-panel px-1.5 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
                     style={{
                       color: 'var(--text-tertiary)',
                       border: '1px solid var(--border-subtle)',
@@ -456,7 +456,7 @@ export function WorkspaceDetailDrawer({
 
               {row.plan && row.plan !== '—' && (
                 <span
-                  className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[11px] font-medium uppercase"
+                  className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-xs font-medium uppercase"
                   style={{
                     background: 'var(--surface-inset)',
                     border: '1px solid var(--border-subtle)',
@@ -492,7 +492,7 @@ export function WorkspaceDetailDrawer({
             <button
               type="button"
               onClick={() => setSessionOpen(true)}
-              className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-3.5 transition-all duration-150 hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] active:scale-95"
+              className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-3.5 transition-all duration-150 hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] active:scale-95"
               style={{
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',
@@ -522,7 +522,7 @@ export function WorkspaceDetailDrawer({
               <button
                 type="button"
                 onClick={openSuspend}
-                className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-3 transition-all duration-150 active:scale-95"
+                className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-3 transition-all duration-150 active:scale-95"
                 style={{
                   border: '1px solid var(--border-subtle)',
                   background: 'var(--surface-raised)',
@@ -547,7 +547,7 @@ export function WorkspaceDetailDrawer({
 
           {/* Segmented Navigation Tabs */}
           <div
-            className="mt-6 flex items-center gap-1 rounded-2xl p-1.5"
+            className="mt-6 flex items-center gap-1 rounded-card p-1.5"
             style={{
               background: 'var(--surface-sunken)',
               boxShadow: 'var(--neu-inset)',
@@ -565,7 +565,7 @@ export function WorkspaceDetailDrawer({
                   key={key}
                   type="button"
                   onClick={() => setActiveTab(key as TabKey)}
-                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-150"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-overlay px-3 py-2 text-xs font-medium transition-all duration-150"
                   style={{
                     background: isActive ? 'var(--surface-base)' : 'transparent',
                     color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
@@ -605,7 +605,7 @@ export function WorkspaceDetailDrawer({
               {/* Optional Alert Banner */}
               {detail.alert && (
                 <div
-                  className="flex gap-3.5 rounded-xl p-4"
+                  className="flex gap-3.5 rounded-overlay p-4"
                   style={{
                     background:
                       row.status === 'past due'
@@ -675,7 +675,7 @@ export function WorkspaceDetailDrawer({
                     ].map((item) => (
                       <div
                         key={item.label}
-                        className="flex flex-col justify-between rounded-2xl p-4 transition-all duration-300 hover:-translate-y-px"
+                        className="flex flex-col justify-between rounded-card p-4 transition-all duration-300 hover:-translate-y-px"
                         style={{
                           background: 'var(--surface-raised)',
                           border:
@@ -684,7 +684,7 @@ export function WorkspaceDetailDrawer({
                         }}
                       >
                         <span
-                          className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                          className="text-2xs font-medium tracking-[0.1em] uppercase"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           {item.label}
@@ -696,7 +696,7 @@ export function WorkspaceDetailDrawer({
                           {item.value}
                         </span>
                         <span
-                          className="mt-1 font-mono text-[11px]"
+                          className="mt-1 font-mono text-xs"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           {item.note}
@@ -706,7 +706,7 @@ export function WorkspaceDetailDrawer({
                   </div>
 
                   <div
-                    className="overflow-hidden rounded-[24px]"
+                    className="overflow-hidden rounded-hero"
                     style={{
                       background: 'var(--surface-raised)',
                       border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -721,7 +721,7 @@ export function WorkspaceDetailDrawer({
                       }}
                     >
                       <span
-                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        className="text-2xs font-medium tracking-[0.1em] uppercase"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         Workspace Specifications
@@ -758,13 +758,13 @@ export function WorkspaceDetailDrawer({
                             }}
                           >
                             <span
-                              className="text-[11px] tracking-wide"
+                              className="text-xs tracking-wide"
                               style={{ color: 'var(--text-tertiary)' }}
                             >
                               {f.label}
                             </span>
                             <span
-                              className="font-mono text-[11px] font-medium"
+                              className="font-mono text-xs font-medium"
                               style={{
                                 color:
                                   f.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
@@ -787,13 +787,13 @@ export function WorkspaceDetailDrawer({
                             }}
                           >
                             <span
-                              className="text-[11px] tracking-wide"
+                              className="text-xs tracking-wide"
                               style={{ color: 'var(--text-tertiary)' }}
                             >
                               {f.label}
                             </span>
                             <span
-                              className="font-mono text-[11px] font-medium"
+                              className="font-mono text-xs font-medium"
                               style={{
                                 color:
                                   f.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
@@ -811,7 +811,7 @@ export function WorkspaceDetailDrawer({
                   <button
                     type="button"
                     onClick={() => setProfileOpen(true)}
-                    className="flex w-full items-center justify-between gap-3 rounded-[24px] p-4 text-left transition-all duration-300 hover:-translate-y-px hover:shadow-sm active:scale-[0.99]"
+                    className="flex w-full items-center justify-between gap-3 rounded-hero p-4 text-left transition-all duration-300 hover:-translate-y-px hover:shadow-sm active:scale-[0.99]"
                     style={{
                       background: 'var(--surface-raised)',
                       border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -836,16 +836,13 @@ export function WorkspaceDetailDrawer({
                         >
                           {detail.owner.name}
                         </p>
-                        <p
-                          className="font-mono text-[11px]"
-                          style={{ color: 'var(--text-tertiary)' }}
-                        >
+                        <p className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
                           {detail.owner.email}
                         </p>
                       </div>
                     </div>
                     <span
-                      className="rounded-full px-2.5 py-1 text-[9px] font-medium tracking-[0.1em] uppercase"
+                      className="rounded-full px-2.5 py-1 text-3xs font-medium tracking-[0.1em] uppercase"
                       style={{
                         background: 'var(--surface-inset)',
                         color: 'var(--text-tertiary)',
@@ -887,7 +884,7 @@ export function WorkspaceDetailDrawer({
                       return (
                         <div
                           key={m.label}
-                          className="rounded-[20px] p-4 transition-all duration-300 hover:-translate-y-px"
+                          className="rounded-card p-4 transition-all duration-300 hover:-translate-y-px"
                           style={{
                             background: 'var(--surface-raised)',
                             border:
@@ -911,7 +908,7 @@ export function WorkspaceDetailDrawer({
                             </div>
                             <div className="flex items-baseline gap-2">
                               <span
-                                className="font-mono text-[13px] font-medium"
+                                className="font-mono text-sm font-medium"
                                 style={{ color: 'var(--text-primary)' }}
                               >
                                 {usedStr}
@@ -924,7 +921,7 @@ export function WorkspaceDetailDrawer({
                               </span>
                               {limit === null ? null : (
                                 <span
-                                  className="rounded-md px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-wide"
+                                  className="rounded-panel px-1.5 py-0.5 font-mono text-2xs font-medium tracking-wide"
                                   style={{
                                     background:
                                       pct >= NEAR_LIMIT
@@ -967,7 +964,7 @@ export function WorkspaceDetailDrawer({
                           {/* Sheet 06: every number names its source, so a figure
                                 on screen can be traced to a row in the schema. */}
                           <p
-                            className="mt-2.5 font-mono text-[10px]"
+                            className="mt-2.5 font-mono text-2xs"
                             style={{ color: 'var(--text-tertiary)' }}
                           >
                             from {m.source}
@@ -978,7 +975,7 @@ export function WorkspaceDetailDrawer({
                   </div>
 
                   <p
-                    className="font-mono text-[11px] leading-relaxed"
+                    className="font-mono text-xs leading-relaxed"
                     style={{ color: 'var(--text-tertiary)' }}
                   >
                     Meters resolve against the entitlement snapshot on the workspace, not the plan
@@ -997,7 +994,7 @@ export function WorkspaceDetailDrawer({
                     {detail.billingStats.map((s) => (
                       <div
                         key={s.label}
-                        className="flex flex-col justify-between rounded-[20px] p-4 transition-all duration-300 hover:-translate-y-px"
+                        className="flex flex-col justify-between rounded-card p-4 transition-all duration-300 hover:-translate-y-px"
                         style={{
                           background:
                             s.tone === 'danger'
@@ -1008,7 +1005,7 @@ export function WorkspaceDetailDrawer({
                         }}
                       >
                         <span
-                          className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                          className="text-2xs font-medium tracking-[0.1em] uppercase"
                           style={{
                             color:
                               s.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-tertiary)',
@@ -1025,7 +1022,7 @@ export function WorkspaceDetailDrawer({
                           {s.value}
                         </span>
                         <span
-                          className="mt-1 font-mono text-[11px]"
+                          className="mt-1 font-mono text-xs"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           {s.note}
@@ -1047,7 +1044,7 @@ export function WorkspaceDetailDrawer({
 
                     {detail.invoices.length > 0 ? (
                       <div
-                        className="overflow-hidden rounded-[24px]"
+                        className="overflow-hidden rounded-hero"
                         style={{
                           background: 'var(--surface-raised)',
                           border:
@@ -1071,7 +1068,7 @@ export function WorkspaceDetailDrawer({
                           >
                             <div className="flex items-center gap-4">
                               <div
-                                className="rounded-xl p-2"
+                                className="rounded-overlay p-2"
                                 style={{
                                   background: 'var(--surface-sunken)',
                                   boxShadow: 'var(--neu-inset)',
@@ -1092,7 +1089,7 @@ export function WorkspaceDetailDrawer({
                                   {inv.id}
                                 </p>
                                 <p
-                                  className="mt-0.5 font-mono text-[11px]"
+                                  className="mt-0.5 font-mono text-xs"
                                   style={{ color: 'var(--text-tertiary)' }}
                                 >
                                   {inv.period} · Issued {inv.issued}
@@ -1108,7 +1105,7 @@ export function WorkspaceDetailDrawer({
                                 KES {inv.amount}
                               </span>
                               <span
-                                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px] font-medium tracking-wide uppercase"
+                                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-2xs font-medium tracking-wide uppercase"
                                 style={{
                                   background:
                                     inv.status === 'paid'
@@ -1135,7 +1132,7 @@ export function WorkspaceDetailDrawer({
                       </div>
                     ) : (
                       <div
-                        className="rounded-xl p-6 text-center font-mono text-xs"
+                        className="rounded-overlay p-6 text-center font-mono text-xs"
                         style={{
                           background: 'var(--surface-base)',
                           color: 'var(--text-tertiary)',
@@ -1154,7 +1151,7 @@ export function WorkspaceDetailDrawer({
                 <div className="flex flex-col gap-6">
                   {/* Team Allocations */}
                   <div
-                    className="flex flex-col gap-6 rounded-[24px] p-6"
+                    className="flex flex-col gap-6 rounded-hero p-6"
                     style={{
                       background: 'var(--surface-raised)',
                       border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -1162,7 +1159,7 @@ export function WorkspaceDetailDrawer({
                     }}
                   >
                     <h3
-                      className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                      className="text-2xs font-medium tracking-[0.1em] uppercase"
                       style={{ color: 'var(--text-tertiary)' }}
                     >
                       Access Topology
@@ -1170,7 +1167,7 @@ export function WorkspaceDetailDrawer({
                     <div className="relative grid grid-cols-1 sm:grid-cols-3">
                       <div className="px-2 pb-4 sm:pb-0">
                         <span
-                          className="text-[11px] font-medium tracking-wide"
+                          className="text-xs font-medium tracking-wide"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           Staff Seats
@@ -1191,7 +1188,7 @@ export function WorkspaceDetailDrawer({
                         <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-x-0 top-px h-px sm:hidden" />
 
                         <span
-                          className="text-[11px] font-medium tracking-wide"
+                          className="text-xs font-medium tracking-wide"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           Privileged Admins
@@ -1212,7 +1209,7 @@ export function WorkspaceDetailDrawer({
                         <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-x-0 top-px h-px sm:hidden" />
 
                         <span
-                          className="text-[11px] font-medium tracking-wide"
+                          className="text-xs font-medium tracking-wide"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           Active Channels
@@ -1229,7 +1226,7 @@ export function WorkspaceDetailDrawer({
 
                   {/* Data Residency & Encryption Box */}
                   <div
-                    className="flex flex-col gap-4 rounded-[20px] p-4 sm:flex-row sm:items-start"
+                    className="flex flex-col gap-4 rounded-card p-4 sm:flex-row sm:items-start"
                     style={{
                       background: 'var(--surface-raised)',
                       border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -1249,7 +1246,7 @@ export function WorkspaceDetailDrawer({
                           Residency and isolation
                         </p>
                         <span
-                          className="rounded-full px-2.5 py-1 font-mono text-[9px] font-medium tracking-wide uppercase"
+                          className="rounded-full px-2.5 py-1 font-mono text-3xs font-medium tracking-wide uppercase"
                           style={{
                             background: 'var(--success-bg)',
                             color: 'var(--success-fg)',
@@ -1285,7 +1282,7 @@ export function WorkspaceDetailDrawer({
                         gives, on the panel that exists to describe it.
                       */}
                       <p
-                        className="mt-2 text-[13px] leading-relaxed"
+                        className="mt-2 text-sm leading-relaxed"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         Every query against this workspace is filtered by a Row Level Security
@@ -1309,7 +1306,7 @@ export function WorkspaceDetailDrawer({
             background: 'var(--surface-sunken)',
           }}
         >
-          <span className="font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
+          <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
             aLcassa.tenant · {row.slug}
           </span>
 
@@ -1317,7 +1314,7 @@ export function WorkspaceDetailDrawer({
             <button
               type="button"
               onClick={handleClose}
-              className="h-8.5 rounded-lg px-3.5 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
+              className="h-8.5 rounded-overlay px-3.5 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
               style={{
                 border: '1px solid var(--border-subtle)',
                 background: 'var(--surface-raised)',
@@ -1329,7 +1326,7 @@ export function WorkspaceDetailDrawer({
 
             <Link
               href={`/platform/tenants/${row.slug}`}
-              className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-4 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
+              className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-4 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
               style={{
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-base)',
@@ -1342,7 +1339,7 @@ export function WorkspaceDetailDrawer({
             <button
               type="button"
               onClick={() => setSessionOpen(true)}
-              className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-4 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
+              className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-4 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
               style={{
                 background: 'var(--blue-500)',
                 boxShadow: '0 2px 8px color-mix(in oklab, var(--blue-500) 25%, transparent)',
@@ -1493,7 +1490,7 @@ export function WorkspaceDetailDrawer({
                     borderColor: 'var(--border-subtle)',
                     background: 'var(--surface-raised)',
                     color: 'var(--text-primary)',
-                    font: '400 var(--text-sm)/1.5 var(--font-ui)',
+                    font: '400 var(--type-compact)/1.5 var(--font-ui)',
                   }}
                 />
               </div>

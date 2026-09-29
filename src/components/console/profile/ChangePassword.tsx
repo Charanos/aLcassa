@@ -106,7 +106,7 @@ export function ChangePassword() {
           border: '1px solid var(--border-strong)',
           background: 'var(--surface-raised)',
           color: 'var(--text-primary)',
-          font: '500 var(--text-sm)/1 var(--font-ui)',
+          font: '500 var(--type-compact)/1 var(--font-ui)',
         }}
       >
         <IconKey size={15} stroke={1.5} aria-hidden />
@@ -198,7 +198,7 @@ export function ChangePassword() {
           <button
             type="button"
             onClick={() => setReveal((r) => !r)}
-            className="t-caption inline-flex w-fit items-center gap-1.5 rounded-md py-1 transition-colors"
+            className="t-caption inline-flex w-fit items-center gap-1.5 rounded-panel py-1 transition-colors"
             style={{ color: 'var(--text-tertiary)' }}
           >
             {reveal ? (

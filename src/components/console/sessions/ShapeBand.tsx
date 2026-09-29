@@ -123,7 +123,7 @@ export function ShapeBand({ history }: { history: SessionRecord[] }) {
                   <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
                     {b.label}
                   </span>
-                  <span className="numeric shrink-0" style={{ fontSize: 'var(--text-sm)' }}>
+                  <span className="numeric shrink-0" style={{ fontSize: 'var(--type-compact)' }}>
                     {b.count}
                   </span>
                 </div>
@@ -161,7 +161,7 @@ export function ShapeBand({ history }: { history: SessionRecord[] }) {
                   <span
                     className="numeric shrink-0"
                     style={{
-                      fontSize: 'var(--text-md)',
+                      fontSize: 'var(--type-lede)',
                       color:
                         o.accent && o.count > 0 ? 'var(--accent-mark-text)' : 'var(--text-primary)',
                     }}

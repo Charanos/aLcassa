@@ -26,7 +26,7 @@ import { SkeletonText } from '@/components/primitives/Skeleton';
 function CardBones({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-[16px] px-5 py-4"
+      className="rounded-card px-5 py-4"
       style={{
         background: 'var(--surface-sunken)',
         boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
@@ -126,7 +126,7 @@ export function ProfileSkeleton() {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="rounded-xl px-6 py-4"
+              className="rounded-overlay px-6 py-4"
               style={{
                 background: 'var(--surface-sunken)',
                 border: '1px solid var(--border-subtle)',

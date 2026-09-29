@@ -55,7 +55,13 @@ async function claimSlug(
 
 export async function finishOAuthSignUp(
   input: FinishOAuthSignUpInput,
-  context: { userId: string; email: string; fullName: string; requestId: string; ipAddress?: string | null },
+  context: {
+    userId: string;
+    email: string;
+    fullName: string;
+    requestId: string;
+    ipAddress?: string | null;
+  },
 ): Promise<FinishOAuthSignUpResult> {
   const parsed = finishOAuthSignUpSchema.safeParse(input);
   if (!parsed.success) {

@@ -322,7 +322,7 @@ export function WorkspaceTable({
     <>
       {/* ── Summary KPI Ribbon (Inverted Command Panel) ───────────────── */}
       <div
-        className="relative mt-6 flex flex-col overflow-hidden rounded-[20px] shadow-2xl transition-all duration-300 sm:flex-row"
+        className="relative mt-6 flex flex-col overflow-hidden rounded-card shadow-2xl transition-all duration-300 sm:flex-row"
         style={{
           background: 'var(--chrome-bg-base)',
           border: '1px solid var(--chrome-rule-strong)',
@@ -366,10 +366,7 @@ export function WorkspaceTable({
             >
               {stats.totalWorkspaces}
             </span>
-            <span
-              className="font-mono text-[13px] font-medium"
-              style={{ color: 'var(--success-fg)' }}
-            >
+            <span className="font-mono text-sm font-medium" style={{ color: 'var(--success-fg)' }}>
               {stats.activeCount} active
             </span>
           </div>
@@ -403,7 +400,7 @@ export function WorkspaceTable({
             >
               {group(stats.totalSeats)}
             </span>
-            <span className="font-mono text-[13px]" style={{ color: 'var(--invert-card-subtle)' }}>
+            <span className="font-mono text-sm" style={{ color: 'var(--invert-card-subtle)' }}>
               / {group(stats.totalSeatsLimit)}
             </span>
           </div>
@@ -437,7 +434,7 @@ export function WorkspaceTable({
             >
               {formatCompactNumber(stats.totalEvents)}
             </span>
-            <span className="font-mono text-[13px]" style={{ color: 'var(--invert-card-subtle)' }}>
+            <span className="font-mono text-sm" style={{ color: 'var(--invert-card-subtle)' }}>
               ingested
             </span>
           </div>
@@ -485,7 +482,7 @@ export function WorkspaceTable({
               {attentionCount}
             </span>
             <span
-              className="font-mono text-[13px]"
+              className="font-mono text-sm"
               style={{
                 color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-subtle)',
               }}
@@ -533,7 +530,11 @@ export function WorkspaceTable({
                 background: attention ? 'var(--amber-500)' : 'var(--amber-500)',
                 color: 'var(--text-inverse)',
                 fontSize: 10,
-                fontWeight: 700,
+                /* 03 §5 caps weight at 500. This was 700 — two steps past a
+                   ceiling the rest of the console holds, which reads as
+                   "louder" rather than as "wrong" and so survived review.
+                   A count on a tinted chip has contrast to carry it. */
+                fontWeight: 500,
               }}
             >
               {attentionCount}
@@ -551,7 +552,7 @@ export function WorkspaceTable({
       {/* ── Results ──────────────────────────────────────────────────── */}
       {filtered.length === 0 ? (
         <div
-          className="mt-6 rounded-2xl p-12"
+          className="mt-6 rounded-card p-12"
           style={{
             border: '1px solid var(--border-subtle)',
             background: 'var(--surface-raised)',
@@ -570,7 +571,7 @@ export function WorkspaceTable({
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="t-compact inline-flex h-8.5 cursor-pointer items-center gap-1.5 rounded-lg px-4"
+                  className="t-compact inline-flex h-8.5 cursor-pointer items-center gap-1.5 rounded-overlay px-4"
                   style={{
                     border: '1px solid var(--border-strong)',
                     background: 'var(--surface-raised)',
@@ -588,7 +589,7 @@ export function WorkspaceTable({
         <>
           {/* Desktop/List: The expansive enterprise table */}
           <div
-            className={`mt-6 overflow-x-auto rounded-3xl transition-all duration-300 ${viewMode === 'list' ? 'block' : 'hidden'}`}
+            className={`mt-6 overflow-x-auto rounded-hero transition-all duration-300 ${viewMode === 'list' ? 'block' : 'hidden'}`}
             style={{
               background: 'var(--surface-raised)',
               border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -610,7 +611,7 @@ export function WorkspaceTable({
                   >
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        className="text-2xs font-medium tracking-[0.1em] uppercase"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         Workspace
@@ -629,7 +630,7 @@ export function WorkspaceTable({
 
                   <th scope="col" className="px-3 py-3.5">
                     <span
-                      className="text-[11px] font-medium tracking-wider uppercase"
+                      className="text-xs font-medium tracking-wider uppercase"
                       style={{ color: 'var(--text-secondary)' }}
                     >
                       Plan
@@ -638,7 +639,7 @@ export function WorkspaceTable({
 
                   <th scope="col" className="px-3 py-3.5">
                     <span
-                      className="text-[11px] font-medium tracking-wider uppercase"
+                      className="text-xs font-medium tracking-wider uppercase"
                       style={{ color: 'var(--text-secondary)' }}
                     >
                       Status
@@ -652,7 +653,7 @@ export function WorkspaceTable({
                   >
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        className="text-2xs font-medium tracking-[0.1em] uppercase"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         Seats
@@ -676,7 +677,7 @@ export function WorkspaceTable({
                   >
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        className="text-2xs font-medium tracking-[0.1em] uppercase"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         Events / Month
@@ -700,7 +701,7 @@ export function WorkspaceTable({
                   >
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                        className="text-2xs font-medium tracking-[0.1em] uppercase"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
                         Activity
@@ -719,7 +720,7 @@ export function WorkspaceTable({
 
                   <th scope="col" className="py-3.5 pr-6 pl-3 text-right">
                     <span
-                      className="text-[10px] font-medium tracking-[0.1em] uppercase"
+                      className="text-2xs font-medium tracking-[0.1em] uppercase"
                       style={{ color: 'var(--text-tertiary)' }}
                     >
                       Actions
@@ -791,7 +792,7 @@ export function WorkspaceTable({
                               </span>
                               <span style={{ color: 'var(--border-strong)' }}>·</span>
                               <span
-                                className="font-mono text-[11px]"
+                                className="font-mono text-xs"
                                 style={{ color: 'var(--text-tertiary)' }}
                               >
                                 {r.id}
@@ -858,7 +859,7 @@ export function WorkspaceTable({
                             </span>
                           </div>
                           <span
-                            className="font-mono text-[11px]"
+                            className="font-mono text-xs"
                             style={{ color: 'var(--text-tertiary)' }}
                           >
                             {r.created}
@@ -884,7 +885,7 @@ export function WorkspaceTable({
                             onClick={() => setPending(toWorkspace(r))}
                             title="Start support session"
                             aria-label={`Start support session in ${r.name}`}
-                            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg px-2.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px hover:border-[var(--blue-300)] hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] hover:shadow-sm active:scale-95"
+                            className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-2.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px hover:border-[var(--blue-300)] hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] hover:shadow-sm active:scale-95"
                             style={{
                               border: '1px solid var(--border-subtle)',
                               background: 'var(--surface-raised)',
@@ -900,7 +901,7 @@ export function WorkspaceTable({
                             onClick={() => setDrawerRow(r)}
                             title={`View ${r.name} details`}
                             aria-label={`View ${r.name} details`}
-                            className="grid size-8.5 place-items-center rounded-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] hover:shadow-sm active:scale-95"
+                            className="grid size-8.5 place-items-center rounded-overlay transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] hover:shadow-sm active:scale-95"
                             style={{
                               border: '1px solid var(--border-subtle)',
                               background: 'var(--surface-raised)',
@@ -933,7 +934,7 @@ export function WorkspaceTable({
                 <article
                   key={r.id}
                   onClick={() => setDrawerRow(r)}
-                  className="group relative cursor-pointer overflow-hidden rounded-[24px] transition-all duration-400 hover:-translate-y-[2px]"
+                  className="group relative cursor-pointer overflow-hidden rounded-hero transition-all duration-400 hover:-translate-y-[2px]"
                   style={{
                     background: 'var(--surface-raised)',
                     border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
@@ -966,7 +967,7 @@ export function WorkspaceTable({
                           className="block truncate text-left font-medium transition-colors hover:text-[var(--text-action)]"
                           style={{
                             fontSize: '16px',
-                            fontWeight: 600,
+                            fontWeight: 500,
                             lineHeight: 1.35,
                             color: nameInk(r.status),
                             letterSpacing: '-0.01em',
@@ -1001,7 +1002,7 @@ export function WorkspaceTable({
                     </div>
 
                     <dl
-                      className="mt-6 grid grid-cols-2 gap-5 rounded-2xl p-4"
+                      className="mt-6 grid grid-cols-2 gap-5 rounded-card p-4"
                       style={{
                         background: 'var(--surface-sunken)',
                         boxShadow: 'var(--neu-inset)',
@@ -1009,7 +1010,7 @@ export function WorkspaceTable({
                     >
                       <div>
                         <dt
-                          className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium tracking-[0.1em] uppercase"
+                          className="mb-1.5 flex items-center gap-1.5 text-2xs font-medium tracking-[0.1em] uppercase"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           <IconUsers size={12} stroke={2} />
@@ -1026,7 +1027,7 @@ export function WorkspaceTable({
                       </div>
                       <div>
                         <dt
-                          className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium tracking-[0.1em] uppercase"
+                          className="mb-1.5 flex items-center gap-1.5 text-2xs font-medium tracking-[0.1em] uppercase"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
                           <IconBolt size={12} stroke={2} />
@@ -1090,7 +1091,7 @@ export function WorkspaceTable({
                   type="button"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="t-compact h-8.5 rounded-lg px-4 transition-all duration-200 hover:bg-[var(--surface-inset)] hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+                  className="t-compact h-8.5 rounded-overlay px-4 transition-all duration-200 hover:bg-[var(--surface-inset)] hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
                   style={{
                     border: '1px solid var(--border-subtle)',
                     background: 'var(--surface-raised)',
@@ -1106,7 +1107,7 @@ export function WorkspaceTable({
                       type="button"
                       onClick={() => setPage(p)}
                       aria-current={p === page ? 'page' : undefined}
-                      className="grid size-8.5 place-items-center rounded-lg font-mono text-xs font-medium transition-all duration-200"
+                      className="grid size-8.5 place-items-center rounded-overlay font-mono text-xs font-medium transition-all duration-200"
                       style={{
                         border: p === page ? '1px solid var(--blue-500)' : '1px solid transparent',
                         background: p === page ? 'var(--blue-500)' : 'transparent',
@@ -1121,7 +1122,7 @@ export function WorkspaceTable({
                   type="button"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="t-compact h-8.5 rounded-lg px-4 transition-all duration-200 hover:bg-[var(--surface-inset)] hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+                  className="t-compact h-8.5 rounded-overlay px-4 transition-all duration-200 hover:bg-[var(--surface-inset)] hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
                   style={{
                     border: '1px solid var(--border-subtle)',
                     background: 'var(--surface-raised)',
@@ -1189,7 +1190,7 @@ function PlanBadge({ plan }: { plan: string }) {
 
   return (
     <span
-      className="inline-flex items-center rounded-md px-2 py-0.5"
+      className="inline-flex items-center rounded-panel px-2 py-0.5"
       style={{
         font: '500 11px/1.2 var(--font-ui)',
         letterSpacing: '0.04em',
@@ -1267,7 +1268,7 @@ function DetailedMeter({
           </span>
         </span>
         <span
-          className="numeric rounded px-1.5 py-0.5 font-mono text-[10px] font-medium"
+          className="numeric rounded px-1.5 py-0.5 font-mono text-2xs font-medium"
           style={{
             background: isHigh
               ? 'var(--warning-bg, var(--badge-warning-bg))'
@@ -1300,7 +1301,7 @@ function DetailedMeter({
       </div>
 
       {subtext && (
-        <span className="font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
+        <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
           {subtext}
         </span>
       )}

@@ -39,7 +39,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       response.cookies.set(
         cookieNameFor('platform'),
         session.id,
-        sessionCookieOptions(session.expiresAt)
+        sessionCookieOptions(session.expiresAt),
       );
       response.cookies.set(FLASH_COOKIE, 'signed_in', FLASH_COOKIE_OPTIONS);
       return response;
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (active.length === 0) {
       log.info('OAuth user has no memberships, redirecting to finish sign-up', { userId });
       // We don't issue a custom aLcassa session yet because they don't have a workspace.
-      // But they *are* authenticated with Supabase. The finish-signup route will create 
+      // But they *are* authenticated with Supabase. The finish-signup route will create
       // the workspace and issue the session.
       return NextResponse.redirect(new URL('/sign-up/finish', request.url), 303);
     }
@@ -74,10 +74,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     response.cookies.set(
       cookieNameFor('tenant'),
       session.id,
-      sessionCookieOptions(session.expiresAt)
+      sessionCookieOptions(session.expiresAt),
     );
     response.cookies.set(FLASH_COOKIE, 'signed_in', FLASH_COOKIE_OPTIONS);
-    
+
     return response;
   } catch (error) {
     const code = error instanceof AppError ? error.code : ERROR_CODES.INTERNAL;

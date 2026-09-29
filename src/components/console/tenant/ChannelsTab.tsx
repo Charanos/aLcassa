@@ -46,7 +46,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
     <div className="flex flex-col gap-6">
       {/* ── Inverted Gateway Status Ribbon ───────────────────────────────── */}
       <div
-        className="flex flex-col overflow-hidden rounded-2xl sm:flex-row"
+        className="flex flex-col overflow-hidden rounded-card sm:flex-row"
         style={{
           background: 'var(--invert-card-bg)',
           color: 'var(--invert-card-fg)',
@@ -70,7 +70,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
               {activeCount} healthy
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             WhatsApp, Email, Web, SMS
           </p>
           <div
@@ -105,7 +105,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
               messages
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Throughput ~4.2 msg/sec peak
           </p>
           <div
@@ -137,7 +137,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
               99.82%
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Webhook SLA met
           </p>
           <div
@@ -172,7 +172,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
               p95
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             af-south-1 edge gateway
           </p>
         </div>
@@ -192,7 +192,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
           type="button"
           disabled
           title="The channel runtime is Phase 2. The adapter contract exists; nothing sits above it yet."
-          className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
+          className="inline-flex h-8 items-center gap-1.5 rounded-overlay px-3 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
           style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
         >
           <IconPlus size={14} stroke={1.5} />
@@ -222,7 +222,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
           return (
             <div
               key={ch.id}
-              className="flex flex-col justify-between rounded-2xl p-5 transition-all sm:p-6"
+              className="flex flex-col justify-between rounded-card p-5 transition-all sm:p-6"
               style={{
                 border: '1px solid var(--border-subtle)',
                 background: 'var(--surface-raised)',
@@ -234,7 +234,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div
-                      className="flex size-11 items-center justify-center rounded-xl"
+                      className="flex size-11 items-center justify-center rounded-overlay"
                       style={{
                         background: 'var(--surface-inset)',
                         border: '1px solid var(--border-strong)',
@@ -260,7 +260,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                   </div>
 
                   <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px] font-medium uppercase"
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-2xs font-medium uppercase"
                     style={{
                       background: isHealthy
                         ? 'var(--badge-success-bg)'
@@ -287,16 +287,13 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                 {/* Metrics pair */}
                 <div className="mb-4 grid grid-cols-2 gap-3">
                   <div
-                    className="rounded-xl p-3"
+                    className="rounded-overlay p-3"
                     style={{
                       background: 'var(--surface-sunken)',
                       border: '1px solid var(--border-subtle)',
                     }}
                   >
-                    <span
-                      className="t-eyebrow text-[9px]"
-                      style={{ color: 'var(--text-tertiary)' }}
-                    >
+                    <span className="t-eyebrow text-3xs" style={{ color: 'var(--text-tertiary)' }}>
                       Messages Today
                     </span>
                     <p
@@ -307,16 +304,13 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                     </p>
                   </div>
                   <div
-                    className="rounded-xl p-3"
+                    className="rounded-overlay p-3"
                     style={{
                       background: 'var(--surface-sunken)',
                       border: '1px solid var(--border-subtle)',
                     }}
                   >
-                    <span
-                      className="t-eyebrow text-[9px]"
-                      style={{ color: 'var(--text-tertiary)' }}
-                    >
+                    <span className="t-eyebrow text-3xs" style={{ color: 'var(--text-tertiary)' }}>
                       Uptime Health
                     </span>
                     <p
@@ -332,7 +326,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
 
                 {/* Sparkline chart */}
                 <div
-                  className="relative h-16 overflow-hidden rounded-xl p-1"
+                  className="relative h-16 overflow-hidden rounded-overlay p-1"
                   style={{
                     background: 'var(--surface-sunken)',
                     border: '1px solid var(--border-subtle)',
@@ -358,7 +352,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                     </ResponsiveContainer>
                   ) : (
                     <div
-                      className="absolute inset-0 flex items-center justify-center font-mono text-[11px]"
+                      className="absolute inset-0 flex items-center justify-center font-mono text-xs"
                       style={{ color: 'var(--text-tertiary)' }}
                     >
                       Channel offline · No live telemetry
@@ -381,7 +375,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                     type="button"
                     disabled
                     title="The channel runtime is Phase 2. There is nothing to ping."
-                    className="h-7.5 rounded-lg px-2.5 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+                    className="h-7.5 rounded-overlay px-2.5 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
                     style={{
                       opacity: 0.45,
                       cursor: 'not-allowed',
@@ -396,7 +390,7 @@ export function ChannelsTab({ channels }: { channels: WorkspaceChannel[] }) {
                     type="button"
                     disabled
                     title="A workspace’s channel settings belong to the workspace, reachable through a support session."
-                    className="h-7.5 rounded-lg px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
+                    className="h-7.5 rounded-overlay px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
                     style={{
                       opacity: 0.45,
                       cursor: 'not-allowed',

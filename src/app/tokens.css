@@ -102,13 +102,46 @@
   --green-100: #e8f3eb;
 
   /* ─ TYPE SCALE ─ */
-  --text-xs: 11px;
-  --text-sm: 12.5px;
-  --text-base: 14px;
-  --text-md: 16px;
-  --text-lg: 19px;
-  --text-xl: 24px;
-  --text-2xl: 31px;
+  /*
+   * TYPE SIZE
+   *
+   * ⚠ THESE WERE `--text-xs` … `--text-2xl`, WHICH ARE TAILWIND'S OWN NAMES —
+   *   the same collision the radius scale had, and the same silent win.
+   *
+   * Tailwind declares `--text-xs: 0.75rem` in `@layer theme`; these sat
+   * unlayered and outranked it, so `text-xs` rendered at 11px rather than 12px
+   * and `text-sm` at 12.5px rather than 14px. Correct by accident, across 228
+   * utility usages. Wrapping this file in a layer — for any reason, at any
+   * later date — would have moved every one of them by 1–2px.
+   *
+   * The names are now the system's own, and `globals.css` maps them onto the
+   * `text-*` utilities DELIBERATELY, through `@theme`. One intentional
+   * override instead of an accidental shadow; the rendered sizes are
+   * unchanged.
+   *
+   * Named by the role each step plays rather than by t-shirt size, because
+   * "the chip step" survives a redesign and "extra small" does not.
+   */
+  --type-badge: 9px; /* the badge step, and nothing else */
+  --type-micro: 10px; /* dense table meta and axis ticks */
+  --type-chip: 11px; /* chips, eyebrows, labels */
+  --type-compact: 12.5px; /* dense body, captions, table cells */
+  --type-body: 14px; /* default reading size */
+  --type-lede: 16px; /* standfirsts and panel ledes */
+  --type-panel: 19px; /* panel titles */
+  --type-heading: 24px; /* section headings */
+  --type-display: 31px; /* page displays */
+  --type-hero: 42px; /* the marketing hero, static counterpart to --display-lg */
+  /*
+   * ⚠ FLUID, BECAUSE A THREE-BREAKPOINT LADDER IS NOT A SCALE STEP.
+   *
+   * The landing h1 was `text-3xl sm:text-[58px] md:text-[68px] lg:text-[76px]`
+   * — four sizes, three of them arbitrary, to say one thing. A clamp says the
+   * same thing once, scales continuously instead of jumping at breakpoints,
+   * and puts the range somewhere the next person can find it.
+   */
+  --type-hero-fluid: clamp(42px, 7vw, 76px); /* the landing h1 */
+  --type-section-fluid: clamp(31px, 5vw, 60px); /* major section openers */
 
   /* Display sizes. Scaled up optically so Libertinus serif titles read assertively with commanding presence. */
   --display-sm: 24px; /* pairs with --text-lg */
@@ -174,10 +207,41 @@
   --space-12: 48px;
   --space-16: 64px;
 
-  /* ─ RADIUS ─ */
-  --radius-sm: 4px; /* inputs, small controls */
-  --radius-md: 7px; /* buttons, cards */
-  --radius-lg: 12px; /* modals, panels */
+  /*
+   * RADIUS
+   *
+   * ⚠ THESE WERE CALLED `--radius-sm`, `--radius-md` AND `--radius-lg`, AND
+   *   TAILWIND DECLARES VARIABLES OF EXACTLY THOSE NAMES.
+   *
+   * Both definitions shipped in the bundle. Tailwind's sat in `@layer theme`
+   * at byte 3940; these sat unlayered at byte 160353 — and unlayered CSS
+   * outranks anything inside a layer, so these won. Nobody wrote that down
+   * and nothing enforced it.
+   *
+   * Two things followed. Tailwind generates `rounded-md` as
+   * `border-radius: var(--radius-surface)`, so that utility resolved to 7px rather
+   * than to its own 6px — which silently merged `rounded-md` with
+   * `rounded-panel`, `rounded-lg` with `rounded-overlay`, and (Tailwind's
+   * `--radius-xl` being 12px) `rounded-xl` with both. Twelve pixels had three
+   * interchangeable spellings across 113 usages, and no reader could tell a
+   * considered corner from a reflex.
+   *
+   * And it was one refactor from breaking. Moving this file into `@theme`, or
+   * wrapping it in a layer — both reasonable things a later pass might do —
+   * would have shifted every `rounded-md` by 1px and every `rounded-lg` by
+   * 4px across 103 usages, with no error and no test.
+   *
+   * The names no longer collide. Tailwind keeps its scale, this system has
+   * its own, and `globals.css` maps these onto the `rounded-*` utilities the
+   * components actually write. 03 §19.
+   */
+  --radius-bar: 2px; /* chart bar caps — the one step below a control */
+  --radius-control: 4px; /* inputs, chips, small controls */
+  --radius-surface: 7px; /* buttons, cards, panels */
+  --radius-modal: 12px; /* modals, overlays, large cards */
+  --radius-card: 16px; /* feature cards and bands */
+  --radius-hero: 24px; /* hero surfaces */
+  --radius-slab: 32px; /* the largest marketing slabs */
   --radius-full: 9999px; /* pills, avatars */
 
   /* ─ MOTION ─ */
@@ -742,19 +806,14 @@
 
 /* Old geometry and layout names, theme-independent. */
 :root {
-  --s-0: 2px;
-  --s-1: var(--space-1);
-  --s-2: var(--space-2);
-  --s-3: var(--space-3);
-  --s-4: var(--space-4);
-  --s-5: var(--space-6);
-  --s-6: var(--space-8);
-  --s-7: var(--space-12);
-
-  --r-chip: var(--radius-sm);
-  --r-panel: var(--radius-md);
-  --r-overlay: var(--radius-lg);
-  --r-full: var(--radius-full);
+  /*
+   * ⚠ `--r-panel`, `--r-overlay` AND `--r-full` WERE DEAD, and so was the
+   * whole `--s-*` spacing block that sat above this one — eight tokens, zero
+   * readers. They were a third name for values that already had two, which is
+   * how a reader ends up unable to answer "which one do I use". `--r-chip`
+   * survives only because two files still read it.
+   */
+  --r-chip: var(--radius-control);
 
   --control-sm: 32px;
   --control-md: 36px;
@@ -815,21 +874,21 @@
   --t-heading: 500 var(--display-sm) / var(--display-leading) var(--font-display);
   --t-heading-tracking: var(--display-tracking);
 
-  --t-panel: var(--weight-medium) var(--text-lg) / 1.45 var(--font-ui);
-  --t-lede: var(--weight-normal) var(--text-md) / var(--leading-normal) var(--font-ui);
-  --t-body: var(--weight-normal) var(--text-base) / var(--leading-normal) var(--font-ui);
-  --t-compact: var(--weight-normal) var(--text-sm) / 1.58 var(--font-ui);
-  --t-caption: var(--weight-normal) var(--text-sm) / 1.5 var(--font-ui);
-  --t-label: var(--weight-medium) var(--text-xs) / 1.45 var(--font-ui);
+  --t-panel: var(--weight-medium) var(--type-panel) / 1.45 var(--font-ui);
+  --t-lede: var(--weight-normal) var(--type-lede) / var(--leading-normal) var(--font-ui);
+  --t-body: var(--weight-normal) var(--type-body) / var(--leading-normal) var(--font-ui);
+  --t-compact: var(--weight-normal) var(--type-compact) / 1.58 var(--font-ui);
+  --t-caption: var(--weight-normal) var(--type-compact) / 1.5 var(--font-ui);
+  --t-label: var(--weight-medium) var(--type-chip) / 1.45 var(--font-ui);
   --t-label-tracking: 0.01em;
-  --t-micro: var(--weight-medium) var(--text-xs) / 1.4 var(--font-mono);
+  --t-micro: var(--weight-medium) var(--type-chip) / 1.4 var(--font-mono);
   --t-micro-tracking: 0.06em;
 
-  --t-data: var(--weight-normal) var(--text-base) / 1.55 var(--font-mono);
-  --t-code: var(--weight-normal) var(--text-sm) / 1.75 var(--font-mono);
-  --t-chip: var(--weight-medium) var(--text-xs) / 1.15 var(--font-mono);
+  --t-data: var(--weight-normal) var(--type-body) / 1.55 var(--font-mono);
+  --t-code: var(--weight-normal) var(--type-compact) / 1.75 var(--font-mono);
+  --t-chip: var(--weight-medium) var(--type-chip) / 1.15 var(--font-mono);
   --t-chip-tracking: 0.06em;
-  --t-eyebrow: var(--weight-medium) var(--text-xs) / 1.15 var(--font-mono);
+  --t-eyebrow: var(--weight-medium) var(--type-chip) / 1.15 var(--font-mono);
   --t-eyebrow-tracking: 0.12em;
   --t-badge: var(--weight-medium) 9px / 1.15 var(--font-mono);
   --t-badge-tracking: 0.04em;

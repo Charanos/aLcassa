@@ -18,7 +18,10 @@ import type { VolumePoint } from '@/lib/tenant/data';
  *
  * ⚠ EVERY COLOUR HERE IS A `var(--token)` STRING RATHER THAN A RESOLVED ONE.
  * The design's own `charts.jsx` reads tokens through `getComputedStyle` at
- * mount and re-resolves them behind a `MutationObserver` on `data-theme`,
+ * mount. There is no `MutationObserver` here and there was never one to
+ * remove: nothing in `src` writes `data-theme`, and this product is
+ * deliberately single-theme (`tokens.css`). `console/Charts.tsx` documents
+ * the same decision from the other side; the two files used to disagree.
  * because it renders into a canvas-style preview that cannot rely on the
  * cascade. Nothing here needs that: these are SVG presentation attributes, so
  * the browser resolves the custom property itself and the chart re-paints on a
@@ -54,7 +57,7 @@ function VolumeTooltip({ active, payload, label }: TooltipProps<number, string>)
 
   return (
     <div
-      className="rounded-[var(--radius-md)] border px-3 py-2"
+      className="rounded-panel border px-3 py-2"
       style={{
         background: 'var(--surface-raised)',
         borderColor: 'var(--border-subtle)',
@@ -67,7 +70,7 @@ function VolumeTooltip({ active, payload, label }: TooltipProps<number, string>)
       {payload.map((row) => (
         <div key={row.dataKey} className="flex items-center gap-2 whitespace-nowrap">
           <span
-            className="size-2 shrink-0 rounded-[2px]"
+            className="size-2 shrink-0 rounded-bar"
             style={{ background: row.color }}
             aria-hidden
           />
@@ -126,11 +129,7 @@ export function VolumeLegend() {
     <span className="flex flex-wrap items-center gap-4">
       {SERIES.map((s) => (
         <span key={s.key} className="t-compact flex items-center gap-1.5 whitespace-nowrap">
-          <span
-            className="h-0.5 w-2.5 rounded-[2px]"
-            style={{ background: s.colour }}
-            aria-hidden
-          />
+          <span className="h-0.5 w-2.5 rounded-bar" style={{ background: s.colour }} aria-hidden />
           <span style={{ color: 'var(--text-secondary)' }}>{s.label}</span>
         </span>
       ))}

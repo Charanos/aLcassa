@@ -6,11 +6,11 @@ import { IconLoader2 } from '@tabler/icons-react';
 
 /**
  * A progressively enhanced submit button.
- * 
+ *
  * It operates as a plain HTML `<button type="submit">` by default.
  * When JavaScript hydrates, it listens to its parent form's `submit` event.
  * If the form is valid and submits, it sets a loading state (spinner + disabled).
- * 
+ *
  * Crucially, this does NOT intercept or prevent the native form submission.
  * It strictly adds visual feedback for forms posting to API routes.
  */
@@ -26,12 +26,12 @@ export const SubmitButton = React.forwardRef<HTMLButtonElement, ButtonProps>(fun
   React.useEffect(() => {
     const button = innerRef.current;
     if (!button) return;
-    
+
     const form = button.closest('form');
     if (!form) return;
 
     const handleSubmit = () => {
-      // Defer state update so we don't accidentally cancel the native submission 
+      // Defer state update so we don't accidentally cancel the native submission
       // by disabling the button in the exact same tick.
       setTimeout(() => {
         setInternalLoading(true);
@@ -45,11 +45,11 @@ export const SubmitButton = React.forwardRef<HTMLButtonElement, ButtonProps>(fun
   const isLoading = externalLoading || internalLoading;
 
   return (
-    <Button 
-      ref={innerRef} 
-      type="submit" 
-      loading={isLoading} 
-      disabled={disabled || isLoading} 
+    <Button
+      ref={innerRef}
+      type="submit"
+      loading={isLoading}
+      disabled={disabled || isLoading}
       {...props}
     >
       {children}
@@ -63,10 +63,10 @@ SubmitButton.displayName = 'SubmitButton';
  * A custom progressive submit wrapper for bespoke buttons (like the Google OAuth button)
  * that don't use the standard `Button` primitive but still need a loading state.
  */
-export function CustomSubmitButton({ 
-  children, 
-  className, 
-  ...props 
+export function CustomSubmitButton({
+  children,
+  className,
+  ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const [loading, setLoading] = React.useState(false);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -74,7 +74,7 @@ export function CustomSubmitButton({
   React.useEffect(() => {
     const button = buttonRef.current;
     if (!button) return;
-    
+
     const form = button.closest('form');
     if (!form) return;
 
@@ -91,13 +91,15 @@ export function CustomSubmitButton({
       ref={buttonRef}
       type="submit"
       disabled={props.disabled || loading}
-      className={`${className} ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+      className={`${className} ${loading ? 'cursor-not-allowed opacity-70' : ''}`}
       {...props}
     >
       {loading ? (
-        <IconLoader2 size={18} className="animate-spin absolute" aria-hidden="true" />
+        <IconLoader2 size={18} className="absolute animate-spin" aria-hidden="true" />
       ) : null}
-      <span className={`flex items-center justify-center gap-3 w-full ${loading ? 'invisible' : ''}`}>
+      <span
+        className={`flex w-full items-center justify-center gap-3 ${loading ? 'invisible' : ''}`}
+      >
         {children}
       </span>
     </button>

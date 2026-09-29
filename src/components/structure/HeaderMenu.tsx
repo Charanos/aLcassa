@@ -37,7 +37,7 @@ export function HeaderMenuContent({
         align={align}
         sideOffset={8}
         collisionPadding={12}
-        className="surface-glass-strong z-60 overflow-hidden rounded-[var(--radius-lg)] p-1.5"
+        className="surface-glass-strong z-60 overflow-hidden rounded-overlay p-1.5"
         style={{
           width,
           maxWidth: 'calc(100vw - 24px)',
@@ -87,7 +87,7 @@ export function HeaderMenuItem({
     <DropdownMenu.Item
       asChild={asChild}
       onSelect={onSelect}
-      className="t-compact flex cursor-pointer items-center gap-2.5 rounded-[var(--radius-md)] px-2.5 py-2 outline-none select-none data-[highlighted]:bg-[var(--surface-inset)]"
+      className="t-compact flex cursor-pointer items-center gap-2.5 rounded-panel px-2.5 py-2 outline-none select-none data-[highlighted]:bg-[var(--surface-inset)]"
       style={{ color: tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)' }}
     >
       {children}

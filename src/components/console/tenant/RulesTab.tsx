@@ -29,7 +29,7 @@ export function RulesTab({
     <div className="flex flex-col gap-6">
       {/* ── Inverted AI Governance Ribbon ─────────────────────────────────── */}
       <div
-        className="flex flex-col overflow-hidden rounded-2xl sm:flex-row"
+        className="flex flex-col overflow-hidden rounded-card sm:flex-row"
         style={{
           background: 'var(--invert-card-bg)',
           color: 'var(--invert-card-fg)',
@@ -53,7 +53,7 @@ export function RulesTab({
               100% synced
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Propagated across {workspaceCount} workspaces
           </p>
           <div
@@ -88,7 +88,7 @@ export function RulesTab({
               custom directives
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Escalation threshold & routing
           </p>
           <div
@@ -124,7 +124,7 @@ export function RulesTab({
               Strict PII Scrubbing
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Financial & PAN tokens redacted
           </p>
           <div
@@ -159,7 +159,7 @@ export function RulesTab({
               mean
             </span>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--invert-card-subtle)' }}>
+          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
             Gemini 1.5 Flash fine-tuned
           </p>
         </div>
@@ -172,7 +172,7 @@ export function RulesTab({
           title="Master Baseline Directives"
           action={
             <span
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase"
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-2xs font-medium uppercase"
               style={{ background: 'var(--surface-inset)', color: 'var(--text-secondary)' }}
             >
               <IconLock size={11} stroke={1.5} />
@@ -184,7 +184,7 @@ export function RulesTab({
             {masterRules.map((r) => (
               <div
                 key={r.id}
-                className="flex flex-col gap-2 rounded-xl p-4"
+                className="flex flex-col gap-2 rounded-overlay p-4"
                 style={{
                   background: 'var(--surface-sunken)',
                   border: '1px solid var(--border-subtle)',
@@ -196,7 +196,7 @@ export function RulesTab({
                       {r.name}
                     </span>
                     <span
-                      className="rounded px-2 py-0.5 font-mono text-[10px]"
+                      className="rounded px-2 py-0.5 font-mono text-2xs"
                       style={{
                         background: 'var(--surface-raised)',
                         color: 'var(--text-tertiary)',
@@ -238,7 +238,7 @@ export function RulesTab({
               type="button"
               disabled
               title="A workspace’s own AI rules are edited in their console. The platform sets the floor, at /platform/ai-rules."
-              className="inline-flex h-7.5 items-center gap-1 rounded-lg px-2.5 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
+              className="inline-flex h-7.5 items-center gap-1 rounded-overlay px-2.5 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
               style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
             >
               <IconPlus size={13} stroke={1.5} />
@@ -259,7 +259,7 @@ export function RulesTab({
             {customRules.map((r) => (
               <div
                 key={r.id}
-                className="relative flex flex-col gap-3 overflow-hidden rounded-xl p-4"
+                className="relative flex flex-col gap-3 overflow-hidden rounded-overlay p-4"
                 style={{
                   background: 'var(--surface-raised)',
                   border: '1px solid var(--border-subtle)',
@@ -272,7 +272,7 @@ export function RulesTab({
                       {r.name}
                     </span>
                     <span
-                      className="rounded px-2 py-0.5 font-mono text-[10px] font-medium"
+                      className="rounded px-2 py-0.5 font-mono text-2xs font-medium"
                       style={{
                         background: 'var(--blue-50)',
                         color: 'var(--blue-600)',
@@ -317,7 +317,7 @@ export function RulesTab({
 
                 {/* Diff Box */}
                 <div
-                  className="flex items-center justify-between rounded-lg p-3 font-mono text-xs"
+                  className="flex items-center justify-between rounded-overlay p-3 font-mono text-xs"
                   style={{
                     background: 'var(--surface-sunken)',
                     border: '1px solid var(--border-subtle)',

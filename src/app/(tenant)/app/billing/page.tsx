@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Badge, SUBSCRIPTION_STATUS_TONE } from '@/components/feedback/Badge';
+import { Badge, SUBSCRIPTION_STATUS_TONE } from '@/components/primitives/Badge';
 import { getBilling } from '@/lib/tenant/data';
 
 export const metadata: Metadata = { title: 'Billing' };

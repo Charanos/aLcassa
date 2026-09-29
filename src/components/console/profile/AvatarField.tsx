@@ -225,7 +225,7 @@ export function AvatarField({
         {shown ? (
           <Avatar src={shown} name={name} size={84} />
         ) : (
-          <span className="font-ui text-[28px] leading-none font-medium" aria-hidden>
+          <span className="font-ui text-xl leading-none font-medium" aria-hidden>
             {initials}
           </span>
         )}
@@ -275,7 +275,7 @@ export function AvatarField({
 
       <div className="flex min-w-0 flex-1 flex-col items-start gap-4">
         <div
-          className="text-[14px] leading-relaxed"
+          className="text-base leading-relaxed"
           style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           {src ? (
@@ -289,7 +289,7 @@ export function AvatarField({
             </>
           )}
         </div>
-        <p className="mt-2 text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
+        <p className="mt-2 text-sm" style={{ color: 'var(--text-tertiary)' }}>
           {/* ⚠ THE PRIVACY LINE IS NOT MARKETING. The browser re-encodes the
               image before it is uploaded, which drops the EXIF block — and on
               a phone photograph that block contains the GPS coordinates of

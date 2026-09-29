@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
       title="Reset your password"
       lede="Enter the email associated with your workspace account and we will dispatch a secure reset link."
       footer={
-        <p className="text-center text-[12.5px] text-[var(--text-secondary)]">
+        <p className="text-center text-sm text-[var(--text-secondary)]">
           Remembered your password?{' '}
           <Link
             href="/sign-in"

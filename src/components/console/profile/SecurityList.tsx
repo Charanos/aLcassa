@@ -79,7 +79,7 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
           return (
             <div
               key={item.key}
-              className="overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
+              className="overflow-hidden rounded-overlay border transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
               style={{
                 borderColor: 'var(--border-subtle)',
                 background: 'var(--surface-raised)',
@@ -94,7 +94,7 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
                 }
                 label={
                   <span
-                    className="text-[14px]"
+                    className="text-base"
                     style={{ color: 'var(--text-primary)', fontWeight: 500 }}
                   >
                     {item.label}
@@ -104,7 +104,7 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
                 note={
                   REASON[item.key] ? (
                     <p
-                      className="mt-1 text-[13px]"
+                      className="mt-1 text-sm"
                       style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
                     >
                       {REASON[item.key]}
@@ -131,7 +131,7 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
                   ) : (
                     <InertControl
                       reason={REASON[item.key] ?? item.action}
-                      className="inline-flex h-[34px] shrink-0 items-center justify-center rounded-lg px-4 text-[13px] font-medium transition-colors"
+                      className="inline-flex h-[34px] shrink-0 items-center justify-center rounded-overlay px-4 text-sm font-medium transition-colors"
                     >
                       <span style={{ color: 'var(--text-tertiary)' }}>{item.action}</span>
                     </InertControl>
@@ -145,7 +145,7 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
 
       <div className="mt-5 px-1">
         <p
-          className="text-[13px] leading-relaxed"
+          className="text-sm leading-relaxed"
           style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
         >
           Your password is changed here, and takes effect immediately. The other two state the

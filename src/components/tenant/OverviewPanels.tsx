@@ -167,7 +167,7 @@ export function ChannelsPanel({ channels }: { channels: ChannelStatus[] }) {
               className="flex items-center gap-3 border-b border-[var(--border-subtle)] px-[18px] py-[11px] last:border-b-0"
             >
               <span
-                className="grid size-7 shrink-0 place-items-center rounded-[var(--radius-md)]"
+                className="grid size-7 shrink-0 place-items-center rounded-panel"
                 style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)' }}
               >
                 <Icon size={16} stroke={1.5} aria-hidden />
