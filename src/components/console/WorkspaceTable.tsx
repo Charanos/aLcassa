@@ -517,7 +517,7 @@ export function WorkspaceTable({
               border: `1px solid ${attention ? 'color-mix(in oklab, var(--amber-500) 40%, transparent)' : 'var(--border-strong)'}`,
               background: attention ? 'var(--amber-100)' : 'var(--surface-raised)',
               color: attention ? 'var(--amber-500)' : 'var(--text-primary)',
-              font: '600 11px/1 var(--font-ui)',
+              font: '600 var(--type-chip)/1 var(--font-ui)',
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
               boxShadow: attention ? 'var(--shadow-md)' : 'var(--shadow-sm)',
@@ -529,7 +529,7 @@ export function WorkspaceTable({
               style={{
                 background: attention ? 'var(--amber-500)' : 'var(--amber-500)',
                 color: 'var(--text-inverse)',
-                fontSize: 10,
+                fontSize: 'var(--type-micro)',
                 /* 03 §5 caps weight at 500. This was 700 — two steps past a
                    ceiling the rest of the console holds, which reads as
                    "louder" rather than as "wrong" and so survived review.
@@ -771,7 +771,7 @@ export function WorkspaceTable({
                               }}
                               className="block truncate text-left font-medium transition-colors hover:text-[var(--text-action)]"
                               style={{
-                                fontSize: '15px',
+                                fontSize: 'var(--type-lede)',
                                 lineHeight: 1.3,
                                 color: nameInk(r.status),
                                 letterSpacing: '-0.01em',
@@ -890,7 +890,7 @@ export function WorkspaceTable({
                               border: '1px solid var(--border-subtle)',
                               background: 'var(--surface-raised)',
                               color: 'var(--text-secondary)',
-                              font: '500 12px var(--font-ui)',
+                              font: '500 var(--type-compact) var(--font-ui)',
                             }}
                           >
                             <IconExternalLink size={14} stroke={1.5} aria-hidden />
@@ -966,7 +966,7 @@ export function WorkspaceTable({
                           }}
                           className="block truncate text-left font-medium transition-colors hover:text-[var(--text-action)]"
                           style={{
-                            fontSize: '16px',
+                            fontSize: 'var(--type-lede)',
                             fontWeight: 500,
                             lineHeight: 1.35,
                             color: nameInk(r.status),
@@ -1068,7 +1068,7 @@ export function WorkspaceTable({
                       boxShadow: 'var(--glass-highlight)',
                       background: 'var(--surface-raised)',
                       color: 'var(--text-secondary)',
-                      fontSize: '14px',
+                      fontSize: 'var(--type-body)',
                     }}
                   >
                     <IconExternalLink size={16} stroke={1.5} aria-hidden />
@@ -1192,7 +1192,7 @@ function PlanBadge({ plan }: { plan: string }) {
     <span
       className="inline-flex items-center rounded-panel px-2 py-0.5"
       style={{
-        font: '500 11px/1.2 var(--font-ui)',
+        font: '500 var(--type-chip)/1.2 var(--font-ui)',
         letterSpacing: '0.04em',
         textTransform: 'uppercase',
         color,
@@ -1225,7 +1225,7 @@ function StatusBadge({ status }: { status: WorkspaceStatus }) {
       />
       <span
         style={{
-          font: '600 11px/1 var(--font-ui)',
+          font: '600 var(--type-chip)/1 var(--font-ui)',
           letterSpacing: '0.04em',
           textTransform: 'uppercase',
           color: st.ink,

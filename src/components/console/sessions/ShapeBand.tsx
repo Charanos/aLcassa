@@ -109,7 +109,10 @@ export function ShapeBand({ history }: { history: SessionRecord[] }) {
             median ? (
               <span
                 className="whitespace-nowrap"
-                style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                style={{
+                  font: '400 var(--type-chip)/1 var(--font-mono)',
+                  color: 'var(--text-tertiary)',
+                }}
               >
                 median {median.duration}
               </span>

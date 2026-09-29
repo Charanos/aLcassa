@@ -63,7 +63,10 @@ export function AdminProfileCard({
           className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full"
           style={{ background: 'var(--blue-500)', color: '#ffffff' }}
         >
-          <span className="t-eyebrow leading-none" style={{ letterSpacing: 0, fontSize: '10px' }}>
+          <span
+            className="t-eyebrow leading-none"
+            style={{ letterSpacing: 0, fontSize: 'var(--type-micro)' }}
+          >
             {profile.initials}
           </span>
         </span>

@@ -237,7 +237,7 @@ export function ProvisionWorkspaceDialog({
   const inputCls =
     'w-full rounded-overlay border border-[var(--ink-200)] bg-[var(--surface-raised)] px-4 py-3 outline-none transition-all duration-200 focus:border-[var(--blue-500)] focus:ring-2 focus:ring-[var(--blue-100)]';
   const inputStyle = {
-    font: '400 14px/1.5 var(--font-ui)',
+    font: '400 var(--type-body)/1.5 var(--font-ui)',
     color: 'var(--text-primary)',
     boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
   };
@@ -313,7 +313,10 @@ export function ProvisionWorkspaceDialog({
               </div>
               <Dialog.Description
                 className="mt-2.5"
-                style={{ font: '400 13.5px/1.6 var(--font-ui)', color: 'var(--text-secondary)' }}
+                style={{
+                  font: '400 var(--type-body)/1.6 var(--font-ui)',
+                  color: 'var(--text-secondary)',
+                }}
               >
                 Four fields. The owner receives an invitation and sets their own password; you never
                 see it.
@@ -405,7 +408,7 @@ export function ProvisionWorkspaceDialog({
                               style={{
                                 background: 'var(--surface-sunken)',
                                 borderRight: '1px solid var(--ink-100)',
-                                font: '400 12.5px/1 var(--font-mono)',
+                                font: '400 var(--type-compact)/1 var(--font-mono)',
                                 color: 'var(--text-tertiary)',
                               }}
                             >
@@ -422,7 +425,7 @@ export function ProvisionWorkspaceDialog({
                               disabled={working || done}
                               className="h-full min-w-0 flex-1 border-none bg-transparent px-3.5 outline-none"
                               style={{
-                                font: '400 14px/1 var(--font-mono)',
+                                font: '400 var(--type-body)/1 var(--font-mono)',
                                 color: 'var(--text-primary)',
                               }}
                             />
@@ -596,7 +599,7 @@ export function ProvisionWorkspaceDialog({
                                     border: `1.5px solid ${idx === 0 ? 'var(--blue-400)' : 'var(--ink-200)'}`,
                                     background:
                                       idx === 0 ? 'var(--blue-50)' : 'var(--surface-raised)',
-                                    font: '600 10px/1 var(--font-mono)',
+                                    font: '600 var(--type-micro)/1 var(--font-mono)',
                                     color: idx === 0 ? 'var(--blue-500)' : 'var(--text-tertiary)',
                                     zIndex: 1, // ensure it covers the line behind it
                                   }}
@@ -669,7 +672,7 @@ export function ProvisionWorkspaceDialog({
                           done || (ready && !working)
                             ? 'var(--text-inverse)'
                             : 'var(--text-disabled)',
-                        font: '600 13.5px/1 var(--font-ui)',
+                        font: '600 var(--type-body)/1 var(--font-ui)',
                         cursor: ready && !working && !done ? 'pointer' : 'not-allowed',
                         boxShadow:
                           ready && !working && !done

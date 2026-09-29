@@ -228,7 +228,7 @@ function PlanChange({
                           style={{ color: 'var(--text-secondary)' }}
                         >
                           <span>{row.displayName}</span>
-                          <span style={{ font: '500 11.5px/1.4 var(--font-mono)' }}>
+                          <span style={{ font: '500 var(--type-chip)/1.4 var(--font-mono)' }}>
                             uses {row.current} · new limit {row.to ?? '∞'}
                           </span>
                         </li>

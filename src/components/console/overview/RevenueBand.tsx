@@ -1,6 +1,7 @@
 import { IconRocket, IconBolt, IconBox, type Icon as TablerIcon } from '@tabler/icons-react';
 import { AgeingChart, MrrChart, PlanMixChart } from '../Charts';
 import { Panel, SectionHeading } from '../Surface';
+import { SkeletonGroup, SkeletonText } from '@/components/primitives/Skeleton';
 import { BandLink } from './shared';
 import { DebtStack } from './DebtStack';
 import type { OverviewInsights } from '@/lib/console/data';
@@ -173,5 +174,71 @@ function Unit({ currency }: { currency: string }) {
     >
       {currency}
     </span>
+  );
+}
+
+/**
+ * ⚠ THIS BAND HAD NO SKELETON AND THE OVERVIEW'S LOADING STATE COVERED EVERY
+ *   OTHER BAND ON THE PAGE.
+ *
+ * `loading.tsx` renders `PortfolioBandSkeleton` and `OperationsBandSkeleton`
+ * with a note explaining that without them the page "painted its header,
+ * signals, queue and rail at full height and then GREW by three more bands
+ * when the data landed". The reasoning was right and one of the three bands
+ * was missing from it — so the page still grew, by this one, every load.
+ *
+ * It mirrors both of the band's rows, and the asymmetry matters: the first is
+ * 1.9/1 and the second is 1/1.9, so a skeleton that drew two identical rows
+ * would put the wide panel on the wrong side halfway down and shift the whole
+ * band sideways on arrival.
+ */
+export function RevenueBandSkeleton() {
+  return (
+    <SkeletonGroup label="Loading revenue" className="mb-10">
+      <div className="mb-6 h-7" />
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
+        <Panel title="" variant="elevated">
+          <ChartBlock h={236} />
+        </Panel>
+        <Panel title="" variant="elevated">
+          <ChartBlock h={150} />
+          <div className="mt-5 grid gap-3 border-t border-[var(--border-subtle)]/40 pt-3">
+            {[0, 1, 2].map((i) => (
+              <SkeletonText
+                key={i}
+                width={[78, 66, 84][i] ?? 74}
+                className="!bg-[var(--surface-inset)]"
+              />
+            ))}
+          </div>
+        </Panel>
+      </div>
+      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.9fr)]">
+        <Panel title="" variant="elevated">
+          <div className="grid gap-3 py-2">
+            {[0, 1, 2, 3].map((i) => (
+              <SkeletonText
+                key={i}
+                width={[62, 88, 48, 74][i] ?? 64}
+                className="!bg-[var(--surface-inset)]"
+              />
+            ))}
+          </div>
+        </Panel>
+        <Panel title="" variant="elevated">
+          <ChartBlock h={196} />
+        </Panel>
+      </div>
+    </SkeletonGroup>
+  );
+}
+
+/** A chart's footprint. One block at the chart's height, not a stack of rows. */
+function ChartBlock({ h }: { h: number }) {
+  return (
+    <div
+      className="w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-overlay motion-reduce:animate-none motion-reduce:opacity-70"
+      style={{ height: h, background: 'var(--surface-inset)' }}
+    />
   );
 }

@@ -60,7 +60,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                       textAlign: i >= 2 ? 'right' : 'left',
                       borderBottom:
                         '1px solid color-mix(in srgb, var(--border-subtle) 25%, transparent)',
-                      font: '500 11px/1 var(--font-ui)',
+                      font: '500 var(--type-chip)/1 var(--font-ui)',
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
                       color: 'var(--text-tertiary)',
@@ -95,7 +95,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                       }}
                       className="block truncate transition-colors group-hover:text-[var(--blue-600)]"
                       style={{
-                        font: '500 13.5px/1.4 var(--font-ui)',
+                        font: '500 var(--type-body)/1.4 var(--font-ui)',
                         color: 'var(--text-primary)',
                         letterSpacing: '-0.01em',
                       }}
@@ -109,7 +109,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                   >
                     <span
                       style={{
-                        font: '400 12.5px/1 var(--font-mono)',
+                        font: '400 var(--type-compact)/1 var(--font-mono)',
                         color: 'var(--text-secondary)',
                       }}
                     >
@@ -122,7 +122,11 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                   >
                     <span
                       className="numeric"
-                      style={{ fontSize: '13.5px', color: 'var(--text-primary)', fontWeight: 500 }}
+                      style={{
+                        fontSize: 'var(--type-body)',
+                        color: 'var(--text-primary)',
+                        fontWeight: 500,
+                      }}
                     >
                       {c.amount}
                     </span>
@@ -133,7 +137,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                   >
                     <span
                       style={{
-                        font: '400 13px/1 var(--font-mono)',
+                        font: '400 var(--type-compact)/1 var(--font-mono)',
                         color: lateInk(c.days),
                       }}
                     >
@@ -146,7 +150,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                   >
                     <span
                       style={{
-                        font: '400 12.5px/1 var(--font-mono)',
+                        font: '400 var(--type-compact)/1 var(--font-mono)',
                         color: 'var(--text-tertiary)',
                       }}
                     >
@@ -181,13 +185,18 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
               </span>
               <span
                 className="shrink-0 whitespace-nowrap"
-                style={{ font: '400 11px/1 var(--font-mono)', color: lateInk(c.days) }}
+                style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: lateInk(c.days) }}
               >
                 {c.days}d late
               </span>
             </div>
             <div className="mt-1.5 flex items-center justify-between gap-3">
-              <span style={{ font: '400 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}>
+              <span
+                style={{
+                  font: '400 var(--type-chip)/1 var(--font-mono)',
+                  color: 'var(--text-tertiary)',
+                }}
+              >
                 {c.invoice} · {c.attempts}
               </span>
               <span className="numeric" style={{ fontSize: 'var(--type-compact)' }}>

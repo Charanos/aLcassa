@@ -358,7 +358,7 @@ export function WorkspaceDetailDrawer({
                   <h2
                     id="workspace-detail-title"
                     className="display display-sm leading-snug tracking-tight"
-                    style={{ color: 'var(--text-primary)', fontSize: '20px' }}
+                    style={{ color: 'var(--text-primary)', fontSize: 'var(--type-panel)' }}
                   >
                     {row.name}
                   </h2>
@@ -445,7 +445,7 @@ export function WorkspaceDetailDrawer({
                 <span className="size-1.5 rounded-full" style={{ background: st.dot }} />
                 <span
                   style={{
-                    font: '500 11px/1 var(--font-ui)',
+                    font: '500 var(--type-chip)/1 var(--font-ui)',
                     letterSpacing: '0.04em',
                     textTransform: 'uppercase',
                   }}
@@ -497,7 +497,7 @@ export function WorkspaceDetailDrawer({
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',
                 color: 'var(--text-primary)',
-                font: '500 12px var(--font-ui)',
+                font: '500 var(--type-compact) var(--font-ui)',
               }}
             >
               <IconExternalLink size={14} stroke={1.5} aria-hidden />
@@ -527,7 +527,7 @@ export function WorkspaceDetailDrawer({
                   border: '1px solid var(--border-subtle)',
                   background: 'var(--surface-raised)',
                   color: row.status === 'suspended' ? 'var(--success-fg)' : 'var(--danger-fg)',
-                  font: '500 12px var(--font-ui)',
+                  font: '500 var(--type-compact) var(--font-ui)',
                 }}
               >
                 {row.status === 'suspended' ? (

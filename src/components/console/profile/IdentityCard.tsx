@@ -150,7 +150,10 @@ export function IdentityCard({
           >
             <span
               className="min-w-0 flex-1 truncate"
-              style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-secondary)' }}
+              style={{
+                font: '400 var(--type-compact)/1 var(--font-mono)',
+                color: 'var(--text-secondary)',
+              }}
               title={email}
             >
               {email}

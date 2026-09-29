@@ -227,7 +227,7 @@ export default async function ConsoleOverviewPage() {
                 style={{
                   color: 'var(--invert-card-fg)',
                   opacity: 0.5,
-                  fontSize: '10.5px',
+                  fontSize: 'var(--type-micro)',
                   fontWeight: 500,
                 }}
               >
@@ -240,7 +240,7 @@ export default async function ConsoleOverviewPage() {
                   color: 'var(--invert-card-fg)',
                   maxWidth: '32ch',
                   textWrap: 'pretty',
-                  fontSize: '38px',
+                  fontSize: 'var(--type-hero)',
                   letterSpacing: '-0.02em',
                   textShadow: '0 4px 20px rgba(0,0,0,0.5)',
                 }}
@@ -269,7 +269,7 @@ export default async function ConsoleOverviewPage() {
                 style={{
                   background: 'rgba(255,255,255,0.95)',
                   color: 'var(--brand-navy)', // Matches the navy bg
-                  font: '500 13.5px/1 var(--font-ui)',
+                  font: '500 var(--type-body)/1 var(--font-ui)',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 }}
               >
@@ -286,7 +286,7 @@ export default async function ConsoleOverviewPage() {
                   backdropFilter: 'blur(12px)',
                   WebkitBackdropFilter: 'blur(12px)',
                   boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.1)',
-                  font: '500 13.5px/1 var(--font-ui)',
+                  font: '500 var(--type-body)/1 var(--font-ui)',
                 }}
               >
                 All {PORTFOLIO_COUNT} workspaces
@@ -363,7 +363,7 @@ export default async function ConsoleOverviewPage() {
                     <div
                       className="font-mono tracking-tight"
                       style={{
-                        fontSize: '44px',
+                        fontSize: 'var(--type-hero)',
                         fontWeight: 300,
                         color: 'var(--invert-card-fg)',
                         lineHeight: 1,
@@ -377,7 +377,7 @@ export default async function ConsoleOverviewPage() {
                   <div
                     className="relative z-10 flex items-center gap-2.5"
                     style={{
-                      font: '400 13px/1.5 var(--font-ui)',
+                      font: '400 var(--type-compact)/1.5 var(--font-ui)',
                       color: 'var(--invert-card-fg)',
                       opacity: 0.65,
                     }}

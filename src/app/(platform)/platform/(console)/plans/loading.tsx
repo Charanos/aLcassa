@@ -5,6 +5,7 @@ import {
   SkeletonHeader,
   SkeletonPanel,
 } from '@/components/primitives/Skeleton';
+import { HeadroomBandSkeleton } from '@/components/console/plans/HeadroomBand';
 
 /**
  * Plans and entitlements, loading.
@@ -18,6 +19,15 @@ import {
  * The left block matches the table's `rounded-slab` rather than the default
  * chip radius: at 32px the difference is visible, and a corner that changes
  * shape on arrival reads as a different element replacing the first one.
+ *
+ * ⚠ AND THE HEADROOM CARDS WERE STILL WRONG IN TWO WAYS after that fix, both
+ * only findable by reading the band itself. It opens with a right-aligned
+ * `SectionHeading` carrying a note and a link — around 100px this did not
+ * reserve, so every card arrived higher than it was drawn. And its grid is
+ * `auto-fit, minmax(280px, 1fr)` while this hardcoded `lg:grid-cols-3`, which
+ * agrees at wide desktop and at no other width.
+ *
+ * The band owns its skeleton now, so both stay true when it changes.
  */
 export default function PlansLoading() {
   return (
@@ -32,14 +42,9 @@ export default function PlansLoading() {
             <SkeletonPanel lines={3} />
           </div>
         </div>
-
-        {/* The headroom cards. Three plans, each a card of bars. */}
-        <div className="mt-8 grid gap-5 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <SkeletonBlock key={i} height={400} className="rounded-slab" />
-          ))}
-        </div>
       </SkeletonGroup>
+
+      <HeadroomBandSkeleton />
     </ConsolePage>
   );
 }

@@ -447,8 +447,8 @@ export function StaffTab({ w, staff }: { w: WorkspaceDetail; staff: WorkspaceSta
                     contentStyle={{
                       background: 'var(--surface-raised)',
                       border: '1px solid var(--border-strong)',
-                      borderRadius: 8,
-                      fontSize: 12,
+                      borderRadius: 'var(--radius-surface)',
+                      fontSize: 'var(--type-compact)',
                     }}
                   />
                 </PieChart>

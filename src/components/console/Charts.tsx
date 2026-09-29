@@ -125,7 +125,7 @@ function Panel({ label, value, t }: { label: string; value: string; t: Tokens })
   );
 }
 
-const AXIS = { fontSize: 11, fontFamily: 'var(--font-mono)' };
+const AXIS = { fontSize: 'var(--type-chip)', fontFamily: 'var(--font-mono)' };
 
 /* ── MRR over time ───────────────────────────────────────────────────────
  * A line for the level and faint bars for net-new. Two encodings rather than
@@ -680,7 +680,9 @@ export function AuditVolumeChart({
                     boxShadow: 'var(--shadow-md)',
                   }}
                 >
-                  <div style={{ font: '400 11px/1.4 var(--font-mono)', color: t.muted }}>
+                  <div
+                    style={{ font: '400 var(--type-chip)/1.4 var(--font-mono)', color: t.muted }}
+                  >
                     {String(label)}
                   </div>
                   <div
@@ -691,7 +693,7 @@ export function AuditVolumeChart({
                   </div>
                   <div
                     className="mt-1 grid gap-0.5"
-                    style={{ font: '400 11px/1.5 var(--font-mono)', color: t.muted }}
+                    style={{ font: '400 var(--type-chip)/1.5 var(--font-mono)', color: t.muted }}
                   >
                     <span>{row.routine} routine</span>
                     <span>{row.support} in a support session</span>
@@ -716,7 +718,7 @@ export function AuditVolumeChart({
         {busiest ? (
           <span
             className="ml-auto whitespace-nowrap"
-            style={{ font: '400 11px/1 var(--font-mono)', color: t.muted }}
+            style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: t.muted }}
           >
             busiest {busiest.day.slice(5)} · {busiest.total}
           </span>
@@ -731,7 +733,7 @@ function Swatch({ colour, children }: { colour: string; children: React.ReactNod
   return (
     <span
       className="inline-flex items-center gap-1.5 whitespace-nowrap"
-      style={{ font: '400 11.5px/1 var(--font-ui)', color: 'var(--text-secondary)' }}
+      style={{ font: '400 var(--type-chip)/1 var(--font-ui)', color: 'var(--text-secondary)' }}
     >
       <span aria-hidden className="size-2 shrink-0 rounded-bar" style={{ background: colour }} />
       {children}
@@ -825,7 +827,9 @@ export function MovementChart({
                       boxShadow: 'var(--shadow-md)',
                     }}
                   >
-                    <div style={{ font: '400 11px/1.4 var(--font-mono)', color: t.muted }}>
+                    <div
+                      style={{ font: '400 var(--type-chip)/1.4 var(--font-mono)', color: t.muted }}
+                    >
                       {String(label)}
                     </div>
                     <div
@@ -840,7 +844,7 @@ export function MovementChart({
                     </div>
                     <div
                       className="mt-1 grid gap-0.5"
-                      style={{ font: '400 11px/1.5 var(--font-mono)', color: t.muted }}
+                      style={{ font: '400 var(--type-chip)/1.5 var(--font-mono)', color: t.muted }}
                     >
                       <span>new {fmt(row.gained)}</span>
                       <span>expansion {fmt(row.expanded)}</span>
@@ -885,12 +889,12 @@ export function MovementChart({
         <Swatch colour={t.danger}>churn</Swatch>
         <span
           className="inline-flex items-center gap-1.5 whitespace-nowrap"
-          style={{ font: '400 11.5px/1 var(--font-ui)', color: 'var(--text-secondary)' }}
+          style={{ font: '400 var(--type-chip)/1 var(--font-ui)', color: 'var(--text-secondary)' }}
         >
           <span
             aria-hidden
             className="shrink-0"
-            style={{ width: 10, height: 2, borderRadius: 2, background: t.text }}
+            style={{ width: 10, height: 2, borderRadius: 'var(--radius-bar)', background: t.text }}
           />
           net
         </span>

@@ -186,7 +186,7 @@ export default async function RevenuePage() {
                     <div
                       className="font-mono tracking-tight"
                       style={{
-                        fontSize: '34px',
+                        fontSize: 'var(--type-display)',
                         fontWeight: 300,
                         color: isDanger ? 'var(--chrome-danger)' : 'var(--invert-card-fg)',
                         lineHeight: 1,
@@ -203,7 +203,7 @@ export default async function RevenuePage() {
                   <div
                     className="relative z-10 mt-1 flex items-center gap-2"
                     style={{
-                      font: '400 12px/1.4 var(--font-ui)',
+                      font: '400 var(--type-compact)/1.4 var(--font-ui)',
                       color: 'var(--invert-card-fg)',
                       opacity: 0.7,
                     }}
@@ -211,7 +211,7 @@ export default async function RevenuePage() {
                     <span
                       className="numeric inline-flex items-center gap-0.5 whitespace-nowrap"
                       style={{
-                        fontSize: 11,
+                        fontSize: 'var(--type-chip)',
                         color: isPositive ? 'var(--chrome-success)' : 'var(--chrome-danger)',
                       }}
                     >
@@ -277,7 +277,10 @@ export default async function RevenuePage() {
                 </span>
                 <span
                   className="whitespace-nowrap"
-                  style={{ font: '400 11.5px/1.3 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                  style={{
+                    font: '400 var(--type-chip)/1.3 var(--font-mono)',
+                    color: 'var(--text-tertiary)',
+                  }}
                 >
                   {p.tenants}
                 </span>
@@ -388,14 +391,14 @@ function Legend({
   return (
     <span
       className="inline-flex items-center gap-1.5 whitespace-nowrap"
-      style={{ font: '400 12px/1 var(--font-ui)', color: 'var(--text-secondary)' }}
+      style={{ font: '400 var(--type-compact)/1 var(--font-ui)', color: 'var(--text-secondary)' }}
     >
       <span
         aria-hidden
         style={{
           width: shape === 'line' ? 10 : 8,
           height: shape === 'line' ? 2 : 8,
-          borderRadius: 2,
+          borderRadius: 'var(--radius-bar)',
           background: swatch,
           opacity: shape === 'line' ? 1 : 0.55,
         }}

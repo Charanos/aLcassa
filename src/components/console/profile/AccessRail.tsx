@@ -45,7 +45,7 @@ export function AccessRail({
             background: 'var(--blue-50)',
             border: '1px solid var(--blue-100)',
             color: 'var(--blue-600)',
-            font: '500 12.5px/1 var(--font-mono)',
+            font: '500 var(--type-compact)/1 var(--font-mono)',
           }}
         >
           <IconCrown size={14} stroke={1.5} aria-hidden />
@@ -114,7 +114,10 @@ export function AccessRail({
             </dt>
             <dd
               className="numeric shrink-0"
-              style={{ font: '500 13px/1 var(--font-mono)', color: 'var(--text-primary)' }}
+              style={{
+                font: '500 var(--type-compact)/1 var(--font-mono)',
+                color: 'var(--text-primary)',
+              }}
             >
               {f.value}
             </dd>

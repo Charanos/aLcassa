@@ -37,7 +37,7 @@ export default function GlobalError({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
+            borderRadius: 'var(--radius-card)',
             padding: '40px 32px',
             boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.05)',
             maxWidth: '440px',
@@ -48,7 +48,7 @@ export default function GlobalError({
             style={{
               width: '48px',
               height: '48px',
-              borderRadius: '16px',
+              borderRadius: 'var(--radius-card)',
               background: '#ffffff',
               border: '1px solid rgba(0,0,0,0.05)',
               boxShadow: '0 4px 12px -2px rgba(239, 68, 68, 0.15)',
@@ -75,10 +75,24 @@ export default function GlobalError({
             </svg>
           </div>
 
-          <h1 style={{ fontSize: '18px', fontWeight: 500, margin: 0, letterSpacing: '-0.01em' }}>
+          <h1
+            style={{
+              fontSize: 'var(--type-panel)',
+              fontWeight: 500,
+              margin: 0,
+              letterSpacing: '-0.01em',
+            }}
+          >
             Something broke on our side.
           </h1>
-          <p style={{ marginTop: '10px', color: '#525252', fontSize: '14px', lineHeight: 1.5 }}>
+          <p
+            style={{
+              marginTop: '10px',
+              color: '#525252',
+              fontSize: 'var(--type-body)',
+              lineHeight: 1.5,
+            }}
+          >
             We have logged it. Nobody caused this. Reloading usually fixes this.
           </p>
           <button
@@ -89,11 +103,11 @@ export default function GlobalError({
               padding: '10px 24px',
               fontFamily: 'inherit',
               fontWeight: 500,
-              fontSize: '14px',
+              fontSize: 'var(--type-body)',
               color: '#ffffff',
               background: '#171717',
               border: '1px solid #171717',
-              borderRadius: '8px',
+              borderRadius: 'var(--radius-surface)',
               cursor: 'pointer',
               width: '100%',
               transition: 'opacity 0.2s',

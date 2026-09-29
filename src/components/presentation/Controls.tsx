@@ -95,7 +95,10 @@ export function SegmentedControl<T extends string>({
           >
             {option.label}
             {option.count !== undefined ? (
-              <span className="t-data tabular-nums" style={{ fontSize: '11px', opacity: 0.7 }}>
+              <span
+                className="t-data tabular-nums"
+                style={{ fontSize: 'var(--type-chip)', opacity: 0.7 }}
+              >
                 {option.count}
               </span>
             ) : null}
@@ -170,7 +173,7 @@ export function Checkbox({
       {count !== undefined ? (
         <span
           className="t-data text-[var(--text-tertiary)] tabular-nums"
-          style={{ fontSize: '12px' }}
+          style={{ fontSize: 'var(--type-compact)' }}
         >
           {count}
         </span>

@@ -248,7 +248,7 @@ export function SettingsPanel({
                               className="inline-flex h-[19px] items-center rounded-full px-1.5"
                               style={{
                                 background: 'var(--surface-inset)',
-                                font: '500 10px/1 var(--font-mono)',
+                                font: '500 var(--type-micro)/1 var(--font-mono)',
                                 letterSpacing: '0.08em',
                                 color: 'var(--text-tertiary)',
                               }}
@@ -270,7 +270,7 @@ export function SettingsPanel({
                           style={{
                             border: '1px solid var(--border-strong)',
                             background: 'var(--surface-sunken)',
-                            fontSize: 12,
+                            fontSize: 'var(--type-compact)',
                           }}
                         >
                           {p.value}
@@ -314,7 +314,7 @@ export function SettingsPanel({
               <span
                 className="text-center"
                 style={{
-                  font: '500 10.5px/1 var(--font-mono)',
+                  font: '500 var(--type-micro)/1 var(--font-mono)',
                   letterSpacing: '0.08em',
                   color: 'var(--text-tertiary)',
                 }}
@@ -324,7 +324,7 @@ export function SettingsPanel({
               <span
                 className="text-center"
                 style={{
-                  font: '500 10.5px/1 var(--font-mono)',
+                  font: '500 var(--type-micro)/1 var(--font-mono)',
                   letterSpacing: '0.08em',
                   color: 'var(--text-tertiary)',
                 }}
@@ -539,7 +539,7 @@ export function SettingsPanel({
                     <span
                       className="mt-0.5 block"
                       style={{
-                        font: '400 11.5px/1.4 var(--font-mono)',
+                        font: '400 var(--type-chip)/1.4 var(--font-mono)',
                         color: 'var(--text-tertiary)',
                       }}
                     >
@@ -548,7 +548,10 @@ export function SettingsPanel({
                   </span>
                   <span
                     className="shrink-0 whitespace-nowrap"
-                    style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                    style={{
+                      font: '400 var(--type-compact)/1 var(--font-mono)',
+                      color: 'var(--text-tertiary)',
+                    }}
                   >
                     {k.used}
                   </span>
@@ -639,7 +642,7 @@ export function SettingsPanel({
                     <span
                       className="shrink-0 whitespace-nowrap"
                       style={{
-                        font: '400 12px/1 var(--font-mono)',
+                        font: '400 var(--type-compact)/1 var(--font-mono)',
                         color: w.healthy ? 'var(--text-secondary)' : 'var(--warning-fg)',
                       }}
                     >

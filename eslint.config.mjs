@@ -139,6 +139,28 @@ export default tseslint.config(
           message:
             'Arbitrary type size. Use the named scale (text-3xs … text-3xl) or a t-* role class. If none fits, add the step to tokens.css — see the TYPE SIZE note there.',
         },
+        /*
+         * ⚠ THE CLASS RULES ABOVE MISSED 175 MORE, because a size written as
+         *   `fontSize: '13px'` or inside a `font:` shorthand is not a Tailwind
+         *   class and no amount of scanning class names finds it. The first
+         *   pass reported zero arbitrary values in the console and was right
+         *   about class literals and wrong about the console.
+         */
+        {
+          selector: 'Property[key.name="fontSize"][value.value=/^[0-9.]+(px)?$/]',
+          message:
+            'Arbitrary type size in an inline style. Use var(--type-badge | micro | chip | compact | body | lede | panel | heading | display | hero).',
+        },
+        {
+          selector: 'Property[key.name="borderRadius"][value.value=/^[0-9.]+(px)?$/]',
+          message:
+            'Arbitrary radius in an inline style. Use var(--radius-bar | control | surface | modal | card | hero | slab).',
+        },
+        {
+          selector: 'Property[key.name="font"][value.value=/[0-9.]+px/]',
+          message:
+            'Arbitrary size inside a font shorthand. Use var(--type-*) for the size part — font: "500 var(--type-chip)/1 var(--font-mono)".',
+        },
         {
           selector: 'Property[key.name="fontWeight"][value.value>500]',
           message:

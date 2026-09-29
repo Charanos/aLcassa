@@ -500,7 +500,7 @@ export function FactRow({
         <span
           className="truncate"
           style={{
-            font: '400 13px/1.5 var(--font-ui)',
+            font: '400 var(--type-compact)/1.5 var(--font-ui)',
             color: 'var(--text-primary)',
           }}
         >
@@ -510,7 +510,7 @@ export function FactRow({
       <span
         className="numeric shrink-0 whitespace-nowrap"
         style={{
-          font: '500 13px/1 var(--font-mono)',
+          font: '500 var(--type-compact)/1 var(--font-mono)',
           color: tone === 'warn' ? 'var(--warning-fg)' : 'var(--text-secondary)',
         }}
       >
@@ -669,7 +669,7 @@ export function BandLink({ href, children }: { href: string; children: React.Rea
         background: 'transparent',
         border: '1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent)',
         color: 'var(--text-primary)',
-        font: '500 13px/1 var(--font-ui)',
+        font: '500 var(--type-compact)/1 var(--font-ui)',
         boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
       }}
     >

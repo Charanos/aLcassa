@@ -81,7 +81,7 @@ export default async function AiRulesPage() {
                   border: '1px solid var(--border-subtle)',
                   background: 'var(--surface-sunken)',
                   color: 'var(--text-secondary)',
-                  font: '400 11.5px/1 var(--font-mono)',
+                  font: '400 var(--type-chip)/1 var(--font-mono)',
                 }}
               >
                 <IconLock size={12} stroke={1.5} aria-hidden />

@@ -78,7 +78,7 @@ function Field({ field }: { field: MasterRuleField }) {
           style={{
             background: 'var(--surface-inset)',
             color: authority.ink,
-            font: '500 10.5px/1 var(--font-mono)',
+            font: '500 var(--type-micro)/1 var(--font-mono)',
             letterSpacing: '0.06em',
           }}
           title={authority.note}
@@ -153,7 +153,10 @@ export function RuleFields({
         <span className="flex items-center gap-3">
           <span
             className="whitespace-nowrap"
-            style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+            style={{
+              font: '400 var(--type-chip)/1 var(--font-mono)',
+              color: 'var(--text-tertiary)',
+            }}
           >
             v{versionNumber} · {status} · {savedAt}
           </span>
@@ -201,7 +204,7 @@ export function RuleFields({
                 <span
                   style={{
                     color: 'var(--text-secondary)',
-                    font: '500 10.5px/1 var(--font-mono)',
+                    font: '500 var(--type-micro)/1 var(--font-mono)',
                     letterSpacing: '0.06em',
                   }}
                 >

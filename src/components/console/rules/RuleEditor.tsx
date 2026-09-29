@@ -112,7 +112,7 @@ export function RuleEditor({
           border: '1px solid var(--border-strong)',
           background: 'var(--surface-raised)',
           color: 'var(--text-primary)',
-          font: '500 12.5px/1 var(--font-ui)',
+          font: '500 var(--type-compact)/1 var(--font-ui)',
         }}
       >
         <IconPencil size={13} stroke={1.5} aria-hidden />
@@ -176,7 +176,7 @@ export function RuleEditor({
                   <span
                     className="shrink-0 whitespace-nowrap"
                     style={{
-                      font: '500 10.5px/1 var(--font-mono)',
+                      font: '500 var(--type-micro)/1 var(--font-mono)',
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
                       color: isChanged ? 'var(--accent-mark-text)' : 'var(--text-tertiary)',

@@ -297,12 +297,12 @@ export function StatTile({
         <span
           data-count={value}
           className="t-data tabular-nums"
-          style={{ fontSize: '34px', lineHeight: 1 }}
+          style={{ fontSize: 'var(--type-display)', lineHeight: 1 }}
         >
           {value}
         </span>
         {suffix ? (
-          <span className="t-data" style={{ fontSize: '18px', opacity: 0.65 }}>
+          <span className="t-data" style={{ fontSize: 'var(--type-panel)', opacity: 0.65 }}>
             {suffix}
           </span>
         ) : null}

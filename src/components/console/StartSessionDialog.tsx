@@ -188,7 +188,7 @@ export function StartSessionDialog({
               borderColor: 'var(--border-subtle)',
               background: 'var(--surface-sunken)',
               color: reference ? 'var(--text-secondary)' : 'var(--text-disabled)',
-              font: '500 11.5px/1 var(--font-mono)',
+              font: '500 var(--type-chip)/1 var(--font-mono)',
               letterSpacing: '0.02em',
             }}
           >

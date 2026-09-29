@@ -36,7 +36,7 @@ export function VersionRail({
       action={
         <span
           className="whitespace-nowrap"
-          style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+          style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
         >
           append-only
         </span>
@@ -72,7 +72,7 @@ export function VersionRail({
                     style={{
                       background: 'var(--blue-50)',
                       color: 'var(--blue-600)',
-                      font: '500 10px/1 var(--font-mono)',
+                      font: '500 var(--type-micro)/1 var(--font-mono)',
                       letterSpacing: '0.06em',
                     }}
                   >
@@ -82,7 +82,10 @@ export function VersionRail({
               </span>
               <span
                 className="mt-0.5 block"
-                style={{ font: '400 11px/1.35 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                style={{
+                  font: '400 var(--type-chip)/1.35 var(--font-mono)',
+                  color: 'var(--text-tertiary)',
+                }}
               >
                 {v.status} · {v.savedAt}
               </span>

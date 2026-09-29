@@ -128,7 +128,7 @@ export function LimitEditor({
         }
         style={
           variant === 'inline'
-            ? { font: '500 10.5px/1.6 var(--font-mono)', color: 'var(--text-tertiary)' }
+            ? { font: '500 var(--type-micro)/1.6 var(--font-mono)', color: 'var(--text-tertiary)' }
             : {
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',

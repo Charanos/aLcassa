@@ -130,7 +130,7 @@ export default async function SupportSessionsPage() {
                           padding: i === 0 || i === 5 ? '0 16px' : '0 8px',
                           textAlign: h === 'Duration' ? 'right' : 'left',
                           borderBottom: '1px solid var(--border-subtle)',
-                          font: '500 11px/1 var(--font-ui)',
+                          font: '500 var(--type-chip)/1 var(--font-ui)',
                           letterSpacing: '0.04em',
                           textTransform: 'uppercase',
                           color: 'var(--text-secondary)',
@@ -154,7 +154,7 @@ export default async function SupportSessionsPage() {
                       <td style={{ padding: '0 16px' }}>
                         <span
                           style={{
-                            font: '400 12px/1 var(--font-mono)',
+                            font: '400 var(--type-compact)/1 var(--font-mono)',
                             color: 'var(--text-secondary)',
                           }}
                         >
@@ -176,7 +176,7 @@ export default async function SupportSessionsPage() {
                       <td style={{ padding: '0 8px' }}>
                         <span
                           style={{
-                            font: '400 12px/1 var(--font-mono)',
+                            font: '400 var(--type-compact)/1 var(--font-mono)',
                             color: 'var(--text-secondary)',
                           }}
                         >
@@ -210,7 +210,12 @@ export default async function SupportSessionsPage() {
                             className="size-1.5 shrink-0 rounded-full"
                             style={{ background: e.dot }}
                           />
-                          <span style={{ font: '400 12px/1 var(--font-mono)', color: e.ink }}>
+                          <span
+                            style={{
+                              font: '400 var(--type-compact)/1 var(--font-mono)',
+                              color: e.ink,
+                            }}
+                          >
                             {h.endedBy}
                           </span>
                         </span>
@@ -249,7 +254,9 @@ export default async function SupportSessionsPage() {
                         className="size-1.5 rounded-full"
                         style={{ background: e.dot }}
                       />
-                      <span style={{ font: '400 11px/1 var(--font-mono)', color: e.ink }}>
+                      <span
+                        style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: e.ink }}
+                      >
                         {h.endedBy}
                       </span>
                     </span>
@@ -259,7 +266,10 @@ export default async function SupportSessionsPage() {
                   </p>
                   <p
                     className="mt-1.5"
-                    style={{ font: '400 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                    style={{
+                      font: '400 var(--type-chip)/1 var(--font-mono)',
+                      color: 'var(--text-tertiary)',
+                    }}
                   >
                     {h.started} · {h.admin} · {h.duration}
                   </p>

@@ -72,7 +72,7 @@ export function MilestoneBoard() {
                     </h3>
                     <span
                       style={{
-                        font: '500 12px/1 var(--font-mono)',
+                        font: '500 var(--type-compact)/1 var(--font-mono)',
                         color: tone.ink,
                         textTransform: 'uppercase',
                         letterSpacing: '0.08em',
@@ -82,7 +82,10 @@ export function MilestoneBoard() {
                     </span>
                     <span
                       className="ml-auto whitespace-nowrap"
-                      style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                      style={{
+                        font: '400 var(--type-compact)/1 var(--font-mono)',
+                        color: 'var(--text-tertiary)',
+                      }}
                     >
                       Week {m.week}
                     </span>
@@ -118,7 +121,7 @@ export function MilestoneBoard() {
                       <span
                         className="numeric shrink-0"
                         style={{
-                          font: '500 12px/1 var(--font-mono)',
+                          font: '500 var(--type-compact)/1 var(--font-mono)',
                           color: 'var(--text-secondary)',
                         }}
                       >

@@ -102,11 +102,11 @@ export function FilterBar<T extends string = string>({
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder={searchPlaceholder}
           className="min-w-0 flex-1 border-none bg-transparent transition-colors outline-none"
-          style={{ font: '400 14px/1 var(--font-ui)', color: 'var(--text-primary)' }}
+          style={{ font: '400 var(--type-body)/1 var(--font-ui)', color: 'var(--text-primary)' }}
         />
         <kbd
           className="hidden items-center justify-center rounded px-1.5 sm:flex"
-          style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+          style={{ font: '500 var(--type-chip)/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
         >
           /
         </kbd>
@@ -140,7 +140,7 @@ export function FilterBar<T extends string = string>({
                   border: `1px solid ${on ? activeBorder : 'var(--border-strong)'}`,
                   background: on ? activeTint : 'var(--surface-raised)',
                   color: on ? activeInk : 'var(--text-primary)',
-                  font: '600 11px/1 var(--font-ui)',
+                  font: '600 var(--type-chip)/1 var(--font-ui)',
                   letterSpacing: '0.04em',
                   textTransform: 'uppercase',
                   boxShadow: on ? '0 2px 8px rgba(0,0,0,0.04)' : '0 1px 2px rgba(0,0,0,0.04)',
@@ -158,7 +158,7 @@ export function FilterBar<T extends string = string>({
                   <span
                     className="numeric transition-colors duration-300"
                     style={{
-                      fontSize: 10,
+                      fontSize: 'var(--type-micro)',
                       fontWeight: 500,
                       color: on ? activeInk : 'var(--text-tertiary)',
                       opacity: on ? 0.8 : 1,

@@ -141,7 +141,7 @@ function ChartTooltip({
       <div className="t-caption" style={{ color: ink }}>
         {datum.label}
       </div>
-      <div className="t-data" style={{ color: ink, fontSize: '15px' }}>
+      <div className="t-data" style={{ color: ink, fontSize: 'var(--type-lede)' }}>
         {datum.value}
         {suffix}
       </div>
@@ -192,7 +192,7 @@ export function CategoryBars({
             width={labelWidth}
             tickLine={false}
             axisLine={{ stroke: t.rule }}
-            tick={{ fill: t.axis, fontSize: 12, fontFamily: 'var(--font-sans)' }}
+            tick={{ fill: t.axis, fontSize: 'var(--type-compact)', fontFamily: 'var(--font-sans)' }}
           />
           <Tooltip
             cursor={{ fill: 'transparent' }}
@@ -215,7 +215,11 @@ export function CategoryBars({
               dataKey="value"
               position="right"
               formatter={(value: unknown) => (typeof value === 'number' ? `${value}${suffix}` : '')}
-              style={{ fill: t.ink, fontSize: 12, fontFamily: 'var(--font-mono)' }}
+              style={{
+                fill: t.ink,
+                fontSize: 'var(--type-compact)',
+                fontFamily: 'var(--font-mono)',
+              }}
             />
           </Bar>
         </BarChart>
@@ -262,7 +266,7 @@ export function ProgressLine({
             dataKey="label"
             tickLine={false}
             axisLine={{ stroke: t.rule }}
-            tick={{ fill: t.axis, fontSize: 11, fontFamily: 'var(--font-mono)' }}
+            tick={{ fill: t.axis, fontSize: 'var(--type-chip)', fontFamily: 'var(--font-mono)' }}
             interval={0}
           />
           <YAxis hide domain={[0, 100]} />
@@ -284,7 +288,7 @@ export function ProgressLine({
               dataKey="value"
               position="top"
               formatter={(value: unknown) => (typeof value === 'number' ? `${value}${suffix}` : '')}
-              style={{ fill: t.ink, fontSize: 11, fontFamily: 'var(--font-mono)' }}
+              style={{ fill: t.ink, fontSize: 'var(--type-chip)', fontFamily: 'var(--font-mono)' }}
             />
           </Area>
         </AreaChart>
@@ -395,7 +399,7 @@ export function ProportionDonut({
           <div className="text-center">
             <div
               className="t-data tabular-nums"
-              style={{ color: t.ink, fontSize: 26, lineHeight: 1 }}
+              style={{ color: t.ink, fontSize: 'var(--type-heading)', lineHeight: 1 }}
             >
               {centerLabel.value}
             </div>
@@ -421,7 +425,7 @@ export function ProportionDonut({
             <span className="t-caption flex-1 text-[var(--text-secondary)]">{segment.label}</span>
             <span
               className="t-data text-[var(--text-primary)] tabular-nums"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: 'var(--type-compact)' }}
             >
               {segment.value}
             </span>
@@ -486,7 +490,7 @@ export function StackedMeter({
             <span className="t-caption text-[var(--text-secondary)]">{segment.label}</span>
             <span
               className="t-data text-[var(--text-primary)] tabular-nums"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: 'var(--type-compact)' }}
             >
               {segment.value}
             </span>

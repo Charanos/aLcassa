@@ -41,7 +41,7 @@ export type VolumeChartProps = {
 
 const AXIS = {
   stroke: 'var(--text-tertiary)',
-  fontSize: 11,
+  fontSize: 'var(--type-chip)',
   fontFamily: 'var(--font-mono)',
   tickLine: false,
   axisLine: false,

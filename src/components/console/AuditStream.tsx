@@ -213,7 +213,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
                   className="hidden shrink-0 lg:block"
                   style={{
                     width: 128,
-                    font: '400 11.5px/1 var(--font-mono)',
+                    font: '400 var(--type-chip)/1 var(--font-mono)',
                     color: 'var(--text-tertiary)',
                   }}
                 >
@@ -241,7 +241,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
                     style={{
                       background: 'var(--surface-inset)',
                       color: 'var(--text-secondary)',
-                      font: '500 10px/1 var(--font-mono)',
+                      font: '500 var(--type-micro)/1 var(--font-mono)',
                     }}
                     aria-hidden
                   >
@@ -250,7 +250,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
                   <span
                     style={{
                       width: 62,
-                      font: '400 12px/1 var(--font-mono)',
+                      font: '400 var(--type-compact)/1 var(--font-mono)',
                       color: 'var(--text-tertiary)',
                     }}
                   >
@@ -305,7 +305,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
                           <span
                             key={h}
                             style={{
-                              font: '500 10.5px/1 var(--font-mono)',
+                              font: '500 var(--type-micro)/1 var(--font-mono)',
                               letterSpacing: '0.1em',
                               textTransform: 'uppercase',
                               color: 'var(--text-tertiary)',
@@ -327,7 +327,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
                           <span
                             className="truncate"
                             style={{
-                              font: '400 12px/1.4 var(--font-mono)',
+                              font: '400 var(--type-compact)/1.4 var(--font-mono)',
                               color: 'var(--text-secondary)',
                             }}
                           >
@@ -335,7 +335,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
                           </span>
                           <span
                             style={{
-                              font: '400 12px/1.4 var(--font-mono)',
+                              font: '400 var(--type-compact)/1.4 var(--font-mono)',
                               color: d.redacted ? 'var(--text-disabled)' : 'var(--danger-fg)',
                               fontStyle: d.redacted ? 'normal' : undefined,
                             }}
@@ -344,7 +344,7 @@ export function AuditStream({ entries }: { entries: AuditEntry[] }) {
                           </span>
                           <span
                             style={{
-                              font: '400 12px/1.4 var(--font-mono)',
+                              font: '400 var(--type-compact)/1.4 var(--font-mono)',
                               color: d.redacted ? 'var(--text-disabled)' : 'var(--success-fg)',
                             }}
                           >
@@ -417,7 +417,9 @@ function Fact({ label, value }: { label: string; value: string }) {
   return (
     <span className="t-caption" style={{ color: 'var(--text-secondary)' }}>
       {label}{' '}
-      <span style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-primary)' }}>
+      <span
+        style={{ font: '400 var(--type-compact)/1 var(--font-mono)', color: 'var(--text-primary)' }}
+      >
         {value}
       </span>
     </span>

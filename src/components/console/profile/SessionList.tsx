@@ -140,7 +140,12 @@ function SessionRow({ session, live }: { session: DeviceSession; live: boolean }
           </span>
         }
         detail={
-          <span style={{ font: '400 12px/1.5 var(--font-mono)', color: 'var(--text-tertiary)' }}>
+          <span
+            style={{
+              font: '400 var(--type-compact)/1.5 var(--font-mono)',
+              color: 'var(--text-tertiary)',
+            }}
+          >
             {session.meta}
           </span>
         }
@@ -148,7 +153,7 @@ function SessionRow({ session, live }: { session: DeviceSession; live: boolean }
           <span
             className="whitespace-nowrap"
             style={{
-              font: '400 12.5px/1.5 var(--font-ui)',
+              font: '400 var(--type-compact)/1.5 var(--font-ui)',
               color: current ? 'var(--success-fg)' : 'var(--text-secondary)',
             }}
           >

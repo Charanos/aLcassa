@@ -665,7 +665,7 @@ export function ConsoleShell({
         style={{
           background: 'var(--blue-500)',
           color: 'var(--chrome-fg)',
-          font: '500 13px/1 var(--font-ui)',
+          font: '500 var(--type-compact)/1 var(--font-ui)',
         }}
       >
         Skip to content
@@ -746,7 +746,7 @@ export function ConsoleShell({
             <span
               className="hidden sm:inline"
               style={{
-                font: '500 15px/1 var(--font-ui)',
+                font: '500 var(--type-lede)/1 var(--font-ui)',
                 letterSpacing: '-0.015em',
                 color: 'var(--chrome-fg)',
               }}
@@ -823,7 +823,7 @@ export function ConsoleShell({
                       style={{
                         background: 'var(--blue-50)',
                         color: 'var(--blue-600)',
-                        font: '600 12px/1 var(--font-mono)',
+                        font: '600 var(--type-compact)/1 var(--font-mono)',
                       }}
                       aria-hidden
                     >
@@ -839,7 +839,7 @@ export function ConsoleShell({
                       <span
                         className="mt-[2px] block truncate"
                         style={{
-                          font: '400 12px/1.4 var(--font-mono)',
+                          font: '400 var(--type-compact)/1.4 var(--font-mono)',
                           color: 'var(--text-tertiary)',
                         }}
                       >
@@ -847,7 +847,10 @@ export function ConsoleShell({
                       </span>
                     </span>
                     <span
-                      style={{ font: '500 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                      style={{
+                        font: '500 var(--type-chip)/1 var(--font-mono)',
+                        color: 'var(--text-tertiary)',
+                      }}
                     >
                       {w.plan}
                     </span>
@@ -878,7 +881,7 @@ export function ConsoleShell({
               border: '1px solid var(--chrome-rule)',
               background: 'rgba(255, 255, 255, 0.02)',
               color: 'var(--chrome-fg-muted)',
-              font: '400 12.5px/1 var(--font-ui)',
+              font: '400 var(--type-compact)/1 var(--font-ui)',
               boxShadow: 'var(--chrome-neu)',
             }}
           >
@@ -897,12 +900,12 @@ export function ConsoleShell({
               style={{
                 background: 'color-mix(in oklab, var(--chrome-active-bg) 60%, transparent)',
                 border: '1px solid var(--chrome-rule-strong)',
-                font: '500 11px/1 var(--font-mono)',
+                font: '500 var(--type-chip)/1 var(--font-mono)',
                 color: 'var(--chrome-fg)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 1px 1px rgba(0,0,0,0.2)',
               }}
             >
-              <span style={{ opacity: 0.5, fontSize: '10px' }}>⌘</span>K
+              <span style={{ opacity: 0.5, fontSize: 'var(--type-micro)' }}>⌘</span>K
             </kbd>
           </button>
         </div>
@@ -1024,7 +1027,7 @@ export function ConsoleShell({
                           <span
                             className="mt-1 block"
                             style={{
-                              font: '450 12.5px/1.45 var(--font-ui)',
+                              font: '450 var(--type-compact)/1.45 var(--font-ui)',
                               color: 'var(--text-secondary)',
                               textWrap: 'pretty',
                             }}
@@ -1035,7 +1038,7 @@ export function ConsoleShell({
                         <span
                           className="shrink-0"
                           style={{
-                            font: '500 11.5px/1.5 var(--font-mono)',
+                            font: '500 var(--type-chip)/1.5 var(--font-mono)',
                             color: 'var(--text-tertiary)',
                           }}
                         >
@@ -1129,7 +1132,7 @@ export function ConsoleShell({
                     <span
                       className="mt-[2px] block truncate"
                       style={{
-                        font: '500 11px/1.4 var(--font-ui)',
+                        font: '500 var(--type-chip)/1.4 var(--font-ui)',
                         color: 'var(--text-tertiary)',
                         letterSpacing: '0.06em',
                         textTransform: 'uppercase',
@@ -1362,7 +1365,7 @@ export function ConsoleShell({
                     className="t-eyebrow ml-2 tracking-wider whitespace-nowrap"
                     style={{
                       color: 'var(--chrome-fg-muted)',
-                      fontSize: '10.5px',
+                      fontSize: 'var(--type-micro)',
                       opacity: collapsed ? 0 : 1,
                       transform: collapsed ? 'translateY(-6px)' : 'translateY(0)',
                       transition: 'opacity 180ms ease, transform 180ms ease',
@@ -1458,7 +1461,7 @@ export function ConsoleShell({
                               border: active
                                 ? '1px solid var(--blue-400)'
                                 : '1px solid rgba(255, 255, 255, 0.1)',
-                              font: '500 10px/1 var(--font-mono)',
+                              font: '500 var(--type-micro)/1 var(--font-mono)',
                               transition:
                                 'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
                             }}
@@ -1575,14 +1578,14 @@ export function ConsoleShell({
                 className="block truncate font-medium tracking-tight"
                 style={{
                   color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)',
-                  fontSize: '11.5px',
+                  fontSize: 'var(--type-chip)',
                 }}
               >
                 {isolationOk ? 'Isolation green' : 'Isolation gap'}
               </span>
               <span
                 className="mt-[1.5px] block truncate font-mono"
-                style={{ color: 'var(--chrome-fg-faint)', fontSize: '10px' }}
+                style={{ color: 'var(--chrome-fg-faint)', fontSize: 'var(--type-micro)' }}
               >
                 {isolation.tablesPoliced}/{isolation.tablesTotal} tables · {isolation.lastRun}
               </span>
@@ -1635,7 +1638,7 @@ export function ConsoleShell({
                   maxWidth: collapsed ? '0px' : '140px',
                   transform: collapsed ? 'translateX(-6px)' : 'translateX(0)',
                   pointerEvents: collapsed ? 'none' : 'auto',
-                  font: '400 12px/1 var(--font-ui)',
+                  font: '400 var(--type-compact)/1 var(--font-ui)',
                   transition:
                     'opacity 180ms ease, max-width 240ms cubic-bezier(0.2,0,0,1), transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
@@ -1677,7 +1680,7 @@ export function ConsoleShell({
                 <span
                   className="block truncate"
                   style={{
-                    font: '500 12.5px/1 var(--font-ui)',
+                    font: '500 var(--type-compact)/1 var(--font-ui)',
                     color: 'var(--chrome-fg)',
                     letterSpacing: '-0.01em',
                   }}
@@ -1686,7 +1689,10 @@ export function ConsoleShell({
                 </span>
                 <span
                   className="mt-[3px] block truncate"
-                  style={{ font: '400 11px/1.4 var(--font-mono)', color: 'var(--chrome-fg-muted)' }}
+                  style={{
+                    font: '400 var(--type-chip)/1.4 var(--font-mono)',
+                    color: 'var(--chrome-fg-muted)',
+                  }}
                 >
                   {account.email}
                 </span>
@@ -1743,12 +1749,12 @@ export function ConsoleShell({
                   pointerEvents: collapsed ? 'none' : 'auto',
                   background: 'rgba(255,255,255,0.04)',
                   border: '1px solid var(--chrome-rule-strong)',
-                  font: '500 10px/1 var(--font-mono)',
+                  font: '500 var(--type-micro)/1 var(--font-mono)',
                   color: 'var(--chrome-fg-faint)',
                   transition: 'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
-                <span style={{ opacity: 0.5, fontSize: '9px' }}>⌘</span>B
+                <span style={{ opacity: 0.5, fontSize: 'var(--type-badge)' }}>⌘</span>B
               </kbd>
             </button>
           </div>
@@ -1942,7 +1948,7 @@ export function ConsoleShell({
                 placeholder="Search screens, workspaces, or actions..."
                 className="flex-1 border-none bg-transparent outline-none placeholder:text-[var(--text-tertiary)]"
                 style={{
-                  font: '400 16px/1.4 var(--font-ui)',
+                  font: '400 var(--type-lede)/1.4 var(--font-ui)',
                   color: 'var(--text-primary)',
                 }}
               />
@@ -1953,7 +1959,7 @@ export function ConsoleShell({
                     'linear-gradient(to bottom, var(--surface-raised), var(--surface-sunken))',
                   border: '1px solid rgba(0,0,0,0.1)',
                   boxShadow: '0 1px 1px rgba(0,0,0,0.05)',
-                  font: '500 10px/1 var(--font-mono)',
+                  font: '500 var(--type-micro)/1 var(--font-mono)',
                   color: 'rgba(0,0,0,0.4)',
                 }}
               >
@@ -2014,7 +2020,7 @@ export function ConsoleShell({
                         <span
                           className="mt-[1px] block truncate"
                           style={{
-                            font: '400 12.5px/1.4 var(--font-ui)',
+                            font: '400 var(--type-compact)/1.4 var(--font-ui)',
                             color: 'var(--text-tertiary)',
                           }}
                         >
@@ -2137,7 +2143,7 @@ function ChromeButton({
             ? 'var(--chrome-hover)'
             : 'transparent',
         color: expanded ? 'var(--chrome-action)' : 'var(--chrome-fg)',
-        font: '400 12.5px/1 var(--font-ui)',
+        font: '400 var(--type-compact)/1 var(--font-ui)',
       }}
     >
       {children}
@@ -2243,7 +2249,7 @@ function MenuSignOut() {
         className="group flex h-[36px] w-full items-center gap-3 rounded-panel px-2.5 transition-colors hover:bg-[var(--danger-bg)]"
         style={{
           color: 'var(--danger-fg)',
-          font: '450 13.5px/1 var(--font-ui)',
+          font: '450 var(--type-body)/1 var(--font-ui)',
         }}
       >
         <IconLogout size={16} stroke={1.5} className="transition-transform group-hover:scale-105" />
@@ -2278,7 +2284,7 @@ function MenuLink({
       className="flex h-[36px] w-full items-center gap-3 rounded-panel px-2.5 transition-colors hover:bg-[var(--surface-raised)]"
       style={{
         color: danger ? 'var(--danger-fg)' : 'var(--text-secondary)',
-        font: '450 13.5px/1 var(--font-ui)',
+        font: '450 var(--type-body)/1 var(--font-ui)',
       }}
     >
       <Icon size={16} stroke={1.5} className="shrink-0 transition-transform" aria-hidden />

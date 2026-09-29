@@ -100,7 +100,7 @@ export function OverviewChart({
           <div
             className="numeric"
             style={{
-              fontSize: '28px',
+              fontSize: 'var(--type-heading)',
               fontWeight: 500,
               letterSpacing: '-0.02em',
               color: 'var(--invert-card-fg)',
@@ -157,7 +157,7 @@ export function OverviewChart({
               tick={{
                 fill: 'var(--invert-card-fg)',
                 opacity: 0.4,
-                fontSize: 10,
+                fontSize: 'var(--type-micro)',
                 fontWeight: 500,
                 letterSpacing: '0.02em',
               }}
@@ -186,7 +186,7 @@ export function OverviewChart({
                         style={{
                           color: 'var(--invert-card-fg)',
                           opacity: 0.6,
-                          fontSize: '9px',
+                          fontSize: 'var(--type-badge)',
                           letterSpacing: '0.06em',
                         }}
                       >
@@ -196,7 +196,7 @@ export function OverviewChart({
                         className="flex items-center gap-2 font-mono"
                         style={{
                           color: 'var(--invert-card-fg)',
-                          fontSize: '13px',
+                          fontSize: 'var(--type-compact)',
                           fontWeight: 500,
                         }}
                       >

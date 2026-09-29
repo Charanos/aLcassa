@@ -94,7 +94,7 @@ export function Pagination({ page, pageSize, total, onPage, noun, label }: Pagin
       <p
         className="flex-1 whitespace-nowrap"
         style={{
-          font: '400 12px/1 var(--font-mono)',
+          font: '400 var(--type-compact)/1 var(--font-mono)',
           color: 'var(--text-tertiary)',
           letterSpacing: '-0.01em',
         }}
@@ -116,7 +116,10 @@ export function Pagination({ page, pageSize, total, onPage, noun, label }: Pagin
               key={`gap-${i}`}
               aria-hidden
               className="grid size-8 place-items-center"
-              style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-disabled)' }}
+              style={{
+                font: '400 var(--type-compact)/1 var(--font-mono)',
+                color: 'var(--text-disabled)',
+              }}
             >
               &middot;&middot;&middot;
             </span>

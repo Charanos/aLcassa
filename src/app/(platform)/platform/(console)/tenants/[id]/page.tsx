@@ -120,7 +120,7 @@ export default async function WorkspaceDetailPage({
                     : w.status === 'past due'
                       ? 'var(--danger-fg)'
                       : 'var(--text-secondary)',
-                font: '500 12px/1 var(--font-mono)',
+                font: '500 var(--type-compact)/1 var(--font-mono)',
                 letterSpacing: '0.04em',
               }}
             >

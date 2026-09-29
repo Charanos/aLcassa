@@ -202,13 +202,19 @@ export default function ProjectTrackerPage() {
               >
                 <span
                   className="numeric shrink-0"
-                  style={{ font: '500 13px/1 var(--font-mono)', color: 'var(--text-primary)' }}
+                  style={{
+                    font: '500 var(--type-compact)/1 var(--font-mono)',
+                    color: 'var(--text-primary)',
+                  }}
                 >
                   {t.amount}
                 </span>
                 <span
                   className="shrink-0"
-                  style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                  style={{
+                    font: '400 var(--type-compact)/1 var(--font-mono)',
+                    color: 'var(--text-tertiary)',
+                  }}
                 >
                   {t.share}
                 </span>
@@ -223,7 +229,10 @@ export default function ProjectTrackerPage() {
                 {released ? (
                   <span
                     className="shrink-0"
-                    style={{ font: '500 11.5px/1 var(--font-mono)', color: 'var(--success-fg)' }}
+                    style={{
+                      font: '500 var(--type-chip)/1 var(--font-mono)',
+                      color: 'var(--success-fg)',
+                    }}
                   >
                     EARNED
                   </span>

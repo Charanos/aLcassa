@@ -302,7 +302,7 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
             href={`/platform/tenants/${debt.slug}`}
             className="block truncate transition-colors duration-300"
             style={{
-              font: '400 19px/1.25 var(--font-ui)',
+              font: '400 var(--type-panel)/1.25 var(--font-ui)',
               color: 'var(--chrome-fg)',
               letterSpacing: '-0.02em',
             }}

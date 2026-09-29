@@ -1,5 +1,6 @@
 import { IconInfoCircle } from '@tabler/icons-react';
 import { BandLink, Panel, SectionHeading } from '../Surface';
+import { SkeletonGroup } from '@/components/primitives/Skeleton';
 import { type HeadroomModel } from '@/lib/console/data';
 import { HeadroomPlanCard } from './HeadroomPlanCard';
 
@@ -106,5 +107,85 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
         </p>
       ) : null}
     </section>
+  );
+}
+
+/**
+ * ⚠ THE PAGE'S SKELETON DREW THREE CARDS AND NOTHING ELSE OF THIS BAND.
+ *
+ * Two faults, both the kind that only a reading of the real component finds.
+ * The band opens with a right-aligned `SectionHeading` carrying a note and a
+ * link — roughly 100px of vertical space the skeleton did not reserve, so
+ * every card below it arrived that much higher than it was drawn. And the card
+ * grid is `auto-fit, minmax(280px, 1fr)` while the skeleton hardcoded
+ * `lg:grid-cols-3`: they agree at wide desktop and nowhere else, which is the
+ * failure mode a fixed column count always has.
+ *
+ * It lives here rather than in `loading.tsx` so it changes when this file
+ * changes. A skeleton written a directory away from its component is one edit
+ * from being wrong, and nothing catches it.
+ */
+export function HeadroomBandSkeleton() {
+  return (
+    <SkeletonGroup label="Loading headroom" className="mt-8 block">
+      {/* The right-aligned heading, at the rhythm SectionHeading uses. */}
+      <div className="mt-24 mb-12 flex flex-col items-end">
+        <HeadroomBar w="132px" h={20} />
+        <HeadroomBar w="min(46ch, 100%)" h={12} className="mt-2.5" />
+      </div>
+
+      <div
+        className="grid gap-6"
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
+      >
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="rounded-slab p-6"
+            style={{
+              border: '1px solid var(--border-subtle)',
+              background: 'var(--surface-raised)',
+              boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
+            }}
+          >
+            <HeadroomBar w={`${44 - i * 6}%`} h={18} />
+            <HeadroomBar w="72%" h={12} className="mt-2.5" />
+            {/* Each entitlement row: a label, a value, and its bar. */}
+            <div className="mt-6 grid gap-5">
+              {[0, 1, 2, 3].map((r) => (
+                <div key={r}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <HeadroomBar w={`${58 - ((i + r) % 4) * 8}%`} h={12} />
+                    <HeadroomBar w="52px" h={12} />
+                  </div>
+                  <HeadroomBar w="100%" h={6} className="mt-2.5" radius="rounded-bar" />
+                </div>
+              ))}
+            </div>
+            <HeadroomBar w="100%" h={36} className="mt-7" radius="rounded-full" />
+          </div>
+        ))}
+      </div>
+    </SkeletonGroup>
+  );
+}
+
+/** One pulsing bar; flat tint rather than nothing under reduced motion. */
+function HeadroomBar({
+  w,
+  h,
+  className = '',
+  radius = 'rounded-chip',
+}: {
+  w: string;
+  h: number;
+  className?: string;
+  radius?: string;
+}) {
+  return (
+    <div
+      className={`animate-[skeleton-pulse_1400ms_ease-in-out_infinite] ${radius} motion-reduce:animate-none motion-reduce:opacity-70 ${className}`}
+      style={{ width: w, height: h, background: 'var(--surface-inset)' }}
+    />
   );
 }

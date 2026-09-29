@@ -108,7 +108,7 @@ export function Timeline({ milestones }: { milestones: readonly Milestone[] }) {
                   </div>
                   <span
                     className="t-data shrink-0 text-[var(--text-secondary)] tabular-nums"
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: 'var(--type-compact)' }}
                   >
                     {milestone.progress}%
                   </span>

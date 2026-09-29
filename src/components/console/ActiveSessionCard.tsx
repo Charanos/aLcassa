@@ -71,7 +71,7 @@ export function ActiveSessionCard({
           style={{
             background: 'var(--blue-50)',
             color: 'var(--blue-500)',
-            font: '500 12px/1 var(--font-mono)',
+            font: '500 var(--type-compact)/1 var(--font-mono)',
           }}
           aria-hidden
         >
@@ -90,7 +90,7 @@ export function ActiveSessionCard({
           <span
             className="block"
             style={{
-              font: '400 11px/1 var(--font-mono)',
+              font: '400 var(--type-chip)/1 var(--font-mono)',
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
               color: 'var(--text-tertiary)',

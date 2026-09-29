@@ -52,7 +52,10 @@ export function PressureList({ rows, total }: { rows: PressureRow[]; total: numb
                 <div className="mb-2.5 flex items-baseline justify-between gap-3">
                   <span
                     className="truncate transition-colors duration-300 group-hover:text-[var(--text-action)]"
-                    style={{ font: '500 13px/1 var(--font-ui)', color: 'var(--text-primary)' }}
+                    style={{
+                      font: '500 var(--type-compact)/1 var(--font-ui)',
+                      color: 'var(--text-primary)',
+                    }}
                   >
                     {row.name}
                   </span>

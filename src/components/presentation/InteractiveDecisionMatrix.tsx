@@ -156,7 +156,7 @@ export function InteractiveDecisionMatrix({ decisions }: { decisions: Decision[]
                 style={{
                   background: activeFilter === f.key ? 'var(--blue-50)' : 'var(--surface-base)',
                   color: activeFilter === f.key ? 'var(--blue-500)' : 'var(--ink-300)',
-                  fontSize: '10px',
+                  fontSize: 'var(--type-micro)',
                   fontVariantNumeric: 'tabular-nums',
                 }}
               >

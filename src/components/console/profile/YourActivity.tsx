@@ -97,7 +97,7 @@ export function YourActivity({
                           `tenant.suspended`, `rules.published` — not prose, and
                           setting it in the UI face invites a reader to treat it
                           as a sentence somebody wrote. */}
-                      <span style={{ font: '500 12.5px/1.4 var(--font-mono)' }}>
+                      <span style={{ font: '500 var(--type-compact)/1.4 var(--font-mono)' }}>
                         {entry.action}
                       </span>
                       {entry.usedServiceRole ? (
@@ -121,7 +121,7 @@ export function YourActivity({
                       <span
                         className="whitespace-nowrap"
                         style={{
-                          font: '400 12.5px/1.4 var(--font-ui)',
+                          font: '400 var(--type-compact)/1.4 var(--font-ui)',
                           color: 'var(--text-secondary)',
                         }}
                       >
@@ -131,7 +131,7 @@ export function YourActivity({
                         <span
                           className="whitespace-nowrap"
                           style={{
-                            font: '400 11.5px/1.4 var(--font-mono)',
+                            font: '400 var(--type-chip)/1.4 var(--font-mono)',
                             color: 'var(--text-tertiary)',
                           }}
                         >

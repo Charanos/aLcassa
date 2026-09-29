@@ -179,7 +179,7 @@ export default async function AdminsPage() {
                 style={{
                   background: you ? 'var(--blue-50)' : 'var(--surface-inset)',
                   color: you ? 'var(--blue-500)' : 'var(--text-secondary)',
-                  font: '500 13px/1 var(--font-mono)',
+                  font: '500 var(--type-compact)/1 var(--font-mono)',
                 }}
                 aria-hidden
               >
@@ -202,7 +202,7 @@ export default async function AdminsPage() {
                       className="inline-flex h-[19px] shrink-0 items-center rounded-full px-2"
                       style={{
                         background: 'var(--surface-inset)',
-                        font: '500 10.5px/1 var(--font-mono)',
+                        font: '500 var(--type-micro)/1 var(--font-mono)',
                         letterSpacing: '0.06em',
                         color: 'var(--text-secondary)',
                       }}
@@ -213,7 +213,10 @@ export default async function AdminsPage() {
                 </span>
                 <span
                   className="mt-0.5 block truncate"
-                  style={{ font: '400 12px/1.35 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                  style={{
+                    font: '400 var(--type-compact)/1.35 var(--font-mono)',
+                    color: 'var(--text-tertiary)',
+                  }}
                 >
                   {a.email}
                 </span>
@@ -225,7 +228,7 @@ export default async function AdminsPage() {
                   style={{
                     background: role.bg,
                     color: role.ink,
-                    font: '500 11.5px/1 var(--font-mono)',
+                    font: '500 var(--type-chip)/1 var(--font-mono)',
                     letterSpacing: '0.02em',
                   }}
                 >
@@ -240,7 +243,10 @@ export default async function AdminsPage() {
                 </span>
                 <span
                   className="mt-0.5 block"
-                  style={{ font: '400 11px/1.35 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                  style={{
+                    font: '400 var(--type-chip)/1.35 var(--font-mono)',
+                    color: 'var(--text-tertiary)',
+                  }}
                 >
                   {a.sessions30d === 0
                     ? 'no sessions'
@@ -256,7 +262,7 @@ export default async function AdminsPage() {
                   return (
                     <span
                       className="inline-flex items-center gap-1.5 whitespace-nowrap"
-                      style={{ font: '400 11.5px/1 var(--font-mono)', color: mfa.ink }}
+                      style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: mfa.ink }}
                     >
                       <MfaIcon size={13} stroke={1.5} aria-hidden />
                       {mfa.label}
@@ -278,7 +284,10 @@ export default async function AdminsPage() {
                 */}
                 <span
                   className="shrink-0 whitespace-nowrap"
-                  style={{ font: '400 11.5px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                  style={{
+                    font: '400 var(--type-chip)/1 var(--font-mono)',
+                    color: 'var(--text-tertiary)',
+                  }}
                   title="When platform access was granted"
                 >
                   {a.grantedOn}
@@ -397,7 +406,7 @@ export default async function AdminsPage() {
                   key={h}
                   className="grid w-[58px] place-items-center"
                   style={{
-                    font: '500 10.5px/1 var(--font-mono)',
+                    font: '500 var(--type-micro)/1 var(--font-mono)',
                     letterSpacing: '0.08em',
                     textTransform: 'uppercase',
                     color: 'var(--text-tertiary)',

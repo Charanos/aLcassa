@@ -108,7 +108,7 @@ export function QueueCard({ item }: { item: QueueItem }) {
               href={`/platform/tenants/${item.slug}`}
               className="truncate transition-colors hover:text-[var(--text-action)]"
               style={{
-                font: '600 15px/1.35 var(--font-ui)',
+                font: '600 var(--type-lede)/1.35 var(--font-ui)',
                 color: 'var(--text-primary)',
                 letterSpacing: '-0.02em',
               }}
@@ -239,7 +239,7 @@ function QueueClear({ restingCount }: { restingCount: number }) {
       <div className="relative">
         <p
           style={{
-            font: '600 15px/1.35 var(--font-ui)',
+            font: '600 var(--type-lede)/1.35 var(--font-ui)',
             color: 'var(--text-primary)',
             letterSpacing: '-0.02em',
           }}
@@ -273,7 +273,7 @@ function RestingNote({ restingCount }: { restingCount: number }) {
   return (
     <div
       className="group relative mt-6 flex items-center gap-3.5 bg-[var(--surface-inset)] px-3 py-3 transition-colors duration-300"
-      style={{ borderRadius: '12px' }}
+      style={{ borderRadius: 'var(--radius-modal)' }}
     >
       <div
         className="pointer-events-none absolute top-1/2 left-3 size-8 -translate-y-1/2 rounded-full opacity-20 blur-md transition-opacity duration-500 group-hover:opacity-40"
