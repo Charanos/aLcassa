@@ -45,6 +45,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  /*
+   * ⚠ A VERIFICATION BUILD MUST NOT SHARE A DIRECTORY WITH THE DEV SERVER.
+   * `next build` and `next dev` both write `.next`; running the first while
+   * the second is serving corrupts the running server's output under it.
+   * `NEXT_DIST_DIR=.next-verify pnpm build` checks a change without touching
+   * the server someone is looking at. Unset, nothing changes.
+   */
+  distDir: process.env.NEXT_DIST_DIR ?? '.next',
   reactStrictMode: true,
   poweredByHeader: false,
   // 02 §9. A trailing slash would make every audited route string ambiguous.

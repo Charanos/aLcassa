@@ -43,3 +43,5 @@ aLcassa-appshell-boilerplate/
 conduit-appshell-boilerplate/
 
 .test-report/
+.screenshots/
+.next-verify/
