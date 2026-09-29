@@ -1,15 +1,133 @@
-import { ConsolePage } from '@/components/console/Surface';
-import { SkeletonGroup, SkeletonHeader, SkeletonRow } from '@/components/primitives/Skeleton';
+import { ConsolePage, Panel } from '@/components/console/Surface';
+import { SkeletonGroup } from '@/components/primitives/Skeleton';
 
+/**
+ * ⚠ THIS WAS A HEADER AND EIGHT IDENTICAL ROWS — fifteen lines in front of a
+ *   459-line page, the worst ratio in the console.
+ *
+ * Admins renders a header with a lede and an inert invite control, a stack of
+ * operator cards each with a 38px avatar and a capability summary, and then
+ * two panels side by side: pending invitations, and the capability matrix with
+ * its three narrow role columns. None of that is a row.
+ *
+ * 03 §15. The matrix in particular has to be right: it is a table of ticks and
+ * dashes with fixed 58px columns, and a skeleton that draws full-width rows
+ * there sets the page up to snap into a completely different shape.
+ */
 export default function AdminsLoading() {
   return (
     <ConsolePage>
-      <SkeletonGroup label="Loading admins" className="flex flex-col gap-2.5">
-        <SkeletonHeader withAction />
-        {Array.from({ length: 6 }).map((_, i) => (
-          <SkeletonRow key={i} />
-        ))}
+      <SkeletonGroup label="Loading platform operators" className="block">
+        {/* ── Header, lede, and the inert invite control ───────────────── */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-6">
+          <div className="min-w-0 flex-1">
+            <Bar w="136px" h={11} />
+            <Bar w="118px" h={26} className="mt-2" />
+            <Bar w="min(66ch, 100%)" h={14} className="mt-3" />
+            <Bar w="min(48ch, 84%)" h={14} className="mt-1.5" />
+          </div>
+          <Bar w="132px" h={36} radius="rounded-full" />
+        </div>
+
+        {/* The stated reason the control above is inert. 17 §6.4. */}
+        <Bar w="min(74ch, 100%)" h={12} className="mt-3" />
+
+        {/* ── Operator cards ───────────────────────────────────────────── */}
+        <div className="mt-5 grid gap-2.5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3.5 rounded-overlay p-4"
+              style={{
+                border: '1px solid var(--border-subtle)',
+                background: 'var(--surface-raised)',
+              }}
+            >
+              <Bar w="38px" h={38} radius="rounded-full" />
+              <div className="min-w-0 flex-1">
+                <Bar w={`${34 - (i % 3) * 5}%`} h={14} />
+                <Bar w={`${52 - (i % 4) * 6}%`} h={12} className="mt-1.5" />
+              </div>
+              <Bar w="82px" h={20} radius="rounded-full" />
+            </div>
+          ))}
+        </div>
+
+        {/* ── Invitations and the capability matrix ────────────────────── */}
+        <div className="mt-5 grid items-start gap-5 lg:grid-cols-2">
+          <Panel title="Pending invitations" flush>
+            <div className="grid gap-px" style={{ background: 'var(--border-subtle)' }}>
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 px-5 py-3.5"
+                  style={{ background: 'var(--surface-raised)' }}
+                >
+                  <Bar w="32px" h={32} radius="rounded-full" />
+                  <div className="min-w-0 flex-1">
+                    <Bar w="62%" h={13} />
+                    <Bar w="40%" h={11} className="mt-1.5" />
+                  </div>
+                  <Bar w="54px" h={11} />
+                </div>
+              ))}
+            </div>
+          </Panel>
+
+          <Panel title="Role capabilities" flush>
+            {/* Header row: a label column, then three 58px role columns. */}
+            <div
+              className="flex items-center gap-3 border-b px-5 py-2.5"
+              style={{ borderColor: 'var(--border-subtle)' }}
+            >
+              <span className="flex-1" />
+              {[0, 1, 2].map((i) => (
+                <span key={i} className="grid w-[58px] place-items-center">
+                  <Bar w="42px" h={10} />
+                </span>
+              ))}
+            </div>
+            <div className="grid gap-px" style={{ background: 'var(--border-subtle)' }}>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 px-5 py-2.5"
+                  style={{ background: 'var(--surface-raised)' }}
+                >
+                  <span className="min-w-0 flex-1">
+                    <Bar w={`${78 - (i % 5) * 8}%`} h={12} />
+                  </span>
+                  {[0, 1, 2].map((c) => (
+                    <span key={c} className="grid w-[58px] place-items-center">
+                      <Bar w="12px" h={12} radius="rounded-full" />
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </div>
       </SkeletonGroup>
     </ConsolePage>
+  );
+}
+
+/** One pulsing bar; flat tint rather than nothing under reduced motion. */
+function Bar({
+  w,
+  h,
+  className = '',
+  radius = 'rounded-chip',
+}: {
+  w: string;
+  h: number;
+  className?: string;
+  radius?: string;
+}) {
+  return (
+    <div
+      className={`animate-[skeleton-pulse_1400ms_ease-in-out_infinite] ${radius} motion-reduce:animate-none motion-reduce:opacity-70 ${className}`}
+      style={{ width: w, height: h, background: 'var(--surface-inset)' }}
+    />
   );
 }

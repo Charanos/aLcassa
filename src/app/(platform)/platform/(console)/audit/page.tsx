@@ -4,6 +4,7 @@ import { IconDownload } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage, ExportLink, Panel } from '@/components/console/Surface';
 import { AuditStream } from '@/components/console/AuditStream';
 import { VolumeBand } from '@/components/console/audit/VolumeBand';
+import { ActorBand } from '@/components/console/audit/ActorBand';
 import { getAuditEntries, getAuditVolume } from '@/lib/console/data';
 import { getLiveAuditEntries, getLiveAuditVolume } from '@/lib/console/liveWorkspaces';
 
@@ -66,6 +67,15 @@ export default async function AuditPage() {
         </Suspense>
       </div>
 
+      {/*
+        ⚠ NOT INSIDE THE SUSPENSE BOUNDARY ABOVE, and not a second query.
+        `ActorBand` is derived from the entries this page already awaited, so
+        it costs nothing to render here and cannot disagree with the stream
+        beneath it. Wrapping it in a boundary would suspend on a value that
+        has already resolved — the mistake `VolumeSection` exists to avoid.
+      */}
+      <ActorBand entries={entries} />
+
       <AuditStream entries={entries} />
 
       <p className="t-compact mt-3.5" style={{ color: 'var(--text-tertiary)', maxWidth: '84ch' }}>
@@ -101,7 +111,7 @@ function VolumeSkeleton() {
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
         <Panel title="Actions per day" variant="elevated">
           <div
-            className="h-[168px] w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[12px] motion-reduce:animate-none motion-reduce:opacity-70"
+            className="h-[168px] w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-overlay motion-reduce:animate-none motion-reduce:opacity-70"
             style={{ background: 'var(--surface-inset)' }}
           />
         </Panel>
@@ -110,7 +120,7 @@ function VolumeSkeleton() {
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="h-8 w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-[8px] motion-reduce:animate-none motion-reduce:opacity-70"
+                className="h-8 w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-panel motion-reduce:animate-none motion-reduce:opacity-70"
                 style={{ background: 'var(--surface-inset)' }}
               />
             ))}

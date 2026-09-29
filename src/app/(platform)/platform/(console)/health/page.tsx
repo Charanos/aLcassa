@@ -7,6 +7,7 @@ import {
   IconShieldCheck,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
+import { IconTile } from '@/components/primitives/IconTile';
 import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
 import { LatencyChart, ThroughputChart } from '@/components/console/Charts';
 import { getHealth, type DayState, type Incident, type Service } from '@/lib/console/data';
@@ -101,7 +102,7 @@ export default async function HealthPage() {
           />
           <span
             className="whitespace-nowrap"
-            style={{ font: '500 var(--text-sm)/1 var(--font-ui)', color: pillInk }}
+            style={{ font: '500 var(--type-compact)/1 var(--font-ui)', color: pillInk }}
           >
             {allOk ? 'All systems operational' : 'Degraded in the last 30 days'}
           </span>
@@ -137,13 +138,21 @@ export default async function HealthPage() {
               }}
             >
               <div className="flex items-center gap-2.5">
-                <span
-                  className="grid size-6 shrink-0 place-items-center rounded-panel"
-                  style={{ background: 'var(--surface-sunken)', color: 'var(--text-secondary)' }}
-                  aria-hidden
-                >
-                  <Icon size={15} stroke={1.5} />
-                </span>
+                {/*
+                  ⚠ AN `IconTile`, NOT A FLAT GLYPH ON A SUNKEN SQUARE.
+                  A 15px stroke sitting directly on a tinted box reads as part
+                  of the text run rather than as a marker beside it, and at six
+                  cards in a row the eye has nothing to anchor on. `IconTile`
+                  is the treatment the rest of the console uses — gradient,
+                  hairline, small shadow — so the glyph sits ON the surface
+                  instead of in it, and this grid stops being the one place
+                  that disagrees.
+                */}
+                <IconTile
+                  icon={Icon}
+                  size="sm"
+                  tone={worst === 'ok' ? 'neutral' : worst === 'degraded' ? 'warning' : 'danger'}
+                />
                 <span
                   className="t-compact flex-1 truncate"
                   style={{ color: 'var(--text-primary)' }}
@@ -180,14 +189,17 @@ export default async function HealthPage() {
                   <span
                     key={i}
                     title={`${30 - i} days ago · ${d === 'ok' ? 'Operational' : d === 'degraded' ? 'Degraded' : 'Down'}`}
-                    className="h-[18px] flex-1 rounded-[1px]"
+                    className="h-[18px] flex-1 rounded-bar"
                     style={{ background: DAY_INK[d] }}
                   />
                 ))}
               </div>
               <p
                 className="mt-2"
-                style={{ font: '400 11px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                style={{
+                  font: '400 var(--type-chip)/1 var(--font-mono)',
+                  color: 'var(--text-tertiary)',
+                }}
               >
                 30 days · {s.uptime}
               </p>
@@ -213,7 +225,10 @@ export default async function HealthPage() {
                   {isolation.tablesPoliced}
                 </span>
                 <span
-                  style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                  style={{
+                    font: '400 var(--type-compact)/1 var(--font-mono)',
+                    color: 'var(--text-tertiary)',
+                  }}
                 >
                   / {isolation.tablesTotal}
                 </span>
@@ -254,7 +269,10 @@ export default async function HealthPage() {
               >
                 {isolation.crossTenantRefused30d}
                 <span
-                  style={{ font: '400 13px/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+                  style={{
+                    font: '400 var(--type-compact)/1 var(--font-mono)',
+                    color: 'var(--text-tertiary)',
+                  }}
                 >
                   {' '}
                   / {isolation.crossTenantAttempts30d}
@@ -267,7 +285,7 @@ export default async function HealthPage() {
               </p>
               <p
                 style={{
-                  font: '400 var(--text-sm)/1.4 var(--font-mono)',
+                  font: '400 var(--type-compact)/1.4 var(--font-mono)',
                   color: 'var(--text-primary)',
                   marginTop: 6,
                 }}
@@ -310,7 +328,10 @@ export default async function HealthPage() {
           action={
             <span
               className="whitespace-nowrap"
-              style={{ font: '400 12px/1 var(--font-mono)', color: 'var(--danger-fg)' }}
+              style={{
+                font: '400 var(--type-compact)/1 var(--font-mono)',
+                color: 'var(--danger-fg)',
+              }}
             >
               spike at 17:00
             </span>
@@ -345,7 +366,7 @@ export default async function HealthPage() {
                 <span
                   className="min-w-0 flex-1 truncate"
                   style={{
-                    font: '400 var(--text-sm)/1.3 var(--font-mono)',
+                    font: '400 var(--type-compact)/1.3 var(--font-mono)',
                     color: 'var(--text-primary)',
                   }}
                 >
@@ -359,7 +380,7 @@ export default async function HealthPage() {
                 </span>
                 <span
                   className="numeric grid h-[22px] min-w-[34px] place-items-center rounded-full px-2"
-                  style={{ background: tone.bg, color: tone.ink, fontSize: 11.5 }}
+                  style={{ background: tone.bg, color: tone.ink, fontSize: 'var(--type-chip)' }}
                 >
                   {q.depth}
                 </span>
@@ -391,7 +412,7 @@ export default async function HealthPage() {
                   style={{
                     background: sev.bg,
                     color: sev.ink,
-                    font: '500 10px/1 var(--font-mono)',
+                    font: '500 var(--type-micro)/1 var(--font-mono)',
                     letterSpacing: '0.04em',
                   }}
                 >
@@ -409,7 +430,7 @@ export default async function HealthPage() {
                   <span
                     className="block whitespace-nowrap"
                     style={{
-                      font: '400 11.5px/1.4 var(--font-mono)',
+                      font: '400 var(--type-chip)/1.4 var(--font-mono)',
                       color: 'var(--text-tertiary)',
                     }}
                   >
@@ -417,7 +438,10 @@ export default async function HealthPage() {
                   </span>
                   <span
                     className="mt-0.5 block whitespace-nowrap"
-                    style={{ font: '400 11.5px/1.4 var(--font-mono)', color: 'var(--success-fg)' }}
+                    style={{
+                      font: '400 var(--type-chip)/1.4 var(--font-mono)',
+                      color: 'var(--success-fg)',
+                    }}
                   >
                     {inc.status}
                   </span>
@@ -435,7 +459,7 @@ function Legend({ swatch, children }: { swatch: string; children: React.ReactNod
   return (
     <span
       className="inline-flex items-center gap-1.5 whitespace-nowrap"
-      style={{ font: '400 12px/1 var(--font-ui)', color: 'var(--text-secondary)' }}
+      style={{ font: '400 var(--type-compact)/1 var(--font-ui)', color: 'var(--text-secondary)' }}
     >
       <span aria-hidden style={{ width: 10, height: 2, background: swatch }} />
       {children}
