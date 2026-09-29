@@ -147,12 +147,30 @@ export default tseslint.config(
          *   about class literals and wrong about the console.
          */
         {
-          selector: 'Property[key.name="fontSize"][value.value=/^[0-9.]+(px)?$/]',
+          selector:
+            'Property[key.name="fontSize"]:matches([value.value=/^[0-9.]+(px)?$/], [value.value>=0])',
           message:
-            'Arbitrary type size in an inline style. Use var(--type-badge | micro | chip | compact | body | lede | panel | heading | display | hero).',
+            'Arbitrary type size. In CSS (a style prop) use var(--type-*). In a Recharts tick or label prop, do NOT use var() — it becomes an SVG attribute where var() does not resolve; read the token through useTokens() in console/Charts.tsx instead.',
+        },
+        /*
+         * ⚠ THE RULE ABOVE CAUSED A REGRESSION BEFORE THIS ONE EXISTED.
+         *
+         * Its message used to say "use var(--type-*)", full stop, and a
+         * codemod did exactly that inside Recharts `tick` props — which
+         * Recharts writes onto `<text>` as presentation attributes, where
+         * `var()` is not reliably resolved. Four chart axes lost their size.
+         * A rule that only says what not to write teaches the nearest
+         * alternative, whether or not it works in context.
+         */
+        {
+          selector:
+            'Property[key.name=/^(tick|label)$/] Property[key.name=/^(fontSize|fontFamily|fill|stroke)$/][value.value=/^var[(]/]',
+          message:
+            'var() inside a Recharts tick/label prop becomes an SVG presentation attribute and is not reliably resolved. Resolve the token first — see useTokens() in console/Charts.tsx.',
         },
         {
-          selector: 'Property[key.name="borderRadius"][value.value=/^[0-9.]+(px)?$/]',
+          selector:
+            'Property[key.name="borderRadius"]:matches([value.value=/^[0-9.]+(px)?$/], [value.value>=0])',
           message:
             'Arbitrary radius in an inline style. Use var(--radius-bar | control | surface | modal | card | hero | slab).',
         },

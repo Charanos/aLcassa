@@ -1,6 +1,6 @@
 import { IconInfoCircle } from '@tabler/icons-react';
 import { BandLink, Panel, SectionHeading } from '../Surface';
-import { SkeletonGroup } from '@/components/primitives/Skeleton';
+import { SkeletonGroup, SkeletonBar } from '@/components/primitives/Skeleton';
 import { type HeadroomModel } from '@/lib/console/data';
 import { HeadroomPlanCard } from './HeadroomPlanCard';
 
@@ -130,8 +130,8 @@ export function HeadroomBandSkeleton() {
     <SkeletonGroup label="Loading headroom" className="mt-8 block">
       {/* The right-aligned heading, at the rhythm SectionHeading uses. */}
       <div className="mt-24 mb-12 flex flex-col items-end">
-        <HeadroomBar w="132px" h={20} />
-        <HeadroomBar w="min(46ch, 100%)" h={12} className="mt-2.5" />
+        <SkeletonBar width="132px" height={20} />
+        <SkeletonBar width="min(46ch, 100%)" height={12} className="mt-2.5" />
       </div>
 
       <div
@@ -148,44 +148,24 @@ export function HeadroomBandSkeleton() {
               boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
             }}
           >
-            <HeadroomBar w={`${44 - i * 6}%`} h={18} />
-            <HeadroomBar w="72%" h={12} className="mt-2.5" />
+            <SkeletonBar width={`${44 - i * 6}%`} height={18} />
+            <SkeletonBar width="72%" height={12} className="mt-2.5" />
             {/* Each entitlement row: a label, a value, and its bar. */}
             <div className="mt-6 grid gap-5">
               {[0, 1, 2, 3].map((r) => (
                 <div key={r}>
                   <div className="flex items-baseline justify-between gap-3">
-                    <HeadroomBar w={`${58 - ((i + r) % 4) * 8}%`} h={12} />
-                    <HeadroomBar w="52px" h={12} />
+                    <SkeletonBar width={`${58 - ((i + r) % 4) * 8}%`} height={12} />
+                    <SkeletonBar width="52px" height={12} />
                   </div>
-                  <HeadroomBar w="100%" h={6} className="mt-2.5" radius="rounded-bar" />
+                  <SkeletonBar width="100%" height={6} className="mt-2.5" radius="rounded-bar" />
                 </div>
               ))}
             </div>
-            <HeadroomBar w="100%" h={36} className="mt-7" radius="rounded-full" />
+            <SkeletonBar width="100%" height={36} className="mt-7" radius="rounded-full" />
           </div>
         ))}
       </div>
     </SkeletonGroup>
-  );
-}
-
-/** One pulsing bar; flat tint rather than nothing under reduced motion. */
-function HeadroomBar({
-  w,
-  h,
-  className = '',
-  radius = 'rounded-chip',
-}: {
-  w: string;
-  h: number;
-  className?: string;
-  radius?: string;
-}) {
-  return (
-    <div
-      className={`animate-[skeleton-pulse_1400ms_ease-in-out_infinite] ${radius} motion-reduce:animate-none motion-reduce:opacity-70 ${className}`}
-      style={{ width: w, height: h, background: 'var(--surface-inset)' }}
-    />
   );
 }

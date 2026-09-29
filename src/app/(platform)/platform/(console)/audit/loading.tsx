@@ -1,5 +1,5 @@
 import { ConsolePage, Panel } from '@/components/console/Surface';
-import { SkeletonGroup } from '@/components/primitives/Skeleton';
+import { SkeletonGroup, SkeletonBar } from '@/components/primitives/Skeleton';
 
 /**
  * ⚠ THIS WAS EIGHT GENERIC ROWS UNDER A GENERIC HEADER — fifteen lines in
@@ -24,12 +24,12 @@ export default function AuditLoading() {
         {/* ── Header, with the export control on the right ─────────────── */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-6">
           <div className="min-w-0 flex-1">
-            <Bar w="120px" h={11} />
-            <Bar w="180px" h={26} className="mt-2" />
-            <Bar w="min(68ch, 100%)" h={14} className="mt-3" />
-            <Bar w="min(52ch, 90%)" h={14} className="mt-1.5" />
+            <SkeletonBar width="120px" height={11} />
+            <SkeletonBar width="180px" height={26} className="mt-2" />
+            <SkeletonBar width="min(68ch, 100%)" height={14} className="mt-3" />
+            <SkeletonBar width="min(52ch, 90%)" height={14} className="mt-1.5" />
           </div>
-          <Bar w="104px" h={36} radius="rounded-full" />
+          <SkeletonBar width="104px" height={36} radius="rounded-full" />
         </div>
 
         {/* ── Volume band ──────────────────────────────────────────────── */}
@@ -37,7 +37,7 @@ export default function AuditLoading() {
           <Heading />
           <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
             <Panel title="Actions per day">
-              <Bar w="100%" h={168} radius="rounded-overlay" />
+              <SkeletonBar width="100%" height={168} radius="rounded-overlay" />
             </Panel>
             <Panel title="In the window">
               <FigureRows n={4} />
@@ -53,10 +53,15 @@ export default function AuditLoading() {
               <div className="grid gap-3.5">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <div key={i} className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-3">
-                    <Bar w="28px" h={28} radius="rounded-panel" />
+                    <SkeletonBar width="28px" height={28} radius="rounded-panel" />
                     <div>
-                      <Bar w="55%" h={13} />
-                      <Bar w="100%" h={4} className="mt-1.5" radius="rounded-bar" />
+                      <SkeletonBar width="55%" height={13} />
+                      <SkeletonBar
+                        width="100%"
+                        height={4}
+                        className="mt-1.5"
+                        radius="rounded-bar"
+                      />
                     </div>
                   </div>
                 ))}
@@ -70,9 +75,9 @@ export default function AuditLoading() {
 
         {/* ── The stream: a toolbar, then rows ─────────────────────────── */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <Bar w="220px" h={36} radius="rounded-full" />
+          <SkeletonBar width="220px" height={36} radius="rounded-full" />
           {[0, 1, 2, 3, 4].map((i) => (
-            <Bar key={i} w="74px" h={28} radius="rounded-full" />
+            <SkeletonBar key={i} width="74px" height={28} radius="rounded-full" />
           ))}
         </div>
         <div className="mt-4 grid gap-px" style={{ background: 'var(--border-subtle)' }}>
@@ -82,12 +87,12 @@ export default function AuditLoading() {
               className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5"
               style={{ background: 'var(--surface-raised)' }}
             >
-              <Bar w="28px" h={28} radius="rounded-panel" />
+              <SkeletonBar width="28px" height={28} radius="rounded-panel" />
               <div>
-                <Bar w={`${68 - (i % 4) * 9}%`} h={13} />
-                <Bar w={`${44 - (i % 3) * 7}%`} h={11} className="mt-1.5" />
+                <SkeletonBar width={`${68 - (i % 4) * 9}%`} height={13} />
+                <SkeletonBar width={`${44 - (i % 3) * 7}%`} height={11} className="mt-1.5" />
               </div>
-              <Bar w="66px" h={11} />
+              <SkeletonBar width="66px" height={11} />
             </div>
           ))}
         </div>
@@ -100,8 +105,8 @@ export default function AuditLoading() {
 function Heading() {
   return (
     <div className="mt-24 mb-12">
-      <Bar w="128px" h={20} />
-      <Bar w="220px" h={12} className="mt-2" />
+      <SkeletonBar width="128px" height={20} />
+      <SkeletonBar width="220px" height={12} className="mt-2" />
     </div>
   );
 }
@@ -117,39 +122,12 @@ function FigureRows({ n }: { n: number }) {
           style={{ borderColor: 'var(--border-subtle)' }}
         >
           <div className="flex items-baseline justify-between gap-3">
-            <Bar w={`${52 - (i % 3) * 8}%`} h={11} />
-            <Bar w="38px" h={16} />
+            <SkeletonBar width={`${52 - (i % 3) * 8}%`} height={11} />
+            <SkeletonBar width="38px" height={16} />
           </div>
-          <Bar w="88%" h={11} className="mt-0.5" />
+          <SkeletonBar width="88%" height={11} className="mt-0.5" />
         </div>
       ))}
     </div>
-  );
-}
-
-/**
- * One pulsing bar.
- *
- * ⚠ THE PULSE STOPS UNDER `prefers-reduced-motion` AND DROPS TO A FLAT TINT
- * rather than disappearing — a skeleton that animates for everyone is a
- * vestibular problem, and one that vanishes without the animation is a blank
- * screen.
- */
-function Bar({
-  w,
-  h,
-  className = '',
-  radius = 'rounded-chip',
-}: {
-  w: string;
-  h: number;
-  className?: string;
-  radius?: string;
-}) {
-  return (
-    <div
-      className={`animate-[skeleton-pulse_1400ms_ease-in-out_infinite] ${radius} motion-reduce:animate-none motion-reduce:opacity-70 ${className}`}
-      style={{ width: w, height: h, background: 'var(--surface-inset)' }}
-    />
   );
 }

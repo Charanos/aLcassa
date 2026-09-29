@@ -174,9 +174,19 @@ export function ConsoleShell({
   const searchParams = useSearchParams();
   const pushToast = useToast();
 
+  /*
+   * ⚠ WHEN ATTEMPTS ARE NOT COUNTED, THE VERDICT RESTS ON THE POLICIES ALONE —
+   * deliberately, not by coincidence. The two figures are `null` until the
+   * application is instrumented to notice a scoped query returning fewer rows
+   * than an unscoped one would, and `null === null` happened to evaluate true.
+   * Written out, so the day one side becomes a number and the other does not,
+   * this does not quietly flip.
+   */
+  const attemptsCounted =
+    isolation.crossTenantAttempts30d !== null && isolation.crossTenantRefused30d !== null;
   const isolationOk =
     isolation.tablesPoliced === isolation.tablesTotal &&
-    isolation.crossTenantAttempts30d === isolation.crossTenantRefused30d;
+    (!attemptsCounted || isolation.crossTenantAttempts30d === isolation.crossTenantRefused30d);
 
   // `/platform/tenants/new` redirects to `?provision=1` rather than owning a
   // route, so the flow keeps a deep-linkable URL from any console page

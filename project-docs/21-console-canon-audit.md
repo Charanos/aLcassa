@@ -411,3 +411,36 @@ a tinted square, the one place in the console still doing that; they now use
   the right end state — one presentation primitive, one domain wrapper — but it
   is a behavioural refactor of a component on eight surfaces, and it belongs in
   its own pass with its own review rather than inside a consistency sweep.
+
+---
+
+## Errata · 30 September 2026
+
+Two things this document got wrong, found while rebuilding the health page.
+
+**F6 was a false finding.** The `VolumeChart` docblock that F6 called
+"describing machinery that is not there" was describing the *design
+reference's* `charts.jsx`, which does re-resolve tokens behind a
+`MutationObserver` — and was explaining why this file does not need one. It was
+accurate. The "fix" spliced new text into the middle of its sentence and left
+it ungrammatical. The original wording is restored.
+
+**The type codemod broke four chart axes.** F2's codemod replaced literal
+`fontSize: 11` with `'var(--type-chip)'` everywhere, including inside Recharts
+`tick` props — which Recharts writes onto `<text>` as SVG presentation
+attributes, where `var()` is not reliably resolved. The header of
+`console/Charts.tsx` already documented exactly this for colours. Those axes
+fell back to their inherited size. Tick typography now comes through the same
+`useTokens()` resolver the colours use, and a lint rule rejects `var()` inside
+a `tick` or `label` prop, with a message saying why.
+
+The lint rule that drove the codemod carried part of the blame: its message
+said "use `var(--type-*)`", full stop — correct for CSS, wrong for an SVG
+attribute. A rule that only says what not to write teaches the nearest
+alternative whether or not it works in context. Its message now names both
+cases.
+
+One more gap in the same rules: `value.value=/regex/` in an esquery selector
+only tests strings, so numeric `fontSize: 11` and `borderRadius: 8` were never
+caught. Both forms are covered now; three instances that had slipped through
+were fixed.

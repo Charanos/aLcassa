@@ -1,5 +1,5 @@
 import { ConsolePage } from '@/components/console/Surface';
-import { SkeletonGroup, SkeletonHeader } from '@/components/primitives/Skeleton';
+import { SkeletonGroup, SkeletonHeader, SkeletonBar } from '@/components/primitives/Skeleton';
 import { QueueSkeleton } from '@/components/console/overview/YourQueue';
 import { PlatformTelemetrySkeleton } from '@/components/console/overview/PlatformTelemetry';
 import { LastActionsSkeleton } from '@/components/console/overview/LastActions';
@@ -59,16 +59,16 @@ export default function OverviewLoading() {
             {/* Briefing column: eyebrow, display headline, signal cards. */}
             <div className="flex flex-1 flex-col justify-between p-8 lg:p-12 lg:pr-8">
               <div>
-                <Invert w="96px" h={11} />
-                <Invert w="min(32ch, 100%)" h={38} className="mt-4" />
-                <Invert w="min(24ch, 86%)" h={38} className="mt-2.5" />
+                <SkeletonBar inverse width="96px" height={11} />
+                <SkeletonBar inverse width="min(32ch, 100%)" height={38} className="mt-4" />
+                <SkeletonBar inverse width="min(24ch, 86%)" height={38} className="mt-2.5" />
               </div>
               <div className="mt-10 grid gap-6 sm:grid-cols-2">
                 {[0, 1].map((i) => (
                   <div key={i}>
-                    <Invert w="84px" h={10} />
-                    <Invert w="128px" h={30} className="mt-3.5" />
-                    <Invert w="90%" h={12} className="mt-3" />
+                    <SkeletonBar inverse width="84px" height={10} />
+                    <SkeletonBar inverse width="128px" height={30} className="mt-3.5" />
+                    <SkeletonBar inverse width="90%" height={12} className="mt-3" />
                   </div>
                 ))}
               </div>
@@ -76,7 +76,7 @@ export default function OverviewLoading() {
 
             {/* Chart column. One block at the chart's height. */}
             <div className="flex-1 p-8 lg:py-12 lg:pr-12 lg:pl-8">
-              <Invert w="100%" h={300} radius="rounded-overlay" />
+              <SkeletonBar inverse width="100%" height={300} radius="rounded-overlay" />
             </div>
           </div>
         </section>
@@ -84,8 +84,8 @@ export default function OverviewLoading() {
         {/* ── "Command & Telemetry", right-aligned, then the queue + rail ── */}
         <div className="mb-6 md:mt-24">
           <div className="flex flex-col items-end">
-            <Bar w="228px" h={20} />
-            <Bar w="min(58ch, 100%)" h={12} className="mt-2.5" />
+            <SkeletonBar width="228px" height={20} />
+            <SkeletonBar width="min(58ch, 100%)" height={12} className="mt-2.5" />
           </div>
         </div>
         <div className="mb-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
@@ -119,45 +119,5 @@ export default function OverviewLoading() {
       <PortfolioBandSkeleton />
       <OperationsBandSkeleton />
     </ConsolePage>
-  );
-}
-
-/** A bar on the page's own ground. */
-function Bar({
-  w,
-  h,
-  className = '',
-  radius = 'rounded-chip',
-}: {
-  w: string;
-  h: number;
-  className?: string;
-  radius?: string;
-}) {
-  return (
-    <div
-      className={`animate-[skeleton-pulse_1400ms_ease-in-out_infinite] ${radius} motion-reduce:animate-none motion-reduce:opacity-70 ${className}`}
-      style={{ width: w, height: h, background: 'var(--surface-inset)' }}
-    />
-  );
-}
-
-/** A bar on the inverse slab, lightened rather than tinted. */
-function Invert({
-  w,
-  h,
-  className = '',
-  radius = 'rounded-chip',
-}: {
-  w: string;
-  h: number;
-  className?: string;
-  radius?: string;
-}) {
-  return (
-    <div
-      className={`animate-[skeleton-pulse_1400ms_ease-in-out_infinite] ${radius} motion-reduce:animate-none motion-reduce:opacity-70 ${className}`}
-      style={{ width: w, height: h, background: 'rgba(255,255,255,0.07)' }}
-    />
   );
 }

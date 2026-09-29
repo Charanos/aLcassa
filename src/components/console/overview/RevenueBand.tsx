@@ -1,7 +1,7 @@
 import { IconRocket, IconBolt, IconBox, type Icon as TablerIcon } from '@tabler/icons-react';
 import { AgeingChart, MrrChart, PlanMixChart } from '../Charts';
 import { Panel, SectionHeading } from '../Surface';
-import { SkeletonGroup, SkeletonText } from '@/components/primitives/Skeleton';
+import { SkeletonGroup, SkeletonText, SkeletonBar } from '@/components/primitives/Skeleton';
 import { BandLink } from './shared';
 import { DebtStack } from './DebtStack';
 import type { OverviewInsights } from '@/lib/console/data';
@@ -198,10 +198,10 @@ export function RevenueBandSkeleton() {
       <div className="mb-6 h-7" />
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
         <Panel title="" variant="elevated">
-          <ChartBlock h={236} />
+          <SkeletonBar width="100%" height={236} radius="rounded-overlay" />
         </Panel>
         <Panel title="" variant="elevated">
-          <ChartBlock h={150} />
+          <SkeletonBar width="100%" height={150} radius="rounded-overlay" />
           <div className="mt-5 grid gap-3 border-t border-[var(--border-subtle)]/40 pt-3">
             {[0, 1, 2].map((i) => (
               <SkeletonText
@@ -226,19 +226,9 @@ export function RevenueBandSkeleton() {
           </div>
         </Panel>
         <Panel title="" variant="elevated">
-          <ChartBlock h={196} />
+          <SkeletonBar width="100%" height={196} radius="rounded-overlay" />
         </Panel>
       </div>
     </SkeletonGroup>
-  );
-}
-
-/** A chart's footprint. One block at the chart's height, not a stack of rows. */
-function ChartBlock({ h }: { h: number }) {
-  return (
-    <div
-      className="w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-overlay motion-reduce:animate-none motion-reduce:opacity-70"
-      style={{ height: h, background: 'var(--surface-inset)' }}
-    />
   );
 }

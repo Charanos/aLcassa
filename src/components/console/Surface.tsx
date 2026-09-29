@@ -181,7 +181,10 @@ export function SectionHeading({
       />
 
       <div
-        className={`flex w-full items-start justify-between gap-8 ${isRight ? 'flex-row-reverse' : ''}`}
+        /* `flex-wrap`: on a phone the action used to run off the right edge,
+           because nothing let it drop below a title and note that had already
+           taken the width. It wraps under them now. */
+        className={`flex w-full flex-wrap items-start justify-between gap-x-8 gap-y-4 ${isRight ? 'flex-row-reverse' : ''}`}
       >
         {/* Main Content Stack */}
         <div
@@ -306,7 +309,7 @@ export function Panel({
       )}
       {title ? (
         <div
-          className={`mb-5 ${isElevated || isFlushGlass ? '' : 'mt-4'} flex items-center justify-between gap-4 px-1`}
+          className={`mb-5 ${isElevated || isFlushGlass ? '' : 'mt-4'} flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-1`}
         >
           <div className="flex items-center gap-2.5">
             {accentInk ? (
@@ -683,5 +686,73 @@ export function BandLink({ href, children }: { href: string; children: React.Rea
         aria-hidden
       />
     </Link>
+  );
+}
+
+/**
+ * Where a figure comes from: the database, or the design.
+ *
+ * ⚠ EXTRACTED FROM `OperationsBand`, WHICH HAD THE ONLY COPY, BECAUSE HEALTH
+ *   NEEDED IT ON EVERY BAND AND HAD NONE.
+ *
+ * The overview's queue panel carried a local `Designed` marker. Health — the
+ * page whose entire content is uptime, latency, queues and incidents — carried
+ * nothing, and presented designed figures as live fact to the same signed-in
+ * operator whose overview had just told them "No probes are reporting yet".
+ * Two screens, one operator, opposite claims.
+ *
+ * Two states, drawn as a pair so either explains the other: a filled, pulsing
+ * dot for a figure read when the page loaded, a hollow ring for one that is
+ * the design's until its source is wired. The words carry it too, so the
+ * distinction survives greyscale and a screen reader.
+ *
+ * `inverse` is for the dark chrome slabs.
+ */
+export function DataSource({
+  kind,
+  detail,
+  inverse = false,
+}: {
+  kind: 'live' | 'designed';
+  /** A few words after the kind — "probes at M6", "read now". */
+  detail?: string;
+  inverse?: boolean;
+}) {
+  const live = kind === 'live';
+  const ink = inverse
+    ? live
+      ? 'var(--chrome-fg-muted)'
+      : 'var(--chrome-fg-faint)'
+    : live
+      ? 'var(--text-secondary)'
+      : 'var(--text-tertiary)';
+  const dot = live ? (inverse ? 'var(--chrome-info)' : 'var(--blue-500)') : ink;
+
+  return (
+    <span
+      className="inline-flex items-center gap-2 font-mono text-2xs tracking-[0.12em] whitespace-nowrap uppercase"
+      style={{ color: ink }}
+      title={
+        live
+          ? 'Read from the database when this page loaded.'
+          : 'No observability probes in Phase 1. These are the designed figures; the probes arrive at M6.'
+      }
+    >
+      <span aria-hidden className="relative flex size-2 items-center justify-center">
+        {live ? (
+          <>
+            <span
+              className="absolute inset-0 animate-ping rounded-full opacity-40 motion-reduce:animate-none"
+              style={{ background: dot, animationDuration: '2.6s' }}
+            />
+            <span className="relative size-1.5 rounded-full" style={{ background: dot }} />
+          </>
+        ) : (
+          <span className="size-1.5 rounded-full" style={{ boxShadow: `inset 0 0 0 1px ${dot}` }} />
+        )}
+      </span>
+      {live ? 'live' : 'designed'}
+      {detail ? <span style={{ opacity: 0.75 }}>· {detail}</span> : null}
+    </span>
   );
 }

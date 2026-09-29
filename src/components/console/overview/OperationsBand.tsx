@@ -1,6 +1,6 @@
 import { IconActivity, IconShieldCheck } from '@tabler/icons-react';
 import { LatencyChart } from '../Charts';
-import { Panel, SectionHeading } from '../Surface';
+import { Panel, SectionHeading, DataSource } from '../Surface';
 import { SkeletonGroup, SkeletonText } from '@/components/primitives/Skeleton';
 import { BandLink } from './shared';
 import type { OverviewInsights } from '@/lib/console/data';
@@ -43,7 +43,11 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
-        <Panel title="Response latency · p50 / p95 / p99" action={<Designed />} variant="elevated">
+        <Panel
+          title="Response latency · p50 / p95 / p99"
+          action={<DataSource kind="designed" />}
+          variant="elevated"
+        >
           {operations.latency.length > 0 ? (
             <div className="flex h-full flex-col pt-1">
               <div className="mb-6 w-full">
@@ -68,7 +72,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
         </Panel>
 
         <div className="grid gap-5">
-          <Panel title="Services" action={<Designed />} variant="elevated">
+          <Panel title="Services" action={<DataSource kind="designed" />} variant="elevated">
             {total === 0 ? (
               <NoProbes
                 title="No services are reporting."
@@ -104,7 +108,12 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
             )}
           </Panel>
 
-          <Panel title="Queue depth" flush action={<Designed />} variant="elevated">
+          <Panel
+            title="Queue depth"
+            flush
+            action={<DataSource kind="designed" />}
+            variant="elevated"
+          >
             {queues.length === 0 ? (
               <div className="px-1 pb-2">
                 <NoProbes
@@ -193,7 +202,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
                                   className="text-sm font-medium"
                                   style={{ color: 'var(--text-tertiary)' }}
                                 >
-                                  · {q.rate}
+                                  · {q.perMinute.toLocaleString('en-KE')}/min
                                 </span>
                               </span>
                               {deepest > 0 ? (
@@ -305,25 +314,16 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
   );
 }
 
-/**
+/*
  * ⚠ THE CAVEAT TRAVELS WITH THE PANEL, NOT WITH THE PAGE.
  *
  * Three panels in this band plot probe data that does not exist yet. A single
  * note at the top of the section is read once and then scrolled past; a label
  * in each panel's action slot is beside the figure at the moment somebody reads
- * it. Same statement the health page makes about the same numbers.
+ * it. The marker is `DataSource` in `Surface.tsx` now — this file held the
+ * only copy, and it claimed "the health page makes the same statement about the
+ * same numbers", which the health page did not until it could import this.
  */
-function Designed() {
-  return (
-    <span
-      className="font-mono text-2xs tracking-[0.1em] uppercase"
-      style={{ color: 'var(--text-tertiary)' }}
-      title="No observability probes in Phase 1. These are the designed figures."
-    >
-      designed
-    </span>
-  );
-}
 
 /**
  * ⚠ A SEAM, NOT A FAILURE. `03 §16` separates the two: probes are a real

@@ -10,6 +10,7 @@ import {
   Line,
   Pie,
   PieChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -53,6 +54,11 @@ type Tokens = {
   surface: string;
   text: string;
   muted: string;
+  /** Type sizes and the mono family, resolved like the colours are — see
+   *  the note on `axis()` below for why they cannot stay as `var()`. */
+  chip: string;
+  micro: string;
+  mono: string;
 };
 
 const FALLBACK: Tokens = {
@@ -68,6 +74,9 @@ const FALLBACK: Tokens = {
   surface: '#ffffff',
   text: '#17225d',
   muted: '#64708b',
+  chip: '11px',
+  micro: '10px',
+  mono: 'ui-monospace, SFMono-Regular, Menlo, monospace',
 };
 
 const VARS: Record<keyof Tokens, string> = {
@@ -83,6 +92,9 @@ const VARS: Record<keyof Tokens, string> = {
   surface: '--surface-raised',
   text: '--text-primary',
   muted: '--text-secondary',
+  chip: '--type-chip',
+  micro: '--type-micro',
+  mono: '--font-mono',
 };
 
 function useTokens(): Tokens {
@@ -125,7 +137,24 @@ function Panel({ label, value, t }: { label: string; value: string; t: Tokens })
   );
 }
 
-const AXIS = { fontSize: 'var(--type-chip)', fontFamily: 'var(--font-mono)' };
+/**
+ * Tick typography, resolved.
+ *
+ * ⚠ THIS WAS `{ fontSize: 'var(--type-chip)', fontFamily: 'var(--font-mono)' }`
+ *   AND THE FIRST HALF OF THAT WAS A REGRESSION.
+ *
+ * Recharts writes `tick` props onto `<text>` as SVG PRESENTATION ATTRIBUTES,
+ * and the header of this file records what happens to `var()` there: it is
+ * not reliably resolved across engines. A console-wide codemod (doc 21)
+ * replaced the literal `fontSize: 11` with the token to satisfy a lint rule
+ * written for CSS, and every axis on this page fell back to its inherited size.
+ * The `fontFamily` half predates that and had the same problem the whole
+ * time, which is why these axes may never actually have rendered in mono.
+ *
+ * Both now come through `useTokens()` like every colour here does: the token
+ * stays the single source, and Recharts receives a value it can use.
+ */
+const axis = (t: Tokens) => ({ fontSize: t.chip, fontFamily: t.mono, fill: t.muted });
 
 /* ── MRR over time ───────────────────────────────────────────────────────
  * A line for the level and faint bars for net-new. Two encodings rather than
@@ -150,14 +179,9 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
             stroke="color-mix(in srgb, var(--border-subtle) 40%, transparent)"
             vertical={false}
           />
-          <XAxis
-            dataKey="month"
-            tick={{ ...AXIS, fill: t.muted }}
-            axisLine={{ stroke: t.rule }}
-            tickLine={false}
-          />
+          <XAxis dataKey="month" tick={axis(t)} axisLine={{ stroke: t.rule }} tickLine={false} />
           <YAxis
-            tick={{ ...AXIS, fill: t.muted }}
+            tick={axis(t)}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v: number) => `${(v / 1_000_000).toFixed(1)}M`}
@@ -255,10 +279,26 @@ export function PlanMixChart({ data }: { data: Array<{ name: string; value: numb
  */
 export function LatencyChart({
   data,
+  budget,
 }: {
   data: Array<{ t: string; p50: number; p95: number; p99: number }>;
+  /**
+   * The p95 budget, drawn as a line the p95 series is judged against.
+   *
+   * ⚠ WITHOUT IT THE CHART ANSWERED A QUESTION NOBODY ASKED. Sheet 11: "a
+   * number without a target is trivia" — and a latency curve without its
+   * budget is a shape. Whether 148ms at noon is fine or alarming depends
+   * entirely on the 200ms the API is held to, which the service card above
+   * states and this chart did not. The line is dashed and in the warning ink
+   * because it is a threshold, not a series: it never moves, and its only job
+   * is to be the thing the blue line stays under.
+   */
+  budget?: number;
 }) {
   const t = useTokens();
+  /* The axis must reach the budget, or a quiet day draws the line off the top
+     of the chart and the reader cannot see how much room there was. */
+  const ceiling = Math.max(budget ?? 0, ...data.map((d) => d.p99));
 
   return (
     <div className="absolute inset-0">
@@ -267,19 +307,40 @@ export function LatencyChart({
           <CartesianGrid stroke={t.rule} strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="t"
-            tick={{ ...AXIS, fill: t.muted }}
+            tick={axis(t)}
             axisLine={{ stroke: t.rule }}
             tickLine={false}
             interval="preserveStartEnd"
             minTickGap={28}
           />
           <YAxis
-            tick={{ ...AXIS, fill: t.muted }}
+            tick={axis(t)}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v: number) => `${v}ms`}
             width={48}
+            /* Round hundreds, stepped by 100, so one tick sits exactly on a
+               200ms budget. Recharts' own choice gave 90 / 180 / 350 — ticks
+               that line up with nothing the reader is comparing against. */
+            domain={[0, Math.ceil((ceiling * 1.08) / 100) * 100]}
+            ticks={Array.from({ length: Math.ceil((ceiling * 1.08) / 100) + 1 }, (_, i) => i * 100)}
           />
+          {budget ? (
+            <ReferenceLine
+              y={budget}
+              stroke={t.warning}
+              strokeDasharray="5 4"
+              strokeWidth={1.25}
+              ifOverflow="extendDomain"
+              label={{
+                value: `p95 budget · ${budget}ms`,
+                position: 'insideTopRight',
+                fill: t.warning,
+                fontSize: t.micro,
+                fontFamily: t.mono,
+              }}
+            />
+          ) : null}
           <Tooltip
             cursor={{ stroke: t.rule }}
             content={({ active, payload, label }) => {
@@ -342,11 +403,11 @@ export function ThroughputChart({
   return (
     <div style={{ height: 200 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -14 }}>
+        <ComposedChart data={data} margin={{ top: 8, right: 14, bottom: 0, left: -14 }}>
           <CartesianGrid stroke={t.rule} strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="t"
-            tick={{ ...AXIS, fill: t.muted }}
+            tick={axis(t)}
             axisLine={{ stroke: t.rule }}
             tickLine={false}
             interval="preserveStartEnd"
@@ -354,7 +415,7 @@ export function ThroughputChart({
           />
           <YAxis
             yAxisId="req"
-            tick={{ ...AXIS, fill: t.muted }}
+            tick={axis(t)}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v: number) => `${Math.round(v / 1000)}k`}
@@ -422,7 +483,7 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
           <CartesianGrid stroke={t.rule} strokeDasharray="3 3" horizontal={false} />
           <XAxis
             type="number"
-            tick={{ ...AXIS, fill: t.muted }}
+            tick={axis(t)}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v: number) => `${Math.round(v / 1000)}k`}
@@ -430,7 +491,7 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
           <YAxis
             type="category"
             dataKey="bucket"
-            tick={{ ...AXIS, fill: t.muted }}
+            tick={axis(t)}
             axisLine={false}
             tickLine={false}
             width={90}
@@ -561,13 +622,8 @@ export function GrowthChart({
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={mirrored} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
           <CartesianGrid stroke={t.rule} vertical={false} />
-          <XAxis
-            dataKey="month"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fill: t.muted, fontSize: 11 }}
-          />
-          <YAxis tickLine={false} axisLine={false} tick={{ fill: t.muted, fontSize: 11 }} />
+          <XAxis dataKey="month" tickLine={false} axisLine={false} tick={axis(t)} />
+          <YAxis tickLine={false} axisLine={false} tick={axis(t)} />
           <Tooltip
             cursor={{ fill: `color-mix(in srgb, ${t.ink300} 18%, transparent)` }}
             content={({ active, payload, label }) => {
@@ -650,7 +706,7 @@ export function AuditVolumeChart({
           <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
           <XAxis
             dataKey="day"
-            tick={{ ...AXIS, fill: t.muted }}
+            tick={axis(t)}
             tickLine={false}
             axisLine={{ stroke: t.rule }}
             interval="preserveStartEnd"
@@ -658,7 +714,7 @@ export function AuditVolumeChart({
             tickFormatter={(v: string) => v.slice(8)}
           />
           <YAxis
-            tick={{ ...AXIS, fill: t.muted }}
+            tick={axis(t)}
             tickLine={false}
             axisLine={false}
             allowDecimals={false}
@@ -798,14 +854,9 @@ export function MovementChart({
             stackOffset="sign"
           >
             <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
-            <XAxis
-              dataKey="month"
-              tick={{ ...AXIS, fill: t.muted }}
-              tickLine={false}
-              axisLine={{ stroke: t.rule }}
-            />
+            <XAxis dataKey="month" tick={axis(t)} tickLine={false} axisLine={{ stroke: t.rule }} />
             <YAxis
-              tick={{ ...AXIS, fill: t.muted }}
+              tick={axis(t)}
               tickLine={false}
               axisLine={false}
               width={46}

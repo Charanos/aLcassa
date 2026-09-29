@@ -28,6 +28,59 @@ function Bone({ className, style }: { className?: string; style?: React.CSSPrope
 
 export type SkeletonProps = { className?: string; 'aria-label'?: string };
 
+/**
+ * A bar of any size — the one shape a structural skeleton needs that the
+ * named ones above do not cover.
+ *
+ * ⚠ EXPORTED BECAUSE `Bone` WAS NOT, AND SIX FILES WROTE THEIR OWN. Every
+ * loading state rebuilt in doc 21 declared a local `Bar` (and one an
+ * `Invert`, one a `HeadroomBar`, one a `ChartBlock`) — the same span, the
+ * same pulse, the same reduced-motion fallback, six times. That is the
+ * un-extracted-primitive pattern doc 22 names, written by the pass that named
+ * it. This is the one they now use.
+ *
+ * `inverse` is for the dark chrome slabs: `--surface-sunken` is invisible on
+ * obsidian, so the bar is lightened against the slab instead of tinted.
+ */
+export function SkeletonBar({
+  width = '100%',
+  height = 12,
+  radius = 'rounded-chip',
+  inverse = false,
+  className,
+}: {
+  width?: number | string;
+  height?: number | string;
+  radius?:
+    | 'rounded-bar'
+    | 'rounded-chip'
+    | 'rounded-panel'
+    | 'rounded-overlay'
+    | 'rounded-card'
+    | 'rounded-full';
+  inverse?: boolean;
+  className?: string;
+}) {
+  /* Its own span rather than `Bone`, which hard-codes `rounded-chip`: two
+     radius classes on one element resolve by stylesheet order, not intent. */
+  return (
+    <span
+      aria-hidden
+      className={['block shrink-0', radius, PULSE, className].filter(Boolean).join(' ')}
+      style={{
+        width,
+        height,
+        /* ⚠ `--surface-inset`, NOT `Bone`'S `--surface-sunken`. Sunken is the
+           ground of an `elevated` Panel, so a sunken bar inside one is the
+           same colour as the panel behind it — invisible. Every band skeleton
+           that predates this worked around it with an `!bg` override; inset
+           reads on the page ground and inside a panel alike. */
+        background: inverse ? 'rgba(255, 255, 255, 0.07)' : 'var(--surface-inset)',
+      }}
+    />
+  );
+}
+
 /** One line of body text at a plausible width, per the 60–95% rule. */
 export function SkeletonText({ width = 82, className }: { width?: number; className?: string }) {
   return (

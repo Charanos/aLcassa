@@ -57,6 +57,14 @@ function useTokens() {
     ink: '#1F1C18',
     surface: '#FFFEFB',
     rule: '#D8CFBD',
+    /* Type too, for the same reason as the colours: tick props become SVG
+       attributes, where `var()` is not reliably resolved. A doc 21 codemod
+       turned the literal sizes into `var()` strings; these put them back as
+       real values without losing the token as their source. */
+    compact: '12.5px',
+    chip: '11px',
+    sans: 'system-ui, sans-serif',
+    mono: 'ui-monospace, SFMono-Regular, Menlo, monospace',
   });
 
   useEffect(() => {
@@ -70,6 +78,10 @@ function useTokens() {
       ink: get('--ink-primary', '#1F1C18'),
       surface: get('--surface-raised', '#FFFEFB'),
       rule: get('--rule-base', '#D8CFBD'),
+      compact: get('--type-compact', '12.5px'),
+      chip: get('--type-chip', '11px'),
+      sans: get('--font-sans', 'system-ui, sans-serif'),
+      mono: get('--font-mono', 'ui-monospace, SFMono-Regular, Menlo, monospace'),
     });
   }, []);
 
@@ -192,7 +204,7 @@ export function CategoryBars({
             width={labelWidth}
             tickLine={false}
             axisLine={{ stroke: t.rule }}
-            tick={{ fill: t.axis, fontSize: 'var(--type-compact)', fontFamily: 'var(--font-sans)' }}
+            tick={{ fill: t.axis, fontSize: t.compact, fontFamily: t.sans }}
           />
           <Tooltip
             cursor={{ fill: 'transparent' }}
@@ -266,7 +278,7 @@ export function ProgressLine({
             dataKey="label"
             tickLine={false}
             axisLine={{ stroke: t.rule }}
-            tick={{ fill: t.axis, fontSize: 'var(--type-chip)', fontFamily: 'var(--font-mono)' }}
+            tick={{ fill: t.axis, fontSize: t.chip, fontFamily: t.mono }}
             interval={0}
           />
           <YAxis hide domain={[0, 100]} />
@@ -383,7 +395,7 @@ export function ProportionDonut({
                     <div className="t-caption" style={{ color: t.ink }}>
                       {point.label}
                     </div>
-                    <div className="t-data" style={{ color: t.ink, fontSize: 15 }}>
+                    <div className="t-data" style={{ color: t.ink, fontSize: 'var(--type-lede)' }}>
                       {point.value} · {Math.round((point.value / total) * 100)}%
                     </div>
                   </div>

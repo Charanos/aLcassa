@@ -519,18 +519,27 @@ export async function getLiveIsolationStatus(): Promise<IsolationStatus | null> 
        * this milestone's.
        *
        * Sheet 11 asks for refusals to be counted SEPARATELY from failures,
-       * and that distinction is honoured by not inventing either number. The
-       * health page states that these are not yet instrumented rather than
-       * letting a confident 0 imply a clean bill of health.
+       * and that distinction is honoured by not inventing either number.
+       * They were `0` here, and the health page rendered "Refused 0 / 0" in
+       * the success colour — the confident zero this comment claimed the
+       * page avoided. `null` is now the only value, and the type makes the
+       * page say "not yet counted".
        */
-      crossTenantAttempts30d: 0,
-      crossTenantRefused30d: 0,
-      lastRun: new Date().toLocaleString('en-GB', {
+      crossTenantAttempts30d: null,
+      crossTenantRefused30d: null,
+      /*
+       * ⚠ NAIROBI TIME, STATED. `toLocaleString` without a zone formats in the
+       * SERVER'S zone, which on Vercel is UTC — so an operator in Nairobi read
+       * a check time three hours behind their own clock, with nothing to say
+       * which clock it was.
+       */
+      lastRun: new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Africa/Nairobi',
         day: 'numeric',
         month: 'short',
         hour: '2-digit',
         minute: '2-digit',
-      }),
+      }).format(new Date()),
     };
   });
 }

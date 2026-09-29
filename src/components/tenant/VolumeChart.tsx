@@ -18,10 +18,7 @@ import type { VolumePoint } from '@/lib/tenant/data';
  *
  * ⚠ EVERY COLOUR HERE IS A `var(--token)` STRING RATHER THAN A RESOLVED ONE.
  * The design's own `charts.jsx` reads tokens through `getComputedStyle` at
- * mount. There is no `MutationObserver` here and there was never one to
- * remove: nothing in `src` writes `data-theme`, and this product is
- * deliberately single-theme (`tokens.css`). `console/Charts.tsx` documents
- * the same decision from the other side; the two files used to disagree.
+ * mount and re-resolves them behind a `MutationObserver` on `data-theme`,
  * because it renders into a canvas-style preview that cannot rely on the
  * cascade. Nothing here needs that: these are SVG presentation attributes, so
  * the browser resolves the custom property itself and the chart re-paints on a
@@ -41,7 +38,13 @@ export type VolumeChartProps = {
 
 const AXIS = {
   stroke: 'var(--text-tertiary)',
-  fontSize: 'var(--type-chip)',
+  /* ⚠ A LITERAL, DELIBERATELY. This spreads onto the axes and reaches the tick
+     `<text>` as a presentation attribute; a doc 21 codemod replaced `11` with
+     `'var(--type-chip)'` to satisfy a rule written for CSS. The size is not
+     one this file can afford to leave to engine support for `var()` in
+     attributes, whatever holds for the colours above. It equals --type-chip. */
+  // eslint-disable-next-line no-restricted-syntax -- SVG presentation attribute; see above
+  fontSize: 11,
   fontFamily: 'var(--font-mono)',
   tickLine: false,
   axisLine: false,

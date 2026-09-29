@@ -1820,35 +1820,72 @@ export async function getAuditEntries(): Promise<AuditEntry[]> {
 
 export type DayState = 'ok' | 'degraded' | 'down';
 
+export type ServiceKey = 'api' | 'db' | 'bot' | 'channel';
+
+/**
+ * One service, held to one budget.
+ *
+ * ⚠ `bound` IS WHAT MAKES FOUR DIFFERENT METRICS COMPARABLE. Latency must stay
+ * UNDER its target; delivery success must stay OVER its floor. A card that
+ * showed "142ms" beside "99.4%" asked the reader to know, per service, which
+ * direction is good. `consumed` answers it once for all four: the fraction of
+ * the budget in use, where 1.0 is the edge. For a ceiling that is
+ * value / target; for a floor it is the ERROR budget spent — (100 − value) /
+ * (100 − target) — which is how a 99% delivery floor is actually managed.
+ */
 export type Service = {
+  key: ServiceKey;
   name: string;
-  icon: 'api' | 'db' | 'bot' | 'channel';
+  icon: ServiceKey;
+  /** Formatted headline figure, e.g. `142ms`. */
   metric: string;
+  /** What `metric` measures, e.g. `p95 across all routes`. */
   note: string;
-  /** Sheet 11: "a number without a target is trivia." What `metric` is being
-   *  held to — the same shape as `note`, read together as one sentence. */
+  value: number;
+  target: number;
+  bound: 'ceiling' | 'floor';
+  /** Formatted target, e.g. `200ms budget`. Derived. */
   budget: string;
+  /** Fraction of the budget in use. Derived; see the note above. */
+  consumed: number;
+  /** Availability over the window. Derived from outage minutes only. */
   uptime: string;
-  /** 30 days, oldest first. */
+  /** 30 days, oldest first. Derived from the incidents. */
   days: DayState[];
 };
 
-export type Queue = { name: string; depth: number; rate: string };
+/** Jobs waiting, and how fast they drain. `perMinute` is numeric so the
+ *  time-to-drain can be computed rather than asserted. */
+export type Queue = { name: string; depth: number; perMinute: number };
 
 export type Incident = {
   id: string;
   sev: 'SEV1' | 'SEV2' | 'SEV3';
+  service: ServiceKey;
+  /** An outage counts against availability; a degradation does not. */
+  impact: 'outage' | 'degraded';
+  minutes: number;
   title: string;
   detail: string;
+  /** ISO timestamp. */
+  at: string;
+  /** Formatted for the row, in Nairobi time. */
   when: string;
-  status: string;
+  /** The Nairobi calendar day, in the same form as `HealthModel.window`, so a
+   *  strip bar and the incident that coloured it are joined by one value. */
+  day: string;
+  status: 'resolved' | 'monitoring' | 'open';
 };
 
 export type HealthModel = {
   /** Sheet 11: the leading sentence, stated before any row — severity known
-   *  before the reader has to work it out from the grid. */
+   *  before the reader has to work it out from the grid. DERIVED. */
   diagnosis: { severity: 'ok' | 'degraded' | 'incident'; sentence: string };
+  /** The thirty days the strips cover, oldest first, as `8 Sep` labels. */
+  window: string[];
   services: Service[];
+  /** The API's p95 budget, drawn on the latency chart. */
+  latencyBudget: number;
   latency: Array<{ t: string; p50: number; p95: number; p99: number }>;
   throughput: Array<{ t: string; requests: number; errors: number }>;
   /** Sheet 11: "a rejected scope is the guard working, not an error." A
@@ -1864,8 +1901,19 @@ export type HealthModel = {
   isolation: {
     tablesTotal: number;
     tablesPoliced: number;
-    crossTenantAttempts30d: number;
-    crossTenantRefused30d: number;
+    /**
+     * ⚠ `null` MEANS NOT COUNTED, AND THE PAGE MUST SAY SO.
+     *
+     * These were `0`, and the health page rendered "Refused 0 / 0" in the
+     * success colour — which reads as "every attempt was refused" when what
+     * it means is "nothing counts attempts". `live.ts` said, in a comment,
+     * that the page "states that these are not yet instrumented rather than
+     * letting a confident 0 imply a clean bill of health". It did not. A
+     * nullable type makes the distinction impossible to render by accident.
+     */
+    crossTenantAttempts30d: number | null;
+    crossTenantRefused30d: number | null;
+    /** When the policy catalogue was last read. Formatted, Nairobi time. */
     lastRun: string;
   };
 };
@@ -1895,8 +1943,8 @@ export type IsolationStatus = HealthModel['isolation'];
 const ISOLATION: IsolationStatus = {
   tablesTotal: 18,
   tablesPoliced: 18,
-  crossTenantAttempts30d: 0,
-  crossTenantRefused30d: 0,
+  crossTenantAttempts30d: null,
+  crossTenantRefused30d: null,
   lastRun: 'Today, 03:00',
 };
 
@@ -1910,11 +1958,172 @@ export async function getIsolationStatus(): Promise<IsolationStatus> {
   };
 }
 
-/** 30 days of state, with named exceptions. Written as a helper rather than
- *  30 literals so a degraded day is visible in the source as a date. */
-function days(exceptions: Record<number, DayState> = {}): DayState[] {
-  return Array.from({ length: 30 }, (_, i) => exceptions[i] ?? 'ok');
+const HEALTH_WINDOW = 30;
+const MINUTES_IN_WINDOW = HEALTH_WINDOW * 24 * 60;
+
+const EAT_DAY = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Africa/Nairobi',
+  day: 'numeric',
+  month: 'short',
+});
+const EAT_WHEN = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Africa/Nairobi',
+  day: '2-digit',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
+/**
+ * The incidents the designed figures are built from.
+ *
+ * ⚠ THE INCIDENT LIST IS THE SOURCE, AND EVERYTHING ELSE ON THE PAGE IS
+ *   DERIVED FROM IT.
+ *
+ * The previous fixture declared each of these independently, and they did not
+ * agree. The diagnosis said AI inference had "a 6-minute outage on the 8th" —
+ * but index 8 of an oldest-first strip is twenty-two days ago, not the 8th of
+ * anything. It said "everything else held its target the entire period" while
+ * the API and channel-gateway strips each showed an amber day. The one SEV1
+ * described the DATABASE losing its primary for six minutes, on a Database
+ * card reading 100% with thirty green bars. And all three incidents were dated
+ * July and August, outside the thirty days the strips cover, so not one mark
+ * on any strip had an incident to explain it.
+ *
+ * An operations screen whose sentence, bars and incident log tell three
+ * different stories teaches the reader to trust none of them. Deriving the
+ * strips, the availability figures and the diagnosis from this one list makes
+ * disagreement impossible rather than merely unlikely: every coloured bar has a
+ * row below it that explains it, and every row has a bar above it.
+ */
+const HEALTH_INCIDENTS: Array<
+  Omit<Incident, 'at' | 'when' | 'day'> & { daysAgo: number; hour: string }
+> = [
+  {
+    id: 'inc_05',
+    sev: 'SEV3',
+    service: 'bot',
+    impact: 'degraded',
+    minutes: 41,
+    daysAgo: 7,
+    hour: '12:18',
+    title: 'AI completions over budget at the lunchtime peak',
+    detail:
+      'p95 completion time reached 3.1s against a 2.5s budget. Replies slowed; none were dropped, and the escalation path to a person stayed open throughout.',
+    status: 'resolved',
+  },
+  {
+    id: 'inc_04',
+    sev: 'SEV3',
+    service: 'api',
+    impact: 'degraded',
+    minutes: 18,
+    daysAgo: 12,
+    hour: '09:04',
+    title: 'Cold routes after a deploy',
+    detail:
+      'The first requests to three routes after a release paid a cold-start penalty. p95 touched 260ms for eighteen minutes, then settled.',
+    status: 'resolved',
+  },
+  {
+    id: 'inc_03',
+    sev: 'SEV3',
+    service: 'channel',
+    impact: 'degraded',
+    minutes: 52,
+    daysAgo: 15,
+    hour: '09:40',
+    title: 'WhatsApp template sync delayed',
+    detail:
+      'Template approval polling backed off after Meta rate-limited it. Two workspaces waited on a template; no inbound message was affected.',
+    status: 'resolved',
+  },
+  {
+    id: 'inc_02',
+    sev: 'SEV3',
+    service: 'bot',
+    impact: 'degraded',
+    minutes: 34,
+    daysAgo: 20,
+    hour: '14:52',
+    title: 'Slow completions while the provider recovered',
+    detail:
+      'The day after the outage, the upstream provider ran at reduced capacity. Completions slowed for thirty-four minutes.',
+    status: 'resolved',
+  },
+  {
+    id: 'inc_01',
+    sev: 'SEV2',
+    service: 'bot',
+    impact: 'outage',
+    minutes: 6,
+    daysAgo: 21,
+    hour: '14:12',
+    title: 'Upstream model provider outage',
+    detail:
+      'The model provider returned errors for six minutes. Conversations that needed a reply were routed to a person; no message was lost.',
+    status: 'resolved',
+  },
+];
+
+type ServiceSeed = Pick<
+  Service,
+  'key' | 'name' | 'metric' | 'note' | 'value' | 'target' | 'bound'
+> & {
+  unit: string;
+};
+
+const HEALTH_SERVICES: ServiceSeed[] = [
+  {
+    key: 'api',
+    name: 'API',
+    metric: '142ms',
+    note: 'p95 across all routes',
+    value: 142,
+    target: 200,
+    bound: 'ceiling',
+    unit: 'ms',
+  },
+  {
+    key: 'db',
+    name: 'Database',
+    metric: '11ms',
+    note: 'mean query time',
+    value: 11,
+    target: 25,
+    bound: 'ceiling',
+    unit: 'ms',
+  },
+  {
+    key: 'bot',
+    name: 'AI inference',
+    metric: '1.9s',
+    note: 'mean completion',
+    value: 1.9,
+    target: 2.5,
+    bound: 'ceiling',
+    unit: 's',
+  },
+  {
+    key: 'channel',
+    name: 'Channel gateway',
+    metric: '99.4%',
+    note: 'delivery success',
+    value: 99.4,
+    target: 99,
+    bound: 'floor',
+    unit: '%',
+  },
+];
+
+/** "API", "API and Database", "API, Database and AI inference". */
+function listNames(names: string[]): string {
+  if (names.length <= 1) return names.join('');
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
+
+const SPELL = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+const spellCount = (n: number) => SPELL[n] ?? String(n);
 
 /**
  * Platform health.
@@ -1926,55 +2135,147 @@ function days(exceptions: Record<number, DayState> = {}): DayState[] {
  * distinction decides whether someone pages an engineer at 2am, so it is
  * stated on the surface rather than assumed.
  *
- * Replaced by the observability probes; incidents by the status-page feed.
+ * ⚠ THESE ARE DESIGNED FIGURES and the page labels them so, once per band.
+ * Probes arrive at M6 — the overview says the same thing in the same words.
+ * Only `isolation` is answerable today, and `live.ts` reads it for real.
  */
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
 export async function getHealth(): Promise<HealthModel> {
-  return {
-    diagnosis: {
-      severity: 'degraded',
-      sentence:
-        'AI inference is the only service that missed its budget in the last 30 days — two short degradations and a 6-minute outage on the 8th. Everything else held its target the entire period.',
-    },
+  /*
+   * ⚠ ANCHORED TO NAIROBI, NOT TO THE SERVER. `setHours` uses the server's own
+   * zone, which on Vercel is UTC — so an incident written as 14:12 rendered as
+   * 17:12 to an operator in Nairobi, and a day boundary sat three hours off.
+   * EAT has no daylight saving, so a fixed −3h offset from the Nairobi
+   * calendar date is exact.
+   */
+  const today = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Africa/Nairobi',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+      .formatToParts(new Date())
+      .map((p) => [p.type, p.value]),
+  ) as { year: string; month: string; day: string };
+  const dayAt = (daysAgo: number, hour = '00:00') => {
+    const [h, m] = hour.split(':').map(Number);
+    return new Date(
+      Date.UTC(
+        Number(today.year),
+        Number(today.month) - 1,
+        Number(today.day) - daysAgo,
+        (h ?? 0) - 3,
+        m ?? 0,
+      ),
+    );
+  };
 
-    services: [
-      {
-        name: 'API',
-        icon: 'api',
-        metric: '142ms',
-        note: 'p95 across all routes',
-        budget: 'budget 200ms',
-        uptime: '99.98%',
-        days: days({ 17: 'degraded' }),
-      },
-      {
-        name: 'Database',
-        icon: 'db',
-        metric: '11ms',
-        note: 'mean query time',
-        budget: 'budget 25ms',
-        uptime: '100%',
-        days: days(),
-      },
-      {
-        name: 'AI inference',
-        icon: 'bot',
-        metric: '1.9s',
-        note: 'mean completion',
-        budget: 'budget 2.5s',
-        uptime: '99.82%',
-        days: days({ 8: 'down', 9: 'degraded', 22: 'degraded' }),
-      },
-      {
-        name: 'Channel gateway',
-        icon: 'channel',
-        metric: '99.4%',
-        note: 'delivery success',
-        budget: 'budget 99%',
-        uptime: '99.91%',
-        days: days({ 14: 'degraded' }),
-      },
-    ],
+  const window = Array.from({ length: HEALTH_WINDOW }, (_, i) =>
+    EAT_DAY.format(dayAt(HEALTH_WINDOW - 1 - i)),
+  );
+
+  const incidents: Incident[] = HEALTH_INCIDENTS.map(({ daysAgo, hour, ...rest }) => {
+    const at = dayAt(daysAgo, hour);
+    return { ...rest, at: at.toISOString(), when: EAT_WHEN.format(at), day: EAT_DAY.format(at) };
+  });
+
+  const services: Service[] = HEALTH_SERVICES.map(({ unit, ...seed }) => {
+    const own = HEALTH_INCIDENTS.filter((i) => i.service === seed.key);
+
+    /* A day takes the worst thing that happened on it. */
+    const days: DayState[] = Array.from({ length: HEALTH_WINDOW }, () => 'ok');
+    for (const inc of own) {
+      const idx = HEALTH_WINDOW - 1 - inc.daysAgo;
+      if (idx < 0 || idx >= HEALTH_WINDOW) continue;
+      if (inc.impact === 'outage') days[idx] = 'down';
+      else if (days[idx] !== 'down') days[idx] = 'degraded';
+    }
+
+    /* ⚠ FLOORED, NOT ROUNDED. Six minutes of outage in thirty days is
+       99.986%, which rounds to 99.99% and would round a worse month up to
+       "100%". An availability figure must never round an outage away. */
+    const outage = own.filter((i) => i.impact === 'outage').reduce((s, i) => s + i.minutes, 0);
+    const pct = Math.floor((1 - outage / MINUTES_IN_WINDOW) * 10000) / 100;
+    const uptime = outage === 0 ? '100%' : `${pct.toFixed(2)}%`;
+
+    const consumed =
+      seed.bound === 'ceiling'
+        ? seed.value / seed.target
+        : (100 - seed.value) / (100 - seed.target);
+
+    const budget =
+      seed.bound === 'ceiling' ? `${seed.target}${unit} budget` : `${seed.target}${unit} floor`;
+
+    return { ...seed, icon: seed.key, budget, consumed, uptime, days };
+  });
+
+  /* ── The diagnosis, from the same rows ─────────────────────────────── */
+  const hurt = services
+    .map((s) => {
+      const own = HEALTH_INCIDENTS.filter((i) => i.service === s.key);
+      return {
+        name: s.name,
+        outages: own.filter((i) => i.impact === 'outage'),
+        degraded: own.filter((i) => i.impact === 'degraded').length,
+      };
+    })
+    .filter((h) => h.outages.length + h.degraded > 0)
+    .sort(
+      (a, b) =>
+        b.outages.reduce((s, i) => s + i.minutes, 0) -
+          a.outages.reduce((s, i) => s + i.minutes, 0) || b.degraded - a.degraded,
+    );
+  const clean = services.filter((s) => s.days.every((d) => d === 'ok')).map((s) => s.name);
+
+  const parts: string[] = [];
+  const lead = hurt[0];
+  if (!lead) {
+    parts.push(`Every service held its budget for the full ${HEALTH_WINDOW} days.`);
+  } else {
+    const outage = lead.outages[0];
+    if (outage) {
+      const only = hurt.filter((h) => h.outages.length > 0).length === 1;
+      parts.push(
+        `${lead.name} had ${only ? 'the only outage' : 'an outage'} in the last ${HEALTH_WINDOW} days — ${outage.minutes} minutes on ${EAT_DAY.format(dayAt(outage.daysAgo))}` +
+          (lead.degraded > 0
+            ? `, and ${spellCount(lead.degraded)} slow ${lead.degraded === 1 ? 'spell' : 'spells'} besides.`
+            : '.'),
+      );
+    } else {
+      parts.push(
+        `${lead.name} had ${spellCount(lead.degraded)} slow ${lead.degraded === 1 ? 'spell' : 'spells'} in the last ${HEALTH_WINDOW} days and no outage.`,
+      );
+    }
+    const rest = hurt.slice(1);
+    const single = rest
+      .filter((h) => h.outages.length === 0 && h.degraded === 1)
+      .map((h) => h.name);
+    if (single.length > 0) {
+      parts.push(
+        `${listNames(single)} ${single.length === 1 ? 'had one' : 'each had one'} degraded day.`,
+      );
+    }
+    if (clean.length > 0) {
+      parts.push(
+        `${listNames(clean)} held ${clean.length === 1 ? 'its' : 'their'} budget throughout.`,
+      );
+    }
+  }
+
+  const severity: HealthModel['diagnosis']['severity'] = incidents.some(
+    (i) => i.status !== 'resolved',
+  )
+    ? 'incident'
+    : services.some((s) => s.days.some((d) => d !== 'ok'))
+      ? 'degraded'
+      : 'ok';
+
+  return {
+    diagnosis: { severity, sentence: parts.join(' ') },
+    window,
+    services,
+    latencyBudget: 200,
 
     latency: Array.from({ length: 24 }, (_, i) => {
       const hour = `${String(i).padStart(2, '0')}:00`;
@@ -1992,52 +2293,24 @@ export async function getHealth(): Promise<HealthModel> {
       return {
         t: `${String(i).padStart(2, '0')}:00`,
         requests: Math.round((peak ? 9200 : 3100) + Math.sin(i / 2.2) * 1400),
-        // The 17:00 spike the header calls out.
         errors: i === 17 ? 0.42 : Number((0.008 + Math.abs(Math.sin(i / 5)) * 0.02).toFixed(3)),
       };
     }),
 
     refusals: {
       count24h: 214,
-      note: 'Entitlement ceilings and rate limits the guard rejected on purpose. Not counted as errors above.',
+      note: 'Entitlement ceilings and rate limits the guard rejected on purpose.',
     },
 
     queues: [
-      { name: 'inbound.ingest', depth: 0, rate: '412/min' },
-      { name: 'ai.completion', depth: 3, rate: '88/min' },
-      { name: 'outbound.dispatch', depth: 0, rate: '374/min' },
-      { name: 'audit.write', depth: 12, rate: '96/min' },
-      { name: 'billing.reconcile', depth: 61, rate: '4/min' },
+      { name: 'inbound.ingest', depth: 0, perMinute: 412 },
+      { name: 'ai.completion', depth: 3, perMinute: 88 },
+      { name: 'outbound.dispatch', depth: 0, perMinute: 374 },
+      { name: 'audit.write', depth: 12, perMinute: 96 },
+      { name: 'billing.reconcile', depth: 61, perMinute: 4 },
     ],
 
-    incidents: [
-      {
-        id: 'i_1',
-        sev: 'SEV2',
-        title: 'Elevated AI completion latency',
-        detail: 'Upstream provider degraded for 34 minutes. Escalations queued; no messages lost.',
-        when: '02 Aug, 14:12',
-        status: 'resolved',
-      },
-      {
-        id: 'i_2',
-        sev: 'SEV3',
-        title: 'WhatsApp template sync delayed',
-        detail:
-          'Template approval polling backed off after rate limiting. Two workspaces affected.',
-        when: '27 Jul, 09:40',
-        status: 'resolved',
-      },
-      {
-        id: 'i_3',
-        sev: 'SEV1',
-        title: 'Read replica failover',
-        detail: 'Primary lost for 6 minutes. Automatic failover held; writes queued and drained.',
-        when: '11 Jul, 03:22',
-        status: 'resolved',
-      },
-    ],
-
+    incidents,
     isolation: ISOLATION,
   };
 }

@@ -1,16 +1,13 @@
 import type { Metadata } from 'next';
-import {
-  IconBrandWhatsapp,
-  IconDatabase,
-  IconRobot,
-  IconServer2,
-  IconShieldCheck,
-  type Icon as TablerIcon,
-} from '@tabler/icons-react';
-import { IconTile } from '@/components/primitives/IconTile';
-import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
-import { LatencyChart, ThroughputChart } from '@/components/console/Charts';
-import { getHealth, type DayState, type Incident, type Service } from '@/lib/console/data';
+import Link from 'next/link';
+import { IconShieldCheck, IconShieldExclamation } from '@tabler/icons-react';
+import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
+import { StatusSlab } from '@/components/console/health/StatusSlab';
+import { ServicesBand } from '@/components/console/health/ServicesBand';
+import { IsolationBand } from '@/components/console/health/IsolationBand';
+import { PerformanceBand } from '@/components/console/health/PerformanceBand';
+import { QueuesIncidentsBand } from '@/components/console/health/QueuesIncidentsBand';
+import { getHealth, type IsolationStatus } from '@/lib/console/data';
 import { getLiveIsolationStatus } from '@/lib/console/live';
 
 export const metadata: Metadata = { title: 'Health' };
@@ -18,451 +15,103 @@ export const metadata: Metadata = { title: 'Health' };
 /**
  * Platform health. `Health.dc.html`.
  *
- * ⚠ THE 30-DAY STRIP IS THE MOST INFORMATIVE ELEMENT ON THE PAGE, and it is
- * 30 coloured rectangles.
+ * ⚠ ORDERED BY THE QUESTIONS AN OPERATOR ARRIVES WITH, NOT BY DATA SOURCE.
  *
- * A single uptime percentage cannot distinguish "99.82% because of one bad
- * afternoon" from "99.82% because it wobbles every third day" — and those are
- * completely different engineering problems. The strip shows the SHAPE of the
- * failures, which is the thing a percentage averages away. It is also why the
- * strip sits beside the number rather than replacing it: the figure is what
- * goes in a report, the strip is what tells you whether to worry.
+ *   1. Is anything wrong?            → the diagnosis slab
+ *   2. What has been happening?      → services, thirty days each
+ *   3. Is the guarantee intact?      → isolation
+ *   4. How is it running today?      → performance, against budget
+ *   5. What is waiting, what broke?  → queues and the incident log
+ *
+ * The page used to open on a status pill hardcoded to track a fixture and a
+ * paragraph typed independently of the rows beneath it. Everything here is now
+ * derived from one model in which the incidents are the source — strips,
+ * availability, the diagnosis sentence and the headline all come from them, so
+ * no part of the page can tell a different story from another.
+ *
+ * ⚠ LIVE WHERE IT CAN BE, AND LABELLED WHERE IT CANNOT. Uptime, latency, queues
+ * and incidents come from observability probes that arrive at M6; until then
+ * they are the designed figures, and every band that shows them says so beside
+ * its heading. The overview tells a signed-in operator the same thing in the
+ * same words. Isolation is answerable from the database today, so it is read
+ * for real — and it is the one fact promoted into the header.
+ *
+ * Each band owns its skeleton; `loading.tsx` composes them. Doc 22 §6.
  */
-
-const SERVICE_ICON: Record<Service['icon'], TablerIcon> = {
-  api: IconServer2,
-  db: IconDatabase,
-  bot: IconRobot,
-  channel: IconBrandWhatsapp,
-};
-
-const DAY_INK: Record<DayState, string> = {
-  ok: 'var(--success-fg)',
-  degraded: 'var(--warning-fg)',
-  down: 'var(--danger-fg)',
-};
-
-const SEV_INK: Record<Incident['sev'], { bg: string; ink: string }> = {
-  SEV1: { bg: 'var(--danger-bg)', ink: 'var(--danger-fg)' },
-  SEV2: { bg: 'var(--warning-bg)', ink: 'var(--warning-fg)' },
-  SEV3: { bg: 'var(--surface-inset)', ink: 'var(--text-secondary)' },
-};
-
 export default async function HealthPage() {
-  const m = await getHealth();
+  const model = await getHealth();
 
-  /**
-   * ⚠ THE ISOLATION PANEL IS LIVE EVEN WHILE THE REST OF THIS PAGE IS NOT.
-   *
-   * Uptime, latency and incident history come from probes that are not wired
-   * yet, so they are still the designed figures. Isolation is different in
-   * kind: it is the guarantee the engagement is sold on, and it is
-   * answerable from the database right now. Leaving it on a fixture beside
-   * genuinely unwired metrics would make the one number that CAN be true
-   * indistinguishable from the ones that cannot.
-   */
-  const isolation = (await getLiveIsolationStatus()) ?? m.isolation;
-  const allOk = m.services.every((s) => s.days.every((d) => d === 'ok'));
-  // Degraded is amber, never red — red is reserved for a failure of
-  // correctness (the isolation suite), not a performance wobble.
-  const pillInk = allOk
-    ? 'var(--success-fg)'
-    : m.diagnosis.severity === 'incident'
-      ? 'var(--danger-fg)'
-      : 'var(--warning-fg)';
-  const pillBg = allOk
-    ? 'var(--success-bg)'
-    : m.diagnosis.severity === 'incident'
-      ? 'var(--danger-bg)'
-      : 'var(--warning-bg)';
+  /* Null under the review bypass, where there is no session to read with. */
+  const liveIsolation = await getLiveIsolationStatus();
+  const isolation = liveIsolation ?? model.isolation;
 
   return (
     <ConsolePage>
-      <div
-        className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-end sm:gap-6"
-        style={{ borderColor: 'var(--border-subtle)' }}
-      >
-        <div className="min-w-0 flex-1">
-          <ConsoleHeader eyebrow="/platform/health" title="Health" />
-        </div>
-        {/*
-          The banner reflects the CURRENT state, derived from the same data the
-          strips render. A status pill hardcoded to "operational" is worse than
-          no pill: it is the first thing an operator checks and the first thing
-          they stop trusting.
-        */}
-        <span
-          className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full px-3.5"
-          style={{ border: `1px solid ${pillInk}`, background: pillBg }}
-        >
-          <span
-            aria-hidden
-            className="size-[7px] shrink-0 rounded-full"
-            style={{ background: pillInk, animation: 'pulse-dot 2.4s ease-in-out infinite' }}
-          />
-          <span
-            className="whitespace-nowrap"
-            style={{ font: '500 var(--type-compact)/1 var(--font-ui)', color: pillInk }}
-          >
-            {allOk ? 'All systems operational' : 'Degraded in the last 30 days'}
-          </span>
-        </span>
-      </div>
+      <ConsoleHeader
+        breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Health' }]}
+        eyebrow="/platform/health"
+        title="Health"
+        actions={<IsolationChip isolation={isolation} live={liveIsolation !== null} />}
+      />
 
-      {/* Sheet 11: the leading diagnosis, before any row. Severity is known
-          before the reader has to derive it from the grid beneath it. */}
-      <p className="t-body mt-4" style={{ color: 'var(--text-secondary)', maxWidth: '82ch' }}>
-        {m.diagnosis.sentence}
-      </p>
-
-      {/* ── Services ─────────────────────────────────────────────────── */}
-      <div
-        className="mt-5 grid gap-3.5"
-        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))' }}
-      >
-        {m.services.map((s) => {
-          const Icon = SERVICE_ICON[s.icon];
-          const worst: DayState = s.days.includes('down')
-            ? 'down'
-            : s.days.includes('degraded')
-              ? 'degraded'
-              : 'ok';
-          return (
-            <div
-              key={s.name}
-              className="min-w-0 rounded-overlay p-4"
-              style={{
-                border: '1px solid var(--border-subtle)',
-                background: 'var(--surface-raised)',
-                boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
-              }}
-            >
-              <div className="flex items-center gap-2.5">
-                {/*
-                  ⚠ AN `IconTile`, NOT A FLAT GLYPH ON A SUNKEN SQUARE.
-                  A 15px stroke sitting directly on a tinted box reads as part
-                  of the text run rather than as a marker beside it, and at six
-                  cards in a row the eye has nothing to anchor on. `IconTile`
-                  is the treatment the rest of the console uses — gradient,
-                  hairline, small shadow — so the glyph sits ON the surface
-                  instead of in it, and this grid stops being the one place
-                  that disagrees.
-                */}
-                <IconTile
-                  icon={Icon}
-                  size="sm"
-                  tone={worst === 'ok' ? 'neutral' : worst === 'degraded' ? 'warning' : 'danger'}
-                />
-                <span
-                  className="t-compact flex-1 truncate"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {s.name}
-                </span>
-                <span
-                  aria-hidden
-                  className="size-[7px] shrink-0 rounded-full"
-                  style={{ background: DAY_INK[worst] }}
-                />
-              </div>
-
-              <p
-                className="numeric mt-3"
-                style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}
-              >
-                {s.metric}
-              </p>
-              <p className="t-caption mt-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                {s.note} · <span style={{ color: 'var(--text-secondary)' }}>{s.budget}</span>
-              </p>
-
-              {/* The strip. `title` on each bar gives a pointer user the date;
-                  the aggregate is announced once to a screen reader rather
-                  than 30 times, which is the difference between a summary and
-                  an unusable wall of output. */}
-              <div
-                className="mt-3 flex gap-0.5"
-                role="img"
-                aria-label={`${s.name}: ${s.uptime} uptime over the last 30 days`}
-              >
-                {s.days.map((d, i) => (
-                  <span
-                    key={i}
-                    title={`${30 - i} days ago · ${d === 'ok' ? 'Operational' : d === 'degraded' ? 'Degraded' : 'Down'}`}
-                    className="h-[18px] flex-1 rounded-bar"
-                    style={{ background: DAY_INK[d] }}
-                  />
-                ))}
-              </div>
-              <p
-                className="mt-2"
-                style={{
-                  font: '400 var(--type-chip)/1 var(--font-mono)',
-                  color: 'var(--text-tertiary)',
-                }}
-              >
-                30 days · {s.uptime}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Sheet 11: "the severe risk in the brief is a policy gap; its status
-          belongs beside uptime, not buried in CI." Row Level Security is the
-          only isolation mechanism between tenants in this system — its
-          status sits here, at the top of the page an operator actually
-          checks, not in a CI log nobody reads unless something already broke. */}
-      <div className="mt-3.5">
-        <Panel title="Cross-tenant isolation suite">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
-            <div>
-              <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-                Tables policed
-              </p>
-              <p className="numeric mt-1.5 flex items-baseline gap-1.5">
-                <span style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}>
-                  {isolation.tablesPoliced}
-                </span>
-                <span
-                  style={{
-                    font: '400 var(--type-compact)/1 var(--font-mono)',
-                    color: 'var(--text-tertiary)',
-                  }}
-                >
-                  / {isolation.tablesTotal}
-                </span>
-                {isolation.tablesPoliced === isolation.tablesTotal ? (
-                  <IconShieldCheck
-                    size={16}
-                    stroke={1.5}
-                    style={{ color: 'var(--success-fg)' }}
-                    aria-hidden
-                  />
-                ) : null}
-              </p>
-            </div>
-            <div>
-              <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-                Cross-tenant attempts · 30d
-              </p>
-              <p
-                className="numeric mt-1.5"
-                style={{ fontSize: 'var(--display-sm)', color: 'var(--text-primary)' }}
-              >
-                {isolation.crossTenantAttempts30d}
-              </p>
-            </div>
-            <div>
-              <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-                Refused
-              </p>
-              <p
-                className="numeric mt-1.5"
-                style={{
-                  fontSize: 'var(--display-sm)',
-                  color:
-                    isolation.crossTenantRefused30d === isolation.crossTenantAttempts30d
-                      ? 'var(--success-fg)'
-                      : 'var(--danger-fg)',
-                }}
-              >
-                {isolation.crossTenantRefused30d}
-                <span
-                  style={{
-                    font: '400 var(--type-compact)/1 var(--font-mono)',
-                    color: 'var(--text-tertiary)',
-                  }}
-                >
-                  {' '}
-                  / {isolation.crossTenantAttempts30d}
-                </span>
-              </p>
-            </div>
-            <div>
-              <p className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-                Last run
-              </p>
-              <p
-                style={{
-                  font: '400 var(--type-compact)/1.4 var(--font-mono)',
-                  color: 'var(--text-primary)',
-                  marginTop: 6,
-                }}
-              >
-                {isolation.lastRun}
-              </p>
-            </div>
-          </div>
-          <p
-            className="t-compact mt-4 border-t pt-3.5"
-            style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}
-          >
-            Every table carrying a tenant_id is policed by an RLS policy that scopes it to the
-            caller&rsquo;s own tenant. This suite runs against the real schema and asserts that a
-            cross-tenant read returns zero rows rather than a permission error — the same not-403
-            rule the API itself follows, so a probe result and a live API response can never
-            disagree about what &ldquo;not visible&rdquo; means.
-          </p>
-        </Panel>
-      </div>
-
-      <div className="mt-5">
-        <Panel
-          title="Response latency · 24 hours"
-          action={
-            <span className="flex items-center gap-3.5">
-              <Legend swatch="var(--blue-200)">p50</Legend>
-              <Legend swatch="var(--blue-500)">p95</Legend>
-              <Legend swatch="var(--ink-300)">p99</Legend>
-            </span>
-          }
-        >
-          <LatencyChart data={m.latency} />
-        </Panel>
-      </div>
-
-      <div className="mt-5 grid items-start gap-5 lg:grid-cols-[1.4fr_1fr]">
-        <Panel
-          title="Throughput and errors · today"
-          action={
-            <span
-              className="whitespace-nowrap"
-              style={{
-                font: '400 var(--type-compact)/1 var(--font-mono)',
-                color: 'var(--danger-fg)',
-              }}
-            >
-              spike at 17:00
-            </span>
-          }
-        >
-          <ThroughputChart data={m.throughput} />
-          <p className="t-caption mt-3" style={{ color: 'var(--text-tertiary)' }}>
-            <span className="numeric" style={{ color: 'var(--text-secondary)' }}>
-              {m.refusals.count24h}
-            </span>{' '}
-            refusals in the last 24 hours are excluded from the error rate above. {m.refusals.note}
-          </p>
-        </Panel>
-
-        <Panel title="Background queues">
-          {m.queues.map((q, i) => {
-            const tone =
-              q.depth > 50
-                ? { bg: 'var(--warning-bg)', ink: 'var(--warning-fg)' }
-                : q.depth > 0
-                  ? { bg: 'var(--surface-inset)', ink: 'var(--text-secondary)' }
-                  : { bg: 'var(--success-bg)', ink: 'var(--success-fg)' };
-            return (
-              <div
-                key={q.name}
-                className="flex items-center gap-3 py-2.5"
-                style={{
-                  borderBottom:
-                    i === m.queues.length - 1 ? undefined : '1px solid var(--border-subtle)',
-                }}
-              >
-                <span
-                  className="min-w-0 flex-1 truncate"
-                  style={{
-                    font: '400 var(--type-compact)/1.3 var(--font-mono)',
-                    color: 'var(--text-primary)',
-                  }}
-                >
-                  {q.name}
-                </span>
-                <span
-                  className="t-caption whitespace-nowrap"
-                  style={{ color: 'var(--text-tertiary)' }}
-                >
-                  {q.rate}
-                </span>
-                <span
-                  className="numeric grid h-[22px] min-w-[34px] place-items-center rounded-full px-2"
-                  style={{ background: tone.bg, color: tone.ink, fontSize: 'var(--type-chip)' }}
-                >
-                  {q.depth}
-                </span>
-              </div>
-            );
-          })}
-          <p className="t-compact mt-3" style={{ color: 'var(--text-tertiary)' }}>
-            Depth is jobs <em>waiting</em>, not jobs failed. A queue above 50 for more than five
-            minutes pages the on-call engineer.
-          </p>
-        </Panel>
-      </div>
-
-      <div className="mt-5">
-        <Panel title="Recent incidents" flush>
-          {m.incidents.map((inc, i) => {
-            const sev = SEV_INK[inc.sev];
-            return (
-              <div
-                key={inc.id}
-                className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start"
-                style={{
-                  borderBottom:
-                    i === m.incidents.length - 1 ? undefined : '1px solid var(--border-subtle)',
-                }}
-              >
-                <span
-                  className="grid h-[26px] shrink-0 place-items-center self-start rounded-panel px-2"
-                  style={{
-                    background: sev.bg,
-                    color: sev.ink,
-                    font: '500 var(--type-micro)/1 var(--font-mono)',
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  {inc.sev}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="t-compact block" style={{ color: 'var(--text-primary)' }}>
-                    {inc.title}
-                  </span>
-                  <span className="t-caption mt-1 block" style={{ color: 'var(--text-secondary)' }}>
-                    {inc.detail}
-                  </span>
-                </span>
-                <span className="shrink-0 sm:text-right">
-                  <span
-                    className="block whitespace-nowrap"
-                    style={{
-                      font: '400 var(--type-chip)/1.4 var(--font-mono)',
-                      color: 'var(--text-tertiary)',
-                    }}
-                  >
-                    {inc.when}
-                  </span>
-                  <span
-                    className="mt-0.5 block whitespace-nowrap"
-                    style={{
-                      font: '400 var(--type-chip)/1.4 var(--font-mono)',
-                      color: 'var(--success-fg)',
-                    }}
-                  >
-                    {inc.status}
-                  </span>
-                </span>
-              </div>
-            );
-          })}
-        </Panel>
-      </div>
+      <StatusSlab model={model} />
+      <ServicesBand model={model} />
+      <IsolationBand isolation={isolation} live={liveIsolation !== null} />
+      <PerformanceBand
+        latency={model.latency}
+        latencyBudget={model.latencyBudget}
+        throughput={model.throughput}
+        refusals={model.refusals}
+      />
+      <QueuesIncidentsBand
+        queues={model.queues}
+        incidents={model.incidents}
+        services={model.services}
+        window={model.window}
+      />
     </ConsolePage>
   );
 }
 
-function Legend({ swatch, children }: { swatch: string; children: React.ReactNode }) {
+/**
+ * The one live fact, in the header.
+ *
+ * ⚠ IT REPLACED A PILL THAT READ "DEGRADED IN THE LAST 30 DAYS". That pill was
+ * the first thing an operator saw, it was derived from designed figures, and
+ * it carried no mark saying so — the confident status line on the one page
+ * people open when they are already worried. What belongs up here is the
+ * strongest thing the page can actually vouch for, and that is isolation.
+ * It links to its band.
+ */
+function IsolationChip({ isolation, live }: { isolation: IsolationStatus; live: boolean }) {
+  const holding = isolation.tablesTotal > 0 && isolation.tablesPoliced === isolation.tablesTotal;
+  const ink = holding ? 'var(--success-fg)' : 'var(--danger-fg)';
+  const Icon = holding ? IconShieldCheck : IconShieldExclamation;
+  const gap = isolation.tablesTotal - isolation.tablesPoliced;
+
   return (
-    <span
-      className="inline-flex items-center gap-1.5 whitespace-nowrap"
-      style={{ font: '400 var(--type-compact)/1 var(--font-ui)', color: 'var(--text-secondary)' }}
+    <Link
+      href="#isolation"
+      className="group inline-flex h-9 items-center gap-2.5 rounded-full pr-4 pl-3 whitespace-nowrap transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
+      style={{
+        border: `1px solid color-mix(in oklab, ${ink} 35%, var(--border-subtle))`,
+        background: 'var(--surface-raised)',
+        boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
+      }}
     >
-      <span aria-hidden style={{ width: 10, height: 2, background: swatch }} />
-      {children}
-    </span>
+      <Icon size={16} stroke={1.75} style={{ color: ink }} aria-hidden />
+      <span
+        style={{ font: '500 var(--type-compact)/1 var(--font-ui)', color: 'var(--text-primary)' }}
+      >
+        {holding ? 'Isolation holding' : `Isolation gap · ${gap} ${gap === 1 ? 'table' : 'tables'}`}
+      </span>
+      <span
+        className="tabular-nums"
+        style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
+      >
+        {isolation.tablesPoliced}/{isolation.tablesTotal}
+        {live ? '' : ' · designed'}
+      </span>
+    </Link>
   );
 }
