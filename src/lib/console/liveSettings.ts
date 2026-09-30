@@ -1,6 +1,7 @@
 import 'server-only';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import { withActorContext } from '@/lib/db';
+import { logger } from '@/lib/logger';
 import { readPlatformSettings } from '@/modules/platform';
 import { parseActor } from './auditVocabulary';
 
@@ -40,9 +41,20 @@ export async function getLiveSettings(): Promise<LiveSettings | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  const record = await withActorContext(ctx.actorId, ctx.requestId, (tx) =>
-    readPlatformSettings(tx),
-  );
+  /* ⚠ A DATABASE WITHOUT MIGRATION 0002 MUST NOT TAKE THE PAGE DOWN. Deploys
+     do not migrate; a deployment can reach a database that has not been
+     migrated yet. `42P01` is "no such table": the page falls back to the
+     designed view, read-only, and the log says what to run. */
+  let record: Awaited<ReturnType<typeof readPlatformSettings>>;
+  try {
+    record = await withActorContext(ctx.actorId, ctx.requestId, (tx) => readPlatformSettings(tx));
+  } catch (error) {
+    if (pgCode(error) === '42P01') {
+      logger.error('platform_settings is missing: run `pnpm db:migrate` on this database');
+      return null;
+    }
+    throw error;
+  }
   if (!record) return null;
 
   return {
@@ -57,4 +69,11 @@ export async function getLiveSettings(): Promise<LiveSettings | null> {
         }
       : null,
   };
+}
+
+/** The Postgres error code, wherever the driver or Drizzle put it. */
+function pgCode(error: unknown): string | undefined {
+  const e = error as { code?: unknown; cause?: { code?: unknown } } | null;
+  const code = e?.code ?? e?.cause?.code;
+  return typeof code === 'string' ? code : undefined;
 }
