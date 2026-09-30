@@ -5,6 +5,7 @@ import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import type { PlatformActor } from './subscriptions';
+import { requireCapability } from './capabilities';
 
 /**
  * The plan catalogue's CEILINGS. 08 §2.
@@ -191,6 +192,8 @@ export async function setPlanLimit(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      // Doc 23: the capability column is enforced here, before anything is written.
+      await requireCapability(tx, actor.userId, 'manage_workspaces');
       const [row] = await tx
         .select({
           id: planEntitlements.id,

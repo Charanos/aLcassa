@@ -187,6 +187,11 @@ export async function getLiveAdmins(): Promise<AdminsModel | null> {
         grantedBy: '—',
         grantedOn: dateLabel(r.grantedOn ? new Date(r.grantedOn) : null),
         you: r.userId === ctx.actorId,
+        capabilities: {
+          manageWorkspaces: r.canSuspendTenants,
+          editMasterRules: r.canEditMasterRules,
+          enterSupportMode: r.canEnterSupportMode,
+        },
       };
     });
 

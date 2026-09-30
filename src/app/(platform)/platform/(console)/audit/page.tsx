@@ -6,13 +6,12 @@ import {
   IconDownload,
   IconLock,
   IconTransfer,
-  type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { ConsoleHeader, ConsolePage, DataSource, ExportLink } from '@/components/console/Surface';
 import { AuditStream } from '@/components/console/AuditStream';
 import { VolumeBand, VolumeBandSkeleton } from '@/components/console/audit/VolumeBand';
 import { ActorBand } from '@/components/console/audit/ActorBand';
-import { IconTile } from '@/components/primitives/IconTile';
+import { FactCell, FactStrip } from '@/components/console/FactStrip';
 import { getAuditEntries, getAuditVolume } from '@/lib/console/data';
 import { getLiveAuditEntries, getLiveAuditVolume } from '@/lib/console/liveWorkspaces';
 
@@ -73,43 +72,33 @@ export default async function AuditPage() {
       />
 
       {/* ── The ledger's integrity, as evidence ─────────────────────────── */}
-      <section
-        aria-label="How this log can be trusted"
-        /* A 1px gap over a rule-coloured ground: every divider is exact at
-           one, two or four columns, with no per-breakpoint border arithmetic. */
-        className="grid gap-px overflow-clip rounded-card sm:grid-cols-2 xl:grid-cols-4"
-        style={{
-          background: 'var(--border-subtle)',
-          border: '1px solid var(--border-subtle)',
-          boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
-        }}
-      >
-        <Claim
+      <FactStrip label="How this log can be trusted">
+        <FactCell
           icon={IconLock}
           label="Append-only"
           value="By policy"
           note="Select, and no update or delete policy — for anyone, the platform included."
         />
-        <Claim
+        <FactCell
           icon={IconTransfer}
           label="Same transaction"
           value="Or it didn't happen"
           note="Every change is written by the transaction that makes it. A change missing here did not occur."
         />
-        <Claim
+        <FactCell
           icon={IconClockHour4}
           label="Newest entry"
           value={newest ? ago(newest.at) : '—'}
           note={newest ? `${newest.time} EAT` : 'Nothing in the window.'}
         />
-        <Claim
+        <FactCell
           icon={IconCalendarStats}
           label="Last thirty days"
           value={`${changes.toLocaleString('en-KE')} ${changes === 1 ? 'change' : 'changes'}`}
           note={`and ${reads.toLocaleString('en-KE')} audited ${reads === 1 ? 'read' : 'reads'}.`}
           source={<DataSource kind={live ? 'live' : 'designed'} />}
         />
-      </section>
+      </FactStrip>
 
       <Suspense fallback={<VolumeBandSkeleton />}>
         <VolumeSection live={live !== null} />
@@ -140,49 +129,6 @@ export default async function AuditPage() {
 async function VolumeSection({ live }: { live: boolean }) {
   const points = (await getLiveAuditVolume()) ?? (await getAuditVolume());
   return <VolumeBand points={points} live={live} />;
-}
-
-function Claim({
-  icon,
-  label,
-  value,
-  note,
-  source,
-}: {
-  icon: TablerIcon;
-  label: string;
-  value: string;
-  note: string;
-  source?: React.ReactNode;
-}) {
-  return (
-    <div className="flex gap-4 p-6" style={{ background: 'var(--surface-raised)' }}>
-      <IconTile icon={icon} size="sm" />
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p
-            className="font-mono text-2xs tracking-[0.14em] uppercase"
-            style={{ color: 'var(--text-tertiary)' }}
-          >
-            {label}
-          </p>
-          {source}
-        </div>
-        <p
-          className="mt-2"
-          style={{ font: '500 var(--type-lede)/1.25 var(--font-ui)', color: 'var(--text-primary)' }}
-        >
-          {value}
-        </p>
-        <p
-          className="t-caption mt-1.5"
-          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
-        >
-          {note}
-        </p>
-      </div>
-    </div>
-  );
 }
 
 /** "3 minutes ago", "5 hours ago", "2 days ago". */

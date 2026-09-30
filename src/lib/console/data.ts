@@ -2478,6 +2478,13 @@ export type Admin = {
   grantedOn: string;
   /** True for the operator reading the page. Derived from the session. */
   you?: boolean;
+  /**
+   * The three columns `platform_admins` actually stores, and — since doc 23 —
+   * the three the platform module actually enforces. The Admins page draws its
+   * matrix from these rather than from a role, because there are no roles in
+   * the database: "owner" existed only in this fixture.
+   */
+  capabilities: { manageWorkspaces: boolean; editMasterRules: boolean; enterSupportMode: boolean };
 };
 
 export type Invitation = { email: string; sentAgo: string; expiresIn: string };
@@ -2519,6 +2526,7 @@ export async function getAdmins(): Promise<AdminsModel> {
         email: 'brian@andishi.co.ke',
         initials: 'BM',
         role: 'owner',
+        capabilities: { manageWorkspaces: true, editMasterRules: true, enterSupportMode: true },
         lastSeen: 'Active now',
         sessions30d: 11,
         mfa: true,
@@ -2531,6 +2539,7 @@ export async function getAdmins(): Promise<AdminsModel> {
         email: 'wanjiku@andishi.co.ke',
         initials: 'WK',
         role: 'platform_admin',
+        capabilities: { manageWorkspaces: true, editMasterRules: true, enterSupportMode: true },
         lastSeen: '2 hours ago',
         sessions30d: 6,
         mfa: true,
@@ -2543,6 +2552,7 @@ export async function getAdmins(): Promise<AdminsModel> {
         email: 'j.otieno@andishi.co.ke',
         initials: 'JO',
         role: 'platform_admin',
+        capabilities: { manageWorkspaces: true, editMasterRules: true, enterSupportMode: true },
         lastSeen: 'Yesterday',
         sessions30d: 6,
         mfa: true,
@@ -2555,6 +2565,7 @@ export async function getAdmins(): Promise<AdminsModel> {
         email: 'a.hassan@andishi.co.ke',
         initials: 'AH',
         role: 'support',
+        capabilities: { manageWorkspaces: false, editMasterRules: false, enterSupportMode: true },
         lastSeen: '6 days ago',
         sessions30d: 0,
         mfa: false,

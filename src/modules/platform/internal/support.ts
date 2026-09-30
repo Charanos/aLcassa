@@ -6,6 +6,7 @@ import { breakGlassState } from './breakGlass';
 import { asService } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import type { PlatformActor } from './subscriptions';
+import { requireCapability } from './capabilities';
 
 /**
  * 09 §3 · 09 §4 · 04 §6. SUPPORT SESSIONS.
@@ -106,6 +107,8 @@ export async function startSupportSession(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      // Doc 23: the capability column is enforced here, before anything is written.
+      await requireCapability(tx, actor.userId, 'enter_support_mode');
       /**
        * ⚠ BREAK GLASS IS ENFORCED HERE, AND THIS IS THE ONLY PLACE IT NEEDS TO
        *   BE. `internal/breakGlass.ts` has the full argument; the short version
@@ -384,6 +387,8 @@ export async function extendSupportSession(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      // Doc 23: the capability column is enforced here, before anything is written.
+      await requireCapability(tx, actor.userId, 'enter_support_mode');
       const [row] = await tx
         .select({ id: sessions.id, tenantId: sessions.tenantId, userId: sessions.userId })
         .from(sessions)

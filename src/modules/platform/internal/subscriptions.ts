@@ -12,6 +12,7 @@ import { asService } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { invalidateEntitlements, type EntitlementKey } from '@/modules/entitlements';
 import { canTransition, type SubscriptionStatus } from '@/modules/subscriptions';
+import { requireCapability } from './capabilities';
 
 /**
  * 08 §1 · 08 §7 · 08 §9. SUBSCRIPTION ADMINISTRATION.
@@ -95,6 +96,8 @@ export async function assignPlan(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      // Doc 23: the capability column is enforced here, before anything is written.
+      await requireCapability(tx, actor.userId, 'manage_workspaces');
       const [plan] = await tx
         .select({ id: plans.id, code: plans.code, trialDays: plans.trialDays })
         .from(plans)
@@ -200,6 +203,8 @@ export async function changeSubscriptionStatus(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      // Doc 23: the capability column is enforced here, before anything is written.
+      await requireCapability(tx, actor.userId, 'manage_workspaces');
       const [existing] = await tx
         .select({ id: subscriptions.id, status: subscriptions.status })
         .from(subscriptions)
@@ -284,6 +289,8 @@ export async function grantOverride(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      // Doc 23: the capability column is enforced here, before anything is written.
+      await requireCapability(tx, actor.userId, 'manage_workspaces');
       const [subscription] = await tx
         .select({ id: subscriptions.id })
         .from(subscriptions)

@@ -3,6 +3,7 @@ import { SkeletonBar, SkeletonGroup } from '@/components/primitives/Skeleton';
 import { VolumeBandSkeleton } from '@/components/console/audit/VolumeBand';
 import { ActorBandSkeleton } from '@/components/console/audit/ActorBand';
 import { AuditStreamSkeleton } from '@/components/console/AuditStream';
+import { FactStripSkeleton } from '@/components/console/FactStrip';
 
 /**
  * Audit log, loading.
@@ -29,21 +30,7 @@ export default function AuditLoading() {
           <SkeletonBar width={104} height={36} radius="rounded-full" />
         </div>
 
-        <div
-          className="grid gap-px overflow-clip rounded-card sm:grid-cols-2 xl:grid-cols-4"
-          style={{ background: 'var(--border-subtle)', border: '1px solid var(--border-subtle)' }}
-        >
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="flex gap-4 p-6" style={{ background: 'var(--surface-raised)' }}>
-              <SkeletonBar width={28} height={28} radius="rounded-panel" />
-              <div className="flex-1">
-                <SkeletonBar width={96} height={10} />
-                <SkeletonBar width="62%" height={18} className="mt-2" />
-                <SkeletonBar width="88%" height={11} className="mt-2" />
-              </div>
-            </div>
-          ))}
-        </div>
+        <FactStripSkeleton />
       </SkeletonGroup>
 
       <VolumeBandSkeleton />

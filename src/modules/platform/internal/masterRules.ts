@@ -5,6 +5,7 @@ import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import type { PlatformActor } from './subscriptions';
+import { requireCapability } from './capabilities';
 
 /**
  * 05 §7 · 08 §4. The master rule set: publish a new version, or roll back to
@@ -114,6 +115,8 @@ export async function publishMasterRules(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      // Doc 23: the capability column is enforced here, before anything is written.
+      await requireCapability(tx, actor.userId, 'edit_master_rules');
       const [root] = await tx.select({ id: masterAiRules.id }).from(masterAiRules).limit(1);
 
       if (!root) {
@@ -203,6 +206,8 @@ export async function rollbackMasterRules(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      // Doc 23: the capability column is enforced here, before anything is written.
+      await requireCapability(tx, actor.userId, 'edit_master_rules');
       const [target] = await tx
         .select({
           id: masterAiRuleVersions.id,

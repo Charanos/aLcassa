@@ -16,6 +16,7 @@ import {
   type ProvisionTenantInput,
   type ProvisionTenantResult,
 } from '../types';
+import { requireCapability } from './capabilities';
 
 /**
  * 02 §3 · 05 §3 · 06 §5 · 11 §6. PROVISION A TENANT.
@@ -109,6 +110,8 @@ export async function provisionTenant(
         ipAddress: actor.ipAddress ?? null,
       },
       async (tx) => {
+        // Doc 23: the capability column is enforced here, before anything is written.
+        await requireCapability(tx, actor.userId, 'manage_workspaces');
         // Slug uniqueness is enforced by the index; this read turns the
         // resulting constraint violation into a message naming the field,
         // which is what `07 §1`'s error envelope needs.

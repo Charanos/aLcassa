@@ -5,6 +5,7 @@ import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import type { PlatformActor } from './subscriptions';
+import { requireCapability } from './capabilities';
 
 /**
  * 06 §8 · 09 §2. SUSPENSION AND REACTIVATION.
@@ -71,6 +72,8 @@ export async function setTenantStatus(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      // Doc 23: the capability column is enforced here, before anything is written.
+      await requireCapability(tx, actor.userId, 'manage_workspaces');
       const [tenant] = await tx
         .select({ id: tenants.id, slug: tenants.slug, status: tenants.status })
         .from(tenants)
