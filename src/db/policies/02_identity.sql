@@ -360,11 +360,46 @@ create policy sessions_modify on sessions
   );
 
 -- ─── platform_admins ────────────────────────────────────────────────────────
--- Not tenant-scoped. A platform admin reads their own row; the table is
--- otherwise managed through the platform door.
+-- Not tenant-scoped. Managed through the platform door; there is no modify
+-- policy, so the application role cannot grant or revoke platform access.
 
 alter table platform_admins enable row level security;
 alter table platform_admins force row level security;
 
+-- Your own row. What signing in to the console reads, before anything else is
+-- known about you.
 create policy platform_admins_select on platform_admins
   for select using (user_id = app.current_actor_id() and deleted_at is null);
+
+-- ⚠ AND EVERY OPERATOR'S ROW, IF YOU ARE ONE. Doc 23 · S0.2.
+--
+-- The Admins page lists everyone who can see every workspace, and with only
+-- the policy above it could only ever list its reader: a second operator
+-- would have been invisible to the first, and the page would have said
+-- "1 person" to each of them. Operators seeing each other is the whole point
+-- of that page — the list is the access review.
+--
+-- Revoked operators (`deleted_at`) stay hidden, as they are from their own
+-- policy. Written through `app.is_platform_admin()` because a policy on this
+-- table cannot query this table; see `00_context.sql`.
+create policy platform_admins_select_operators on platform_admins
+  for select using (deleted_at is null and app.is_platform_admin());
+
+-- ─── platform_settings ──────────────────────────────────────────────────────
+-- Doc 23 · S0.2. One row of platform-wide settings.
+--
+-- READ-ONLY TO THE APPLICATION ROLE, BY OMISSION. Operators read it; nothing
+-- here grants insert, update or delete. A change goes through
+-- `updatePlatformSettings` in the platform module, which runs as the service
+-- role and writes its `settings.updated` audit row — with the before and the
+-- after — in the same transaction as the change. A modify policy would not
+-- enable that path; it would only open a second one, unaudited.
+--
+-- Customers never read this table: the support address reaches them through
+-- the pages that render it, not through a query of their own.
+
+alter table platform_settings enable row level security;
+alter table platform_settings force row level security;
+
+create policy platform_settings_select on platform_settings
+  for select using (app.is_platform_admin());

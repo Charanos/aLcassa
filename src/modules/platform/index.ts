@@ -101,3 +101,16 @@ export {
   type PlanLimitImpact,
 } from './internal/planCatalogue';
 export { breakGlassState, setBreakGlass, type BreakGlassState } from './internal/breakGlass';
+
+/**
+ * Doc 23 · S0.2. The platform-wide settings row: read under row level security
+ * by an operator, written through `asService` with its diff in the audit row.
+ */
+export {
+  platformSettingsSchema,
+  readPlatformSettings,
+  updatePlatformSettings,
+  type PlatformSettingsInput,
+  type PlatformSettingsRecord,
+  type PlatformSettingsSaveResult,
+} from './internal/settings';

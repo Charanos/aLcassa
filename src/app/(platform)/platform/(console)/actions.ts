@@ -30,7 +30,7 @@ import {
 } from '@/lib/console/data';
 import { getLiveWorkspaceDetail, getLiveWorkspaces } from '@/lib/console/liveWorkspaces';
 import { getLivePlans } from '@/lib/console/live';
-import { withoutTenantContext } from '@/lib/db';
+import { withActorContext } from '@/lib/db';
 import { sql, eq, and } from 'drizzle-orm';
 import { platformAuditLog } from '@/db/schema';
 import { AUDIT_ACTIONS } from '@/lib/audit';
@@ -537,13 +537,21 @@ export async function toggleBreakGlass(input: {
 /**
  * The current lock state, for the settings screen.
  *
- * Read through `withoutTenantContext` rather than `asService`: it is a read of
- * the platform's own log by a platform admin, and routing it through the
- * audited path would write a row every time somebody opened Settings.
+ * Read as the operator rather than through `asService`: it is a read of the
+ * platform's own log by a platform admin, and routing it through the audited
+ * path would write a row every time somebody opened Settings.
+ *
+ * ⚠ IT READ THROUGH `withoutTenantContext`, AND SO IT ALWAYS SAID "UNLOCKED".
+ *   The lock IS the latest lock event in `platform_audit_log`, whose select
+ *   policy admits only a platform admin — and `withoutTenantContext` sets no
+ *   actor. The query returned nothing, and nothing reads as "never locked".
+ *   An operator arriving at a locked platform was offered "Lock the platform".
+ *   The same defect as the audit page (doc 23, A0.1), in a file the first
+ *   sweep did not look in; `tests/console/audit-readers.test.ts` now does.
  */
 export async function fetchBreakGlassState(): Promise<BreakGlassState> {
   const ctx = await currentPlatformSession();
-  return withoutTenantContext(ctx.requestId, (tx) => breakGlassState(tx));
+  return withActorContext(ctx.actorId, ctx.requestId, (tx) => breakGlassState(tx));
 }
 
 /* ── Provisioning ─────────────────────────────────────────────────────────── */
@@ -666,7 +674,10 @@ export async function provisionWorkspace(input: {
 export async function nextSupportReference(): Promise<string> {
   try {
     const ctx = await currentPlatformSession();
-    const n = await withoutTenantContext(ctx.requestId, async (tx) => {
+    /* As the operator: the count is of platform audit rows, which no context
+       without an actor can see. It read zero, so every support reference was
+       numbered as the first of its day. */
+    const n = await withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
       const [row] = await tx
         .select({ n: sql<number>`count(*)::int` })
         .from(platformAuditLog)

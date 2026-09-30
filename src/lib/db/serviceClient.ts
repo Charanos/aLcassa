@@ -70,6 +70,13 @@ export type ServiceRoleCall = {
   reason?: string | null;
   requestId: string;
   ipAddress?: string | null;
+  /**
+   * The state the call replaces, and the state it writes, when the caller knows
+   * both before it starts — a settings save does. Written into the same audit
+   * row, so the entry IS the diff rather than pointing somewhere else for it.
+   */
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
 };
 
 type AuditWriter = (tx: ServiceTransaction, call: ServiceRoleCall) => Promise<void>;

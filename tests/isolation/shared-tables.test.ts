@@ -90,6 +90,10 @@ const EXPECTATIONS: Record<string, Expectation> = {
     tenantMember: 'none',
     why: '09 §6. The platform roster is not tenant-readable. A tenant has no business enumerating who can enter their workspace.',
   },
+  platform_settings: {
+    tenantMember: 'none',
+    why: 'Doc 23 · S0.2. Platform-wide settings are read by operators only. A customer sees the support address where a page renders it, never by querying the row.',
+  },
   platform_audit_log: {
     tenantMember: 'none',
     why: "05 §9. The platform's own trail. What a tenant may see about support access is in THEIR audit_log, which the generated suite covers.",

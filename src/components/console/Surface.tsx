@@ -711,11 +711,18 @@ export function BandLink({ href, children }: { href: string; children: React.Rea
 export function DataSource({
   kind,
   detail,
+  explain,
   inverse = false,
 }: {
   kind: 'live' | 'designed';
   /** A few words after the kind — "probes at M6", "read now". */
   detail?: string;
+  /**
+   * The hover text, where the default is wrong for the page. The default
+   * designed text is about observability probes, which is Health's reason;
+   * Settings' designed rows are designed for a different one.
+   */
+  explain?: string;
   inverse?: boolean;
 }) {
   const live = kind === 'live';
@@ -733,9 +740,10 @@ export function DataSource({
       className="inline-flex items-center gap-2 font-mono text-2xs tracking-[0.12em] whitespace-nowrap uppercase"
       style={{ color: ink }}
       title={
-        live
+        explain ??
+        (live
           ? 'Read from the database when this page loaded.'
-          : 'No observability probes in Phase 1. These are the designed figures; the probes arrive at M6.'
+          : 'No observability probes in Phase 1. These are the designed figures; the probes arrive at M6.')
       }
     >
       <span aria-hidden className="relative flex size-2 items-center justify-center">

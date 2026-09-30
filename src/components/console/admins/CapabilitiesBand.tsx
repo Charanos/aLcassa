@@ -78,8 +78,12 @@ export function CapabilitiesBand({ admins }: { admins: Admin[] }) {
                 className="grid items-end gap-x-2 border-b px-4 pb-3"
                 style={{ gridTemplateColumns: cols, borderColor: 'var(--border-subtle)' }}
               >
-                <span role="columnheader" className="sr-only">
-                  Capability
+                {/* ⚠ A REAL CELL WITH HIDDEN TEXT, NOT A HIDDEN CELL. `sr-only`
+                    on the header itself takes it out of the grid, so every
+                    operator's name moved one column left and sat over the
+                    capability labels instead of over their ticks. */}
+                <span role="columnheader">
+                  <span className="sr-only">Capability</span>
                 </span>
                 {admins.map((a) => (
                   <span

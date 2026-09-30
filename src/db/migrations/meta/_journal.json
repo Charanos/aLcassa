@@ -15,6 +15,13 @@
       "when": 1787847161293,
       "tag": "0001_same_tyrannus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790756636391,
+      "tag": "0002_platform_settings",
+      "breakpoints": true
     }
   ]
 }

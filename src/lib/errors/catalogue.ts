@@ -54,6 +54,8 @@ export const ERROR_CODES = {
   SUPPORT_NOT_PERMITTED: 'support.not_permitted', // cannot ENTER support mode. See pipeline.ts.
   /** A platform operator without the capability the action needs. Doc 23. */
   PLATFORM_CAPABILITY_MISSING: 'platform.capability_missing',
+  /** Platform settings saved over a version the operator never saw. Doc 23. */
+  PLATFORM_SETTINGS_CONFLICT: 'platform.settings_conflict',
   /** 01 D-13, added 24 Aug 2026. A support session attempted one of the three
    *  permanent carve-outs: reading a credential secret, extending its own
    *  timeout, or acting as the member's own identity row. Distinct from
@@ -126,6 +128,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   [ERROR_CODES.SUPPORT_SESSION_EXPIRED]: 401,
   [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 403,
   [ERROR_CODES.PLATFORM_CAPABILITY_MISSING]: 403,
+  [ERROR_CODES.PLATFORM_SETTINGS_CONFLICT]: 409,
   [ERROR_CODES.SUPPORT_WRITE_DENIED]: 403,
   [ERROR_CODES.PLATFORM_NOT_ADMIN]: 403,
 
@@ -188,6 +191,8 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 'This account cannot enter support mode.',
   [ERROR_CODES.PLATFORM_CAPABILITY_MISSING]:
     'Your operator account does not hold the capability this needs. Another platform admin can grant it.',
+  [ERROR_CODES.PLATFORM_SETTINGS_CONFLICT]:
+    'Another operator saved these settings after you opened the page. Reload to see their version, then make your change again.',
   [ERROR_CODES.SUPPORT_WRITE_DENIED]: 'Support mode cannot do this here.',
   [ERROR_CODES.PLATFORM_NOT_ADMIN]: 'This account does not manage the platform.',
 

@@ -85,6 +85,40 @@ end;
 $$ language plpgsql stable security definer;
 
 -- ────────────────────────────────────────────────────────────────────────────
+-- IS THE ACTOR A PLATFORM OPERATOR. Doc 23 · S0.2.
+--
+-- ⚠ A POLICY ON `platform_admins` CANNOT ASK `platform_admins` DIRECTLY.
+--   The obvious policy for "operators can see each other" is
+--   `exists (select 1 from platform_admins where user_id = actor)` — which is
+--   a policy on a table querying that same table, and Postgres refuses it as
+--   infinite recursion. The only select policy the table had was "your own
+--   row", so the Admins page, which lists every operator, could only ever
+--   list the one reading it.
+--
+-- SECURITY DEFINER runs the lookup as the function's owner, outside the
+-- caller's row level security, which is what breaks the recursion. It is
+-- narrow on purpose: it answers one yes-or-no question about the CURRENT
+-- actor, takes no arguments, and returns nothing else — so it cannot be used
+-- to ask about anybody but yourself. `search_path` is pinned for the reason
+-- given at `app.invitation_by_token`: a definer function without it can be
+-- hijacked through the caller's own path.
+--
+-- New policies should call this rather than repeat the `exists` inline.
+-- ────────────────────────────────────────────────────────────────────────────
+create or replace function app.is_platform_admin() returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select exists (
+    select 1 from public.platform_admins pa
+    where pa.user_id = app.current_actor_id()
+      and pa.deleted_at is null
+  );
+$$;
+
+-- ────────────────────────────────────────────────────────────────────────────
 -- 06 §8 · SUSPENSION
 --
 -- Suspension is a POLICY, not a flag. CONFIRMED 24 Aug 2026: read-only, with a

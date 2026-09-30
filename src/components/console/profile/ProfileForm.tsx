@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/primitives/Toast';
 import { IdentityCard } from '@/components/console/profile/IdentityCard';
-import { UnsavedBar } from '@/components/console/profile/UnsavedBar';
+import { UnsavedBar } from '@/components/console/UnsavedBar';
 import { checkName } from '@/lib/console/profileName';
 import { updateConsoleProfileName } from '@/app/(platform)/platform/(console)/profile-actions';
 

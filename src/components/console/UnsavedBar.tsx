@@ -37,6 +37,10 @@ import { Button } from '@/components/primitives/Button';
  * What in-app navigation does instead is unmount this component with the draft
  * still in memory, which is a real limitation and is recorded in 19 §6 rather
  * than papered over.
+ *
+ * ⚠ SHARED SINCE ITS SECOND USE. It lived in `console/profile` until Settings
+ * needed the same bar; Settings had grown its own, which is how `Figure` came
+ * to exist in four drifted copies (doc 22). One bar, one place.
  */
 export function UnsavedBar({
   dirty,
@@ -45,6 +49,7 @@ export function UnsavedBar({
   message,
   onSave,
   onDiscard,
+  saveLabel = 'Save changes',
 }: {
   dirty: boolean;
   pending: boolean;
@@ -54,6 +59,8 @@ export function UnsavedBar({
   message: string;
   onSave: () => void;
   onDiscard: () => void;
+  /** "Review and save" where Save opens a confirmation rather than writing. */
+  saveLabel?: string;
 }) {
   useEffect(() => {
     if (!dirty) return;
@@ -135,7 +142,10 @@ export function UnsavedBar({
             size={18}
             stroke={2}
             aria-hidden
-            className="shrink-0"
+            /* Hidden on a phone, with Discard's word: at 390px the icon, the
+               word and the Save button were wider than the content column,
+               and the bar pushed the whole form past the right edge. */
+            className="hidden shrink-0 sm:block"
             style={{ color: invalid ? 'var(--red-400)' : 'var(--amber-400)' }}
           />
           <p
@@ -155,7 +165,7 @@ export function UnsavedBar({
               icon={<IconRotate size={16} aria-hidden />}
               className="!rounded-full font-medium !text-[var(--ink-300)] hover:!bg-[color-mix(in_srgb,var(--ink-0)_10%,transparent)] hover:!text-[var(--ink-0)]"
             >
-              Discard
+              <span className="max-sm:sr-only">Discard</span>
             </Button>
             <Button
               variant="primary"
@@ -165,7 +175,7 @@ export function UnsavedBar({
               loading={pending}
               className="!rounded-full font-medium shadow-lg shadow-blue-500/20"
             >
-              Save changes
+              {saveLabel}
             </Button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   index,
   jsonb,
   pgEnum,
@@ -160,6 +161,42 @@ export const platformAdmins = pgTable('platform_admins', {
   ...softDelete,
 });
 
+/**
+ * Platform-wide settings. One row, ever. Doc 23 · S0.2.
+ *
+ * ⚠ THE SETTINGS PAGE HAD NOWHERE TO SAVE. Its form was editable and its Save
+ * button disabled, with a footer saying so, because the schema had
+ * `tenant_settings` and no platform-level equivalent. The support address a
+ * customer of every workspace is shown lived as a string in a fixture.
+ *
+ * ⚠ ONE ROW, ENFORCED BY THE DATABASE, NOT BY CONVENTION. `singleton` can only
+ * be `true` (the check) and only one row may hold it (the unique index), so a
+ * second row is an error rather than an ambiguity about which one is read.
+ * The row is inserted by the migration that creates the table; nothing inserts
+ * or deletes it afterwards, and no policy would let the application try.
+ *
+ * Only the fields the console can actually change live here. Currency and
+ * timezone are properties of the product (KES, Nairobi) rather than settings,
+ * and the security controls are either enforced in code or not built — a
+ * column would make them look configurable when they are not.
+ */
+export const platformSettings = pgTable(
+  'platform_settings',
+  {
+    id: pk(),
+    singleton: boolean('singleton').notNull().default(true),
+    platformName: text('platform_name').notNull(),
+    supportEmail: text('support_email').notNull(),
+    /** The operator who last saved. Their name is read from the audit entry. */
+    updatedBy: uuid('updated_by'),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex('platform_settings_singleton_idx').on(t.singleton),
+    check('platform_settings_singleton_check', sql`${t.singleton}`),
+  ],
+);
+
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type TenantMember = typeof tenantMembers.$inferSelect;
 export type Invitation = typeof invitations.$inferSelect;
@@ -167,3 +204,4 @@ export type Session = typeof sessions.$inferSelect;
 export type PlatformAdmin = typeof platformAdmins.$inferSelect;
 export type MemberRole = (typeof memberRole.enumValues)[number];
 export type MemberStatus = (typeof memberStatus.enumValues)[number];
+export type PlatformSettings = typeof platformSettings.$inferSelect;

@@ -112,6 +112,12 @@ export const AUDIT_ACTIONS = {
    */
   SUPPORT_LOCK_ENGAGED: 'support.lock_engaged',
   SUPPORT_LOCK_RELEASED: 'support.lock_released',
+  /**
+   * Platform-wide settings saved from the console. Doc 23 · S0.2. The row
+   * carries `before` and `after` holding only the fields that changed, so the
+   * entry reads as the diff rather than as two copies of the form.
+   */
+  PLATFORM_SETTINGS_UPDATED: 'platform.settings_updated',
   /** A read of the session record. Audited because it is a service-role call,
    *  and distinct because it is not a visit. */
   SUPPORT_SESSION_READ: 'support.session_read',

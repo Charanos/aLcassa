@@ -209,3 +209,61 @@ three secrets are yours to create;** everything else is code.
 2. **Stage 1** — `Figure`, the header family.
 3. **Audit → Admins → Settings**, each ending in screenshots, gates, push.
 4. **Stage 3** — the CI visual job, on its branch.
+
+---
+
+## Outcome · Settings (30 Sep 2026)
+
+What shipped, and where it departed from the plan above.
+
+**The store (S0.2).** Migration `0002_platform_settings` adds one table and one
+row: `platform_name` and `support_email`, a `singleton` column the database
+holds to a single `true`, and `updated_by`. It is additive; nothing existing
+changed shape. Policies: `platform_settings_select` admits a platform admin and
+nobody else, and there is **no** insert, update or delete policy — a save goes
+through `updatePlatformSettings` in the platform module, which runs as the
+service role and writes `platform.settings_updated` with only the changed fields
+in `before` and `after`, in the same transaction. A save carries the version it
+loaded and is refused (`platform.settings_conflict`) if another operator saved
+in between; the refusal rolls back its audit row too.
+
+**`app.is_platform_admin()`**, a narrow `security definer` function, and with it
+`platform_admins_select_operators`: operators now see each other. Until this,
+the Admins page could only ever list the person reading it.
+
+**Two more blind readers, found on the way.** The Settings break-glass state and
+the support-reference counter both read `platform_audit_log` without an actor —
+A0.1's defect in `actions.ts`, which the first guard test did not scan. The
+break-glass panel therefore always said "unlocked", and every support reference
+was numbered first of its day. Both fixed; the guard now scans the actions
+directory and names both readers.
+
+**Departures from the plan, each for a stated reason:**
+
+- *"Applies to every workspace without an override"* is not said anywhere. It is
+  not true: nothing customer-facing reads either field yet, and outgoing mail is
+  sent from `EMAIL_FROM`. The page says so in a "What reads these" section and
+  in the save dialog, and the fact strip shows the real sending address.
+- *Every field classified live/designed.* Went further: the Security tab has
+  **no toggles**. Four enforced controls are stated with where each is enforced;
+  three unbuilt ones (two-factor requirement, idle sign-out, address allow-list)
+  are listed as not built. Notifications are drawn as the design's intent, not
+  as switches. Retention states that nothing is deleted on a schedule, rather
+  than periods no job enforces. Developer no longer lists fixture `pk_live_`
+  keys or a "failing" webhook that did not exist.
+- *"Last changed" per section.* One section is stored, so one line, plus the
+  fact strip.
+- *The sticky save bar* is the profile's `UnsavedBar`, moved to
+  `components/console/UnsavedBar.tsx` at its second use rather than rebuilt.
+
+**Tests.** `tests/isolation/platform-settings.test.ts` (10 cases: the row is
+operator-only and unwritable by the app role; a save writes the diff; a stale
+save and an unchanged save write nothing; operators see each other and a
+revoked one sees nobody). `shared-tables` declares the new table. The suite
+restores the row and removes its probes' audit rows, since it runs against the
+development database.
+
+**Follow-ups, not done here:** attach the stored support address to outgoing
+mail as reply-to (the email module needs a way to read it outside an operator
+context); split `can_suspend_tenants` if saving settings should need its own
+capability (today it takes `manage_workspaces`).

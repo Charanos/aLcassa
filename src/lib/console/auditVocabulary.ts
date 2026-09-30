@@ -100,6 +100,12 @@ const VOCABULARY: Record<string, AuditDescription> = {
   'support.session_read': { label: 'Support record read', icon: IconEye, tone: 'neutral' },
   'support.lock_engaged': { label: 'Support locked platform-wide', icon: IconLock, tone: 'danger' },
   'support.lock_released': { label: 'Support unlocked', icon: IconLockOpen, tone: 'success' },
+  /* Reaches every workspace's customers, so not neutral. */
+  'platform.settings_updated': {
+    label: 'Platform settings changed',
+    icon: IconPencil,
+    tone: 'warning',
+  },
   'customer_record.read': { label: 'Customer record read', icon: IconEye, tone: 'warning' },
 
   /* ── People ──────────────────────────────────────────────────────────── */

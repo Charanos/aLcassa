@@ -2593,217 +2593,40 @@ export async function getAdmins(): Promise<AdminsModel> {
 
 /* ── Settings ───────────────────────────────────────────────────────────── */
 
-export type Policy = {
-  key: string;
-  label: string;
-  detail: string;
-  on: boolean;
-  locked?: boolean;
-  value?: string;
-};
-
-export type NotificationRule = {
-  key: string;
-  label: string;
-  detail: string;
-  console: boolean;
-  email: boolean;
-  locked?: boolean;
-};
-
-export type RetentionItem = { label: string; detail: string; value: string };
-
-export type ApiKeyRecord = { id: string; label: string; masked: string; used: string };
-
-export type Webhook = { id: string; url: string; events: string; status: string; healthy: boolean };
-
+/**
+ * The designed settings, for the review bypass. A signed-in operator reads the
+ * `platform_settings` row instead — see `liveSettings.ts`.
+ *
+ * ⚠ THIS USED TO CARRY FIVE ACCESS POLICIES, SIX NOTIFICATION RULES, FOUR
+ * RETENTION PERIODS, THREE API KEYS AND TWO WEBHOOKS. Most described controls
+ * that did not exist — a two-factor requirement nothing checks, an idle
+ * sign-out with no timer, `pk_live_` keys in a table that is not there. What
+ * the page states about security, notifications and retention now lives in
+ * `components/console/settings/controls.ts` as statements checked against the
+ * code, and this fixture holds only the two editable fields and the constants.
+ * Doc 23.
+ */
 export type SettingsModel = {
   platformName: string;
   supportEmail: string;
   currency: string;
   timezone: string;
-  policies: Policy[];
-  breakGlassActive: boolean;
-  notifications: NotificationRule[];
-  retention: RetentionItem[];
   /** 17 §6.1. A closed catalogue, so the label and the route cannot drift. */
   exports: Array<{ resource: 'workspaces' | 'revenue' | 'audit'; label: string }>;
-  apiKeys: ApiKeyRecord[];
-  webhooks: Webhook[];
 };
 
-/**
- * Platform-wide settings.
- *
- * `Settings.dc.html` draws a theme picker as a section of this page; the
- * product ships one theme now, so there is no preference left to hold and
- * the section — and the settings section, header toggle and command-palette
- * action that used to write it — were removed rather than kept as a no-op.
- *
- * Replaced by a read over a `platform_settings` singleton row.
- */
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
 export async function getSettings(): Promise<SettingsModel> {
   return {
     platformName: 'aLcassa',
-    supportEmail: 'support@alcassa.app',
+    /* S0.1: the domain is alcassa.co.ke. It read alcassa.app. */
+    supportEmail: 'support@alcassa.co.ke',
     currency: 'KES · Kenyan shilling',
     timezone: 'Africa/Nairobi · EAT',
-
-    policies: [
-      {
-        key: 'mfa',
-        label: 'Require two-factor for all platform admins',
-        detail: 'An admin without MFA cannot sign in. Currently one admin would be locked out.',
-        on: true,
-        locked: true,
-      },
-      {
-        key: 'reason',
-        label: 'Require a reason for every support session',
-        detail: "The reason is written to the customer's own audit log and shown to them.",
-        on: true,
-        locked: true,
-      },
-      {
-        key: 'cap',
-        label: 'Support session length',
-        detail:
-          'Hard expiry with no extension. A longer session must be started fresh, and logged again.',
-        on: true,
-        value: '30 minutes',
-      },
-      {
-        key: 'ip',
-        label: 'Restrict console access by IP range',
-        detail:
-          'Two ranges allowed. Sign-ins from elsewhere are refused before the password is checked.',
-        on: false,
-        value: '2 ranges',
-      },
-      {
-        key: 'idle',
-        label: 'Sign out after inactivity',
-        detail:
-          'Applies to the console only; an active support session still expires on its own clock.',
-        on: true,
-        value: '2 hours',
-      },
-    ],
-
-    breakGlassActive: false,
-
-    notifications: [
-      {
-        key: 'payment',
-        label: 'A payment fails',
-        detail: 'First failure, not each retry.',
-        console: true,
-        email: true,
-      },
-      {
-        key: 'limit',
-        label: 'A workspace crosses 90% of a limit',
-        detail: 'Once per limit per period.',
-        console: true,
-        email: false,
-      },
-      {
-        key: 'trial',
-        label: 'A trial is three days from ending',
-        detail: 'Only for trials with recent sign-in activity.',
-        console: true,
-        email: true,
-      },
-      {
-        key: 'session',
-        label: 'Another admin starts a support session',
-        detail: 'Includes the reason they gave.',
-        console: true,
-        email: false,
-      },
-      {
-        key: 'incident',
-        label: 'An incident opens at SEV2 or above',
-        detail: 'SEV1 always pages regardless.',
-        console: true,
-        email: true,
-      },
-      {
-        key: 'admin',
-        label: 'A platform admin is granted or revoked',
-        detail: 'Cannot be disabled for owners.',
-        console: true,
-        email: true,
-        locked: true,
-      },
-    ],
-
-    retention: [
-      {
-        label: 'Platform audit log',
-        detail: 'Append-only. Cannot be shortened below the regulatory floor.',
-        value: '3 years',
-      },
-      {
-        label: 'Support session records',
-        detail: 'Reason, duration, and who ended it.',
-        value: '3 years',
-      },
-      {
-        label: 'Health metrics',
-        detail: 'Latency, throughput, and queue depth samples.',
-        value: '90 days',
-      },
-      {
-        label: 'Suspended workspace data',
-        detail: 'Retained so reactivation is a single action.',
-        value: '12 months',
-      },
-    ],
-
     exports: [
       { resource: 'audit', label: 'Audit log · CSV' },
       { resource: 'revenue', label: 'Revenue · CSV' },
       { resource: 'workspaces', label: 'Workspace roster · CSV' },
-    ],
-
-    apiKeys: [
-      {
-        id: 'k_1',
-        label: 'Billing reconciliation worker',
-        masked: 'pk_live_4f2a ···· 91c0',
-        used: 'used 4 min ago',
-      },
-      {
-        id: 'k_2',
-        label: 'Status page publisher',
-        masked: 'pk_live_9b17 ···· 3ade',
-        used: 'used 2 hours ago',
-      },
-      {
-        id: 'k_3',
-        label: 'Internal metrics scraper',
-        masked: 'pk_live_02de ···· 77b4',
-        used: 'never used',
-      },
-    ],
-
-    webhooks: [
-      {
-        id: 'w_1',
-        url: 'https://ops.andishi.co.ke/hooks/alcassa',
-        events: 'tenant.provision · tenant.suspend · payment.failed',
-        status: 'healthy',
-        healthy: true,
-      },
-      {
-        id: 'w_2',
-        url: 'https://finance.andishi.co.ke/webhook/billing',
-        events: 'invoice.paid · invoice.failed',
-        status: '3 failures',
-        healthy: false,
-      },
     ],
   };
 }

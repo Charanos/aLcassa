@@ -30,6 +30,8 @@ async function writePlatformAudit(tx: ServiceTransaction, call: ServiceRoleCall)
     targetTenantId: call.targetTenantId ?? null,
     entityType: call.entityType ?? null,
     entityId: call.entityId ?? null,
+    before: call.before ?? null,
+    after: call.after ?? null,
     usedServiceRole: true,
     reason: call.reason ?? null,
     ipAddress: call.ipAddress ?? null,
