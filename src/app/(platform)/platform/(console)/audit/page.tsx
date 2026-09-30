@@ -1,10 +1,18 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
-import { IconDownload } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage, ExportLink, Panel } from '@/components/console/Surface';
+import {
+  IconCalendarStats,
+  IconClockHour4,
+  IconDownload,
+  IconLock,
+  IconTransfer,
+  type Icon as TablerIcon,
+} from '@tabler/icons-react';
+import { ConsoleHeader, ConsolePage, DataSource, ExportLink } from '@/components/console/Surface';
 import { AuditStream } from '@/components/console/AuditStream';
-import { VolumeBand } from '@/components/console/audit/VolumeBand';
+import { VolumeBand, VolumeBandSkeleton } from '@/components/console/audit/VolumeBand';
 import { ActorBand } from '@/components/console/audit/ActorBand';
+import { IconTile } from '@/components/primitives/IconTile';
 import { getAuditEntries, getAuditVolume } from '@/lib/console/data';
 import { getLiveAuditEntries, getLiveAuditVolume } from '@/lib/console/liveWorkspaces';
 
@@ -13,120 +21,178 @@ export const metadata: Metadata = { title: 'Audit log' };
 /**
  * The platform audit log. `Audit-Log.dc.html`.
  *
- * The lede makes a claim the architecture actually backs: every platform
- * mutation writes here in the same transaction that performs it, so an action
- * missing from this log did not happen. That is only true because of
- * `withAudit()` and the append-only policy — no UPDATE, no DELETE — and it is
- * worth stating on the surface, because a log a reader is not sure is complete
- * is a log they will not rely on in a dispute.
+ * ⚠ FOR ITS WHOLE LIFE UNTIL 30 SEP 2026, THIS PAGE WAS BLIND.
  *
- * ⚠ THE VOLUME BAND HAS ITS OWN SUSPENSE BOUNDARY, and that is the reason it
- * is a separate async component rather than a tidiness preference.
+ * Signed in, it reported zero platform actions in thirty days over a table
+ * holding 297. The select policy admits rows only to a platform-admin ACTOR and
+ * the readers opened no actor, so row-level security filtered everything — and
+ * filters rather than errors, so the page rendered an empty ledger with full
+ * confidence. When it could see, it found most of what it held was a read
+ * recorded as a change. Doc 23 records both, and the fixes.
  *
- * `09 §8` commits to panels streaming independently. The stream is why somebody
- * opened this page; the thirty-day aggregate is context. They are two queries,
- * and the aggregate is the expensive one — a `generate_series` joined against
- * every audit row in the window. Awaiting both before the first byte would make
- * the answer wait on the context. So the band reads inside its own boundary and
- * the stream paints as soon as it is ready.
+ * ⚠ THE CLAIM THE PAGE MAKES IS THE PAGE'S REASON TO EXIST, so it opens with
+ * the claim — as evidence, not as a lede. "Append-only" is a policy you can
+ * read (select, and no update or delete, for anyone); "written in the same
+ * transaction" is how `withAudit()` works; the newest entry and the window's
+ * totals are read from the log itself. A reader who cannot trust that a log is
+ * complete will not rely on it in a dispute, which is the only time it matters.
  *
- * ⚠ THE TWO SECTIONS DO NOT SHARE FILTER STATE, which is a stated limit rather
- * than an oversight. Brushing the histogram to scope the stream needs both
- * inside one client boundary, which would push the whole page — every entry
- * included — into the browser. The stream already filters by kind and by free
- * text, which covers what a brush would select. If the brush is wanted later it
- * is a client parent around both, not a tweak to either.
+ * ⚠ THE VOLUME BAND HAS ITS OWN SUSPENSE BOUNDARY. The stream is why somebody
+ * opened the page; the thirty-day aggregate is context and the expensive query.
+ * Awaiting both before the first byte would make the answer wait on the
+ * context.
  */
 export default async function AuditPage() {
-  /**
-   * Live first, designed fixture second — the pattern every other wired
-   * surface uses. The fixture stays reachable behind the review bypass, where
-   * there is no session for the live reader to resolve.
-   */
-  const entries = (await getLiveAuditEntries()) ?? (await getAuditEntries());
+  /* Live first, designed fixture second — the review bypass has no session. */
+  const live = await getLiveAuditEntries();
+  const entries = live ?? (await getAuditEntries());
+
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Nairobi',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+
+  const changes = entries.filter((e) => e.nature !== 'read').length;
+  const reads = entries.length - changes;
+  const newest = entries[0];
 
   return (
     <ConsolePage>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-6">
-        <div className="min-w-0 flex-1">
-          <ConsoleHeader eyebrow="/platform/audit" title="Audit log" />
-          <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', maxWidth: '68ch' }}>
-            Append-only. Every platform mutation writes here in the same transaction that performs
-            it, so an action that is missing from this log did not happen.
-          </p>
-        </div>
-        <ExportLink resource="audit">
-          <IconDownload size={15} stroke={1.5} aria-hidden />
-          Export
-        </ExportLink>
-      </div>
+      <ConsoleHeader
+        breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Audit log' }]}
+        eyebrow="/platform/audit"
+        title="Audit log"
+        actions={
+          <ExportLink resource="audit">
+            <IconDownload size={15} stroke={1.5} aria-hidden />
+            Export
+          </ExportLink>
+        }
+      />
 
-      <div className="mt-7">
-        <Suspense fallback={<VolumeSkeleton />}>
-          <VolumeSection />
-        </Suspense>
-      </div>
+      {/* ── The ledger's integrity, as evidence ─────────────────────────── */}
+      <section
+        aria-label="How this log can be trusted"
+        /* A 1px gap over a rule-coloured ground: every divider is exact at
+           one, two or four columns, with no per-breakpoint border arithmetic. */
+        className="grid gap-px overflow-clip rounded-card sm:grid-cols-2 xl:grid-cols-4"
+        style={{
+          background: 'var(--border-subtle)',
+          border: '1px solid var(--border-subtle)',
+          boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
+        }}
+      >
+        <Claim
+          icon={IconLock}
+          label="Append-only"
+          value="By policy"
+          note="Select, and no update or delete policy — for anyone, the platform included."
+        />
+        <Claim
+          icon={IconTransfer}
+          label="Same transaction"
+          value="Or it didn't happen"
+          note="Every change is written by the transaction that makes it. A change missing here did not occur."
+        />
+        <Claim
+          icon={IconClockHour4}
+          label="Newest entry"
+          value={newest ? ago(newest.at) : '—'}
+          note={newest ? `${newest.time} EAT` : 'Nothing in the window.'}
+        />
+        <Claim
+          icon={IconCalendarStats}
+          label="Last thirty days"
+          value={`${changes.toLocaleString('en-KE')} ${changes === 1 ? 'change' : 'changes'}`}
+          note={`and ${reads.toLocaleString('en-KE')} audited ${reads === 1 ? 'read' : 'reads'}.`}
+          source={<DataSource kind={live ? 'live' : 'designed'} />}
+        />
+      </section>
+
+      <Suspense fallback={<VolumeBandSkeleton />}>
+        <VolumeSection live={live !== null} />
+      </Suspense>
 
       {/*
-        ⚠ NOT INSIDE THE SUSPENSE BOUNDARY ABOVE, and not a second query.
-        `ActorBand` is derived from the entries this page already awaited, so
-        it costs nothing to render here and cannot disagree with the stream
-        beneath it. Wrapping it in a boundary would suspend on a value that
-        has already resolved — the mistake `VolumeSection` exists to avoid.
+        Not inside a Suspense boundary, and not a second query: derived from the
+        entries already awaited above, so it cannot disagree with the stream.
       */}
       <ActorBand entries={entries} />
 
-      <AuditStream entries={entries} />
+      <Suspense>
+        <AuditStream entries={entries} today={today} />
+      </Suspense>
 
-      <p className="t-compact mt-3.5" style={{ color: 'var(--text-tertiary)', maxWidth: '84ch' }}>
+      <p className="t-compact mt-4" style={{ color: 'var(--text-tertiary)', maxWidth: '84ch' }}>
         Redacted fields appear as changed without revealing either value. A credential rotation
-        shows that the secret moved; it never shows the secret.
+        shows that the secret moved; it never shows the secret. Times are Nairobi time.
       </p>
     </ConsolePage>
   );
 }
 
 /**
- * The band's own async component.
- *
- * ⚠ SUSPENSE NEEDS SOMETHING THAT SUSPENDS. A boundary wrapped around an
- * already-awaited value boundaries nothing: the await would have happened in
- * the parent, the fallback would never render, and the page would still wait.
- * Moving the read in here is what actually lets the stream paint first.
+ * The band's own async component. Suspense needs something that suspends: a
+ * boundary around an already-awaited value boundaries nothing.
  */
-async function VolumeSection() {
+async function VolumeSection({ live }: { live: boolean }) {
   const points = (await getLiveAuditVolume()) ?? (await getAuditVolume());
-  return <VolumeBand points={points} />;
+  return <VolumeBand points={points} live={live} />;
 }
 
-/**
- * ⚠ THE SKELETON IS THE BAND'S SHAPE, NOT A SPINNER. `03 §15`: an opacity
- * pulse at the size of the thing arriving, so nothing below it jumps when the
- * real band lands.
- */
-function VolumeSkeleton() {
+function Claim({
+  icon,
+  label,
+  value,
+  note,
+  source,
+}: {
+  icon: TablerIcon;
+  label: string;
+  value: string;
+  note: string;
+  source?: React.ReactNode;
+}) {
   return (
-    <section className="mb-8" aria-busy="true">
-      <div className="mb-6 h-7" />
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
-        <Panel title="Actions per day" variant="elevated">
-          <div
-            className="h-[168px] w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-overlay motion-reduce:animate-none motion-reduce:opacity-70"
-            style={{ background: 'var(--surface-inset)' }}
-          />
-        </Panel>
-        <Panel title="In the window" variant="elevated">
-          <div className="grid gap-3">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-8 w-full animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-panel motion-reduce:animate-none motion-reduce:opacity-70"
-                style={{ background: 'var(--surface-inset)' }}
-              />
-            ))}
-          </div>
-        </Panel>
+    <div className="flex gap-4 p-6" style={{ background: 'var(--surface-raised)' }}>
+      <IconTile icon={icon} size="sm" />
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <p
+            className="font-mono text-2xs tracking-[0.14em] uppercase"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
+            {label}
+          </p>
+          {source}
+        </div>
+        <p
+          className="mt-2"
+          style={{ font: '500 var(--type-lede)/1.25 var(--font-ui)', color: 'var(--text-primary)' }}
+        >
+          {value}
+        </p>
+        <p
+          className="t-caption mt-1.5"
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
+        >
+          {note}
+        </p>
       </div>
-    </section>
+    </div>
   );
+}
+
+/** "3 minutes ago", "5 hours ago", "2 days ago". */
+function ago(iso: string | undefined): string {
+  if (!iso) return '—';
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+  const days = Math.round(hours / 24);
+  return `${days} ${days === 1 ? 'day' : 'days'} ago`;
 }

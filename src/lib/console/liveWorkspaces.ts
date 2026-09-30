@@ -14,7 +14,14 @@ import {
   userProfiles,
 } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
-import { withoutTenantContext } from '@/lib/db';
+import {
+  LEGACY_READS,
+  READ_ACTIONS,
+  describeTarget,
+  natureOf,
+  parseActor,
+} from '@/lib/console/auditVocabulary';
+import { withActorContext, withoutTenantContext } from '@/lib/db';
 import type {
   AuditEntry,
   AuditKind,
@@ -449,7 +456,23 @@ export async function getLiveAuditEntries(): Promise<AuditEntry[] | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  /*
+   * ⚠ `withActorContext`, NOT `withoutTenantContext` — AND THIS WAS WHY THE
+   *   AUDIT LOG WAS EMPTY.
+   *
+   * `platform_audit_log` admits a row only when `app.current_actor_id()` is a
+   * platform admin (07_audit.sql). `withoutTenantContext` sets the actor to
+   * empty, so every row was filtered out — silently, because row-level
+   * security filters rather than erroring. Signed in against a database
+   * holding 297 entries in the window, the page reported none. Doc 23 A0.1;
+   * `tests/console/audit-readers.test.ts` keeps it from coming back.
+   *
+   * ⚠ THE WINDOW, NOT THE LATEST HUNDRED. The volume chart above the stream
+   * covers thirty days; this read stopped at a hundred rows, so the operators
+   * band reported "97 of 100" beneath a chart counting 297. Both read the same
+   * thirty Nairobi days now. The cap is a safety rail, not a page size.
+   */
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const rows = await tx
       .select({
         id: platformAuditLog.id,
@@ -465,75 +488,100 @@ export async function getLiveAuditEntries(): Promise<AuditEntry[] | null> {
       })
       .from(platformAuditLog)
       .leftJoin(tenants, eq(tenants.id, platformAuditLog.targetTenantId))
+      .where(
+        sql`${platformAuditLog.occurredAt} >= (date_trunc('day', now() at time zone 'Africa/Nairobi') - interval '29 days') at time zone 'Africa/Nairobi'`,
+      )
       .orderBy(desc(platformAuditLog.occurredAt))
-      .limit(100);
+      .limit(AUDIT_WINDOW_CAP);
 
-    return rows.map((row) => ({
-      id: row.id,
-      kind: auditKindOf(row.action),
-      time: row.occurredAt.toLocaleString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-      action: row.action,
-      target: row.tenantName ?? row.entityType ?? '—',
-      actor: row.actorLabel,
-      initials: initialsOf(row.actorLabel),
-      requestId: row.requestId,
-      ip: row.ipAddress ?? '—',
-      tenantId: row.targetTenantId ?? '',
-      ...(row.reason ? { reason: row.reason } : {}),
-    }));
+    return rows.map((row) => {
+      const actor = parseActor(row.actorLabel);
+      return {
+        id: row.id,
+        kind: auditKindOf(row.action),
+        /* ⚠ NAIROBI, STATED. `toLocaleString` without a zone formats in the
+           server's — UTC on Vercel — while Settings promised "rendered in your
+           local zone". */
+        time: EAT_ROW.format(row.occurredAt),
+        at: row.occurredAt.toISOString(),
+        day: EAT_DAY_KEY.format(row.occurredAt),
+        action: row.action,
+        target: row.tenantName ?? describeTarget(row.entityType),
+        actor: actor.name,
+        actorEmail: actor.email,
+        initials: actor.initials,
+        requestId: row.requestId,
+        ip: row.ipAddress ?? '—',
+        tenantId: row.targetTenantId ?? '',
+        entityType: row.entityType ?? undefined,
+        nature: natureOf(row),
+        ...(row.tenantName ? { tenantName: row.tenantName } : {}),
+        ...(row.reason ? { reason: row.reason } : {}),
+      };
+    });
   });
 }
 
-/** The console groups its log by five kinds. Mapped from the dotted action
- *  rather than stored, so a new action lands somewhere sensible by default. */
+/** A safety rail on one read, well above a month of real activity. */
+const AUDIT_WINDOW_CAP = 2000;
+
+const EAT_ROW = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Africa/Nairobi',
+  day: '2-digit',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+/** `en-CA` formats as `YYYY-MM-DD`, which is the key the volume query uses. */
+const EAT_DAY_KEY = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Africa/Nairobi',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
 function auditKindOf(action: string): AuditKind {
   if (action.startsWith('support.')) return 'session';
-  if (action.startsWith('subscription.')) return 'plan';
+  if (
+    action.startsWith('subscription.') ||
+    action.startsWith('plan.') ||
+    action.startsWith('watchlist.')
+  )
+    return 'plan';
   if (action.startsWith('rules.')) return 'rules';
   if (action.startsWith('tenant.')) return 'tenant';
   return 'admin';
 }
 
-/**
- * 17 §5 · 17 §7. Platform audit volume, one row per day for thirty days.
- *
- * ⚠ A LOG YOU CANNOT ASK A QUESTION OF IS AN ARCHIVE.
- *
- * The audit stream renders entries newest-first and answers "what happened
- * last". It cannot answer "was last Tuesday unusual", which is the question
- * somebody actually arrives with. Thirty bars can.
- *
- * ⚠ `serviceRole` IS ITS OWN SERIES BECAUSE IT IS THE QUESTION AN AUDITOR
- * ASKS. Every platform audit row carries `used_service_role` precisely so
- * that "when did we bypass Row Level Security, and why" is one filter rather
- * than a reconstruction. Folding it into a total hides the only series on the
- * chart anybody would investigate.
- *
- * ⚠ DAYS WITH NO ACTIVITY ARE ZEROES, NOT GAPS. `generate_series` produces the
- * calendar and the counts join onto it, so a quiet weekend renders as two
- * short bars rather than as a chart that silently closes up and makes five
- * working days look like seven.
- */
 export async function getLiveAuditVolume(): Promise<AuditVolumePoint[] | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
-    const rows = await tx.execute<{
-      day: string;
-      total: number;
-      service_role: number;
-      support: number;
-    }>(sql`
+  /*
+   * ⚠ NAIROBI DAYS, NOT UTC ONES. Bucketing by `at time zone 'utc'` put every
+   * day boundary three hours early for the operator reading it: an action at
+   * 01:00 EAT landed on the previous day's bar. Doc 23 A0.4.
+   *
+   * ⚠ READS ARE COUNTED BY THE SAME RULE THE STREAM USES. `READ_ACTIONS` and
+   * `LEGACY_READS` come from `auditVocabulary`, so the chart and the rows below
+   * it cannot classify the same entry two different ways.
+   */
+  const readActions = sql.join(
+    READ_ACTIONS.map((a) => sql`${a}`),
+    sql`, `,
+  );
+  const isRead = sql`(
+    l.action in (${readActions})
+    or (l.action = ${LEGACY_READS.watchlist.action} and l.entity_type = ${LEGACY_READS.watchlist.entityType})
+    or (l.action = ${LEGACY_READS.preview.action} and l.reason = ${LEGACY_READS.preview.reason})
+  )`;
+
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
+    const rows = await tx.execute(sql`
       with calendar as (
         select generate_series(
-          (now() at time zone 'utc')::date - interval '29 days',
-          (now() at time zone 'utc')::date,
+          (now() at time zone 'Africa/Nairobi')::date - interval '29 days',
+          (now() at time zone 'Africa/Nairobi')::date,
           interval '1 day'
         )::date as day
       )
@@ -541,29 +589,31 @@ export async function getLiveAuditVolume(): Promise<AuditVolumePoint[] | null> {
         to_char(calendar.day, 'YYYY-MM-DD') as day,
         count(l.id)::int as total,
         count(*) filter (where l.used_service_role)::int as service_role,
-        count(*) filter (where l.support_session_id is not null)::int as support
+        count(*) filter (where l.support_session_id is not null)::int as support,
+        count(*) filter (where l.id is not null and ${isRead})::int as reads
       from calendar
       left join ${platformAuditLog} l
-        on (l.occurred_at at time zone 'utc')::date = calendar.day
+        on (l.occurred_at at time zone 'Africa/Nairobi')::date = calendar.day
       group by calendar.day
       order by calendar.day
     `);
 
     /* `execute` returns driver rows rather than a typed result set, so the
-       shape is asserted at exactly one place — here — and everything above
-       this line reads the declared type. */
+       shape is asserted at exactly one place — here. */
     const points = (
       rows as unknown as Array<{
         day: string;
         total: number;
         service_role: number;
         support: number;
+        reads: number;
       }>
     ).map((r) => ({
       day: r.day,
       total: Number(r.total),
       serviceRole: Number(r.service_role),
       support: Number(r.support),
+      reads: Number(r.reads),
     }));
 
     return points.length > 0 ? points : null;

@@ -7,6 +7,7 @@ import {
 } from '@/components/primitives/Skeleton';
 import { DataSource, Panel, SectionHeading } from '../Surface';
 import type { IsolationStatus } from '@/lib/console/data';
+import { Figure } from '@/components/primitives/Figure';
 
 /**
  * ISOLATION. Sheet 11: "the severe risk in the brief is a policy gap; its
@@ -112,24 +113,26 @@ export function IsolationBand({
             this page loads.
           </p>
 
-          <dl className="m-0 mt-5 grid">
-            <Fact label="Checked" value={live ? `${isolation.lastRun} · EAT` : 'Designed figure'} />
-            <Fact
+          <div className="mt-5 grid">
+            <Figure
+              label="Checked"
+              value={live ? `${isolation.lastRun} · EAT` : 'Designed figure'}
+            />
+            <Figure
               label="Cross-tenant attempts · 30 days"
               value={counted ? String(isolation.crossTenantAttempts30d) : 'Not yet counted'}
-              muted={!counted}
+              tone={counted ? 'default' : 'muted'}
             />
-            <Fact
+            <Figure
               label="Refused"
               value={
                 counted
                   ? `${isolation.crossTenantRefused30d} of ${isolation.crossTenantAttempts30d}`
                   : 'Not yet counted'
               }
-              muted={!counted}
-              last
+              tone={counted ? 'default' : 'muted'}
             />
-          </dl>
+          </div>
 
           {!counted ? (
             <p
@@ -202,39 +205,6 @@ const SUITE_CASES = [
   'A support session writes only where it was opened to',
   "A join into another tenant's parent row returns nothing",
 ] as const;
-
-function Fact({
-  label,
-  value,
-  muted,
-  last,
-}: {
-  label: string;
-  value: string;
-  muted?: boolean;
-  last?: boolean;
-}) {
-  return (
-    <div
-      className="flex items-baseline justify-between gap-4 py-2.5"
-      style={last ? undefined : { borderBottom: '1px solid var(--border-subtle)' }}
-    >
-      <dt className="t-compact" style={{ color: 'var(--text-secondary)' }}>
-        {label}
-      </dt>
-      <dd
-        className="m-0 text-right tabular-nums"
-        style={{
-          font: `${muted ? 400 : 500} var(--type-compact)/1.4 var(--font-mono)`,
-          color: muted ? 'var(--text-tertiary)' : 'var(--text-primary)',
-          fontStyle: muted ? 'italic' : undefined,
-        }}
-      >
-        {value}
-      </dd>
-    </div>
-  );
-}
 
 export function IsolationBandSkeleton() {
   return (

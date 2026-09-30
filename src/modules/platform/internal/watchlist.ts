@@ -71,7 +71,9 @@ export async function watchlist(actor: PlatformActor): Promise<WatchlistEntry[]>
     {
       actorUserId: actor.userId,
       actorLabel: actor.label,
-      action: AUDIT_ACTIONS.SUBSCRIPTION_STATUS_CHANGED,
+      /* A read, recorded as one. It was SUBSCRIPTION_STATUS_CHANGED — see
+         WATCHLIST_READ in lib/audit for what that did to the ledger. */
+      action: AUDIT_ACTIONS.WATCHLIST_READ,
       entityType: 'watchlist',
       reason: 'console watchlist read',
       requestId: actor.requestId,

@@ -376,8 +376,10 @@ export async function previewPlanChange(
       actorLabel: actor.label,
       // A preview reads across a tenant it is not scoped to, so it is a
       // service-role call and is audited like one. Reading is cheap; an
-      // unaudited read of another tenant's usage is not.
-      action: AUDIT_ACTIONS.SUBSCRIPTION_PLAN_ASSIGNED,
+      // unaudited read of another tenant's usage is not. It is recorded AS a
+      // preview: it was SUBSCRIPTION_PLAN_ASSIGNED, so every opened preview
+      // wrote "plan assigned" into the ledger. See PLAN_CHANGE_PREVIEWED.
+      action: AUDIT_ACTIONS.PLAN_CHANGE_PREVIEWED,
       targetTenantId: input.tenantId,
       entityType: 'subscription',
       reason: 'preview only, no change written',

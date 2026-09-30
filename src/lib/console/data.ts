@@ -1656,6 +1656,22 @@ export type AuditEntry = {
   tenantId: string;
   diff?: AuditDiff[];
   reason?: string;
+  /**
+   * Doc 23. What the stream needs to tell a change from a read, group by day
+   * and name a person — optional because the designed fixtures predate them,
+   * and every reader treats absence as "a change, on no particular day".
+   */
+  /** ISO timestamp, for ordering and for `<time dateTime>`. */
+  at?: string;
+  /** The Nairobi calendar day, `YYYY-MM-DD`, for grouping. */
+  day?: string;
+  entityType?: string;
+  /** `read` for audited service-role reads; see `natureOf`. */
+  nature?: 'change' | 'read';
+  /** The address from a `Name <email>` label, shown on the expanded row. */
+  actorEmail?: string | null;
+  /** The workspace's name, when the entry targets one. */
+  tenantName?: string;
 };
 
 /**
@@ -3891,6 +3907,8 @@ export type AuditVolumePoint = {
   total: number;
   serviceRole: number;
   support: number;
+  /** Audited reads — a subset of `total`, and usually of `serviceRole`. */
+  reads: number;
 };
 
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
@@ -3908,6 +3926,7 @@ export async function getAuditVolume(): Promise<AuditVolumePoint[]> {
       total,
       serviceRole: Math.round(total * 0.18),
       support: Math.round(total * 0.12),
+      reads: Math.round(total * 0.1),
     };
   });
 }

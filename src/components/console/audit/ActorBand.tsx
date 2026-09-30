@@ -1,72 +1,65 @@
 import { InitialsTile } from '@/components/primitives/InitialsTile';
+import { Figure } from '@/components/primitives/Figure';
+import {
+  SkeletonBar,
+  SkeletonGroup,
+  SkeletonSectionHeading,
+} from '@/components/primitives/Skeleton';
 import { Panel, SectionHeading } from '../Surface';
 import type { AuditEntry } from '@/lib/console/data';
 
 /**
- * WHO ACTED. The audit page's second question.
+ * OPERATORS. Who made the changes.
  *
- * ⚠ `VolumeBand` ANSWERS "HOW MUCH AND OF WHAT KIND". IT CANNOT ANSWER "BY
- *   WHOM", AND THAT IS THE OTHER HALF OF WHAT A SECURITY REVIEW ASKS OF AN
- *   AUDIT LOG.
+ * ⚠ `VolumeBand` ANSWERS "HOW MUCH, AND OF WHAT KIND". IT CANNOT ANSWER "BY
+ *   WHOM", and that is the other half of what a security review asks. A month
+ *   of changes reads the same whether four operators made them or one made all
+ *   but three, and those are opposite findings — a team, or a single point of
+ *   failure, a shared login, an automation under a person's name.
  *
- * A thirty-day total of 214 platform actions reads the same whether four
- * operators made them or one operator made 211 of them, and those are opposite
- * findings. The first is a team. The second is a single point of failure, a
- * shared login, or an automation running under a person's name — and none of
- * those is visible from a histogram.
+ * ⚠ SHARE OF CHANGES, NOT OF ENTRIES. Audited reads are mostly page views: the
+ * watchlist is read every time an operator opens the overview. Counting them
+ * crowned whoever browsed most as the busiest operator, which is a measure of
+ * attention rather than of action. Reads are counted, beside the share, and
+ * kept out of it.
  *
- * ⚠ CONCENTRATION IS STATED AS A FIGURE RATHER THAN LEFT TO THE EYE. The share
- * bar beside each name is the same number the sentence above it quotes, so the
- * reader is not asked to estimate a proportion from a bar they have no scale
- * for. 03 §11.
+ * ⚠ NAMES, NOT LABELS. The log writes actors as `Name <email>`; the band drew
+ * the label whole, so initials came out "K<" and every row carried an address
+ * at full length. The address is on the expanded row in the stream below.
  *
- * ⚠ THE REASONED COUNT IS NOT A PERCENTAGE OF EVERYTHING, and the distinction
- * is the point. Most platform actions do not take a reason — provisioning a
- * workspace is self-explanatory, and a required free-text box on every action
- * trains operators to type "." The actions that DO carry one are the ones
- * where intent cannot be read from the action itself: entering a customer's
- * workspace, moving a plan ceiling, lifting the break-glass lock. Counting
- * those against the total would produce a number that looks like poor
- * compliance and means nothing.
- *
- * A server component. Everything here is derived from the entries the page has
- * already loaded — no second query, and nothing that can disagree with the
- * stream below it.
+ * Derived entirely from entries the page has already loaded — no second query,
+ * nothing that can disagree with the stream beneath it.
  */
 export function ActorBand({ entries }: { entries: AuditEntry[] }) {
-  const total = entries.length;
+  const changes = entries.filter((e) => e.nature !== 'read');
+  const reads = entries.length - changes.length;
 
-  /* Grouped by the name the log actually carries, so a renamed operator shows
-     as the log shows them rather than as the directory does today. */
   const byActor = new Map<string, number>();
-  for (const e of entries) byActor.set(e.actor, (byActor.get(e.actor) ?? 0) + 1);
-
+  for (const e of changes) byActor.set(e.actor, (byActor.get(e.actor) ?? 0) + 1);
   const actors = [...byActor.entries()]
-    .map(([name, count]) => ({ name, count, share: total > 0 ? (count / total) * 100 : 0 }))
+    .map(([name, count]) => ({ name, count, share: (count / Math.max(changes.length, 1)) * 100 }))
     .sort((a, b) => b.count - a.count);
 
   const top = actors[0];
-  const reasoned = entries.filter((e) => (e.reason ?? '').trim().length > 0).length;
-
-  /* Distinct request ids: one action per request is the shape a console
-     produces; a request id appearing many times is a batch or a retry loop,
-     and it is worth being able to see that it is not happening. */
-  const requests = new Set(entries.map((e) => e.requestId)).size;
+  const reasoned = changes.filter((e) => (e.reason ?? '').trim().length > 0).length;
 
   return (
-    <section className="mb-8">
-      <SectionHeading title="Operators" note="Who made these changes" />
+    <section aria-labelledby="audit-operators">
+      <SectionHeading title="Operators" note="Who made the changes." align="right" />
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <Panel title="Share of the window">
+      <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <Panel title="Share of changes" variant="elevated">
           {actors.length === 0 ? (
-            <p className="t-compact" style={{ color: 'var(--text-tertiary)' }}>
-              No actions in this window.
+            <p className="t-body" style={{ color: 'var(--text-secondary)' }}>
+              No operator changed anything in the window.
             </p>
           ) : (
-            <ul className="m-0 grid list-none gap-3.5 p-0">
-              {actors.slice(0, 5).map((a) => (
-                <li key={a.name} className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-3">
+            <ul className="m-0 grid list-none gap-4 p-0">
+              {actors.slice(0, 6).map((a) => (
+                <li
+                  key={a.name}
+                  className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-3.5"
+                >
                   <InitialsTile name={a.name} size="sm" />
                   <div className="min-w-0">
                     <div className="flex items-baseline justify-between gap-3">
@@ -74,30 +67,27 @@ export function ActorBand({ entries }: { entries: AuditEntry[] }) {
                         {a.name}
                       </span>
                       <span
-                        className="numeric shrink-0 tabular-nums"
+                        className="shrink-0 tabular-nums"
                         style={{
                           font: '500 var(--type-chip)/1 var(--font-mono)',
                           color: 'var(--text-tertiary)',
                         }}
                       >
-                        {a.count} · {Math.round(a.share)}%
+                        {a.count.toLocaleString('en-KE')} · {Math.round(a.share)}%
                       </span>
                     </div>
-                    {/*
-                      ⚠ THE TRACK IS ALWAYS DRAWN, the fill is the share. A bar
-                      rendered only as wide as its value gives the reader no
-                      scale to read it against — 60% and 100% look identical
-                      when each is the widest thing in its own row.
-                    */}
+                    {/* The track is always drawn so the fill has a scale to be
+                        read against; 60% and 100% look alike when each bar is
+                        the widest thing in its own row. */}
                     <div
-                      className="mt-1.5 h-1 w-full overflow-hidden rounded-bar"
+                      className="mt-2 h-1 w-full overflow-hidden rounded-full"
                       style={{ background: 'var(--surface-inset)' }}
                     >
                       <div
-                        className="h-full rounded-bar"
+                        className="h-full rounded-full"
                         style={{
                           width: `${Math.max(a.share, 1.5)}%`,
-                          background: 'var(--text-tertiary)',
+                          background: 'var(--ink-400)',
                         }}
                       />
                     </div>
@@ -108,25 +98,31 @@ export function ActorBand({ entries }: { entries: AuditEntry[] }) {
           )}
         </Panel>
 
-        <Panel title="In the window">
+        <Panel title="In the window" variant="elevated">
           <div className="grid">
-            <Figure label="Operators" value={actors.length} />
+            <Figure label="Operators who changed something" value={actors.length} strong />
             {top ? (
               <Figure
                 label="Busiest"
                 value={`${Math.round(top.share)}%`}
-                note={`${top.name} made ${top.count} of ${total}. One operator at or near 100% is a finding, not a statistic.`}
+                tone={actors.length > 1 && top.share >= 90 ? 'warning' : 'default'}
+                note={`${top.name} made ${top.count.toLocaleString('en-KE')} of ${changes.length.toLocaleString('en-KE')}. One operator at or near every change is a finding, not a statistic.`}
               />
             ) : null}
             <Figure
-              label="Carried a stated reason"
-              value={reasoned}
-              note="Only the actions whose intent cannot be read from the action itself require one."
+              label="Changes with a stated reason"
+              value={
+                reasoned === changes.length
+                  ? `All ${changes.length}`
+                  : `${reasoned} of ${changes.length}`
+              }
+              note="Only changes whose intent cannot be read from the change itself require one."
             />
             <Figure
-              label="Distinct requests"
-              value={requests}
-              note="One action per request is the shape a console produces."
+              label="Audited reads"
+              value={reads.toLocaleString('en-KE')}
+              tone="muted"
+              note="Kept out of the share above: they count attention, not action."
             />
           </div>
         </Panel>
@@ -135,33 +131,35 @@ export function ActorBand({ entries }: { entries: AuditEntry[] }) {
   );
 }
 
-/**
- * One figure. The same rhythm `VolumeBand` uses, deliberately — two panels
- * sitting on one screen with two figure treatments is the drift doc 21 was
- * written about.
- */
-function Figure({ label, value, note }: { label: string; value: string | number; note?: string }) {
+export function ActorBandSkeleton() {
   return (
-    <div
-      className="grid gap-1 border-b py-3 first:pt-0 last:border-b-0 last:pb-0"
-      style={{ borderColor: 'var(--border-subtle)' }}
-    >
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="t-label" style={{ color: 'var(--text-secondary)' }}>
-          {label}
-        </span>
-        <span
-          className="numeric shrink-0 tabular-nums"
-          style={{ font: '500 var(--type-lede)/1 var(--font-mono)', color: 'var(--text-primary)' }}
-        >
-          {value}
-        </span>
+    <SkeletonGroup label="Loading operators" className="block">
+      <SkeletonSectionHeading align="right" />
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <Panel title="Share of changes" variant="elevated">
+          <div className="grid gap-4">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-3.5">
+                <SkeletonBar width={28} height={28} radius="rounded-panel" />
+                <div>
+                  <SkeletonBar width={`${52 - i * 7}%`} height={13} />
+                  <SkeletonBar width="100%" height={4} radius="rounded-full" className="mt-2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="In the window" variant="elevated">
+          <div className="grid gap-5">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="flex justify-between">
+                <SkeletonBar width={`${60 - i * 7}%`} height={13} />
+                <SkeletonBar width={48} height={16} />
+              </div>
+            ))}
+          </div>
+        </Panel>
       </div>
-      {note ? (
-        <p className="t-caption m-0" style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}>
-          {note}
-        </p>
-      ) : null}
-    </div>
+    </SkeletonGroup>
   );
 }

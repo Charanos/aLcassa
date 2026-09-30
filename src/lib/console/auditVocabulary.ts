@@ -142,7 +142,120 @@ const VOCABULARY: Record<string, AuditDescription> = {
   /* ── Data leaving the platform ───────────────────────────────────────── */
   'audit.exported': { label: 'Audit log exported', icon: IconDownload, tone: 'warning' },
   'platform.exported': { label: 'Platform data exported', icon: IconDownload, tone: 'warning' },
+
+  /* ── Reads, audited because they bypass row-level security ───────────── */
+  'watchlist.read': { label: 'Watchlist read', icon: IconEye, tone: 'neutral' },
+  'subscription.plan_change_previewed': {
+    label: 'Plan change previewed',
+    icon: IconEye,
+    tone: 'neutral',
+  },
 };
+
+/* ── Changes and reads ────────────────────────────────────────────────── */
+
+/**
+ * Whether an entry records something that CHANGED, or something that was READ.
+ *
+ * ⚠ THE LEDGER HOLDS BOTH, AND FOR A LONG TIME IT DID NOT SAY WHICH.
+ *
+ * Every service-role call is audited (06 §7), and some service-role calls are
+ * reads: the watchlist sweeps every tenant's usage, a plan preview reads a
+ * tenant it is not scoped to, a support session's record is read on each page
+ * load. Those belong in the log — a bypass nobody can see is the thing the log
+ * exists to prevent — but they are not changes, and a ledger that cannot tell
+ * the two apart reads as a platform in constant motion. When doc 23 counted,
+ * 287 of 297 entries in the window were a single read recorded as a change.
+ */
+export type AuditNature = 'change' | 'read';
+
+export const READ_ACTIONS: readonly string[] = [
+  'support.session_read',
+  'watchlist.read',
+  'subscription.plan_change_previewed',
+  'customer_record.read',
+];
+
+/**
+ * Rows written under a CHANGE verb that were in fact reads.
+ *
+ * ⚠ RECOGNISED, NEVER REWRITTEN. The table is append-only by policy — no update
+ * and no delete, for anyone — and a correction that edited history would be
+ * the one thing this log must never do. These two shapes are exact: nothing
+ * else was ever written with `entity_type = 'watchlist'`, and the preview's
+ * reason string was fixed text. Everything written from 30 Sep 2026 uses the
+ * read verbs above, and these patterns stop growing.
+ *
+ * Exported for the volume query, which must classify the same rows the same
+ * way in SQL — see `getLiveAuditVolume`.
+ */
+export const LEGACY_READS = {
+  watchlist: { action: 'subscription.status_changed', entityType: 'watchlist' },
+  preview: { action: 'subscription.plan_assigned', reason: 'preview only, no change written' },
+} as const;
+
+type EntryShape = { action: string; entityType?: string | null; reason?: string | null };
+
+function legacyReadOf(row: EntryShape): string | null {
+  if (
+    row.action === LEGACY_READS.watchlist.action &&
+    row.entityType === LEGACY_READS.watchlist.entityType
+  )
+    return 'watchlist.read';
+  if (row.action === LEGACY_READS.preview.action && row.reason === LEGACY_READS.preview.reason)
+    return 'subscription.plan_change_previewed';
+  return null;
+}
+
+export function natureOf(row: EntryShape): AuditNature {
+  return READ_ACTIONS.includes(row.action) || legacyReadOf(row) ? 'read' : 'change';
+}
+
+/**
+ * The sentence, glyph and tone for one ROW — the action, read in the light of
+ * what else the row says. Prefer this to `describeAction` wherever the whole
+ * row is to hand; it is the only one that can see through a mislabelled read.
+ */
+export function describeEntry(row: EntryShape): AuditDescription & {
+  nature: AuditNature;
+  /** Set when the row was written under the wrong verb. Shown, not hidden. */
+  relabelled: string | null;
+} {
+  const legacy = legacyReadOf(row);
+  const effective = legacy ?? row.action;
+  return {
+    ...describeAction(effective),
+    nature: natureOf(row),
+    relabelled: legacy ? `Recorded as ${row.action} before 30 Sep 2026` : null,
+  };
+}
+
+/**
+ * An actor label, split into what a person reads.
+ *
+ * ⚠ LABELS ARE WRITTEN AS `Name <email>` AND WERE RENDERED WHOLE. Initials
+ * came out as "K<" from "Kamau <kamau@…>", and the operator column carried the
+ * address at full length beside every row. The name is what a reader scans;
+ * the address is what they confirm, on the expanded row.
+ */
+export function parseActor(label: string): {
+  name: string;
+  email: string | null;
+  initials: string;
+} {
+  const m = /^\s*(.*?)\s*<([^>]+)>\s*$/.exec(label);
+  const name = ((m ? m[1] : label) ?? '').trim() || (m?.[2] ?? label);
+  const email = m ? (m[2] ?? null) : label.includes('@') ? label : null;
+  const words = name
+    .replace(/@.*$/, '')
+    .split(/[\s._-]+/)
+    .filter(Boolean);
+  const initials =
+    words.length >= 2
+      ? `${words[0]?.[0] ?? ''}${words[words.length - 1]?.[0] ?? ''}`
+      : (words[0] ?? '?').slice(0, 2);
+  return { name, email, initials: initials.toUpperCase() };
+}
 
 /**
  * ⚠ AN UNKNOWN ACTION FALLS BACK TO SOMETHING READABLE RATHER THAN TO THE RAW
@@ -199,3 +312,33 @@ export const AUDIT_TONE: Record<AuditTone, { ink: string; bg: string; edge: stri
     edge: 'var(--badge-danger-edge)',
   },
 };
+
+/**
+ * What an entry touched, in words, when there is no workspace name to show.
+ *
+ * ⚠ THE ROW USED TO FALL BACK TO THE RAW ENTITY TYPE — `user_profile`,
+ * `master_ai_rules`, `tenant` — a table name set in the one line a reader uses
+ * to tell rows apart. Known types get a noun; anything newer degrades to the
+ * snake-case turned into words, for the same reason `describeAction` does.
+ */
+const TARGETS: Record<string, string> = {
+  tenant: 'A workspace',
+  user_profile: 'An operator profile',
+  subscription: 'A subscription',
+  session: 'A sign-in session',
+  support_session: 'A support session',
+  master_ai_rules: 'The master AI rules',
+  watchlist: 'The watchlist',
+  export: 'A data export',
+  report: 'A report',
+  plan_entitlement: 'A plan limit',
+  platform_settings: 'Platform settings',
+};
+
+export function describeTarget(entityType: string | undefined | null): string {
+  if (!entityType) return 'The platform';
+  const known = TARGETS[entityType];
+  if (known) return known;
+  const words = entityType.replace(/_/g, ' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}

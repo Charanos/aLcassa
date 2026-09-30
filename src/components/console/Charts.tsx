@@ -682,27 +682,47 @@ export function GrowthChart({
 export function AuditVolumeChart({
   data,
 }: {
-  data: Array<{ day: string; total: number; serviceRole: number; support: number }>;
+  data: Array<{ day: string; total: number; serviceRole: number; support: number; reads: number }>;
 }) {
   const t = useTokens();
 
-  const series = data.map((d) => ({
-    day: d.day,
-    /* Routine is what is LEFT once the two named kinds are taken out, so the
-       stack sums to the total rather than double-counting a row that is both
-       a support action and a service-role call. */
-    routine: Math.max(0, d.total - d.serviceRole - d.support),
-    support: d.support,
-    serviceRole: d.serviceRole,
-    total: d.total,
-  }));
+  /*
+   * ⚠ READS ARE THEIR OWN SERIES, AT THE BASE, IN THE QUIETEST INK.
+   *
+   * Audited reads — the watchlist, plan previews, support records — are
+   * service-role calls, so they used to land in the "bypassed RLS" band on
+   * top of the stack. In the window doc 23 counted, that band was 287 of 297:
+   * a chart whose only alarming series was page views. A read that bypasses
+   * row-level security is worth recording and not worth an alarm; a CHANGE
+   * that bypasses it is the question an auditor actually asks. So reads sit
+   * underneath, in ink-300, and the warning band on top counts changes only.
+   */
+  const series = data.map((d) => {
+    const reads = d.reads;
+    const changes = Math.max(0, d.total - reads);
+    const bypass = Math.max(0, Math.min(changes, d.serviceRole - reads));
+    const support = Math.max(0, Math.min(changes - bypass, d.support));
+    return {
+      day: d.day,
+      reads,
+      routine: Math.max(0, changes - bypass - support),
+      support,
+      bypass,
+      changes,
+      total: d.total,
+    };
+  });
 
-  const busiest = series.length > 0 ? series.reduce((a, b) => (b.total > a.total ? b : a)) : null;
+  const peak = series.reduce((m, s) => Math.max(m, s.total), 0);
+  const busiest = peak > 0 ? series.reduce((a, b) => (b.total > a.total ? b : a)) : null;
+  /* The axis sized to its own numbers. At 34px it had only ever drawn single
+     digits; the first real month rendered "180" as ":0". */
+  const axisWidth = 16 + String(peak).length * 8;
 
   return (
     <div>
-      <ResponsiveContainer width="100%" height={168}>
-        <ComposedChart data={series} margin={{ top: 8, right: 4, bottom: 0, left: -18 }}>
+      <ResponsiveContainer width="100%" height={200}>
+        <ComposedChart data={series} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
           <XAxis
             dataKey="day"
@@ -718,7 +738,7 @@ export function AuditVolumeChart({
             tickLine={false}
             axisLine={false}
             allowDecimals={false}
-            width={34}
+            width={axisWidth}
           />
           <Tooltip
             cursor={{ fill: `color-mix(in srgb, ${t.ink300} 22%, transparent)` }}
@@ -745,7 +765,8 @@ export function AuditVolumeChart({
                     className="numeric mt-0.5"
                     style={{ fontSize: 'var(--type-compact)', color: t.text }}
                   >
-                    {row.total} {row.total === 1 ? 'action' : 'actions'}
+                    {row.changes} {row.changes === 1 ? 'change' : 'changes'}
+                    <span style={{ color: t.muted }}> · {row.reads} audited reads</span>
                   </div>
                   <div
                     className="mt-1 grid gap-0.5"
@@ -753,35 +774,47 @@ export function AuditVolumeChart({
                   >
                     <span>{row.routine} routine</span>
                     <span>{row.support} in a support session</span>
-                    <span style={{ color: row.serviceRole > 0 ? t.warning : t.muted }}>
-                      {row.serviceRole} bypassed RLS
+                    <span style={{ color: row.bypass > 0 ? t.warning : t.muted }}>
+                      {row.bypass} bypassed RLS
                     </span>
                   </div>
                 </div>
               );
             }}
           />
-          <Bar dataKey="routine" stackId="a" fill={t.blue200} radius={[0, 0, 0, 0]} />
-          <Bar dataKey="support" stackId="a" fill={t.blue400} radius={[0, 0, 0, 0]} />
-          <Bar dataKey="serviceRole" stackId="a" fill={t.warning} radius={[2, 2, 0, 0]} />
+          <Bar dataKey="reads" stackId="a" fill={t.ink300} fillOpacity={0.45} />
+          <Bar dataKey="routine" stackId="a" fill={t.blue200} />
+          <Bar dataKey="support" stackId="a" fill={t.blue400} />
+          <Bar dataKey="bypass" stackId="a" fill={t.warning} radius={[2, 2, 0, 0]} />
         </ComposedChart>
       </ResponsiveContainer>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+        <Swatch colour={`color-mix(in srgb, ${t.ink300} 45%, transparent)`}>audited reads</Swatch>
         <Swatch colour={t.blue200}>routine</Swatch>
         <Swatch colour={t.blue400}>support session</Swatch>
-        <Swatch colour={t.warning}>bypassed RLS</Swatch>
+        <Swatch colour={t.warning}>change that bypassed RLS</Swatch>
         {busiest ? (
           <span
             className="ml-auto whitespace-nowrap"
             style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: t.muted }}
           >
-            busiest {busiest.day.slice(5)} · {busiest.total}
+            busiest {dayShort(busiest.day)} · {busiest.total} entries
           </span>
         ) : null}
       </div>
     </div>
   );
+}
+
+/** `2026-09-14` → `14 Sep`, built at UTC midnight so no zone can move it. */
+function dayShort(key: string): string {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'UTC',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1)));
 }
 
 /** A legend dot. Identity rests here rather than on the colour alone. §24. */

@@ -1,6 +1,7 @@
 import { MovementChart } from '../Charts';
 import { Panel, SectionHeading } from '../Surface';
 import type { MrrMovement } from '@/lib/console/data';
+import { Figure } from '@/components/primitives/Figure';
 
 /**
  * MRR MOVEMENT. 17 §7.
@@ -106,54 +107,5 @@ export function MovementBand({ movement }: { movement: MrrMovement[] }) {
         </Panel>
       </div>
     </section>
-  );
-}
-
-function Figure({
-  label,
-  value,
-  note,
-  tone,
-  strong,
-}: {
-  label: string;
-  value: string;
-  note?: string;
-  tone?: 'danger';
-  strong?: boolean;
-}) {
-  return (
-    <div
-      className="group flex flex-col gap-1.5 py-4 first:pt-2"
-      style={{ borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 50%, transparent)' }}
-    >
-      <div className="flex items-baseline justify-between gap-4">
-        <span
-          className="font-ui text-sm font-medium transition-colors group-hover:text-[var(--text-primary)]"
-          style={{ color: 'var(--text-secondary)' }}
-        >
-          {label}
-        </span>
-        <span
-          className="numeric shrink-0 whitespace-nowrap"
-          style={{
-            fontSize: strong ? '20px' : '14px',
-            fontWeight: strong ? 500 : 400,
-            letterSpacing: strong ? '-0.02em' : 'normal',
-            color: tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
-          }}
-        >
-          {value}
-        </span>
-      </div>
-      {note ? (
-        <p
-          className="font-ui text-sm leading-snug"
-          style={{ color: 'var(--text-tertiary)', maxWidth: '42ch' }}
-        >
-          {note}
-        </p>
-      ) : null}
-    </div>
   );
 }

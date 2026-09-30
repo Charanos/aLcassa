@@ -13,7 +13,7 @@ import {
   usageCounters,
 } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
-import { withoutTenantContext } from '@/lib/db';
+import { withActorContext, withoutTenantContext } from '@/lib/db';
 import { watchlist, type WatchlistEntry } from '@/modules/platform';
 import type {
   AuditLine,
@@ -225,7 +225,7 @@ export async function getLiveOverview(): Promise<OverviewModel | null> {
   const [pressure, counts, recentRows] = await Promise.all([
     watchlist(actor),
     tenantCounts(ctx.requestId),
-    recentPlatformActivity(ctx.requestId),
+    recentPlatformActivity(ctx.actorId, ctx.requestId),
   ]);
 
   /**
@@ -427,8 +427,12 @@ async function tenantCounts(requestId: string): Promise<{
  * tenants to populate a dashboard is exactly the cross-tenant content read
  * `06 §10` says to answer with support mode instead of building.
  */
-async function recentPlatformActivity(requestId: string): Promise<AuditLine[]> {
-  return withoutTenantContext(requestId, async (tx) => {
+async function recentPlatformActivity(actorId: string, requestId: string): Promise<AuditLine[]> {
+  /* ⚠ ITS OWN TRANSACTION, SO IT NEEDS ITS OWN ACTOR. This helper was missed by
+     the first fix for doc 23 A0.1 — the outer reader was switched and this one,
+     which opens a separate transaction, was not. `tests/console/
+     audit-readers.test.ts` caught it. */
+  return withActorContext(actorId, requestId, async (tx) => {
     const rows = await tx
       .select({
         occurredAt: platformAuditLog.occurredAt,
@@ -477,7 +481,19 @@ export async function getLiveIsolationStatus(): Promise<IsolationStatus | null> 
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  /*
+   * ⚠ `withActorContext`, NOT `withoutTenantContext` — AND THIS WAS WHY THE
+   *   AUDIT LOG WAS EMPTY.
+   *
+   * `platform_audit_log` admits a row only when `app.current_actor_id()` is a
+   * platform admin (07_audit.sql). `withoutTenantContext` sets the actor to
+   * empty, so every row was filtered out — silently, because row-level
+   * security filters rather than erroring. Signed in against a database
+   * holding 297 entries in the window, the page reported none. The profile's
+   * "Your activity" read the same table correctly all along, because it
+   * passed the operator's id. Doc 23 A0.1.
+   */
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const result = await tx.execute(sql`
       with scoped as (
         select c.oid, c.relname, c.relrowsecurity, c.relforcerowsecurity

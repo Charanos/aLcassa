@@ -116,6 +116,29 @@ export const AUDIT_ACTIONS = {
    *  and distinct because it is not a visit. */
   SUPPORT_SESSION_READ: 'support.session_read',
 
+  /**
+   * ⚠ TWO MORE READS THAT WERE RECORDED AS CHANGES — THE SAME DEFECT AS
+   *   SUPPORT_ENTERED ABOVE, IN TWO PLACES IT HAD NOT BEEN LOOKED FOR.
+   *
+   * The watchlist reads every tenant's usage, so it runs through `asService`,
+   * which writes an audit row before every service-role call. It was given
+   * `subscription.status_changed` because `asService` needs an action and
+   * that one was nearby. Every console page load that showed the watchlist
+   * therefore recorded a subscription status change that never happened,
+   * flagged as a row-level-security bypass — 287 of the 297 platform entries
+   * in the window when doc 23 counted them. `previewPlanChange` did the same
+   * with `subscription.plan_assigned`: opening a preview wrote "plan
+   * assigned" into the ledger.
+   *
+   * In a dispute, those rows are the log asserting changes nobody made. The
+   * reads are still audited — every bypass is, 06 §7 — under verbs that say
+   * what happened. Rows already written under the wrong verb are never
+   * rewritten (the table is append-only); `describeEntry` in
+   * `console/auditVocabulary.ts` recognises them and says so.
+   */
+  WATCHLIST_READ: 'watchlist.read',
+  PLAN_CHANGE_PREVIEWED: 'subscription.plan_change_previewed',
+
   SESSION_REVOKED: 'session.revoked',
   /**
    * A credential changed by the person it belongs to, from a signed-in
