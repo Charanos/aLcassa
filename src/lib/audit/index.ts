@@ -90,6 +90,16 @@ export const AUDIT_ACTIONS = {
    */
   SUPPORT_EXTENDED: 'support.extended',
   /**
+   * Doc 24 · Stage 2. The endings the customer's log never recorded: a visit
+   * that ran to its thirty-minute cap, one the customer ended themselves, and
+   * an attempt refused (by break glass or a missing capability) — the last in
+   * the platform log only, since nothing happened to the customer's workspace.
+   * How any visit ended is also on the session row, as `end_reason`.
+   */
+  SUPPORT_EXPIRED: 'support.expired',
+  SUPPORT_ENDED_BY_CUSTOMER: 'support.ended_by_customer',
+  SUPPORT_ENTRY_REFUSED: 'support.entry_refused',
+  /**
    * Break glass: support access suspended platform-wide, and released again.
    *
    * ⚠ THESE TWO EVENTS ARE THE STATE. THERE IS NO `is_locked` COLUMN ANYWHERE,

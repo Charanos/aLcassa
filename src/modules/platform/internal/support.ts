@@ -1,50 +1,60 @@
 import 'server-only';
 import { and, eq, gt, isNull } from 'drizzle-orm';
-import { auditLog, sessions, tenants } from '@/db/schema';
+import {
+  auditLog,
+  platformAuditLog,
+  sessions,
+  tenantMembers,
+  tenants,
+  userProfiles,
+  type SupportContext,
+} from '@/db/schema';
 import { AUDIT_ACTIONS } from '@/lib/audit';
-import { breakGlassState } from './breakGlass';
+import { withActorContext, type Transaction } from '@/lib/db';
 import { asService } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
-import type { PlatformActor } from './subscriptions';
+import { logger } from '@/lib/logger';
+import { breakGlassState } from './breakGlass';
+import { closeLapsedSupportSessions, closeSessions } from './supportEnding';
 import { requireCapability } from './capabilities';
+import type { PlatformActor } from './subscriptions';
 
 /**
- * 09 §3 · 09 §4 · 04 §6. SUPPORT SESSIONS.
+ * 09 §3 · 09 §4 · 09 §7 · 04 §6. SUPPORT SESSIONS. Rebuilt for doc 24.
  *
  * ⚠ A SUPPORT SESSION IS AN ORDINARY ROW IN `sessions`, AND THAT IS THE
- *   WHOLE SECURITY ARGUMENT.
+ *   WHOLE SECURITY ARGUMENT. `kind = 'support'`, `effective_role = 'support'`:
+ *   RLS reads the tenant and the role from it exactly as it does for the
+ *   customer's own staff, so the ceiling — and the three permanent carve-outs
+ *   — apply to the platform by construction, not by convention.
  *
- * `05 §4` puts it plainly: "A support session is an ordinary row here with
- * `kind = 'support'`, which is exactly what makes its ceiling genuine: RLS
- * reads `tenant_id` and `role` from it the same way it does for any tenant
- * user."
+ * ⚠ THE COOKIE CARRIES A ROW ID AND NOTHING ELSE. Authority rests in the row,
+ *   re-read on every request; a revoked or lapsed row resolves to nothing.
  *
- * The alternative — a flag on the platform admin, or a claim in a token —
- * would put the platform outside the policy system while it is inside a
- * customer's workspace, which is the one moment it most needs to be inside it.
- * As a row, the ceiling is the same machinery that scopes every tenant user,
- * and `06 §5`'s carve-outs apply to it automatically.
+ * ⚠ EVERY VISIT HAS A BEGINNING AND AN END IN BOTH LOGS. Doc 24 found the
+ *   customer's log telling half the story: a visit that ran to the cap, one
+ *   replaced by a new session, and one closed by break glass all ended with
+ *   nothing written, and ending twice wrote two exits. Now every ending goes
+ *   through `closeSessions` (or, for the timer and the customer, a definer
+ *   function in 02_identity.sql that does the same), writes the reason on the
+ *   row as `end_reason`, and writes exactly one row per ending — because the
+ *   write is conditional on the update having changed something.
  *
- * ⚠ THE COOKIE CARRIES A ROW ID AND NOTHING ELSE.
- *
- * `lib/console/session.ts` previously held the tenant, the reason and the
- * expiry in the cookie itself, and said in its own comment that this was
- * provisional until the table landed. It has landed. A cookie that carries
- * the grant is a grant the holder can edit; a cookie that carries a pointer
- * to a row is a pointer that resolves to nothing once the row is revoked.
- *
- * ⚠ THREE WRITES, ONE TRANSACTION.
- *
- * The session row, the platform audit entry and the TENANT's audit entry all
- * land together or not at all. 09 §4 requires the customer's own log to carry
- * it — that is the transparency claim, and a claim that can be half-written
- * is not one. `asService` writes the platform row before the operation for
- * the same reason (05 I-06), so a crash mid-mint still leaves a record that
- * entry was attempted.
+ * ⚠ READS NO LONGER WRITE AUDIT ROWS. `readSupportSession` ran through the
+ *   service role, and the console layout and the page each called it, so every
+ *   navigation inside a session wrote two rows flagged as bypassing RLS. It is
+ *   an operator reading their own row now (doc 24 · D1).
  */
 
-/** 09 §3. Thirty minutes of inactivity, per the brief. */
+/** 09 §3. Thirty minutes from entry — an absolute cap, not an idle timer. */
 export const SUPPORT_SESSION_DURATION_MS = 30 * 60 * 1000;
+/** Doc 24 · D2. Extending is offered only in the last five minutes… */
+export const SUPPORT_EXTENSION_WINDOW_MS = 5 * 60 * 1000;
+/** …and at most twice. Beyond ninety minutes, a new session with a new reason. */
+export const SUPPORT_MAX_EXTENSIONS = 2;
+/** Reasons the customer reads, so they get a floor and a ceiling. */
+const REASON_MIN = 8;
+const REASON_MAX = 500;
 
 export type SupportSessionRecord = {
   id: string;
@@ -57,36 +67,38 @@ export type SupportSessionRecord = {
   /** Absolute, ISO 8601. The client derives its countdown from this. */
   expiresAt: string;
   startedAt: string;
+  extensions: number;
 };
 
+/** The owners to tell, returned so the caller can send after the commit. */
+export type StartedSupportSession = SupportSessionRecord & { notify: string[] };
+
 /**
- * Mint a support session and return it.
+ * Open a support session.
  *
- * The caller sets the cookie, because only the caller has a response.
+ * ⚠ THE REASON IS REQUIRED — 01 D-13 made support read-and-write, which was
+ * the condition 09 §3's argument for requiring it was contingent on.
  *
- * ⚠ THE REASON IS REQUIRED HERE EVEN THOUGH 09 §3 CALLS IT OPTIONAL.
- *
- * That section says: "The reason field is optional in Phase 1 and I would
- * argue for making it mandatory, more so now than when this was read-only: a
- * support session that can change data and cannot explain why six months
- * later is a materially worse position than a read-only one in the same
- * spot. Raise it with Brian; it costs a required field."
- *
- * 01 D-13 confirmed read-and-write on 24 Aug 2026, which is the condition
- * that argument was contingent on. It is required. If Brian wants it optional
- * he can say so and this is one line — but the default should be the safe one
- * while the question is open, not the other way round.
+ * ⚠ A REFUSED ATTEMPT IS RECORDED. Doc 24 · S0.8. The refusals that matter —
+ * break glass, a missing capability — are thrown inside `asService`, whose
+ * audit row shares the transaction and so rolled back with them. The comment
+ * that used to sit here claimed the attempt was "itself worth recording" and
+ * that the row survived; it did not. A refusal now writes
+ * `support.entry_refused` in its own transaction, as the operator, to the
+ * platform log only — nothing happened to the customer's workspace.
  */
 export async function startSupportSession(
   input: { tenantId: string; reason: string },
   actor: PlatformActor,
-): Promise<SupportSessionRecord> {
-  const reason = input.reason.trim();
+): Promise<StartedSupportSession> {
+  const reason = input.reason.trim().replace(/\s+/g, ' ');
 
-  if (reason.length < 8) {
+  if (reason.length < REASON_MIN || reason.length > REASON_MAX) {
     throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
       message:
-        'A reason is required, and the customer reads it — so write it for them rather than for us.',
+        reason.length < REASON_MIN
+          ? 'A reason is required, and the customer reads it — so write it for them rather than for us.'
+          : `Keep the reason under ${REASON_MAX} characters. The customer reads it in a line, not a letter.`,
       details: [
         { field: 'reason', code: ERROR_CODES.VALIDATION_FAILED, message: 'Give a reason.' },
       ],
@@ -95,284 +107,324 @@ export async function startSupportSession(
 
   const expiresAt = new Date(Date.now() + SUPPORT_SESSION_DURATION_MS);
 
-  return asService(
-    {
-      actorUserId: actor.userId,
-      actorLabel: actor.label,
-      action: AUDIT_ACTIONS.SUPPORT_ENTERED,
-      targetTenantId: input.tenantId,
-      entityType: 'support_session',
-      reason,
-      requestId: actor.requestId,
-      ipAddress: actor.ipAddress ?? null,
-    },
-    async (tx) => {
-      // Doc 23: the capability column is enforced here, before anything is written.
-      await requireCapability(tx, actor.userId, 'enter_support_mode');
-      /**
-       * ⚠ BREAK GLASS IS ENFORCED HERE, AND THIS IS THE ONLY PLACE IT NEEDS TO
-       *   BE. `internal/breakGlass.ts` has the full argument; the short version
-       *   is that a support session is the only thing the lock withholds, and a
-       *   session has to be minted before it can be used. Refuse the mint and
-       *   there is nothing for `withTenantContext` to widen, so the expensive
-       *   per-request check the obvious design would have added is unnecessary.
-       *
-       * It is inside the transaction, after the audit row: an attempt made
-       * while locked is itself worth recording, and `asService` has already
-       * written that this operator tried. The throw rolls the session insert
-       * back, not the record of the attempt's intent.
-       */
-      const glass = await breakGlassState(tx);
-      if (glass.locked) {
-        throw new AppError(ERROR_CODES.SUPPORT_NOT_PERMITTED, {
-          message: glass.reason
-            ? `Support access is locked platform-wide: "${glass.reason}" — locked by ${glass.by ?? 'a platform admin'}. Release it in Settings before entering a workspace.`
-            : 'Support access is locked platform-wide. Release it in Settings before entering a workspace.',
-          internal: { stage: 'break-glass', lockedBy: glass.by, lockedAt: glass.at },
-        });
-      }
+  try {
+    return await asService(
+      {
+        actorUserId: actor.userId,
+        actorLabel: actor.label,
+        action: AUDIT_ACTIONS.SUPPORT_ENTERED,
+        targetTenantId: input.tenantId,
+        entityType: 'support_session',
+        reason,
+        requestId: actor.requestId,
+        ipAddress: actor.ipAddress ?? null,
+      },
+      async (tx) => {
+        await requireCapability(tx, actor.userId, 'enter_support_mode');
 
-      const [tenant] = await tx
-        .select({ id: tenants.id, slug: tenants.slug, name: tenants.name })
-        .from(tenants)
-        .where(and(eq(tenants.id, input.tenantId), isNull(tenants.deletedAt)))
-        .limit(1);
+        /* Break glass is enforced where sessions are minted, and only here:
+           a session is the one thing the lock withholds. breakGlass.ts. */
+        const glass = await breakGlassState(tx);
+        if (glass.locked) {
+          throw new AppError(ERROR_CODES.SUPPORT_NOT_PERMITTED, {
+            message: glass.reason
+              ? `Support access is locked platform-wide: "${glass.reason}" — locked by ${glass.by ?? 'a platform admin'}. Release it in Settings before entering a workspace.`
+              : 'Support access is locked platform-wide. Release it in Settings before entering a workspace.',
+            internal: { stage: 'break-glass', lockedBy: glass.by, lockedAt: glass.at },
+          });
+        }
 
-      if (!tenant) {
-        throw new AppError(ERROR_CODES.TENANT_NOT_FOUND, {
-          message: 'That workspace does not exist.',
-        });
-      }
+        const [tenant] = await tx
+          .select({ id: tenants.id, slug: tenants.slug, name: tenants.name })
+          .from(tenants)
+          .where(and(eq(tenants.id, input.tenantId), isNull(tenants.deletedAt)))
+          .limit(1);
+        if (!tenant) {
+          throw new AppError(ERROR_CODES.TENANT_NOT_FOUND, {
+            message: 'That workspace does not exist.',
+          });
+        }
 
-      /**
-       * One live support session per workspace.
-       *
-       * Two operators inside the same customer at once is not obviously
-       * wrong, but the tenant's boundary frame names ONE person and their
-       * reason — so a second concurrent session would be invisible to the
-       * customer while it acted on their data, which defeats 09 §7. Revoking
-       * the first is the honest resolution and it is recorded.
-       */
-      await tx
-        .update(sessions)
-        .set({ revokedAt: new Date(), revokedReason: 'superseded by a new support session' })
-        .where(
-          and(
-            eq(sessions.tenantId, tenant.id),
-            eq(sessions.kind, 'support'),
-            isNull(sessions.revokedAt),
-          ),
+        /* The record first: anything that lapsed is closed at its own expiry,
+           so the "one open session per workspace" rule below sees the truth. */
+        await closeLapsedSupportSessions(tx);
+
+        /**
+         * One live support session per workspace. The customer's frame names
+         * ONE person and their reason; a second concurrent session would act
+         * on their data invisibly. The first is closed, and — unlike before —
+         * the closing is written to both logs.
+         */
+        const open = await tx
+          .select({ id: sessions.id })
+          .from(sessions)
+          .where(
+            and(
+              eq(sessions.tenantId, tenant.id),
+              eq(sessions.kind, 'support'),
+              isNull(sessions.revokedAt),
+            ),
+          );
+        await closeSessions(
+          tx,
+          open.map((o) => o.id),
+          {
+            endReason: 'superseded',
+            endedBy: actor.userId,
+            endedByLabel: actor.label,
+            requestId: actor.requestId,
+            ipAddress: actor.ipAddress,
+          },
         );
 
-      const [row] = await tx
-        .insert(sessions)
-        .values({
-          userId: actor.userId,
-          kind: 'support',
+        const context: SupportContext = {
+          platformAdminId: actor.userId,
+          platformAdminName: actor.label,
+          reason,
+          enteredAt: new Date().toISOString(),
+          extensions: 0,
+        };
+
+        const [row] = await tx
+          .insert(sessions)
+          .values({
+            userId: actor.userId,
+            kind: 'support',
+            tenantId: tenant.id,
+            // 06 §5. The role RLS will read, and what the carve-outs key on.
+            effectiveRole: 'support',
+            supportContext: context,
+            ipAddress: actor.ipAddress ?? null,
+            lastActivityAt: new Date(),
+            expiresAt,
+          })
+          .returning({ id: sessions.id, createdAt: sessions.createdAt });
+        if (!row) throw new Error('the support session row could not be created');
+
+        /* 09 §4 · §7. The customer's own log — the row that makes the
+           transparency claim true. */
+        await tx.insert(auditLog).values({
           tenantId: tenant.id,
-          // 06 §5. The role RLS will read. Not 'owner', not the admin's own
-          // role — 'support', which is what the policy carve-outs key on.
-          effectiveRole: 'support',
-          supportContext: {
-            platformAdminId: actor.userId,
-            reason,
-            enteredAt: new Date().toISOString(),
-          },
+          actorUserId: actor.userId,
+          actorType: 'platform_admin',
+          actorLabel: actor.label,
+          supportMode: true,
+          action: AUDIT_ACTIONS.SUPPORT_ENTERED,
+          entityType: 'support_session',
+          entityId: row.id,
+          after: { reason, expiresAt: expiresAt.toISOString(), platformAdminName: actor.label },
           ipAddress: actor.ipAddress ?? null,
-          lastActivityAt: new Date(),
-          expiresAt,
-        })
-        .returning({ id: sessions.id, createdAt: sessions.createdAt });
+          requestId: actor.requestId,
+        });
 
-      if (!row) throw new Error('the support session row could not be created');
+        /* Doc 24 · D3. Who to tell. Read here, sent by the caller after the
+           commit — an email is not something a rollback can take back. */
+        const owners = await tx
+          .select({ email: userProfiles.email })
+          .from(tenantMembers)
+          .innerJoin(userProfiles, eq(userProfiles.id, tenantMembers.userId))
+          .where(
+            and(
+              eq(tenantMembers.tenantId, tenant.id),
+              eq(tenantMembers.role, 'owner'),
+              eq(tenantMembers.status, 'active'),
+              isNull(tenantMembers.deletedAt),
+            ),
+          );
 
-      /**
-       * 09 §4 · 09 §7. THE CUSTOMER'S OWN LOG.
-       *
-       * "A tenant can see every time the platform entered their workspace,
-       * who it was, why, and anything they changed while they were in there."
-       * The platform's log is ours; this row is theirs, and it is the one
-       * that makes the claim true. `supportMode: true` is what lets them
-       * filter their log to exactly these events.
-       */
-      await tx.insert(auditLog).values({
-        tenantId: tenant.id,
+        return {
+          id: row.id,
+          tenantId: tenant.id,
+          tenantSlug: tenant.slug,
+          tenantName: tenant.name,
+          platformAdminId: actor.userId,
+          platformAdminName: actor.label,
+          reason,
+          expiresAt: expiresAt.toISOString(),
+          startedAt: row.createdAt.toISOString(),
+          extensions: 0,
+          notify: owners.flatMap((o) => (o.email ? [o.email] : [])),
+        };
+      },
+    );
+  } catch (error) {
+    if (
+      error instanceof AppError &&
+      (error.code === ERROR_CODES.SUPPORT_NOT_PERMITTED ||
+        error.code === ERROR_CODES.PLATFORM_CAPABILITY_MISSING)
+    ) {
+      await recordRefusal(input.tenantId, reason, error.message, actor);
+    }
+    throw error;
+  }
+}
+
+async function recordRefusal(
+  tenantId: string,
+  statedReason: string,
+  refusal: string,
+  actor: PlatformActor,
+): Promise<void> {
+  try {
+    await withActorContext(actor.userId, actor.requestId, (tx) =>
+      tx.insert(platformAuditLog).values({
         actorUserId: actor.userId,
-        actorType: 'platform_admin',
         actorLabel: actor.label,
-        supportMode: true,
-        action: AUDIT_ACTIONS.SUPPORT_ENTERED,
+        action: AUDIT_ACTIONS.SUPPORT_ENTRY_REFUSED,
+        targetTenantId: tenantId,
         entityType: 'support_session',
-        entityId: row.id,
-        after: { reason, expiresAt: expiresAt.toISOString() },
+        usedServiceRole: false,
+        reason: `${refusal} Stated reason: "${statedReason}"`,
         ipAddress: actor.ipAddress ?? null,
         requestId: actor.requestId,
-      });
+      }),
+    );
+  } catch (error) {
+    /* The refusal stands either way; failing to record it must not turn a
+       clear "no" into a confusing error. It is logged for the operator. */
+    logger.error('support entry refusal could not be recorded', { error, tenantId });
+  }
+}
 
-      return {
-        id: row.id,
-        tenantId: tenant.id,
-        tenantSlug: tenant.slug,
-        tenantName: tenant.name,
-        platformAdminId: actor.userId,
-        platformAdminName: actor.label,
-        reason,
-        expiresAt: expiresAt.toISOString(),
-        startedAt: row.createdAt.toISOString(),
-      };
-    },
-  );
+type SessionRow = {
+  id: string;
+  userId: string;
+  tenantId: string | null;
+  expiresAt: Date;
+  revokedAt: Date | null;
+  createdAt: Date;
+  supportContext: SupportContext | null;
+  tenantSlug: string;
+  tenantName: string;
+};
+
+async function readRow(tx: Transaction, sessionId: string): Promise<SessionRow | null> {
+  const [row] = await tx
+    .select({
+      id: sessions.id,
+      userId: sessions.userId,
+      tenantId: sessions.tenantId,
+      expiresAt: sessions.expiresAt,
+      revokedAt: sessions.revokedAt,
+      createdAt: sessions.createdAt,
+      supportContext: sessions.supportContext,
+      tenantSlug: tenants.slug,
+      tenantName: tenants.name,
+    })
+    .from(sessions)
+    .innerJoin(tenants, eq(tenants.id, sessions.tenantId))
+    .where(and(eq(sessions.id, sessionId), eq(sessions.kind, 'support')))
+    .limit(1);
+  return row ?? null;
+}
+
+function isLive(row: SessionRow): boolean {
+  return !row.revokedAt && row.expiresAt.getTime() > Date.now();
 }
 
 /**
- * 09 §3. Explicit exit. Revokes the row and writes both audit entries.
+ * End a support session from the console. Doc 24 · D5.
  *
- * ⚠ CLOSING THE TAB IS NOT AN EXIT, AND THAT IS DELIBERATE.
+ * The operator who opened it ends it as `operator`; any other operator may end
+ * it too, as `colleague`, and both logs say so. Ending is not capability-gated:
+ * an exit that can be refused traps somebody inside a workspace.
  *
- * "Closing the tab does not exit; the session expires on its own timer. That
- * is deliberate, because a browser close is not a signal we can trust." A
- * beacon on unload fires unreliably, is trivially suppressed, and would make
- * the audit trail claim an exit that may not have happened.
- *
- * It resolves the session from the row rather than taking a tenant id, so an
- * exit cannot be pointed at somebody else's session.
+ * Idempotent: a session already over returns null and writes nothing.
  */
 export async function endSupportSession(
   sessionId: string,
   actor: PlatformActor,
-): Promise<{ tenantId: string } | null> {
-  return asService(
-    {
-      actorUserId: actor.userId,
-      actorLabel: actor.label,
-      action: AUDIT_ACTIONS.SUPPORT_EXITED,
-      entityType: 'support_session',
-      reason: 'support session ended',
-      requestId: actor.requestId,
-      ipAddress: actor.ipAddress ?? null,
-    },
-    async (tx) => {
-      const [row] = await tx
-        .select({ id: sessions.id, tenantId: sessions.tenantId, userId: sessions.userId })
-        .from(sessions)
-        .where(and(eq(sessions.id, sessionId), eq(sessions.kind, 'support')))
-        .limit(1);
+): Promise<{ tenantId: string; endReason: 'operator' | 'colleague' } | null> {
+  const row = await withActorContext(actor.userId, actor.requestId, (tx) => readRow(tx, sessionId));
+  if (!row?.tenantId || !isLive(row)) return null;
 
-      // Already gone, or never existed. Exiting is idempotent on purpose:
-      // 09 §4 wants a one-click exit that is always available, and an exit
-      // that can fail is one that traps somebody inside a session they are
-      // trying to leave.
-      if (!row?.tenantId) return null;
+  const endReason = row.userId === actor.userId ? 'operator' : 'colleague';
+  const owner = row.supportContext?.platformAdminName ?? 'another operator';
 
-      await tx
-        .update(sessions)
-        .set({ revokedAt: new Date(), revokedReason: 'exited by the operator' })
-        .where(and(eq(sessions.id, sessionId), isNull(sessions.revokedAt)));
-
-      await tx.insert(auditLog).values({
-        tenantId: row.tenantId,
+  try {
+    return await asService(
+      {
         actorUserId: actor.userId,
-        actorType: 'platform_admin',
         actorLabel: actor.label,
-        supportMode: true,
         action: AUDIT_ACTIONS.SUPPORT_EXITED,
+        targetTenantId: row.tenantId,
         entityType: 'support_session',
         entityId: row.id,
-        ipAddress: actor.ipAddress ?? null,
+        reason:
+          endReason === 'operator' ? 'support session ended' : `ended ${owner}'s support session`,
         requestId: actor.requestId,
-      });
-
-      return { tenantId: row.tenantId };
-    },
-  );
+        ipAddress: actor.ipAddress ?? null,
+      },
+      async (tx) => {
+        const closed = await closeSessions(tx, [row.id], {
+          endReason,
+          endedBy: actor.userId,
+          endedByLabel: actor.label,
+          requestId: actor.requestId,
+          ipAddress: actor.ipAddress,
+        });
+        /* Lost a race with another ending: undo the platform row too. */
+        if (closed.length === 0) throw new AlreadyEnded();
+        return { tenantId: row.tenantId as string, endReason };
+      },
+    );
+  } catch (error) {
+    if (error instanceof AlreadyEnded) return null;
+    throw error;
+  }
 }
 
+class AlreadyEnded extends Error {}
+
 /**
- * The live support session for a given row id, re-read and re-checked.
+ * The operator's own live support session, re-read and re-checked.
  *
- * ⚠ AUTHORITY RESTS HERE, NOT IN THE COOKIE. Revoked, expired, or belonging
- * to a different operator all resolve to null. This is what `lib/console/
- * session.ts` promised would exist "once M4 lands the support_sessions
- * table" — it landed as `sessions` with `kind = 'support'` rather than as a
- * table of its own, for the reason at the top of this file.
+ * ⚠ AUTHORITY RESTS HERE, NOT IN THE COOKIE. Revoked, lapsed, or belonging to
+ * another operator all resolve to null — a copied cookie enters nobody's
+ * grant. Read as the operator (their own row), so it writes no audit row.
  */
 export async function readSupportSession(
   sessionId: string,
   actor: PlatformActor,
 ): Promise<SupportSessionRecord | null> {
-  return asService(
-    {
-      actorUserId: actor.userId,
-      actorLabel: actor.label,
-      action: AUDIT_ACTIONS.SUPPORT_SESSION_READ,
-      entityType: 'support_session',
-      entityId: sessionId,
-      reason: 'support session read',
-      requestId: actor.requestId,
-      ipAddress: actor.ipAddress ?? null,
-    },
-    async (tx) => {
-      const [row] = await tx
-        .select({
-          id: sessions.id,
-          userId: sessions.userId,
-          tenantId: sessions.tenantId,
-          expiresAt: sessions.expiresAt,
-          createdAt: sessions.createdAt,
-          supportContext: sessions.supportContext,
-          tenantSlug: tenants.slug,
-          tenantName: tenants.name,
-        })
-        .from(sessions)
-        .innerJoin(tenants, eq(tenants.id, sessions.tenantId))
-        .where(
-          and(
-            eq(sessions.id, sessionId),
-            eq(sessions.kind, 'support'),
-            isNull(sessions.revokedAt),
-            gt(sessions.expiresAt, new Date()),
-          ),
-        )
-        .limit(1);
+  const row = await withActorContext(actor.userId, actor.requestId, (tx) => readRow(tx, sessionId));
+  if (!row?.tenantId || !isLive(row) || row.userId !== actor.userId) return null;
+  return toRecord(row, actor.label);
+}
 
-      if (!row?.tenantId) return null;
-
-      // A session id belonging to a different operator resolves to nothing,
-      // so a copied cookie does not enter somebody else's grant.
-      if (row.userId !== actor.userId) return null;
-
-      return {
-        id: row.id,
-        tenantId: row.tenantId,
-        tenantSlug: row.tenantSlug,
-        tenantName: row.tenantName,
-        platformAdminId: row.userId,
-        platformAdminName: actor.label,
-        reason: row.supportContext?.reason ?? '',
-        expiresAt: row.expiresAt.toISOString(),
-        startedAt: row.createdAt.toISOString(),
-      };
-    },
-  );
+function toRecord(row: SessionRow, fallbackName: string): SupportSessionRecord {
+  return {
+    id: row.id,
+    tenantId: row.tenantId as string,
+    tenantSlug: row.tenantSlug,
+    tenantName: row.tenantName,
+    platformAdminId: row.userId,
+    platformAdminName: row.supportContext?.platformAdminName ?? fallbackName,
+    reason: row.supportContext?.reason ?? '',
+    expiresAt: row.expiresAt.toISOString(),
+    startedAt: row.createdAt.toISOString(),
+    extensions: row.supportContext?.extensions ?? 0,
+  };
 }
 
 /**
- * 09 §3. Extend a session that is about to lapse.
+ * Extend a session that is about to lapse. Doc 24 · D2.
  *
- * "At two minutes remaining a warning appears with an extend action;
- * extending is a fresh confirmation, not a silent renewal."
+ * ⚠ IT COULD REVIVE A DEAD SESSION. The old version checked only that the row
+ * was not revoked, so a session that had lapsed — but not yet been closed —
+ * could be given a fresh thirty minutes after the customer's frame had told
+ * them it was over. It must be live now.
  *
- * ⚠ IT ISSUES A NEW THIRTY MINUTES FROM NOW, AND IT IS AUDITED LIKE AN ENTRY.
- *
- * A renewal that the customer cannot see would let a thirty-minute ceiling
- * become an eight-hour one with nothing in their log to show for it. So the
- * extension writes to the tenant's audit trail too: the ceiling is real
- * because exceeding it is visible, not because the number is small.
+ * ⚠ AND IT HAD NO CEILING. Thirty minutes at a time, for ever, turned a cap
+ * into a formality. Extending opens in the last five minutes, at most twice;
+ * after ninety minutes the operator opens a new session and writes a new
+ * reason, which the customer reads again. Each extension is in the
+ * customer's log, numbered.
  */
 export async function extendSupportSession(
   sessionId: string,
   actor: PlatformActor,
-): Promise<{ expiresAt: string } | null> {
+): Promise<{ expiresAt: string; extensions: number }> {
   const expiresAt = new Date(Date.now() + SUPPORT_SESSION_DURATION_MS);
 
   return asService(
@@ -387,22 +439,62 @@ export async function extendSupportSession(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
-      // Doc 23: the capability column is enforced here, before anything is written.
       await requireCapability(tx, actor.userId, 'enter_support_mode');
+
       const [row] = await tx
-        .select({ id: sessions.id, tenantId: sessions.tenantId, userId: sessions.userId })
+        .select({
+          id: sessions.id,
+          tenantId: sessions.tenantId,
+          userId: sessions.userId,
+          expiresAt: sessions.expiresAt,
+          supportContext: sessions.supportContext,
+        })
         .from(sessions)
         .where(
-          and(eq(sessions.id, sessionId), eq(sessions.kind, 'support'), isNull(sessions.revokedAt)),
+          and(
+            eq(sessions.id, sessionId),
+            eq(sessions.kind, 'support'),
+            isNull(sessions.revokedAt),
+            gt(sessions.expiresAt, new Date()),
+          ),
         )
+        .for('update')
         .limit(1);
 
-      if (!row?.tenantId || row.userId !== actor.userId) return null;
+      if (!row?.tenantId || row.userId !== actor.userId) {
+        throw new AppError(ERROR_CODES.SUPPORT_SESSION_EXPIRED, {
+          message: 'That session has already ended. Open a new one to continue.',
+        });
+      }
 
+      const left = row.expiresAt.getTime() - Date.now();
+      if (left > SUPPORT_EXTENSION_WINDOW_MS) {
+        throw new AppError(ERROR_CODES.SUPPORT_NOT_PERMITTED, {
+          message: `Extending opens in the last five minutes. ${Math.ceil(left / 60_000)} minutes are left.`,
+        });
+      }
+
+      const used = row.supportContext?.extensions ?? 0;
+      if (used >= SUPPORT_MAX_EXTENSIONS) {
+        throw new AppError(ERROR_CODES.SUPPORT_NOT_PERMITTED, {
+          message:
+            'This visit has been extended twice. Open a new session with a new reason — the customer reads it.',
+        });
+      }
+
+      const extensions = used + 1;
       await tx
         .update(sessions)
-        .set({ expiresAt, lastActivityAt: new Date() })
-        .where(eq(sessions.id, sessionId));
+        .set({
+          expiresAt,
+          lastActivityAt: new Date(),
+          supportContext: {
+            ...(row.supportContext ?? { platformAdminId: actor.userId, enteredAt: '' }),
+            extensions,
+          },
+          updatedAt: new Date(),
+        })
+        .where(eq(sessions.id, row.id));
 
       await tx.insert(auditLog).values({
         tenantId: row.tenantId,
@@ -413,12 +505,16 @@ export async function extendSupportSession(
         action: AUDIT_ACTIONS.SUPPORT_EXTENDED,
         entityType: 'support_session',
         entityId: row.id,
-        after: { extendedTo: expiresAt.toISOString() },
+        after: {
+          extendedTo: expiresAt.toISOString(),
+          extension: extensions,
+          of: SUPPORT_MAX_EXTENSIONS,
+        },
         ipAddress: actor.ipAddress ?? null,
         requestId: actor.requestId,
       });
 
-      return { expiresAt: expiresAt.toISOString() };
+      return { expiresAt: expiresAt.toISOString(), extensions };
     },
   );
 }

@@ -69,6 +69,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await cleanup`delete from platform_audit_log where actor_user_id = ${operatorId}`;
   await cleanup`delete from platform_admins where user_id = ${operatorId}`;
   await cleanup`delete from user_profiles where id = ${operatorId}`;
   await closeHarness();
@@ -128,6 +129,10 @@ describe('platform capabilities · an operator holding none', () => {
         actor,
       ),
     );
-    expect(await auditRowsBy(operatorId)).toBe(0);
+    /* Doc 24 · S0.8: a refused entry IS recorded — as the refusal, never as
+       an entry. Exactly one row, and it names what it is. */
+    const rows = await adminQuery<Array<{ action: string; used_service_role: boolean }>>`
+      select action, used_service_role from platform_audit_log where actor_user_id = ${operatorId}`;
+    expect(rows).toEqual([{ action: 'support.entry_refused', used_service_role: false }]);
   });
 });

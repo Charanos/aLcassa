@@ -3,6 +3,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { invitations, tenantMembers, tenants, usageCounters } from '@/db/schema';
 import { withoutTenantContext } from '@/lib/db';
+import { closeLapsedSupportSessions } from '@/modules/platform';
 import { logger } from '@/lib/logger';
 
 /**
@@ -65,6 +66,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // this route exists.
     return new NextResponse(null, { status: 404 });
   }
+
+  /* Doc 24 · S0.6. Visits that ran to their cap are closed at their own
+     expiry, in both logs, even on a day nobody opens the console. Silent when
+     there is nothing to close; see `app.close_lapsed_support_sessions`. */
+  const closedVisits = await withoutTenantContext('cron-support-timer', (tx) =>
+    closeLapsedSupportSessions(tx),
+  );
+  if (closedVisits > 0) logger.info('support visits closed at their limit', { closedVisits });
 
   const drift = await findDrift();
 

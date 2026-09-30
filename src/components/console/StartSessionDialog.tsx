@@ -115,11 +115,12 @@ export function StartSessionDialog({
       facts={
         <>
           <DialogFact icon={IconClock}>
-            Read-only, and it expires after <em>30 minutes</em>. There is no extension.
+            Read and write, for <em>30 minutes</em>. It can be extended twice, in its last five
+            minutes; after that, a new session and a new reason.
           </DialogFact>
           <DialogFact icon={IconHistory}>
             Written to <em>the customer&rsquo;s own activity log</em>, with your name and this
-            reason. They can read it, and they can end the session themselves.
+            reason, and emailed to the owner. Their owners and admins can end it themselves.
           </DialogFact>
           <DialogFact icon={IconShieldLock}>
             Numbered <em>{reference ?? 'from the platform log'}</em> — the day&rsquo;s queue

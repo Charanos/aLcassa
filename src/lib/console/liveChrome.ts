@@ -1,6 +1,6 @@
 import 'server-only';
-import { desc, eq, isNull } from 'drizzle-orm';
-import { platformAdmins, plans, subscriptions, tenants, userProfiles } from '@/db/schema';
+import { desc, eq, isNull, sql } from 'drizzle-orm';
+import { platformAdmins, plans, sessions, subscriptions, tenants, userProfiles } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import { withActorContext } from '@/lib/db';
 import { avatarUrlFor } from '@/lib/storage/avatar';
@@ -54,6 +54,9 @@ const SWITCHER_LIMIT = 6;
 export async function getLiveConsoleChrome(): Promise<{
   workspaces: ConsoleWorkspace[];
   account: ConsoleAccount;
+  /** Live counts for the rail's badges. Doc 24 · Stage 6: both were typed. */
+  workspaceCount: number;
+  openSupportSessions: number;
 } | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
@@ -72,6 +75,14 @@ export async function getLiveConsoleChrome(): Promise<{
       .where(isNull(tenants.deletedAt))
       .orderBy(desc(tenants.createdAt))
       .limit(SWITCHER_LIMIT);
+
+    const [counts] = await tx
+      .select({
+        workspaces: sql<number>`(select count(*)::int from ${tenants} t where t.deleted_at is null)`,
+        open: sql<number>`(select count(*)::int from ${sessions} s
+          where s.kind = 'support' and s.revoked_at is null and s.expires_at > now())`,
+      })
+      .from(sql`(select 1) as one`);
 
     const [admin] = await tx
       .select({
@@ -123,6 +134,8 @@ export async function getLiveConsoleChrome(): Promise<{
         plan: row.planName ?? 'No plan',
         initials: initialsOf(row.name),
       })),
+      workspaceCount: Number(counts?.workspaces ?? 0),
+      openSupportSessions: Number(counts?.open ?? 0),
       account: {
         name,
         email: admin?.email ?? ctx.actorLabel,

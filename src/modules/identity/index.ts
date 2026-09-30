@@ -9,3 +9,4 @@
 export { loadMe } from './me';
 export { updateOwnProfile } from './profile';
 export type { Me } from './me';
+export { endSupportVisit } from './supportVisit';

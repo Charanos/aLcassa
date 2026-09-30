@@ -53,7 +53,6 @@ const navigation: ConsoleNavGroup[] = [
         href: '/platform/support-sessions',
         label: 'Support sessions',
         icon: 'users',
-        badge: 1,
       },
       { href: '/platform/admins', label: 'Admins', icon: 'shield' },
       { href: '/platform/settings', label: 'Settings', icon: 'sliders' },
@@ -202,9 +201,26 @@ export default async function PlatformLayout({ children }: { children: React.Rea
   const switcherWorkspaces = liveChrome?.workspaces?.length ? liveChrome.workspaces : workspaces;
   const signedInAccount = liveChrome?.account ?? account;
 
+  /* The rail's badges, from the database when there is an operator. The
+     support badge was a typed `1`: it claimed somebody was inside a customer's
+     workspace on every page, whether or not anyone was. It shows only when a
+     visit is open, and counts them. Doc 24 · Stage 6. */
+  const railNavigation: ConsoleNavGroup[] = liveChrome
+    ? navigation.map((group) => ({
+        ...group,
+        items: group.items.map((item) =>
+          item.href === '/platform/tenants'
+            ? { ...item, badge: liveChrome.workspaceCount }
+            : item.href === '/platform/support-sessions'
+              ? { ...item, badge: liveChrome.openSupportSessions || undefined }
+              : item,
+        ),
+      }))
+    : navigation;
+
   return (
     <ConsoleShell
-      navigation={navigation}
+      navigation={railNavigation}
       workspaces={switcherWorkspaces}
       notices={notices}
       account={signedInAccount}

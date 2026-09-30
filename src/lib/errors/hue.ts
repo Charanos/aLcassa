@@ -27,6 +27,7 @@ const HUE: Record<ErrorCode, ErrorHue> = {
   [ERROR_CODES.AUTH_SESSION_EXPIRED]: 'ochre',
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 'ochre',
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]: 'oxide',
+  [ERROR_CODES.ROLE_NOT_PERMITTED]: 'slate',
 
   /* OCHRE: the reader retypes an address or follows the sign-in link and
      continues. OXIDE would say 'nothing you can do', which is untrue. */

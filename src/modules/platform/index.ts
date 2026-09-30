@@ -73,8 +73,11 @@ export {
   extendSupportSession,
   readSupportSession,
   SUPPORT_SESSION_DURATION_MS,
+  SUPPORT_EXTENSION_WINDOW_MS,
+  SUPPORT_MAX_EXTENSIONS,
 } from './internal/support';
-export type { SupportSessionRecord } from './internal/support';
+export type { StartedSupportSession, SupportSessionRecord } from './internal/support';
+export { closeLapsedSupportSessions } from './internal/supportEnding';
 
 /** 06 §8 · 09 §2. Suspension, which is read-only access rather than a lockout. */
 export { setTenantStatus, previewSuspension } from './internal/tenancy';

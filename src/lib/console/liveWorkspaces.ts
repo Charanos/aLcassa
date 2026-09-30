@@ -1,17 +1,13 @@
 import 'server-only';
 import { and, desc, eq, gt, isNull, or, sql } from 'drizzle-orm';
 import {
-  auditLog,
   planEntitlements,
   plans,
   platformAuditLog,
-  sessions,
   subscriptionOverrides,
   subscriptions,
-  tenantMembers,
   tenants,
   usageCounters,
-  userProfiles,
 } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import {
@@ -21,15 +17,12 @@ import {
   natureOf,
   parseActor,
 } from '@/lib/console/auditVocabulary';
-import { withActorContext, withoutTenantContext } from '@/lib/db';
+import { withActorContext, type Transaction } from '@/lib/db';
 import type {
   AuditEntry,
   AuditKind,
   AuditVolumePoint,
-  EndedBy,
   Meter,
-  SessionRecord,
-  SessionsModel,
   WorkspaceDetail,
   WorkspaceRow,
   WorkspaceStatus,
@@ -115,7 +108,11 @@ export async function getLiveWorkspaces(): Promise<WorkspaceRow[] | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  /* As the operator: `tenants_select_operators` and the billing-record
+     policies admit a platform admin (doc 24 · D1). Through
+     `withoutTenantContext` this read nothing and the page showed designed
+     workspaces — whose ids opened no support session. */
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const rows = await tx
       .select({
         id: tenants.id,
@@ -155,13 +152,15 @@ export async function getLiveWorkspaces(): Promise<WorkspaceRow[] | null> {
       .where(isNull(tenants.deletedAt))
       .orderBy(tenants.name);
 
-    // Last activity, from the tenant's own audit log. One grouped query rather
-    // than one per row.
-    const activity = await tx
-      .select({ tenantId: auditLog.tenantId, last: sql<Date>`max(${auditLog.occurredAt})` })
-      .from(auditLog)
-      .groupBy(auditLog.tenantId);
-    const lastByTenant = new Map(activity.map((a) => [a.tenantId, a.last]));
+    // Last activity, from each tenant's own audit log — which operators do not
+    // read — so through the summary function that returns one timestamp each.
+    const summaries = await workspaceSummaries(
+      tx,
+      rows.map((r) => r.id),
+    );
+    const lastByTenant = new Map(
+      [...summaries].map(([id, sum]) => [id, sum.lastActivity] as const),
+    );
 
     /* ⚠ AN EMPTY LIST IS NOT "NO WORKSPACES" HERE. `tenants_select` admits only
        rows the reader is a member of, and a platform admin is a member of none —
@@ -196,6 +195,50 @@ export async function getLiveWorkspaces(): Promise<WorkspaceRow[] | null> {
   });
 }
 
+export type WorkspaceSummary = {
+  activeMembers: number;
+  admins: number;
+  ownerName: string | null;
+  ownerEmail: string | null;
+  lastActivity: Date | null;
+};
+
+/**
+ * Counts, the owner's contact and the last activity for each workspace, from
+ * `app.workspace_summaries` — the one door into member and audit data that an
+ * operator has outside a support session, and it returns nothing else.
+ */
+export async function workspaceSummaries(
+  tx: Transaction,
+  ids: string[],
+): Promise<Map<string, WorkspaceSummary>> {
+  const out = new Map<string, WorkspaceSummary>();
+  if (ids.length === 0) return out;
+  const rows = (await tx.execute(sql`
+    select tenant_id, active_members, admins, owner_name, owner_email, last_activity
+    from app.workspace_summaries(ARRAY[${sql.join(
+      ids.map((id) => sql`${id}::uuid`),
+      sql`, `,
+    )}]::uuid[])`)) as unknown as Array<{
+    tenant_id: string;
+    active_members: number;
+    admins: number;
+    owner_name: string | null;
+    owner_email: string | null;
+    last_activity: Date | string | null;
+  }>;
+  for (const r of rows) {
+    out.set(r.tenant_id, {
+      activeMembers: Number(r.active_members),
+      admins: Number(r.admins),
+      ownerName: r.owner_name,
+      ownerEmail: r.owner_email,
+      lastActivity: r.last_activity ? new Date(r.last_activity) : null,
+    });
+  }
+  return out;
+}
+
 /**
  * `/platform/tenants/[id]`. One workspace, in the depth the drawer needs.
  *
@@ -207,7 +250,9 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  /* As the operator (doc 24 · D1). Members and activity come through
+     `workspaceSummaries`, not by reading the customer's member rows or log. */
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const [tenant] = await tx
       .select({
         id: tenants.id,
@@ -228,7 +273,7 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
 
     if (!tenant) return null;
 
-    const [entitlementRows, usageRows, overrideRows, members, lastActivity] = await Promise.all([
+    const [entitlementRows, usageRows, overrideRows, summaries] = await Promise.all([
       tenant.planId
         ? tx.select().from(planEntitlements).where(eq(planEntitlements.planId, tenant.planId))
         : Promise.resolve([]),
@@ -245,21 +290,7 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
             ),
           ),
         ),
-      tx
-        .select({
-          role: tenantMembers.role,
-          status: tenantMembers.status,
-          joinedAt: tenantMembers.joinedAt,
-          fullName: userProfiles.fullName,
-          email: userProfiles.email,
-        })
-        .from(tenantMembers)
-        .leftJoin(userProfiles, eq(userProfiles.id, tenantMembers.userId))
-        .where(and(eq(tenantMembers.tenantId, tenant.id), isNull(tenantMembers.deletedAt))),
-      tx
-        .select({ last: sql<Date | null>`max(${auditLog.occurredAt})` })
-        .from(auditLog)
-        .where(eq(auditLog.tenantId, tenant.id)),
+      workspaceSummaries(tx, [tenant.id]),
     ]);
 
     const usageByKey = new Map(usageRows.map((r) => [r.key, r.currentValue]));
@@ -291,9 +322,13 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
       ];
     });
 
-    const owner = members.find((m) => m.role === 'owner');
-    const activeMembers = members.filter((m) => m.status === 'active');
-    const admins = activeMembers.filter((m) => m.role === 'admin' || m.role === 'owner');
+    const summary = summaries.get(tenant.id);
+    const owner =
+      summary?.ownerName || summary?.ownerEmail
+        ? { fullName: summary.ownerName, email: summary.ownerEmail }
+        : undefined;
+    const activeMembers = { length: summary?.activeMembers ?? 0 };
+    const admins = { length: summary?.admins ?? 0 };
 
     return {
       id: tenant.id,
@@ -309,7 +344,7 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
        */
       monthlyValue: '—',
       since: formatDate(tenant.createdAt),
-      lastActive: relative(lastActivity[0]?.last ?? null),
+      lastActive: relative(summary?.lastActivity ?? null),
       alert:
         tenant.subscriptionStatus === 'past_due'
           ? {
@@ -356,97 +391,6 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
         conversations: 0,
         channels: 0,
       },
-    };
-  });
-}
-
-/**
- * `/platform/support-sessions`. 09 §7's register.
- *
- * Every visit the platform has made into a customer's workspace, which is the
- * transparency claim viewed from our side. The customer sees the same events
- * in their own audit log.
- */
-export async function getLiveSupportSessions(): Promise<SessionsModel | null> {
-  const ctx = await currentPlatformSessionOrNull();
-  if (!ctx) return null;
-
-  return withoutTenantContext(ctx.requestId, async (tx) => {
-    const rows = await tx
-      .select({
-        id: sessions.id,
-        createdAt: sessions.createdAt,
-        expiresAt: sessions.expiresAt,
-        revokedAt: sessions.revokedAt,
-        revokedReason: sessions.revokedReason,
-        supportContext: sessions.supportContext,
-        tenantName: tenants.name,
-        tenantSlug: tenants.slug,
-        adminName: userProfiles.fullName,
-      })
-      .from(sessions)
-      .innerJoin(tenants, eq(tenants.id, sessions.tenantId))
-      .leftJoin(userProfiles, eq(userProfiles.id, sessions.userId))
-      .where(eq(sessions.kind, 'support'))
-      .orderBy(desc(sessions.createdAt))
-      .limit(50);
-
-    const now = Date.now();
-    const open = rows.filter((r) => !r.revokedAt && r.expiresAt.getTime() > now);
-
-    const history: SessionRecord[] = rows.map((row) => {
-      const ended = row.revokedAt ?? (row.expiresAt.getTime() <= now ? row.expiresAt : null);
-      const minutes = ended
-        ? Math.max(1, Math.round((ended.getTime() - row.createdAt.getTime()) / 60_000))
-        : Math.max(1, Math.round((now - row.createdAt.getTime()) / 60_000));
-
-      /**
-       * Who ended it, read from the revocation reason the code writes.
-       * `endedBy` is a closed set of three, so anything unrecognised falls to
-       * `expired` — which is what an un-revoked session past its expiry
-       * genuinely is.
-       */
-      const endedBy: EndedBy = !row.revokedAt
-        ? 'expired'
-        : row.revokedReason?.includes('owner')
-          ? 'customer'
-          : 'admin';
-
-      return {
-        id: row.id,
-        started: formatDate(row.createdAt),
-        tenant: row.tenantName,
-        slug: row.tenantSlug,
-        admin: row.adminName ?? 'Platform',
-        reason: row.supportContext?.reason ?? '—',
-        duration: ended ? `${minutes}m` : `${minutes}m · open`,
-        durationMinutes: minutes,
-        endedBy,
-      };
-    });
-
-    return {
-      stats: [
-        {
-          label: 'Open now',
-          value: String(open.length),
-          note: open.length === 0 ? 'nobody is inside a workspace' : 'in progress',
-          ...(open.length > 0 ? { tone: 'accent' as const } : {}),
-        },
-        {
-          label: 'Recorded',
-          value: String(rows.length),
-          note: 'most recent 50',
-        },
-        {
-          label: 'Ended by the customer',
-          value: String(history.filter((h) => h.endedBy === 'customer').length),
-          // 09 §7. A customer revoking a session is the ceiling working, not
-          // a problem — worth counting for exactly that reason.
-          note: 'they revoked it themselves',
-        },
-      ],
-      history,
     };
   });
 }

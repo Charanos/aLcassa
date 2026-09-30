@@ -6,6 +6,7 @@ import { asService } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import type { Transaction } from '@/lib/db/client';
 import type { PlatformActor } from './subscriptions';
+import { closeSessions } from './supportEnding';
 
 /**
  * 09 §8. BREAK GLASS: suspend all support access to customer workspaces.
@@ -149,17 +150,32 @@ export async function setBreakGlass(
        * the event that locked it, so there is no moment where the platform is
        * locked on paper and still inside somebody's data.
        */
-      const revoked = await tx
-        .update(sessions)
-        .set({ revokedAt: new Date() })
+      /* ⚠ THROUGH `closeSessions`, SO EACH ONE IS RECORDED. This used to set
+         `revoked_at` and nothing else: no reason on the row, and nothing in
+         the customer's log — their frame vanished mid-visit with no account
+         of why. Each closed visit now says "support access locked
+         platform-wide" in both. Doc 24 · S0.6. */
+      const open = await tx
+        .select({ id: sessions.id })
+        .from(sessions)
         .where(
           and(
             eq(sessions.kind, 'support'),
             isNull(sessions.revokedAt),
             gt(sessions.expiresAt, new Date()),
           ),
-        )
-        .returning({ id: sessions.id });
+        );
+      const revoked = await closeSessions(
+        tx,
+        open.map((o) => o.id),
+        {
+          endReason: 'break_glass',
+          endedBy: actor.userId,
+          endedByLabel: actor.label,
+          requestId: actor.requestId,
+          ipAddress: actor.ipAddress,
+        },
+      );
 
       return {
         locked: true,

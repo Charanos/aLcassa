@@ -28,6 +28,19 @@ create policy user_profiles_select on user_profiles
         and mine.deleted_at is null
         and theirs.deleted_at is null
     )
+    -- Doc 24 · Stage 3. Inside a support session the operator is a member of
+    -- nothing, so the branch above hid every name on the workspace's own team
+    -- page. A support session reads the profiles of THIS workspace's members,
+    -- exactly as its staff do — and no one else's.
+    or (
+      app.is_support_session()
+      and exists (
+        select 1 from tenant_members theirs
+        where theirs.user_id = user_profiles.id
+          and theirs.tenant_id = app.current_tenant_id()
+          and theirs.deleted_at is null
+      )
+    )
   );
 
 create policy user_profiles_modify on user_profiles
@@ -303,6 +316,16 @@ create policy sessions_select on sessions
 -- log — so a renewed ceiling is visible to the customer rather than invisible.
 -- A platform admin's own `kind = 'platform'` session is untouched by this,
 -- because the exclusion is scoped to support rows.
+-- ⚠ OPERATORS SEE EVERY SUPPORT SESSION. Doc 24 · D1.
+--
+-- The register is the list of every visit the platform made into a customer's
+-- workspace, and with only the policy above an operator saw their own. It
+-- read nothing at all through the context it used, and rendered "0 open ·
+-- 0 recorded" as fact. `kind = 'support'` only: an operator does not read a
+-- colleague's console session, nor any customer's sign-in session.
+create policy sessions_select_support_operators on sessions
+  for select using (kind = 'support' and app.is_platform_admin());
+
 create policy sessions_modify on sessions
   for all
   using (
@@ -314,8 +337,11 @@ create policy sessions_modify on sessions
     or (
       kind = 'support'
       and tenant_id = app.current_tenant_id()
-      and app.current_role() = 'owner'
-      and not app.is_support_session()   -- 09 §7: the owner revokes, support does not
+      -- Doc 24 · D6: owners AND admins may end a visit. The interface uses
+      -- `app.end_support_visit` below, which also writes both logs; this
+      -- branch is what makes the revocation itself legal under RLS.
+      and app.current_role() in ('owner', 'admin')
+      and not app.is_support_session()   -- 09 §7: the customer revokes, support does not
     )
   )
   /**
@@ -358,6 +384,174 @@ create policy sessions_modify on sessions
       )
     )
   );
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- ENDING A SUPPORT VISIT FROM INSIDE THE WORKSPACE. Doc 24 · S0.3 · D6.
+--
+-- 09 §7 promises that an owner sees, and can end, a support session opened
+-- into their workspace. The policy allowed it; nothing in the interface used
+-- it — the frame's button was wired to a no-op. This is the path it uses.
+--
+-- ⚠ ONE FUNCTION, BECAUSE THREE WRITES MUST LAND TOGETHER: the revocation,
+-- the customer's own audit row, and the platform's. The customer cannot write
+-- the platform log (no policy admits them, correctly), so a definer function
+-- is the only way the platform's register learns the visit was ended by the
+-- customer rather than finding a session that simply stopped.
+--
+-- Narrow on purpose: the caller must be in a tenant context, as owner or admin
+-- of THAT tenant (checked against the membership row, not only the context
+-- setting), not in support mode, and the session must be a support session
+-- in their workspace. It returns false for a visit already over, so a double
+-- click records one ending, not two.
+-- ────────────────────────────────────────────────────────────────────────────
+drop function if exists app.end_support_visit(uuid, text);
+
+create or replace function app.end_support_visit(p_session_id uuid, p_request_id text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  s record;
+  v_actor uuid := app.current_actor_id();
+  v_label text;
+begin
+  if app.is_support_session() then
+    raise exception 'support_cannot_end_itself' using errcode = '42501';
+  end if;
+  if app.current_role() not in ('owner', 'admin') or v_actor is null then
+    raise exception 'not_permitted' using errcode = '42501';
+  end if;
+
+  select * into s from sessions where id = p_session_id and kind = 'support' for update;
+  if not found or s.tenant_id is distinct from app.current_tenant_id() then
+    raise exception 'visit_not_found' using errcode = 'P0002';
+  end if;
+
+  if not exists (
+    select 1 from tenant_members m
+    where m.tenant_id = s.tenant_id and m.user_id = v_actor
+      and m.role in ('owner', 'admin') and m.status = 'active' and m.deleted_at is null
+  ) then
+    raise exception 'not_permitted' using errcode = '42501';
+  end if;
+
+  if s.revoked_at is not null or s.expires_at <= now() then
+    return false;
+  end if;
+
+  select coalesce(nullif(btrim(up.full_name), ''), up.email)
+    into v_label from user_profiles up where up.id = v_actor;
+  v_label := coalesce(v_label, 'A workspace admin');
+
+  update sessions
+     set revoked_at = now(),
+         revoked_reason = 'ended by the customer',
+         end_reason = 'customer',
+         ended_by = v_actor,
+         updated_at = now()
+   where id = s.id;
+
+  insert into audit_log (
+    tenant_id, actor_user_id, actor_type, actor_label, support_mode,
+    action, entity_type, entity_id, before, after, request_id
+  ) values (
+    s.tenant_id, v_actor, 'user', v_label, false,
+    'support.ended_by_customer', 'support_session', s.id,
+    null,
+    jsonb_build_object(
+      'platformAdminId', s.support_context->>'platformAdminId',
+      'platformAdminName', s.support_context->>'platformAdminName'
+    ),
+    coalesce(p_request_id, 'support-visit-end')
+  );
+
+  insert into platform_audit_log (
+    actor_user_id, actor_label, action, target_tenant_id, entity_type, entity_id,
+    used_service_role, reason, request_id
+  ) values (
+    v_actor, v_label, 'support.ended_by_customer', s.tenant_id, 'support_session', s.id,
+    false, 'ended by the customer', coalesce(p_request_id, 'support-visit-end')
+  );
+
+  return true;
+end;
+$$;
+
+grant execute on function app.end_support_visit(uuid, text) to public;
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- CLOSING VISITS THAT RAN TO THE CAP. Doc 24 · S0.6.
+--
+-- Most visits end at thirty minutes, and nothing recorded it: the customer's
+-- log showed "entered" and never "left". Nothing runs at the moment a session
+-- lapses, so this closes every lapsed, unclosed support session whenever it is
+-- called — by the register, by the start path, and by the daily cron — and
+-- writes each ending AT `expires_at`, not at the moment of the sweep, so the
+-- log reads as what happened rather than when we noticed.
+--
+-- A definer function because it is called from contexts that cannot see or
+-- write these rows (the cron has no actor), and because it must write nothing
+-- at all when there is nothing to close: routing it through the service role
+-- would put a "bypassed RLS" row in the platform log on every call. It takes
+-- no arguments and can only close what has already expired, so any caller may
+-- run it; the worst a caller can do is make the record accurate sooner.
+--
+-- The platform row names the timer, not the operator: the operator did not
+-- end it. The nil uuid is the timer's id and appears nowhere else.
+-- ────────────────────────────────────────────────────────────────────────────
+drop function if exists app.close_lapsed_support_sessions();
+
+create or replace function app.close_lapsed_support_sessions()
+returns integer
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  s record;
+  n integer := 0;
+begin
+  for s in
+    update sessions
+       set revoked_at = expires_at,
+           revoked_reason = 'reached the thirty-minute limit',
+           end_reason = 'expired',
+           updated_at = now()
+     where kind = 'support' and revoked_at is null and expires_at <= now()
+    returning id, tenant_id, expires_at, support_context
+  loop
+    insert into audit_log (
+      tenant_id, actor_user_id, actor_type, actor_label, support_mode,
+      action, entity_type, entity_id, before, after, request_id, occurred_at
+    ) values (
+      s.tenant_id, null, 'system', 'Support session timer', true,
+      'support.expired', 'support_session', s.id, null,
+      jsonb_build_object(
+        'endReason', 'expired',
+        'platformAdminName', s.support_context->>'platformAdminName'
+      ),
+      'support-session-timer', s.expires_at
+    );
+
+    insert into platform_audit_log (
+      actor_user_id, actor_label, action, target_tenant_id, entity_type, entity_id,
+      used_service_role, reason, request_id, occurred_at
+    ) values (
+      '00000000-0000-0000-0000-000000000000', 'Support session timer', 'support.expired',
+      s.tenant_id, 'support_session', s.id, false, 'reached the thirty-minute limit',
+      'support-session-timer', s.expires_at
+    );
+
+    n := n + 1;
+  end loop;
+
+  return n;
+end;
+$$;
+
+grant execute on function app.close_lapsed_support_sessions() to public;
 
 -- ─── platform_admins ────────────────────────────────────────────────────────
 -- Not tenant-scoped. Managed through the platform door; there is no modify

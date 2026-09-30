@@ -109,9 +109,34 @@ export const invitations = pgTable(
 
 export type SupportContext = {
   platformAdminId: string;
+  /**
+   * The operator's name, written at mint. Doc 24 · S0.4: the customer cannot
+   * read `platform_admins` (and should not), so without this their frame
+   * named the operator by UUID.
+   */
+  platformAdminName?: string;
   reason?: string;
   enteredAt: string;
+  /** Extensions granted so far. Doc 24 · D2 caps it. */
+  extensions?: number;
 };
+
+/**
+ * How a support session ended. Doc 24 · Stage 2.
+ *
+ * ⚠ IT USED TO BE GUESSED from `revoked_reason` containing the word "owner",
+ * which no code ever wrote — so "ended by the customer", the figure the
+ * register draws in the accent, could never appear. Now it is stated.
+ */
+export const supportEndReason = pgEnum('support_end_reason', [
+  'operator', // the operator who opened it
+  'colleague', // another operator closed it
+  'customer', // an owner or admin of the workspace ended the visit
+  'expired', // the thirty-minute cap
+  'superseded', // a new session opened on the same workspace
+  'break_glass', // support access was locked platform-wide
+]);
+export type SupportEndReason = (typeof supportEndReason.enumValues)[number];
 
 /**
  * 04 §6. Sessions are rows, so revocation is real and immediate rather than a
@@ -135,6 +160,10 @@ export const sessions = pgTable(
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     revokedAt: timestamp('revoked_at', { withTimezone: true }),
     revokedReason: text('revoked_reason'),
+    /** Support sessions only. Null while open. */
+    endReason: supportEndReason('end_reason'),
+    /** Who ended it. Null for expiry. */
+    endedBy: uuid('ended_by'),
     ...timestamps,
   },
   (t) => [

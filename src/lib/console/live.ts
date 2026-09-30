@@ -8,13 +8,12 @@ import {
   platformAuditLog,
   sessions,
   subscriptions,
-  tenantMembers,
   tenants,
   usageCounters,
 } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import { withActorContext, withoutTenantContext } from '@/lib/db';
-import { watchlist, type WatchlistEntry } from '@/modules/platform';
+import { closeLapsedSupportSessions, watchlist, type WatchlistEntry } from '@/modules/platform';
 import type {
   AuditLine,
   EntitlementRow,
@@ -224,7 +223,7 @@ export async function getLiveOverview(): Promise<OverviewModel | null> {
 
   const [pressure, counts, recentRows] = await Promise.all([
     watchlist(actor),
-    tenantCounts(ctx.requestId),
+    tenantCounts(ctx.actorId, ctx.requestId),
     recentPlatformActivity(ctx.actorId, ctx.requestId),
   ]);
 
@@ -376,14 +375,22 @@ export async function getLiveOverview(): Promise<OverviewModel | null> {
 
 /** Counts the overview's signals are built from. One round trip each, and
  *  all four are facts this database can actually answer. */
-async function tenantCounts(requestId: string): Promise<{
+async function tenantCounts(
+  actorId: string,
+  requestId: string,
+): Promise<{
   total: number;
   active: number;
   suspended: number;
   members: number;
   openSupportSessions: number;
 }> {
-  return withoutTenantContext(requestId, async (tx) => {
+  /* As the operator (doc 24 · D1): tenants and support sessions are readable
+     to a platform admin; memberships are counted by `app.platform_member_count`
+     without their rows. Through `withoutTenantContext` every one of these
+     was zero, and the overview fell back to designed figures. */
+  return withActorContext(actorId, requestId, async (tx) => {
+    await closeLapsedSupportSessions(tx);
     const [tenantRows] = await tx
       .select({
         total: count(),
@@ -393,10 +400,9 @@ async function tenantCounts(requestId: string): Promise<{
       .from(tenants)
       .where(isNull(tenants.deletedAt));
 
-    const [memberRows] = await tx
-      .select({ n: count() })
-      .from(tenantMembers)
-      .where(and(eq(tenantMembers.status, 'active'), isNull(tenantMembers.deletedAt)));
+    const memberRows = (await tx.execute(
+      sql`select app.platform_member_count() as n`,
+    )) as unknown as Array<{ n: number | null }>;
 
     const [supportRows] = await tx
       .select({ n: count() })
@@ -413,7 +419,7 @@ async function tenantCounts(requestId: string): Promise<{
       total: tenantRows?.total ?? 0,
       active: tenantRows?.active ?? 0,
       suspended: tenantRows?.suspended ?? 0,
-      members: memberRows?.n ?? 0,
+      members: Number(memberRows[0]?.n ?? 0),
       openSupportSessions: supportRows?.n ?? 0,
     };
   });

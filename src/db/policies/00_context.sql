@@ -104,6 +104,15 @@ $$ language plpgsql stable security definer;
 -- hijacked through the caller's own path.
 --
 -- New policies should call this rather than repeat the `exists` inline.
+--
+-- ⚠ FALSE INSIDE A SUPPORT SESSION, AND THAT IS THE CEILING. Doc 24 · D1 gave
+--   operators select-only reach across workspaces through this function, and
+--   the isolation suite caught what that did to support mode: an operator
+--   inside tenant A is still a platform admin, so every operator branch opened
+--   up again and a session opened into A could read tenant B. Inside a visit
+--   the operator must be scoped exactly as the workspace's own staff are, so
+--   every operator branch and operator-only function — all of which call this
+--   — switches off while `app.support_mode` is on.
 -- ────────────────────────────────────────────────────────────────────────────
 create or replace function app.is_platform_admin() returns boolean
 language sql
@@ -111,11 +120,12 @@ stable
 security definer
 set search_path = public, pg_temp
 as $$
-  select exists (
-    select 1 from public.platform_admins pa
-    where pa.user_id = app.current_actor_id()
-      and pa.deleted_at is null
-  );
+  select not app.is_support_session()
+    and exists (
+      select 1 from public.platform_admins pa
+      where pa.user_id = app.current_actor_id()
+        and pa.deleted_at is null
+    );
 $$;
 
 -- ────────────────────────────────────────────────────────────────────────────

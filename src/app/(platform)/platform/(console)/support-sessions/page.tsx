@@ -1,291 +1,202 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
-import { IconUsers } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage, Panel } from '@/components/console/Surface';
-import { ActiveSessionCard } from '@/components/console/ActiveSessionCard';
-import { EmptyState } from '@/components/primitives/EmptyState';
-import { getSupportSessions, type EndedBy } from '@/lib/console/data';
-import { getLiveSupportSessions } from '@/lib/console/liveWorkspaces';
-import { resolveSupportSession } from '@/lib/console/session';
-import { ShapeBand } from '@/components/console/sessions/ShapeBand';
-import { endSupportSession } from '../actions';
+import { IconClock, IconDoorEnter, IconHandStop, IconUsers } from '@tabler/icons-react';
+import {
+  ConsoleHeader,
+  ConsolePage,
+  DataSource,
+  SectionHeading,
+} from '@/components/console/Surface';
+import { FactCell, FactStrip } from '@/components/console/FactStrip';
+import { OpenSessionsBand } from '@/components/console/support/OpenSessionsBand';
+import { VisitsLedger } from '@/components/console/support/VisitsLedger';
+import { ShapeBand } from '@/components/console/support/ShapeBand';
+import { GuaranteesPanel } from '@/components/console/support/GuaranteesPanel';
+import { OpenSessionControl } from '@/components/console/support/OpenSessionControl';
+import { minutesLabel } from '@/components/console/support/outcomes';
+import {
+  getSupportRegister,
+  type RegisterFilters,
+  type VisitOutcome,
+} from '@/lib/console/liveSupport';
+import { fetchBreakGlassState } from '../actions';
 
 export const metadata: Metadata = { title: 'Support sessions' };
 
+const OUTCOMES: VisitOutcome[] = [
+  'open',
+  'operator',
+  'colleague',
+  'customer',
+  'expired',
+  'superseded',
+  'break_glass',
+];
+
 /**
- * The support-session register. `Support-Sessions.dc.html`.
+ * The support register. Doc 24.
  *
- * ⚠ THIS IS AN ACCOUNTABILITY LEDGER, NOT A PRODUCTIVITY REPORT.
+ * The question it answers: who is inside which customer right now, why, and
+ * what did each visit cost the customer?
  *
- * Everything on the page is framed from the customer's side. The lede says the
- * customer sees this same record in their own activity log; the reason column
- * is wide because the reason is the only part a human wrote; and the closing
- * line refuses to treat a customer ending a session early as a fault.
+ * ⚠ IT READ NOTHING AND SAID SO CONFIDENTLY. "0 open · 0 recorded · 0 ended by
+ * the customer" over an empty table, because the reader had no actor and the
+ * policies returned nothing. It said sessions were "read-only" with "no
+ * extension" (both false), "last 30 days" over a query with no date bound, and
+ * showed only the reader's own open session. Every figure below is read as the
+ * operator, the record is closed up to date before it is read, and every
+ * sentence about what a visit allows was checked against the code.
  *
- * That last point is the reason `endedBy: customer` is the one value here
- * drawn in the accent. Of the three ways a session ends — operator closed it,
- * cap expired, customer stopped it — only the third tells you something you
- * did not already know, and a console that greyed it out alongside the others
- * would be hiding its most important row.
+ * ⚠ AN ACCOUNTABILITY LEDGER, NOT A PRODUCTIVITY REPORT. The accent goes to
+ * the customer ending a visit — the one ending that tells us something.
  */
+export default async function SupportSessionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const params = await searchParams;
+  const filters: RegisterFilters = {
+    operator: params.operator || undefined,
+    workspace: params.workspace || undefined,
+    outcome: OUTCOMES.includes(params.outcome as VisitOutcome)
+      ? (params.outcome as VisitOutcome)
+      : undefined,
+    page: Number.parseInt(params.page ?? '1', 10) || 1,
+  };
 
-const ENDED_BY: Record<EndedBy, { dot: string; ink: string }> = {
-  admin: { dot: 'var(--ink-400)', ink: 'var(--text-secondary)' },
-  customer: { dot: 'var(--accent-mark)', ink: 'var(--accent-mark-text)' },
-  expired: { dot: 'var(--ink-300)', ink: 'var(--text-tertiary)' },
-};
+  const [register, glass] = await Promise.all([
+    getSupportRegister(filters),
+    fetchBreakGlassState().catch(() => null),
+  ]);
 
-export default async function SupportSessionsPage() {
-  /**
-   * Live first, designed fixture second — the pattern every other wired
-   * surface uses. The fixture stays reachable behind the review bypass, where
-   * there is no session for the live reader to resolve.
-   */
-  const [live, active] = await Promise.all([getLiveSupportSessions(), resolveSupportSession()]);
-  const model = live ?? (await getSupportSessions());
+  const header = (
+    <ConsoleHeader
+      breadcrumbs={[
+        { label: 'Platform Console', href: '/platform' },
+        { label: 'Support sessions' },
+      ]}
+      eyebrow="/platform/support-sessions"
+      title="Support sessions"
+      actions={
+        register ? (
+          <OpenSessionControl
+            directory={register.directory}
+            disabled={glass?.locked ?? false}
+            disabledReason={
+              glass?.locked
+                ? `Support access is locked platform-wide${glass.by ? ` by ${glass.by}` : ''}. Release it in Settings.`
+                : undefined
+            }
+          />
+        ) : null
+      }
+    />
+  );
+
+  if (!register) {
+    return (
+      <ConsolePage>
+        {header}
+        <p className="t-body mt-6" style={{ color: 'var(--text-secondary)' }}>
+          Sign in as a platform operator to read the register. It lists every visit the platform
+          made into a customer&rsquo;s workspace, and there is no designed version of it.
+        </p>
+      </ConsolePage>
+    );
+  }
+
+  const f = register.facts;
+  const openNames = register.open
+    .map((v) => `${v.mine ? 'You' : v.operatorName} in ${v.tenantName}`)
+    .join(' · ');
 
   return (
     <ConsolePage>
-      <div className="border-b pb-5" style={{ borderColor: 'var(--border-subtle)' }}>
-        <ConsoleHeader eyebrow="/platform/support-sessions" title="Support sessions" />
-        <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', maxWidth: '70ch' }}>
-          Every time the platform team looked inside a customer&rsquo;s workspace, with the reason
-          they gave. The customer sees this same record in their own activity log.
-        </p>
-      </div>
+      {header}
 
-      <div
-        className="mt-5 grid gap-3.5"
-        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(168px, 1fr))' }}
-      >
-        {model.stats.map((s) => (
-          <div
-            key={s.label}
-            className="min-w-0 rounded-overlay p-4"
-            style={{
-              border: '1px solid var(--border-subtle)',
-              background: 'var(--surface-raised)',
-              boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
-            }}
-          >
-            <p className="t-compact truncate" style={{ color: 'var(--text-secondary)' }}>
-              {s.label}
-            </p>
-            <p
-              className="numeric mt-2.5"
-              style={{
-                fontSize: 'var(--display-sm)',
-                color: s.tone === 'accent' ? 'var(--accent-mark-text)' : 'var(--text-primary)',
-              }}
-            >
-              {s.value}
-            </p>
-            <p className="t-caption mt-1.5" style={{ color: 'var(--text-tertiary)' }}>
-              {s.note}
-            </p>
-          </div>
-        ))}
-      </div>
+      <FactStrip label="Support access at a glance">
+        <FactCell
+          icon={IconDoorEnter}
+          tone={f.openNow > 0 ? 'brand' : 'neutral'}
+          label="Open now"
+          value={
+            f.openNow === 0
+              ? 'Nobody inside'
+              : `${f.openNow} ${f.openNow === 1 ? 'visit' : 'visits'}`
+          }
+          note={f.openNow === 0 ? 'No operator is inside a customer’s workspace.' : openNames}
+          source={<DataSource kind="live" />}
+        />
+        <FactCell
+          icon={IconUsers}
+          label="Visits · 30 days"
+          value={f.visits === 0 ? 'None' : String(f.visits)}
+          note={
+            f.visits === 0
+              ? register.everUsed
+                ? 'Older visits are kept; the register shows thirty days.'
+                : 'Support access has never been used.'
+              : `${register.operators.length} ${register.operators.length === 1 ? 'operator' : 'operators'} · ${register.workspaces.length} ${register.workspaces.length === 1 ? 'workspace' : 'workspaces'}`
+          }
+        />
+        <FactCell
+          icon={IconClock}
+          label="Median visit"
+          value={f.medianMinutes === null ? '—' : minutesLabel(f.medianMinutes)}
+          note={
+            f.medianMinutes === null
+              ? 'No visit has ended in the window.'
+              : f.extended > 0
+                ? `Against a 30-minute cap. ${f.extended} ${f.extended === 1 ? 'was' : 'were'} extended.`
+                : 'Against a 30-minute cap. None was extended.'
+          }
+        />
+        <FactCell
+          icon={IconHandStop}
+          tone={f.endedByCustomer > 0 ? 'warning' : 'neutral'}
+          label="Ended by the customer"
+          value={f.endedByCustomer === 0 ? 'None' : String(f.endedByCustomer)}
+          note={
+            f.endedByCustomer === 0
+              ? 'No customer has stopped a visit in the window.'
+              : 'Worth reading each one. The ceiling working, not a fault.'
+          }
+        />
+      </FactStrip>
 
-      {active ? (
-        <ActiveSessionCard session={active} onEnd={endSupportSession} />
-      ) : (
-        <div
-          className="mt-5 rounded-overlay"
-          style={{
-            border: '1px dashed var(--border-strong)',
-            background: 'var(--surface-sunken)',
-          }}
-        >
-          <EmptyState
-            icon={IconUsers}
-            title="No session is open"
-            body="Entering a workspace from the switcher opens a 30-minute read-only session and records it here and in the customer's own log."
+      {register.open.length > 0 ? (
+        <section aria-labelledby="support-open">
+          <SectionHeading
+            title="Inside now"
+            note="Every open visit, with the reason the customer is reading."
+            action={<DataSource kind="live" detail="counting down" />}
           />
-        </div>
-      )}
+          <OpenSessionsBand open={register.open} />
+        </section>
+      ) : null}
 
-      <div className="mt-5">
-        <Panel title="History · last 30 days" flush>
-          {/* Desktop */}
-          <div className="hidden md:block">
-            <table className="w-full table-fixed border-collapse">
-              <colgroup>
-                <col style={{ width: '15%' }} />
-                <col style={{ width: '22%' }} />
-                <col style={{ width: '12%' }} />
-                <col style={{ width: '29%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '12%' }} />
-              </colgroup>
-              <thead>
-                <tr style={{ background: 'var(--surface-sunken)' }}>
-                  {['Started', 'Workspace', 'Admin', 'Reason', 'Duration', 'Ended by'].map(
-                    (h, i) => (
-                      <th
-                        key={h}
-                        scope="col"
-                        className="h-9"
-                        style={{
-                          padding: i === 0 || i === 5 ? '0 16px' : '0 8px',
-                          textAlign: h === 'Duration' ? 'right' : 'left',
-                          borderBottom: '1px solid var(--border-subtle)',
-                          font: '500 var(--type-chip)/1 var(--font-ui)',
-                          letterSpacing: '0.04em',
-                          textTransform: 'uppercase',
-                          color: 'var(--text-secondary)',
-                        }}
-                      >
-                        {h}
-                      </th>
-                    ),
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {model.history.map((h) => {
-                  const e = ENDED_BY[h.endedBy];
-                  return (
-                    <tr
-                      key={h.id}
-                      className="transition-colors hover:bg-[var(--surface-sunken)]"
-                      style={{ height: 44, borderBottom: '1px solid var(--border-subtle)' }}
-                    >
-                      <td style={{ padding: '0 16px' }}>
-                        <span
-                          style={{
-                            font: '400 var(--type-compact)/1 var(--font-mono)',
-                            color: 'var(--text-secondary)',
-                          }}
-                        >
-                          {h.started}
-                        </span>
-                      </td>
-                      <td className="overflow-hidden" style={{ padding: '0 8px' }}>
-                        <Link
-                          href={`/platform/tenants/${h.slug}`}
-                          className="block truncate transition-colors hover:text-[var(--text-action)]"
-                          style={{
-                            font: '400 var(--type-compact)/1.3 var(--font-ui)',
-                            color: 'var(--text-primary)',
-                          }}
-                        >
-                          {h.tenant}
-                        </Link>
-                      </td>
-                      <td style={{ padding: '0 8px' }}>
-                        <span
-                          style={{
-                            font: '400 var(--type-compact)/1 var(--font-mono)',
-                            color: 'var(--text-secondary)',
-                          }}
-                        >
-                          {h.admin}
-                        </span>
-                      </td>
-                      {/* The reason gets the widest column on the table. It is
-                          the only field a person wrote, and the only one the
-                          customer will read. */}
-                      <td className="overflow-hidden" style={{ padding: '0 8px' }}>
-                        <span
-                          className="block truncate"
-                          title={h.reason}
-                          style={{
-                            font: '400 var(--type-compact)/1.3 var(--font-ui)',
-                            color: 'var(--text-secondary)',
-                          }}
-                        >
-                          {h.reason}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0 8px', textAlign: 'right' }}>
-                        <span className="numeric" style={{ fontSize: 'var(--type-compact)' }}>
-                          {h.duration}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0 16px' }}>
-                        <span className="inline-flex items-center gap-1.5">
-                          <span
-                            aria-hidden
-                            className="size-1.5 shrink-0 rounded-full"
-                            style={{ background: e.dot }}
-                          />
-                          <span
-                            style={{
-                              font: '400 var(--type-compact)/1 var(--font-mono)',
-                              color: e.ink,
-                            }}
-                          >
-                            {h.endedBy}
-                          </span>
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+      <section aria-labelledby="support-visits">
+        <SectionHeading
+          title="Visits"
+          note="The last thirty days, newest first. A visit opens what it did."
+          action={<DataSource kind="live" />}
+        />
+        <VisitsLedger register={register} />
+      </section>
 
-          {/* Mobile */}
-          <div className="grid gap-2 p-4 md:hidden">
-            {model.history.map((h) => {
-              const e = ENDED_BY[h.endedBy];
-              return (
-                <div
-                  key={h.id}
-                  className="rounded-panel p-3"
-                  style={{ border: '1px solid var(--border-subtle)' }}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <Link
-                      href={`/platform/tenants/${h.slug}`}
-                      className="min-w-0 flex-1"
-                      style={{
-                        font: '500 var(--type-compact)/1.35 var(--font-ui)',
-                        color: 'var(--text-primary)',
-                      }}
-                    >
-                      {h.tenant}
-                    </Link>
-                    <span className="inline-flex shrink-0 items-center gap-1.5">
-                      <span
-                        aria-hidden
-                        className="size-1.5 rounded-full"
-                        style={{ background: e.dot }}
-                      />
-                      <span
-                        style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: e.ink }}
-                      >
-                        {h.endedBy}
-                      </span>
-                    </span>
-                  </div>
-                  <p className="t-compact mt-1.5" style={{ color: 'var(--text-secondary)' }}>
-                    {h.reason}
-                  </p>
-                  <p
-                    className="mt-1.5"
-                    style={{
-                      font: '400 var(--type-chip)/1 var(--font-mono)',
-                      color: 'var(--text-tertiary)',
-                    }}
-                  >
-                    {h.started} · {h.admin} · {h.duration}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </Panel>
-      </div>
+      <section aria-labelledby="support-shape">
+        <SectionHeading
+          title="Shape"
+          note="How long visits last, and how they end."
+          align="right"
+        />
+        <ShapeBand register={register} />
+      </section>
 
-      <ShapeBand history={model.history} />
-
-      <p className="t-compact mt-3.5" style={{ color: 'var(--text-tertiary)', maxWidth: '84ch' }}>
-        Sessions are read-only and expire at 30 minutes with no extension. A customer ending a
-        session early is a signal worth reading, not a fault.
-      </p>
+      <section aria-labelledby="support-guarantees" className="pb-4">
+        <SectionHeading title="Guarantees" note="What every visit promises the customer." />
+        <GuaranteesPanel />
+      </section>
     </ConsolePage>
   );
 }

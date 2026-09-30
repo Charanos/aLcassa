@@ -23,6 +23,23 @@ create policy tenants_select on tenants
     )
   );
 
+-- ⚠ OPERATORS READ THE DIRECTORY. Doc 24 · D1.
+--
+-- The console lists every workspace, and until this policy it could list
+-- none: a platform admin is a member of no tenant, so `tenants_select`
+-- returned nothing and the Workspaces list, the switcher, the Overview counts
+-- and the support register all fell back to designed data or rendered zeros.
+-- The alternative — reading through the service role — writes a row flagged
+-- as bypassing RLS on every page view.
+--
+-- SELECT ONLY, AND ONLY THIS TABLE AND THE BILLING RECORDS THE PLATFORM ITSELF
+-- WRITES (03_subscriptions.sql). A workspace's data — members, customer
+-- records, knowledge base, rules, channels — stays closed to operators except
+-- inside a support session, where the workspace's own policies apply to them
+-- as role `support`.
+create policy tenants_select_operators on tenants
+  for select using (app.is_platform_admin());
+
 -- No insert, update or delete policy for tenant users. Provisioning,
 -- suspension and plan assignment are platform operations through the service
 -- role, and every one of them writes an audit row before it runs. 06 §7.

@@ -1,8 +1,8 @@
 import 'server-only';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, gt, isNull } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import type { NextRequest } from 'next/server';
-import { platformAdmins, tenantMembers, tenants, userProfiles } from '@/db/schema';
+import { platformAdmins, sessions, tenantMembers, tenants, userProfiles } from '@/db/schema';
 import { withActorContext } from '@/lib/db';
 import { createResolvedContext } from '@/lib/db/context';
 import type { ResolvedContext, TenantRole } from '@/lib/db/context';
@@ -363,4 +363,69 @@ export async function isPlatformAdmin(userId: string, requestId: string): Promis
       .limit(1);
     return Boolean(row);
   });
+}
+
+/**
+ * THE SUPPORT DOOR. Doc 24 · Stage 3.
+ *
+ * ⚠ UNTIL THIS EXISTED, A SUPPORT SESSION OPENED NOTHING. It was minted,
+ * audited and counted down, and no code ever read a customer's workspace
+ * through it: the tenant door needs a membership an operator does not have,
+ * and the console never built a context from the session. The role, the
+ * carve-outs and the policies written for support mode were exercised only
+ * by the isolation suite.
+ *
+ * This builds that context — and builds it ONLY from the row. The session id
+ * comes from the operator's cookie; everything else (tenant, role, support
+ * mode) is read from a support session that belongs to this operator, has not
+ * been revoked, and has not expired, re-checked on every request. A revoked
+ * or lapsed visit opens nothing, including halfway through a page.
+ *
+ * From here, every query runs under the workspace's own policies as role
+ * `support` with `app.support_mode` on: the three permanent carve-outs hold
+ * (no credential secret, no extending the visit from inside, no acting as a
+ * member's identity), and every write is stamped `support_mode` in the
+ * customer's log by `writeAudit`, without the handler having to remember.
+ */
+export async function resolveSupportContext(
+  sessionId: string,
+): Promise<(ResolvedContext & { tenantName: string; tenantSlug: string }) | null> {
+  const platform = await currentPlatformSessionOrNull();
+  if (!platform) return null;
+
+  const row = await withActorContext(platform.actorId, platform.requestId, async (tx) => {
+    const [found] = await tx
+      .select({
+        tenantId: sessions.tenantId,
+        tenantName: tenants.name,
+        tenantSlug: tenants.slug,
+      })
+      .from(sessions)
+      .innerJoin(tenants, eq(tenants.id, sessions.tenantId))
+      .where(
+        and(
+          eq(sessions.id, sessionId),
+          eq(sessions.kind, 'support'),
+          eq(sessions.userId, platform.actorId),
+          isNull(sessions.revokedAt),
+          gt(sessions.expiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+    return found ?? null;
+  });
+  if (!row?.tenantId) return null;
+
+  const ctx = createResolvedContext({
+    tenantId: row.tenantId,
+    role: 'support',
+    actorId: platform.actorId,
+    actorLabel: platform.actorLabel,
+    actorType: 'platform_admin',
+    supportMode: true,
+    requestId: platform.requestId,
+    ipAddress: platform.ipAddress,
+    sessionId,
+  });
+  return Object.assign(ctx, { tenantName: row.tenantName, tenantSlug: row.tenantSlug });
 }

@@ -112,6 +112,10 @@ export type SupportSession = {
   reason: string;
   /** Absolute, ISO 8601. The client derives its countdown from this. */
   expiresAt: string;
+  startedAt: string;
+  platformAdminName: string;
+  /** Extensions used so far. Doc 24 · D2 caps them at two. */
+  extensions: number;
 };
 
 /**
@@ -126,9 +130,8 @@ export async function resolveSupportSession(): Promise<SupportSession | null> {
   const sessionId = await resolveSupportSessionId();
   if (!sessionId) return null;
 
-  // No platform session, no support session. Reading the row is a
-  // service-role call and it is not made on behalf of an unauthenticated
-  // caller holding a cookie.
+  // No platform session, no support session: the row is read as the
+  // operator it belongs to, and a cookie on its own resolves nothing.
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
@@ -148,6 +151,9 @@ export async function resolveSupportSession(): Promise<SupportSession | null> {
     tenantName: record.tenantName,
     reason: record.reason,
     expiresAt: record.expiresAt,
+    startedAt: record.startedAt,
+    platformAdminName: record.platformAdminName,
+    extensions: record.extensions,
   };
 }
 

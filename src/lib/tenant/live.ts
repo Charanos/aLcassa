@@ -12,7 +12,7 @@ import {
 } from '@/db/schema';
 import { currentSessionOrNull } from '@/lib/auth/resolve';
 import { listActiveSessions } from '@/lib/auth/session';
-import { withTenantContext } from '@/lib/db';
+import { withTenantContext, type ResolvedContext } from '@/lib/db';
 import { getEntitlementSnapshot } from '@/modules/entitlements';
 import type {
   AccountModel,
@@ -88,8 +88,11 @@ function relative(value: Date): string {
  * counter rather than recomputed, so the number on the screen and the number
  * that refuses an invitation cannot disagree.
  */
-export async function getLiveTeam(): Promise<TeamModel | null> {
-  const ctx = await currentSessionOrNull();
+export async function getLiveTeam(
+  /** A context already resolved — the console's support door. Doc 24 · Stage 3. */
+  given?: ResolvedContext,
+): Promise<TeamModel | null> {
+  const ctx = given ?? (await currentSessionOrNull());
   if (!ctx) return null;
 
   const snapshot = await getEntitlementSnapshot(ctx);
@@ -172,8 +175,11 @@ export async function getLiveTeam(): Promise<TeamModel | null> {
  * The override reason is surfaced deliberately. 05 §5: "a customer who has
  * been granted extra seats should know it and should know it may expire."
  */
-export async function getLiveSubscription(): Promise<SubscriptionModel | null> {
-  const ctx = await currentSessionOrNull();
+export async function getLiveSubscription(
+  /** A context already resolved — the console's support door. Doc 24 · Stage 3. */
+  given?: ResolvedContext,
+): Promise<SubscriptionModel | null> {
+  const ctx = given ?? (await currentSessionOrNull());
   if (!ctx) return null;
 
   const snapshot = await getEntitlementSnapshot(ctx);
@@ -246,8 +252,11 @@ export async function getLiveSubscription(): Promise<SubscriptionModel | null> {
  * their own people. Falling back from one to the other means a workspace that
  * has never opened this screen still renders a name rather than a blank.
  */
-export async function getLiveCompany(): Promise<CompanyModel | null> {
-  const ctx = await currentSessionOrNull();
+export async function getLiveCompany(
+  /** A context already resolved — the console's support door. Doc 24 · Stage 3. */
+  given?: ResolvedContext,
+): Promise<CompanyModel | null> {
+  const ctx = given ?? (await currentSessionOrNull());
   if (!ctx) return null;
 
   return withTenantContext(ctx, async (tx) => {
@@ -303,8 +312,11 @@ export async function getLiveCompany(): Promise<CompanyModel | null> {
  * makes `audit_retention_days` a plan value, so a Custom tenant sees a year
  * and a Pro tenant sees thirty days from the same query.
  */
-export async function getLiveTenantAudit(): Promise<TenantAuditModel | null> {
-  const ctx = await currentSessionOrNull();
+export async function getLiveTenantAudit(
+  /** A context already resolved — the console's support door. Doc 24 · Stage 3. */
+  given?: ResolvedContext,
+): Promise<TenantAuditModel | null> {
+  const ctx = given ?? (await currentSessionOrNull());
   if (!ctx) return null;
 
   const snapshot = await getEntitlementSnapshot(ctx);

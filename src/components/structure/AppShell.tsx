@@ -85,7 +85,6 @@ export type AppShellProps = {
   /** production | staging | preview | development. Drives the frame's slate
    *  STAGING state outside support mode. */
   environment?: string;
-  onSupportModeExit?: () => void;
   children: React.ReactNode;
 };
 
@@ -125,7 +124,6 @@ export function AppShell({
   // opts in by passing the real deployment environment once that value
   // actually exists (`process.env.VERCEL_ENV`, once this is deployed there).
   environment = 'production',
-  onSupportModeExit,
   children,
 }: AppShellProps) {
   const isPlatform = application === 'platform';
@@ -382,11 +380,7 @@ export function AppShell({
       }}
     >
       {frameActive ? (
-        <BoundaryFrame
-          supportMode={supportMode ?? null}
-          environment={environment}
-          onExit={onSupportModeExit ?? (() => {})}
-        />
+        <BoundaryFrame supportMode={supportMode ?? null} environment={environment} />
       ) : null}
 
       {/* TOP HEADER */}

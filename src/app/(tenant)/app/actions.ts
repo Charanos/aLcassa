@@ -10,7 +10,7 @@ import {
   removeMember as removeMemberService,
   revokeInvitation as revokeInvitationService,
 } from '@/modules/membership';
-import { updateOwnProfile } from '@/modules/identity';
+import { endSupportVisit as endSupportVisitService, updateOwnProfile } from '@/modules/identity';
 
 /**
  * Tenant application server actions.
@@ -224,5 +224,26 @@ export async function revokeSession(id: string): Promise<ActionResult> {
     // instead of ending their session.
     await revokeSessionService(id, ctx.actorId, ctx.requestId, 'revoked by the account holder');
     revalidatePath('/app/account/sessions');
+  });
+}
+
+/**
+ * End a support visit to this workspace. Doc 24 · D6: owners and admins.
+ *
+ * The frame's button called a no-op until now, so the customer's "you can end
+ * it at any time" — in the email and in the frame — was a promise the
+ * interface could not keep. The notice tells them it is recorded, because the
+ * operator will ask why, and the log is where the answer starts.
+ */
+export async function endSupportVisit(sessionId: string): Promise<ActionResult> {
+  if (!sessionId) return { ok: false, error: 'There is no support visit to end.' };
+
+  return attempt(async () => {
+    const ctx = await currentSession();
+    const ended = await endSupportVisitService(ctx, sessionId);
+    revalidatePath('/app', 'layout');
+    return ended
+      ? 'The visit is over. It is recorded in your activity log under your name.'
+      : 'That visit had already ended.';
   });
 }

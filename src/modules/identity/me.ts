@@ -49,6 +49,8 @@ export type Me = {
    */
   supportMode: {
     active: boolean;
+    sessionId: string;
+    canEnd: boolean;
     expiresAt: string;
     tenantName: string;
     platformAdminName: string;
@@ -192,10 +194,15 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
             active: true,
             expiresAt: support.expiresAt.toISOString(),
             tenantName: tenant?.name ?? 'this workspace',
-            // The id until the platform_admins row is joined in at M4, where
-            // the console owns that read. A name is better; an identifier is
-            // honest, and an empty frame would be neither.
-            platformAdminName: support.supportContext?.platformAdminId ?? 'Platform support',
+            /* Doc 24 · S0.4. This was the operator's UUID: the customer cannot
+               read platform_admins, so the name is written into the session
+               at mint. Older sessions fall back to the team, never an id. */
+            sessionId: support.id,
+            platformAdminName: support.supportContext?.platformAdminName ?? 'aLcassa support',
+            /* Doc 24 · D6. The frame offers the ending only to the people the
+               database will let end it. */
+            canEnd:
+              !ctx.supportMode && (membership?.role === 'owner' || membership?.role === 'admin'),
             reason: support.supportContext?.reason ?? null,
             resolvedTenantId: ctx.tenantId,
             resolvedRole: 'support' as const,

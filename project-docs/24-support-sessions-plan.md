@@ -385,3 +385,85 @@ on your yes.
 Each stage ends as the last three did: screenshots at desktop and phone, the
 full gate run, the isolation suite, a production build into `.next-verify`,
 and a push.
+
+---
+
+## Outcome (30 Sep 2026)
+
+D1–D6 were approved as recommended, with D6 widened to owners **and** admins.
+What shipped, and where it departs from the plan.
+
+**Stage 1 · operators read across workspaces.** Select-only policies through
+`app.is_platform_admin()`: `tenants_select_operators`,
+`subscriptions`/`subscription_overrides`/`usage_counters` `_select_operators`,
+and `sessions_select_support_operators` (`kind = 'support'` only). Member rows,
+profiles and customers' audit logs stay closed. What the console needs from
+them comes through three narrow definer functions that return only the answer:
+`app.workspace_summaries` (member counts, owner contact, last activity),
+`app.platform_member_count`, and `app.support_visit_activity` (only the rows
+the platform itself wrote during a visit). The register, the Workspaces list
+and detail, the Overview counts and the rail badges now read live data. The
+Workspaces badge showed a designed 12 and the Support badge a hard-coded 1;
+both now come from the database.
+
+**Stage 2 · the session record.** Migration `0003`: `sessions.end_reason`
+(operator, colleague, customer, expired, superseded, break_glass) and
+`ended_by`, with existing rows filled in from their revocation reasons. Every
+ending goes through `closeSessions` or a definer function and writes exactly
+one row per log. Break glass, which ended sessions with no reason and no
+customer entry, now uses the same path. Lapsed visits are closed at their own
+expiry by `app.close_lapsed_support_sessions`, which the register, the start
+path, the overview and the daily cron all call. Refused entries are recorded
+as `support.entry_refused` in a separate transaction. Reading a session no
+longer writes a service-role audit row.
+
+**D2** as proposed: extension is offered only in the last five minutes, at
+most twice, and a lapsed visit can no longer be extended back to life (it
+could before). Extension was never actually reachable: nothing called the
+action. It is now in the console banner and on the register.
+
+**Stage 3 · the inside view.** `resolveSupportContext` builds the tenant
+context only from a live support session this operator owns, re-checked on
+every request. `/platform/inside` renders the customer's own read models
+(company, subscription and usage, team, activity) under that context. One
+policy branch was needed: inside a support session, `user_profiles` admits the
+workspace's own members, and without it the team page had no names. **D4 as
+delivered:** resending and revoking invitations. Correcting AI rules and
+re-indexing the knowledge base were approved but **do not exist in the
+customer's product** (their own "publish rules" refuses, and there is no
+knowledge-base module). The inside view says so rather than faking either.
+
+**Stage 4 · the customer's side.** The frame is rewritten for the customer:
+it names the operator (the name is written into the session at start; before,
+the customer saw a UUID) and says "is in your workspace". Owners and admins
+can end the visit through `app.end_support_visit`, which checks the
+membership row and writes both logs. Owners are emailed on entry, after the
+commit. The frame's old EXIT/RECONNECT button did nothing.
+
+**Stage 5 · the register.** Rebuilt as specified:
+- fact strip, every open visit (not only mine), and ending a colleague's visit
+  with confirmation;
+- a day-grouped ledger with URL filters and paging, where each visit opens a
+  timeline of what it did;
+- shape, guarantees, and separate empty states.
+
+The false copy ("read-only", "no extension", "last 30 days") is gone from the
+page, the start dialog, the banner and four toasts.
+
+**Found during verification, fixed.** The console banner, the register card
+and the customer's frame all computed their countdown during render, so the
+server and the browser disagreed by a second and React tore the tree down on
+hydration. It never surfaced because no session had ever been open when
+anyone looked. Clocks now render only after mount.
+
+**Caught by the isolation suite, fixed.** The operator policies reopened support mode: inside a visit the actor is still a platform admin, so a session opened into workspace A could read workspace B's directory row. `app.is_platform_admin()` now answers false while a support session is in effect, which switches off every operator branch and operator-only function at once. Inside a visit, only the workspace's own rules apply.
+
+**Tests.** `tests/isolation/support-sessions.test.ts`, 14 cases covering
+operator visibility, every ending, the extension rules, colleague and customer
+endings, refused entries, support-mode team visibility and the visit-activity
+function. The suite removes every row it writes.
+
+**Not done.**
+- The customer's activity page does not yet group a visit into one item.
+- A customer-side screenshot needs a seeded customer password; the path is
+  covered by the tests instead.

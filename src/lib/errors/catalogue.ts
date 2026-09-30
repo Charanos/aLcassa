@@ -16,6 +16,9 @@ export const ERROR_CODES = {
   AUTH_SESSION_EXPIRED: 'auth.session_expired',
   AUTH_EMAIL_UNVERIFIED: 'auth.email_unverified',
   AUTH_NO_MEMBERSHIP: 'auth.no_membership',
+  /** A member whose role does not allow the action. Doc 24: ending a support
+   *  visit is for owners and admins. */
+  ROLE_NOT_PERMITTED: 'auth.role_not_permitted',
 
   // ─ Self-serve registration ─
   SIGNUP_EMAIL_TAKEN: 'signup.email_taken',
@@ -99,6 +102,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   [ERROR_CODES.AUTH_SESSION_EXPIRED]: 401,
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 403,
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]: 403,
+  [ERROR_CODES.ROLE_NOT_PERMITTED]: 403,
 
   [ERROR_CODES.SIGNUP_EMAIL_TAKEN]: 409,
   [ERROR_CODES.SIGNUP_DISABLED]: 503,
@@ -156,6 +160,8 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   /* Names the way out rather than the failure. Someone who already has an
      account and tried to register again does not need to be told 'taken' —
      they need the sign-in link, which the sign-up page renders beside this. */
+  [ERROR_CODES.ROLE_NOT_PERMITTED]:
+    'Your role in this workspace cannot do that. An owner or admin can.',
   [ERROR_CODES.SIGNUP_EMAIL_TAKEN]:
     'That email already has an account. Sign in instead, or reset your password if you have forgotten it.',
   [ERROR_CODES.SIGNUP_DISABLED]:

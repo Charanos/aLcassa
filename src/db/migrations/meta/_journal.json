@@ -22,6 +22,13 @@
       "when": 1790756636391,
       "tag": "0002_platform_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790775769964,
+      "tag": "0003_support_session_end",
+      "breakpoints": true
     }
   ]
 }

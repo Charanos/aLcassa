@@ -1,8 +1,19 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { IconShieldLock, IconLogout } from '@tabler/icons-react';
+import { useTransition } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { IconArrowRight, IconClockPlus, IconShieldLock, IconLogout } from '@tabler/icons-react';
 import type { SupportSession } from '@/lib/console/session';
+import { extendCurrentSupportSession } from '@/app/(platform)/platform/(console)/actions';
+import { useToast } from '@/components/primitives/Toast';
+import { clock, useDeadline } from './support/useDeadline';
+
+/* Mirrors SUPPORT_EXTENSION_WINDOW_MS / SUPPORT_MAX_EXTENSIONS in the platform
+   module, which cannot be imported into a client bundle. The server enforces
+   both; these only decide when the button is offered. */
+const EXTENSION_WINDOW_MS = 5 * 60 * 1000;
+const MAX_EXTENSIONS = 2;
 
 /**
  * The support-mode banner. 09 §4 · 03 §8.
@@ -30,17 +41,6 @@ import type { SupportSession } from '@/lib/console/session';
  * banner that vanishes looks identical to a banner that never appeared.
  */
 
-function remainingMs(expiresAt: string): number {
-  return Math.max(0, Date.parse(expiresAt) - Date.now());
-}
-
-function format(ms: number): string {
-  const total = Math.floor(ms / 1000);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
 export function SupportSessionBanner({
   session,
   onEnd,
@@ -48,21 +48,45 @@ export function SupportSessionBanner({
   session: SupportSession;
   onEnd: () => Promise<void>;
 }) {
-  const [left, setLeft] = useState(() => remainingMs(session.expiresAt));
+  /* Null until mounted — see useDeadline for the hydration failure this was. */
+  const left = useDeadline(session.expiresAt);
   const [pending, startTransition] = useTransition();
+  const [extending, startExtend] = useTransition();
+  const router = useRouter();
+  const pathname = usePathname();
+  const pushToast = useToast();
 
-  useEffect(() => {
-    setLeft(remainingMs(session.expiresAt));
-    const id = setInterval(() => setLeft(remainingMs(session.expiresAt)), 1000);
-    return () => clearInterval(id);
-  }, [session.expiresAt]);
-
-  const expired = left <= 0;
+  const expired = left !== null && left <= 0;
   /* Under five minutes the clock stops being ambient and starts being a
      warning. It is the same colour as the banner, so this is weight and not
      hue: the figure grows rather than turning red on orange, which would be
      unreadable and is the reason the accent never carries a second accent. */
-  const urgent = !expired && left <= 5 * 60 * 1000;
+  const urgent = left !== null && !expired && left <= 5 * 60 * 1000;
+  /* Doc 24 · D2. Offered only where the server will accept it: the last five
+     minutes, and fewer than two extensions so far. It was never offered at
+     all — the action existed and nothing called it. */
+  const extensionsLeft = MAX_EXTENSIONS - session.extensions;
+  const canExtend = left !== null && !expired && left <= EXTENSION_WINDOW_MS && extensionsLeft > 0;
+  const inside = pathname?.startsWith('/platform/inside') ?? false;
+
+  function extend() {
+    startExtend(async () => {
+      const result = await extendCurrentSupportSession();
+      if (result.ok) {
+        pushToast({
+          tone: 'attention',
+          title: 'Visit extended by thirty minutes',
+          description:
+            extensionsLeft - 1 > 0
+              ? 'Recorded in the customer’s log. One more extension is possible.'
+              : 'Recorded in the customer’s log. That was the last extension; after this, a new session.',
+        });
+        router.refresh();
+      } else {
+        pushToast({ tone: 'failure', title: 'Not extended', description: result.error });
+      }
+    });
+  }
 
   return (
     <div
@@ -72,7 +96,7 @@ export function SupportSessionBanner({
         flex: '0 0 auto',
         display: 'flex',
         alignItems: 'center',
-        gap: 'var(--space-5)',
+        gap: 'var(--space-3)',
         padding: '0 var(--space-4) 0 var(--space-5)',
         minHeight: 44,
         /* --orange-500, not --orange-400. The banner carries white text, and
@@ -86,11 +110,11 @@ export function SupportSessionBanner({
     >
       <span className="inline-flex shrink-0 items-center gap-2">
         <IconShieldLock size={16} stroke={1.5} aria-hidden />
-        <span className="t-eyebrow">Support session</span>
+        <span className="t-eyebrow hidden sm:inline">Support session</span>
       </span>
 
       <span className="t-body hidden shrink-0 sm:inline">
-        Read-only in <strong style={{ color: 'inherit' }}>{session.tenantName}</strong>
+        Inside <strong style={{ color: 'inherit' }}>{session.tenantName}</strong>
       </span>
 
       <span
@@ -124,10 +148,40 @@ export function SupportSessionBanner({
                 transition: 'font-size var(--duration-base) var(--ease-standard)',
               }}
             >
-              {format(left)}
+              {clock(left)}
             </span>
           </>
         )}
+
+        {!expired && !inside ? (
+          <Link
+            href="/platform/inside"
+            className="t-compact inline-flex items-center gap-1.5 rounded-panel px-3 transition-colors hover:bg-white/20"
+            style={{ height: 28, background: 'rgba(255,255,255,0.12)', color: 'var(--chrome-fg)' }}
+          >
+            <span className="max-sm:sr-only">Go inside</span>
+            <IconArrowRight size={14} stroke={1.5} aria-hidden />
+          </Link>
+        ) : null}
+
+        {canExtend ? (
+          <button
+            type="button"
+            disabled={extending}
+            onClick={extend}
+            className="t-compact inline-flex items-center gap-1.5 rounded-panel px-3 transition-colors hover:bg-white/20"
+            style={{
+              height: 28,
+              border: '1px solid rgba(255,255,255,0.55)',
+              background: 'rgba(255,255,255,0.12)',
+              color: 'var(--chrome-fg)',
+              opacity: extending ? 0.7 : 1,
+            }}
+          >
+            <IconClockPlus size={14} stroke={1.5} aria-hidden />
+            {extending ? 'Extending' : `Extend · ${extensionsLeft} left`}
+          </button>
+        ) : null}
 
         <button
           type="button"
@@ -143,7 +197,7 @@ export function SupportSessionBanner({
           }}
         >
           <IconLogout size={14} stroke={1.5} aria-hidden />
-          {pending ? 'Exiting' : 'Exit session'}
+          {pending ? 'Leaving' : 'Leave'}
         </button>
       </span>
     </div>

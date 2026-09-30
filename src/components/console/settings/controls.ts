@@ -45,7 +45,7 @@ export const ENFORCED_CONTROLS: readonly Control[] = [
     key: 'length',
     label: 'Support sessions end after thirty minutes',
     detail:
-      'Extending from the console starts a fresh thirty minutes and is recorded in the customer’s log like an entry. A session cannot extend itself from inside the workspace.',
+      'Extending opens in the last five minutes, at most twice, and each extension is recorded in the customer’s log. After that, a new session with a new reason. A session cannot extend itself from inside the workspace.',
     where: 'extendSupportSession · sessions_modify policy',
     value: '30 min',
   },

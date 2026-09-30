@@ -163,7 +163,8 @@ export function WorkspaceActions({
               setSessionOpen(false);
               pushToast({
                 title: `Support session started in ${workspace.name}`,
-                description: 'Read-only, expires in 30 minutes.',
+                description:
+                  'Thirty minutes, in their activity log, and the owner is emailed. Open it from Support sessions.',
                 tone: 'success',
               });
             }

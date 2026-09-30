@@ -85,3 +85,18 @@ create policy usage_counters_modify on usage_counters
     and app.current_role() in ('owner', 'admin', 'agent', 'support')
   )
   with check (tenant_id = app.current_tenant_id());
+
+-- ─── operators · doc 24 · D1 ────────────────────────────────────────────────
+-- The platform writes every row in these three tables — plan assignment,
+-- overrides, the metering it bills against — and the console reads them to
+-- say which plan a workspace is on and how close it is to its limits. Select
+-- only; see `tenants_select_operators` in 01_tenancy.sql for the line this
+-- draws and why it is drawn there.
+create policy subscriptions_select_operators on subscriptions
+  for select using (app.is_platform_admin());
+
+create policy subscription_overrides_select_operators on subscription_overrides
+  for select using (app.is_platform_admin());
+
+create policy usage_counters_select_operators on usage_counters
+  for select using (app.is_platform_admin());

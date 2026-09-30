@@ -98,6 +98,15 @@ const VOCABULARY: Record<string, AuditDescription> = {
   'support.exited': { label: 'Left a workspace', icon: IconDoorExit, tone: 'neutral' },
   'support.extended': { label: 'Support session extended', icon: IconDoorEnter, tone: 'warning' },
   'support.session_read': { label: 'Support record read', icon: IconEye, tone: 'neutral' },
+  'support.expired': { label: 'Support visit timed out', icon: IconDoorExit, tone: 'neutral' },
+  /* The accent on the register, and here the warning: the customer chose to
+     stop a visit, which is the one ending that tells us something. */
+  'support.ended_by_customer': {
+    label: 'Customer ended a support visit',
+    icon: IconDoorExit,
+    tone: 'warning',
+  },
+  'support.entry_refused': { label: 'Support entry refused', icon: IconLock, tone: 'danger' },
   'support.lock_engaged': { label: 'Support locked platform-wide', icon: IconLock, tone: 'danger' },
   'support.lock_released': { label: 'Support unlocked', icon: IconLockOpen, tone: 'success' },
   /* Reaches every workspace's customers, so not neutral. */

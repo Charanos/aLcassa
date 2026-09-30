@@ -20,7 +20,9 @@ import {
   type BreakGlassState,
   setTenantStatus,
   startSupportSession as mintSupportSession,
+  type StartedSupportSession,
 } from '@/modules/platform';
+import { sendEmail, supportSessionEmail } from '@/modules/email';
 import {
   getProvisionOptions,
   getWorkspaceDetail,
@@ -164,6 +166,15 @@ export async function startSupportSession(input: {
       maxAge: Math.floor(SUPPORT_SESSION_DURATION_MS / 1000),
     });
 
+    /**
+     * ⚠ THE CUSTOMER IS TOLD. Doc 24 · D3 · S0.5. The template was written for
+     * 10 §14 and never sent: a customer learned of a visit only by happening
+     * to be looking at the screen. It goes after the commit — an email cannot
+     * be rolled back — and a failure to send is logged, never raised: the
+     * session is real either way, and the customer's log already says so.
+     */
+    await notifyOwners(session, ctx.requestId);
+
     revalidatePath('/platform', 'layout');
     return { ok: true };
   } catch (error) {
@@ -190,16 +201,14 @@ export async function extendCurrentSupportSession(): Promise<StartSessionResult>
     if (!sessionId) return { ok: false, error: 'There is no support session to extend.' };
 
     const ctx = await currentPlatformSession();
-    const extended = await extendSupportSession(sessionId, {
+    /* Refusals — outside the last five minutes, past the second extension,
+       already over — arrive as AppErrors with the sentence to show. */
+    await extendSupportSession(sessionId, {
       userId: ctx.actorId,
       label: ctx.actorLabel,
       requestId: ctx.requestId,
       ipAddress: ctx.ipAddress,
     });
-
-    if (!extended) {
-      return { ok: false, error: 'That session has already ended. Switch in again to continue.' };
-    }
 
     (await cookies()).set(SUPPORT_SESSION_COOKIE, sessionId, {
       ...COOKIE_BASE,
@@ -254,6 +263,55 @@ export async function endSupportSession(): Promise<void> {
 
   (await cookies()).delete(SUPPORT_SESSION_COOKIE);
   revalidatePath('/platform', 'layout');
+}
+
+export type EndSessionResult =
+  { ok: true; ended: boolean; endReason?: 'operator' | 'colleague' } | { ok: false; error: string };
+
+/**
+ * End any open support session from the register — yours, or a colleague's.
+ * Doc 24 · D5. A colleague's ending is recorded as such in both logs, naming
+ * both people. If it is your own, the cookie goes too.
+ */
+export async function endSupportSessionById(sessionId: string): Promise<EndSessionResult> {
+  try {
+    const ctx = await currentPlatformSession();
+    const result = await revokeSupportSession(sessionId, {
+      userId: ctx.actorId,
+      label: ctx.actorLabel,
+      requestId: ctx.requestId,
+      ipAddress: ctx.ipAddress,
+    });
+    if ((await resolveSupportSessionId()) === sessionId) {
+      (await cookies()).delete(SUPPORT_SESSION_COOKIE);
+    }
+    revalidatePath('/platform', 'layout');
+    return result
+      ? { ok: true, ended: true, endReason: result.endReason }
+      : { ok: true, ended: false };
+  } catch (error) {
+    if (isAppError(error)) return { ok: false, error: error.message };
+    logger.error('support session could not be ended', { sessionId, error });
+    return { ok: false, error: 'The session could not be ended. It still expires on its own.' };
+  }
+}
+
+async function notifyOwners(session: StartedSupportSession, requestId: string): Promise<void> {
+  if (session.notify.length === 0) return;
+  const base = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/+$/, '') ?? 'http://localhost:3000';
+  const template = supportSessionEmail({
+    platformAdminName: session.platformAdminName,
+    companyName: session.tenantName,
+    reason: session.reason,
+    activityUrl: `${base}/app/settings/audit`,
+  });
+  await Promise.all(
+    session.notify.map((to) =>
+      sendEmail({ to, template, requestId }).catch((error: unknown) => {
+        logger.error('support session email could not be sent', { error, requestId });
+      }),
+    ),
+  );
 }
 
 /**
