@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconBuilding, IconCreditCard, IconShieldCheck, IconUsers } from '@tabler/icons-react';
 import {
   ConsoleHeader,
@@ -22,21 +22,7 @@ import {
 
 export const metadata: Metadata = { title: 'Inside a workspace' };
 
-/**
- * INSIDE A CUSTOMER'S WORKSPACE. Doc 24 · Stage 3.
- *
- * ⚠ THE PAGE THAT MAKES A SUPPORT SESSION A SUPPORT SESSION. Until now a
- * session opened no view: it was a record and a countdown. This renders the
- * customer's workspace through the support door (`resolveSupportContext`) —
- * the SAME read models their own staff's pages use, run as role `support`
- * under the workspace's own row-level security. Nothing here is a
- * console-only query with wider reach; if the customer's staff could not see
- * it, neither can the operator.
- *
- * A revoked or lapsed visit resolves no context, so this page shows nothing
- * of the customer's the moment the visit ends — including when the customer
- * ends it themselves.
- */
+/** Support reads reuse tenant models and RLS; an expired or revoked visit resolves no customer context. */
 export default async function InsidePage() {
   const sessionId = await resolveSupportSessionId();
   const ctx = sessionId ? await resolveSupportContext(sessionId) : null;

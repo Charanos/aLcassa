@@ -22,20 +22,7 @@ export default async function InvitePage({
   const { token } = await params;
   const { state: stateParam } = await searchParams;
 
-  /**
-   * ⚠ THE INVITATION IS READ HERE, NOT TRUSTED FROM `?state=`.
-   *
-   * The three refusal screens below used to be driven entirely by a query
-   * parameter, which is fine for reviewing a design and wrong the moment the
-   * page is real: anyone could append `?state=accepted` to a live invitation
-   * and be told it was already used, and — worse — a genuinely expired
-   * invitation with no parameter would render the accept form as though it
-   * still worked.
-   *
-   * `readInvitation` looks the token up by hash and returns the workspace,
-   * the role and the true state. The parameter is still honoured when the
-   * lookup finds nothing, so the designed screens remain reachable for review.
-   */
+  /** Invitation status comes from the token hash lookup; query-string states are limited to demo review. */
   const invitation = await readInvitationByToken(token, crypto.randomUUID());
 
   // 'pending' is a state the refusal screens must NOT render, so it collapses

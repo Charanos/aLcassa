@@ -147,12 +147,15 @@ pnpm dev
 | `pnpm test:cache-disabled` | The whole suite with the cache off                         |
 | `pnpm db:generate`         | Generate a migration from the schema                       |
 | `pnpm db:migrate`          | Apply migrations                                           |
+| `pnpm check:deployment`    | Read-only release schema and application-role check        |
 | `pnpm db:seed`             | Seed plans, tenants and the platform admin                 |
 | `pnpm verify`              | Everything CI runs, locally                                |
 
 ---
 
 ## Reading order
+
+Before publishing a release, run `pnpm check:deployment` with that environment's database settings. It compares the migration journal and every application column with the release and refuses an application role that bypasses RLS. Apply reviewed pending migrations through `pnpm db:migrate`, then repeat the check. A passing CI database does not prove that the production database has been upgraded. This check does not alter records or replace authenticated deployment smoke tests.
 
 Nine documents, in `project-docs/`, also readable at `/docs`.
 

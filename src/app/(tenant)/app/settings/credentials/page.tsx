@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { PageHeader } from '@/components/structure/PageHeader';
 import { Button } from '@/components/primitives/Button';
 import { LimitBar } from '@/components/domain/LimitBar';

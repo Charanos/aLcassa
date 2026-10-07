@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconTile } from '@/components/primitives/IconTile';
 import { StatusBadge } from '@/components/primitives/StatusBadge';
 import {

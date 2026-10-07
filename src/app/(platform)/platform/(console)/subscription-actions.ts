@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { currentPlatformSession } from '@/lib/auth/resolve';
-import { isAppError } from '@/lib/errors';
+import { AppError, ERROR_CODES, isAppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import {
   assignPlan,
@@ -15,40 +15,13 @@ import {
 import type { EntitlementKey } from '@/modules/entitlements';
 import type { SubscriptionStatus } from '@/modules/subscriptions';
 
-/**
- * 08 §9. THE CONSOLE'S SUBSCRIPTION CONTROLS.
- *
- * ⚠ A SEPARATE FILE FROM `actions.ts`, AND NOT FOR TIDINESS.
- *
- * Every action here reaches an operation that bypasses Row Level Security.
- * `actions.ts` is a mix of interface preferences and honest refusals, and a
- * reviewer scanning it for "what can actually write across tenants" should
- * not have to read past `setDensity` to find out. One file, one privilege
- * level, so the answer to "what in the console can act on another tenant's
- * record" is a directory listing.
- *
- * ⚠ EVERY ONE OF THEM RESOLVES THE PLATFORM SESSION ITSELF.
- *
- * A Server Action is a public endpoint with a generated name — it is not
- * protected by the page that imports it, and anybody who can reach the
- * application can post to it. So the actor is resolved here, from the
- * platform cookie, on every call. `currentPlatformSession` throws unless the
- * caller holds a live platform session AND a `platform_admins` row, which is
- * the same check the console pages make.
- */
+/** Every privileged subscription action resolves a live platform session independently of the importing page. */
 
 type ActionResult<T = undefined> =
   | ({ ok: true } & (T extends undefined ? { data?: never } : { data: T }))
   | { ok: false; error: string };
 
-/**
- * Turns an AppError into a sentence and anything else into a shrug.
- *
- * Same discipline as the tenant actions: a rejection here is shown to a
- * person, so an unrecognised failure must not put a constraint name in front
- * of them. What differs is the audience — this one is Brian, so the generic
- * message says to check the platform log rather than to get in touch.
- */
+/** Return expected domain messages; log unexpected errors and show a generic refusal. */
 async function attempt<T>(
   operation: (actor: PlatformActor) => Promise<T>,
 ): Promise<ActionResult<T>> {
@@ -71,16 +44,7 @@ async function attempt<T>(
   }
 }
 
-/**
- * 08 §9 · design sheet 05. What a plan change would do, before it is made.
- *
- * ⚠ THIS IS A READ, AND IT IS STILL AUDITED.
- *
- * It reads one tenant's usage from outside any tenant context, which is a
- * service-role call whatever its verb. An unaudited cross-tenant read is
- * exactly the thing `06 §7` exists to prevent, and "it was only a preview" is
- * not a distinction the audit log should be asked to make.
- */
+/** Cross-tenant allowance previews are audited reads and must precede assignment. */
 export async function previewWorkspacePlanChange(input: {
   tenantId: string;
   planCode: string;
@@ -100,8 +64,14 @@ export async function assignWorkspacePlan(input: {
   planCode: string;
   reason: string;
   contractAmount?: number | null;
+  expectedPreview: string;
 }): Promise<ActionResult<{ planCode: string; status: SubscriptionStatus }>> {
   return attempt(async (actor) => {
+    if (!/^[a-f0-9]{64}$/.test(input.expectedPreview ?? '')) {
+      throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+        message: 'Choose a plan and review its allowances before confirming.',
+      });
+    }
     const result = await assignPlan(input, actor);
     revalidatePath('/platform/tenants');
     revalidatePath('/platform/plans');

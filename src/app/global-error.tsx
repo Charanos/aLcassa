@@ -1,16 +1,6 @@
 'use client';
 
-/**
- * THE LAST-RESORT BOUNDARY. Catches a failure in the ROOT LAYOUT itself,
- * which `error.tsx` cannot: that file renders INSIDE the layout, so if the
- * layout is what throws, `error.tsx` never mounts either. Next requires this
- * file to bring its own `<html>` and `<body>`, because at this point nothing
- * from the normal tree, including the token stylesheet, is a safe assumption.
- *
- * System fonts and inline styles only, deliberately not `@/app/globals.css`.
- * A last-resort screen that itself depends on the thing that might have
- * failed to load is not a last resort.
- */
+/** The root-layout fallback supplies its own document, fonts and styles because the normal layout may be unavailable. */
 export default function GlobalError({
   reset,
 }: {

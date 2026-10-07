@@ -4,24 +4,10 @@ import {
   SkeletonGroup,
   SkeletonHeader,
   SkeletonRibbon,
-  SkeletonTable,
+  SkeletonBar,
 } from '@/components/primitives/Skeleton';
 
-/**
- * Workspaces, loading.
- *
- * ⚠ IT DREW FOUR LIGHT TILES WHERE THE SCREEN HAS A DARK RIBBON, AND NO FILTER
- *   BAR AT ALL.
- *
- * Two separate failures of 03 §15's "identical dimensions" rule. The ribbon is
- * the inverted slab — four stats on near-black — so the swap flashed the top
- * third of the viewport from near-white to near-black. And the filter bar,
- * about 56px of search box and chips, simply was not drawn, so everything below
- * it jumped up by that much the moment the data landed.
- *
- * The rows were the third: `SkeletonRow` draws free-standing cards, and this
- * screen renders a table inside one rounded container.
- */
+/** Match the default grid, retaining its KPI and filter positions. */
 export default function TenantsLoading() {
   return (
     <ConsolePage>
@@ -29,7 +15,24 @@ export default function TenantsLoading() {
         <SkeletonHeader withAction />
         <SkeletonRibbon />
         <SkeletonFilterBar />
-        <SkeletonTable rows={8} columns={5} />
+        <div aria-hidden className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="min-w-0 rounded-card border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 sm:p-6"
+            >
+              <SkeletonBar width="72%" height={18} />
+              <SkeletonBar width="54%" height={12} className="mt-3" />
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                <SkeletonBar height={74} radius="rounded-panel" />
+                <SkeletonBar height={74} radius="rounded-panel" />
+              </div>
+              <div className="mt-6 border-t border-[var(--border-subtle)] pt-4">
+                <SkeletonBar width="52%" height={20} />
+              </div>
+            </div>
+          ))}
+        </div>
       </SkeletonGroup>
     </ConsolePage>
   );

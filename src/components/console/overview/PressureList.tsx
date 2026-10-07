@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconCircleCheck } from '@tabler/icons-react';
 import { PRESSURE_THRESHOLD, type PressureRow } from '@/lib/console/data';
 import { BandLink } from './shared';

@@ -1,23 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Button } from '@/components/primitives/Button';
 
-/**
- * 03 §16 · sheet 12 "Whole page failures." The console's own route-group
- * boundary — `src/app/error.tsx` catches everything outside `/platform`, but
- * a failure in here should not read as the marketing site going down. The
- * chrome (`ConsoleShell`, the sidebar, the header) is the layout ABOVE this
- * boundary and keeps rendering; only the page content beneath it is replaced.
- *
- * Sheet 12's rule for a whole-page failure: name the request id, state what
- * happened, and do not blame the reader. Primary action retries the render;
- * secondary returns to Overview rather than signing out or leaving the
- * console entirely, since an operator mid-task should not lose their place
- * over one broken screen.
- */
+/** Keep the console shell mounted during page failures; provide retry, overview navigation and a request reference. */
 export default function ConsoleError({
   error,
   reset,
@@ -75,7 +63,7 @@ export default function ConsoleError({
             className="relative mt-2.5 text-base leading-relaxed"
             style={{ color: 'var(--text-secondary)' }}
           >
-            We have logged it. Nobody caused this, and the rest of the console is unaffected.
+            Try again. If the problem continues, share the reference below with support.
           </p>
 
           {error.digest ? (

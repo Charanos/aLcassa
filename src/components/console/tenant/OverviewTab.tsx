@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconCreditCard, IconArmchair, IconKey, IconUsers } from '@tabler/icons-react';
 import { FactCell, FactStrip } from '@/components/console/FactStrip';
 import { Panel, SectionHeading } from '@/components/console/Surface';

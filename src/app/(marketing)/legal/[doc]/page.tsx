@@ -4,27 +4,7 @@ import { notFound } from 'next/navigation';
 import { IconArrowLeft, IconFileText } from '@tabler/icons-react';
 import { Wordmark } from '@/components/brand/Mark';
 
-/**
- * IA §3 lists `/legal/*` among the public routes. It has never existed, and
- * three places link into it: the marketing footer, the auth shell's footer on
- * every access page, and — the one that matters — the consent line under the
- * sign-up button, which asks the reader to agree to documents that returned
- * 404.
- *
- * ⚠ THESE PAGES DO NOT CONTAIN TERMS, AND THAT IS DELIBERATE. A Terms of
- * Service and a Privacy Notice are binding instruments for a real Kenyan
- * company handling real customer messages under the Data Protection Act 2019.
- * Inventing plausible-sounding clauses would be worse than the 404 it
- * replaces: a 404 is visibly broken, whereas fabricated terms look
- * authoritative, would be relied on by readers, and would have to be
- * un-published once counsel saw them.
- *
- * So each page states plainly that the document is not yet published, names
- * what it will cover so the scaffold is useful to whoever drafts it, and
- * gives a real route to a human. The consent line on `/sign-up` should not
- * claim agreement to an unpublished document — that is flagged for the
- * client, and is a copy decision rather than one to make here.
- */
+/** Legal routes remain placeholders until approved terms and privacy documents are supplied. */
 
 type LegalDoc = {
   slug: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { IconAlertTriangle, IconSettings, IconUsers } from '@tabler/icons-react';
 import {
   changePlanLimit,
@@ -11,32 +11,7 @@ import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitive
 import { useToast } from '@/components/primitives/Toast';
 import type { HeadroomRow } from '@/lib/console/data';
 
-/**
- * Move a ceiling on the plan catalogue.
- *
- * ⚠ THIS BUTTON WAS DISABLED WITH A CORRECT EXPLANATION AND NO WAY TO ACT ON
- *   IT. The tooltip-turned-paragraph read: *"Limits are a property of the plan,
- *   so changing one here would change what every workspace on it is entitled
- *   to. To lift a ceiling for a single customer, grant an override on that
- *   workspace instead."*
- *
- * Both sentences are true. Neither is a reason the platform owner cannot change
- * his own price list — they are a reason the control must SAY which of the two
- * things it does, and then count the consequence. It does: the dialog names the
- * plan, the number of workspaces on it, and how many are already above the
- * proposed ceiling.
- *
- * ⚠ THE STRANDED COUNT IS THE FIGURE THE DECISION TURNS ON, and it is read
- * from the database when the value changes rather than estimated here. Dropping
- * seats from 25 to 10 is housekeeping if nobody is over 10 and a support
- * incident if four workspaces are — and the headroom bars above cannot answer
- * that, because a median and a maximum are not a count against a number the
- * operator has just typed.
- *
- * ⚠ NO `entitlementId`, NO CONTROL. The designed fixture has no row to write
- * to; rendering an edit button over invented numbers would be worse than the
- * disabled one it replaces.
- */
+/** Review catalogue-wide allowances before committing; workspace overrides remain effective. */
 export function LimitEditor({
   row,
   planName,
@@ -44,12 +19,7 @@ export function LimitEditor({
 }: {
   row: HeadroomRow;
   planName: string;
-  /**
-   * `button` is the footer pill that replaced the dead "Manage limits".
-   * `inline` is the per-row control inside the expanded card, which is where
-   * the edit actually belongs — a footer button can only ever act on one row,
-   * and which row that is was never something the reader chose.
-   */
+  /** Place the control in a card footer or beside its allowance row. */
   variant?: 'button' | 'inline';
 }) {
   const pushToast = useToast();
@@ -61,37 +31,53 @@ export function LimitEditor({
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const previewSequence = useRef(0);
 
   if (!row.entitlementId) return null;
   const entitlementId = row.entitlementId;
 
-  const parsed = unlimited ? null : Number.parseInt(value, 10);
-  const valid = unlimited || (Number.isInteger(parsed) && (parsed as number) >= 1);
+  const parsed = unlimited ? null : Number(value);
+  const valid =
+    unlimited ||
+    (value.trim().length > 0 && Number.isSafeInteger(parsed) && (parsed as number) >= 0);
   const changedFrom = valid && parsed !== row.limit;
-  const ready = changedFrom && reason.trim().length >= 8;
+  const ready = changedFrom && reason.trim().length >= 8 && impact?.to === parsed && !checking;
 
-  /* The preview runs when the VALUE settles, not on confirm — so the stranded
-     count is on screen while the operator is still deciding, which is the only
-     moment it can change their mind. Same call `SubscriptionControls` makes. */
+  /* Require a preview for the selected value; discard earlier requests. */
   function check(next: number | null) {
+    const sequence = ++previewSequence.current;
+    setImpact(null);
+    setError(null);
+    setChecking(false);
+    if (next !== null && (!Number.isSafeInteger(next) || next < 0)) return;
     if (next === row.limit) {
       setImpact(null);
       return;
     }
     setChecking(true);
-    void previewPlanLimit({ entitlementId, to: next }).then((r) => {
-      setChecking(false);
-      if (r.ok) setImpact(r.impact);
-    });
+    void previewPlanLimit({ entitlementId, to: next })
+      .then((r) => {
+        if (sequence !== previewSequence.current) return;
+        setChecking(false);
+        if (r.ok) setImpact(r.impact);
+        else setError(r.error);
+      })
+      .catch(() => {
+        if (sequence !== previewSequence.current) return;
+        setChecking(false);
+        setError('The impact could not be checked. Try again.');
+      });
   }
 
   function submit() {
+    if (!ready || !impact) return;
     setError(null);
     startTransition(async () => {
       const result = await changePlanLimit({
         entitlementId,
         to: unlimited ? null : parsed,
         reason,
+        expectedPreview: impact.fingerprint,
       });
       if (result.ok) {
         setOpen(false);
@@ -107,6 +93,7 @@ export function LimitEditor({
         });
       } else {
         setError(result.error);
+        setImpact(null);
       }
     });
   }
@@ -114,11 +101,16 @@ export function LimitEditor({
   return (
     <>
       <button
+        aria-label={`Edit ${planName} ${row.label} allowance`}
         type="button"
         onClick={(e) => {
           e.stopPropagation();
           setError(null);
           setImpact(null);
+          previewSequence.current += 1;
+          setChecking(false);
+          setValue(row.limit === null ? '' : String(row.limit));
+          setUnlimited(row.limit === null);
           setOpen(true);
         }}
         className={
@@ -158,13 +150,12 @@ export function LimitEditor({
         facts={
           <>
             <DialogFact icon={IconUsers}>
-              Nobody is removed. A workspace already above the new number <em>keeps what it has</em>{' '}
-              and cannot add more.
+              Existing records stay in place. The new allowance applies to every workspace on this
+              plan.
             </DialogFact>
             <DialogFact icon={IconAlertTriangle}>
-              The count below is read from the database when the value changes, not estimated — the
-              bars on the card behind this show a median and a maximum, which are not a count
-              against a number you just typed.
+              Impact uses the latest recorded workspace usage. Workspaces without a recorded counter
+              are listed separately.
             </DialogFact>
           </>
         }
@@ -182,20 +173,26 @@ export function LimitEditor({
       >
         <div className="grid gap-5">
           <div className="grid gap-4 sm:grid-cols-[200px_minmax(0,1fr)] sm:items-start">
-            <label className="block">
+            <div className="block">
               <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
                 New limit
               </span>
               <div className="flex items-center gap-2.5">
                 <input
                   type="number"
-                  min={1}
+                  aria-label="New limit"
+                  min={0}
                   value={value}
                   disabled={unlimited}
-                  onChange={(e) => setValue(e.target.value)}
+                  onChange={(e) => {
+                    setValue(e.target.value);
+                    previewSequence.current += 1;
+                    setImpact(null);
+                    setChecking(false);
+                  }}
                   onBlur={() => {
-                    const n = Number.parseInt(value, 10);
-                    if (Number.isInteger(n) && n >= 1) check(n);
+                    const n = Number(value);
+                    if (value.trim() && Number.isSafeInteger(n) && n >= 0) check(n);
                   }}
                   className="t-body w-[110px] rounded-chip px-3 outline-none"
                   style={{
@@ -222,18 +219,14 @@ export function LimitEditor({
                   checked={unlimited}
                   onChange={(e) => {
                     setUnlimited(e.target.checked);
-                    check(e.target.checked ? null : Number.parseInt(value, 10));
+                    check(e.target.checked ? null : value.trim() ? Number(value) : Number.NaN);
                   }}
                 />
                 Unlimited
               </label>
-            </label>
+            </div>
 
-            {/*
-              ⚠ THE IMPACT PANEL RESERVES ITS HEIGHT. It used to appear and
-              disappear as the preview resolved, which moved the reason field
-              up and down under the operator's cursor while they typed into it.
-            */}
+            {/* Reserve preview space so asynchronous reads do not move the reason field. */}
             <div
               className="grid gap-2 rounded-panel px-4 py-3.5"
               style={{ background: 'var(--surface-sunken)', minHeight: 104 }}
@@ -273,13 +266,38 @@ export function LimitEditor({
                     </span>
                   ) : (
                     <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
-                      None is above the new ceiling.
+                      {impact.unmeasured > 0
+                        ? 'No recorded usage exceeds the new allowance.'
+                        : 'Current usage fits the effective allowances.'}
                     </span>
                   )}
+                  {impact.unmeasured > 0 ? (
+                    <span className="t-compact" style={{ color: 'var(--text-secondary)' }}>
+                      Usage is unavailable for {impact.unmeasured}{' '}
+                      {impact.unmeasured === 1 ? 'workspace' : 'workspaces'}. Review these before
+                      lowering the allowance.
+                    </span>
+                  ) : null}
+                  {impact.overridden > 0 ? (
+                    <span className="t-caption" style={{ color: 'var(--text-secondary)' }}>
+                      {impact.overridden}{' '}
+                      {impact.overridden === 1 ? 'workspace has' : 'workspaces have'} an active
+                      override that remains in effect.
+                    </span>
+                  ) : null}
                 </>
               ) : (
                 <span className="t-compact" style={{ color: 'var(--text-tertiary)' }}>
                   Enter a limit to see what it would affect.
+                  {changedFrom ? (
+                    <button
+                      type="button"
+                      onClick={() => check(parsed)}
+                      className="ml-2 underline underline-offset-4"
+                    >
+                      Review current impact
+                    </button>
+                  ) : null}
                 </span>
               )}
             </div>
@@ -289,7 +307,7 @@ export function LimitEditor({
             <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
               Why{' '}
               <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>
-                · required, and it goes in the platform log
+                · required, recorded in platform and customer activity
               </span>
             </span>
             <input

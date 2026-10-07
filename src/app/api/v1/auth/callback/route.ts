@@ -5,6 +5,7 @@ import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/s
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
 import { logger } from '@/lib/logger';
+import { safeReturnPath } from '@/lib/auth/returnPath';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
-    const next = url.searchParams.get('next') ?? '/app';
+    const next = safeReturnPath(url.searchParams.get('next'), '/app');
 
     if (!code) {
       log.warn('No code provided in OAuth callback');

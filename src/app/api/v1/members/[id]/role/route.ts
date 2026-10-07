@@ -4,17 +4,7 @@ import { changeMemberRole } from '@/modules/membership';
 import { defineRoute } from '@/lib/http/pipeline';
 import { jsonOk } from '@/lib/http/response';
 
-/**
- * 07 §5 · `PATCH /v1/members/:id/role`. Owner only.
- * "Rejects `member.last_owner`."
- *
- * The role enum here deliberately EXCLUDES `owner`. A workspace has exactly
- * one owner (06 §5), so promotion is not a role change — it is a transfer,
- * which demotes the incumbent in the same transaction and lives at
- * `/v1/tenant/transfer-ownership`. Leaving `owner` in this enum and rejecting
- * it in the service would work, but it would mean the API's own contract
- * advertised an operation that always fails.
- */
+/** Owner promotion uses the atomic ownership-transfer operation, not an ordinary role update. */
 export const PATCH = defineRoute({
   door: 'session',
   resolve: resolveSessionDoor,

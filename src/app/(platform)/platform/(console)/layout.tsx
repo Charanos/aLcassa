@@ -15,17 +15,7 @@ import { getLiveIsolationStatus } from '@/lib/console/live';
 import { getLiveConsoleChrome } from '@/lib/console/liveChrome';
 import { endSupportSession, startSupportSession } from './actions';
 
-/**
- * 02 §6 · 09 §1. The platform console. Brian's workspace, and the one interface
- * in this system built for a person who will live in it.
- *
- * This layout is a SERVER component and stays one. It reads the things that
- * have to be known before the first byte — chrome geometry, whether a support
- * session is open, and the isolation state the sidebar reports — and hands
- * them to the client shell as data. `children` passes straight through, so
- * every console page underneath remains server-rendered despite the shell
- * being interactive.
- */
+/** Resolve chrome, support state and isolation on the server; pass interactive shell data without converting child pages to client components. */
 
 export const metadata: Metadata = {
   title: { default: 'Platform', template: '%s · Platform · aLcassa' },
@@ -63,27 +53,7 @@ const navigation: ConsoleNavGroup[] = [
   },
 ];
 
-/*
- * ⚠ THESE ARE NOW THE FALLBACK, NOT THE SOURCE — EXCEPT `notices`.
- *
- * `workspaces` and `account` are served live by `getLiveConsoleChrome()`
- * below and these literals render only when there is no platform session,
- * which in practice means the review deployment's demo cookie. The switcher
- * needed it most: it lists workspaces to SWITCH INTO, so a fixture there was
- * offering a door to somewhere that does not exist.
- *
- *   workspaces →  live: recent tenants joined to their plan. DONE.
- *   account    →  live: the resolved platform admin. DONE.
- *   notices    →  a platform notifications query, ONCE THAT TABLE EXISTS.
- *                 It does not. There is no notifications table anywhere in
- *                 `src/db/schema`, which is also why the bell's "Mark all
- *                 read" control was removed rather than wired — there is no
- *                 read flag to set. This is the last fixture in the shell.
- *
- * They are deliberately NOT faked deeper in the component tree. Keeping the
- * fixtures at the boundary means the shell below has never seen anything but
- * its real prop shape, so it cannot grow a dependency on mock-only fields.
- */
+/* Demo fixtures supply workspaces and account details only without a platform session; notification storage is not implemented. */
 
 const workspaces: ConsoleWorkspace[] = [
   {
@@ -177,34 +147,8 @@ export default async function PlatformLayout({ children }: { children: React.Rea
   }
   const isolation = live ?? (await getIsolationStatus());
 
-  /*
-   * ⚠ TWO OF THE THREE FIXTURES ABOVE ARE NOW A FALLBACK RATHER THAN THE
-   * SOURCE. `getLiveConsoleChrome` returns the real switcher list and the
-   * real signed-in admin, or `null` when there is no platform session — the
-   * review deployment's demo cookie — in which case the designed values below
-   * still render and nothing breaks. Same contract as `getLiveIsolationStatus`
-   * directly above.
-   *
-   * `notices` has no live form and stays a literal: there is no notifications
-   * table in the schema to query. It is the last fixture in this shell.
-   */
-  /**
-   * ⚠ `??` WAS THE WRONG OPERATOR FOR THE SWITCHER, AND THE BUG ONLY APPEARED
-   * ONCE THE READER STARTED WORKING.
-   *
-   * An empty array is not nullish, so the moment `getLiveConsoleChrome` returned
-   * `{ workspaces: [], … }` the fallback stopped firing and the switcher went
-   * blank. And it returns empty for a structural reason rather than an
-   * incidental one: the workspace list is a CROSS-TENANT read, `tenants_select`
-   * admits only rows the reader is a member of, and a platform admin is a member
-   * of none. That is the isolation guarantee, not a fault — the sanctioned path
-   * for this list is `asService`, recorded in 21 §2.
-   *
-   * Until then: a length check rather than a null check, so an empty live answer
-   * falls back to the designed list instead of offering a menu with no doors in
-   * it. The ACCOUNT half is genuinely live now, because it reads the operator's
-   * own rows under their own actor context.
-   */
+  /* Resolve live shell identity and workspace options; keep unavailable notification data distinct from authenticated records. */
+  /** Keep a genuinely empty live workspace list empty; fixture fallback applies only to demo mode. */
   const switcherWorkspaces = liveChrome?.workspaces ?? workspaces;
   const signedInAccount = liveChrome?.account ?? account;
 

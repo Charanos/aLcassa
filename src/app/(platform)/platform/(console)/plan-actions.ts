@@ -6,15 +6,7 @@ import { isAppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import { previewPlanLimitChange, setPlanLimit, type PlanLimitImpact } from '@/modules/platform';
 
-/**
- * The plan catalogue's ceilings, as the console changes them. 08 §2.
- *
- * ⚠ THE PREVIEW IS A SEPARATE ACTION AND RUNS BEFORE THE CONFIRM IS REACHABLE.
- * Same call `SubscriptionControls` makes for a plan change: the figure that
- * decides whether this is safe — how many workspaces are already above the
- * proposed ceiling — cannot be computed on the client and must not be
- * discovered afterwards.
- */
+/** Read the affected-workspace preview before confirming a plan-limit change. */
 
 export type PlanActionResult = { ok: true; impact: PlanLimitImpact } | { ok: false; error: string };
 
@@ -46,6 +38,7 @@ export async function changePlanLimit(input: {
   entitlementId: string;
   to: number | null;
   reason: string;
+  expectedPreview: string;
 }): Promise<PlanActionResult> {
   try {
     const ctx = await currentPlatformSession();

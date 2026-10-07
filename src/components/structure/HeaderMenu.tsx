@@ -78,7 +78,7 @@ export function HeaderMenuItem({
   tone = 'default',
 }: {
   children: React.ReactNode;
-  onSelect?: () => void;
+  onSelect?: (event: Event) => void;
   asChild?: boolean;
   /** `danger` is for sign-out and nothing else — 03 §14, oxide refuses. */
   tone?: 'default' | 'danger';

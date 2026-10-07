@@ -6,40 +6,11 @@ import { withoutTenantContext } from '@/lib/db';
 import { closeLapsedSupportSessions } from '@/modules/platform';
 import { logger } from '@/lib/logger';
 
-/**
- * 08 §3 · 04 ADR-007. THE NIGHTLY USAGE RECONCILIATION, AS A ROUTE.
- *
- * ADR-007 notes the consequence of the serverless model plainly: "anything
- * scheduled runs as a Vercel cron hitting a route". `scripts/reconcile-usage.ts`
- * is the same logic for a human at a terminal; this is the same logic for the
- * scheduler, and both report rather than repair.
- *
- * ⚠ IT REPORTS AND NEVER CORRECTS, WHICH IS THE ENTIRE POINT.
- *
- * 08 §3: "alerts on divergence rather than silently correcting it. Silent
- * correction hides the bug that caused the drift." A nightly job that quietly
- * fixed the numbers would make the underlying defect invisible and permanent —
- * the symptom disappears at 3am and nobody ever sees the pattern. Repair is
- * the CLI, deliberately, because it requires a named platform admin and a
- * stated reason and neither is available to a scheduler.
- *
- * ⚠ IT IS AUTHENTICATED BY A SHARED SECRET, NOT BY A SESSION.
- *
- * A cron has no user. Vercel sends `Authorization: Bearer $CRON_SECRET` on
- * scheduled invocations, and this refuses anything else — otherwise it is an
- * unauthenticated endpoint that enumerates every workspace's usage.
- */
+/** Scheduled reconciliation reports usage drift without silently modifying counters. */
 
 export const dynamic = 'force-dynamic';
 
-/**
- * ⚠ CONSTANT TIME, AND NOT BECAUSE THE THREAT IS LIKELY.
- *
- * A plain `===` on a secret leaks its length and prefix to anyone willing to
- * measure. The comparison costs nothing to do correctly, and getting it wrong
- * in the one place a shared secret is checked is the sort of thing a security
- * review finds and reasonably asks about.
- */
+/** Compare the scheduler secret in constant time. */
 function secretMatches(provided: string, expected: string): boolean {
   const a = Buffer.from(provided);
   const b = Buffer.from(expected);
@@ -107,21 +78,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 type Drift = { tenant: string; key: string; stored: number; actual: number };
 
-/**
- * ⚠ THE COUNTER DEFINITIONS ARE THE SPECIFICATION, AND `seats` IS THE ONE
- *   MOST EASILY GOT WRONG.
- *
- * 08 §2: seats counts "active members PLUS pending invitations", because
- * otherwise a tenant on five seats sends fifty invitations and exceeds the
- * limit the moment they are accepted. A reconciliation counting only members
- * would report drift on every tenant with an outstanding invitation, nightly,
- * and look like it was working.
- *
- * Only `seats` is checked here. The CLI covers `api_keys` and
- * `ai_rules_versions` too, and both of those source tables are empty until M5
- * and M4a — a nightly job comparing zero to zero is noise. When those modules
- * land, the definitions move here alongside this one.
- */
+/** Seat usage includes active members and pending invitations; source definitions determine reconciliation coverage. */
 async function findDrift(): Promise<Drift[]> {
   return withoutTenantContext('cron-reconcile', async (tx) => {
     const rows = await tx

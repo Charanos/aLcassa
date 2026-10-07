@@ -10,19 +10,7 @@ import { startSupportSession } from '../actions';
 
 export const metadata: Metadata = { title: 'Workspaces' };
 
-/**
- * The workspace list. `Workspaces.dc.html`.
- *
- * Server component: it reads the rows, then hands them to a client table that
- * owns filtering, sorting and the support-session gate. The filtering is
- * client-side deliberately — at 47 workspaces a round trip per keystroke would
- * be slower and worse than filtering an array, and this list is bounded by how
- * many customers the business has rather than by anything unbounded.
- *
- * That decision has a stated reversal point: past roughly a thousand rows the
- * filter moves into the query and the table takes a `searchParams` prop. It is
- * noted here rather than discovered later.
- */
+/** The server supplies directory rows; the client owns filtering, sorting and the support-entry dialog. */
 export default async function WorkspacesPage() {
   /**
    * Live first, designed fixture second — the pattern every other wired
@@ -62,18 +50,7 @@ export default async function WorkspacesPage() {
         }
       />
 
-      {/*
-        ⚠ THE STANDFIRST DOES THE WORK. Sheet 05: "the count that implies work
-        is in the sentence, not only in a card, and the phrase that names it is
-        ochre."
-
-        A metric tile saying "3" is a number an operator has to interpret. A
-        sentence saying "3 need attention" is the interpretation, and it is the
-        first thing on the page. The ochre is doing semantic work rather than
-        decoration: it is the same hue the meters and the filter chip use for
-        "at a ceiling", so the sentence, the chip and the rows all name the
-        same condition in the same colour.
-      */}
+      {/* Use the same attention condition and warning tone in the summary, filter and directory rows. */}
       <p className="t-body -mt-3 mb-6" style={{ color: 'var(--text-secondary)', maxWidth: '62ch' }}>
         <span className="numeric" style={{ color: 'var(--text-primary)' }}>
           {rows.length}

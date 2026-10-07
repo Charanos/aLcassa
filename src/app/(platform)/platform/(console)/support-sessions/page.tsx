@@ -32,23 +32,7 @@ const OUTCOMES: VisitOutcome[] = [
   'break_glass',
 ];
 
-/**
- * The support register. Doc 24.
- *
- * The question it answers: who is inside which customer right now, why, and
- * what did each visit cost the customer?
- *
- * ⚠ IT READ NOTHING AND SAID SO CONFIDENTLY. "0 open · 0 recorded · 0 ended by
- * the customer" over an empty table, because the reader had no actor and the
- * policies returned nothing. It said sessions were "read-only" with "no
- * extension" (both false), "last 30 days" over a query with no date bound, and
- * showed only the reader's own open session. Every figure below is read as the
- * operator, the record is closed up to date before it is read, and every
- * sentence about what a visit allows was checked against the code.
- *
- * ⚠ AN ACCOUNTABILITY LEDGER, NOT A PRODUCTIVITY REPORT. The accent goes to
- * the customer ending a visit — the one ending that tells us something.
- */
+/** Read support visits and counts in operator context; resolve expired grants before displaying their state. */
 export default async function SupportSessionsPage({
   searchParams,
 }: {

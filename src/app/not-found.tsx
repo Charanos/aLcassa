@@ -8,25 +8,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/**
- * 02 §11 · 07 §1 · 10 §12. THE ROOT 404.
- *
- * The exact copy from the deck: "That is not here, or you do not have access
- * to it." That sentence is doing real work, not being vague for style. `07 §1`
- * is explicit: a resource in another tenant returns 404, never 403, because a
- * 403 confirms the resource exists, which is an information leak on a
- * multi-tenant platform. This page is what that rule looks like on screen: it
- * never says which of the two is true.
- *
- * 03 §20's anti-pattern list applies here exactly as it does to the
- * placeholder surfaces: no illustration, no broken-robot graphic, no joke.
- * Plain type on a plain surface reads as deliberate rather than unfinished.
- *
- * 02 §11 eventually wants a not-found per route group, "a missing tenant
- * reads differently from a missing settings page." This root one covers every
- * route until those are written; it is the honest baseline, not the finished
- * state.
- */
+/** Use the same 404 for absent and inaccessible resources to avoid disclosing their existence. */
 export default function NotFound() {
   return (
     <main id="main" className="mx-auto flex min-h-dvh flex-col items-center justify-center px-6">

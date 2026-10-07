@@ -1,42 +1,52 @@
 import { ConsolePage } from '@/components/console/Surface';
-import { SkeletonBar, SkeletonGroup } from '@/components/primitives/Skeleton';
-import { StatusSlabSkeleton } from '@/components/console/health/StatusSlab';
-import { ServicesBandSkeleton } from '@/components/console/health/ServicesBand';
+import { FactStripSkeleton } from '@/components/console/FactStrip';
+import {
+  SkeletonBar,
+  SkeletonGroup,
+  SkeletonHeader,
+  SkeletonSectionHeading,
+} from '@/components/primitives/Skeleton';
 import { IsolationBandSkeleton } from '@/components/console/health/IsolationBand';
-import { PerformanceBandSkeleton } from '@/components/console/health/PerformanceBand';
-import { QueuesIncidentsBandSkeleton } from '@/components/console/health/QueuesIncidentsBand';
 
-/**
- * Health, loading.
- *
- * ⚠ IT COMPOSES; IT DOES NOT DRAW. Doc 22 §6: a component that renders a
- * distinct shape exports its own skeleton, next to itself, so the skeleton
- * changes when the component does. Every band on this page owns one. What is
- * drawn here is only the header, because `ConsoleHeader` is shared by every
- * console page and has no single band to live beside.
- */
+/** Preserve the measured Health hero and chart hierarchy while records resolve. */
 export default function HealthLoading() {
   return (
     <ConsolePage>
       <SkeletonGroup label="Loading platform health" className="block">
-        <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:gap-8">
-          <div className="min-w-0 flex-1">
-            <div className="mb-4 flex items-center gap-2">
-              <SkeletonBar width={138} height={22} radius="rounded-full" />
-              <SkeletonBar width={64} height={22} radius="rounded-full" />
+        <SkeletonHeader withAction />
+        <section className="console-fact-strip block overflow-hidden" aria-hidden>
+          <div className="relative z-10 grid gap-10 p-6 sm:p-8 lg:grid-cols-[1.15fr_1fr] lg:p-10">
+            <div className="min-w-0">
+              <SkeletonBar inverse width="40%" height={11} />
+              <SkeletonBar inverse width="95%" height={38} className="mt-5" />
+              <SkeletonBar inverse width="76%" height={38} className="mt-3" />
+              <SkeletonBar inverse width="92%" height={14} className="mt-5" />
+              <SkeletonBar inverse width="64%" height={14} className="mt-2" />
+              <SkeletonBar inverse width={132} height={36} radius="rounded-full" className="mt-6" />
             </div>
-            <SkeletonBar width={128} height={10} />
-            <SkeletonBar width={148} height={38} className="mt-2.5" />
+            <div className="min-w-0 self-end">
+              <SkeletonBar inverse width="55%" height={12} />
+              <SkeletonBar inverse width={100} height={38} className="mt-3" />
+              <SkeletonBar inverse height={176} radius="rounded-panel" className="mt-6" />
+              <SkeletonBar inverse width="70%" height={12} className="mt-4" />
+            </div>
           </div>
-          <SkeletonBar width={232} height={36} radius="rounded-full" />
+          <FactStripSkeleton />
+        </section>
+      </SkeletonGroup>
+      <IsolationBandSkeleton />
+      <SkeletonGroup label="Loading recorded activity" className="block">
+        <SkeletonSectionHeading />
+        <SkeletonBar height={300} radius="rounded-card" />
+      </SkeletonGroup>
+      <SkeletonGroup label="Loading service monitoring" className="block">
+        <SkeletonSectionHeading align="right" />
+        <div className="grid gap-5 xl:grid-cols-2">
+          {[0, 1, 2, 3].map((key) => (
+            <SkeletonBar key={key} height={240} radius="rounded-card" />
+          ))}
         </div>
       </SkeletonGroup>
-
-      <StatusSlabSkeleton />
-      <ServicesBandSkeleton />
-      <IsolationBandSkeleton />
-      <PerformanceBandSkeleton />
-      <QueuesIncidentsBandSkeleton />
     </ConsolePage>
   );
 }

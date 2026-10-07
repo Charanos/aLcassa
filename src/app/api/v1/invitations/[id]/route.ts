@@ -4,14 +4,7 @@ import { revokeInvitation } from '@/modules/membership';
 import { defineRoute } from '@/lib/http/pipeline';
 import { jsonOk } from '@/lib/http/response';
 
-/**
- * 07 §5 · `DELETE /v1/invitations/:id`. Owner and admin.
- *
- * Withdrawing an invitation returns the seat it reserved. Counting a seat at
- * invitation time is only defensible if the count comes back when the
- * invitation does not, which `revokeInvitation` handles in the same
- * transaction as the revocation.
- */
+/** Invitation withdrawal returns its reserved seat in the same transaction. */
 export const DELETE = defineRoute({
   door: 'session',
   resolve: resolveSessionDoor,

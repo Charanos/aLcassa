@@ -15,16 +15,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/**
- * The workspace door. 02 §3.
- *
- * ⚠ IT IS A PLAIN `<form method="post">` WITH NO JAVASCRIPT BEHIND IT.
- *
- * A sign-in screen that needs a bundle to work is a sign-in screen that
- * breaks in exactly the conditions where someone most needs to get in. So the
- * form posts to `/api/v1/auth/sign-in`, which answers a form post with a 303,
- * and failures come back as `?error=<code>` for the block below to render.
- */
+/** The sign-in form posts directly and uses 303 redirects so authentication works without client JavaScript. */
 export default async function SignInPage({
   searchParams,
 }: {
@@ -32,13 +23,7 @@ export default async function SignInPage({
 }) {
   const { next, error, reset } = await searchParams;
 
-  /**
-   * The code came off a query string, so it is attacker-controlled and is
-   * NEVER rendered directly. It is looked up in the catalogue, and an
-   * unrecognised value falls back to the generic message — which means a
-   * crafted `?error=<script>` renders as "Something went wrong" rather than
-   * as anything at all.
-   */
+  /** Query-string error codes are untrusted; render only messages from the approved catalogue. */
   const knownCode = error && error in ERROR_MESSAGES ? (error as ErrorCode) : null;
   const errorMessage = error
     ? knownCode
@@ -46,14 +31,7 @@ export default async function SignInPage({
       : 'Something went wrong. Try again.'
     : null;
 
-  /**
-   * The hue comes from the catalogue rather than being fixed here, because
-   * these failures are not all the same kind. A wrong password is OCHRE —
-   * the reader retypes it and continues. "Your account is not attached to a
-   * workspace" is OXIDE — there is nothing they can do without someone else
-   * acting first. Sheet 12 is explicit that flattening the two teaches
-   * people to ignore the colour.
-   */
+  /** Use catalogue severity to distinguish a correctable entry from a blocked account. */
   const tone = hueTokens(knownCode ?? ERROR_CODES.INTERNAL);
 
   return (

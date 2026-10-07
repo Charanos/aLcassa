@@ -14,27 +14,7 @@ import {
 } from '@/app/(platform)/platform/(console)/actions';
 import type { ProvisionModel } from '@/lib/console/data';
 
-/**
- * Provision a workspace. `Provision.dc.html`, as a modal rather than a page —
- * `/platform/tenants/new` used to render this content directly; it now
- * redirects to `/platform?provision=1` and `ConsoleShell` opens this on that
- * param, so the flow keeps a real, deep-linkable URL without needing its own
- * route. Absorbs the full form that used to live in `ProvisionForm.tsx`:
- * this used to be two competing implementations of the same flow — a
- * complete page-based form with real slug-uniqueness and the real plan set,
- * and a simpler, separately hand-rolled modal that previewed the retired
- * `.conduit.app` domain and hardcoded a plan (`'pro'`) that does not exist in
- * this product's plan set. This is the first one, in a dialog.
- *
- * ⚠ ON SUCCESS THIS REDIRECTS TO `/platform/tenants`, NOT TO THE NEW
- * WORKSPACE'S OWN PAGE. `getWorkspaceDetail` only resolves the one fixture
- * this console ships (`kilimanjaro-logistics`) — see `src/lib/console/data.ts`
- * — and linking to a workspace that 404s the instant it is created would be
- * worse than the honest alternative. The five-step manifest, the validation
- * and the working state are built exactly as designed; only the destination
- * differs, and only because nothing downstream can back up the more specific
- * claim yet.
- */
+/** The shared provisioning dialog is deep-linked through the console and uses live catalogue and slug checks. */
 export function ProvisionWorkspaceDialog({
   open,
   onOpenChange,
@@ -45,15 +25,7 @@ export function ProvisionWorkspaceDialog({
   const router = useRouter();
   const pushToast = useToast();
 
-  /**
-   * The panel, for the entrance tween.
-   *
-   * ⚠ A REF AND AN EFFECT, NOT AN INLINE CALLBACK REF. The callback ref this
-   * replaces re-ran on every render — React re-invokes one whenever its
-   * identity changes, and an inline arrow is a fresh function each time — so
-   * the dialog replayed its entrance on every keystroke in the form. The
-   * effect keys on `open`, which is the thing that should actually trigger it.
-   */
+  /** Animate through a stable ref and an effect keyed to opening so typing does not replay the entrance. */
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -106,10 +78,7 @@ export function ProvisionWorkspaceDialog({
         if (!live) return;
         setModel(options);
         setExistingSlugs(existingSlugs);
-        /* ⚠ THE DEFAULT COMES FROM THE CATALOGUE, NOT FROM A LITERAL. It was
-           `useState('growth')` — a plan this product has never had. A
-           hardcoded default silently stops matching the moment the catalogue
-           changes, and nothing fails until somebody presses submit. */
+        /* Select the default plan from the current catalogue. */
         if (options.plans[0]) setPlan(options.plans[0].key);
         setLoading(false);
       })
@@ -163,22 +132,7 @@ export function ProvisionWorkspaceDialog({
   const working = phase === 'working';
   const done = phase === 'done';
 
-  /**
-   * ⚠ THIS USED TO BE A TIMER.
-   *
-   * `setTimeout(1800)` flipped the phase to "done", raised a toast reading
-   * "<name> provisioned · invitation sent to the owner", and pushed to the
-   * workspace list. No request was made and no rows were written — while the
-   * panel beside this form listed, by name, the five things submitting was
-   * supposed to do: an RLS-bound tenant row, snapshotted entitlements, an
-   * invited owner, propagated master rules, and a `tenant.provision` audit
-   * entry. An operator would close it believing a customer could sign in.
-   *
-   * `provisionWorkspace` calls the real `provisionTenant`, which has existed
-   * in `modules/platform` the whole time: tenant, settings, profile and owner
-   * membership in ONE transaction, with the auth user deleted again if any of
-   * it fails. Everything the panel claims is now true.
-   */
+  /** Report success only after the provisioning action returns; retain field errors and entered values on refusal. */
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!ready || working || done) return;
@@ -192,20 +146,12 @@ export function ProvisionWorkspaceDialog({
       slug,
       ownerEmail: email.trim(),
       trial,
-      /* ⚠ THE CHOICE WAS COLLECTED AND NEVER SENT. Four fields went to the
-         server and the plan was not one of them, so `provisionTenant` had
-         nothing to resolve and wrote no subscription row — which is why a
-         workspace provisioned here came out with no plan at all. */
+      /* Send the selected plan code to the provisioning service. */
       planCode: plan,
     });
 
     if (!result.ok) {
-      /*
-       * Back to idle rather than closed. The operator has typed four fields
-       * and the failure is usually one of them — a taken slug, an address that
-       * already has an account — so the form stays exactly as it was with the
-       * reason attached to the field that caused it where the server named one.
-       */
+      /* Keep entered values after a refused submission and attach any field-specific error. */
       setPhase('idle');
       setSubmitError(result.error);
       setFieldError(result.field ?? null);
@@ -246,33 +192,7 @@ export function ProvisionWorkspaceDialog({
     <Dialog.Root open={open} onOpenChange={(next) => !working && onOpenChange(next)}>
       <Dialog.Portal>
         <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
-        {/*
-          ⚠ THE CENTRING IS NOT A TRANSFORM, AND THAT IS THE WHOLE FIX.
-
-          This dialog rendered with its top-left corner at the middle of the
-          screen, running off the bottom edge. Two faults, compounding:
-
-          1. It centred itself with `-translate-x-1/2 -translate-y-1/2` while
-             GSAP animated `y` and `scale` on the same element. GSAP writes an
-             inline `transform`, and an inline transform REPLACES the classes
-             wholesale — it does not merge with them. The moment the tween
-             touched the element the centring was gone, and the end state
-             (`y: 0, scale: 1`) is `translate(0,0)`, so it never came back.
-             Reduced motion did not save it either: `gsapSafe` falls back to
-             `gsap.set`, which writes the same inline transform.
-
-          2. The tween was wired to an INLINE CALLBACK REF. React re-invokes a
-             callback ref whenever its identity changes, and an inline arrow is
-             a new function every render — so the entrance animation re-fired on
-             every keystroke in the form, re-applying the broken transform and
-             fading the dialog from 0 each time.
-
-          Rather than teach GSAP about the centring (`xPercent: -50`), the
-          centring moves off `transform` altogether: this grid wrapper owns
-          position, the panel owns transform, and no future animation on it can
-          decentre the dialog again. The wrapper is `pointer-events-none` so the
-          overlay underneath still takes the click-outside.
-        */}
+        {/* Center through the overlay grid so entrance transforms cannot replace positioning. */}
         <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
           <Dialog.Content
             ref={panelRef}
@@ -315,8 +235,7 @@ export function ProvisionWorkspaceDialog({
                   color: 'var(--text-secondary)',
                 }}
               >
-                Four fields. The owner receives an invitation and sets their own password; you never
-                see it.
+                Set up the workspace and invite its owner. The owner chooses their own password.
               </Dialog.Description>
             </div>
 
@@ -541,14 +460,14 @@ export function ProvisionWorkspaceDialog({
                               className="block text-sm font-medium"
                               style={{ color: 'var(--text-primary)' }}
                             >
-                              Start with a 14-day trial
+                              Start with a trial
                             </span>
                             <span
                               className="mt-0.5 block text-sm leading-relaxed"
                               style={{ color: 'var(--text-tertiary)' }}
                             >
-                              No invoice is raised until the trial ends. The workspace appears under
-                              Trial on Overview.
+                              The selected plan sets the trial period. Payments are handled
+                              separately.
                             </span>
                           </span>
                         </label>
@@ -622,18 +541,12 @@ export function ProvisionWorkspaceDialog({
                           color: 'var(--text-tertiary)',
                         }}
                       >
-                        Runs as one transaction. If any step fails, nothing is created.
+                        Workspace records are saved together. Account setup and invitation delivery
+                        are handled separately.
                       </p>
                     </section>
 
-                    {/*
-                    ⚠ THE REFUSAL IS SHOWN WHERE THE DECISION IS MADE.
-                    A toast also fires, but a toast is gone in five seconds and
-                    this dialog can be scrolled — an operator who was reading
-                    the plan cards when the request failed would otherwise have
-                    nothing left to act on. `role="alert"` so it is announced
-                    rather than silently appearing above the button.
-                  */}
+                    {/* Keep submission errors beside the form and announce them through an alert. */}
                     {submitError ? (
                       <div
                         role="alert"
@@ -699,10 +612,10 @@ export function ProvisionWorkspaceDialog({
                     </button>
                     <p className="text-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
                       {done
-                        ? 'Invitation sent. Returning to Workspaces.'
+                        ? 'Workspace created. Returning to Workspaces.'
                         : working
-                          ? 'Running five steps in one transaction...'
-                          : 'Typically completes in under two minutes'}
+                          ? 'Creating the owner account and workspace...'
+                          : 'The owner completes account setup from their invitation.'}
                     </p>
                   </div>
                 </form>

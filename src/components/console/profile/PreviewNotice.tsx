@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconArrowRight, IconEyeglass } from '@tabler/icons-react';
 
 /**

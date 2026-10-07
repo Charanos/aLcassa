@@ -18,29 +18,7 @@ import { loadMe } from '@/modules/identity';
 import { redirect } from 'next/navigation';
 import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 
-/**
- * 02 §4 · 02 §8. The tenant application.
- *
- * Navigation is ROLE-FILTERED rather than role-disabled: an agent simply does
- * not see Credentials. A disabled item that a person cannot use is an
- * invitation to ask why, and Brian is the support team.
- *
- * ⚠ AS OF 27 Aug 2026 THE ROLE AND TENANT ARE REAL. M2 landed the identity
- * module, so this shell reads `loadMe` — the one round trip 07 §3 specifies —
- * and the role that filters the navigation is the one on the membership row
- * rather than a constant.
- *
- * That matters more than it looks: an agent does not see Credentials because
- * the SERVER did not send it, not because the client hid it. A filter applied
- * after the fact is a filter that can be un-applied in a browser.
- *
- * `supportMode` likewise comes from the payload, and the payload reads it
- * from the sessions table — never from a query parameter, because a frame
- * that could be suppressed by editing a URL would be worthless.
- *
- * When there is no session — the review deployment's demo cookie — it falls
- * back to the designed values, exactly as the read model does.
- */
+/** Resolve workspace identity and role on the server; filter navigation against the current membership. */
 
 const navigation: NavGroup[] = [
   {
@@ -115,16 +93,7 @@ const navigation: NavGroup[] = [
   },
 ];
 
-/*
- * 02 §5. The header's quick-create menu. BOTH DESTINATIONS ARE REAL ROUTES.
- * `Tenant-Shell` offers four — a conversation, a broadcast, a contact and a
- * template — behind screens this build does not have; a menu whose items 404
- * teaches the reader not to open it, so it lists what exists and grows when
- * the rest lands.
- *
- * Role-filtered by the same rule as the navigation (02 §8): an agent does not
- * see what an agent cannot do, and the filter is applied on the SERVER.
- */
+/* Quick-create links use implemented routes and the same server-side role filter as navigation. */
 const NEW_ACTIONS: (NewAction & { roles?: string[] })[] = [
   {
     key: 'invite',
@@ -183,17 +152,7 @@ export default async function TenantLayout({ children }: { children: React.React
         initials: initialsOf(operatorName),
       }}
       helpHref="/docs/00-INDEX"
-      /*
-       * ⚠ THE FRAME IS ON WHEN SOMEONE IS LOOKING IN, NOT WHEN THE READER IS
-       *   THE ONE LOOKING.
-       *
-       * `loadMe` reads this from an open support session against THIS
-       * workspace, so the owner sees the boundary frame while the platform is
-       * inside — which is the only reader for whom it means anything. It is
-       * not `ctx.supportMode`, which is true only for the platform's own
-       * session and would therefore show the frame to everyone except the
-       * person it is meant to inform.
-       */
+      /* Show the customer boundary notice when a support visit targets this workspace, rather than when the reader is the support actor. */
       supportMode={me?.supportMode ?? null}
     >
       {children}

@@ -9,45 +9,15 @@ import { readRequestBody, wantsJson } from '@/lib/http/body';
 import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
+import { safeReturnPath } from '@/lib/auth/returnPath';
 
-/**
- * 07 §3 · `POST /v1/auth/sign-in`.
- *
- * ⚠ THIS ROUTE CANNOT USE `defineRoute`, AND THE REASON IS NOT AN OVERSIGHT.
- *
- * The pipeline's stage 1 resolves a session before the handler runs. There is
- * no session here — creating one is the entire job — so a route defined that
- * way would refuse every sign-in with `auth.session_expired`. The four public
- * auth routes are the deliberate exception, and each one does by hand only
- * what it must: validate, call Supabase, and set a cookie.
- *
- * ⚠ IT ANSWERS A FORM POST AND A JSON POST, AND THAT IS ON PURPOSE.
- *
- * `(access)/sign-in/page.tsx` is a server-rendered `<form method="post">`
- * with no JavaScript behind it, because a sign-in screen that needs a bundle
- * to work is a sign-in screen that breaks in exactly the conditions where
- * someone most needs to get in. So a form post gets a 303 and a redirect; an
- * `application/json` post gets the envelope from `07 §1`.
- */
+/** Public sign-in cannot use the session-required route pipeline; handle form redirects and JSON responses explicitly. */
 
 const signInSchema = z.object({
   email: z.string().trim().toLowerCase().email('Enter a valid email address.'),
   password: z.string().min(1, 'Enter your password.'),
   next: z.string().optional(),
 });
-
-/**
- * ⚠ ONLY A PATH ON THIS SITE. `?next=` arrives from the middleware redirect
- * and is therefore attacker-supplied: `next=https://evil.example` would turn
- * our own sign-in form into an open redirect, which is a phishing primitive.
- * A value must start with a single `/` and not `//`, which would be
- * protocol-relative and leave the site.
- */
-function safeNext(next: string | undefined, fallback: string): string {
-  if (!next) return fallback;
-  if (!next.startsWith('/') || next.startsWith('//')) return fallback;
-  return next;
-}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
@@ -71,18 +41,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { email, password, next } = parsed.data;
 
-    /**
-     * ⚠ AFTER PARSING, SO THE BUDGET IS KEYED ON THE ADDRESS.
-     *
-     * Limiting by address as well as by IP means one person's failed attempts
-     * do not consume the budget of everybody else behind the same corporate
-     * NAT — and a credential-stuffing run spraying many addresses from one
-     * host still hits the per-IP half of the key.
-     *
-     * Supabase applies its own limits underneath. This one exists so an
-     * attacker cannot burn a real user's Supabase budget at will, and so the
-     * refusal comes from us with a Retry-After the client can act on.
-     */
+    /** Apply sign-in limits using the parsed address and IP before calling the identity provider. */
     await enforceRateLimit(request, RATE_LIMITS.signIn, email);
 
     const supabase = await createSupabaseServerClient();
@@ -91,40 +50,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error || !data.user) {
-      /**
-       * ⚠ ONE MESSAGE FOR "NO SUCH ACCOUNT" AND FOR "WRONG PASSWORD".
-       *
-       * Distinguishing them turns this endpoint into an account-existence
-       * oracle: an attacker learns which addresses are registered here and
-       * moves on to credential stuffing with a shortlist. The catalogue's
-       * `auth.invalid_credentials` message already says "that email and
-       * password do not match", which is true of both cases.
-       *
-       * Supabase applies its own per-address and per-IP rate limiting, so
-       * `auth.account_locked` is surfaced from its response rather than
-       * counted a second time here — two counters that disagree are worse
-       * than one.
-       */
-      /**
-       * ⚠ "THE PROVIDER WAS UNREACHABLE" IS NOT "YOUR PASSWORD IS WRONG", AND
-       * THIS ROUTE USED TO SAY IT WAS.
-       *
-       * Every failure from `signInWithPassword` became
-       * `auth.invalid_credentials`. That includes the case where supabase-js
-       * never got an HTTP response at all — a DNS failure, a dead project, an
-       * outage — because it surfaces network faults as an error OBJECT rather
-       * than by throwing.
-       *
-       * The result is the most confidently wrong message this codebase can
-       * produce: "that email and password do not match", stated about
-       * credentials nothing has checked. It cost two rounds of hunting a typo
-       * in a password that was correct, against a Supabase project whose
-       * hostname had stopped resolving.
-       *
-       * `AuthRetryableFetchError` is the class supabase-js uses for exactly
-       * this, and a status of 0 or absent means no response was received. Both
-       * are treated as upstream, which answers 503 and says so.
-       */
+      /** Use the same refusal for unknown accounts and incorrect passwords. */
+      /** Distinguish identity-provider outages from rejected credentials. */
       const unreachable =
         error?.name === 'AuthRetryableFetchError' || (error != null && !error.status);
 
@@ -138,15 +65,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         });
       }
 
-      /**
-       * ⚠ ONE MESSAGE FOR "NO SUCH ACCOUNT" AND FOR "WRONG PASSWORD".
-       *
-       * Distinguishing them turns this endpoint into an account-existence
-       * oracle: an attacker learns which addresses are registered here and
-       * moves on to credential stuffing with a shortlist. That conflation is
-       * deliberate and stays — it is only the UNREACHABLE case above that had
-       * no business being folded in with it.
-       */
+      /** Keep credential refusals indistinguishable to prevent account enumeration. */
       const locked = error?.status === 429;
       log.warn('sign-in refused', { locked, reason: error?.message });
       throw new AppError(
@@ -171,7 +90,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (platform) {
       const session = await createSession({ userId, kind: 'platform', requestId });
-      const destination = safeNext(next, '/platform');
+      const destination = safeReturnPath(next, '/platform');
       return respond({
         asJson,
         request,
@@ -211,7 +130,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     log.info('signed in', { userId, tenantId: tenant.tenantId, role: tenant.role });
 
-    const destination = safeNext(next, '/app');
+    const destination = safeReturnPath(next, '/app');
     return respond({
       asJson,
       request,
@@ -228,13 +147,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     if (asJson) return jsonError(error, requestId);
 
-    /**
-     * A form post cannot render an error envelope. It goes back to the form
-     * with the code in the query string, where the page turns it into the
-     * catalogue's message beside the field. The code is safe to expose — it
-     * is the same one the JSON envelope carries — and carrying it in the URL
-     * rather than a flash cookie keeps the page fully static.
-     */
+    /** Form failures redirect with a catalogue error code; raw provider messages are not exposed. */
     const code = error instanceof AppError ? error.code : ERROR_CODES.INTERNAL;
     logger.child({ requestId }).warn('sign-in failed', { code });
     const url = new URL('/sign-in', request.url);
@@ -265,12 +178,7 @@ function respond(input: {
     sessionCookieOptions(input.cookie.expiresAt),
   );
 
-  /*
-   * The greeting, for the document navigation only. A JSON caller gets an
-   * envelope it can act on however it likes and has no page to toast onto —
-   * setting the cookie there would arm a notice for whatever the API client's
-   * user happens to load next, which is somebody else's screen.
-   */
+  /* Issue the greeting notice only for browser form navigation. */
   if (!input.asJson) {
     response.cookies.set(FLASH_COOKIE, 'signed_in', FLASH_COOKIE_OPTIONS);
   }

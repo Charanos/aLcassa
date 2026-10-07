@@ -27,24 +27,7 @@ const WHEN = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Africa/Nairobi',
 });
 
-/**
- * Platform settings. `Settings.dc.html`. Doc 23.
- *
- * The question it answers: what is set platform-wide, who changed it last, and
- * what happens if I change it?
- *
- * ⚠ IT USED TO ANSWER NONE OF THEM. Save was disabled because there was no
- * table; the Security tab drew toggles for a two-factor requirement, an IP
- * allow-list and an idle sign-out, none of which exists; Developer listed live
- * API keys and a failing webhook that were fixture data; and the lede said
- * every value "applies to all workspaces" when nothing a workspace sees reads
- * any of them.
- *
- * Now: two fields are stored in `platform_settings` and every save is an
- * audited diff; every statement on the other tabs is either enforced — with
- * where — or listed as not built; and the page says what does and does not
- * read what it stores.
- */
+/** Separate persisted settings, operational facts and planned capabilities; expose only implemented controls. */
 export default async function SettingsPage({
   searchParams,
 }: {
@@ -54,8 +37,7 @@ export default async function SettingsPage({
     getLiveSettings(),
     getSettings(),
     searchParams,
-    /* ⚠ LIVE, NOT FROM THE FIXTURE — and null without a session, rather than
-       a throw that takes the designed view down with it. */
+    /* Read the live support-access lock; demo review may have no authenticated result. */
     fetchBreakGlassState().catch(() => null),
   ]);
 

@@ -5,21 +5,7 @@ import { withTenantContext } from '@/lib/db';
 import { defineRoute } from '@/lib/http/pipeline';
 import { jsonOk } from '@/lib/http/response';
 
-/**
- * 07 §5 · `GET /v1/members`. Every role may read the team.
- *
- * No `roles` clause, and that is the specification rather than an omission:
- * an agent who cannot see who else is in the workspace cannot tell who to ask
- * for help. What an agent cannot do is CHANGE any of it, which is enforced by
- * `tenant_members_modify` in the database rather than by a check here.
- *
- * The join to `user_profiles` is what makes the list legible, and it is worth
- * noticing that it works at all: `user_profiles_select` admits "myself, and
- * anyone I share a tenant with", so this returns exactly the profiles of
- * people in THIS workspace and no others. The scoping is the policy's, not
- * this query's — the `where` clause below could be deleted and the result
- * would still not cross a tenant boundary.
- */
+/** Every member may read the team; database policies restrict changes and visible profiles. */
 export const GET = defineRoute({
   door: 'session',
   resolve: resolveSessionDoor,

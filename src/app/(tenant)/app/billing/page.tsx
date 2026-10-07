@@ -4,13 +4,7 @@ import { getBilling } from '@/lib/tenant/data';
 
 export const metadata: Metadata = { title: 'Billing' };
 
-/**
- * 02 §5 · 03 §16. THE OTHER PLACEHOLDER SURFACE, and honest in the same way
- * the inbox one is: the subscription data model is real, the payment
- * gateway is not. Current plan read-only, how payment works right now, and
- * the contact route — no fake invoice history, no disabled "Update payment
- * method" button sitting there implying a feature that isn't built.
- */
+/** Subscription records are live; automated payments and invoice history are outside Phase One. */
 export default async function BillingPage() {
   const model = await getBilling();
 

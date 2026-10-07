@@ -9,24 +9,7 @@ import type { MasterRuleField } from '@/lib/console/data';
 
 const NOTE_MIN = 8;
 
-/**
- * The master rule set, editable by the platform owner.
- *
- * ⚠ THE SCREEN USED TO SAY THIS COULD NOT BE BUILT, AND GAVE THE REASON IT
- *   SHOULD BE: *"an audited operation with a blast radius, not a form submit."*
- *
- * That is an argument about HOW to build it. Publishing appends a version and
- * moves a pointer, the change note is required and lands in the platform log,
- * the blast radius is stated before the submit is reachable, and every previous
- * version stays one click from being restored. What it is not is a reason for
- * the person who owns these rules to be unable to change them.
- *
- * ⚠ THE FIELDS ARE TEXTAREAS BECAUSE THE DOCUMENT IS PROSE. `15 C47` replaced a
- * toggle editor for a model that was never in the schema —
- * `master_ai_rule_versions.content` is six fields, five prose and one a list.
- * The tenant-side editor has spoken that vocabulary since M2; this now writes
- * in it.
- */
+/** Edit structured shared guidance with a required change note and an expected-version check. */
 export function RuleEditor({
   fields,
   versionNumber,
@@ -79,6 +62,7 @@ export function RuleEditor({
           customInstructions: draft.customInstructions ?? '',
         },
         changeNote: note,
+        expectedVersionNumber: versionNumber,
         /* The lock set travels with the version rather than being inferred on
            read. `01 D-08`: a field is master-authoritative unless explicitly
            opened, and these two are the floor. */
@@ -128,10 +112,7 @@ export function RuleEditor({
         dismissible={!pending}
         eyebrow="Master AI rules"
         title="Edit the rules every workspace inherits"
-        /* ⚠ `xl`, AND THE WIDTH IS THE POINT. Six prose fields at 600px is a
-           column of three-word lines that reads like a receipt — the operator
-           is editing PARAGRAPHS an assistant will speak, and they have to be
-           able to see the shape of what they are writing. */
+        /* Give prose fields enough width for readable paragraph editing. */
         width="xl"
         operation="rules.published"
         description={`Publish a new shared rule version for ${workspaceCount} workspaces. Previous versions remain available to restore.`}

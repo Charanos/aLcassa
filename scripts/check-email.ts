@@ -80,20 +80,26 @@ async function printRecords(apiKey: string, id: string, domain: string): Promise
    Publish these on ${domain}:
 `);
   for (const r of records) {
-    /* ⚠ THE MX ROW IS FOR INBOUND MAIL AND SENDING DOES NOT WAIT ON IT.
-       Resend returns it alongside the rest, and publishing an MX record you do
-       not need can quietly redirect mail for the apex domain — worth saying
-       rather than leaving in a list captioned "publish these". */
-    const inboundOnly = r.type.toUpperCase() === 'MX';
+    // Resend's SPF return-path MX is required for sending, alongside its TXT record.
+    const reviewReceiving = r.type.toUpperCase() === 'MX' && r.record.toUpperCase() !== 'SPF';
+    const name = r.name.replace(/\.$/, '');
+    const fqdn =
+      !name || name === '@'
+        ? domain
+        : name.endsWith(`.${domain}`) || name === domain
+          ? name
+          : `${name}.${domain}`;
+    const host = fqdn === domain ? '@' : fqdn.slice(0, -(domain.length + 1));
     console.log(
-      `   ${r.record} · ${r.type}${inboundOnly ? '   — only if you want to RECEIVE' : ''}`,
+      `   ${r.record} · ${r.type}${reviewReceiving ? '   — review receiving configuration before publishing' : ''}`,
     );
-    console.log(`     host   ${r.name || '@'}   (or ${r.name ? `${r.name}.` : ''}${domain}.)`);
+    console.log(`     host   ${host}   (or ${fqdn}.)`);
     console.log(`     value  ${r.value}`);
     if (r.priority !== undefined) console.log(`     prio   ${r.priority}`);
     console.log();
   }
-  note('Sending needs the DKIM and SPF rows. Resend re-checks them on its own;');
+  note('Sending needs DKIM and both SPF records: the return-path MX and TXT.');
+  note('Preserve existing mailbox MX records; use the provider-issued host names.');
   note('re-run this to see the status move to "verified".');
 }
 
@@ -153,7 +159,7 @@ async function main() {
   const domains = body.data ?? [];
 
   if (domains.length === 0) {
-    bad('the account has NO verified domains');
+    bad('the account has no configured sending domains');
     note(`Every send from ${from} will fail with a 422.`);
     note('');
     note(`Add ${domain} in the Resend dashboard, publish the DNS records it`);
@@ -175,10 +181,9 @@ async function main() {
   if (match.status !== 'verified') {
     bad(`${domain} is present but its status is "${match.status}"`);
     if (match.status === 'not_started') {
-      note('The domain was added but its DNS records have not been published.');
+      note('Domain verification has not started. Check the provider-issued DNS records.');
     } else {
-      note('The records are published but have not verified yet — propagation,');
-      note('or one of them is wrong.');
+      note('The provider has not verified the domain. Check its record status and DNS.');
     }
     /* ⚠ PRINT THE RECORDS RATHER THAN SAY "check the dashboard". The whole
        cost of this failure is somebody having to go and find them. */
@@ -187,7 +192,7 @@ async function main() {
   }
 
   ok(`${domain} is verified${match.region ? ` (${match.region})` : ''}`);
-  ok('an invitation sent from this environment will leave');
+  ok('the sending domain is ready; delivery still needs a separate recipient test');
 }
 
 /**

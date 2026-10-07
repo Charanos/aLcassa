@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { usePathname, useRouter } from 'next/navigation';
 import { IconArrowRight, IconClockPlus, IconShieldLock, IconLogout } from '@tabler/icons-react';
 import type { SupportSession } from '@/lib/console/session';

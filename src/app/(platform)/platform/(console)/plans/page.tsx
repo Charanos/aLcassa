@@ -19,30 +19,7 @@ import { HeadroomBand } from '@/components/console/plans/HeadroomBand';
 
 export const metadata: Metadata = { title: 'Plans' };
 
-/**
- * Plans and entitlements. `Plans.dc.html`.
- *
- * ⚠ THE LEDE IS THE MOST IMPORTANT SENTENCE ON THE SCREEN: "entitlements are
- * data, not code. Editing a limit here changes what every workspace on that
- * plan can do, on save."
- *
- * That is not marketing copy, it is a warning. The entitlement guard reads
- * these values on every request through both doors — the browser session and
- * the service key — so this table is not a pricing page, it is a live control
- * surface for 47 businesses. Everything else on the screen (the tenant counts
- * in each column head, the override note, the blast-radius panel, the confirm
- * dialog) exists to keep that fact in front of whoever is editing.
- *
- * ⚠ THE COMPARISON MATRIX DOES NOT COLLAPSE INTO CARDS ON MOBILE, and this is
- * the one table in the console that does not.
- *
- * Everywhere else, a row is a record and a card per record is a faithful
- * translation. Here the ROW is the unit of comparison — the whole point is
- * reading "staff seats" across four plans on one line — and four cards would
- * destroy exactly the relationship the table exists to show. It scrolls
- * horizontally inside its own container instead, which is the correct
- * exception rather than a lapse.
- */
+/** Plan limits affect every assigned workspace; show the impact preview before accepting changes. */
 
 const ROW_ICON: Record<EntitlementRow['icon'], TablerIcon> = {
   seat: IconUsers,
@@ -56,14 +33,7 @@ const ROW_ICON: Record<EntitlementRow['icon'], TablerIcon> = {
 };
 
 export default async function PlansPage() {
-  /**
-   * Live catalogue first, designed fixture second.
-   *
-   * The fixture listed Trial, Starter, Growth and Scale — the four-tier
-   * proposal replaced on 24 Aug 2026 — against entitlement keys that were
-   * never in the schema. A signed-in operator now sees the real Pro,
-   * Business and Custom; the review bypass still sees the drawn version.
-   */
+  /** Read the live plan catalogue for authenticated operators; use fixtures only for explicit review mode. */
   const [m, headroom] = await Promise.all([
     getLivePlans().then(async (live) => live ?? (await getPlans())),
     getLiveHeadroom().then(async (live) => live ?? (await getHeadroom())),
@@ -76,20 +46,7 @@ export default async function PlansPage() {
         breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Plans' }]}
         title="Plans"
         actions={
-          /*
-            ⚠ THE REASON IS BESIDE THE CONTROL, NOT INSIDE ITS `title`.
-
-            It was a tooltip, which is the third instance of this defect found in
-            this pass and the one 17 §6.4 is most specific about: a reader on a
-            keyboard, on a touch screen, or using a screen reader got a dead
-            button and no account of it. The explanation now sits under the
-            heading where everyone reads it, and the button keeps `title` as an
-            addition rather than as the carrier.
-
-            (A plain comment, not `{/* … *\/}` — this is already inside an
-            attribute expression, and a JSX comment container there is a syntax
-            error rather than a comment.)
-          */
+          /* Put the unavailable-control explanation beside the button so touch and keyboard users can read it. */
           <div className="flex flex-col items-end gap-1.5">
             <button
               type="button"
@@ -288,24 +245,7 @@ export default async function PlansPage() {
                 ? null
                 : 'Limits are edited on the headroom card for each plan, below.'}
             </p>
-            {/*
-              ⚠ THE BUTTON ONLY EXISTS WHEN THERE IS SOMETHING TO SAVE.
-
-              It rendered unconditionally. On the live path `pendingChange` is
-              deliberately empty — `live.ts` refuses to fabricate a pending edit
-              nobody has made — so "Save changes" opened a confirmation reading
-              "This affects 0 workspaces", with a blank plan, a blank field and
-              an arrow between two empty strings, and then refused on submit
-              because the plan was empty. A live control that opens a dialog
-              full of blanks is worse than a disabled one: the operator has to
-              do the work to find out nothing was there.
-
-              The edit it was reaching for is real now and lives on the headroom
-              cards below, where each limit row has its own control and the
-              preview counts what the change would strand. This stays for the
-              designed fixture, which does carry a pending change and is what
-              the dialog was drawn against.
-            */}
+            {/* Render save only for an actual pending change; live limit edits use their own reviewed controls. */}
             {m.pendingChange.plan ? <BlastRadiusDialog change={m.pendingChange} /> : null}
           </div>
         </div>

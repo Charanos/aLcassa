@@ -9,18 +9,7 @@ import './globals.css';
  * everything under /app, /platform, /api and /invite is disallowed in
  * robots.txt and noindexed per route group.
  */
-/*
- * ⚠ THE WORDMARK IS `aLcassa`, MIXED CASE, CAPITAL L.
- *
- * BRAND.md §1 marks `Alcassa` as the one form the brand guidance prohibits
- * explicitly, and title-casing is precisely what a `<title>` template invites.
- * The capitalisation is load-bearing everywhere it is technically possible,
- * which includes here: a browser tab and a search result are product-facing
- * copy, not identifiers.
- *
- * The lowercase `alcassa` remains correct in code — cookie names, package
- * names, env prefixes, URLs — and is not a violation of the rule.
- */
+/* Preserve the aLcassa wordmark capitalization in public metadata. */
 export const metadata: Metadata = {
   title: { default: 'aLcassa', template: '%s · aLcassa' },
   description: 'One inbox for every message your customers send.',
@@ -34,7 +23,7 @@ export const viewport: Viewport = {
   // 03 §17. 200% zoom with no truncation and no horizontal scroll, which means
   // the user must be allowed to zoom.
   maximumScale: 5,
-  // ⚠ ONE THEME. The product ships light only — see the note in globals.css.
+  // The product uses the shared light theme.
   // Declaring `light dark` here would tell the browser to render its own
   // form controls, scrollbars and autofill in dark when the OS is dark, on a
   // page that is permanently light. That mismatch is the exact flash this

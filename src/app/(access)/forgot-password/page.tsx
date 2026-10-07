@@ -9,13 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/**
- * 02 §3 · 10 §3.
- *
- * ⚠ ALWAYS REPORTS SUCCESS, NEVER CONFIRMS AN ACCOUNT EXISTS. The result copy
- * is "If an account exists for {email}, a reset link is on its way", and the
- * response is a 204 either way.
- */
+/** Password-reset responses never confirm whether an account exists. */
 export default function ForgotPasswordPage() {
   return (
     <AuthShell

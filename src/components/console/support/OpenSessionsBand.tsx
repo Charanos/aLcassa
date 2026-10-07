@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { useRouter } from 'next/navigation';
 import {
   IconArrowRight,

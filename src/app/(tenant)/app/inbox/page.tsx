@@ -3,20 +3,7 @@ import { Button } from '@/components/primitives/Button';
 
 export const metadata: Metadata = { title: 'Messaging' };
 
-/**
- * 02 §5 · 01 D-05 · 10 §7. THE PLACEHOLDER SURFACE.
- *
- * Phase 1 ships a working account for a product whose main surface does not
- * exist. An agent who signs in and finds an empty product will assume it is
- * broken, so this is a designed answer rather than a dead link.
- *
- * WHAT IS DELIBERATELY ABSENT, per 03 §20: no mock message list, no greyed-out
- * inbox behind a "coming soon" overlay, no blurred screenshot, no countdown, no
- * badge floating over anything. Those read as unfinished.
- *
- * Plain type on a plain surface reads as deliberate sequencing. That is the
- * whole trick, and it costs about four hours.
- */
+/** Describe the Phase Two inbox scope without presenting simulated messages as live content. */
 export default function InboxPlaceholderPage() {
   return (
     <div

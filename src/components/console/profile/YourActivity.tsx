@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconArrowRight, IconShieldLock } from '@tabler/icons-react';
 import type { OperatorAction } from '@/lib/console/data';
 import { describeAction } from '@/lib/console/auditVocabulary';

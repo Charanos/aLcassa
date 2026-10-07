@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 
 /**
  * The plan-pressure card pinned to the foot of the tenant sidebar.

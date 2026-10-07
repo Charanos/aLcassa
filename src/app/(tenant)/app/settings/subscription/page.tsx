@@ -7,13 +7,7 @@ import { getLiveSubscription } from '@/lib/tenant/live';
 
 export const metadata: Metadata = { title: 'Plan and usage' };
 
-/**
- * 08 §8. `/app/settings/subscription`. Owner. Verbatim from the doc: every
- * entitlement as a row with a limit bar; any active override shown with its
- * reason; a read-only statement of how payment works today; no upgrade
- * button — "a button that opens an email client is worse than a sentence
- * saying to get in touch."
- */
+/** Show plan allowances, override reasons and current payment arrangements without implying automated billing. */
 export default async function SubscriptionSettingsPage() {
   const model = (await getLiveSubscription()) ?? (await getSubscription());
 

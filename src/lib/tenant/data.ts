@@ -773,6 +773,8 @@ export type TenantAuditEntry = {
   actionLabel?: string;
   occurredAt?: string;
   requestId?: string;
+  changes?: Array<{ label: string; before: string; after: string }>;
+  reason?: string;
 };
 
 export type TenantAuditModel = {

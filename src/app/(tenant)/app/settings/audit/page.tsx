@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import {
   IconBuilding,
   IconEye,
@@ -118,6 +118,33 @@ export default async function AuditSettingsPage({
                     {entry.actionLabel ? `${entry.actor} · ` : ''}
                     {entry.target}
                   </span>
+                  {entry.changes && entry.changes.length > 0 ? (
+                    <dl
+                      className="mt-3 grid gap-2 rounded-panel px-3 py-2.5"
+                      style={{ background: 'var(--surface-sunken)' }}
+                    >
+                      {entry.changes.map((change) => (
+                        <div
+                          key={change.label}
+                          className="grid gap-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-3"
+                        >
+                          <dt className="t-caption text-[var(--text-secondary)]">{change.label}</dt>
+                          <dd className="t-caption min-w-0 break-words text-[var(--text-primary)]">
+                            <span className="text-[var(--text-tertiary)]">{change.before}</span>
+                            <span aria-hidden="true"> → </span>
+                            <span className="sr-only"> changed to </span>
+                            {change.after}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  ) : null}
+                  {entry.reason ? (
+                    <p className="t-caption mt-3 break-words text-[var(--text-secondary)]">
+                      <span className="font-medium">Reason: </span>
+                      {entry.reason}
+                    </p>
+                  ) : null}
                   {entry.requestId && (
                     <details className="t-caption mt-2">
                       <summary className="cursor-pointer text-[var(--text-tertiary)]">

@@ -59,6 +59,19 @@ afterAll(async () => {
 });
 
 describe('customer Activity through the real reader and policies', () => {
+  it('returns the recorded plan changes and reason without arbitrary audit secrets', async () => {
+    const requestId = `safe-details-${randomUUID()}`;
+    await adminQuery`insert into audit_log(tenant_id,actor_type,actor_label,action,entity_type,request_id,before,after)
+      values(${tenantId},'platform_admin','Platform verifier','subscription.plan_assigned','subscription',${requestId},
+        ${JSON.stringify({ plan: 'business', monthly: 17000, keyHash: 'secret-fixture-marker' })}::jsonb,
+        ${JSON.stringify({ plan: 'pro', monthly: 3400, reason: 'Reviewed subscription change', secret: 'secret-fixture-marker' })}::jsonb)`;
+    const model = await getLiveTenantAudit(context());
+    const entry = model?.entries.find((event) => event.requestId === requestId);
+    expect(entry?.changes).toContainEqual({ label: 'Plan', before: 'Business', after: 'Pro' });
+    expect(entry?.reason).toBe('Reviewed subscription change');
+    expect(JSON.stringify(model)).not.toContain('secret-fixture-marker');
+    await cleanup`delete from audit_log where request_id=${requestId}`;
+  });
   it('returns every retained event once across 2,101 records, ties and new arrivals', async () => {
     const expected = await adminQuery<
       { id: string }[]

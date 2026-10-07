@@ -40,6 +40,7 @@
     "test:report": "vitest run --reporter=default --reporter=json --outputFile=.test-report/results.json",
     "test:prove": "tsx scripts/prove-tests.ts",
     "check:email": "tsx scripts/check-email.ts",
+    "check:deployment": "tsx scripts/check-deployment.ts",
     "shots": "tsx scripts/screenshot.ts"
   },
   "dependencies": {
@@ -67,6 +68,7 @@
     "@supabase/supabase-js": "^2.117.2",
     "@tabler/icons-react": "^3.49.0",
     "@upstash/redis": "^1.39.0",
+    "chart.js": "4.5.1",
     "drizzle-orm": "^0.45.3",
     "gsap": "^3.15.0",
     "lightningcss": "^1.33.0",

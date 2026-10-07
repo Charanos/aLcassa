@@ -2,7 +2,7 @@ import 'server-only';
 import { desc, eq } from 'drizzle-orm';
 import { masterAiRuleVersions, masterAiRules, type RulesDocument } from '@/db/schema';
 import { AUDIT_ACTIONS } from '@/lib/audit';
-import { asService } from '@/lib/db/serviceClient';
+import { asService, type ServiceTransaction } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import type { PlatformActor } from './subscriptions';
 import { requireCapability } from './capabilities';
@@ -94,6 +94,7 @@ export async function publishMasterRules(
     changeNote: string;
     /** Which fields a workspace may not loosen. 01 D-08. */
     lockedFields: string[];
+    expectedVersionNumber?: number;
   },
   actor: PlatformActor,
 ): Promise<PublishedVersion> {
@@ -117,7 +118,11 @@ export async function publishMasterRules(
     async (tx) => {
       // Doc 23: the capability column is enforced here, before anything is written.
       await requireCapability(tx, actor.userId, 'edit_master_rules');
-      const [root] = await tx.select({ id: masterAiRules.id }).from(masterAiRules).limit(1);
+      const [root] = await tx
+        .select({ id: masterAiRules.id, currentVersionId: masterAiRules.currentVersionId })
+        .from(masterAiRules)
+        .limit(1)
+        .for('update');
 
       if (!root) {
         /* The singleton is seeded with the database. Its absence is a broken
@@ -126,6 +131,7 @@ export async function publishMasterRules(
           message: 'The master rule set does not exist on this database.',
         });
       }
+      await assertCurrentVersion(tx, root.currentVersionId, input.expectedVersionNumber);
 
       /**
        * ⚠ THE NEXT NUMBER COMES FROM THE TABLE, INSIDE THE TRANSACTION.
@@ -184,7 +190,7 @@ export async function publishMasterRules(
  * rollback is itself reversible.
  */
 export async function rollbackMasterRules(
-  input: { versionId: string; reason: string },
+  input: { versionId: string; reason: string; expectedVersionNumber?: number },
   actor: PlatformActor,
 ): Promise<{ versionNumber: number }> {
   const reason = input.reason.trim();
@@ -208,6 +214,16 @@ export async function rollbackMasterRules(
     async (tx) => {
       // Doc 23: the capability column is enforced here, before anything is written.
       await requireCapability(tx, actor.userId, 'edit_master_rules');
+      const [root] = await tx
+        .select({ id: masterAiRules.id, currentVersionId: masterAiRules.currentVersionId })
+        .from(masterAiRules)
+        .limit(1)
+        .for('update');
+      if (!root)
+        throw new AppError(ERROR_CODES.NOT_FOUND, {
+          message: 'The shared rule set is unavailable.',
+        });
+      await assertCurrentVersion(tx, root.currentVersionId, input.expectedVersionNumber);
       const [target] = await tx
         .select({
           id: masterAiRuleVersions.id,
@@ -229,13 +245,6 @@ export async function rollbackMasterRules(
         });
       }
 
-      const [root] = await tx.select({ id: masterAiRules.id }).from(masterAiRules).limit(1);
-      if (!root) {
-        throw new AppError(ERROR_CODES.NOT_FOUND, {
-          message: 'The master rule set does not exist on this database.',
-        });
-      }
-
       await tx
         .update(masterAiRules)
         .set({ currentVersionId: target.id, updatedAt: new Date() })
@@ -244,4 +253,26 @@ export async function rollbackMasterRules(
       return { versionNumber: target.versionNumber };
     },
   );
+}
+
+/** Check the version reviewed by the caller while holding the singleton lock. */
+async function assertCurrentVersion(
+  tx: ServiceTransaction,
+  currentVersionId: string | null,
+  expected: number | undefined,
+): Promise<void> {
+  if (expected === undefined) return;
+  const [current] = currentVersionId
+    ? await tx
+        .select({ versionNumber: masterAiRuleVersions.versionNumber })
+        .from(masterAiRuleVersions)
+        .where(eq(masterAiRuleVersions.id, currentVersionId))
+        .limit(1)
+    : [];
+  if (!Number.isInteger(expected) || expected < 0 || expected !== (current?.versionNumber ?? 0)) {
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message:
+        'Shared guidance changed while you were reviewing it. Reload the page and review the current version before continuing.',
+    });
+  }
 }

@@ -6,18 +6,7 @@ import { ERROR_CODES, isAppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import { updatePlatformSettings } from '@/modules/platform';
 
-/**
- * Save the platform-wide settings. Doc 23 · S0.2.
- *
- * ⚠ THE FORM USED TO SAY "NOT YET SAVED ANYWHERE", AND IT WAS RIGHT. There
- * was no table. There is now one row, readable by operators, writable only
- * through `updatePlatformSettings`, which records the diff in the platform
- * audit log in the same transaction as the change.
- *
- * The result says which fields changed so the toast can name them, and says
- * when a save lost a race so the form can offer the reload rather than a
- * generic failure.
- */
+/** Save platform settings with audited field changes and an expected-version check. */
 
 export type SaveSettingsResult =
   | { ok: true; changed: string[]; updatedAt: string }

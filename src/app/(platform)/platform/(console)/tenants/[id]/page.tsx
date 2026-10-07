@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';

@@ -7,21 +7,7 @@ import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 
-/**
- * `POST /v1/auth/verify-email/resend`. The button on `/sign-up/verify`.
- *
- * ⚠ THIS ROUTE DID NOT EXIST EITHER. The verify page has shipped a "Resend
- * verification email" button posting at this path since it was written, so
- * the one recovery a reader had when the first mail did not arrive was a 404.
- * That is the worst place in the whole funnel to have a dead end: everybody
- * who reaches it is someone the first email already failed.
- *
- * ⚠ IT ANSWERS IDENTICALLY WHETHER OR NOT THE ADDRESS EXISTS, exactly as
- * `password/forgot` does. Supabase's `resend` is a no-op for an address that
- * is unknown or already confirmed, and this route never reports which — a
- * resend endpoint that distinguishes them is an account-enumeration oracle
- * sitting on a public URL.
- */
+/** Verification resend responses do not disclose account existence or confirmation status. */
 
 const resendSchema = z.object({
   email: z.string().trim().toLowerCase().email('Enter a valid email address.'),

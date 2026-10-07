@@ -8,30 +8,7 @@ import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 
-/**
- * 07 §3 · `POST /v1/auth/password/reset`.
- * "Revokes every session for the user on success."
- *
- * ⚠ THE REVOCATION IS THE SECURITY PROPERTY, NOT A TIDY-UP.
- *
- * The reason a person resets a password is usually that someone else knows
- * the old one. If the reset changes the credential but leaves existing
- * sessions alive, the intruder keeps their access for the full session
- * lifetime and the reset accomplished nothing — the user believes they have
- * locked the door while the other party is still inside.
- *
- * So EVERY session row for this user is revoked, with no `except` argument.
- * That includes the one that performed the reset: the user is signed out on
- * this device too and signs back in with the new password, which is a small
- * friction that confirms the change took effect.
- *
- * ⚠ IT DOES NOT TAKE A TOKEN. Supabase's recovery link lands the browser on
- * `/reset-password`, and its client exchanges the token in the URL fragment
- * for a real session before this route is called. So by the time we are here
- * the caller is ALREADY AUTHENTICATED as the account being changed, and
- * `getUser()` is what proves it. A route that accepted a raw reset token
- * would be a second, weaker path to the same outcome.
- */
+/** Password reset revokes all application sessions, including the reset session. */
 
 const resetSchema = z
   .object({

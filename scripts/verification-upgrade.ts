@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import { inspectDeploymentSchema } from './deployment-schema';
 
 async function main(): Promise<void> {
   const url = new URL(process.env.DATABASE_URL_ADMIN ?? '');
@@ -40,6 +41,9 @@ async function main(): Promise<void> {
       JSON.stringify({ ...journal, entries: journal.entries.slice(0, -1) }),
     );
     await migrate(drizzle(upgraded), { migrationsFolder: directory });
+    const stale = await inspectDeploymentSchema(upgraded, source);
+    assert.ok(stale.problems.includes('Unapplied migration: 0004_contracted_value'));
+    assert.ok(stale.problems.includes('Missing column: subscriptions.contract_amount'));
     const pro = randomUUID();
     const existing = randomUUID();
     const missing = randomUUID();
@@ -53,6 +57,8 @@ async function main(): Promise<void> {
     values (${existing}, ${pro}, 'past_due', '2026-09-01T00:00:00Z', '2026-10-01T00:00:00Z')`;
     await writeFile(join(directory, 'meta/_journal.json'), JSON.stringify(journal));
     await migrate(drizzle(upgraded), { migrationsFolder: directory });
+    const current = await inspectDeploymentSchema(upgraded, source);
+    assert.deepEqual(current.problems, []);
     const rows = await upgraded<
       {
         tenant_id: string;
@@ -89,6 +95,8 @@ async function main(): Promise<void> {
         ?.server_version,
       checks: [
         'Drizzle 0000–0003 install',
+        'release check rejects missing migration and columns',
+        'release check accepts upgraded schema',
         '0004 upgrade with existing data',
         'past-due backfill',
         'missing-subscription trial backfill',

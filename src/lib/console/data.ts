@@ -2933,9 +2933,9 @@ export async function getProvisionOptions(): Promise<ProvisionModel> {
 
     steps: [
       { n: '1', text: 'Workspace row created with Row Level Security policies bound to its id.' },
-      { n: '2', text: 'Plan entitlements resolved and snapshotted onto the workspace.' },
+      { n: '2', text: 'Subscription linked to the selected plan and its current allowances.' },
       { n: '3', text: 'Owner account invited; no password is ever set by you.' },
-      { n: '4', text: 'Master AI rules propagated to the new workspace.' },
+      { n: '4', text: 'Workspace inherits the current shared assistant guidance.' },
       { n: '5', text: 'tenant.provision written to the audit log with your name.' },
     ],
   };

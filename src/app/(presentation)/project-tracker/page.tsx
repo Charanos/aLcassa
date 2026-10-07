@@ -18,32 +18,7 @@ export const metadata: Metadata = {
   description: 'Where the aLcassa platform build has reached.',
 };
 
-/**
- * THE PROJECT TRACKER, REBUILT FOR THE PERSON WHO COMMISSIONED THE WORK.
- *
- * ⚠ IT REPLACED A PAGE WRITTEN FOR ENGINEERS, AND THAT WAS THE WHOLE PROBLEM.
- *
- * The previous version carried eleven sections — a foundation explorer, a
- * decision matrix, a compliance grid, a document library, a design-system tour —
- * and every one of them was accurate. None of them answered the question a
- * client opens this page with: **where are we, and is anything stuck.**
- *
- * A reader had to pass through a policy catalogue and an architecture decision
- * record to find out that four milestones are finished. That is not a
- * presentation; it is an audit trail with a hero image.
- *
- * ⚠ WHAT WAS CUT, AND WHY IT IS NOT LOST. The engineering detail moved to where
- * somebody who wants it will actually look — the numbered documents, which are
- * linked at the foot. This page now carries five things: how far along the work
- * is, what a person can use today, what is left, what it costs, and what was
- * deliberately excluded. Everything else was a second way of saying one of
- * those.
- *
- * ⚠ IT READS THE SAME DATA AS BEFORE. `MILESTONES`, `COMMERCIAL` and
- * `OUT_OF_SCOPE` are unchanged structures; only the milestone NOTES were
- * rewritten, from engineering prose into four sentences a client can act on.
- * Nothing here is a second copy of a number kept in step by hand.
- */
+/** Present milestone progress and blockers in client language, with supporting technical detail linked separately. */
 
 /** What somebody can open and use today. Written as capabilities, not modules. */
 const WORKING_TODAY = [
@@ -51,13 +26,13 @@ const WORKING_TODAY = [
     icon: IconShieldCheck,
     tone: 'success' as const,
     title: 'Customer separation, proven',
-    body: 'One customer cannot reach another customer’s data, and it is checked automatically on every change rather than trusted.',
+    body: 'Database isolation has automated coverage. The latest full suite passed 420 tests; all 15 workspace tables pass policy coverage checks. Final review remains part of release qualification.',
   },
   {
     icon: IconUsers,
     tone: 'info' as const,
     title: 'Accounts and teams',
-    body: 'Sign-in, password recovery, invitations by email, roles and ownership transfer — across both the customer application and the admin console.',
+    body: 'Sign-in, sessions, roles and ownership controls are implemented. Invitations and recovery are still being verified; production email needs a verified sending domain.',
   },
   {
     icon: IconCreditCard,
@@ -69,19 +44,19 @@ const WORKING_TODAY = [
     icon: IconBuildingSkyscraper,
     tone: 'info' as const,
     title: 'The admin console',
-    body: 'Workspaces, revenue, plans, the activity record, support sessions and the operator’s own profile — running on real data.',
+    body: 'Workspaces, subscription value, plans, Activity, support sessions and Profile use recorded data. The current candidate restores Health charts, makes the workspace grid the default and adds navigation loading feedback. Service monitoring and final surface acceptance remain open.',
   },
   {
     icon: IconRobot,
     tone: 'warning' as const,
     title: 'Assistant rules',
-    body: 'Central instructions that shape how the AI replies, inherited by every workspace. Editing is built; publishing is in progress.',
+    body: 'Master instructions can be published and restored with conflict checks. Tenant publishing and authenticated service access are still in progress.',
   },
   {
     icon: IconLock,
     tone: 'neutral' as const,
     title: 'Customer settings',
-    body: 'Company profile, team management and API credentials. Screens exist and the security work is done; the final controls follow.',
+    body: 'Company saves and customer Activity use recorded data. Credential creation, rotation, scopes and revocation remain open work.',
   },
 ];
 
@@ -97,7 +72,6 @@ export default function ProjectTrackerPage() {
       className="mx-auto w-full px-5 py-14 pb-24 md:px-8"
       style={{ maxWidth: '1080px', color: 'var(--text-primary)' }}
     >
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <header className="mb-14">
         <p
           className="mb-3 font-mono text-xs uppercase"
@@ -119,13 +93,25 @@ export default function ProjectTrackerPage() {
           not written for a meeting.
         </p>
 
-        {/*
-          ⚠ THREE FIGURES, NOT TWELVE. An earlier hero carried eight statistics
-          including a count of documents written, which measures effort rather
-          than progress. These are the three a client would ask for out loud.
-        */}
+        {/* Keep headline progress limited to the milestones, current stage and blockers. */}
+        <p className="t-body mt-6 max-w-[64ch] text-[var(--text-secondary)]">
+          Verification checkpoint · 7 October 2026. The complete local suite passed 420 tests with
+          no skips. Phase One remains in verification; email delivery, credentials, tenant rules and
+          release qualification still have open gates.{' '}
+          <Link
+            href="/docs/26-phase-one-verification-ledger"
+            className="text-[var(--text-action)] underline underline-offset-4"
+          >
+            Read the verification record
+          </Link>
+          .
+        </p>
         <dl className="mt-10 grid gap-4 sm:grid-cols-3">
-          <Figure label="Overall progress" value={`${percent}%`} note="across all milestones" />
+          <Figure
+            label="Estimated progress"
+            value={`${percent}%`}
+            note="Engineering estimate; acceptance gates remain open"
+          />
           <Figure
             label="Milestones complete"
             value={`${complete} of ${MILESTONES.length}`}
@@ -135,7 +121,6 @@ export default function ProjectTrackerPage() {
         </dl>
       </header>
 
-      {/* ── Where we are ─────────────────────────────────────────────────── */}
       <Section
         id="milestones"
         title="Where we are"
@@ -144,7 +129,6 @@ export default function ProjectTrackerPage() {
         <MilestoneBoard />
       </Section>
 
-      {/* ── What works today ─────────────────────────────────────────────── */}
       <Section
         id="working"
         title="What works today"
@@ -179,7 +163,6 @@ export default function ProjectTrackerPage() {
         </div>
       </Section>
 
-      {/* ── Commercial ───────────────────────────────────────────────────── */}
       <Section
         id="commercial"
         title="Payment schedule"
@@ -243,7 +226,6 @@ export default function ProjectTrackerPage() {
         </div>
       </Section>
 
-      {/* ── Out of scope ─────────────────────────────────────────────────── */}
       <Section
         id="scope"
         title="Deliberately not included"
@@ -265,7 +247,6 @@ export default function ProjectTrackerPage() {
         </ul>
       </Section>
 
-      {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className="mt-16 border-t pt-8" style={{ borderColor: 'var(--border-subtle)' }}>
         <p className="t-compact" style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}>
           Brief {ENGAGEMENT.briefVersion}, {ENGAGEMENT.briefDate}. Project lead{' '}

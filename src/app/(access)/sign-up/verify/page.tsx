@@ -11,14 +11,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/**
- * ⚠ THE READER IS ALREADY SIGNED IN AND ALREADY OWNS A WORKSPACE WHEN THEY
- * LAND HERE. `/api/v1/auth/sign-up` commits the tenant, issues a session and
- * only then redirects, so this page is a receipt and a nudge — not a gate.
- * That is why it offers a way INTO the product rather than only a way to wait:
- * the classic "check your email" cul-de-sac is where self-serve funnels lose
- * people, and there is nothing here worth losing them over.
- */
+/** Signup has already created the workspace and session; this page confirms the outcome and offers entry. */
 export default async function VerifyPage({
   searchParams,
 }: {
@@ -100,15 +93,7 @@ export default async function VerifyPage({
         </div>
       ) : null}
 
-      {/*
-        ⚠ THE ADDRESS TRAVELS IN A HIDDEN FIELD RATHER THAN OFF THE SESSION.
-        The resend endpoint has to work for a reader whose session cookie was
-        dropped between the redirect and the click — which is precisely the
-        browser-configuration case where the first mail also tends to go
-        missing. It is safe: Supabase's `resend` is a no-op for an unknown or
-        already-confirmed address, and the endpoint answers the same either
-        way, so this cannot be used to test whether an account exists.
-      */}
+      {/* Accept the resend address from the form so the flow survives a lost session; responses do not reveal account existence. */}
       <form className="mt-5" method="post" action="/api/v1/auth/verify-email/resend">
         <input type="hidden" name="email" value={email ?? ''} />
         <Button

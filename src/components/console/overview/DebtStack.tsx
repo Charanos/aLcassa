@@ -1,7 +1,7 @@
 'use client';
 
 import { useLayoutEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconAlertCircle, IconArrowRight, IconArrowUp, IconCircleCheck } from '@tabler/icons-react';
 import gsap from 'gsap';
 import { Flip } from 'gsap/Flip';

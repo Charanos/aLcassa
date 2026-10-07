@@ -1,36 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { CHANNELS, type Channel } from '@/modules/channels';
 
-/**
- * 07 §10 · 02 §7. THE WEBHOOK SEAM.
- *
- * ⚠ THIS RETURNS 501 ON PURPOSE AND MUST KEEP DOING SO UNTIL PHASE 2.
- *
- * 07 §10: "Building the route shell now costs an hour and means Phase 2
- * starts from a shape rather than a blank file. Building anything above it is
- * out of scope." What exists here is the ORDER OF OPERATIONS, which is the
- * part that is easy to get wrong and expensive to discover wrong:
- *
- *   1. Reject an unknown channel before touching the body.
- *   2. Read the RAW body — not `req.json()`. A signature is computed over the
- *      exact bytes sent; parsing and re-serialising changes them, and the
- *      check then fails for correct requests and, worse, can be made to pass
- *      for crafted ones.
- *   3. Verify the signature. ONLY THEN parse.
- *   4. Return 200 fast; do the work asynchronously.
- *   5. Be idempotent on the provider's event ID.
- *   6. Store the raw payload.
- *
- * Steps 3 to 6 belong to Phase 2 and are not implemented. Steps 1 and 2 are,
- * because they are what makes step 3 possible at all — a handler that has
- * already consumed the body as JSON cannot verify it afterwards.
- *
- * ⚠ THE TENANT IS NEVER READ FROM THE BODY. It is resolved from the
- * connection record during verification, per `ChannelAdapter.verifyWebhook`.
- * A webhook body is attacker-controlled; a `tenantId` taken from one is a
- * cross-tenant write waiting to happen. 06 §2 forbids it in general and this
- * is the specific route where the temptation is strongest.
- */
+/** Phase Two webhook seam: reject unknown channels, preserve raw signature bytes and return 501 until an adapter exists. */
 
 function isChannel(value: string): value is Channel {
   return (CHANNELS as readonly string[]).includes(value);

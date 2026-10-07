@@ -1,5 +1,6 @@
 import { ConsolePage } from '@/components/console/Surface';
-import { SkeletonGroup, SkeletonMetric, SkeletonPanel } from '@/components/primitives/Skeleton';
+import { SkeletonGroup, SkeletonBar, SkeletonPanel } from '@/components/primitives/Skeleton';
+import { FactStripSkeleton } from '@/components/console/FactStrip';
 
 /**
  * Mirrors the workspace detail page: breadcrumb, title row, the tab strip
@@ -17,14 +18,13 @@ export default function WorkspaceDetailLoading() {
             className="h-3 w-40 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-chip motion-reduce:animate-none motion-reduce:opacity-70"
             style={{ background: 'var(--surface-sunken)' }}
           />
-          <span
-            aria-hidden
-            className="h-7 w-72 animate-[skeleton-pulse_1400ms_ease-in-out_infinite] rounded-chip motion-reduce:animate-none motion-reduce:opacity-70"
-            style={{ background: 'var(--surface-sunken)' }}
-          />
+          <SkeletonBar width="min(18rem, 100%)" height={28} />
         </div>
 
-        <div className="flex gap-1 border-b pb-0" style={{ borderColor: 'var(--border-subtle)' }}>
+        <div
+          className="flex gap-3 overflow-hidden border-b pb-0"
+          style={{ borderColor: 'var(--border-subtle)' }}
+        >
           {[72, 64, 56, 76, 68, 68].map((width, i) => (
             <span
               key={i}
@@ -35,11 +35,7 @@ export default function WorkspaceDetailLoading() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <SkeletonMetric key={i} />
-          ))}
-        </div>
+        <FactStripSkeleton />
         <SkeletonPanel lines={5} />
       </SkeletonGroup>
     </ConsolePage>

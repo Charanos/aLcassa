@@ -5,24 +5,7 @@ import Link from 'next/link';
 import { Mark } from '@/components/brand/Mark';
 import { Button } from '@/components/primitives/Button';
 
-/**
- * 03 §16 · 10 §12. THE ROOT ERROR BOUNDARY, AND WHY ITS ABSENCE WAS THE BUG.
- *
- * ⚠ There was no `error.tsx` anywhere in this app until now. Next.js requires
- * one explicitly; without it, an uncaught error in ANY client component
- * (a chart failing to render, a dynamically-loaded script chunk blocked by the
- * production CSP in a way `unsafe-eval` happened to paper over in dev)
- * propagates to the nearest boundary, which with none defined is effectively
- * nowhere: React discards the tree and the page goes blank below whatever
- * finished rendering before the failure. That is almost certainly the exact
- * shape of "flashes on load then blanks out" reported against the deployed
- * build. This file, and `global-error.tsx` beside it, close that hole: a
- * failure now degrades to a designed surface with a reset action and a
- * reference code, per 03 §16, rather than to nothing.
- *
- * Error copy rule from 10 §1: never apologise for the system, state what
- * happened and what to do. Never blame the reader.
- */
+/** Catch page failures and offer an in-place retry without exposing internal errors. */
 export default function RootError({
   error,
   reset,

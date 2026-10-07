@@ -147,7 +147,7 @@ export const MILESTONES = [
     tranche: 2,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note: 'Complete. This is the milestone the whole product rests on: one customer cannot reach another customer’s data. That is now proven automatically rather than asserted — 280 tests run against the real database on every change, and all 280 pass. Building it against a live database found four faults in the test suite itself, each of which had been reporting success while proving less than it claimed. All four are fixed.',
+    note: 'The database foundation and isolation gate are established. The latest complete verification run passed 420 tests with no skips, and policy coverage is 15 of 15 workspace tables. The deployed schema was repaired and checked against the release. Provisioning and release recovery still need their complete Phase One acceptance journeys.',
   },
   {
     id: 'M2',
@@ -156,9 +156,9 @@ export const MILESTONES = [
     lands: 'Login, password reset, sessions, invitations, role enforcement.',
     gate: 'Demo: full account lifecycle',
     tranche: null,
-    status: 'complete' as MilestoneStatus,
-    progress: 100,
-    note: 'Complete. Sign-in, sign-out, password recovery, invitations by email, role changes and ownership transfer all work end to end, through both the customer application and the admin console. A person only sees the parts of the product their role allows, because the server never sends the rest — not because the screen hides it.',
+    status: 'active' as MilestoneStatus,
+    progress: 90,
+    note: 'Sign-in, session controls, roles and ownership operations are implemented. Customer sign-out was repaired and verified in the browser. Full invitation and recovery journeys remain under verification; production email delivery is blocked until a sending domain is configured and verified.',
   },
   {
     id: 'M3',
@@ -168,9 +168,9 @@ export const MILESTONES = [
       'Plans, tiers, entitlements, subscription states, limit enforcement. Caching layer and scoped credentials land alongside.',
     gate: 'Demo: limit enforcement',
     tranche: null,
-    status: 'complete' as MilestoneStatus,
-    progress: 100,
-    note: 'Complete. Plans, pricing and limits are live. A workspace that reaches its seat limit is stopped at the limit, and every plan change is recorded with who made it and why. A nightly check rebuilds each usage figure from its source and reports any disagreement rather than quietly correcting it — it found a real discrepancy on its first run.',
+    status: 'active' as MilestoneStatus,
+    progress: 90,
+    note: 'Subscription changes and shared allowances are live, audited and protected against stale impact reviews. Browser changes were restored and independently matched to customer and platform audit records. Scoped credentials and enforcement through the FastAPI service remain required before the milestone closes.',
   },
   {
     id: 'M4',
@@ -180,8 +180,8 @@ export const MILESTONES = [
     gate: 'Demo: console operations',
     tranche: 3,
     status: 'active' as MilestoneStatus,
-    progress: 80,
-    note: 'The admin console is built and running on real data: workspaces, revenue, plans, assistant rules, the audit trail, support sessions and the operator’s own profile. Photo upload, device management and the activity record all work. What is left is a final pass over four screens to bring their editing controls to the same standard as the rest, and a design polish across the set.',
+    progress: 85,
+    note: 'The deployed console loads after the schema repair. Shared surfaces, settings and workspace details have been refined; subscription and allowance changes have browser and database evidence. Health charts and the default workspace grid are restored in the current candidate. Route loading, interactive canvas charts, both directory views, remaining action states and complete accessibility verification are being qualified.',
   },
   {
     id: 'M5',
@@ -195,9 +195,9 @@ export const MILESTONES = [
     lands: 'Company profile, team management, a credential store that hashes and never reveals.',
     gate: 'Demo: secrets auditing',
     tranche: null,
-    status: 'upcoming' as MilestoneStatus,
-    progress: 30,
-    note: 'Customer-facing settings: company profile, team management, and API credentials shown once and never again. The screens exist and the security work behind them is done; connecting the final controls follows the console pass.',
+    status: 'active' as MilestoneStatus,
+    progress: 45,
+    note: 'Company settings persist with conflict protection. Customer Activity reads recorded changes, safe before-and-after details, reasons and correlation references within the workspace’s retention window. The credential lifecycle, reveal-once behavior, scopes and revocation remain to be implemented and verified.',
   },
   {
     id: 'M4a',
@@ -209,7 +209,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 45,
-    note: 'Assistant rules — the instructions that shape how the AI replies — can be edited centrally and inherited by every workspace. The editing screens are built and the publishing path is written. This was previously blocked on a decision about how rules are structured; that decision is made and the work is moving again.',
+    note: 'Master rule publishing and restoration reject stale edits. Tenant rule publishing and the authenticated FastAPI service are still incomplete. Cross-runtime contracts, scope checks, ETags and propagation within five seconds remain open acceptance gates.',
   },
   {
     id: 'M6',
@@ -221,7 +221,7 @@ export const MILESTONES = [
     tranche: 4,
     status: 'upcoming' as MilestoneStatus,
     progress: 30,
-    note: 'Handover: documentation, a staging environment, and the 30-day support window. The documentation has been written continuously throughout rather than left to the end, so this milestone is largely assembly.',
+    note: 'The disposable verification environment, release schema check, upgrade drill and complete local suite are available. Load, monitoring, backup recovery, provider delivery, timed clean setup and the final walkthrough remain open. Phase One is not yet accepted for handover.',
   },
 ] as const;
 

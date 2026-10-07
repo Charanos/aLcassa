@@ -50,20 +50,7 @@ export const GET = defineRoute({
   },
 });
 
-/**
- * 07 §5 · `POST /v1/invitations`. Owner and admin.
- * "Passes through the entitlement guard on `seats`."
- *
- * ⚠ THE GUARD IS DECLARED HERE AND ALSO CALLED IN THE SERVICE, AND THAT IS
- *   NOT REDUNDANT.
- *
- * The pipeline's stage 4 refuses before the handler runs, so an over-limit
- * request never reaches the database — which is what makes the refusal cheap
- * and the error message consistent across both doors. `inviteMember` calls it
- * again because it is also reachable from the console's provisioning path,
- * which does not come through this route. A guard that only exists at the
- * edge is a guard with a back door.
- */
+/** Check seats before the handler and again in the service so direct callers cannot bypass enforcement. */
 export const POST = defineRoute({
   door: 'session',
   resolve: resolveSessionDoor,
@@ -76,20 +63,7 @@ export const POST = defineRoute({
   handle: async ({ ctx, body, requestId }) => {
     const invitation = await inviteMember(ctx, { email: body.email, role: body.role });
 
-    /**
-     * ⚠ THE TOKEN IS RETURNED ONLY WHEN THE EMAIL DID NOT GO.
-     *
-     * A token in a response body is a live bearer credential in whatever
-     * logs that response, for the seven days it remains valid. When the mail
-     * left, nobody needs it here: the recipient has it, and returning it a
-     * second time only widens where it exists.
-     *
-     * When the mail did NOT leave — no provider configured, or the provider
-     * refused — the owner is the only remaining route to their colleague, so
-     * withholding the link would turn a delivery problem into a dead end.
-     * The trade is deliberate and it is made per-response rather than by
-     * configuration, so it cannot drift into always-on.
-     */
+    /** Return the bearer invitation link only when mail delivery fails and the owner needs to share it. */
     return jsonOk(
       {
         id: invitation.id,

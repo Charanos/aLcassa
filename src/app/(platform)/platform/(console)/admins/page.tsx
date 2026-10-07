@@ -10,29 +10,7 @@ import { getLiveAdmins } from '@/lib/console/liveOperators';
 
 export const metadata: Metadata = { title: 'Admins' };
 
-/**
- * Platform operators. `Admins.dc.html`.
- *
- * ⚠ THE PAGE'S WHOLE CLAIM — WHO CAN DO WHAT — WAS DESCRIBING SETTINGS THAT DID
- *   NOTHING.
- *
- * `platform_admins` stores three capabilities per operator. Until 30 Sep 2026
- * no code read them: an operator holding none could suspend workspaces, publish
- * master rules and open support sessions like anyone else. And the matrix drew
- * columns for three roles — Owner, Admin, Support — that exist nowhere in the
- * database, beside an operator labelled `platform_admin`, which was none of
- * them. Doc 23.
- *
- * The capabilities are enforced now (`modules/platform/internal/capabilities`,
- * tested in `tests/isolation/platform-capabilities`), and this page draws each
- * operator's actual record: three capabilities, held or not, with the column
- * each one reads named on the matrix.
- *
- * ⚠ THE ADMINS PAGE IS A MODEL OF RESTRAINT AND STAYS ONE. No pagination, no
- * search, no bulk action: every affordance that makes a long list bearable also
- * makes a long list acceptable, and this is a list that should stay short
- * enough to name from memory.
- */
+/** Display the stored operator capabilities that the platform services enforce; do not invent role tiers. */
 export default async function AdminsPage() {
   const live = await getLiveAdmins();
   const { admins, invitations } = live ?? (await getAdmins());
@@ -118,16 +96,7 @@ export default async function AdminsPage() {
   );
 }
 
-/**
- * The invite control, with its reason beside it.
- *
- * ⚠ THE REASON USED TO LIVE IN A BOX ABOVE THE ROSTER, and the disabled button
- * at the far right of the header. A reason is only useful where the eye is at
- * the moment the control refuses — 17 §6.4 — and it also said operators are
- * "added here directly, by an existing platform admin", which no control on
- * this page does. Access is granted in the database today; the sentence says
- * so.
- */
+/** Explain beside the control that operator access is currently granted through the database. */
 function InviteControl() {
   return (
     <div className="flex flex-col items-start gap-2 sm:items-end">

@@ -15,29 +15,7 @@ import {
 } from '@/app/(platform)/platform/(console)/subscription-actions';
 import type { PlanChangePreview } from '@/modules/platform';
 
-/**
- * The subscription controls on a workspace's billing tab.
- *
- * ⚠ FOUR AUDITED SERVICES EXISTED AND NOTHING CALLED THEM. 17 §6.2 named these
- * "the cheapest wins in the pass": `assignPlan`, `changeSubscriptionStatus`,
- * `grantOverride` and `previewPlanChange` are built, tested and audited in
- * `modules/platform`, with server-action wrappers already written. The tab
- * simply had no controls — so an operator could read that a workspace is on Pro
- * and had no way to move it, on the screen that exists to manage that workspace.
- *
- * ⚠ THE PREVIEW IS NOT A COURTESY, IT IS THE POINT.
- *
- * A plan change can stand a customer below a limit they are already past — move
- * a workspace using nine seats onto a one-seat plan and nine people are over the
- * line the moment it applies. `previewPlanChange` computes exactly that, marking
- * every entitlement it would STRAND, and this dialog shows the strandings before
- * the confirm button is reachable. A confirmation that says "are you sure?"
- * without saying what breaks is a dialog that trains people to click through it.
- *
- * ⚠ THE REASON IS REQUIRED BY THE SERVICE, NOT BY THIS FORM. Both actions take
- * one and it lands in the CUSTOMER'S OWN audit log — which is why the field's
- * helper says so. The operator is writing a sentence the customer will read.
- */
+/** Require a live allowance preview before plan changes; record operator reasons in customer activity. */
 export function SubscriptionControls({
   tenantId,
   workspace,
@@ -107,9 +85,7 @@ function PlanChange({
     setError(null);
     if (!code) return;
 
-    /* ⚠ THE PREVIEW RUNS ON SELECTION, NOT ON CONFIRM. A reader choosing a plan
-       needs to see the consequence while they still have a choice — computing it
-       after they press the button would be describing a decision already made. */
+    /* Load the consequence preview when the operator selects a plan. */
     startTransition(async () => {
       const result = await previewWorkspacePlanChange({ tenantId, planCode: code });
       if (result.ok) setPreview(result.data);
@@ -126,6 +102,7 @@ function PlanChange({
         planCode,
         reason: reason.trim(),
         contractAmount: requiresContract ? parsedAmount : null,
+        expectedPreview: preview.fingerprint,
       });
       if (result.ok) {
         setOpen(false);
@@ -140,6 +117,8 @@ function PlanChange({
         });
         router.refresh();
       } else {
+        setPreview(null);
+        setPlanCode('');
         setError(result.error);
       }
     });
@@ -169,6 +148,7 @@ function PlanChange({
           setOpen(next);
           if (!next) {
             setPreview(null);
+            setPlanCode('');
             setError(null);
           }
         }}
@@ -201,13 +181,7 @@ function PlanChange({
               </select>
             </label>
 
-            {/*
-              ⚠ THE STRANDING WARNING IS THE MOST IMPORTANT THING IN THIS DIALOG.
-              `previewPlanChange` marks every entitlement whose NEW limit sits
-              below what the workspace already uses. Moving nine seats onto a
-              one-seat plan is a decision somebody may still want to make — but
-              never one they should make without being told.
-            */}
+            {/* Show allowances below current usage before enabling confirmation. */}
             {preview ? (
               <div
                 className="rounded-panel px-3.5 py-3"
@@ -218,7 +192,7 @@ function PlanChange({
               >
                 {stranded.length === 0 ? (
                   <p className="t-caption" style={{ color: 'var(--text-secondary)' }}>
-                    Nothing this workspace currently uses would exceed the new plan.
+                    Current usage fits the new plan. Active allowance overrides remain in effect.
                   </p>
                 ) : (
                   <>
@@ -247,7 +221,9 @@ function PlanChange({
                         >
                           <span>{row.displayName}</span>
                           <span style={{ font: '500 var(--type-chip)/1.4 var(--font-mono)' }}>
-                            uses {row.current} · new limit {row.to ?? '∞'}
+                            {row.kind === 'feature'
+                              ? 'No longer included'
+                              : `uses ${row.current} · new limit ${row.to ?? '∞'}`}
                           </span>
                         </li>
                       ))}
@@ -294,16 +270,7 @@ function PlanChange({
   );
 }
 
-/**
- * Subscription lifecycle.
- *
- * ⚠ THE LEGAL MOVES COME FROM THE SERVICE, NOT FROM THIS MENU. 08 §7 defines six
- * states and the nine legal transitions between them, and the service refuses an
- * illegal one — so this offers the plausible destinations and lets the refusal
- * be authoritative. Encoding the transition table here would be a second copy of
- * it, and the expensive mistake is the one that silently reactivates a customer
- * who stopped paying.
- */
+/** The subscription service validates lifecycle transitions; keep refusals visible in the dialog. */
 function StatusChange({
   tenantId,
   workspace,
@@ -344,8 +311,7 @@ function StatusChange({
         });
         router.refresh();
       } else {
-        /* ⚠ AN ILLEGAL TRANSITION LANDS HERE, AND THAT IS CORRECT. The service
-           owns the state table; this dialog stays open and shows what it said. */
+        /* Preserve the open dialog and show the service refusal for an invalid transition. */
         setError(result.error);
       }
     });

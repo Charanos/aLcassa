@@ -1,5 +1,6 @@
 import 'server-only';
-import { and, eq, isNull } from 'drizzle-orm';
+import { createHash } from 'node:crypto';
+import { and, eq, isNull, or, sql } from 'drizzle-orm';
 import {
   auditLog,
   planEntitlements,
@@ -112,6 +113,8 @@ export async function assignPlan(
      * plan, which bills its list price. Doc 25 · R1.
      */
     contractAmount?: number | null;
+    /** Fingerprint of the allowances and usage reviewed in the console. */
+    expectedPreview?: string;
   },
   actor: PlatformActor,
 ): Promise<{ planCode: string; status: SubscriptionStatus }> {
@@ -161,8 +164,28 @@ export async function assignPlan(
     async (tx) => {
       // Doc 23: the capability column is enforced here, before anything is written.
       await requireCapability(tx, actor.userId, 'manage_workspaces');
+      // Serialize subscription mutations; the preview is rechecked under the same lock.
+      await tx
+        .select({ id: subscriptions.id })
+        .from(subscriptions)
+        .where(eq(subscriptions.tenantId, input.tenantId))
+        .for('update');
+      if (input.expectedPreview !== undefined) {
+        const fresh = await buildPlanChangePreview(tx, input);
+        if (fresh.fingerprint !== input.expectedPreview) {
+          throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED, {
+            message:
+              'The subscription, allowances or usage changed. Choose the plan again to review an updated preview.',
+          });
+        }
+      }
       const [plan] = await tx
-        .select({ id: plans.id, code: plans.code, trialDays: plans.trialDays })
+        .select({
+          id: plans.id,
+          code: plans.code,
+          trialDays: plans.trialDays,
+          priceAmount: plans.priceAmount,
+        })
         .from(plans)
         .where(and(eq(plans.code, input.planCode), eq(plans.isActive, true)))
         .limit(1);
@@ -172,6 +195,12 @@ export async function assignPlan(
           message: `There is no active plan with the code "${input.planCode}".`,
         });
       }
+      if (!target || plan.priceAmount !== target.priceAmount) {
+        throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED, {
+          message:
+            'The plan price changed during review. Reload and review the current price before continuing.',
+        });
+      }
 
       const [existing] = await tx
         .select({
@@ -179,6 +208,7 @@ export async function assignPlan(
           status: subscriptions.status,
           planId: subscriptions.planId,
           contractAmount: subscriptions.contractAmount,
+          version: subscriptions.version,
         })
         .from(subscriptions)
         .where(eq(subscriptions.tenantId, input.tenantId))
@@ -194,7 +224,8 @@ export async function assignPlan(
       if (
         !current ||
         current.planId !== existing.planId ||
-        current.contractAmount !== existing.contractAmount
+        current.contractAmount !== existing.contractAmount ||
+        current.version !== existing.version
       ) {
         throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED, {
           message:
@@ -226,12 +257,19 @@ export async function assignPlan(
 
       const changed = await tx
         .update(subscriptions)
-        .set({ planId: plan.id, status: nextStatus, contractAmount, updatedAt: new Date() })
+        .set({
+          planId: plan.id,
+          status: nextStatus,
+          contractAmount,
+          updatedAt: new Date(),
+          version: sql`${subscriptions.version} + 1`,
+        })
         .where(
           and(
             eq(subscriptions.id, existing.id),
             eq(subscriptions.planId, existing.planId),
             eq(subscriptions.status, existing.status),
+            eq(subscriptions.version, existing.version),
             existing.contractAmount === null
               ? isNull(subscriptions.contractAmount)
               : eq(subscriptions.contractAmount, existing.contractAmount),
@@ -308,6 +346,7 @@ async function readContract(
   planCode: string | null;
   contractAmount: number | null;
   monthly: number | null;
+  version: number;
 } | null> {
   return withActorContext(actor.userId, actor.requestId, async (tx) => {
     const [row] = await tx
@@ -316,6 +355,7 @@ async function readContract(
         planCode: plans.code,
         priceAmount: plans.priceAmount,
         contractAmount: subscriptions.contractAmount,
+        version: subscriptions.version,
       })
       .from(subscriptions)
       .leftJoin(plans, eq(plans.id, subscriptions.planId))
@@ -328,6 +368,7 @@ async function readContract(
       planCode: row.planCode,
       contractAmount: row.contractAmount,
       monthly: row.contractAmount ?? listed,
+      version: row.version,
     };
   });
 }
@@ -388,11 +429,16 @@ export async function setContractAmount(
          "before". */
       const updated = await tx
         .update(subscriptions)
-        .set({ contractAmount: amount, updatedAt: new Date() })
+        .set({
+          contractAmount: amount,
+          updatedAt: new Date(),
+          version: sql`${subscriptions.version} + 1`,
+        })
         .where(
           and(
             eq(subscriptions.tenantId, input.tenantId),
             eq(subscriptions.planId, current.planId),
+            eq(subscriptions.version, current.version),
             current.contractAmount === null
               ? isNull(subscriptions.contractAmount)
               : eq(subscriptions.contractAmount, current.contractAmount),
@@ -455,7 +501,11 @@ export async function changeSubscriptionStatus(
       // Doc 23: the capability column is enforced here, before anything is written.
       await requireCapability(tx, actor.userId, 'manage_workspaces');
       const [existing] = await tx
-        .select({ id: subscriptions.id, status: subscriptions.status })
+        .select({
+          id: subscriptions.id,
+          status: subscriptions.status,
+          version: subscriptions.version,
+        })
         .from(subscriptions)
         .where(eq(subscriptions.tenantId, input.tenantId))
         .limit(1);
@@ -485,8 +535,15 @@ export async function changeSubscriptionStatus(
           ...(input.to === 'past_due' ? { pastDueSince: new Date() } : {}),
           ...(input.to === 'active' ? { pastDueSince: null } : {}),
           updatedAt: new Date(),
+          version: sql`${subscriptions.version} + 1`,
         })
-        .where(and(eq(subscriptions.id, existing.id), eq(subscriptions.status, from)))
+        .where(
+          and(
+            eq(subscriptions.id, existing.id),
+            eq(subscriptions.status, from),
+            eq(subscriptions.version, existing.version),
+          ),
+        )
         .returning({ id: subscriptions.id });
       if (changed.length === 0)
         throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED, {
@@ -570,7 +627,8 @@ export async function grantOverride(
         .select({ id: subscriptions.id })
         .from(subscriptions)
         .where(eq(subscriptions.tenantId, input.tenantId))
-        .limit(1);
+        .limit(1)
+        .for('update');
 
       if (!subscription) {
         throw new AppError(ERROR_CODES.NOT_FOUND, {
@@ -659,30 +717,126 @@ export async function grantOverride(
   return result;
 }
 
-/**
- * 08 §9. What a plan change would do, computed before anything is written.
- *
- * ⚠ IT NAMES THE ENTITLEMENTS THAT WOULD FALL BELOW CURRENT USAGE.
- *
- * That is the whole value of the preview. "Seats: 10 → 1" is information;
- * "Seats: 10 → 1, and this workspace has 6 members" is a decision. Downgrades
- * that strand existing usage are not refused — sometimes they are correct,
- * and enforcement is at the point of the next write rather than retroactive —
- * but they are never silent.
- */
+/** Effective allowances and usage reviewed before assigning a plan. */
 export type PlanChangePreview = {
   fromPlan: string;
   toPlan: string;
+  fingerprint: string;
   rows: Array<{
     key: string;
     displayName: string;
+    kind: 'limit' | 'feature';
     from: number | null;
     to: number | null;
     current: number;
-    /** True when the new limit is below what this tenant already uses. */
+    fromEnabled: boolean;
+    toEnabled: boolean;
+    overridden: boolean;
     strands: boolean;
   }>;
 };
+
+async function buildPlanChangePreview(
+  tx: ServiceTransaction,
+  input: { tenantId: string; planCode: string },
+): Promise<PlanChangePreview> {
+  const [current] = await tx
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.tenantId, input.tenantId))
+    .limit(1)
+    .for('share');
+  const [target] = await tx
+    .select()
+    .from(plans)
+    .where(and(eq(plans.code, input.planCode), eq(plans.isActive, true)))
+    .limit(1)
+    .for('share');
+  if (!current || !target)
+    throw new AppError(ERROR_CODES.NOT_FOUND, {
+      message: 'That workspace or active plan could not be found.',
+    });
+  const [source] = await tx
+    .select()
+    .from(plans)
+    .where(eq(plans.id, current.planId))
+    .limit(1)
+    .for('share');
+  if (!source)
+    throw new AppError(ERROR_CODES.NOT_FOUND, { message: 'The current plan could not be found.' });
+  const grants = await tx
+    .select()
+    .from(planEntitlements)
+    .where(or(eq(planEntitlements.planId, current.planId), eq(planEntitlements.planId, target.id)))
+    .orderBy(planEntitlements.key, planEntitlements.planId)
+    .for('share');
+  const overrides = await tx
+    .select()
+    .from(subscriptionOverrides)
+    .where(eq(subscriptionOverrides.tenantId, input.tenantId))
+    .orderBy(subscriptionOverrides.key)
+    .for('share');
+  const usage = await tx
+    .select()
+    .from(usageCounters)
+    .where(eq(usageCounters.tenantId, input.tenantId))
+    .orderBy(usageCounters.key)
+    .for('share');
+  const fromByKey = new Map(
+    grants.filter((row) => row.planId === current.planId).map((row) => [row.key, row]),
+  );
+  const toByKey = new Map(
+    grants.filter((row) => row.planId === target.id).map((row) => [row.key, row]),
+  );
+  const liveOverrides = overrides.filter(
+    (row) => row.expiresAt === null || row.expiresAt.getTime() > Date.now(),
+  );
+  const overrideByKey = new Map(liveOverrides.map((row) => [row.key, row]));
+  const usageByKey = new Map(usage.map((row) => [row.key, row.currentValue]));
+  const keys = [
+    ...new Set([
+      ...fromByKey.keys(),
+      ...toByKey.keys(),
+      ...overrideByKey.keys(),
+      ...usageByKey.keys(),
+    ]),
+  ].sort();
+  const rows: PlanChangePreview['rows'] = keys.map((key) => {
+    const from = fromByKey.get(key),
+      to = toByKey.get(key),
+      override = overrideByKey.get(key);
+    const kind =
+      to?.kind ??
+      from?.kind ??
+      (override?.featureEnabled !== null && override?.featureEnabled !== undefined
+        ? 'feature'
+        : 'limit');
+    // A missing grant denies access. An explicit null limit grants unlimited use.
+    const fromLimit = override ? override.limitValue : from?.kind === 'limit' ? from.limitValue : 0;
+    const toLimit = override ? override.limitValue : to?.kind === 'limit' ? to.limitValue : 0;
+    const fromEnabled = override?.featureEnabled ?? from?.featureEnabled ?? false;
+    const toEnabled = override?.featureEnabled ?? to?.featureEnabled ?? false;
+    const currentUse = usageByKey.get(key) ?? 0;
+    return {
+      key,
+      displayName: to?.displayName ?? from?.displayName ?? key.replaceAll('_', ' '),
+      kind,
+      from: fromLimit,
+      to: toLimit,
+      current: currentUse,
+      fromEnabled,
+      toEnabled,
+      overridden: !!override,
+      strands:
+        kind === 'feature' ? fromEnabled && !toEnabled : toLimit !== null && currentUse > toLimit,
+    };
+  });
+  // Includes inactive override expiry and content, plan prices and subscription versions.
+  const fingerprint = createHash('sha256')
+    .update(JSON.stringify({ current, source, target, grants, overrides, usage, rows }))
+    .digest('hex');
+  return { fromPlan: source.code, toPlan: target.code, fingerprint, rows };
+}
 
 export async function previewPlanChange(
   input: { tenantId: string; planCode: string },
@@ -692,71 +846,16 @@ export async function previewPlanChange(
     {
       actorUserId: actor.userId,
       actorLabel: actor.label,
-      // A preview reads across a tenant it is not scoped to, so it is a
-      // service-role call and is audited like one. Reading is cheap; an
-      // unaudited read of another tenant's usage is not. It is recorded AS a
-      // preview: it was SUBSCRIPTION_PLAN_ASSIGNED, so every opened preview
-      // wrote "plan assigned" into the ledger. See PLAN_CHANGE_PREVIEWED.
       action: AUDIT_ACTIONS.PLAN_CHANGE_PREVIEWED,
       targetTenantId: input.tenantId,
       entityType: 'subscription',
-      reason: 'preview only, no change written',
+      reason: 'Preview only; no subscription change.',
       requestId: actor.requestId,
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
-      const [current] = await tx
-        .select({ planId: subscriptions.planId, planCode: plans.code })
-        .from(subscriptions)
-        .innerJoin(plans, eq(plans.id, subscriptions.planId))
-        .where(eq(subscriptions.tenantId, input.tenantId))
-        .limit(1);
-
-      const [target] = await tx
-        .select({ id: plans.id, code: plans.code })
-        .from(plans)
-        .where(eq(plans.code, input.planCode))
-        .limit(1);
-
-      if (!current || !target) {
-        throw new AppError(ERROR_CODES.NOT_FOUND, {
-          message: 'That workspace or plan could not be found.',
-        });
-      }
-
-      const [fromRows, toRows, usage] = await Promise.all([
-        tx.select().from(planEntitlements).where(eq(planEntitlements.planId, current.planId)),
-        tx.select().from(planEntitlements).where(eq(planEntitlements.planId, target.id)),
-        // `usage_counters` is tenant-scoped, and this reads one tenant's
-        // counters from outside any tenant context — which is exactly what a
-        // service-role call is for, and why this one is audited.
-        tx
-          .select({ key: usageCounters.key, currentValue: usageCounters.currentValue })
-          .from(usageCounters)
-          .where(eq(usageCounters.tenantId, input.tenantId)),
-      ]);
-
-      const usageByKey = new Map(usage.map((row) => [row.key, row.currentValue]));
-      const toByKey = new Map(toRows.map((r) => [r.key, r]));
-
-      return {
-        fromPlan: current.planCode,
-        toPlan: target.code,
-        rows: fromRows.map((row) => {
-          const next = toByKey.get(row.key);
-          const to = next?.limitValue ?? null;
-          const currentUse = usageByKey.get(row.key) ?? 0;
-          return {
-            key: row.key,
-            displayName: row.displayName,
-            from: row.limitValue ?? null,
-            to,
-            current: currentUse,
-            // null is unlimited, so it can never strand anything.
-            strands: to !== null && currentUse > to,
-          };
-        }),
-      };
+      await requireCapability(tx, actor.userId, 'manage_workspaces');
+      return buildPlanChangePreview(tx, input);
     },
   );
 }

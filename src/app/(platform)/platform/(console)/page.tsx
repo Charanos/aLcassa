@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import type { Metadata } from 'next';
 import {
   IconArrowRight,
@@ -19,13 +19,7 @@ import {
   Panel,
   SectionHeading,
 } from '@/components/console/Surface';
-import {
-  getOverview,
-  getOverviewInsights,
-  PORTFOLIO_COUNT,
-  greeting,
-  type Signal,
-} from '@/lib/console/data';
+import { getOverview, getOverviewInsights, greeting, type Signal } from '@/lib/console/data';
 import { getLiveOverview } from '@/lib/console/live';
 import { getLiveOverviewInsights } from '@/lib/console/liveOverview';
 import { resolveSupportSession } from '@/lib/console/session';
@@ -41,40 +35,9 @@ import { StatusBadge } from '@/components/primitives/StatusBadge';
 
 export const metadata: Metadata = { title: 'Overview' };
 
-/**
- * The console overview. `Overview.dc.html`.
- *
- * ⚠ THIS SCREEN IS A BRIEFING, NOT A DASHBOARD, and every layout decision
- * follows from that.
- *
- * The obvious version of this page is a grid of metric tiles. The design
- * rejects that, and it is right to: a grid of numbers tells an operator what
- * is true but not what to do, so it gets read once and then ignored. This one
- * opens with a SENTENCE naming the day's actual problem, and its main column
- * is a queue ordered by what each item costs to ignore.
- *
- * Three consequences worth stating, because they look like mistakes otherwise:
- *
- *  · The numbers are demoted. They sit in the inverted band as supporting
- *    detail beneath the sentence, not as the first thing on the page.
- *  · The queue outranks the right rail on width (1.9fr to 1fr). Health and
- *    the audit tail are reference; the queue is work.
- *  · There is a closing line for the 43 workspaces that need nothing. A queue
- *    with four items and no denominator reads as a system in trouble, when in
- *    fact 91% of it is fine — and an operator who cannot see that will keep
- *    checking the ones that are.
- */
+/** Lead the overview with actionable attention items; keep KPIs as supporting context and order the queue by urgency. */
 
-/**
- * ⚠ KEYED BY THE MODEL'S OWN UNION RATHER THAN BY `string`.
- *
- * `Record<string, TablerIcon>` accepts a lookup for a key that was never
- * added, so widening `Signal['icon']` and forgetting this map would have
- * fallen through to the `?? IconActivity` default in silence — a signal
- * rendering the generic glyph, which reads as a design choice rather than as
- * the omission it is. Typed against the union, the same mistake is a build
- * error.
- */
+/** Key icon coverage to Signal's union so a missing mapping fails typechecking. */
 const SIGNAL_ICON: Record<Signal['icon'], TablerIcon> = {
   coin: IconCoin,
   pulse: IconCreditCard,
@@ -84,14 +47,7 @@ const SIGNAL_ICON: Record<Signal['icon'], TablerIcon> = {
 };
 
 export default async function ConsoleOverviewPage() {
-  /**
-   * Live first, designed fixture second.
-   *
-   * The queue, the signals and the recent activity now come from the
-   * database. The fixture stays behind the review bypass, and it is the only
-   * place the invented revenue and uptime figures still appear — see
-   * `getLiveOverview` for why they are not reproduced against real rows.
-   */
+  /** Authenticated overview reads use database records; fixtures remain available only for demo review. */
   const [live, session, liveInsights] = await Promise.all([
     getLiveOverview(),
     resolveSupportSession(),
@@ -99,6 +55,10 @@ export default async function ConsoleOverviewPage() {
   ]);
   const model = live ?? (await getOverview());
   const insights = liveInsights ?? (await getOverviewInsights());
+  const workspaceCount = insights.portfolio.statusMix.reduce(
+    (total, slice) => total + slice.count,
+    0,
+  );
 
   return (
     <ConsolePage>
@@ -169,7 +129,6 @@ export default async function ConsoleOverviewPage() {
           boxShadow: '0 20px 40px -10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.06)',
         }}
       >
-        {/* ── Premium Ambient Background Art ── */}
         <div
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
           aria-hidden="true"
@@ -301,25 +260,12 @@ export default async function ConsoleOverviewPage() {
                   font: '500 var(--type-body)/1 var(--font-ui)',
                 }}
               >
-                All {PORTFOLIO_COUNT} workspaces
+                All {workspaceCount} workspaces
               </Link>
             </div>
           </div>
 
-          {/*
-            Right column: the chart.
-
-            ⚠ IT TAKES ITS SERIES AS A PROP NOW. It used to generate a
-            `Math.random()` walk internally and label it "platform throughput"
-            under a hardcoded 3.42M — a figure unrelated to the line beneath it,
-            over data that was different on the server and the client. See the
-            note at the top of `OverviewChart`.
-
-            `insights.revenue.mrr` is twelve months of recurring revenue derived
-            from the same twelve workspaces everything else on this page counts,
-            so the hero's line, the signals under it and the revenue screen the
-            button leads to are one set of numbers.
-          */}
+          {/* Derive the chart series and summary from the same revenue model. */}
           <div className="relative min-h-[260px] flex-1 lg:min-h-[280px]">
             <OverviewChart series={insights.revenue.mrr} />
           </div>
@@ -408,7 +354,6 @@ export default async function ConsoleOverviewPage() {
         </div>
       </section>
 
-      {/* ── Queue + rail ─────────────────────────────────────────────────── */}
       <div className="mb-6 md:mt-24">
         <SectionHeading
           title="Workspace follow-up"
@@ -459,12 +404,7 @@ export default async function ConsoleOverviewPage() {
         </div>
       </div>
 
-      {/*
-        Everything below the queue. The queue is what needs DOING today; these
-        three bands are what the operator checks around it — and each one is
-        derived from the page it links to rather than restated, so the overview
-        cannot disagree with the screen it summarises.
-      */}
+      {/* Derive supporting bands from the models used by their destination pages. */}
       <RevenueBand revenue={insights.revenue} />
       <PortfolioBand portfolio={insights.portfolio} />
       <OperationsBand operations={insights.operations} source={insights.source} />

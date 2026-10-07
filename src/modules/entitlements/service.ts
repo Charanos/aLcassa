@@ -145,7 +145,20 @@ async function loadSnapshot(ctx: ResolvedContext): Promise<EntitlementSnapshot> 
 
     const byKey: Partial<Record<EntitlementKey, Entitlement>> = {};
 
-    for (const row of planRows) {
+    // Live overrides remain grants even when the plan omits that key.
+    const effectiveRows = [
+      ...planRows,
+      ...overrideRows
+        .filter((row) => !planRows.some((plan) => plan.key === row.key))
+        .map((row) => ({
+          key: row.key,
+          kind: row.featureEnabled !== null ? ('feature' as const) : ('limit' as const),
+          displayName: row.key === 'api_keys' ? 'API keys' : row.key.replaceAll('_', ' '),
+          limitValue: row.limitValue,
+          featureEnabled: row.featureEnabled,
+        })),
+    ];
+    for (const row of effectiveRows) {
       const key = row.key as EntitlementKey;
       const override = overrideByKey.get(row.key);
 

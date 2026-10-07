@@ -29,7 +29,7 @@ import {
   type SuspensionImpact,
 } from '@/app/(platform)/platform/(console)/actions';
 import type { Meter, WorkspaceDetail, WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { gsapSafe } from '@/lib/motion';
 import { DestructiveConfirm } from '@/components/primitives/ConfirmDialog';
 import { describeAllowance } from '@/lib/console/allowances';

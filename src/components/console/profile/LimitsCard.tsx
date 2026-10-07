@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconArrowRight, IconEyeOff } from '@tabler/icons-react';
 import { RailEyebrow } from '@/components/console/profile/shared';
 

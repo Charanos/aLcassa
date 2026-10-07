@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { DataSource } from '../Surface';
 import { SkeletonBar, SkeletonGroup } from '@/components/primitives/Skeleton';
 import type { HealthModel } from '@/lib/console/data';

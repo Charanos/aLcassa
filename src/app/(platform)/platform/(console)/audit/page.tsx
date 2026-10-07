@@ -17,30 +17,7 @@ import { getLiveAuditEntries, getLiveAuditVolume } from '@/lib/console/liveWorks
 
 export const metadata: Metadata = { title: 'Audit log' };
 
-/**
- * The platform audit log. `Audit-Log.dc.html`.
- *
- * ⚠ FOR ITS WHOLE LIFE UNTIL 30 SEP 2026, THIS PAGE WAS BLIND.
- *
- * Signed in, it reported zero platform actions in thirty days over a table
- * holding 297. The select policy admits rows only to a platform-admin ACTOR and
- * the readers opened no actor, so row-level security filtered everything — and
- * filters rather than errors, so the page rendered an empty ledger with full
- * confidence. When it could see, it found most of what it held was a read
- * recorded as a change. Doc 23 records both, and the fixes.
- *
- * ⚠ THE CLAIM THE PAGE MAKES IS THE PAGE'S REASON TO EXIST, so it opens with
- * the claim — as evidence, not as a lede. "Append-only" is a policy you can
- * read (select, and no update or delete, for anyone); "written in the same
- * transaction" is how `withAudit()` works; the newest entry and the window's
- * totals are read from the log itself. A reader who cannot trust that a log is
- * complete will not rely on it in a dispute, which is the only time it matters.
- *
- * ⚠ THE VOLUME BAND HAS ITS OWN SUSPENSE BOUNDARY. The stream is why somebody
- * opened the page; the thirty-day aggregate is context and the expensive query.
- * Awaiting both before the first byte would make the answer wait on the
- * context.
- */
+/** Read the platform audit in operator context and distinguish recorded reads from mutations. */
 export default async function AuditPage() {
   /* Live first, designed fixture second — the review bypass has no session. */
   const live = await getLiveAuditEntries();
@@ -70,7 +47,6 @@ export default async function AuditPage() {
         }
       />
 
-      {/* ── The ledger's integrity, as evidence ─────────────────────────── */}
       <FactStrip label="How this log can be trusted">
         <FactCell
           icon={IconLock}

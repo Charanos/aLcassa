@@ -102,6 +102,9 @@ jobs:
       - run: pnpm db:app-role
       - run: pnpm db:seed
 
+      - name: Deployment schema compatibility
+        run: pnpm check:deployment
+
       # 06 §2 rule 1. A tenant-scoped table without a policy fails the build.
       # This runs before the tests and there is no override path.
       - name: Policy check

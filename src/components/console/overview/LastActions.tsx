@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconHistory } from '@tabler/icons-react';
 import { Panel } from '../Surface';
 import { SkeletonGroup } from '@/components/primitives/Skeleton';

@@ -6,21 +6,7 @@ import { IconArrowBackUp, IconStack2 } from '@tabler/icons-react';
 import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
 import { useToast } from '@/components/primitives/Toast';
 
-/**
- * Restore an earlier version of the master rules.
- *
- * ⚠ THE RAIL COULD SHOW THE HISTORY AND NOT USE IT, which made the
- * append-only design a claim rather than a capability. Its own header said
- * *"a rollback is a pointer move rather than a data restore"* — and there was
- * no control anywhere that moved the pointer.
- *
- * ⚠ IT CONFIRMS, AND IT IS NOT A `DestructiveConfirm` BY HABIT. Restoring
- * changes the floor every workspace inherits on its next reply, in one click,
- * from a narrow rail where the rows sit two-and-a-half pixels apart. The gate
- * is a misclick gate as much as a decision gate — and the reason field is what
- * makes the platform log readable afterwards, since "rules.rolled_back" alone
- * does not say what went wrong with the version being abandoned.
- */
+/** Restore a reviewed published version by moving the pointer; retain the version history. */
 export function RestoreVersion({
   versionId,
   versionNumber,
@@ -41,7 +27,11 @@ export function RestoreVersion({
   function submit() {
     setError(null);
     startTransition(async () => {
-      const result = await rollbackMasterRulesAction({ versionId, reason });
+      const result = await rollbackMasterRulesAction({
+        versionId,
+        reason,
+        expectedVersionNumber: currentVersionNumber,
+      });
       if (result.ok) {
         setOpen(false);
         setReason('');

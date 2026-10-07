@@ -27,14 +27,7 @@ export default async function InviteTeamMemberPage() {
     <div>
       <PageHeader
         title="Invite a teammate"
-        /*
-         * ⚠ THE DESCRIPTION TELLS THE TRUTH ABOUT THIS ENVIRONMENT.
-         *
-         * It used to promise an email unconditionally. Where no mail
-         * provider is configured that promise is false, and the owner would
-         * wait for a delivery that was never attempted. `emailIsConfigured`
-         * is what lets the sentence match what will actually happen.
-         */
+        /* Describe invitation delivery according to the configured mail provider. */
         description={
           emailIsConfigured()
             ? 'They receive an email with a link valid for seven days.'

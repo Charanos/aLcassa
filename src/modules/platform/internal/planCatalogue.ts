@@ -1,67 +1,135 @@
 import 'server-only';
-import { and, count, eq, gt, isNull, sql } from 'drizzle-orm';
-import { planEntitlements, plans, subscriptions, tenantMembers, tenants } from '@/db/schema';
+import { createHash } from 'node:crypto';
+import { and, eq, inArray, isNull, or, gt } from 'drizzle-orm';
+import {
+  auditLog,
+  planEntitlements,
+  plans,
+  subscriptionOverrides,
+  subscriptions,
+  tenants,
+  usageCounters,
+} from '@/db/schema';
 import { AUDIT_ACTIONS } from '@/lib/audit';
-import { asService } from '@/lib/db/serviceClient';
+import { withActorContext } from '@/lib/db';
+import { asService, type ServiceTransaction } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
+import { invalidateEntitlements } from '@/modules/entitlements';
 import type { PlatformActor } from './subscriptions';
 import { requireCapability } from './capabilities';
-
-/**
- * The plan catalogue's CEILINGS. 08 §2.
- *
- * ⚠ CHANGING A LIMIT HERE CHANGES IT FOR EVERY WORKSPACE ON THE PLAN, which is
- * the whole difference between this and `grantOverride`. The console had a
- * "Manage limits" button that was disabled with the correct explanation beside
- * it — *"Limits are a property of the plan, so changing one here would change
- * what every workspace on it is entitled to"* — and then offered no way to do
- * either thing. The explanation was right; treating it as a reason the control
- * could not exist was not. It is a reason the control must SAY SO, which is
- * what `previewPlanLimitChange` below exists to let it do.
- *
- * ⚠ SERVICE-ROLE, LIKE THE REST OF THE CATALOGUE. `03_subscriptions.sql` gives
- * `plans` and `plan_entitlements` a SELECT policy and nothing else — a
- * platform catalogue every tenant reads and none may write. The write is
- * therefore a platform record operation, audited before it is applied.
- */
 
 export type PlanLimitImpact = {
   planName: string;
   entitlementName: string;
-  /** NULL is unlimited, rendered as ∞ — see `plan_entitlements.limit_value`. */
   from: number | null;
   to: number | null;
-  /** Workspaces on this plan right now. */
   affected: number;
-  /**
-   * Workspaces already ABOVE the proposed ceiling.
-   *
-   * ⚠ THE FIGURE THE OPERATOR ACTUALLY NEEDS, and the reason this preview is
-   * worth a round trip. Lowering a seat limit from 25 to 10 is harmless if
-   * nobody is over 10 and a support incident if four workspaces are — and
-   * nothing on the plans screen could have told them which, because the
-   * headroom band shows the median and the maximum rather than a count against
-   * a proposed value.
-   */
   stranded: number;
+  /** Finite allowances whose usage has no recorded counter. */
+  unmeasured: number;
+  overridden: number;
+  fingerprint: string;
 };
 
-/** Which usage column answers for an entitlement key. */
-const USAGE: Record<string, 'seats' | null> = {
-  seats: 'seats',
-  staff_seats: 'seats',
-};
+function validateLimit(to: number | null): void {
+  if (to !== null && (!Number.isSafeInteger(to) || to < 0)) {
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message: 'Use a whole number of zero or more, or select unlimited.',
+    });
+  }
+}
 
-/**
- * What changing this ceiling would do, computed before it is applied.
- *
- * Returns the same shape the write returns, so the dialog states one set of
- * numbers and the confirmation acts on the same ones.
- */
+/** Lock existing usage and override rows while calculating the reviewed impact. */
+async function readImpact(
+  tx: ServiceTransaction,
+  input: { entitlementId: string; to: number | null },
+  lock: 'share' | 'update',
+) {
+  const [row] = await tx
+    .select()
+    .from(planEntitlements)
+    .where(eq(planEntitlements.id, input.entitlementId))
+    .limit(1)
+    .for(lock);
+  if (!row)
+    throw new AppError(ERROR_CODES.NOT_FOUND, { message: 'That allowance does not exist.' });
+  if (row.kind !== 'limit')
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message: 'This setting is a feature, not a numeric allowance.',
+    });
+  const [plan] = await tx
+    .select({ name: plans.name, code: plans.code })
+    .from(plans)
+    .where(eq(plans.id, row.planId))
+    .limit(1);
+  if (!plan) throw new AppError(ERROR_CODES.NOT_FOUND);
+  const workspaces = await tx
+    .select({ tenantId: subscriptions.tenantId, version: subscriptions.version })
+    .from(subscriptions)
+    .innerJoin(tenants, eq(tenants.id, subscriptions.tenantId))
+    .where(and(eq(subscriptions.planId, row.planId), isNull(tenants.deletedAt)))
+    .orderBy(subscriptions.tenantId);
+  const ids = workspaces.map((workspace) => workspace.tenantId);
+  const overrides = ids.length
+    ? await tx
+        .select()
+        .from(subscriptionOverrides)
+        .where(
+          and(
+            inArray(subscriptionOverrides.tenantId, ids),
+            eq(subscriptionOverrides.key, row.key),
+            or(
+              isNull(subscriptionOverrides.expiresAt),
+              gt(subscriptionOverrides.expiresAt, new Date()),
+            ),
+          ),
+        )
+        .orderBy(subscriptionOverrides.tenantId)
+        .for('share')
+    : [];
+  const usage = ids.length
+    ? await tx
+        .select()
+        .from(usageCounters)
+        .where(and(inArray(usageCounters.tenantId, ids), eq(usageCounters.key, row.key)))
+        .orderBy(usageCounters.tenantId)
+        .for('share')
+    : [];
+  const effective = workspaces.map((workspace) => {
+    const override = overrides.find((entry) => entry.tenantId === workspace.tenantId);
+    const counter = usage.find((entry) => entry.tenantId === workspace.tenantId);
+    return {
+      ...workspace,
+      from: override ? override.limitValue : row.limitValue,
+      to: override ? override.limitValue : input.to,
+      current: counter?.currentValue ?? null,
+      overridden: Boolean(override),
+    };
+  });
+  const impact: PlanLimitImpact = {
+    planName: plan.name,
+    entitlementName: row.displayName,
+    from: row.limitValue,
+    to: input.to,
+    affected: workspaces.length,
+    stranded: effective.filter(
+      (entry) => entry.to !== null && entry.current !== null && entry.current > entry.to,
+    ).length,
+    unmeasured: effective.filter((entry) => entry.to !== null && entry.current === null).length,
+    overridden: overrides.length,
+    fingerprint: createHash('sha256')
+      .update(JSON.stringify({ row, to: input.to, workspaces, overrides, usage, effective }))
+      .digest('hex'),
+  };
+  return { row, plan, effective, impact };
+}
+
+/** Audited preview; no catalogue value or customer activity is changed. */
 export async function previewPlanLimitChange(
   input: { entitlementId: string; to: number | null },
   actor: PlatformActor,
 ): Promise<PlanLimitImpact> {
+  validateLimit(input.to);
   return asService(
     {
       actorUserId: actor.userId,
@@ -74,113 +142,37 @@ export async function previewPlanLimitChange(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
-      const [row] = await tx
-        .select({
-          id: planEntitlements.id,
-          key: planEntitlements.key,
-          kind: planEntitlements.kind,
-          limitValue: planEntitlements.limitValue,
-          displayName: planEntitlements.displayName,
-          planId: planEntitlements.planId,
-          planName: plans.name,
-        })
-        .from(planEntitlements)
-        .innerJoin(plans, eq(plans.id, planEntitlements.planId))
-        .where(eq(planEntitlements.id, input.entitlementId))
-        .limit(1);
-
-      if (!row) {
-        throw new AppError(ERROR_CODES.NOT_FOUND, { message: 'That entitlement does not exist.' });
-      }
-      if (row.kind !== 'limit') {
-        /* A feature flag has no ceiling to move. Refusing here rather than
-           writing `limit_value` onto a `feature` row, which would produce an
-           entitlement that is neither. */
-        throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
-          message: 'That entitlement is a feature, not a limit.',
-        });
-      }
-
-      const [onPlan] = await tx
-        .select({ n: count() })
-        .from(subscriptions)
-        .innerJoin(tenants, eq(tenants.id, subscriptions.tenantId))
-        .where(and(eq(subscriptions.planId, row.planId), isNull(tenants.deletedAt)));
-
-      /**
-       * ⚠ ONLY SEATS CAN BE COUNTED TODAY, AND THE PREVIEW SAYS `0` RATHER
-       * THAN GUESSING. Channels and API keys have no usage counter that is
-       * written yet — Phase 2 seams — so a "stranded" figure for them would be
-       * an invented number on a confirmation dialog, which is the exact failure
-       * the suspend dialog's live preview was built to remove.
-       */
-      let stranded = 0;
-      if (input.to !== null && USAGE[row.key] === 'seats') {
-        const [over] = await tx
-          .select({ n: count() })
-          .from(subscriptions)
-          .innerJoin(tenants, eq(tenants.id, subscriptions.tenantId))
-          .where(
-            and(
-              eq(subscriptions.planId, row.planId),
-              isNull(tenants.deletedAt),
-              gt(
-                sql<number>`(
-                  select count(*) from ${tenantMembers}
-                  where ${tenantMembers.tenantId} = ${tenants.id}
-                    and ${tenantMembers.status} = 'active'
-                    and ${tenantMembers.deletedAt} is null
-                )`,
-                input.to,
-              ),
-            ),
-          );
-        stranded = over?.n ?? 0;
-      }
-
-      return {
-        planName: row.planName,
-        entitlementName: row.displayName,
-        from: row.limitValue,
-        to: input.to,
-        affected: onPlan?.n ?? 0,
-        stranded,
-      };
+      await requireCapability(tx, actor.userId, 'manage_workspaces');
+      return (await readImpact(tx, input, 'share')).impact;
     },
   );
 }
 
-/**
- * Move a ceiling on the plan catalogue.
- *
- * ⚠ IT DOES NOT TOUCH ANY WORKSPACE'S OWN ENTITLEMENTS. Those are resolved
- * from the plan at read time, plus any per-workspace override, so raising the
- * plan raises everybody on it and an override still wins where one exists.
- * There is nothing to backfill and nothing that can drift.
- *
- * ⚠ LOWERING A CEILING DOES NOT EVICT ANYBODY. A workspace already above the
- * new limit keeps what it has and cannot add more — which is the behaviour
- * `app.tenant_is_writable()` and the entitlement checks already implement, and
- * the only humane answer: removing four people from a workspace because a
- * price list changed is not a thing a billing screen should do.
- */
+/** Serialize catalogue writes and refuse changed previews before committing either audit trail. */
 export async function setPlanLimit(
-  input: { entitlementId: string; to: number | null; reason: string },
+  input: { entitlementId: string; to: number | null; reason: string; expectedPreview: string },
   actor: PlatformActor,
 ): Promise<PlanLimitImpact> {
+  validateLimit(input.to);
   const reason = input.reason.trim();
-  if (reason.length < 8) {
+  if (reason.length < 8 || !/^[a-f0-9]{64}$/.test(input.expectedPreview ?? ''))
     throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
-      message: 'Say why. Every workspace on this plan is affected, and the log is the only record.',
+      message: 'Review the current impact and enter a reason before confirming.',
     });
-  }
-  if (input.to !== null && (!Number.isInteger(input.to) || input.to < 1)) {
-    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
-      message: 'A limit is a whole number of at least 1, or unlimited.',
-    });
-  }
-
-  return asService(
+  const before = await withActorContext(actor.userId, actor.requestId, async (tx) => {
+    const [row] = await tx
+      .select({
+        limit: planEntitlements.limitValue,
+        key: planEntitlements.key,
+        planId: planEntitlements.planId,
+      })
+      .from(planEntitlements)
+      .where(eq(planEntitlements.id, input.entitlementId))
+      .limit(1);
+    if (!row) throw new AppError(ERROR_CODES.NOT_FOUND);
+    return row;
+  });
+  const saved = await asService(
     {
       actorUserId: actor.userId,
       actorLabel: actor.label,
@@ -190,57 +182,61 @@ export async function setPlanLimit(
       reason,
       requestId: actor.requestId,
       ipAddress: actor.ipAddress ?? null,
+      before,
+      after: { ...before, limit: input.to },
     },
     async (tx) => {
-      // Doc 23: the capability column is enforced here, before anything is written.
       await requireCapability(tx, actor.userId, 'manage_workspaces');
-      const [row] = await tx
-        .select({
-          id: planEntitlements.id,
-          kind: planEntitlements.kind,
-          limitValue: planEntitlements.limitValue,
-          displayName: planEntitlements.displayName,
-          planId: planEntitlements.planId,
-          planName: plans.name,
-        })
-        .from(planEntitlements)
-        .innerJoin(plans, eq(plans.id, planEntitlements.planId))
-        .where(eq(planEntitlements.id, input.entitlementId))
-        .limit(1);
-
-      if (!row) {
-        throw new AppError(ERROR_CODES.NOT_FOUND, { message: 'That entitlement does not exist.' });
-      }
-      if (row.kind !== 'limit') {
-        throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
-          message: 'That entitlement is a feature, not a limit.',
+      const reviewed = await readImpact(tx, input, 'update');
+      if (
+        reviewed.impact.fingerprint !== input.expectedPreview ||
+        reviewed.row.limitValue !== before.limit
+      ) {
+        throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED, {
+          message:
+            'The allowance or workspace usage changed. Review the current impact before confirming again.',
         });
       }
-      if (row.limitValue === input.to) {
+      if (reviewed.row.limitValue === input.to)
         throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
-          message: 'That is the limit it already has.',
+          message: 'That is the current allowance.',
         });
-      }
-
       await tx
         .update(planEntitlements)
         .set({ limitValue: input.to, updatedAt: new Date() })
-        .where(eq(planEntitlements.id, row.id));
-
-      const [onPlan] = await tx
-        .select({ n: count() })
-        .from(subscriptions)
-        .innerJoin(tenants, eq(tenants.id, subscriptions.tenantId))
-        .where(and(eq(subscriptions.planId, row.planId), isNull(tenants.deletedAt)));
-
+        .where(eq(planEntitlements.id, input.entitlementId));
+      for (const workspace of reviewed.effective) {
+        await tx.insert(auditLog).values({
+          tenantId: workspace.tenantId,
+          actorUserId: actor.userId,
+          actorType: 'platform_admin',
+          actorLabel: actor.label,
+          action: AUDIT_ACTIONS.PLAN_LIMIT_CHANGED,
+          entityType: 'plan_entitlement',
+          entityId: input.entitlementId,
+          before: {
+            key: reviewed.row.key,
+            plan: reviewed.plan.code,
+            planLimit: reviewed.row.limitValue,
+            effectiveLimit: workspace.from,
+          },
+          after: {
+            key: reviewed.row.key,
+            plan: reviewed.plan.code,
+            planLimit: input.to,
+            effectiveLimit: workspace.to,
+            reason,
+          },
+          requestId: actor.requestId,
+          ipAddress: actor.ipAddress ?? null,
+        });
+      }
       return {
-        planName: row.planName,
-        entitlementName: row.displayName,
-        from: row.limitValue,
-        to: input.to,
-        affected: onPlan?.n ?? 0,
-        stranded: 0,
+        impact: reviewed.impact,
+        tenantIds: reviewed.effective.map((workspace) => workspace.tenantId),
       };
     },
   );
+  await Promise.all(saved.tenantIds.map((tenantId) => invalidateEntitlements(tenantId)));
+  return saved.impact;
 }

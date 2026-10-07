@@ -168,7 +168,7 @@ export function SkeletonHeader({ withAction = false }: { withAction?: boolean })
     <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
       <div className="min-w-0 flex-1">
         <Bone className="h-3" style={{ width: 128 }} />
-        <Bone className="mt-3 h-7" style={{ width: 256 }} />
+        <Bone className="mt-3 h-7" style={{ width: 'min(256px, 100%)' }} />
       </div>
       {withAction ? <Bone className="h-8.5 shrink-0" style={{ width: 132 }} /> : null}
     </div>
@@ -191,6 +191,7 @@ export function SkeletonGroup({
 }) {
   return (
     <div role="status" aria-busy="true" aria-label={label} className={className}>
+      <span className="sr-only">{label}…</span>
       {children}
     </div>
   );

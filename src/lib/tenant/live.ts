@@ -17,6 +17,7 @@ import { getEntitlementSnapshot } from '@/modules/entitlements';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { describeAction, describeTarget } from '@/lib/console/auditVocabulary';
 import { activityDate, decodeActivityCursor, encodeActivityCursor } from './activity';
+import { activityDetails } from './activityDetails';
 import type {
   AccountModel,
   AccountSessionsModel,
@@ -363,6 +364,8 @@ export async function getLiveTenantAudit(
         action: auditLog.action,
         entityType: auditLog.entityType,
         requestId: auditLog.requestId,
+        before: auditLog.before,
+        after: auditLog.after,
       })
       .from(auditLog)
       .where(
@@ -409,6 +412,7 @@ export async function getLiveTenantAudit(
         action: row.action,
         actionLabel: describeAction(row.action).label,
         target: describeTarget(row.entityType),
+        ...activityDetails(row.action, row.before, row.after),
       })),
       retentionDays,
     };

@@ -6,32 +6,7 @@ import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonNoContent } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 
-/**
- * 07 §3 · `POST /v1/auth/password/forgot`.
- * "Always 204, never confirms an account exists."
- *
- * ⚠ EVERY PATH THROUGH THIS FUNCTION RETURNS THE SAME 204, AND THE ONES THAT
- *   LOOK LIKE ERROR HANDLING ARE THE POINT OF THE ROUTE.
- *
- * A password reset form is the easiest account-existence oracle in any
- * product. Return 404 for an unknown address and an attacker can enumerate
- * every customer this platform has, one request at a time, and then go
- * looking for those addresses in breach corpora. So:
- *
- *   unknown address        → 204, and no email is sent
- *   known address          → 204, and an email is sent
- *   Supabase is down       → 204, and it is logged for us
- *   malformed address      → 204, and nothing happens
- *
- * The response body, the status and the timing must not distinguish them.
- * The page that posts here says "if that address has an account, we have sent
- * a link" — which is true in every case above, and is the only honest thing
- * that can be said without leaking.
- *
- * The one thing NOT deferred to silence is a validation failure on our own
- * side: an address that is not an address cannot belong to anyone, so
- * refusing to call Supabase with it saves a request and leaks nothing.
- */
+/** Return the same password-reset response for unknown accounts and provider failures. */
 
 const forgotSchema = z.object({
   email: z.string().trim().toLowerCase().email(),
@@ -48,19 +23,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const parsed = forgotSchema.safeParse(raw);
 
-    /**
-     * ⚠ THE LIMIT IS ENFORCED BEFORE THE SEND AND ITS REFUSAL IS SWALLOWED.
-     *
-     * This endpoint answers 204 to everything by design, so that it cannot be
-     * used to discover which addresses have accounts. A 429 would break that
-     * — it would confirm which address had been asked for often enough to
-     * matter. So the limit still stops the mail going out, and the caller is
-     * told nothing.
-     *
-     * This route SENDS EMAIL, which is why the budget is three per five
-     * minutes rather than the sign-in five per minute: an unlimited reset
-     * endpoint is a way to have us deliver somebody else's mail for them.
-     */
+    /** Enforce the email-send budget without exposing account state through a different reset response. */
     let limited = false;
     try {
       await enforceRateLimit(request, RATE_LIMITS.passwordForgot, parsed.data?.email);

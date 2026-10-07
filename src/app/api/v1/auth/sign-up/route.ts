@@ -9,29 +9,7 @@ import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 import { selfServeSignUp, selfServeSignUpSchema } from '@/modules/platform';
 
-/**
- * IA §3 · `POST /v1/auth/sign-up`. "New tenant registration — creates tenant,
- * membership and owner in one transaction."
- *
- * ⚠ THIS ROUTE DID NOT EXIST UNTIL NOW, AND THE FORM HAS BEEN POSTING AT IT
- * THE WHOLE TIME. `/sign-up` has always carried
- * `action="/api/v1/auth/sign-up"`, so every submission since the page was
- * built has 404ed. The page was never the problem; this file was missing.
- *
- * ⚠ IT IS A PLAIN FORM POST, LIKE SIGN-IN. Same reasoning: registration that
- * needs a bundle to work is registration that breaks for the people least
- * able to work around it. Failures come back as `?error=<code>` on `/sign-up`
- * and the page renders the catalogue's message.
- *
- * ⚠ THE READER IS SIGNED IN BEFORE THEY CONFIRM THEIR EMAIL, DELIBERATELY.
- * They own a real workspace the moment the transaction commits, and bouncing
- * them to a "check your email" dead end with no session is where self-serve
- * funnels lose people — they close the tab, the mail lands in spam, and the
- * workspace they just created is never seen again. So a session is issued and
- * `/sign-up/verify` is a SIGNED-IN page they can leave at any time by
- * continuing into the product. Confirmation still gates whatever the
- * entitlement layer decides it gates; it does not gate having an account.
- */
+/** Signup supports plain form posts and catalogue-based error redirects. */
 
 const SELF_SERVE_DISABLED = process.env.ALLOW_SELF_SERVE_SIGNUP === 'false';
 
@@ -41,16 +19,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const log = logger.child({ requestId, route: '/api/v1/auth/sign-up' });
 
   try {
-    /*
-     * ⚠ A KILL SWITCH, DEFAULTING TO ON. This endpoint lets an anonymous
-     * caller create a tenant row, which is the most consequential thing any
-     * public route in this application does. If registration is ever being
-     * abused — or the business decides workspaces are sales-led after all —
-     * `ALLOW_SELF_SERVE_SIGNUP=false` closes it without a deploy. It is
-     * opt-OUT rather than opt-in because the sign-up page is already public
-     * and linked from the marketing site; shipping it closed by default would
-     * make a live link start refusing.
-     */
+    /* ALLOW_SELF_SERVE_SIGNUP=false disables public workspace registration. */
     if (SELF_SERVE_DISABLED) throw new AppError(ERROR_CODES.SIGNUP_DISABLED);
 
     /* Tighter than sign-in's five-per-minute. A failed sign-in costs a row
@@ -101,19 +70,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       throw new AppError(ERROR_CODES.INTERNAL);
     }
 
-    /*
-     * The confirmation link. Sent AFTER the transaction committed, because a
-     * "confirm your workspace" mail for a workspace that failed to be created
-     * is worse than no mail at all. A send failure does not fail the request:
-     * the account exists and works, and `/sign-up/verify` has a resend button
-     * for exactly this.
-     */
-    /* `resend`, not `generateLink`. `generateLink({ type: 'signup' })` demands
-       the password back so it can mint the link, and holding the plaintext
-       past the point it is needed to satisfy an API signature is exactly the
-       habit the rest of this codebase refuses. `resend` addresses the
-       unconfirmed user by email and needs nothing else — and it is the same
-       call `verify-email/resend` makes, so the two cannot drift. */
+    /* Send confirmation after the workspace commits; delivery failure does not undo signup. */
+    /* Resend by email so plaintext passwords are not retained to generate a link. */
     const supabase = await createSupabaseServerClient();
     const sent = await supabase.auth
       .resend({ type: 'signup', email: result.email })

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from '@/components/structure/NavigationLink';
 import {
   IconArrowsSort,
   IconChevronDown,
@@ -201,7 +202,7 @@ export function WorkspaceTable({
   const [query, setQuery] = useState('');
   const [statuses, setStatuses] = useState<WorkspaceStatus[]>(seed?.statuses ?? []);
   const [attention, setAttention] = useState(seed?.attention ?? false);
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
   const searchRef = useRef<HTMLInputElement>(null);
@@ -476,26 +477,32 @@ export function WorkspaceTable({
                 >
                   <th
                     scope="col"
-                    className="cursor-pointer py-3.5 pr-4 pl-6 select-none"
-                    onClick={() => toggleSort('name')}
+                    className="py-3 pr-4 pl-6"
+                    aria-sort={
+                      sortField === 'name'
+                        ? sortDir === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                        : 'none'
+                    }
                   >
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="text-2xs font-medium tracking-[0.1em] uppercase"
-                        style={{ color: 'var(--text-tertiary)' }}
-                      >
-                        Workspace
-                      </span>
+                    <button
+                      type="button"
+                      onClick={() => toggleSort('name')}
+                      aria-label="Sort by workspace"
+                      className="t-caption flex items-center gap-2 rounded-chip text-[var(--text-secondary)] outline-offset-4 hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-[var(--border-focus)]"
+                    >
+                      Workspace
                       {sortField === 'name' ? (
                         sortDir === 'asc' ? (
-                          <IconChevronUp size={14} />
+                          <IconChevronUp size={14} aria-hidden />
                         ) : (
-                          <IconChevronDown size={14} />
+                          <IconChevronDown size={14} aria-hidden />
                         )
                       ) : (
-                        <IconArrowsSort size={13} className="opacity-40" />
+                        <IconArrowsSort size={13} className="opacity-40" aria-hidden />
                       )}
-                    </div>
+                    </button>
                   </th>
 
                   <th scope="col" className="px-3 py-3.5">
@@ -518,74 +525,94 @@ export function WorkspaceTable({
 
                   <th
                     scope="col"
-                    className="cursor-pointer px-3 py-3.5 select-none"
-                    onClick={() => toggleSort('seats')}
+                    className="px-3 py-3"
+                    aria-sort={
+                      sortField === 'seats'
+                        ? sortDir === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                        : 'none'
+                    }
                   >
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="text-2xs font-medium tracking-[0.1em] uppercase"
-                        style={{ color: 'var(--text-tertiary)' }}
-                      >
-                        Seats
-                      </span>
+                    <button
+                      type="button"
+                      onClick={() => toggleSort('seats')}
+                      aria-label="Sort by seats"
+                      className="t-caption flex items-center gap-2 rounded-chip text-[var(--text-secondary)] outline-offset-4 hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-[var(--border-focus)]"
+                    >
+                      Seats
                       {sortField === 'seats' ? (
                         sortDir === 'asc' ? (
-                          <IconChevronUp size={14} />
+                          <IconChevronUp size={14} aria-hidden />
                         ) : (
-                          <IconChevronDown size={14} />
+                          <IconChevronDown size={14} aria-hidden />
                         )
                       ) : (
-                        <IconArrowsSort size={13} className="opacity-40" />
+                        <IconArrowsSort size={13} className="opacity-40" aria-hidden />
                       )}
-                    </div>
+                    </button>
                   </th>
+
+                  {source !== 'live' && (
+                    <th
+                      scope="col"
+                      className="px-3 py-3"
+                      aria-sort={
+                        sortField === 'events'
+                          ? sortDir === 'asc'
+                            ? 'ascending'
+                            : 'descending'
+                          : 'none'
+                      }
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleSort('events')}
+                        aria-label="Sort by events / month"
+                        className="t-caption flex items-center gap-2 rounded-chip text-[var(--text-secondary)] outline-offset-4 hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-[var(--border-focus)]"
+                      >
+                        Events / month
+                        {sortField === 'events' ? (
+                          sortDir === 'asc' ? (
+                            <IconChevronUp size={14} aria-hidden />
+                          ) : (
+                            <IconChevronDown size={14} aria-hidden />
+                          )
+                        ) : (
+                          <IconArrowsSort size={13} className="opacity-40" aria-hidden />
+                        )}
+                      </button>
+                    </th>
+                  )}
 
                   <th
                     scope="col"
-                    className="cursor-pointer px-3 py-3.5 select-none"
-                    onClick={() => toggleSort('events')}
+                    className="px-3 py-3"
+                    aria-sort={
+                      sortField === 'activity'
+                        ? sortDir === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                        : 'none'
+                    }
                   >
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="text-2xs font-medium tracking-[0.1em] uppercase"
-                        style={{ color: 'var(--text-tertiary)' }}
-                      >
-                        Events / Month
-                      </span>
-                      {sortField === 'events' ? (
-                        sortDir === 'asc' ? (
-                          <IconChevronUp size={14} />
-                        ) : (
-                          <IconChevronDown size={14} />
-                        )
-                      ) : (
-                        <IconArrowsSort size={13} className="opacity-40" />
-                      )}
-                    </div>
-                  </th>
-
-                  <th
-                    scope="col"
-                    className="cursor-pointer px-3 py-3.5 select-none"
-                    onClick={() => toggleSort('activity')}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="text-2xs font-medium tracking-[0.1em] uppercase"
-                        style={{ color: 'var(--text-tertiary)' }}
-                      >
-                        Activity
-                      </span>
+                    <button
+                      type="button"
+                      onClick={() => toggleSort('activity')}
+                      aria-label="Sort by activity"
+                      className="t-caption flex items-center gap-2 rounded-chip text-[var(--text-secondary)] outline-offset-4 hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-[var(--border-focus)]"
+                    >
+                      Activity
                       {sortField === 'activity' ? (
                         sortDir === 'asc' ? (
-                          <IconChevronUp size={14} />
+                          <IconChevronUp size={14} aria-hidden />
                         ) : (
-                          <IconChevronDown size={14} />
+                          <IconChevronDown size={14} aria-hidden />
                         )
                       ) : (
-                        <IconArrowsSort size={13} className="opacity-40" />
+                        <IconArrowsSort size={13} className="opacity-40" aria-hidden />
                       )}
-                    </div>
+                    </button>
                   </th>
 
                   <th scope="col" className="py-3.5 pr-6 pl-3 text-right">
@@ -622,7 +649,7 @@ export function WorkspaceTable({
                       }}
                     >
                       {/* Workspace & Meta */}
-                      <td className="relative py-5 pr-4 pl-6">
+                      <td className="relative py-4 pr-4 pl-6">
                         <div className="flex items-center gap-3.5">
                           <InitialsTile
                             name={r.name}
@@ -659,30 +686,23 @@ export function WorkspaceTable({
                               >
                                 {r.slug}
                               </span>
-                              <span style={{ color: 'var(--border-strong)' }}>·</span>
-                              <span
-                                className="font-mono text-xs"
-                                style={{ color: 'var(--text-tertiary)' }}
-                              >
-                                {r.id}
-                              </span>
                             </div>
                           </div>
                         </div>
                       </td>
 
                       {/* Plan */}
-                      <td className="px-3 py-5">
+                      <td className="px-3 py-4">
                         <PlanBadge plan={r.plan} />
                       </td>
 
                       {/* Status */}
-                      <td className="px-3 py-5">
+                      <td className="px-3 py-4">
                         <StatusBadge status={r.status} />
                       </td>
 
                       {/* Seats Meter */}
-                      <td className="px-3 py-5">
+                      <td className="px-3 py-4">
                         <DetailedMeter
                           value={`${r.seatsUsed}`}
                           maxFormatted={seats.label}
@@ -692,13 +712,8 @@ export function WorkspaceTable({
                         />
                       </td>
 
-                      {/* Events Meter */}
-                      <td className="px-3 py-5">
-                        {source === 'live' ? (
-                          <span className="t-caption text-[var(--text-secondary)]">
-                            Not measured
-                          </span>
-                        ) : (
+                      {source !== 'live' && (
+                        <td className="px-3 py-4">
                           <DetailedMeter
                             value={group(r.events)}
                             maxFormatted={formatCompactNumber(r.eventsLimit)}
@@ -706,11 +721,10 @@ export function WorkspaceTable({
                             subtext={`${formatCompactNumber(eventsLeft)} remaining`}
                             maxTrackWidth={140}
                           />
-                        )}
-                      </td>
-
+                        </td>
+                      )}
                       {/* Activity & Timeline */}
-                      <td className="px-3 py-5">
+                      <td className="px-3 py-4">
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 font-mono text-xs">
                             {isRecent && (
@@ -744,7 +758,7 @@ export function WorkspaceTable({
 
                       {/* Actions */}
                       <td
-                        className="py-5 pr-6 pl-3 text-right"
+                        className="py-4 pr-6 pl-3 text-right"
                         onClick={(e) => e.stopPropagation()}
                         data-row-actions
                         onKeyDown={(e) => {
@@ -808,7 +822,7 @@ export function WorkspaceTable({
                 <article
                   key={r.id}
                   onClick={() => setDrawerRow(r)}
-                  className="group relative cursor-pointer overflow-hidden rounded-overlay transition-all duration-400"
+                  className="group relative flex cursor-pointer flex-col overflow-hidden rounded-card transition-shadow duration-200 hover:shadow-sm"
                   style={{
                     background: 'var(--surface-raised)',
                     border: '1px solid var(--border-subtle)',
@@ -822,7 +836,7 @@ export function WorkspaceTable({
                     }}
                   />
 
-                  <div className="relative z-10 p-5">
+                  <div className="relative z-10 flex-1 p-5 sm:p-6">
                     <div className="flex items-start gap-3.5">
                       <InitialsTile
                         name={r.name}
@@ -857,7 +871,7 @@ export function WorkspaceTable({
                           className="mt-0.5 truncate font-mono text-xs"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
-                          {r.slug} · {r.id}
+                          {r.slug}
                         </p>
                       </div>
 
@@ -904,13 +918,17 @@ export function WorkspaceTable({
                           className="mb-1.5 flex items-center gap-1.5 text-2xs font-medium tracking-[0.1em] uppercase"
                           style={{ color: 'var(--text-tertiary)' }}
                         >
-                          <IconBolt size={12} stroke={2} />
-                          Events
+                          {source === 'live' ? (
+                            <IconActivityHeartbeat size={12} stroke={1.5} aria-hidden />
+                          ) : (
+                            <IconBolt size={12} stroke={2} aria-hidden />
+                          )}
+                          {source === 'live' ? 'Last activity' : 'Events'}
                         </dt>
                         <dd>
                           {source === 'live' ? (
                             <span className="t-caption text-[var(--text-secondary)]">
-                              Not measured
+                              {r.activity === 'never' ? 'None recorded' : r.activity}
                             </span>
                           ) : (
                             <DetailedMeter
@@ -924,36 +942,43 @@ export function WorkspaceTable({
                       </div>
                     </dl>
 
-                    <div
-                      className="mt-4 flex items-center justify-between font-mono text-xs"
-                      style={{ color: 'var(--text-tertiary)' }}
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <IconActivityHeartbeat size={13} stroke={1.5} />
-                        Active: {r.activity}
-                      </span>
-                    </div>
+                    {source !== 'live' && (
+                      <div
+                        className="mt-4 flex items-center justify-between font-mono text-xs"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <IconActivityHeartbeat size={13} stroke={1.5} />
+                          Last activity: {r.activity}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPending(toWorkspace(r));
-                    }}
-                    className="relative z-10 flex h-11 w-full items-center justify-center gap-2 font-medium transition-colors hover:bg-[var(--surface-inset)] active:bg-[var(--surface-sunken)]"
-                    style={{
-                      borderTop:
-                        '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: 'var(--glass-highlight)',
-                      background: 'var(--surface-raised)',
-                      color: 'var(--text-secondary)',
-                      fontSize: 'var(--type-body)',
-                    }}
-                  >
-                    <IconExternalLink size={16} stroke={1.5} aria-hidden />
-                    Start support session
-                  </button>
+                  <div className="relative z-10 flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] px-5 py-3 sm:px-6">
+                    <Link
+                      href={`/platform/tenants/${encodeURIComponent(r.slug)}`}
+                      onClick={(event) => event.stopPropagation()}
+                      className="t-compact rounded-full px-2 py-2 text-[var(--text-action)] hover:bg-[var(--surface-inset)]"
+                      aria-label={`Open ${r.name}`}
+                    >
+                      Open workspace
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPending(toWorkspace(r));
+                      }}
+                      aria-label={`Start support session for ${r.name}`}
+                      className="flex size-9 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--surface-inset)] active:bg-[var(--surface-sunken)]"
+                      style={{
+                        color: 'var(--text-secondary)',
+                      }}
+                    >
+                      <IconExternalLink size={16} stroke={1.5} aria-hidden />
+                    </button>
+                  </div>
                 </article>
               );
             })}

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { DashboardHero } from '@/components/tenant/DashboardHero';
 import { ChannelsPanel, MetersPanel, QueuePanel } from '@/components/tenant/OverviewPanels';
 import { Reveal } from '@/components/tenant/Reveal';
@@ -11,38 +11,21 @@ import { getOverview } from '@/lib/tenant/data';
 
 export const metadata: Metadata = { title: 'Overview' };
 
-/**
- * 02 §4. The tenant overview: what needs a person, what the assistant is
- * absorbing, what the plan has left, and — until it is finished — the setup
- * checklist.
- *
- * ⚠ THE SETUP CHECKLIST IS THE HIGHEST-VALUE FOUR HOURS IN THE TENANT
- * APPLICATION. A B2B owner's entire first impression is whether they knew
- * what to do next, and this audience will use the product for twenty
- * minutes in week one and five minutes a month afterwards.
- *
- * It disappears PERMANENTLY once complete and it never reappears. A
- * checklist that comes back is a nag. Copy from 10 §4.
- *
- * ⚠ THE CHECKLIST SITS ABOVE THE MEASUREMENTS WHILE IT IS UNFINISHED, AND
- * THE ORDER IS THE POINT. A workspace mid-setup has nothing worth measuring
- * — its numbers are noise from a half-connected product — so the checklist
- * takes the position directly under the masthead and pushes the panels down.
- * Once it is done it vanishes and the measurements close the gap. The design
- * does not show this section at all; it draws the finished, steady state.
- */
+/** Keep onboarding above routine activity and hide the checklist once setup is complete. */
 export default async function OverviewPage() {
   const [m, jar] = await Promise.all([getOverview(), cookies()]);
 
-  /* Two independent reasons the checklist does not render, and they are not
-     the same thing. `complete` is the permanent disappearance the section's
-     rule describes. `dismissed` is the reader asking for their overview back
-     — see the dismiss handler for why it is a cookie and what that costs. */
+  /* Completion hides the checklist permanently; dismissal is a reversible browser preference. */
   const complete = m.checklist.every((step) => step.done);
   const dismissed = jar.get(ONBOARDING_DISMISSED_COOKIE)?.value === '1';
 
   return (
     <Reveal>
+      <p className="t-caption text-[var(--text-secondary)]">
+        Overview preview. Names, conversation figures, channel status and setup progress below are
+        examples; they do not describe your workspace. Open Settings or Activity for recorded
+        workspace information.
+      </p>
       <DashboardHero
         operatorFirstName={m.operatorFirstName}
         planName={m.planName}
@@ -51,10 +34,8 @@ export default async function OverviewPage() {
         stats={m.stats}
       />
 
-      {/* ── Setup checklist ──────────────────────────────────────────── */}
       {complete || dismissed ? null : <SetupChecklist steps={m.checklist} />}
 
-      {/* ── Conversation volume ──────────────────────────────────────── */}
       <section
         data-reveal
         data-slot="panel"
@@ -77,7 +58,6 @@ export default async function OverviewPage() {
         </div>
       </section>
 
-      {/* ── Queue, channels, meters ──────────────────────────────────── */}
       <div
         data-reveal
         className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,0.95fr)]"
@@ -90,7 +70,6 @@ export default async function OverviewPage() {
         </div>
       </div>
 
-      {/* ── Recent activity ──────────────────────────────────────────── */}
       <section
         data-reveal
         data-slot="panel"

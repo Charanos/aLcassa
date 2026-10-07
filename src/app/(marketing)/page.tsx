@@ -29,36 +29,7 @@ export const metadata: Metadata = {
     'WhatsApp, Instagram, Messenger and website chat, handled in one place by one team. Multi-tenant customer support platform.',
 };
 
-/*
- * ⚠ HOW COLOUR IS SPENT ON THIS PAGE, because "use the brand blue" taken
- * literally produces a page that is entirely blue, which this one was.
- *
- * The aLcassa palette has exactly one warm colour in it. If blue carries every
- * eyebrow, every hairline, every icon and every action, the only hue on screen
- * is blue and the page reads as monotone — technically on-brand and visually
- * flat. The moodboard itself does not work that way: it sets its own body text
- * in the QUIET blue, keeps the saturated blue for marks, and lets the warm
- * accent punctuate.
- *
- * So the four roles are split by JOB rather than by importance:
- *
- *   BLUE     is reserved for things that DO something. Buttons, links, the
- *            diagram's flow and its core node, the footer nav headers. If it
- *            is blue and you cannot click it, it is a bug.
- *   NAVY/INK carries all the reading: eyebrows, headings, body, watermarks.
- *            This is the largest surface and it is deliberately not blue-500.
- *   ORANGE   punctuates. Section hairlines, the one speed claim, one ticker
- *            dot, and the ambient wash on the right. Small marks, spread thin.
- *   GREEN    is status, and only status. Operational badges and the isolation
- *            dot, where a colour genuinely means "passing".
- *
- * ⚠ ON THE ACCENT BUDGET. 03 §4a says one orange moment per SCREEN. This page
- * exceeds a literal per-document reading of that and does not exceed a
- * per-viewport one: the hairline marks are ~7px each, no two orange elements
- * are ever in view together at desktop height, and the alternative — routing
- * them through blue — is what produced the monotone version. Recorded as a
- * deliberate marketing-surface divergence in 15-spec-delta B5.
- */
+/* Reserve saturated blue for actions and marks; use neutral surfaces and the warm accent for supporting details. */
 
 export default async function MarketingPage() {
   const cookieStore = await cookies();
@@ -74,7 +45,6 @@ export default async function MarketingPage() {
       style={{ background: 'var(--surface-base)' }}
       className="relative min-h-screen overflow-x-hidden"
     >
-      {/* ── Full-bleed subtle architectural background texture ── */}
       <SubtleArchitecturalBackground />
 
       <FloatingHeader session={session} />
@@ -84,7 +54,6 @@ export default async function MarketingPage() {
           id="main"
           className="relative z-10 mx-auto w-full max-w-[1380px] px-5 pt-12 pb-32 md:px-8"
         >
-          {/* ── Hero. Centered Editorial Architecture with Interactive Workspace Demo Below ── */}
           <section
             id="overview"
             className="relative mx-auto flex w-full max-w-[1320px] flex-col items-center justify-center pt-8 text-center md:pt-14"
@@ -201,29 +170,24 @@ export default async function MarketingPage() {
             </div>
           </section>
 
-          {/* ── Live Engineering Capabilities ────────────────────────────── */}
           <section id="live-engine" className="gsap-scroll-item mt-20 md:mt-28">
             <InteractiveFeatures />
           </section>
 
-          {/* ── Omnichannel Hub ──────────────────────────────────────────── */}
           <section id="channels" className="gsap-scroll-item mt-20 md:mt-32">
             <ChannelsSection />
           </section>
 
-          {/* ── Pricing & Packages ────────────────────────────────────────── */}
           <section id="pricing" className="gsap-scroll-item mt-20 md:mt-32">
             <PricingSection />
           </section>
 
-          {/* ── Frequently Asked Questions ────────────────────────────────── */}
           <section id="faq" className="gsap-scroll-item mt-20 md:mt-32">
             <FaqSection />
           </section>
         </main>
       </GsapScrollRevealer>
 
-      {/* ── Unified Closing CTA & Footer Architectural Block ──────────── */}
       <footer
         className="relative mt-20 overflow-hidden border-t md:mt-32"
         style={{
@@ -318,7 +282,6 @@ export default async function MarketingPage() {
         </div>
 
         <div className="relative z-10 mx-auto w-full max-w-[1380px] px-5 pt-20 pb-12 md:px-8 md:pt-28 md:pb-16">
-          {/* ── 1. Centered Closing Call to Action ── */}
           <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
             {/* Editorial Headline */}
             <h2 className="display text-section leading-[1.08] font-medium tracking-tight text-[var(--text-primary)]">
@@ -394,10 +357,8 @@ export default async function MarketingPage() {
             </div>
           </div>
 
-          {/* ── 2. Subtle Architectural Divider ── */}
           <div className="my-16 w-full border-t border-[var(--border-subtle)] sm:my-20" />
 
-          {/* ── 3. Footer Navigation Grid ── */}
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-4 lg:col-span-2">
               <div className="flex items-center gap-3">
@@ -457,7 +418,6 @@ export default async function MarketingPage() {
             />
           </div>
 
-          {/* ── 4. Sub-Footer Bar ── */}
           <div
             className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t pt-6"
             style={{ borderColor: 'var(--border-subtle)' }}

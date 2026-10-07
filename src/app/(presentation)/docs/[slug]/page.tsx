@@ -28,14 +28,7 @@ export async function generateMetadata({
   };
 }
 
-/**
- * A document, rendered from the same markdown file the team edits. See
- * src/lib/presentation/readDoc.ts for why there is no copy of it anywhere.
- *
- * The layout is a drawing sheet: a fixed index down the left, the document in a
- * single measured column, and a title block above. Prose caps at 62 characters
- * per sheet 02, so the reading measure holds regardless of viewport width.
- */
+/** Render the maintained Markdown source in the shared documentation layout. */
 export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 

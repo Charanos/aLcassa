@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import {
   IconBell,
   IconCheck,
@@ -318,12 +318,8 @@ export function AccountMenu({ account }: { account: AccountSummary }) {
 
         <HeaderMenuSeparator />
 
-        {/*
-          A POST form, matching `AdminProfileCard`. Sign-out revokes the
-          session row, so it cannot be a link — a GET that destroys a session
-          is one prefetch away from signing the reader out by accident.
-        */}
-        <HeaderMenuItem asChild tone="danger">
+        {/* Keep the menu mounted until the browser submits the sign-out form. */}
+        <HeaderMenuItem asChild tone="danger" onSelect={(event) => event.preventDefault()}>
           <form method="post" action="/api/v1/auth/sign-out">
             <button type="submit" className="flex w-full cursor-pointer items-center gap-2.5">
               <IconLogout size={16} stroke={1.5} aria-hidden />

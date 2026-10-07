@@ -1,22 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Button } from '@/components/primitives/Button';
 
-/**
- * 02 §11 · 03 §16. The tenant application's own route-group boundary. The
- * shell (`AppShell` — header, sidebar, the boundary frame) is the layout
- * ABOVE this boundary and keeps rendering; only the page content beneath it
- * is replaced, so a broken settings page never reads as the whole workspace
- * going down.
- *
- * Error copy rule, verbatim from 03 §16: name what happened, name the fix,
- * never apologise for the system, never blame the reader, always preserve
- * their work — the reset button re-renders in place rather than navigating
- * anywhere, so nothing already typed on the failed screen is lost.
- */
+/** Recover tenant-page failures inside the shell and retry the current route. */
 export default function TenantError({
   error,
   reset,

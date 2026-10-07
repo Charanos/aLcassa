@@ -6,31 +6,7 @@ import { defineRoute } from '@/lib/http/pipeline';
 import { jsonOk } from '@/lib/http/response';
 import { transferOwnership } from '@/modules/membership';
 
-/**
- * 07 §4 · `POST /v1/tenant/transfer-ownership`.
- * "Owner. Atomic, requires password confirmation."
- *
- * ⚠ WHY A PASSWORD, WHEN THE CALLER IS ALREADY SIGNED IN.
- *
- * This is the only action in the product that the person taking it cannot
- * undo. After it commits, the former owner is an admin, and getting ownership
- * back requires the new owner's cooperation — or ours. Every other
- * destructive action here has a remedy the actor still controls; this one
- * hands away the control itself.
- *
- * So it is gated on RE-AUTHENTICATION rather than on a typed confirmation
- * phrase. A typed slug proves the person read the dialog. A password proves
- * the person at the keyboard is the account holder, which is the actual risk:
- * an unattended session, or someone who sat down at a borrowed laptop, can
- * type a workspace name off the screen in front of them.
- *
- * ⚠ THE PASSWORD IS CHECKED WITHOUT DISTURBING THE CURRENT SESSION.
- *
- * `signInWithPassword` on the ordinary server client would rotate this
- * request's auth cookies mid-flight. `verifyPassword` below therefore uses a
- * throwaway client with no cookie access at all: it can answer "is this the
- * right password" and it cannot mint, refresh or clear anything.
- */
+/** Ownership transfer requires password reauthentication because the previous owner cannot independently undo it. */
 
 export const POST = defineRoute({
   door: 'session',
@@ -42,16 +18,7 @@ export const POST = defineRoute({
     password: z.string().min(1, 'Confirm your password to transfer ownership.'),
   }),
   handle: async ({ ctx, body, requestId }) => {
-    /**
-     * ⚠ A SUPPORT SESSION MAY NEVER DO THIS, WHATEVER 01 D-13 OPENED.
-     *
-     * Support mode is read and write as of 24 Aug 2026, but that decision was
-     * about helping a customer operate their workspace. Handing that workspace
-     * to a different person is not operating it. `can_write_as_owner()` in the
-     * policies already excludes a support session, so the database would
-     * refuse this anyway — this check exists so the refusal arrives with a
-     * sentence rather than as an empty update.
-     */
+    /** Support visits cannot transfer ownership, regardless of their other write permissions. */
     if (ctx.supportMode) {
       throw new AppError(ERROR_CODES.SUPPORT_WRITE_DENIED, {
         message:

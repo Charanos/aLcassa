@@ -7,45 +7,14 @@ import { RevenueBandSkeleton } from '@/components/console/overview/RevenueBand';
 import { PortfolioBandSkeleton } from '@/components/console/overview/PortfolioBand';
 import { OperationsBandSkeleton } from '@/components/console/overview/OperationsBand';
 
-/**
- * Overview's loading state.
- *
- * ⚠ ITS LINE COUNT IS LOW ON PURPOSE AND THAT IS NOT A DEFECT. Doc 21 ranked
- * skeletons by lines-against-page and put this one near the bottom at 0.13 —
- * but almost every shape here is owned by the component it stands in for and
- * imported, which is the better arrangement and the one the metric punishes. A
- * skeleton living beside its component changes when the component changes; one
- * written out here drifts the first time somebody edits the real thing.
- *
- * Re-reading it by eye rather than by number turned up two real faults, which
- * is what the audit asked for:
- *
- * ⚠ 1 · THE SITUATION SLAB WAS DRAWN AS FOUR SMALL METRIC TILES. The page
- * opens on a full-bleed inverse-chrome section — a briefing column with a 38px
- * display headline and a row of signal cards, beside a chart column — and the
- * skeleton drew a 2×2 grid of little boxes roughly a fifth of its height. This
- * is the first thing on the screen and it was the least like itself.
- *
- * ⚠ 2 · `RevenueBand` HAD NO SKELETON AT ALL. The note below explains that the
- * lower bands are here so the page does not grow when data lands; it covered
- * two of the three. The band exists now, beside its component.
- *
- * Sheet 13: skeletons pulse, they do not sweep, and only where a real request
- * is outstanding.
- */
+/** Match loading sections to the overview using the components' adjacent skeletons. */
 export default function OverviewLoading() {
   return (
     <ConsolePage>
       <SkeletonGroup label="Loading overview" className="block">
         <SkeletonHeader withAction />
 
-        {/*
-          ⚠ THE SLAB IS DARK WHILE IT LOADS, BECAUSE IT IS DARK WHEN IT ARRIVES.
-          A pale skeleton that resolves into an inverse-chrome section is two
-          different pages in sequence. The bars inside it are lightened against
-          the slab rather than tinted from `--surface-inset`, which would be
-          invisible on this ground.
-        */}
+        {/* Use inverted skeleton colors to match the loaded KPI surface. */}
         <section
           className="relative mt-6 overflow-hidden rounded-card"
           style={{
@@ -81,7 +50,6 @@ export default function OverviewLoading() {
           </div>
         </section>
 
-        {/* ── "Command & Telemetry", right-aligned, then the queue + rail ── */}
         <div className="mb-6 md:mt-24">
           <div className="flex flex-col items-end">
             <SkeletonBar width="228px" height={20} />
@@ -89,18 +57,9 @@ export default function OverviewLoading() {
           </div>
         </div>
         <div className="mb-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
-          {/*
-            ⚠ THE QUEUE'S OWN SKELETON, NOT A GENERIC ROW. 03 §15 requires
-            identical dimensions to the real thing, and a queue card is a
-            three-line article with a badge and two controls — nothing like the
-            data-grid row this used to draw.
-          */}
+          {/* Use the queue card skeleton to preserve its article and action geometry. */}
           <QueueSkeleton />
-          {/*
-            ⚠ THE RAIL'S OWN SKELETONS TOO, and it is sticky on the real page.
-            Two generic panels were standing in for a four-row telemetry table
-            and a five-row audit tail.
-          */}
+          {/* Match the supporting rail to its telemetry and audit sections. */}
           <div className="grid gap-6">
             <PlatformTelemetrySkeleton />
             <LastActionsSkeleton />
@@ -108,13 +67,7 @@ export default function OverviewLoading() {
         </div>
       </SkeletonGroup>
 
-      {/*
-        ⚠ THE LOWER BANDS TOO. Without them the page painted its header, slab,
-        queue and rail at full height and then GREW by three more bands when the
-        data landed — a scroll position that moves under the reader on every
-        load. Each band mirrors its own grid, and each skeleton lives beside the
-        band it belongs to.
-      */}
+      {/* Include the lower-section skeletons to avoid expanding the page after its initial render. */}
       <RevenueBandSkeleton />
       <PortfolioBandSkeleton />
       <OperationsBandSkeleton />

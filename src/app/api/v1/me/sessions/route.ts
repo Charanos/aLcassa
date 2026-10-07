@@ -5,14 +5,7 @@ import { withTenantContext } from '@/lib/db';
 import { defineRoute } from '@/lib/http/pipeline';
 import { jsonOk } from '@/lib/http/response';
 
-/**
- * 07 §3 · `GET /v1/me/sessions` and `DELETE /v1/me/sessions`.
- *
- * Requirement 3 asks for session management a user can act on, and the thing
- * that makes it actionable is not the list — it is that every row carries
- * enough for a person to recognise it. A row reading "session 9f2a-…" tells
- * nobody whether to revoke it. Device, place and last activity do.
- */
+/** Include device, location and activity metadata so users can recognize their sessions. */
 
 export const GET = defineRoute({
   door: 'session',
@@ -38,14 +31,7 @@ export const GET = defineRoute({
   },
 });
 
-/**
- * "Revoke all except the current." The exception is not a convenience.
- *
- * Signing someone out of the tab they are using to sign out their other
- * devices is a hostile way to confirm the action worked: the confirmation
- * they get is a login screen, which is indistinguishable from an error. So
- * this session survives, and the count returned names how many did not.
- */
+/** Keep the current session active when revoking other devices. */
 export const DELETE = defineRoute({
   door: 'session',
   resolve: resolveSessionDoor,

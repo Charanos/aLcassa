@@ -5,13 +5,7 @@ const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'aLcassa_tenant_sessi
 const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'aLcassa_platform_session';
 
 export function GET(request: NextRequest) {
-  /**
-   * ⚠ THIS ROUTE HANDS OUT A SESSION COOKIE WITHOUT AUTHENTICATING ANYONE.
-   *
-   * See `lib/auth/demoAccess.ts`. It answers 404 rather than 403 where it is
-   * not enabled, because a 403 confirms the bypass exists and is merely
-   * switched off, which is an invitation to come back and look for a way in.
-   */
+  /** Disabled demo access returns 404 and never issues a session cookie. */
   if (!demoAccessEnabled()) {
     return new NextResponse(null, { status: 404 });
   }

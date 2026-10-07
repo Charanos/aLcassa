@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/structure/NavigationLink';
 import { useRovingGrid } from '@/hooks/useRovingGrid';
 import type { Collection } from '@/lib/console/data';
 

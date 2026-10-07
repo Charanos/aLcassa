@@ -5,15 +5,7 @@ import { ActorBandSkeleton } from '@/components/console/audit/ActorBand';
 import { AuditStreamSkeleton } from '@/components/console/AuditStream';
 import { FactStripSkeleton } from '@/components/console/FactStrip';
 
-/**
- * Audit log, loading.
- *
- * ⚠ IT COMPOSES; IT DOES NOT DRAW. Doc 22 §6. Each band exports its own
- * skeleton beside itself, so when a band changes its skeleton changes with it.
- * The version this replaced had been rebuilt by hand a week earlier and was
- * already wrong again: the page it described had different panel titles,
- * different column splits, and no integrity strip.
- */
+/** Compose audit-section skeletons beside the components they represent. */
 export default function AuditLoading() {
   return (
     <ConsolePage>
