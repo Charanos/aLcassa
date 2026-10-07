@@ -6,6 +6,8 @@
 
 **Execution ledger:** [26 · Verification matrix and evidence ledger](26-phase-one-verification-ledger.md)
 
+**Published checkpoint, 7 October 2026:** application candidate `7c7b551` is on `origin/main`. The dated assessment below remains the original planning baseline; sections 11–13 of the execution ledger record subsequent implementation and verification. Publication is not Phase One acceptance.
+
 This is the closure plan for the whole Platform console, Operations, the pages and interactions around them, and the customer's Activity page. It also closes the tenant settings, credentials, rules API, and handover obligations required by Phase One. The wider tenant dashboard and messaging experience remain Phase Two. Existing tenant routes still receive the boundary and regression checks needed to prove Phase One.
 
 This revision replaces the 30 September survey as the current execution plan. It incorporates the contracted-value work now in the working tree and corrects the previous plan's service API proposal. It is a source inspection and planning baseline, not a declaration that the deployed application passes verification.
@@ -375,3 +377,14 @@ The critical dependency chain is: green candidate and full-stack fixtures → Pl
 Apply doc 03 section 28 across Platform, Ops, workspace detail tabs, Profile, settings, support visits and every shared summary component. The user explicitly requested a complete console refinement, including inverted dotted KPI surfaces, quieter background artwork, alternating major-section headings, stronger grouping on workspace details, and production language. This is part of the existing per-surface acceptance gates, not a substitute for CRUD and data verification.
 
 Sequence: establish shared primitives; remove live/fixture ambiguity; restructure workspace overview/subscription/activity; apply to directory, plans, health, audit, administrators, support and profile; verify authenticated pages at desktop and phone widths; exercise their real actions and failure states; record defects and evidence in doc 26. Broader customer dashboard redesign remains Phase Two.
+
+## 12. Confirmed continuation order — 7 October 2026
+
+1. **Restore all CI gates on a reproducible candidate.** Resolve the dependency audit findings with compatible maintained versions or reviewed remediation; preserve the moderate-severity gate. Correct the plain-PostgreSQL CI/provider mismatch so the complete policy catalogue applies and database suites actually execute. Do not suppress Storage policies to obtain a green result.
+2. **Close data and concurrency defects.** Refine unlimited/unknown seat limits, missing entitlement behavior, active overrides and plan previews; verify stale previews, concurrent subscription writes and stale rule edits. Correct the remaining misleading suspension consequence and audit-report language.
+3. **Complete every Platform, Ops and peripheral surface.** Cover all detail tabs, Profile, shell, settings and access flows. Exercise actual CRUD, pending/error/empty/conflict states, exports, desktop/phone layouts, keyboard/focus and accessibility. Refine typography, copy, spacing and component hierarchy against the agreed visual direction.
+4. **Reconcile customer Activity and remaining settings journeys.** Verify each relevant operator/customer write and safe attribution in both interfaces, including provisioning, support visits, company/team/account changes and credential lifecycle. Complete reveal-once, scopes, limits, rotation, revocation and redaction evidence.
+5. **Finish rules and the FastAPI service door.** Implement and verify authentication, scope refusal before handlers, effective-rule precedence/versioning, OpenAPI conformance, ETags, seam isolation, cross-runtime limits and propagation within five seconds. Resolve the published service base path consistently.
+6. **Qualify release and handover.** Finish provider delivery/readiness, full regression, required load and p95 checks, dependency/security review, failure recovery and backup/restore, deployed smoke checks, the timed clean setup and usable runbooks/walkthrough. Record acceptance only after the eleven original conditions and all scoped milestone gates pass.
+
+Keep this order active through remediation and retesting. Retain failed attempts and dependencies in the ledger. The wider tenant dashboard stays in Phase Two; required Phase One boundary/load regressions still apply.
