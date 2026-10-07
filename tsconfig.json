@@ -31,10 +31,11 @@
     "**/*.ts",
     "**/*.tsx",
     ".next-build-verify/types/**/*.ts",
+    ".next-live-verify/types/**/*.ts",
     ".next-verify/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-live-verify/types/**/*.ts"
+    ".next-local-verify/types/**/*.ts"
   ],
   "exclude": ["node_modules", "project-docs", "design-docs", "conduit-appshell-boilerplate"]
 }

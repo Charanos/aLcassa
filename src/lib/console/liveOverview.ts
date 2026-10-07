@@ -5,6 +5,7 @@ import type { OverviewInsights, StatusSlice } from './data';
 import { getLiveRevenue } from './liveRevenue';
 import { getLiveWorkspaces } from './liveWorkspaces';
 import { getSupportRegister } from './liveSupport';
+import { describeAllowance, sumAllowanceLimits } from './allowances';
 
 /** Use the same readers as the destination pages; no fixture totals in a live briefing. */
 export async function getLiveOverviewInsights(): Promise<OverviewInsights | null> {
@@ -34,9 +35,8 @@ export async function getLiveOverviewInsights(): Promise<OverviewInsights | null
   const counts = new Map<StatusSlice['status'], number>();
   for (const row of rows) counts.set(row.status, (counts.get(row.status) ?? 0) + 1);
   const used = rows.reduce((sum, row) => sum + row.seatsUsed, 0);
-  const limit = rows.some((row) => row.seatsLimit === 0)
-    ? 0
-    : rows.reduce((sum, row) => sum + row.seatsLimit, 0);
+  const limit = sumAllowanceLimits(rows.map((row) => row.seatsLimit));
+  const seatRatio = describeAllowance(used, limit).ratio;
   const facts = register.facts;
   return {
     source: 'live',
@@ -54,7 +54,7 @@ export async function getLiveOverviewInsights(): Promise<OverviewInsights | null
           })),
         )
         .sort((a, b) => b.pct - a.pct),
-      seats: { used, limit, pct: limit > 0 ? Math.round((used / limit) * 100) : 0 },
+      seats: { used, limit, pct: seatRatio === null ? 0 : Math.round(seatRatio * 100) },
       events: null,
       growth: [],
     },

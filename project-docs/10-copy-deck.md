@@ -361,8 +361,7 @@ This section refines earlier strings where they expose implementation detail or 
 
 | Context | Production copy |
 | --- | --- |
-| Current source label | `Current data` |
-| Current source explanation | `Updated from your account when this page loaded.` |
+| Account-data source label | Removed, including its dot; ordinary stored data needs no source badge. |
 | Preview source label | `Example data` |
 | Preview explanation | `Example data for preview. These figures do not describe your account.` |
 | Console financial page | `Subscription value` |

@@ -1,4 +1,5 @@
 import { PRESSURE_THRESHOLD } from '@/lib/console/data';
+import { formatAllowanceLimit, type AllowanceLimit } from '@/lib/console/allowances';
 
 /**
  * ONE CAPACITY METER, USED BY BOTH.
@@ -35,7 +36,7 @@ export function CapacityMeter({
 }: {
   title: string;
   used: number;
-  limit: number;
+  limit: AllowanceLimit;
   pct: number;
   /** Plural noun for the accessible label: "seats", "events". */
   unit: string;
@@ -45,7 +46,8 @@ export function CapacityMeter({
     total of zero produced "NaN%" and a bar of unknown width. It reads as a
     figure rather than as a fault now.
   */
-  const bounded = limit > 0;
+  const bounded = typeof limit === 'number' && limit > 0;
+  const allowance = formatAllowanceLimit(limit);
   const ink = !bounded
     ? 'var(--text-tertiary)'
     : pct >= 100
@@ -71,21 +73,27 @@ export function CapacityMeter({
           style={{ color: 'var(--text-secondary)' }}
         >
           {used.toLocaleString('en-KE')}
-          {bounded ? ` / ${limit.toLocaleString('en-KE')}` : ` ${unit}, no ceiling`}
+          {bounded
+            ? ` / ${limit.toLocaleString('en-KE')}`
+            : limit === null
+              ? ` ${unit}, includes unlimited allowances`
+              : limit === 0
+                ? ` ${unit}, none allowed`
+                : ` ${unit}, allowance unavailable`}
         </p>
       </div>
 
       <div
         className="relative h-1.5 w-full overflow-hidden rounded-full"
         style={{ background: 'var(--surface-inset)' }}
-        role="meter"
+        role={bounded ? 'meter' : 'img'}
         aria-valuenow={bounded ? pct : undefined}
-        aria-valuemin={0}
-        aria-valuemax={100}
+        aria-valuemin={bounded ? 0 : undefined}
+        aria-valuemax={bounded ? 100 : undefined}
         aria-label={
           bounded
             ? `${title}: ${used.toLocaleString('en-KE')} of ${limit.toLocaleString('en-KE')} ${unit}, ${pct}%`
-            : `${title}: ${used.toLocaleString('en-KE')} ${unit}, no ceiling set`
+            : `${title}: ${used.toLocaleString('en-KE')} ${unit}; allowance ${allowance.toLowerCase()}`
         }
       >
         <div

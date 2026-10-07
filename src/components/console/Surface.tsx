@@ -55,12 +55,14 @@ export function ConsoleHeader({
   eyebrow,
   breadcrumbs,
   title,
+  lede,
   actions,
   rule,
 }: {
   eyebrow?: string;
   breadcrumbs?: Array<{ label: string; href?: string }>;
   title: string;
+  lede?: string;
   actions?: React.ReactNode;
   /**
    * A hairline directly beneath the header, for the screens that want one.
@@ -140,6 +142,14 @@ export function ConsoleHeader({
         >
           {title}
         </h1>
+        {lede ? (
+          <p
+            className="t-body mt-3 max-w-[68ch] text-pretty"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            {lede}
+          </p>
+        ) : null}
       </div>
 
       {actions && <div className="flex shrink-0 items-center gap-3">{actions}</div>}
@@ -265,13 +275,13 @@ export function Panel({
 
   return (
     <section
-      className={`group relative flex min-w-0 flex-col ${isElevated || isFlushGlass ? 'rounded-card p-5 sm:p-6' : 'pt-1'}`}
+      className={`group relative flex min-w-0 flex-col ${isElevated || isFlushGlass ? 'rounded-panel p-4 sm:p-5' : 'pt-1'}`}
       style={
         isElevated || isFlushGlass
           ? {
               background: isElevated ? 'var(--surface-sunken)' : 'transparent',
               border: '1px solid var(--border-subtle)',
-              boxShadow: isElevated ? 'var(--glass-highlight), var(--shadow-sm)' : 'none',
+              boxShadow: isElevated ? 'var(--glass-highlight)' : 'none',
             }
           : undefined
       }
@@ -285,7 +295,7 @@ export function Panel({
       )}
       {title ? (
         <div
-          className={`mb-5 ${isElevated || isFlushGlass ? '' : 'mt-4'} flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-1`}
+          className={`mb-4 ${isElevated || isFlushGlass ? '' : 'mt-4'} flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-1`}
         >
           <div className="flex items-center gap-2.5">
             {accentInk ? (
@@ -383,11 +393,11 @@ export function SettingsSection({
 }) {
   return (
     <section
-      className="overflow-hidden rounded-overlay"
+      className="overflow-hidden rounded-panel"
       style={{
         background: 'var(--surface-raised)',
         border: '1px solid var(--border-subtle)',
-        boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
+        boxShadow: 'var(--glass-highlight)',
       }}
     >
       {title || standfirst || action ? (
@@ -669,10 +679,8 @@ export function BandLink({ href, children }: { href: string; children: React.Rea
  * operator whose overview had just told them "No probes are reporting yet".
  * Two screens, one operator, opposite claims.
  *
- * Two states, drawn as a pair so either explains the other: a filled, pulsing
- * dot for a figure read when the page loaded, a hollow ring for one that is
- * the design's until its source is wired. The words carry it too, so the
- * distinction survives greyscale and a screen reader.
+ * Stored account data is presented without a source badge. Example figures
+ * retain an explicit label so preview content cannot be mistaken for account data.
  *
  * `inverse` is for the dark chrome slabs.
  */
@@ -693,35 +701,20 @@ export function DataSource({
   explain?: string;
   inverse?: boolean;
 }) {
-  const live = kind === 'live';
-  const ink = inverse
-    ? live
-      ? 'var(--chrome-fg-muted)'
-      : 'var(--chrome-fg-faint)'
-    : live
-      ? 'var(--text-secondary)'
-      : 'var(--text-tertiary)';
-  const dot = live ? (inverse ? 'var(--chrome-info)' : 'var(--blue-500)') : ink;
+  // Stored account data needs no badge. Keep example data explicitly identified.
+  if (kind === 'live') return null;
+  const ink = inverse ? 'var(--chrome-fg-faint)' : 'var(--text-tertiary)';
 
   return (
     <span
       className="t-caption inline-flex flex-wrap items-center gap-2"
       style={{ color: ink }}
-      title={
-        explain ??
-        (live
-          ? 'Updated from your account when this page loaded.'
-          : 'Example data for preview. These figures do not describe your account.')
-      }
+      title={explain ?? 'Example data for preview. These figures do not describe your account.'}
     >
       <span aria-hidden className="relative flex size-2 items-center justify-center">
-        {live ? (
-          <span className="size-1.5 rounded-full" style={{ background: dot }} />
-        ) : (
-          <span className="size-1.5 rounded-full" style={{ boxShadow: `inset 0 0 0 1px ${dot}` }} />
-        )}
+        <span className="size-1.5 rounded-full" style={{ boxShadow: `inset 0 0 0 1px ${ink}` }} />
       </span>
-      {live ? 'Current data' : 'Example data'}
+      Example data
       {detail ? <span style={{ opacity: 0.75 }}>· {detail}</span> : null}
     </span>
   );

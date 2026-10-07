@@ -122,7 +122,7 @@ Added at the user's direction on 6 October. Every route and nested interaction r
 - Prefer verb-and-object controls such as Save changes, Create workspace and End support visit. Destructive confirmations state the target, affected people, consequences, reversibility and where the change is recorded.
 - Preserve input on failure, associate errors with fields, announce results, and make the recovery action reachable by keyboard. Do not hide critical explanations in hover-only tooltips.
 - Replace ambiguous financial abbreviations with readable labels and explicit basis. Contracted subscription value is different from money received; estimated amounts and incomplete history say so beside the figures and in exports.
-- Make source labels readable: Current data, Example data and Data unavailable. Explicit preview mode may show examples; a failed authenticated read cannot turn into an example success.
+- Ordinary account data has no source badge or dot. Label example data and unavailable data explicitly. Explicit preview mode may show examples; a failed authenticated read cannot turn into an example success.
 - Review typography at the rendered sizes: serif for the intended headings, UI face for prose/controls, mono for identifiers and values people compare. Avoid tiny uppercase paragraphs, decorative text shadows, clipped helper text and weight changes that exceed the current approved canon. Keep sentence case and consistent label/body/helper hierarchy.
 - Verify long names, narrow screens, the approved theme, zoom and text expansion. Numeric alignment, locale, units, precision, dates and timezone are part of the type/readability review.
 

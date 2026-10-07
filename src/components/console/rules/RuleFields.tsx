@@ -94,14 +94,14 @@ function Field({ field }: { field: MasterRuleField }) {
         </p>
       ) : (
         <div
-          className="relative overflow-hidden rounded-card px-5 py-4"
+          className="relative overflow-hidden rounded-panel px-4 py-3.5"
           style={{
             background: 'var(--surface-raised)',
-            border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
-            boxShadow: 'var(--shadow-md), var(--glass-highlight)',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--glass-highlight)',
           }}
         >
-          <div className="absolute inset-y-0 left-0 w-1" style={{ background: authority.rule }} />
+          <div className="absolute inset-y-0 left-0 w-0.5" style={{ background: authority.rule }} />
           {lines.length > 1 ? (
             <ul className="grid gap-1.5">
               {lines.map((line) => (

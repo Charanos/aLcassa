@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { IconLock, IconLockOpen } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
 import { useToast } from '@/components/primitives/Toast';
 import { toggleBreakGlass } from '@/app/(platform)/platform/(console)/actions';
@@ -77,31 +78,43 @@ export function BreakGlassPanel({
     <section
       className="overflow-hidden rounded-overlay"
       style={{
-        border: `1px solid ${active ? 'var(--success-fg)' : 'var(--danger-fg)'}`,
+        border: '1px solid var(--border-subtle)',
         background: 'var(--surface-raised)',
         boxShadow: 'var(--glass-highlight), var(--shadow-sm)',
       }}
     >
       <div
-        className="px-5 py-3.5"
+        className="flex items-center gap-3 px-5 pt-5 sm:px-6"
         style={{
-          background: active ? 'var(--success-bg)' : 'var(--danger-bg)',
-          borderBottom: `1px solid ${active ? 'var(--success-fg)' : 'var(--danger-fg)'}`,
+          color: 'var(--text-primary)',
         }}
       >
-        <p
-          className="t-eyebrow"
-          style={{ color: active ? 'var(--success-fg)' : 'var(--danger-fg)' }}
+        <span
+          className="grid size-10 place-items-center rounded-panel"
+          style={{
+            background: active ? 'var(--warning-bg)' : 'var(--surface-sunken)',
+            color: active ? 'var(--warning-fg)' : 'var(--text-secondary)',
+          }}
         >
-          Break glass
-        </p>
+          {active ? (
+            <IconLock size={20} stroke={1.5} aria-hidden />
+          ) : (
+            <IconLockOpen size={20} stroke={1.5} aria-hidden />
+          )}
+        </span>
+        <div>
+          <h3 className="text-md font-medium">Emergency support lock</h3>
+          <p className="t-caption mt-1" style={{ color: 'var(--text-secondary)' }}>
+            {active ? 'Support access is locked' : 'Support access is available'}
+          </p>
+        </div>
       </div>
-      <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-5 px-5 py-5 sm:flex-row sm:items-start sm:px-6">
         <span className="min-w-0 flex-1">
           <p className="t-compact" style={{ color: 'var(--text-primary)' }}>
             {active
               ? 'Support-session access is suspended platform-wide'
-              : 'Suspend all support-session access'}
+              : 'Pause operator access to every workspace'}
           </p>
           <p
             className="t-caption mt-1.5"
@@ -146,15 +159,15 @@ export function BreakGlassPanel({
         <button
           type="button"
           onClick={() => setConfirmOpen(true)}
-          className="t-compact h-[34px] shrink-0 rounded-panel px-4 whitespace-nowrap transition-colors"
+          className="t-compact h-11 shrink-0 rounded-panel px-4 whitespace-nowrap transition-colors"
           style={{
-            border: `1px solid ${active ? 'var(--success-fg)' : 'var(--danger-fg)'}`,
+            border: `1px solid ${active ? 'var(--border-strong)' : 'var(--danger-fg)'}`,
             background: 'var(--surface-raised)',
-            color: active ? 'var(--success-fg)' : 'var(--danger-fg)',
+            color: active ? 'var(--text-primary)' : 'var(--danger-fg)',
             fontWeight: 500,
           }}
         >
-          {active ? 'Re-enable access' : 'Lock the platform'}
+          {active ? 'Restore support access' : 'Lock support access'}
         </button>
       </div>
 
@@ -213,7 +226,7 @@ export function BreakGlassPanel({
             />
           </div>
         }
-        confirmLabel={active ? 'Re-enable access' : 'Lock the platform'}
+        confirmLabel={active ? 'Restore support access' : 'Lock support access'}
         tone={active ? 'primary' : 'destructive'}
         loading={pending}
         error={error}

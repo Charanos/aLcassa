@@ -61,7 +61,6 @@ export default async function AuditPage() {
     <ConsolePage>
       <ConsoleHeader
         breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Audit log' }]}
-        eyebrow="/platform/audit"
         title="Audit log"
         actions={
           <ExportLink resource="audit">

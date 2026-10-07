@@ -4,6 +4,7 @@ import { getLiveAuditEntries, getLiveWorkspaces } from './liveWorkspaces';
 import { getLiveRevenueFigures } from './liveRevenue';
 import { PORTFOLIO_REVENUE } from './portfolio';
 import type { Standing } from './revenue';
+import { formatAllowanceLimit } from './allowances';
 
 const STANDING_LABEL: Record<Standing, string> = {
   billing: 'billing',
@@ -126,7 +127,7 @@ export async function buildExport(resource: ExportResource, stamp: Date): Promis
             w.status,
             w.plan,
             w.seatsUsed,
-            w.seatsLimit,
+            formatAllowanceLimit(w.seatsLimit),
             w.events,
             w.eventsLimit,
             w.activity,

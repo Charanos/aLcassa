@@ -652,7 +652,7 @@ export type WorkspaceRow = {
   plan: string;
   status: WorkspaceStatus;
   seatsUsed: number;
-  seatsLimit: number;
+  seatsLimit: number | null | undefined;
   events: number;
   eventsLimit: number;
   activity: string;
@@ -718,10 +718,7 @@ export async function getWorkspaces(): Promise<WorkspaceRow[]> {
       plan: w.plan === 'pro' ? 'Pro' : w.plan === 'business' ? 'Business' : 'Custom',
       status: DISPLAY_STATUS_ROW[w.status],
       seatsUsed: w.seats,
-      /* Unlimited is shown as the seat count itself rather than a large
-         number standing in for infinity — 03 §10 forbids a full bar meaning
-         "no limit", and the table renders the pair. */
-      seatsLimit: limit ?? w.seats,
+      seatsLimit: limit,
       events,
       eventsLimit: limit === null ? events : limit * 2_000,
       activity: w.status === 'suspended' ? 'no activity' : `${(w.ageMonths % 9) + 1}h ago`,
@@ -944,7 +941,7 @@ const WORKSPACE_OWNERS: Record<
 export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail | null> {
   const workspaces = await getWorkspaces();
   const row = workspaces.find((w) => w.slug === slug);
-  if (!row) return null;
+  if (!row || row.seatsLimit === undefined) return null;
 
   const ownerInfo = WORKSPACE_OWNERS[slug] ?? {
     name: `${row.name.split(' ')[0]} Admin`,
@@ -987,7 +984,7 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
   };
 
   const conversationsUsed = Math.max(1, Math.round(row.seatsUsed * 74.5));
-  const conversationsLimit = Math.max(1000, row.seatsLimit * 130);
+  const conversationsLimit = row.seatsLimit === null ? null : Math.max(1000, row.seatsLimit * 130);
 
   let alert: { title: string; body: string } | null = null;
   if (row.status === 'past due') {
@@ -1203,7 +1200,10 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
     ],
     owner: { name: ownerInfo.name, email: ownerInfo.email, initials: ownerInfo.initials },
     team: {
-      staff: `${row.seatsUsed} of ${row.seatsLimit}`,
+      staff:
+        row.seatsLimit === null
+          ? `${row.seatsUsed} staff`
+          : `${row.seatsUsed} of ${row.seatsLimit}`,
       admins: `${ownerInfo.admins ?? 2}`,
       channels: `${ownerInfo.channels ?? 3} active`,
     },
@@ -3247,7 +3247,7 @@ export type OverviewInsights = {
     statusMix: StatusSlice[];
     /** Worst first. Everything at or above `PRESSURE_THRESHOLD`. */
     pressure: PressureRow[];
-    seats: { used: number; limit: number; pct: number };
+    seats: { used: number; limit: number | null | undefined; pct: number };
     events: { used: number; limit: number; pct: number } | null;
     /** Opened against closed, by month. See the note on the fixture below. */
     growth: GrowthPoint[];
@@ -3369,14 +3369,18 @@ export async function getOverviewInsights(): Promise<OverviewInsights> {
      regardless of which meter it came from. */
   const pressure: PressureRow[] = workspaces
     .flatMap((row): PressureRow[] => [
-      {
-        slug: row.slug,
-        name: row.name,
-        metric: 'seats',
-        used: row.seatsUsed,
-        limit: row.seatsLimit,
-        pct: pctOf(row.seatsUsed, row.seatsLimit),
-      },
+      ...(typeof row.seatsLimit === 'number'
+        ? [
+            {
+              slug: row.slug,
+              name: row.name,
+              metric: 'seats',
+              used: row.seatsUsed,
+              limit: row.seatsLimit,
+              pct: pctOf(row.seatsUsed, row.seatsLimit),
+            },
+          ]
+        : []),
       {
         slug: row.slug,
         name: row.name,

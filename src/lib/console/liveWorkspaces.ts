@@ -123,10 +123,15 @@ export async function getLiveWorkspaces(): Promise<WorkspaceRow[] | null> {
         tenantStatus: tenants.status,
         createdAt: tenants.createdAt,
         planName: plans.name,
+        planId: plans.id,
+        seatEntitlementId: planEntitlements.id,
+        seatEntitlementKind: planEntitlements.kind,
+        seatOverrideId: subscriptionOverrides.id,
         subscriptionStatus: subscriptions.status,
         seatsLimit: sql<
           number | null
-        >`coalesce(${subscriptionOverrides.limitValue}, ${planEntitlements.limitValue})`,
+        >`case when ${subscriptionOverrides.id} is not null then ${subscriptionOverrides.limitValue}
+          else ${planEntitlements.limitValue} end`,
         seatsUsed: sql<number>`coalesce(${usageCounters.currentValue}, 0)`,
       })
       .from(tenants)
@@ -174,10 +179,17 @@ export async function getLiveWorkspaces(): Promise<WorkspaceRow[] | null> {
       plan: row.planName ?? 'No plan',
       status: toWorkspaceStatus(row.tenantStatus, row.subscriptionStatus),
       seatsUsed: row.seatsUsed,
-      // ⚠ 0 MEANS UNLIMITED HERE, and that is the seam's convention rather
-      // than ours: `WorkspaceRow.seatsLimit` is a plain number, so there is
-      // nowhere to put null. The table renders ∞ when the limit is 0.
-      seatsLimit: row.seatsLimit ?? 0,
+      // Override presence, not coalesce: an explicit null overrides a finite cap.
+      // Missing keys on a known plan deny capacity; no plan is unavailable.
+      seatsLimit: row.seatOverrideId
+        ? row.seatsLimit
+        : !row.planId
+          ? undefined
+          : !row.seatEntitlementId
+            ? 0
+            : row.seatEntitlementKind === 'limit'
+              ? row.seatsLimit
+              : undefined,
       /**
        * ⚠ NO SOURCE. There is no events table and no counter behind
        * `conversations_monthly` — 08 §2 lists it as a Phase 2 seam with the

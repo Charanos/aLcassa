@@ -63,10 +63,10 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
       )}
 
       <div
-        className="mt-6 flex flex-col gap-2 rounded-hero p-5 sm:flex-row sm:items-center sm:gap-6"
+        className="mt-6 flex flex-col gap-2 rounded-panel p-4 sm:flex-row sm:items-center sm:gap-5"
         style={{
           background: 'var(--surface-sunken)',
-          boxShadow: 'var(--neu-inset)',
+          border: '1px solid var(--border-subtle)',
         }}
       >
         <div
@@ -141,7 +141,7 @@ export function HeadroomBandSkeleton() {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="rounded-slab p-6"
+            className="rounded-panel p-5"
             style={{
               border: '1px solid var(--border-subtle)',
               background: 'var(--surface-raised)',

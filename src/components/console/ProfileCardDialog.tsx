@@ -66,7 +66,7 @@ export function ProfileCardDialog({
         className="relative w-full max-w-sm overflow-hidden rounded-slab"
         style={{
           background: 'var(--surface-raised)',
-          border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+          border: '1px solid var(--border-subtle)',
           boxShadow:
             '0 24px 60px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.6)',
         }}

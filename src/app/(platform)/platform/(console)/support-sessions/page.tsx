@@ -75,7 +75,6 @@ export default async function SupportSessionsPage({
         { label: 'Platform Console', href: '/platform' },
         { label: 'Support sessions' },
       ]}
-      eyebrow="/platform/support-sessions"
       title="Support sessions"
       actions={
         register ? (

@@ -5,17 +5,25 @@ import type { IconTileTone } from '@/components/primitives/IconTile';
 const columns = [
   'grid-cols-1',
   'min-[360px]:grid-cols-2',
-  'min-[360px]:grid-cols-2 xl:grid-cols-3',
-  'min-[360px]:grid-cols-2 xl:grid-cols-4',
+  'min-[360px]:grid-cols-2 lg:grid-cols-3',
+  'min-[360px]:grid-cols-2 lg:grid-cols-4',
 ];
 
 /** Shared inverted summary band. Artwork is decorative; facts remain selectable text. */
-export function FactStrip({ label, children }: { label: string; children: React.ReactNode }) {
+export function FactStrip({
+  label,
+  children,
+  maxColumns = 4,
+}: {
+  label: string;
+  children: React.ReactNode;
+  maxColumns?: 2 | 3 | 4;
+}) {
   const count = Children.toArray(children).length;
   return (
     <section
       aria-label={label}
-      className={`console-fact-strip grid ${columns[Math.min(4, Math.max(1, count)) - 1]}`}
+      className={`console-fact-strip grid ${columns[Math.min(maxColumns, Math.max(1, count)) - 1]}`}
     >
       {children}
     </section>

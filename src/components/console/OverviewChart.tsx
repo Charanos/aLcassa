@@ -172,12 +172,11 @@ export function OverviewChart({
                   if (!data) return null;
                   return (
                     <div
-                      className="rounded-overlay border px-3.5 py-2.5 shadow-2xl backdrop-blur-xl"
+                      className="rounded-panel border px-3.5 py-2.5"
                       style={{
-                        background: 'rgba(15, 23, 42, 0.75)',
-                        borderColor: 'rgba(255, 255, 255, 0.1)',
-                        boxShadow:
-                          '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.08)',
+                        background: 'var(--chrome-bg)',
+                        borderColor: 'var(--chrome-rule-strong)',
+                        boxShadow: 'var(--shadow-sm)',
                       }}
                     >
                       <div

@@ -112,17 +112,14 @@ export default async function WorkspaceDetailPage({
           <p className="mt-2 font-mono break-all">{w.id}</p>
         </details>
       </div>
-      <nav
-        aria-label="Workspace sections"
-        className="mb-8 flex gap-1 overflow-x-auto rounded-overlay border border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-1.5"
-      >
+      <nav aria-label="Workspace sections" className="console-tab-rail mb-8">
         {TABS.map((item) => (
           <Link
             key={item.key}
             href={`/platform/tenants/${w.slug}?tab=${item.key}`}
             scroll={false}
             aria-current={active === item.key ? 'page' : undefined}
-            className={`t-compact flex min-h-11 shrink-0 items-center rounded-panel px-4 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] ${active === item.key ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-raised)]'}`}
+            className="console-tab"
           >
             {item.label}
           </Link>

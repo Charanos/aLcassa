@@ -97,7 +97,7 @@ function SessionRow({ session, live }: { session: DeviceSession; live: boolean }
 
   return (
     <div
-      className="mb-4 overflow-hidden rounded-overlay border transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
+      className="mb-4 overflow-hidden rounded-panel border"
       style={{
         borderColor: 'var(--border-subtle)',
         background: 'var(--surface-raised)',

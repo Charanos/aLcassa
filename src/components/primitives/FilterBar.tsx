@@ -71,21 +71,13 @@ export function FilterBar<T extends string = string>({
   }, []);
 
   return (
-    <div
-      className="mt-6 flex flex-wrap items-center gap-3 rounded-hero p-2 transition-all duration-300"
-      style={{
-        background: 'var(--surface-sunken)',
-        border: '1px solid var(--border-subtle)',
-        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02), 0 1px 0 var(--glass-highlight)',
-      }}
-    >
+    <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-[var(--border-subtle)] pb-3">
       {/* Search Input (Crisp Floating Pill) */}
       <label
-        className="flex h-10 max-w-[480px] min-w-0 flex-1 basis-[280px] items-center gap-3 rounded-full px-4 transition-all duration-300 focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-500)] hover:shadow-sm"
+        className="flex h-11 max-w-[400px] min-w-0 flex-1 basis-[260px] items-center gap-2 rounded-panel px-3 transition-colors focus-within:border-[var(--blue-500)] focus-within:ring-2 focus-within:ring-[var(--blue-500)]"
         style={{
           border: '1px solid var(--border-strong)',
           background: 'var(--surface-raised)',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
         }}
       >
         <IconSearch
@@ -101,6 +93,7 @@ export function FilterBar<T extends string = string>({
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder={searchPlaceholder}
+          aria-label={searchPlaceholder}
           className="min-w-0 flex-1 border-none bg-transparent transition-colors outline-none"
           style={{ font: '400 var(--type-body)/1 var(--font-ui)', color: 'var(--text-primary)' }}
         />
@@ -135,15 +128,12 @@ export function FilterBar<T extends string = string>({
                 type="button"
                 onClick={() => onToggleOption(opt.id)}
                 aria-pressed={on}
-                className="group inline-flex h-[28px] cursor-pointer items-center gap-2 rounded-full px-3 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-px"
+                className="group inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-chip px-2.5 transition-colors max-sm:min-h-11"
                 style={{
                   border: `1px solid ${on ? activeBorder : 'var(--border-strong)'}`,
                   background: on ? activeTint : 'var(--surface-raised)',
                   color: on ? activeInk : 'var(--text-primary)',
-                  font: '600 var(--type-chip)/1 var(--font-ui)',
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
-                  boxShadow: on ? '0 2px 8px rgba(0,0,0,0.04)' : '0 1px 2px rgba(0,0,0,0.04)',
+                  font: '500 var(--type-compact)/1 var(--font-ui)',
                 }}
               >
                 <span
@@ -200,11 +190,10 @@ export function FilterBar<T extends string = string>({
         {/* View Toggle */}
         {viewMode && onViewModeChange && (
           <div
-            className="flex items-center rounded-overlay p-[3px] transition-all duration-300"
+            className="flex items-center gap-0.5 rounded-panel p-0.5"
             style={{
               background: 'var(--surface-inset)',
               border: '1px solid var(--border-subtle)',
-              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
             }}
           >
             <button
@@ -212,14 +201,11 @@ export function FilterBar<T extends string = string>({
               onClick={() => onViewModeChange('list')}
               aria-pressed={viewMode === 'list'}
               aria-label="List view"
-              className="grid size-[30px] place-items-center rounded-overlay transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="grid size-8 place-items-center rounded-chip transition-colors max-sm:size-11"
               style={{
                 background: viewMode === 'list' ? 'var(--surface-raised)' : 'transparent',
                 color: viewMode === 'list' ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                boxShadow:
-                  viewMode === 'list'
-                    ? '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px var(--border-subtle)'
-                    : 'none',
+                boxShadow: viewMode === 'list' ? '0 0 0 1px var(--border-subtle)' : 'none',
               }}
             >
               <IconList size={16} stroke={1.5} />
@@ -229,14 +215,11 @@ export function FilterBar<T extends string = string>({
               onClick={() => onViewModeChange('grid')}
               aria-pressed={viewMode === 'grid'}
               aria-label="Grid view"
-              className="grid size-[30px] place-items-center rounded-overlay transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="grid size-8 place-items-center rounded-chip transition-colors max-sm:size-11"
               style={{
                 background: viewMode === 'grid' ? 'var(--surface-raised)' : 'transparent',
                 color: viewMode === 'grid' ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                boxShadow:
-                  viewMode === 'grid'
-                    ? '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px var(--border-subtle)'
-                    : 'none',
+                boxShadow: viewMode === 'grid' ? '0 0 0 1px var(--border-subtle)' : 'none',
               }}
             >
               <IconLayoutGrid size={16} stroke={1.5} />

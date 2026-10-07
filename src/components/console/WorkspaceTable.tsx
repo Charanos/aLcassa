@@ -28,6 +28,7 @@ import { useRovingGrid } from '@/hooks/useRovingGrid';
 import { NEAR_LIMIT, needsAttention } from '@/lib/console/attention';
 import type { ConsoleWorkspace } from './types';
 import type { WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
+import { compareAllowanceUsage, describeAllowance } from '@/lib/console/allowances';
 
 /**
  * The workspace list. `Workspaces.dc.html`.
@@ -235,9 +236,8 @@ export function WorkspaceTable({
     const totalWorkspaces = rows.length;
     const activeCount = rows.filter((r) => r.status === 'active').length;
     const totalSeats = rows.reduce((acc, r) => acc + r.seatsUsed, 0);
-    const totalSeatsLimit = rows.reduce((acc, r) => acc + r.seatsLimit, 0);
     const totalEvents = rows.reduce((acc, r) => acc + r.events, 0);
-    return { totalWorkspaces, activeCount, totalSeats, totalSeatsLimit, totalEvents };
+    return { totalWorkspaces, activeCount, totalSeats, totalEvents };
   }, [rows]);
 
   useEffect(() => {
@@ -286,8 +286,15 @@ export function WorkspaceTable({
       if (sortField === 'name') cmp = a.name.localeCompare(b.name);
       else if (sortField === 'usage' || sortField === 'events')
         cmp = a.events / a.eventsLimit - b.events / b.eventsLimit;
-      else if (sortField === 'seats') cmp = a.seatsUsed / a.seatsLimit - b.seatsUsed / b.seatsLimit;
-      else if (sortField === 'created') cmp = a.created.localeCompare(b.created);
+      else if (sortField === 'seats') {
+        return (
+          compareAllowanceUsage(
+            { used: a.seatsUsed, limit: a.seatsLimit },
+            { used: b.seatsUsed, limit: b.seatsLimit },
+            sortDir,
+          ) || a.name.localeCompare(b.name)
+        );
+      } else if (sortField === 'created') cmp = a.created.localeCompare(b.created);
       else cmp = a.activity.localeCompare(b.activity);
       return sortDir === 'asc' ? cmp : -cmp;
     });
@@ -452,11 +459,11 @@ export function WorkspaceTable({
         <>
           {/* Desktop/List: The expansive enterprise table */}
           <div
-            className={`mt-6 overflow-x-auto rounded-hero transition-all duration-300 ${viewMode === 'list' ? 'block' : 'hidden'}`}
+            className={`mt-6 overflow-x-auto rounded-panel ${viewMode === 'list' ? 'block' : 'hidden'}`}
             style={{
               background: 'var(--surface-raised)',
-              border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-              boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+              border: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--glass-highlight)',
             }}
           >
             <table className="w-full border-collapse text-left">
@@ -594,11 +601,10 @@ export function WorkspaceTable({
 
               <tbody>
                 {paginated.map((r, i) => {
-                  const seatPct = r.seatsUsed / r.seatsLimit;
+                  const seats = describeAllowance(r.seatsUsed, r.seatsLimit);
                   const eventPct = r.events / r.eventsLimit;
                   const st = STATUS_INK[r.status];
                   const isRecent = r.activity.includes('min') || r.activity === 'just now';
-                  const seatsLeft = Math.max(0, r.seatsLimit - r.seatsUsed);
                   const eventsLeft = Math.max(0, r.eventsLimit - r.events);
 
                   return (
@@ -679,9 +685,9 @@ export function WorkspaceTable({
                       <td className="px-3 py-5">
                         <DetailedMeter
                           value={`${r.seatsUsed}`}
-                          maxFormatted={`${r.seatsLimit}`}
-                          pct={seatPct}
-                          subtext={`${seatsLeft} seats left`}
+                          maxFormatted={seats.label}
+                          pct={seats.ratio}
+                          subtext={seats.note}
                           maxTrackWidth={130}
                         />
                       </td>
@@ -795,19 +801,18 @@ export function WorkspaceTable({
             {paginated.map((r) => {
               const st = STATUS_INK[r.status];
               const eventPct = r.events / r.eventsLimit;
-              const seatPct = r.seatsUsed / r.seatsLimit;
-              const seatsLeft = Math.max(0, r.seatsLimit - r.seatsUsed);
+              const seats = describeAllowance(r.seatsUsed, r.seatsLimit);
               const eventsLeft = Math.max(0, r.eventsLimit - r.events);
 
               return (
                 <article
                   key={r.id}
                   onClick={() => setDrawerRow(r)}
-                  className="group relative cursor-pointer overflow-hidden rounded-hero transition-all duration-400 hover:-translate-y-[2px]"
+                  className="group relative cursor-pointer overflow-hidden rounded-overlay transition-all duration-400"
                   style={{
                     background: 'var(--surface-raised)',
-                    border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                    boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+                    border: '1px solid var(--border-subtle)',
+                    boxShadow: 'var(--glass-highlight)',
                   }}
                 >
                   <div
@@ -888,9 +893,9 @@ export function WorkspaceTable({
                         <dd>
                           <DetailedMeter
                             value={`${r.seatsUsed}`}
-                            maxFormatted={`${r.seatsLimit}`}
-                            pct={seatPct}
-                            subtext={`${seatsLeft} left`}
+                            maxFormatted={seats.label}
+                            pct={seats.ratio}
+                            subtext={seats.note}
                           />
                         </dd>
                       </div>
@@ -1013,9 +1018,8 @@ export function WorkspaceTable({
       )}
 
       <p className="t-compact mt-8" style={{ color: 'var(--text-tertiary)', maxWidth: '82ch' }}>
-        Usage renders as a number and an exact telemetry track. The meter turns amber at 90% of the
-        resolved limit, which is the same threshold that raises a workspace into{' '}
-        <em>Needs attention</em> and into the Overview queue.
+        Workspaces using 90% or more of a finite allowance appear in <em>Needs attention</em>.
+        Unlimited allowances do not trigger a capacity alert. Event usage is not measured yet.
       </p>
 
       {pending ? (
@@ -1122,14 +1126,15 @@ function DetailedMeter({
 }: {
   value: string;
   maxFormatted: string;
-  pct: number;
+  pct: number | null;
   subtext?: string;
   maxTrackWidth?: number;
 }) {
-  const clamped = Math.min(1, Math.max(0, pct));
-  const ink = meterInk(pct);
+  const bounded = pct !== null && Number.isFinite(pct);
+  const clamped = bounded ? Math.min(1, Math.max(0, pct)) : 0;
+  const ink = meterInk(pct ?? 0);
   const pctDisplay = `${Math.round(clamped * 100)}%`;
-  const isHigh = pct >= NEAR_LIMIT;
+  const isHigh = bounded && pct >= NEAR_LIMIT;
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -1143,38 +1148,42 @@ function DetailedMeter({
             / {maxFormatted}
           </span>
         </span>
-        <span
-          className="numeric rounded px-1.5 py-0.5 font-mono text-2xs font-medium"
-          style={{
-            background: isHigh
-              ? 'var(--warning-bg, var(--badge-warning-bg))'
-              : 'var(--surface-sunken)',
-            color: isHigh ? ink : 'var(--text-secondary)',
-            border: `1px solid ${isHigh ? ink : 'var(--border-subtle)'}`,
-          }}
-        >
-          {pctDisplay}
-        </span>
+        {bounded ? (
+          <span
+            className="numeric rounded px-1.5 py-0.5 font-mono text-2xs font-medium"
+            style={{
+              background: isHigh
+                ? 'var(--warning-bg, var(--badge-warning-bg))'
+                : 'var(--surface-sunken)',
+              color: isHigh ? ink : 'var(--text-secondary)',
+              border: `1px solid ${isHigh ? ink : 'var(--border-subtle)'}`,
+            }}
+          >
+            {pctDisplay}
+          </span>
+        ) : null}
       </div>
 
-      <div
-        role="meter"
-        aria-valuenow={Math.round(clamped * 100)}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={`${Math.round(clamped * 100)} percent of limit`}
-        className="relative h-2 w-full overflow-hidden rounded-full transition-all duration-300"
-        style={{
-          maxWidth: maxTrackWidth,
-          background: 'var(--surface-sunken)',
-          boxShadow: 'var(--neu-inset)',
-        }}
-      >
+      {bounded ? (
         <div
-          className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-          style={{ width: `${clamped * 100}%`, background: ink }}
-        />
-      </div>
+          role="meter"
+          aria-valuenow={Math.round(clamped * 100)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`${Math.round(clamped * 100)} percent of limit`}
+          className="relative h-2 w-full overflow-hidden rounded-full transition-all duration-300"
+          style={{
+            maxWidth: maxTrackWidth,
+            background: 'var(--surface-sunken)',
+            boxShadow: 'var(--neu-inset)',
+          }}
+        >
+          <div
+            className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{ width: `${clamped * 100}%`, background: ink }}
+          />
+        </div>
+      ) : null}
 
       {subtext && (
         <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>

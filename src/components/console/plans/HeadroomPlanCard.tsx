@@ -142,11 +142,10 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
       <Dialog.Trigger asChild>
         <button
           type="button"
-          className="group relative flex w-full flex-col gap-2 rounded-slab p-8 text-left transition-all hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="group relative flex w-full cursor-pointer flex-col gap-2 rounded-panel bg-[var(--surface-raised)] p-5 text-left transition-colors hover:bg-[var(--surface-sunken)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blue-500)]"
           style={{
-            background: 'var(--surface-raised)',
-            border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-            boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--glass-highlight)',
           }}
         >
           <div className="flex w-full items-center justify-between pb-2">
@@ -227,10 +226,10 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
 
             <div className="px-8 pt-2 pb-8">
               <div
-                className="mb-8 grid w-full rounded-hero p-6"
+                className="mb-8 grid w-full rounded-overlay p-6"
                 style={{
                   background: 'var(--surface-raised)',
-                  boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+                  boxShadow: 'var(--glass-highlight)',
                 }}
               >
                 {plan.rows.map((row) => (

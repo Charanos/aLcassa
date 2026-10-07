@@ -1,4 +1,5 @@
 import type { WorkspaceRow } from './data';
+import { describeAllowance } from './allowances';
 
 /**
  * What "needs attention" means, in one place.
@@ -20,11 +21,13 @@ import type { WorkspaceRow } from './data';
 export const NEAR_LIMIT = 0.9;
 
 export function needsAttention(r: WorkspaceRow): boolean {
+  const seats = describeAllowance(r.seatsUsed, r.seatsLimit);
   return (
     r.status === 'past due' ||
     r.status === 'suspended' ||
-    r.events / r.eventsLimit >= NEAR_LIMIT ||
-    r.seatsUsed / r.seatsLimit >= NEAR_LIMIT
+    (r.eventsLimit > 0 && r.events / r.eventsLimit >= NEAR_LIMIT) ||
+    seats.overLimit ||
+    (seats.ratio !== null && seats.ratio >= NEAR_LIMIT)
   );
 }
 

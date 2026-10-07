@@ -11,6 +11,7 @@ import {
 } from '@tabler/icons-react';
 import type { SettingsModel } from '@/lib/console/data';
 import type { LiveSettings } from '@/lib/console/liveSettings';
+import { SectionHeading } from '../Surface';
 import { BreakGlassPanel } from './BreakGlassPanel';
 import { GeneralTab } from './GeneralTab';
 import {
@@ -45,6 +46,29 @@ const TABS: Array<{ key: TabKey; label: string; icon: TablerIcon }> = [
   { key: 'developer', label: 'Developer', icon: IconCode },
 ];
 
+const CONTEXT: Record<TabKey, { title: string; detail: string }> = {
+  general: {
+    title: 'Platform identity',
+    detail: 'Manage stored preferences and review each change before saving.',
+  },
+  security: {
+    title: 'Access & safeguards',
+    detail: 'Review operator protections and control emergency support access.',
+  },
+  notifications: {
+    title: 'Notification channels',
+    detail: 'See the proposed alerts and delivery channels. Preferences are not available yet.',
+  },
+  data: {
+    title: 'Records & exports',
+    detail: 'Understand retention and download the platform records you need.',
+  },
+  developer: {
+    title: 'Integration access',
+    detail: 'Review workspace credentials and the availability of platform integrations.',
+  },
+};
+
 export function SettingsPanel({
   store,
   fixture,
@@ -67,25 +91,33 @@ export function SettingsPanel({
   const [generalDirty, setGeneralDirty] = useState(false);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[188px_minmax(0,1fr)] lg:gap-8">
+    <div className="min-w-0">
       {/* A rail on a desktop, a scrolling row on a phone — where a 188px
           column beside the form left the form 150px to work in. */}
       <div
         role="tablist"
         aria-label="Settings sections"
+        aria-orientation="horizontal"
         onKeyDown={(e) => {
           /* The tabs pattern: arrows move between tabs, in either
              orientation, since the rail is a row on a phone. */
           const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
-          if (!step) return;
+          if (!step && e.key !== 'Home' && e.key !== 'End') return;
           e.preventDefault();
           const i = TABS.findIndex((t) => t.key === tab);
-          const next = TABS[(i + step + TABS.length) % TABS.length];
+          const next =
+            TABS[
+              e.key === 'Home'
+                ? 0
+                : e.key === 'End'
+                  ? TABS.length - 1
+                  : (i + (step ?? 0) + TABS.length) % TABS.length
+            ];
           if (!next) return;
           setTab(next.key);
           document.getElementById(`settings-tab-${next.key}`)?.focus();
         }}
-        className="-mx-4 flex min-w-0 gap-1 overflow-x-auto px-4 pb-1 lg:sticky lg:top-6 lg:mx-0 lg:grid lg:content-start lg:gap-0.5 lg:self-start lg:overflow-visible lg:px-0 lg:pb-0"
+        className="console-tab-rail"
       >
         {TABS.map((t) => {
           const on = tab === t.key;
@@ -100,20 +132,10 @@ export function SettingsPanel({
               tabIndex={on ? 0 : -1}
               aria-controls={`settings-panel-${t.key}`}
               onClick={() => setTab(t.key)}
-              className="relative flex h-9 shrink-0 items-center gap-2.5 rounded-panel px-3 text-left whitespace-nowrap transition-colors lg:px-2.5"
-              style={{
-                background: on ? 'var(--surface-inset)' : 'transparent',
-                color: on ? 'var(--text-primary)' : 'var(--text-secondary)',
-                font: `${on ? 500 : 400} var(--type-compact)/1 var(--font-ui)`,
-              }}
+              className="console-tab"
             >
-              <span
-                aria-hidden
-                className="absolute top-2 bottom-2 left-0 hidden w-0.5 rounded-full lg:block"
-                style={{ background: on ? 'var(--blue-500)' : 'transparent' }}
-              />
-              <Icon size={16} stroke={1.5} className="shrink-0" aria-hidden />
-              <span className="min-w-0 flex-1 truncate">{t.label}</span>
+              <Icon size={14} stroke={1.5} className="shrink-0" aria-hidden />
+              <span>{t.label}</span>
               {t.key === 'general' && generalDirty ? (
                 <span
                   className="size-1.5 shrink-0 rounded-full"
@@ -126,6 +148,7 @@ export function SettingsPanel({
         })}
       </div>
 
+      <SectionHeading title={CONTEXT[tab].title} note={CONTEXT[tab].detail} align="right" />
       <div className="min-w-0">
         <Panel tab="general" active={tab}>
           {/* Keyed on the stored version: after a save or a reload the form's
@@ -178,7 +201,7 @@ function Panel({
       hidden={tab !== active}
       /* One `minmax(0,1fr)` track, so nothing inside can widen the column
          past the page — the failure a phone found once already. */
-      className="grid grid-cols-[minmax(0,1fr)] gap-5"
+      className={tab === active ? 'grid grid-cols-[minmax(0,1fr)] gap-8' : 'hidden'}
     >
       {children}
     </div>

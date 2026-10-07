@@ -118,8 +118,7 @@ function Panel({ label, value, t }: { label: string; value: string; t: Tokens })
     <div
       className="flex flex-col gap-1 overflow-hidden rounded-overlay px-3.5 py-2.5"
       style={{
-        background: 'color-mix(in srgb, var(--surface-raised) 75%, transparent)',
-        backdropFilter: 'blur(20px) saturate(1.2)',
+        background: 'var(--surface-raised)',
         border: '1px solid color-mix(in srgb, var(--border-subtle) 60%, transparent)',
         boxShadow: '0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.1)',
       }}
@@ -156,6 +155,15 @@ function Panel({ label, value, t }: { label: string; value: string; t: Tokens })
  */
 const axis = (t: Tokens) => ({ fontSize: t.chip, fontFamily: t.mono, fill: t.muted });
 
+const xAxisSpacing = {
+  height: 36,
+  tickMargin: 10,
+  minTickGap: 28,
+  interval: 'preserveStartEnd' as const,
+};
+const compactAmount = (value: number) =>
+  new Intl.NumberFormat('en-GB', { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+
 /* ── MRR over time ───────────────────────────────────────────────────────
  * A line for the level and faint bars for net-new. Two encodings rather than
  * two lines: the level and its month-on-month delta are different quantities,
@@ -179,13 +187,20 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
             stroke="color-mix(in srgb, var(--border-subtle) 40%, transparent)"
             vertical={false}
           />
-          <XAxis dataKey="month" tick={axis(t)} axisLine={{ stroke: t.rule }} tickLine={false} />
+          <XAxis
+            {...xAxisSpacing}
+            dataKey="month"
+            tick={axis(t)}
+            axisLine={{ stroke: t.rule }}
+            tickLine={false}
+          />
           <YAxis
             tick={axis(t)}
             axisLine={false}
             tickLine={false}
-            tickFormatter={(v: number) => `${(v / 1_000_000).toFixed(1)}M`}
-            width={44}
+            tickFormatter={compactAmount}
+            width={52}
+            tickMargin={8}
           />
           <Tooltip
             cursor={{ stroke: t.rule }}
@@ -193,7 +208,7 @@ export function MrrChart({ data }: { data: Array<{ month: string; mrr: number; n
               if (!active || !payload?.length) return null;
               const mrr = payload.find((p) => p.dataKey === 'mrr')?.value as number;
               return (
-                <Panel t={t} label={String(label)} value={`KES ${(mrr / 1_000_000).toFixed(2)}M`} />
+                <Panel t={t} label={String(label)} value={`KES ${mrr.toLocaleString('en-GB')}`} />
               );
             }}
           />
@@ -301,7 +316,7 @@ export function LatencyChart({
   const ceiling = Math.max(budget ?? 0, ...data.map((d) => d.p99));
 
   return (
-    <div className="absolute inset-0">
+    <div className="relative h-[260px] w-full min-w-0 shrink-0">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={t.rule} strokeDasharray="3 3" vertical={false} />
@@ -472,8 +487,18 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
   // Neutral escalating to danger
   const ink = [t.ink300, t.ink400, t.warning, t.danger];
 
+  if (!data.some((row) => row.amount > 0)) {
+    return (
+      <div className="flex min-h-[260px] items-center justify-center px-6 text-center">
+        <p className="t-body max-w-[36ch]" style={{ color: 'var(--text-secondary)' }}>
+          No estimated overdue amounts in this portfolio.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="absolute inset-0">
+    <div className="relative h-[260px] w-full min-w-0 shrink-0">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
@@ -482,11 +507,12 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
         >
           <CartesianGrid stroke={t.rule} strokeDasharray="3 3" horizontal={false} />
           <XAxis
+            {...xAxisSpacing}
             type="number"
             tick={axis(t)}
             axisLine={false}
             tickLine={false}
-            tickFormatter={(v: number) => `${Math.round(v / 1000)}k`}
+            tickFormatter={compactAmount}
           />
           <YAxis
             type="category"
@@ -618,11 +644,17 @@ export function GrowthChart({
   const mirrored = data.map((d) => ({ ...d, closedDown: -d.closed }));
 
   return (
-    <div className="absolute inset-0">
+    <div className="relative h-[260px] w-full min-w-0 shrink-0">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={mirrored} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
           <CartesianGrid stroke={t.rule} vertical={false} />
-          <XAxis dataKey="month" tickLine={false} axisLine={false} tick={axis(t)} />
+          <XAxis
+            {...xAxisSpacing}
+            dataKey="month"
+            tickLine={false}
+            axisLine={false}
+            tick={axis(t)}
+          />
           <YAxis tickLine={false} axisLine={false} tick={axis(t)} />
           <Tooltip
             cursor={{ fill: `color-mix(in srgb, ${t.ink300} 18%, transparent)` }}
@@ -750,8 +782,7 @@ export function AuditVolumeChart({
                 <div
                   className="rounded-chip px-3 py-2"
                   style={{
-                    background: `color-mix(in srgb, ${t.surface} 88%, transparent)`,
-                    backdropFilter: 'blur(12px)',
+                    background: t.surface,
                     border: `1px solid ${t.rule}`,
                     boxShadow: 'var(--shadow-md)',
                   }}
@@ -878,7 +909,7 @@ export function MovementChart({
   const fmt = (n: number) => `${n < 0 ? '−' : ''}${Math.abs(Math.round(n / 1000))}k`;
 
   return (
-    <div className="absolute inset-0 flex flex-col">
+    <div className="relative flex h-[320px] w-full min-w-0 shrink-0 flex-col">
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -887,7 +918,13 @@ export function MovementChart({
             stackOffset="sign"
           >
             <CartesianGrid stroke={t.rule} strokeDasharray="2 4" vertical={false} />
-            <XAxis dataKey="month" tick={axis(t)} tickLine={false} axisLine={{ stroke: t.rule }} />
+            <XAxis
+              {...xAxisSpacing}
+              dataKey="month"
+              tick={axis(t)}
+              tickLine={false}
+              axisLine={{ stroke: t.rule }}
+            />
             <YAxis
               tick={axis(t)}
               tickLine={false}
@@ -905,8 +942,7 @@ export function MovementChart({
                   <div
                     className="rounded-chip px-3 py-2"
                     style={{
-                      background: `color-mix(in srgb, ${t.surface} 88%, transparent)`,
-                      backdropFilter: 'blur(12px)',
+                      background: t.surface,
                       border: `1px solid ${t.rule}`,
                       boxShadow: 'var(--shadow-md)',
                     }}

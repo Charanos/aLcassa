@@ -18,7 +18,6 @@ import {
   IconReceipt,
   IconActivity,
   IconBuilding,
-  IconWorld,
   IconRefresh,
   IconFileText,
   type Icon as TablerIcon,
@@ -33,11 +32,13 @@ import type { Meter, WorkspaceDetail, WorkspaceRow, WorkspaceStatus } from '@/li
 import Link from 'next/link';
 import { gsapSafe } from '@/lib/motion';
 import { DestructiveConfirm } from '@/components/primitives/ConfirmDialog';
+import { describeAllowance } from '@/lib/console/allowances';
 import { StartSessionDialog } from './StartSessionDialog';
 import { ProfileCardDialog } from './ProfileCardDialog';
 import { InitialsTile } from '@/components/primitives/InitialsTile';
 import { IconTile } from '@/components/primitives/IconTile';
 import { useToast } from '@/components/primitives/Toast';
+import { FactCell, FactStrip } from './FactStrip';
 
 /* ─ Types ─────────────────────────────────────────────────────────────────── */
 
@@ -183,7 +184,7 @@ export function WorkspaceDetailDrawer({
     setLoading(true);
     fetchWorkspaceDetail(row.slug)
       .then((data) => {
-        if (live && data) {
+        if (live) {
           setDetail(data);
           setLoading(false);
         }
@@ -542,19 +543,13 @@ export function WorkspaceDetailDrawer({
             </div>
           </div>
 
-          {/* Segmented Navigation Tabs */}
-          <div
-            className="mt-6 flex items-center gap-1 rounded-card p-1.5"
-            style={{
-              background: 'var(--surface-sunken)',
-              boxShadow: 'var(--neu-inset)',
-            }}
-          >
+          {/* Compact section controls share the console's underline rail. */}
+          <div className="console-tab-rail mt-6" role="group" aria-label="Workspace sections">
             {[
               { key: 'overview', label: 'Overview', icon: IconBuilding },
-              { key: 'telemetry', label: 'Usage & Telemetry', icon: IconActivity },
-              { key: 'billing', label: 'Billing & Invoices', icon: IconReceipt },
-              { key: 'access', label: 'Team & Governance', icon: IconShieldLock },
+              { key: 'telemetry', label: 'Usage', icon: IconActivity },
+              { key: 'billing', label: 'Billing', icon: IconReceipt },
+              { key: 'access', label: 'Team', icon: IconShieldLock },
             ].map(({ key, label, icon: Icon }) => {
               const isActive = activeTab === key;
               return (
@@ -562,12 +557,8 @@ export function WorkspaceDetailDrawer({
                   key={key}
                   type="button"
                   onClick={() => setActiveTab(key as TabKey)}
-                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-overlay px-3 py-2 text-xs font-medium transition-all duration-150"
-                  style={{
-                    background: isActive ? 'var(--surface-base)' : 'transparent',
-                    color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                    boxShadow: isActive ? 'var(--shadow-sm), var(--glass-highlight)' : 'none',
-                  }}
+                  className="console-tab"
+                  aria-pressed={isActive}
                 >
                   <Icon
                     size={14}
@@ -594,7 +585,7 @@ export function WorkspaceDetailDrawer({
                 className="t-compact font-mono text-xs"
                 style={{ color: 'var(--text-tertiary)' }}
               >
-                Resolving tenant telemetry…
+                Loading workspace details…
               </span>
             </div>
           ) : detail ? (
@@ -637,77 +628,45 @@ export function WorkspaceDetailDrawer({
               {/* ── TAB 1 · OVERVIEW ────────────────────────────────────── */}
               {activeTab === 'overview' && (
                 <div className="flex flex-col gap-6">
-                  {/* 4 Summary Metric Cards */}
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {[
-                      {
-                        label: 'Seats in Use',
-                        value: `${row.seatsUsed} / ${row.seatsLimit}`,
-                        note: `${Math.max(0, row.seatsLimit - row.seatsUsed)} seats free`,
-                      },
-                      {
-                        label: 'Monthly Events',
-                        value: fmtNum(row.events),
-                        note: `${fmtNum(row.eventsLimit)} limit`,
-                      },
-                      {
-                        label: 'Monthly Run Rate',
-                        value: detail.monthlyValue.split(' /')[0],
-                        note: detail.plan || 'On trial',
-                      },
-                      /*
-                        ⚠ "RLS ISOLATED SCHEMA" SAYS THE SAME WRONG THING THE
-                        facts PANEL DID, BACKWARDS. Isolation here is Row Level
-                        Security over a SHARED schema — policies on every table,
-                        evaluated per query. "Isolated schema" claims
-                        schema-per-tenant, a different architecture the product
-                        does not use, on the card that exists to describe where
-                        a customer's data lives.
-                      */
-                      {
-                        label: 'Data residency',
-                        value: 'af-south-1',
-                        note: 'Nairobi · row-level policies',
-                      },
-                    ].map((item) => (
-                      <div
-                        key={item.label}
-                        className="flex flex-col justify-between rounded-card p-4 transition-all duration-300 hover:-translate-y-px"
-                        style={{
-                          background: 'var(--surface-raised)',
-                          border:
-                            '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                          boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
-                        }}
-                      >
-                        <span
-                          className="text-2xs font-medium tracking-[0.1em] uppercase"
-                          style={{ color: 'var(--text-tertiary)' }}
-                        >
-                          {item.label}
-                        </span>
-                        <span
-                          className="mt-2 font-mono text-lg font-medium"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {item.value}
-                        </span>
-                        <span
-                          className="mt-1 font-mono text-xs"
-                          style={{ color: 'var(--text-tertiary)' }}
-                        >
-                          {item.note}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  <FactStrip label="Workspace summary">
+                    <FactCell
+                      icon={IconUsersGroup}
+                      label="Seats in use"
+                      value={`${row.seatsUsed} / ${describeAllowance(row.seatsUsed, row.seatsLimit).label}`}
+                      note={describeAllowance(row.seatsUsed, row.seatsLimit).note}
+                    />
+                    <FactCell
+                      icon={IconReceipt}
+                      label="Monthly subscription value"
+                      value={detail.monthlyValue.split(' /')[0]}
+                      note={detail.plan || 'No recorded plan'}
+                    />
+                  </FactStrip>
+                  <dl className="grid grid-cols-2 gap-4">
+                    <div className="min-w-0">
+                      <dt className="t-caption" style={{ color: 'var(--text-secondary)' }}>
+                        Event reporting
+                      </dt>
+                      <dd className="t-compact mt-1" style={{ color: 'var(--text-primary)' }}>
+                        Not measured
+                      </dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="t-caption" style={{ color: 'var(--text-secondary)' }}>
+                        Workspace status
+                      </dt>
+                      <dd className="t-compact mt-1" style={{ color: 'var(--text-primary)' }}>
+                        {STATUS_CONFIG[row.status].label}
+                      </dd>
+                    </div>
+                  </dl>
 
                   <div
-                    className="overflow-hidden rounded-hero"
+                    className="overflow-hidden rounded-overlay"
                     style={{
                       background: 'var(--surface-raised)',
-                      border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+                      border: '1px solid var(--border-subtle)',
+                      boxShadow: 'var(--glass-highlight)',
                     }}
                   >
                     <div
@@ -808,11 +767,11 @@ export function WorkspaceDetailDrawer({
                   <button
                     type="button"
                     onClick={() => setProfileOpen(true)}
-                    className="flex w-full items-center justify-between gap-3 rounded-hero p-4 text-left transition-all duration-300 hover:-translate-y-px hover:shadow-sm active:scale-[0.99]"
+                    className="flex w-full items-center justify-between gap-3 rounded-overlay p-4 text-left transition-colors duration-150 hover:shadow-sm active:scale-[0.99]"
                     style={{
                       background: 'var(--surface-raised)',
-                      border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+                      border: '1px solid var(--border-subtle)',
+                      boxShadow: 'var(--glass-highlight)',
                     }}
                   >
                     <div className="flex items-center gap-3">
@@ -872,7 +831,8 @@ export function WorkspaceDetailDrawer({
                       /* Bound to a local so the null check narrows — reading
                          `m.limit` through a separate boolean does not. */
                       const limit = m.limit;
-                      const pct = limit === null ? 0 : m.used / limit;
+                      const ratio = describeAllowance(m.used, limit).ratio;
+                      const pct = ratio ?? 0;
                       const color = meterColor(pct);
                       const usedStr = m.unit ? `${m.used}${m.unit}` : fmtNum(m.used);
                       const limitStr =
@@ -881,12 +841,11 @@ export function WorkspaceDetailDrawer({
                       return (
                         <div
                           key={m.label}
-                          className="rounded-card p-4 transition-all duration-300 hover:-translate-y-px"
+                          className="rounded-panel p-4 transition-colors duration-150"
                           style={{
                             background: 'var(--surface-raised)',
-                            border:
-                              '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                            boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+                            border: '1px solid var(--border-subtle)',
+                            boxShadow: 'var(--glass-highlight)',
                           }}
                         >
                           <div className="mb-4 flex items-center justify-between">
@@ -916,7 +875,7 @@ export function WorkspaceDetailDrawer({
                               >
                                 {limit === null ? limitStr : `/ ${limitStr}`}
                               </span>
-                              {limit === null ? null : (
+                              {ratio === null ? null : (
                                 <span
                                   className="rounded-panel px-1.5 py-0.5 font-mono text-2xs font-medium tracking-wide"
                                   style={{
@@ -939,7 +898,7 @@ export function WorkspaceDetailDrawer({
                               its count and stops — rather than drawing a bar
                               that is either always full or always empty and
                               means neither. */}
-                          {limit === null ? null : (
+                          {ratio === null ? null : (
                             <div
                               className="h-2.5 w-full overflow-hidden rounded-full"
                               style={{
@@ -958,13 +917,12 @@ export function WorkspaceDetailDrawer({
                             </div>
                           )}
 
-                          {/* Sheet 06: every number names its source, so a figure
-                                on screen can be traced to a row in the schema. */}
+                          {/* Operational context stays readable without table names. */}
                           <p
                             className="mt-2.5 font-mono text-2xs"
                             style={{ color: 'var(--text-tertiary)' }}
                           >
-                            from {m.source}
+                            {describeAllowance(m.used, m.limit).note}
                           </p>
                         </div>
                       );
@@ -975,10 +933,8 @@ export function WorkspaceDetailDrawer({
                     className="font-mono text-xs leading-relaxed"
                     style={{ color: 'var(--text-tertiary)' }}
                   >
-                    Meters resolve against the entitlement snapshot on the workspace, not the plan
-                    blueprint — an override wins. A track turns ochre at 90% of its resolved
-                    ceiling; a ceiling reached is a conversation about the tier above, not a
-                    failure.
+                    Active allowance overrides take precedence over the plan. Usage at 90% or more
+                    of a finite allowance is highlighted for review.
                   </p>
                 </div>
               )}
@@ -986,47 +942,20 @@ export function WorkspaceDetailDrawer({
               {/* ── TAB 3 · BILLING & INVOICES ─────────────────────────── */}
               {activeTab === 'billing' && (
                 <div className="flex flex-col gap-6">
-                  {/* 4 Billing KPI Cards */}
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {detail.billingStats.map((s) => (
-                      <div
-                        key={s.label}
-                        className="flex flex-col justify-between rounded-card p-4 transition-all duration-300 hover:-translate-y-px"
-                        style={{
-                          background:
-                            s.tone === 'danger'
-                              ? 'var(--badge-danger-bg)'
-                              : 'var(--surface-raised)',
-                          border: `2px solid ${s.tone === 'danger' ? 'var(--badge-danger-edge)' : 'color-mix(in srgb, var(--border-subtle) 30%, transparent)'}`,
-                          boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
-                        }}
-                      >
-                        <span
-                          className="text-2xs font-medium tracking-[0.1em] uppercase"
-                          style={{
-                            color:
-                              s.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-tertiary)',
-                          }}
-                        >
-                          {s.label}
-                        </span>
-                        <span
-                          className="mt-2 font-mono text-lg font-medium"
-                          style={{
-                            color: s.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
-                          }}
-                        >
-                          {s.value}
-                        </span>
-                        <span
-                          className="mt-1 font-mono text-xs"
-                          style={{ color: 'var(--text-tertiary)' }}
-                        >
-                          {s.note}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  {detail.billingStats.length > 0 ? (
+                    <FactStrip label="Billing summary" maxColumns={2}>
+                      {detail.billingStats.map((s) => (
+                        <FactCell
+                          key={s.label}
+                          icon={IconReceipt}
+                          tone={s.tone === 'danger' ? 'danger' : 'neutral'}
+                          label={s.label}
+                          value={s.value}
+                          note={s.note}
+                        />
+                      ))}
+                    </FactStrip>
+                  ) : null}
 
                   {/* Invoice History List */}
                   <div>
@@ -1041,12 +970,11 @@ export function WorkspaceDetailDrawer({
 
                     {detail.invoices.length > 0 ? (
                       <div
-                        className="overflow-hidden rounded-hero"
+                        className="overflow-hidden rounded-overlay"
                         style={{
                           background: 'var(--surface-raised)',
-                          border:
-                            '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                          boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+                          border: '1px solid var(--border-subtle)',
+                          boxShadow: 'var(--glass-highlight)',
                         }}
                       >
                         {detail.invoices.map((inv, index) => (
@@ -1148,11 +1076,11 @@ export function WorkspaceDetailDrawer({
                 <div className="flex flex-col gap-6">
                   {/* Team Allocations */}
                   <div
-                    className="flex flex-col gap-6 rounded-hero p-6"
+                    className="flex flex-col gap-6 rounded-overlay p-6"
                     style={{
                       background: 'var(--surface-raised)',
-                      border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+                      border: '1px solid var(--border-subtle)',
+                      boxShadow: 'var(--glass-highlight)',
                     }}
                   >
                     <h3
@@ -1223,14 +1151,14 @@ export function WorkspaceDetailDrawer({
 
                   {/* Data Residency & Encryption Box */}
                   <div
-                    className="flex flex-col gap-4 rounded-card p-4 sm:flex-row sm:items-start"
+                    className="flex flex-col gap-4 rounded-panel p-4 sm:flex-row sm:items-start"
                     style={{
                       background: 'var(--surface-raised)',
-                      border: '2px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                      boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+                      border: '1px solid var(--border-subtle)',
+                      boxShadow: 'var(--glass-highlight)',
                     }}
                   >
-                    <IconTile icon={IconWorld} size="lg" />
+                    <IconTile icon={IconShieldLock} size="sm" />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         {/* ⚠ "& Encryption" NAMED A FEATURE THAT DOES NOT
@@ -1240,7 +1168,7 @@ export function WorkspaceDetailDrawer({
                           className="text-sm font-medium tracking-tight"
                           style={{ color: 'var(--text-primary)' }}
                         >
-                          Residency and isolation
+                          Support access
                         </p>
                         <span
                           className="rounded-full px-2.5 py-1 font-mono text-3xs font-medium tracking-wide uppercase"
@@ -1251,15 +1179,9 @@ export function WorkspaceDetailDrawer({
                             boxShadow: 'var(--glass-highlight)',
                           }}
                         >
-                          Policy-enforced
+                          Scoped access
                         </span>
                       </div>
-                      <p
-                        className="mt-1 font-mono text-xs font-medium"
-                        style={{ color: 'var(--text-secondary)' }}
-                      >
-                        {detail.residency}
-                      </p>
                       {/*
                         ⚠ TWO SENTENCES, BOTH WRONG, IN OPPOSITE DIRECTIONS.
 
@@ -1282,10 +1204,9 @@ export function WorkspaceDetailDrawer({
                         className="mt-2 text-sm leading-relaxed"
                         style={{ color: 'var(--text-tertiary)' }}
                       >
-                        Every query against this workspace is filtered by a Row Level Security
-                        policy — including ours. A support session is scoped, expiring and written
-                        to the customer&rsquo;s own log, and it reads nothing at all from customer
-                        records: not outside one, and not inside one either.
+                        Support visits follow the workspace&rsquo;s permissions, require a reason,
+                        expire automatically and appear in customer Activity. Customer conversation
+                        bodies are unavailable to operators.
                       </p>
                     </div>
                   </div>
@@ -1304,7 +1225,7 @@ export function WorkspaceDetailDrawer({
           }}
         >
           <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
-            aLcassa.tenant · {row.slug}
+            Workspace · {row.slug}
           </span>
 
           <div className="flex items-center gap-2">
@@ -1330,7 +1251,7 @@ export function WorkspaceDetailDrawer({
                 color: 'var(--text-primary)',
               }}
             >
-              View Full Details
+              Open workspace
             </Link>
 
             <button
@@ -1343,7 +1264,7 @@ export function WorkspaceDetailDrawer({
               }}
             >
               <IconPlayerPlay size={13} stroke={1.5} aria-hidden />
-              Start Support Session
+              Start support session
             </button>
           </div>
         </div>
@@ -1382,7 +1303,8 @@ export function WorkspaceDetailDrawer({
             if (!suspendPending) setSuspendOpen(next);
           }}
           title={`Suspend ${row.name}`}
-          consequence="Stated in numbers, because a suspension is felt by people who did not choose it."
+          consequence="Suspension pauses workspace access. Data is retained, and reactivation restores access."
+          irreversible={false}
           details={
             <>
               {/* The warning that is not a consequence. See `WorkspaceActions`. */}

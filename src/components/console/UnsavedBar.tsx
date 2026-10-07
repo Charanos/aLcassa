@@ -173,7 +173,7 @@ export function UnsavedBar({
               onClick={onSave}
               disabled={pending || invalid}
               loading={pending}
-              className="!rounded-full font-medium shadow-lg shadow-blue-500/20"
+              className="!rounded-chip font-medium"
             >
               {saveLabel}
             </Button>

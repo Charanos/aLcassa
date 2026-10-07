@@ -14,7 +14,8 @@ import { useToast } from '@/components/primitives/Toast';
 import { savePlatformSettings } from '@/app/(platform)/platform/(console)/settings-actions';
 import type { LiveSettings } from '@/lib/console/liveSettings';
 import type { SettingsModel } from '@/lib/console/data';
-import { DataSource, SettingsSection } from '../Surface';
+import { DataSource } from '../Surface';
+import { SettingsSection } from './SettingsSurface';
 import { UnsavedBar } from '../UnsavedBar';
 
 /**
@@ -52,11 +53,12 @@ function normal(key: FieldKey, value: string): string {
 function problemWith(v: Values): Partial<Record<FieldKey, string>> {
   const out: Partial<Record<FieldKey, string>> = {};
   const name = v.platformName.trim();
-  if (name.length < 2) out.platformName = 'At least two characters.';
-  else if (name.length > 40) out.platformName = 'Under forty characters — it sits in page titles.';
+  if (name.length < 2) out.platformName = 'Enter a name with at least 2 characters.';
+  else if (name.length > 40) out.platformName = 'Use 40 characters or fewer.';
   const email = v.supportEmail.trim();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) out.supportEmail = 'Not an email address.';
-  else if (email.length > 254) out.supportEmail = 'Longer than an email address can be.';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) out.supportEmail = 'Enter a valid email address.';
+  else if (email.length > 254)
+    out.supportEmail = 'Use an email address with 254 characters or fewer.';
   return out;
 }
 
@@ -147,8 +149,8 @@ export function GeneralTab({
   return (
     <>
       <SettingsSection
-        title="Platform identity"
-        standfirst="The platform's name and the address customers are told to write to."
+        title="Name & contact"
+        standfirst="Store the platform name and support address. These values currently appear here and in the change history."
         action={
           <DataSource
             kind={live ? 'live' : 'designed'}
@@ -161,7 +163,7 @@ export function GeneralTab({
         }
         footer={<LastChange store={store} />}
       >
-        <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-6 xl:grid-cols-2">
           <TextField
             id="platform-name"
             label={LABEL.platformName}
@@ -182,39 +184,45 @@ export function GeneralTab({
             was={changed.includes('supportEmail') ? saved.supportEmail : null}
             problem={changed.includes('supportEmail') ? problems.supportEmail : undefined}
           />
+        </div>
+      </SettingsSection>
+
+      <SettingsSection
+        title="Regional defaults"
+        standfirst="The console uses Kenyan shillings and Nairobi time. These product defaults cannot be changed here."
+      >
+        <dl className="grid gap-6 sm:grid-cols-2">
           <ReadOnlyField label="Currency" value={fixture.currency} />
           <ReadOnlyField label="Timezone" value={fixture.timezone} />
-        </div>
-        <p
-          className="t-caption mt-4"
-          style={{ color: 'var(--text-tertiary)', textWrap: 'pretty', maxWidth: '72ch' }}
-        >
-          Currency and timezone are properties of the product, not settings: every figure in the
-          console is in shillings and every day boundary is midnight in Nairobi. Audit times are
-          stored in UTC.
+        </dl>
+        <p className="t-caption mt-5" style={{ color: 'var(--text-tertiary)' }}>
+          Audit timestamps are stored in UTC and displayed in local time.
         </p>
       </SettingsSection>
 
       <SettingsSection
-        title="What reads these"
-        standfirst="Stated so a change here is not mistaken for one that reaches customers."
+        title="Where changes apply"
+        standfirst="Review the scope before saving. Updating the support address does not change the email sender."
       >
         <ul className="m-0 grid list-none gap-4 p-0">
-          <Reader icon={IconNotebook} title="This page and the audit log">
-            Every save is a <span className="font-mono">platform.settings_updated</span> entry
-            holding the fields that changed, before and after.
+          <Reader icon={IconNotebook} title="Recorded change history">
+            Each change is saved with your name and the previous and new values in the platform
+            audit log.
           </Reader>
-          <Reader icon={IconMailForward} title="Not yet: outgoing email">
-            Invitations and sign-up mail are sent from{' '}
+          <Reader icon={IconMailForward} title="Email sender">
             {mailFrom ? (
-              <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
-                {mailFrom}
-              </span>
+              <>
+                Outgoing email uses{' '}
+                <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
+                  {mailFrom}
+                </span>
+                {'. '}
+              </>
             ) : (
-              'an address that is not configured'
+              'An outgoing sender address has not been configured. '
             )}
-            , set in the deployment as <span className="font-mono">EMAIL_FROM</span>. The support
-            address above is not attached to them yet.
+            The sender is managed in the deployment configuration; the support address above is not
+            connected to outgoing messages yet.
           </Reader>
         </ul>
       </SettingsSection>
@@ -256,8 +264,8 @@ export function GeneralTab({
               Recorded in the platform audit log under your name, with the before and the after.
             </DialogFact>
             <DialogFact icon={IconMailForward}>
-              Nothing customer-facing reads these yet. Outgoing mail still uses{' '}
-              <span className="font-mono">EMAIL_FROM</span>.
+              These values are not connected to customer-facing pages yet. The email sender stays as
+              configured for the deployment.
             </DialogFact>
           </>
         }
@@ -427,11 +435,11 @@ function TextField({
         aria-invalid={problem ? true : undefined}
         aria-describedby={edited ? hintId : undefined}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 w-full rounded-chip px-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--blue-500)]"
+        className="h-11 w-full rounded-chip px-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--blue-500)]"
         style={{
           border: `1px solid ${problem ? 'var(--warning-fg)' : edited ? 'var(--blue-500)' : 'var(--border-strong)'}`,
-          background: readOnly ? 'var(--surface-sunken)' : 'var(--surface-raised)',
-          boxShadow: readOnly ? undefined : 'var(--neu-inset)',
+          background: 'var(--surface-sunken)',
+          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.025)',
           color: 'var(--text-primary)',
           font: `400 var(--type-body)/1 ${mono ? 'var(--font-mono)' : 'var(--font-ui)'}`,
           cursor: readOnly ? 'default' : undefined,
@@ -453,20 +461,18 @@ function TextField({
 function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
+      <dt className="t-label mb-2 block" style={{ color: 'var(--text-secondary)' }}>
         {label}
-      </span>
-      <span
-        className="flex h-10 items-center truncate rounded-chip px-3"
+      </dt>
+      <dd
+        className="m-0 break-words"
         style={{
-          border: '1px solid var(--border-subtle)',
-          background: 'var(--surface-sunken)',
-          font: '400 var(--type-body)/1 var(--font-mono)',
-          color: 'var(--text-secondary)',
+          font: '400 var(--type-body)/1.5 var(--font-ui)',
+          color: 'var(--text-primary)',
         }}
       >
         {value}
-      </span>
+      </dd>
     </div>
   );
 }

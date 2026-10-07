@@ -133,7 +133,7 @@ for (const label of ordered) {
   say(`${mark} ${label.toUpperCase()}`);
 
   if (label.includes('isolation')) {
-    say(`    Guarantee : Every query is cryptographically scoped to the authenticated session.`);
+    say(`    Coverage  : Recorded assertions exercise row-level policies and tenant boundaries.`);
   }
 
   say(

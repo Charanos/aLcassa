@@ -78,7 +78,7 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
           return (
             <div
               key={item.key}
-              className="overflow-hidden rounded-overlay border transition-shadow duration-300 hover:shadow-[var(--shadow-md)]"
+              className="overflow-hidden rounded-panel border"
               style={{
                 borderColor: 'var(--border-subtle)',
                 background: 'var(--surface-raised)',

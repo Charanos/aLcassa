@@ -45,7 +45,6 @@ export default async function AdminsPage() {
     <ConsolePage>
       <ConsoleHeader
         breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Admins' }]}
-        eyebrow="/platform/admins"
         title="Admins"
         actions={<InviteControl />}
       />

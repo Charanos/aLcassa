@@ -120,6 +120,7 @@ export function DestructiveConfirm({
   onOpenChange,
   title,
   consequence,
+  irreversible = true,
   /** Optional, richer than the one-sentence `consequence` — a breakdown, an
    *  impact count, a list. Sits between the description and the confirm
    *  field rather than displacing the sentence, so the "one sentence"
@@ -142,6 +143,7 @@ export function DestructiveConfirm({
   onOpenChange: (open: boolean) => void;
   title: string;
   consequence: string;
+  irreversible?: boolean;
   details?: React.ReactNode;
   confirmValue: string;
   confirmFieldLabel?: string;
@@ -177,7 +179,8 @@ export function DestructiveConfirm({
         >
           <Dialog.Title className="t-panel text-[var(--text-primary)]">{title}</Dialog.Title>
           <Dialog.Description className="t-compact mt-2 text-[var(--text-secondary)]">
-            {consequence} This cannot be undone.
+            {consequence}
+            {irreversible ? ' This cannot be undone.' : ''}
           </Dialog.Description>
 
           {details ? <div className="mt-4">{details}</div> : null}

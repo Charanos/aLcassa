@@ -43,24 +43,24 @@ export const ENFORCED_CONTROLS: readonly Control[] = [
   },
   {
     key: 'length',
-    label: 'Support sessions end after thirty minutes',
+    label: 'Support sessions expire after 30 minutes',
     detail:
-      'Extending opens in the last five minutes, at most twice, and each extension is recorded in the customer’s log. After that, a new session with a new reason. A session cannot extend itself from inside the workspace.',
+      'Operators can extend a session twice during its final 5 minutes. Each extension is recorded in customer Activity. Further access requires a new session and reason.',
     where: 'extendSupportSession · sessions_modify policy',
     value: '30 min',
   },
   {
     key: 'capabilities',
-    label: 'Operator capabilities are checked on every platform action',
+    label: 'Actions require operator permissions',
     detail:
-      'Workspace management, master rules and support access are read from each operator’s record inside the transaction of the call they govern. A refusal writes nothing.',
+      'Workspace management, master rules and support access require the relevant permissions. Unauthorized changes are refused.',
     where: 'requireCapability',
   },
   {
     key: 'console-session',
-    label: 'Console sign-ins last twelve hours',
+    label: 'Console sessions expire after 12 hours',
     detail:
-      'Every session is a row with its device and address. Revoking one ends it on the next request, not at expiry.',
+      'Sessions record the device and network address. Revoked sessions lose access on their next request.',
     where: 'createSession',
     value: '12 h',
   },
@@ -69,18 +69,18 @@ export const ENFORCED_CONTROLS: readonly Control[] = [
 export const PLANNED_CONTROLS: readonly Control[] = [
   {
     key: 'mfa',
-    label: 'Two-factor required for operators',
-    detail:
-      'Operators can enrol with the identity provider, but signing in to the console does not yet require a second factor.',
+    label: 'Required two-step verification',
+    detail: 'Console sign-in does not currently require a second verification step.',
   },
   {
     key: 'idle',
     label: 'Sign out after inactivity',
-    detail: 'No idle timer. A console session ends twelve hours after sign-in, used or not.',
+    detail:
+      'Sessions expire after 12 hours. Inactivity does not currently trigger an earlier sign-out.',
   },
   {
     key: 'ip',
-    label: 'Restrict console access by address',
+    label: 'Network access restrictions',
     detail:
       'Sign-ins are accepted from any address. Each one is recorded with its address on the operator’s profile.',
   },

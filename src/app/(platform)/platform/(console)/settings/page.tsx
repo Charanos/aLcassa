@@ -71,18 +71,20 @@ export default async function SettingsPage({
     <ConsolePage>
       <ConsoleHeader
         breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Settings' }]}
-        eyebrow="/platform/settings"
         title="Settings"
+        lede="Manage platform preferences, review access protections and keep a clear record of changes."
       />
 
       <FactStrip label="Platform settings at a glance">
         <FactCell
           icon={IconHistory}
           label="Last changed"
-          value={store?.lastChange ? store.lastChange.by : store ? 'Never' : 'Designed view'}
+          value={
+            store?.lastChange ? store.lastChange.at.split(',')[0] : store ? 'No changes' : 'Preview'
+          }
           note={
             store?.lastChange
-              ? `${store.lastChange.at}. Recorded in the audit log with the before and after.`
+              ? `${store.lastChange.by} · ${store.lastChange.at.split(',').slice(1).join(',').trim()}. Recorded in the audit log.`
               : store
                 ? 'Not changed since the settings store was created.'
                 : 'Sign in as an operator to read the stored row.'
@@ -93,11 +95,13 @@ export default async function SettingsPage({
           icon={locked ? IconLock : IconLockOpen}
           tone={locked ? 'danger' : 'neutral'}
           label="Support access"
-          value={glass === null ? 'Not read' : locked ? 'Locked' : 'Open'}
+          value={glass === null ? 'Unavailable' : locked ? 'Locked' : 'Available'}
           note={
             locked && glass
               ? `By ${glass.by ?? 'an operator'}${glass.at ? `, ${WHEN.format(glass.at)} EAT` : ''}. Release it under Security.`
-              : 'Operators can open support sessions, with a reason, for thirty minutes. Break glass is under Security.'
+              : glass === null
+                ? 'Support access could not be read.'
+                : 'Reason required. Sessions last up to 30 minutes.'
           }
         />
         <FactCell
@@ -105,36 +109,19 @@ export default async function SettingsPage({
           tone="success"
           label="Security controls"
           value={`${ENFORCED_CONTROLS.length} enforced`}
-          note={`${PLANNED_CONTROLS.length} more are designed and not built. Security lists both, separately.`}
+          note={`${PLANNED_CONTROLS.length} additional protections are not available yet.`}
         />
         <FactCell
           icon={IconMail}
           tone={mailSends ? 'neutral' : 'warning'}
           label="Outgoing mail"
-          value={
-            mailFrom ? (
-              /* Body size, not the strip's lede size: an address in lede mono
-                 is wider than a quarter-width cell and broke as
-                 "alcassa.c / o.ke". If it must wrap, it wraps after the @. */
-              <span
-                style={{
-                  font: '400 var(--type-body)/1.4 var(--font-mono)',
-                  wordBreak: 'keep-all',
-                }}
-              >
-                {mailFrom.split('@')[0]}@<wbr />
-                {mailFrom.split('@').slice(1).join('@')}
-              </span>
-            ) : (
-              'Not configured'
-            )
-          }
+          value={mailSends ? 'Configured' : 'Not configured'}
           note={
             mailSends
-              ? 'Set in the deployment as EMAIL_FROM, not on this page.'
+              ? 'Sender and provider configured. Delivery readiness is verified separately.'
               : mailFrom
-                ? 'No provider key is set, so mail is logged rather than sent.'
-                : 'EMAIL_FROM is unset, so invitations are logged rather than sent.'
+                ? 'An email provider is needed before messages can be sent.'
+                : 'A sender address is needed before messages can be sent.'
           }
         />
       </FactStrip>

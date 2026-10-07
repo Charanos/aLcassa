@@ -72,27 +72,20 @@ export function PlatformTelemetry({ vitals }: { vitals: Vital[] }) {
 
   return (
     <section
-      className="relative flex flex-col rounded-card p-5"
+      className="relative flex flex-col rounded-panel p-5"
       style={{
         background: 'var(--surface-sunken)',
-        boxShadow: 'var(--shadow-sm), var(--glass-highlight), 0 0 0 1px var(--border-subtle)',
+        border: '1px solid var(--border-subtle)',
+        boxShadow: 'var(--glass-highlight)',
       }}
     >
-      <header className="mb-4 flex items-center justify-between gap-3">
-        <h3
-          className="text-sm font-medium tracking-widest uppercase"
-          style={{ color: 'var(--text-secondary)' }}
-        >
+      <header className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
           Platform telemetry
         </h3>
 
-        <div className="flex items-center gap-6">
-          {/*
-            ⚠ A TAB LIST, DECLARED AS ONE. Two buttons that swap a view are a
-            tablist to anything not looking at the screen, and 03 §17 asks for
-            the landmark. It costs three attributes.
-          */}
-          <div className="flex items-center gap-4" role="tablist" aria-label="Telemetry view">
+        <div className="flex items-center gap-3">
+          <div className="console-tab-rail" role="group" aria-label="Telemetry view">
             <ViewTab active={viewMode === 'live'} onSelect={() => setViewMode('live')}>
               Live
             </ViewTab>
@@ -196,22 +189,8 @@ function ViewTab({
   children: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      onClick={onSelect}
-      className="relative pb-1 text-xs font-medium tracking-widest uppercase transition-colors"
-      style={{ color: active ? 'var(--text-primary)' : 'var(--text-tertiary)' }}
-    >
+    <button type="button" aria-pressed={active} onClick={onSelect} className="console-tab">
       {children}
-      {active ? (
-        <span
-          aria-hidden
-          className="absolute -bottom-1 left-0 h-[2px] w-full rounded-full"
-          style={{ background: 'var(--text-primary)' }}
-        />
-      ) : null}
     </button>
   );
 }

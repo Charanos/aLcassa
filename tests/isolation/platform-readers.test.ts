@@ -67,6 +67,7 @@ afterAll(async () => {
     await cleanup`update master_ai_rules set current_version_id = ${originalRuleVersion} where singleton = true and (current_version_id = ${ruleVersionId} or current_version_id is null)`;
     await cleanup`delete from master_ai_rule_versions where change_note = ${ruleFixtureNote}`;
     await cleanup`delete from platform_audit_log where target_tenant_id in (${tenantId}, ${otherId})`;
+    await cleanup`delete from subscription_overrides where tenant_id = ${tenantId}`;
     await cleanup`delete from subscriptions where tenant_id = ${tenantId}`;
     await cleanup`delete from plan_entitlements where plan_id = ${planId}`;
     await cleanup`delete from plans where id = ${planId}`;
@@ -115,6 +116,33 @@ describe('live platform page readers', () => {
 
   it('returns no workspace for a missing slug instead of substituting an example', async () => {
     expect(await getLiveWorkspaceDetail(`missing-${tenantId}`)).toBeNull();
+  });
+
+  it('preserves unlimited and zero overrides, expiry and absent seat entitlements in the directory', async () => {
+    const readLimit = async () =>
+      (await getLiveWorkspaces())?.find((row) => row.id === tenantId)?.seatsLimit;
+    expect(await readLimit()).toBeNull();
+    try {
+      await adminQuery`update plan_entitlements set limit_value = 5 where plan_id = ${planId} and key = 'seats'`;
+      expect(await readLimit()).toBe(5);
+      await adminQuery`insert into subscription_overrides (tenant_id, key, limit_value, reason, granted_by)
+        values (${tenantId}, 'seats', null, 'Unlimited reader verification', ${SEED_PLATFORM_ADMIN})`;
+      expect(await readLimit()).toBeNull();
+      await adminQuery`update subscription_overrides set limit_value = 0 where tenant_id = ${tenantId} and key = 'seats'`;
+      expect(await readLimit()).toBe(0);
+      await adminQuery`update subscription_overrides set expires_at = now() - interval '1 minute' where tenant_id = ${tenantId} and key = 'seats'`;
+      expect(await readLimit()).toBe(5);
+      await adminQuery`delete from plan_entitlements where plan_id = ${planId} and key = 'seats'`;
+      expect(await readLimit()).toBe(0);
+      expect(
+        (await getLiveWorkspaces())?.find((row) => row.id === otherId)?.seatsLimit,
+      ).toBeUndefined();
+    } finally {
+      await cleanup`delete from subscription_overrides where tenant_id = ${tenantId} and key = 'seats'`;
+      await adminQuery`insert into plan_entitlements (plan_id, key, kind, limit_value, display_name)
+        values (${planId}, 'seats', 'limit', null, 'Staff seats')
+        on conflict (plan_id, key) do update set limit_value = null`;
+    }
   });
 
   it('filters workspace activity before applying the global reader cap', async () => {

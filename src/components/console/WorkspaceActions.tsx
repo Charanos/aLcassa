@@ -179,7 +179,8 @@ export function WorkspaceActions({
           if (!pending) setSuspendOpen(next);
         }}
         title={`Suspend ${workspace.name}`}
-        consequence="Stated in numbers, because a suspension is felt by people who did not choose it."
+        consequence="Suspension pauses workspace access. Data is retained, and reactivation restores access."
+        irreversible={false}
         details={
           <>
             {/*

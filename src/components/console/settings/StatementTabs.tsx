@@ -1,6 +1,7 @@
 import { IconCheck, IconDownload, IconKey, IconMinus, IconWebhook } from '@tabler/icons-react';
 import { IconTile } from '@/components/primitives/IconTile';
-import { DataSource, SettingsSection } from '../Surface';
+import { DataSource } from '../Surface';
+import { SettingsSection } from './SettingsSurface';
 import type { SettingsModel } from '@/lib/console/data';
 import {
   DESIGNED_NOTIFICATIONS,
@@ -21,7 +22,7 @@ import {
  * claim was checked against.
  */
 
-const DESIGNED_NOTE = 'Designed, not built. Nothing on this tab changes what the platform does.';
+const DESIGNED_NOTE = 'Planned functionality. These preferences are not available yet.';
 
 /* ── Security ─────────────────────────────────────────────────────────── */
 
@@ -29,8 +30,8 @@ export function SecurityStatements() {
   return (
     <>
       <SettingsSection
-        title="Enforced"
-        standfirst="These bind every operator, you included. They are code, not configuration: changing one is a release."
+        title="Operator safeguards"
+        standfirst="These protections apply to every operator. They are managed by the platform and cannot be changed here."
         action={
           <DataSource
             kind="live"
@@ -48,8 +49,8 @@ export function SecurityStatements() {
       </SettingsSection>
 
       <SettingsSection
-        title="Not built yet"
-        standfirst="Designed and not enforced. Listed so their absence is not read as a setting that happens to be off."
+        title="Additional protections"
+        standfirst="These protections are not available yet. They do not currently restrict access."
         flush
       >
         <ul className="m-0 list-none p-0">
@@ -64,10 +65,7 @@ export function SecurityStatements() {
 
 function ControlRow({ control: c, enforced }: { control: Control; enforced: boolean }) {
   return (
-    <li
-      className="flex items-start gap-3.5 px-5 py-4"
-      style={{ borderTop: '1px solid var(--border-subtle)' }}
-    >
+    <li className="grid grid-cols-[20px_minmax(0,1fr)] items-start gap-x-3.5 gap-y-2 border-t border-[var(--border-subtle)] px-5 py-5 first:border-t-0 sm:grid-cols-[20px_minmax(0,1fr)_auto] sm:px-6">
       <span
         aria-hidden
         className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full"
@@ -87,7 +85,7 @@ function ControlRow({ control: c, enforced }: { control: Control; enforced: bool
             fontWeight: 500,
           }}
         >
-          <span className="sr-only">{enforced ? 'Enforced: ' : 'Not built: '}</span>
+          <span className="sr-only">{enforced ? 'Enforced: ' : 'Not available: '}</span>
           {c.label}
         </p>
         <p
@@ -96,18 +94,10 @@ function ControlRow({ control: c, enforced }: { control: Control; enforced: bool
         >
           {c.detail}
         </p>
-        {c.where ? (
-          <p
-            className="mt-1.5 font-mono text-2xs tracking-[0.04em]"
-            style={{ color: 'var(--text-tertiary)' }}
-          >
-            {c.where}
-          </p>
-        ) : null}
       </div>
       {c.value ? (
         <span
-          className="inline-flex h-7 shrink-0 items-center rounded-chip px-2.5 whitespace-nowrap"
+          className="col-start-2 inline-flex h-7 items-center justify-self-start rounded-chip px-2.5 whitespace-nowrap sm:col-start-3 sm:row-start-1"
           style={{
             border: '1px solid var(--border-subtle)',
             background: 'var(--surface-sunken)',
@@ -125,20 +115,17 @@ function ControlRow({ control: c, enforced }: { control: Control; enforced: bool
 /* ── Notifications ────────────────────────────────────────────────────── */
 
 export function NotificationStatements() {
-  const cols = 'minmax(0,1fr) 72px 72px';
   return (
     <SettingsSection
-      title="Notifications"
-      standfirst="Which alerts the design calls for, and on which channel. None is sent today."
-      action={<DataSource kind="designed" explain={DESIGNED_NOTE} />}
+      title="Planned alerts"
+      standfirst="The channels below are planned. These alerts are not delivered yet, and there are no preferences to save."
       flush
     >
-      <div role="table" aria-label="Designed notifications">
+      <div role="table" aria-label="Planned notifications">
         <div
           role="row"
-          className="grid items-center px-5 py-2.5"
+          className="grid grid-cols-[minmax(0,1fr)_56px_56px] items-center px-4 py-2.5 sm:grid-cols-[minmax(0,1fr)_72px_72px] sm:px-6"
           style={{
-            gridTemplateColumns: cols,
             background: 'var(--surface-sunken)',
           }}
         >
@@ -162,10 +149,10 @@ export function NotificationStatements() {
           <div
             key={n.key}
             role="row"
-            className="grid items-center px-5 py-3.5"
-            style={{ gridTemplateColumns: cols, borderTop: '1px solid var(--border-subtle)' }}
+            className="grid grid-cols-[minmax(0,1fr)_56px_56px] items-center px-4 py-4 sm:grid-cols-[minmax(0,1fr)_72px_72px] sm:px-6"
+            style={{ borderTop: '1px solid var(--border-subtle)' }}
           >
-            <span role="rowheader" className="min-w-0 pr-4">
+            <span role="rowheader" className="min-w-0 pr-2 break-words sm:pr-4">
               <span className="t-compact block" style={{ color: 'var(--text-primary)' }}>
                 {n.label}
               </span>
@@ -193,9 +180,9 @@ function Mark({ on }: { on: boolean }) {
         style={{ color: on ? 'var(--text-secondary)' : 'var(--text-disabled)' }}
       >
         {on ? (
-          <IconCheck size={14} stroke={2} aria-label="Designed on" />
+          <IconCheck size={14} stroke={2} aria-label="Planned channel" />
         ) : (
-          <IconMinus size={14} stroke={2} aria-label="Designed off" />
+          <IconMinus size={14} stroke={2} aria-label="Not planned" />
         )}
       </span>
     </span>
@@ -208,8 +195,8 @@ export function DataStatements({ exports }: { exports: SettingsModel['exports'] 
   return (
     <>
       <SettingsSection
-        title="What the platform keeps"
-        standfirst="Nothing is deleted on a schedule. No retention job runs, so nothing below has an expiry."
+        title="Record retention"
+        standfirst="Automatic expiry is not configured. The records below are retained without a scheduled deletion date."
         flush
       >
         <ul className="m-0 list-none p-0">
@@ -250,7 +237,7 @@ export function DataStatements({ exports }: { exports: SettingsModel['exports'] 
       </SettingsSection>
 
       <SettingsSection
-        title="Export"
+        title="Download records"
         standfirst="Platform records only. Customer message bodies are never exportable from this console."
         action={<DataSource kind="live" detail="generated on request" />}
       >
@@ -263,7 +250,7 @@ export function DataStatements({ exports }: { exports: SettingsModel['exports'] 
             <a
               key={x.resource}
               href={`/api/platform/export/${x.resource}`}
-              className="t-compact inline-flex h-9 items-center gap-2 rounded-panel px-3.5 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
+              className="t-compact inline-flex min-h-11 items-center gap-2 rounded-panel px-4 whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]"
               style={{
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',
@@ -306,17 +293,24 @@ export function DeveloperStatements() {
             />
           }
         >
-          The platform has no keys of its own. A workspace issues its keys, sees each value once,
-          and revokes them from its own dashboard, where the change is recorded against the customer
-          who owns it. The console stores a hash and cannot recover a value.
+          The platform has no shared API keys. Credential management is scoped to individual
+          workspaces. This page does not issue, reveal or revoke keys.
         </DeveloperRow>
         <DeveloperRow
           icon={IconWebhook}
           title="Webhooks"
-          source={<DataSource kind="designed" explain={DESIGNED_NOTE} />}
+          source={
+            <span
+              className="t-caption"
+              title={DESIGNED_NOTE}
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              Not available
+            </span>
+          }
         >
-          Not built. No platform event leaves the console today; there is nothing to subscribe to
-          and nothing to deliver.
+          Platform webhooks are not available yet. No webhook subscriptions or deliveries are
+          configured here.
         </DeveloperRow>
       </ul>
     </SettingsSection>
