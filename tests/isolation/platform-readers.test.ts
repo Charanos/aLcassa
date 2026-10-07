@@ -1,3 +1,4 @@
+import { assertDisposableDatabase } from './disposable';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { adminQuery, cleanup, closeHarness } from './harness';
@@ -31,9 +32,7 @@ const ruleVersionId = randomUUID();
 const ruleFixtureNote = `reader-${randomUUID()}`;
 
 beforeAll(async () => {
-  const url = new URL(process.env.DATABASE_URL_ADMIN!);
-  if (url.hostname !== '127.0.0.1' || url.port !== '55422' || process.env.CACHE_DISABLED !== 'true')
-    throw new Error('Platform reader verification requires the disposable local stack.');
+  assertDisposableDatabase();
   await adminQuery`insert into tenants (id, slug, name, status) values
     (${tenantId}, ${slug}, 'Reader workspace', 'active'),
     (${otherId}, ${`reader-${otherId}`}, 'Unrelated workspace', 'active')`;

@@ -1,3 +1,4 @@
+import { assertDisposableDatabase } from './disposable';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { adminQuery, cleanup, closeHarness } from './harness';
@@ -23,9 +24,7 @@ function context(role: TenantRole = 'owner', tenant = tenantId) {
 }
 
 beforeAll(async () => {
-  const url = new URL(process.env.DATABASE_URL_ADMIN!);
-  if (!['127.0.0.1', 'localhost'].includes(url.hostname) || process.env.CACHE_DISABLED !== 'true')
-    throw new Error('Activity verification requires the disposable database and disabled cache.');
+  assertDisposableDatabase();
   await adminQuery`insert into tenants (id, slug, name, status) values
     (${tenantId}, ${`activity-${tenantId}`}, 'Activity fixture', 'active'),
     (${otherTenantId}, ${`activity-${otherTenantId}`}, 'Other activity fixture', 'active')`;

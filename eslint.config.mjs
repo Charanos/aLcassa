@@ -23,6 +23,7 @@ export default tseslint.config(
       '.next-local-verify/**',
       '.next-live-verify/**',
       'node_modules/**',
+      '.test-report/**',
       'project-docs/**',
       'design-docs/**',
       'src/db/migrations/**',

@@ -25,6 +25,9 @@
 packages:
   - '.'
 
+patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
+
 overrides:
   # GHSA-8988-4f7v-96qf and two others: path traversal and arbitrary .map file
   # disclosure via attacker-controlled sourceMappingURL in CSS comments.

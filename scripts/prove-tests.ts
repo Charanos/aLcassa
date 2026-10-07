@@ -112,10 +112,10 @@ const say = (s = '') => {
 };
 
 say();
-say('aLcassa Systems · Cryptographic Isolation & Security Audit');
+say('aLcassa · Test execution report');
 say('================================================================================');
 say(`Timestamp   : ${when} (EAT)`);
-say(`Environment : Production-Grade Assertion Suite`);
+say(`Environment : See the candidate record and verification ledger`);
 say(
   `Assertions  : ${report.numTotalTests} total (${report.numPassedTests} verified, ${report.numFailedTests} failed)`,
 );

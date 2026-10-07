@@ -1,3 +1,4 @@
+import { assertDisposableDatabase } from './disposable';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { adminQuery, asActor, cleanup, closeHarness } from './harness';
@@ -20,9 +21,7 @@ const actor = (requestId: string): PlatformActor => ({
 const owner = { tenantId, actorId: SEED_USER_A, role: 'owner' as const, supportMode: false };
 let created = false;
 beforeAll(async () => {
-  const url = new URL(process.env.DATABASE_URL_ADMIN!);
-  if (url.hostname !== '127.0.0.1' || url.port !== '55422' || process.env.CACHE_DISABLED !== 'true')
-    throw new Error('Subscription verification requires the disposable stack.');
+  assertDisposableDatabase();
   await adminQuery`insert into tenants(id,slug,name,status) values(${tenantId},${prefix},'Subscription verification','active')`;
   created = true;
   await adminQuery`insert into subscriptions(tenant_id,plan_id,status,current_period_start,current_period_end) select ${tenantId},id,'active',now(),now()+interval '30 days' from plans where code='pro'`;

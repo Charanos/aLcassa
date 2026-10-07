@@ -77,24 +77,16 @@ jobs:
   isolation:
     name: Policies and isolation
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: pgvector/pgvector:pg16
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: aLcassa_test
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd pg_isready --health-interval 10s
-          --health-timeout 5s --health-retries 5
+    timeout-minutes: 30
     env:
       # ⚠ TWO ROLES, AND CONFLATING THEM MAKES THE ISOLATION SUITE PROVE
       #   NOTHING. Both of these were `postgres` until 28 Aug 2026, and
       #   `postgres` carries BYPASSRLS — every policy inert for the connection
       #   the suite runs on. 66 cases failed on the first run that reached a
       #   database, which is the good outcome. See scripts/create-app-role.ts.
-      DATABASE_URL: postgresql://alcassa_app:alcassa_app@localhost:5432/aLcassa_test
-      DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/aLcassa_test
+      DATABASE_URL: postgresql://alcassa_app:alcassa_app@127.0.0.1:55422/postgres
+      DATABASE_URL_ADMIN: postgresql://postgres:postgres@127.0.0.1:55422/postgres
+      VERIFICATION_DISPOSABLE: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -103,6 +95,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/verification-database
       - run: pnpm db:migrate
       # After the schema, so the grants have tables to apply to; before
       # anything connects as the app role.
@@ -117,7 +110,7 @@ jobs:
       # 04 §11 · 11 §5. Blocks merge. No override, no exception path.
       # This is the gate that lets Brian be told the guarantee holds today.
       - name: Isolation suite
-        run: pnpm test:isolation
+        run: pnpm test:isolation --reporter=default --reporter=json --outputFile=.test-report/phase-one/isolation.json
 
       # 08 §3. The counters the entitlement guard reads must match the rows
       # they are derived from. Report only — it never repairs in CI, because
@@ -125,29 +118,26 @@ jobs:
       # point and a job that quietly fixed drift would hide its cause.
       - name: Usage reconciliation
         run: pnpm reconcile:usage
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: isolation-evidence
+          path: .test-report/phase-one/
 
   tests:
     name: Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: static
-    services:
-      postgres:
-        image: pgvector/pgvector:pg16
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: aLcassa_test
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd pg_isready --health-interval 10s
-          --health-timeout 5s --health-retries 5
     env:
       # ⚠ TWO ROLES, AND CONFLATING THEM MAKES THE ISOLATION SUITE PROVE
       #   NOTHING. Both of these were `postgres` until 28 Aug 2026, and
       #   `postgres` carries BYPASSRLS — every policy inert for the connection
       #   the suite runs on. 66 cases failed on the first run that reached a
       #   database, which is the good outcome. See scripts/create-app-role.ts.
-      DATABASE_URL: postgresql://alcassa_app:alcassa_app@localhost:5432/aLcassa_test
-      DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/aLcassa_test
+      DATABASE_URL: postgresql://alcassa_app:alcassa_app@127.0.0.1:55422/postgres
+      DATABASE_URL_ADMIN: postgresql://postgres:postgres@127.0.0.1:55422/postgres
+      VERIFICATION_DISPOSABLE: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -156,16 +146,23 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/verification-database
       - run: pnpm db:migrate
       # After the schema, so the grants have tables to apply to; before
       # anything connects as the app role.
       - run: pnpm db:app-role
       - run: pnpm db:seed
-      - run: pnpm test
+      - run: pnpm test --reporter=default --reporter=json --outputFile=.test-report/phase-one/tests.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests-evidence
+          path: .test-report/phase-one/
 
   cache-disabled:
     name: Test suite, cache disabled
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: static
     # 08 §6 · definition of done condition 9.
     #
@@ -173,24 +170,15 @@ jobs:
     # Only speed changes. This job is what makes that a measurement rather than
     # a claim: if anything fails here, something has started treating the cache
     # as a source of truth and it is a defect.
-    services:
-      postgres:
-        image: pgvector/pgvector:pg16
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: aLcassa_test
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd pg_isready --health-interval 10s
-          --health-timeout 5s --health-retries 5
     env:
       # ⚠ TWO ROLES, AND CONFLATING THEM MAKES THE ISOLATION SUITE PROVE
       #   NOTHING. Both of these were `postgres` until 28 Aug 2026, and
       #   `postgres` carries BYPASSRLS — every policy inert for the connection
       #   the suite runs on. 66 cases failed on the first run that reached a
       #   database, which is the good outcome. See scripts/create-app-role.ts.
-      DATABASE_URL: postgresql://alcassa_app:alcassa_app@localhost:5432/aLcassa_test
-      DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/aLcassa_test
+      DATABASE_URL: postgresql://alcassa_app:alcassa_app@127.0.0.1:55422/postgres
+      DATABASE_URL_ADMIN: postgresql://postgres:postgres@127.0.0.1:55422/postgres
+      VERIFICATION_DISPOSABLE: 'true'
       CACHE_DISABLED: 'true'
     steps:
       - uses: actions/checkout@v4
@@ -200,12 +188,18 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/verification-database
       - run: pnpm db:migrate
       # After the schema, so the grants have tables to apply to; before
       # anything connects as the app role.
       - run: pnpm db:app-role
       - run: pnpm db:seed
-      - run: pnpm test
+      - run: pnpm test --reporter=default --reporter=json --outputFile=.test-report/phase-one/cache-disabled.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cache-disabled-evidence
+          path: .test-report/phase-one/
 
   # 04 §7. A known-vulnerable dependency is a security finding, and finding it
   # at handover is finding it late. `--audit-level moderate` rather than `low`:
@@ -221,4 +215,9 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --audit-level moderate
+      - run: pnpm check:security
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-security-evidence
+          path: .test-report/security/

@@ -61,8 +61,10 @@ data integrity, delivery or full E2E acceptance. It binds only to loopback.
 
 Docker was confirmed available on 6 October 2026 (server 29.8.2). The CLI rejects
 PostgreSQL 16, so the disposable Supabase stack uses the supported PostgreSQL 17.
-CI's separate PostgreSQL 16 policy suite remains a different compatibility gate;
-local results do not replace it. See the verification ledger for actual results.
+CI now starts this same pinned Supabase provider profile. A plain PostgreSQL 16
+image cannot supply the real Auth and Storage schemas used by application policies.
+The provider check runs before migrations; all application RLS and isolation
+assertions still run under the restricted app role. See the ledger for actual results.
 
 ```powershell
 ./scripts/verification-local.ps1 Build
@@ -87,3 +89,14 @@ named disposable Acme plan-change replay and writes its report only when every a
 passes. It intentionally refuses hosted database URLs and must follow the documented
 Business-to-Pro browser replay. These results do not close the remaining surface,
 service-contract, load, recovery or handover gates.
+
+The verification toolchain requires Node 22.12 or newer in the supported 22.x line,
+or Node 24+. CI uses Node 22. The expanded suite also exercises avatar SQL policies
+against the provider's actual `storage.objects`, `auth.uid()` and authenticated role,
+including cross-identity writes and the direct-deletion safeguard. This SQL evidence
+does not replace browser upload, Storage HTTP or avatar lifecycle verification.
+
+`pnpm check:security` retains the raw registry audit in `.test-report/security/` and
+blocks unresolved moderate, high and critical findings. Its one local remediation is
+documented in [the dependency security note](security/README.md). Registry/network
+errors, muted findings, incomplete reports or altered patch bytes fail the gate.
