@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import {
   IconBuilding,
   IconEye,
@@ -12,6 +13,7 @@ import { EmptyState } from '@/components/primitives/EmptyState';
 import { getTenantAudit } from '@/lib/tenant/data';
 import { getLiveTenantAudit } from '@/lib/tenant/live';
 import type { TenantAuditKind } from '@/lib/tenant/data';
+import { DataSource } from '@/components/console/Surface';
 
 export const metadata: Metadata = { title: 'Activity' };
 
@@ -28,8 +30,13 @@ const KIND_META: Record<TenantAuditKind, { icon: TablerIcon; ink: string; tint: 
 
 /** `/app/settings/audit`. Owner and admin. The tenant's own log — filtered
  *  by the same RLS policy every other read in this product answers to. */
-export default async function AuditSettingsPage() {
-  const model = (await getLiveTenantAudit()) ?? (await getTenantAudit());
+export default async function AuditSettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cursor?: string }>;
+}) {
+  const { cursor } = await searchParams;
+  const model = (await getLiveTenantAudit(undefined, { cursor })) ?? (await getTenantAudit());
 
   return (
     <div>
@@ -37,17 +44,47 @@ export default async function AuditSettingsPage() {
         title="Activity"
         description={
           model.retentionDays
-            ? `Everything that has happened in this workspace, retained for ${model.retentionDays} days on your plan.`
-            : 'Everything that has happened in this workspace.'
+            ? `Recorded workspace changes and support visits within your plan's ${model.retentionDays}-day activity window.`
+            : 'Recorded workspace changes and support visits.'
         }
         breadcrumbs={[{ label: 'Settings', href: '/app/settings/company' }, { label: 'Activity' }]}
       />
 
+      <div
+        className="t-caption mb-6 flex flex-wrap items-center justify-between gap-3"
+        style={{ color: 'var(--text-secondary)' }}
+      >
+        <DataSource kind={model.source ?? 'designed'} />
+        <span>Times shown in {model.timezone ?? 'Africa/Nairobi'}</span>
+        {cursor && (
+          <Link className="underline underline-offset-4" href="/app/settings/audit">
+            View latest activity
+          </Link>
+        )}
+      </div>
+      {model.source !== 'live' && (
+        <p className="t-caption mb-6" style={{ color: 'var(--warning-fg)' }}>
+          Example activity for preview. These entries do not describe your workspace.
+        </p>
+      )}
+      {model.cutoff && (
+        <p className="t-caption mb-6" style={{ color: 'var(--text-secondary)' }}>
+          Activity is available from{' '}
+          {new Intl.DateTimeFormat('en-GB', {
+            timeZone: model.timezone,
+            dateStyle: 'medium',
+          }).format(new Date(model.cutoff))}
+          .
+        </p>
+      )}
+
       {model.entries.length === 0 ? (
         <EmptyState
           icon={IconFileText}
-          title="Nothing yet"
-          body="Entries appear here as actions are taken across your workspace — invitations, settings changes, published rules."
+          title={
+            cursor ? 'No older activity in this window' : 'No recorded activity in this window'
+          }
+          body="Recorded changes and support visits appear here when they occur. Older entries may fall outside your plan's activity window."
         />
       ) : (
         <ul
@@ -61,8 +98,8 @@ export default async function AuditSettingsPage() {
             return (
               <li
                 key={entry.id}
-                className="flex items-start gap-3 border-t px-4 py-3.5 first:border-t-0"
-                style={{ borderColor: 'var(--ink-100)' }}
+                className="flex flex-wrap items-start gap-3 border-t px-4 py-4 first:border-t-0"
+                style={{ borderColor: 'var(--border-subtle)' }}
               >
                 <span
                   className="grid size-7 shrink-0 place-items-center rounded-panel"
@@ -73,15 +110,45 @@ export default async function AuditSettingsPage() {
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="t-body block text-[var(--text-primary)]">
-                    <span className="font-medium">{entry.actor}</span> {entry.action}{' '}
-                    <span className="text-[var(--text-secondary)]">{entry.target}</span>
+                    <span className="font-medium">
+                      {entry.actionLabel ?? `${entry.actor} ${entry.action}`}
+                    </span>
                   </span>
+                  <span className="t-caption mt-1 block text-[var(--text-secondary)]">
+                    {entry.actionLabel ? `${entry.actor} · ` : ''}
+                    {entry.target}
+                  </span>
+                  {entry.requestId && (
+                    <details className="t-caption mt-2">
+                      <summary className="cursor-pointer text-[var(--text-tertiary)]">
+                        Reference
+                      </summary>
+                      <span className="mt-1 block break-all">{entry.requestId}</span>
+                    </details>
+                  )}
                 </span>
-                <span className="t-data shrink-0 text-[var(--text-tertiary)]">{entry.time}</span>
+                <time
+                  dateTime={entry.occurredAt}
+                  title={entry.occurredAt}
+                  className="t-caption text-[var(--text-secondary)]"
+                >
+                  {entry.time}
+                </time>
               </li>
             );
           })}
         </ul>
+      )}
+      {model.nextCursor && (
+        <nav aria-label="Activity pages" className="mt-6">
+          <Link
+            className="t-body inline-flex min-h-11 items-center rounded-chip border px-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)]"
+            style={{ borderColor: 'var(--border-subtle)' }}
+            href={`/app/settings/audit?cursor=${encodeURIComponent(model.nextCursor)}`}
+          >
+            View older activity
+          </Link>
+        </nav>
       )}
     </div>
   );

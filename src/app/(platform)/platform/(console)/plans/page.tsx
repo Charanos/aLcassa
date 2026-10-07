@@ -11,7 +11,7 @@ import {
   IconUsers,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
+import { ConsoleHeader, ConsolePage, SectionHeading } from '@/components/console/Surface';
 import { BlastRadiusDialog } from '@/components/console/BlastRadiusDialog';
 import { getHeadroom, getPlans, type EntitlementRow } from '@/lib/console/data';
 import { getLiveHeadroom, getLivePlans } from '@/lib/console/live';
@@ -94,7 +94,7 @@ export default async function PlansPage() {
             <button
               type="button"
               disabled
-              title="A new plan is a catalogue and entitlement change, applied as a migration in Phase 1."
+              title="New plans require a managed catalogue update."
               className="inline-flex h-10 shrink-0 cursor-not-allowed items-center gap-2 rounded-overlay px-5 text-sm font-medium whitespace-nowrap"
               style={{
                 background: 'var(--surface-sunken)',
@@ -109,17 +109,21 @@ export default async function PlansPage() {
               className="t-caption max-w-[34ch] text-right"
               style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
             >
-              A plan is a catalogue and entitlement change, applied as a migration in Phase 1 — not
-              something this screen can write.
+              New plans require a managed catalogue update. Existing plan limits can be edited
+              below.
             </p>
           </div>
         }
       />
       <p className="t-body -mt-3 mb-8" style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}>
-        Entitlements are data, not code. Editing a limit here changes what every workspace on that
-        plan can do, on save.
+        Review plan allowances and their impact. Saving a limit change applies it to every workspace
+        on that plan.
       </p>
 
+      <SectionHeading
+        title="Plan allowances"
+        note="Compare limits, then review affected workspaces before saving a change."
+      />
       <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div
           className="overflow-hidden rounded-slab"
@@ -410,7 +414,7 @@ export default async function PlansPage() {
                     `${m.plans.filter((p) => p.count > 0).length} of ${m.plans.length}`,
                   ],
                   ['Custom overrides', `${m.overrides} workspaces`],
-                  ['Unassigned', `${m.unassigned} on trial`],
+                  ['Unassigned', `${m.unassigned} without a subscription`],
                 ] as const
               ).map(([label, value]) => (
                 <div key={label} className="flex items-baseline justify-between gap-4">

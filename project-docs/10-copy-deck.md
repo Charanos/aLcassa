@@ -6,7 +6,7 @@ Every string a person reads. Written once, here, so the product has one voice.
 
 ## 1. Voice
 
-The audience is a technical or semi-technical business owner and, in the console, an operator. The voice should sound like competent infrastructure documentation written by someone who respects the reader's time.
+The audience is a business owner and, in the console, an operator. The voice is clear, calm and practical: help the reader understand what happened and what they can do next. Implementation detail belongs in developer documentation and diagnostics. Keep integration terms only where they help someone connect or manage a system.
 
 | Do | Don't |
 |---|---|
@@ -352,3 +352,37 @@ Kept minimal. Five templates in Phase 1.
 | Support session | `Our support team opened your workspace` | `{platformAdminName} opened {companyName} to help with a support request.` |
 
 The last two are unusual and both are worth sending. A credential creation notification catches a compromised account. A support session notification is the transparency claim in `09 §7` made active rather than passive, and it costs one email.
+
+---
+
+## 15. Production language refinement, 6 October 2026
+
+This section refines earlier strings where they expose implementation detail or claim unsupported behavior. Stable API error codes stay unchanged. Every sentence must agree with the actual action and state; a copy change cannot count as completion of a missing feature.
+
+| Context | Production copy |
+| --- | --- |
+| Current source label | `Current data` |
+| Current source explanation | `Updated from your account when this page loaded.` |
+| Preview source label | `Example data` |
+| Preview explanation | `Example data for preview. These figures do not describe your account.` |
+| Console financial page | `Subscription value` |
+| Financial basis | `The value of workspace subscriptions, based on their recorded plans and prices. Payments are handled outside aLcassa.` |
+| Monthly metric | `Monthly subscription value` |
+| Annual metric | `Annual subscription value` |
+| Arrears basis | `Estimated amounts due, based on subscription dates and prices. Check your payment records before following up.` |
+| Company save not yet available | `Company changes are not available yet. Your existing details have not changed.` |
+| Credential create not yet available | `Creating API credentials is not available yet. No key has been created.` |
+| Credential revoke not yet available | `Revoking API credentials is not available yet. This key has not changed.` |
+| Tenant publish not yet available | `Publishing workspace rules is not available yet. Your current rules have not changed.` |
+| Unexpected action failure | `We could not complete this change. Try again. If it keeps happening, contact support.` |
+| Service temporarily unavailable | `This service is temporarily unavailable. Try again shortly.` |
+| Invalid input | `Check the highlighted fields and try again.` Use only when the form actually marks those fields; generic fallback: `Check your entries and try again.` |
+| Rate limit | `Too many requests. Wait a moment and try again.` |
+| Missing credential permission | `This API credential does not allow this action. Ask the workspace owner for a key with the required permissions.` |
+| Revoked credential | `This API credential has been revoked. Use an active key to continue.` |
+| Missing operator permission | `Your account does not have permission to do this. Ask the platform owner to review your access.` |
+| Page failure | `This page could not load. Try again. If it keeps happening, contact support and include the reference below.` Display the reference instruction only when a reference exists. |
+| Empty collection follow-up | `No workspaces need payment follow-up.` |
+| Empty preview-independent portfolio | `No workspace subscriptions yet. Subscription values will appear as workspaces are added.` |
+
+Typography supports the same clarity: sentence-case labels, readable body/helper text, consistent heading hierarchy, aligned numeric values with units and explicit date/timezone context. Source/data warnings must be visible without hovering. Never promise saved input, completed delivery, measured retention or automatic retry unless implemented and verified.

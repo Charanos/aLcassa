@@ -198,7 +198,7 @@ async function main(): Promise<void> {
 
   if (hasAuth && !authProblem) {
     console.log(`✓ sign in at /sign-in as ${ADMIN_EMAIL}`);
-    console.log(`  password: ${ADMIN_PASSWORD}`);
+    if (process.env.SEED_HIDE_CREDENTIALS !== 'true') console.log(`  password: ${ADMIN_PASSWORD}`);
   } else if (authProblem) {
     /* Loud, specific, and a non-zero exit: the seed's whole purpose today is
        producing an account somebody can sign in as. Printing a warning and

@@ -41,6 +41,7 @@ export function VolumeBand({ points, live }: { points: AuditVolumePoint[]; live:
   return (
     <section aria-labelledby="audit-volume">
       <SectionHeading
+        id="audit-volume"
         title="Volume"
         note="Thirty Nairobi days of platform activity."
         action={

@@ -252,7 +252,7 @@ function EmailState({ verified }: { verified: boolean | null }) {
       icon={IconHelpCircle}
       title="Verification is held by the identity provider, which this console does not read."
     >
-      not checked here
+      Status unavailable
     </StatusBadge>
   );
 }

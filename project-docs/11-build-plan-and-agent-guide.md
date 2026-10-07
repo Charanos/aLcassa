@@ -180,7 +180,7 @@ From here, the contract for Code and Design.
 9. **The cache is never a source of truth.** Every read falls through on a miss.
 10. **Both doors call the same entitlement guard.**
 11. No hardcoded colour, spacing, radius or font size. Semantic aliases only.
-12. **No font weight other than 400.** There is no weight axis in this system. `03 §5`.
+12. **Use current type tokens; 500 is the weight ceiling.** Body/data use 400, and 500 is allowed where the current UI/control/heading token defines it. No bold or synthetic emphasis. `03 §5`, its later applied type section, and `src/app/tokens.css`.
 13. **No italics.** `font-synthesis: none` is set globally.
 14. Colour follows the six-hue semantic mapping in `03 §3`. One meaning each.
 15. No emoji, in the interface, in copy, or in commit messages.

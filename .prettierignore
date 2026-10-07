@@ -3,6 +3,12 @@
 
 # Build output
 .next/
+.next-verify/
+.next-build-verify/
+.next-local-verify/
+.next-live-verify/
+.screenshots/
+.test-report/
 node_modules/
 
 # Vendored agent skills. Third-party documentation — reformatting it would make
@@ -24,3 +30,7 @@ pnpm-lock.yaml
 # Prettier reflows markdown tables and hard-wrapped paragraphs, which would
 # churn documents that are read far more often than they are edited.
 project-docs/
+
+# Private machine configuration is not an application formatting target.
+.claude/settings.local.json
+.mcp.json

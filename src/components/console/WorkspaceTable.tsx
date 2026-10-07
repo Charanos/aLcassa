@@ -15,6 +15,8 @@ import {
   IconBolt,
   IconActivityHeartbeat,
 } from '@tabler/icons-react';
+import { FactCell, FactStrip } from './FactStrip';
+import { SectionHeading } from './Surface';
 import { EmptyState } from '@/components/primitives/EmptyState';
 import { InitialsTile } from '@/components/primitives/InitialsTile';
 import { FilterBar } from '@/components/primitives/FilterBar';
@@ -134,9 +136,11 @@ export function WorkspaceTable({
   rows,
   total,
   onStartSession,
+  source = 'designed',
 }: {
   rows: WorkspaceRow[];
   total: number;
+  source?: 'live' | 'designed';
   onStartSession: (input: {
     tenantId: string;
     tenantName: string;
@@ -320,178 +324,37 @@ export function WorkspaceTable({
 
   return (
     <>
-      {/* ── Summary KPI Ribbon (Inverted Command Panel) ───────────────── */}
-      <div
-        className="relative mt-6 flex flex-col overflow-hidden rounded-card shadow-2xl transition-all duration-300 sm:flex-row"
-        style={{
-          background: 'var(--chrome-bg-base)',
-          border: '1px solid var(--chrome-rule-strong)',
-          color: 'var(--invert-card-fg)',
-          boxShadow:
-            'var(--shadow-lg), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 6%, transparent)',
-        }}
-      >
-        {/* ── Premium Ambient Background Art ── */}
-        <div className="pointer-events-none absolute inset-0 z-0 select-none" aria-hidden="true">
-          <div
-            className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-[0.18] blur-[120px]"
-            style={{ background: 'var(--blue-500)' }}
-          />
-          <div
-            className="absolute -right-32 -bottom-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
-            style={{ background: 'var(--blue-700)' }}
-          />
-
-          <div
-            className="absolute inset-0 opacity-[0.25]"
-            style={{
-              backgroundImage:
-                'radial-gradient(color-mix(in oklab, var(--ink-0) 80%, transparent) 1px, transparent 1px)',
-              backgroundSize: '32px 32px',
-              maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
-              WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
-            }}
-          />
-        </div>
-
-        {/* Metric 1 */}
-        <div className="relative z-10 flex-1 p-5 sm:p-6 sm:pr-8">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
-            Total Workspaces
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2.5">
-            <span
-              className="font-mono text-3xl font-medium tracking-tight"
-              style={{ color: 'var(--invert-card-fg)' }}
-            >
-              {stats.totalWorkspaces}
-            </span>
-            <span className="font-mono text-sm font-medium" style={{ color: 'var(--success-fg)' }}>
-              {stats.activeCount} active
-            </span>
-          </div>
-          <div
-            className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
-            style={{
-              background:
-                'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
-              boxShadow: '1px 0 0 var(--chrome-bg-base)',
-            }}
-          />
-          <div
-            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
-            style={{
-              background:
-                'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
-              boxShadow: '0 1px 0 var(--chrome-bg-base)',
-            }}
-          />
-        </div>
-
-        {/* Metric 2 */}
-        <div className="relative z-10 flex-1 p-5 sm:p-6 sm:px-8">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
-            Seats Allocated
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2.5">
-            <span
-              className="font-mono text-3xl font-medium tracking-tight"
-              style={{ color: 'var(--invert-card-fg)' }}
-            >
-              {group(stats.totalSeats)}
-            </span>
-            <span className="font-mono text-sm" style={{ color: 'var(--invert-card-subtle)' }}>
-              / {group(stats.totalSeatsLimit)}
-            </span>
-          </div>
-          <div
-            className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
-            style={{
-              background:
-                'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
-              boxShadow: '1px 0 0 var(--chrome-bg-base)',
-            }}
-          />
-          <div
-            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
-            style={{
-              background:
-                'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
-              boxShadow: '0 1px 0 var(--chrome-bg-base)',
-            }}
-          />
-        </div>
-
-        {/* Metric 3 */}
-        <div className="relative z-10 flex-1 p-5 sm:p-6 sm:px-8">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
-            Monthly Events
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2.5">
-            <span
-              className="font-mono text-3xl font-medium tracking-tight"
-              style={{ color: 'var(--invert-card-fg)' }}
-            >
-              {formatCompactNumber(stats.totalEvents)}
-            </span>
-            <span className="font-mono text-sm" style={{ color: 'var(--invert-card-subtle)' }}>
-              ingested
-            </span>
-          </div>
-          <div
-            className="absolute top-4 right-0 bottom-4 hidden w-px sm:block"
-            style={{
-              background:
-                'linear-gradient(to bottom, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
-              boxShadow: '1px 0 0 var(--chrome-bg-base)',
-            }}
-          />
-          <div
-            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
-            style={{
-              background:
-                'linear-gradient(to right, transparent, var(--chrome-hover) 15%, var(--chrome-rule-strong) 50%, var(--chrome-hover) 85%, transparent)',
-              boxShadow: '0 1px 0 var(--chrome-bg-base)',
-            }}
-          />
-        </div>
-
-        {/* Metric 4 */}
-        <div
-          className="relative z-10 flex-1 p-5 transition-colors duration-500 sm:p-6 sm:pl-8"
-          style={{
-            background:
-              attentionCount > 0
-                ? 'radial-gradient(circle at top right, color-mix(in oklab, var(--accent-mark) 10%, transparent), transparent 75%)'
-                : 'transparent',
-          }}
-        >
-          <div
-            className="t-eyebrow"
-            style={{
-              color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-subtle)',
-            }}
-          >
-            Needs Attention
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2.5">
-            <span
-              className="font-mono text-3xl font-medium tracking-tight"
-              style={{ color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-fg)' }}
-            >
-              {attentionCount}
-            </span>
-            <span
-              className="font-mono text-sm"
-              style={{
-                color: attentionCount > 0 ? 'var(--accent-mark)' : 'var(--invert-card-subtle)',
-              }}
-            >
-              {attentionCount === 1 ? 'workspace' : 'workspaces'}
-            </span>
-          </div>
-        </div>
-      </div>
+      <FactStrip label="Workspace summary">
+        <FactCell
+          icon={IconBuildings}
+          label="Workspaces"
+          value={stats.totalWorkspaces}
+          note={`${stats.activeCount} active workspaces`}
+        />
+        <FactCell
+          icon={IconUsers}
+          label="Staff seats in use"
+          value={group(stats.totalSeats)}
+          note="Across the workspaces in this register"
+        />
+        <FactCell
+          icon={IconBolt}
+          label="Monthly events"
+          value={source === 'live' ? 'Not measured' : formatCompactNumber(stats.totalEvents)}
+          note={source === 'live' ? 'Event reporting is not connected.' : 'Example event volume'}
+        />
+        <FactCell
+          icon={IconActivityHeartbeat}
+          label="Needs attention"
+          value={attentionCount}
+          note="Past due, suspended, or approaching a limit"
+          tone={attentionCount > 0 ? 'warning' : 'neutral'}
+        />
+      </FactStrip>
+      <SectionHeading
+        title="Workspace directory"
+        note="Find a customer, review their subscription, or begin a support visit."
+      />
 
       {/* ── Filter bar ───────────────────────────────────────────────── */}
       <FilterBar<WorkspaceStatus>
@@ -517,7 +380,7 @@ export function WorkspaceTable({
               border: `1px solid ${attention ? 'color-mix(in oklab, var(--amber-500) 40%, transparent)' : 'var(--border-strong)'}`,
               background: attention ? 'var(--amber-100)' : 'var(--surface-raised)',
               color: attention ? 'var(--amber-500)' : 'var(--text-primary)',
-              font: '600 var(--type-chip)/1 var(--font-ui)',
+              font: '500 var(--type-chip)/1 var(--font-ui)',
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
               boxShadow: attention ? 'var(--shadow-md)' : 'var(--shadow-sm)',
@@ -825,13 +688,19 @@ export function WorkspaceTable({
 
                       {/* Events Meter */}
                       <td className="px-3 py-5">
-                        <DetailedMeter
-                          value={group(r.events)}
-                          maxFormatted={formatCompactNumber(r.eventsLimit)}
-                          pct={eventPct}
-                          subtext={`${formatCompactNumber(eventsLeft)} remaining`}
-                          maxTrackWidth={140}
-                        />
+                        {source === 'live' ? (
+                          <span className="t-caption text-[var(--text-secondary)]">
+                            Not measured
+                          </span>
+                        ) : (
+                          <DetailedMeter
+                            value={group(r.events)}
+                            maxFormatted={formatCompactNumber(r.eventsLimit)}
+                            pct={eventPct}
+                            subtext={`${formatCompactNumber(eventsLeft)} remaining`}
+                            maxTrackWidth={140}
+                          />
+                        )}
                       </td>
 
                       {/* Activity & Timeline */}
@@ -1034,12 +903,18 @@ export function WorkspaceTable({
                           Events
                         </dt>
                         <dd>
-                          <DetailedMeter
-                            value={formatCompactNumber(r.events)}
-                            maxFormatted={formatCompactNumber(r.eventsLimit)}
-                            pct={eventPct}
-                            subtext={`${formatCompactNumber(eventsLeft)} left`}
-                          />
+                          {source === 'live' ? (
+                            <span className="t-caption text-[var(--text-secondary)]">
+                              Not measured
+                            </span>
+                          ) : (
+                            <DetailedMeter
+                              value={formatCompactNumber(r.events)}
+                              maxFormatted={formatCompactNumber(r.eventsLimit)}
+                              pct={eventPct}
+                              subtext={`${formatCompactNumber(eventsLeft)} left`}
+                            />
+                          )}
                         </dd>
                       </div>
                     </dl>

@@ -43,7 +43,7 @@ import type { MasterRuleField } from '@/lib/console/data';
 /** The two states, and what each one means to a workspace. */
 const AUTHORITY = {
   locked: {
-    label: 'floor',
+    label: 'required',
     note: 'A workspace may tighten this and may never loosen it.',
     icon: IconLock,
     ink: 'var(--text-primary)',
@@ -169,8 +169,8 @@ export function RuleFields({
       }
     >
       <p className="t-compact mb-4" style={{ color: 'var(--text-secondary)', maxWidth: '68ch' }}>
-        <span className="numeric">{set}</span> of {fields.length} fields carry a value;{' '}
-        <span className="numeric">{floors}</span> of them are floors a workspace cannot loosen.
+        <span className="numeric">{set}</span> of {fields.length} fields have instructions;{' '}
+        <span className="numeric">{floors}</span> are required platform guidance.
       </p>
 
       {/*
@@ -231,10 +231,8 @@ export function RuleFields({
           maxWidth: '72ch',
         }}
       >
-        Publishing appends a version and moves a pointer on an append-only table, so nothing is
-        overwritten and any earlier version is one click from being restored. It changes what every
-        workspace inherits on its next generated reply, which is why the change note is required and
-        why the whole operation lands in the platform log before it is applied.
+        Publishing creates a new version and keeps the previous instructions available to restore. A
+        change note is required, and the operation is recorded in platform activity.
       </p>
     </Panel>
   );

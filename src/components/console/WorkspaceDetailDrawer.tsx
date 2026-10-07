@@ -299,12 +299,9 @@ export function WorkspaceDetailDrawer({
       <div
         ref={overlayRef}
         onClick={handleClose}
-        className="fixed inset-0"
+        className="console-modal-backdrop fixed inset-0"
         style={{
           zIndex: 90,
-          background: 'var(--surface-overlay)',
-          backdropFilter: 'blur(4px)',
-          WebkitBackdropFilter: 'blur(4px)',
         }}
         aria-hidden="true"
       />

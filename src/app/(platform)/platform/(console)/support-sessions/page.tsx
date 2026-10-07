@@ -167,6 +167,7 @@ export default async function SupportSessionsPage({
       {register.open.length > 0 ? (
         <section aria-labelledby="support-open">
           <SectionHeading
+            id="support-open"
             title="Inside now"
             note="Every open visit, with the reason the customer is reading."
             action={<DataSource kind="live" detail="counting down" />}
@@ -177,7 +178,9 @@ export default async function SupportSessionsPage({
 
       <section aria-labelledby="support-visits">
         <SectionHeading
+          id="support-visits"
           title="Visits"
+          align={register.open.length > 0 ? 'left' : 'right'}
           note="The last thirty days, newest first. A visit opens what it did."
           action={<DataSource kind="live" />}
         />
@@ -186,15 +189,21 @@ export default async function SupportSessionsPage({
 
       <section aria-labelledby="support-shape">
         <SectionHeading
-          title="Shape"
+          id="support-shape"
+          title="Visit patterns"
           note="How long visits last, and how they end."
-          align="right"
+          align={register.open.length > 0 ? 'right' : 'left'}
         />
         <ShapeBand register={register} />
       </section>
 
       <section aria-labelledby="support-guarantees" className="pb-4">
-        <SectionHeading title="Guarantees" note="What every visit promises the customer." />
+        <SectionHeading
+          id="support-guarantees"
+          title="Support safeguards"
+          note="How access to a customer workspace is controlled."
+          align={register.open.length > 0 ? 'left' : 'right'}
+        />
         <GuaranteesPanel />
       </section>
     </ConsolePage>

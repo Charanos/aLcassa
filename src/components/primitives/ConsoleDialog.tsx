@@ -140,10 +140,7 @@ export function ConsoleDialog({
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay
-          className="fixed inset-0 z-[150]"
-          style={{ background: 'var(--surface-overlay)', backdropFilter: 'blur(6px)' }}
-        />
+        <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
           <Dialog.Content
             ref={panelRef}

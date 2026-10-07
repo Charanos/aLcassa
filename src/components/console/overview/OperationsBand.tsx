@@ -23,7 +23,13 @@ const QUEUES_SHOWN = 4;
  *
  * Server component. Only the latency chart crosses into the client.
  */
-export function OperationsBand({ operations }: { operations: OverviewInsights['operations'] }) {
+export function OperationsBand({
+  operations,
+  source = 'designed',
+}: {
+  operations: OverviewInsights['operations'];
+  source?: OverviewInsights['source'];
+}) {
   const { services } = operations;
   const total = services.ok + services.degraded + services.down;
   const allWell = services.degraded === 0 && services.down === 0;
@@ -36,8 +42,8 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
   return (
     <section className="mb-10">
       <SectionHeading
-        title="Operations & Ledgers"
-        note="Global latency metrics, service health, queue depths, and the support session accountability register."
+        title="Operations and support"
+        note="Recorded support visits and the current availability of monitoring data."
         action={<BandLink href="/platform/health">Open health</BandLink>}
         align="left"
       />
@@ -45,7 +51,7 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
         <Panel
           title="Response latency · p50 / p95 / p99"
-          action={<DataSource kind="designed" />}
+          action={source === 'designed' ? <DataSource kind="designed" /> : undefined}
           variant="elevated"
         >
           {operations.latency.length > 0 ? (
@@ -66,13 +72,17 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
           ) : (
             <NoProbes
               title="No latency is being measured."
-              body="p50, p95 and p99 arrive from the observability probes at M6."
+              body="Response-time monitoring is not connected yet."
             />
           )}
         </Panel>
 
         <div className="grid gap-5">
-          <Panel title="Services" action={<DataSource kind="designed" />} variant="elevated">
+          <Panel
+            title="Services"
+            action={source === 'designed' ? <DataSource kind="designed" /> : undefined}
+            variant="elevated"
+          >
             {total === 0 ? (
               <NoProbes
                 title="No services are reporting."
@@ -111,14 +121,14 @@ export function OperationsBand({ operations }: { operations: OverviewInsights['o
           <Panel
             title="Queue depth"
             flush
-            action={<DataSource kind="designed" />}
+            action={source === 'designed' ? <DataSource kind="designed" /> : undefined}
             variant="elevated"
           >
             {queues.length === 0 ? (
               <div className="px-1 pb-2">
                 <NoProbes
-                  title="No background queues."
-                  body="Reconciliation and dispatch jobs report their depth here."
+                  title="Queue monitoring is not connected."
+                  body="Queue depth will appear when background jobs report their measurements."
                 />
               </div>
             ) : (

@@ -64,9 +64,10 @@ export function CapabilitiesBand({ admins }: { admins: Admin[] }) {
   return (
     <section aria-labelledby="admins-capabilities">
       <SectionHeading
+        id="admins-capabilities"
         title="Capabilities"
         note="What each operator can do, and how that is guaranteed."
-        align="right"
+        align="left"
       />
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">

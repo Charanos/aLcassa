@@ -27,6 +27,7 @@ export const ERROR_CODES = {
   // ─ Tenancy ─
   TENANT_SUSPENDED: 'tenant.suspended',
   TENANT_NOT_FOUND: 'tenant.not_found',
+  TENANT_SETTINGS_CONFLICT: 'tenant.settings_conflict',
 
   // ─ Membership ─
   MEMBER_LAST_OWNER: 'member.last_owner',
@@ -59,6 +60,8 @@ export const ERROR_CODES = {
   PLATFORM_CAPABILITY_MISSING: 'platform.capability_missing',
   /** Platform settings saved over a version the operator never saw. Doc 23. */
   PLATFORM_SETTINGS_CONFLICT: 'platform.settings_conflict',
+  /** A subscription changed between an operator reading it and changing it. Doc 25 · R1. */
+  SUBSCRIPTION_CHANGED: 'platform.subscription_changed',
   /** 01 D-13, added 24 Aug 2026. A support session attempted one of the three
    *  permanent carve-outs: reading a credential secret, extending its own
    *  timeout, or acting as the member's own identity row. Distinct from
@@ -109,6 +112,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
 
   [ERROR_CODES.TENANT_SUSPENDED]: 403,
   [ERROR_CODES.TENANT_NOT_FOUND]: 404,
+  [ERROR_CODES.TENANT_SETTINGS_CONFLICT]: 409,
 
   [ERROR_CODES.MEMBER_LAST_OWNER]: 409,
   [ERROR_CODES.MEMBER_ALREADY_EXISTS]: 409,
@@ -133,6 +137,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 403,
   [ERROR_CODES.PLATFORM_CAPABILITY_MISSING]: 403,
   [ERROR_CODES.PLATFORM_SETTINGS_CONFLICT]: 409,
+  [ERROR_CODES.SUBSCRIPTION_CHANGED]: 409,
   [ERROR_CODES.SUPPORT_WRITE_DENIED]: 403,
   [ERROR_CODES.PLATFORM_NOT_ADMIN]: 403,
 
@@ -170,6 +175,8 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.TENANT_SUSPENDED]:
     'This workspace is suspended. You can still see everything here; changes are paused until this is resolved. Get in touch to resolve it.',
   [ERROR_CODES.TENANT_NOT_FOUND]: 'That is not here, or you do not have access to it.',
+  [ERROR_CODES.TENANT_SETTINGS_CONFLICT]:
+    'Company settings changed while you were editing. Reload to review the latest settings before saving again.',
 
   [ERROR_CODES.MEMBER_LAST_OWNER]:
     'Every workspace needs an owner. Transfer ownership before removing this account.',
@@ -179,34 +186,38 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.INVITATION_ALREADY_ACCEPTED]: 'This invitation has already been accepted.',
   [ERROR_CODES.INVITATION_REVOKED]: 'This invitation was withdrawn.',
 
-  [ERROR_CODES.ENTITLEMENT_LIMIT_REACHED]: 'You have used everything your plan includes here.',
+  [ERROR_CODES.ENTITLEMENT_LIMIT_REACHED]:
+    'You have reached the limit for your plan. Review your plan to add more.',
   [ERROR_CODES.ENTITLEMENT_FEATURE_UNAVAILABLE]: 'Your plan does not include this.',
   [ERROR_CODES.SUBSCRIPTION_NOT_ACTIVE]: 'This workspace does not have an active subscription.',
 
   [ERROR_CODES.CREDENTIAL_NOT_FOUND]: 'That is not here, or you do not have access to it.',
-  [ERROR_CODES.CREDENTIAL_REVOKED]: 'This credential was revoked.',
+  [ERROR_CODES.CREDENTIAL_REVOKED]:
+    'This credential was revoked. Ask the workspace owner for a new credential.',
   [ERROR_CODES.CREDENTIAL_SCOPE_MISSING]:
-    'This credential does not have the scope required for that. Add it in the dashboard under API credentials.',
+    'This credential does not have the required permission. Ask the workspace owner to create a credential with the required scope.',
   [ERROR_CODES.CREDENTIAL_LIMIT_REACHED]: 'You have created every credential your plan includes.',
 
   [ERROR_CODES.RULES_VERSION_CONFLICT]:
     'These rules were changed while you were editing. Review the differences before publishing.',
   [ERROR_CODES.RULES_FIELD_LOCKED]: 'This is set by the platform and cannot be changed here.',
 
-  [ERROR_CODES.SUPPORT_SESSION_EXPIRED]: 'Your support session ended. Switch in again to continue.',
+  [ERROR_CODES.SUPPORT_SESSION_EXPIRED]: 'Your support visit ended. Start a new visit to continue.',
   [ERROR_CODES.SUPPORT_NOT_PERMITTED]: 'This account cannot enter support mode.',
   [ERROR_CODES.PLATFORM_CAPABILITY_MISSING]:
-    'Your operator account does not hold the capability this needs. Another platform admin can grant it.',
+    'You do not have permission to do this. Ask a platform administrator to review your access.',
   [ERROR_CODES.PLATFORM_SETTINGS_CONFLICT]:
     'Another operator saved these settings after you opened the page. Reload to see their version, then make your change again.',
+  [ERROR_CODES.SUBSCRIPTION_CHANGED]:
+    'This subscription changed while you were deciding. Reload the workspace and check it before changing it.',
   [ERROR_CODES.SUPPORT_WRITE_DENIED]: 'Support mode cannot do this here.',
   [ERROR_CODES.PLATFORM_NOT_ADMIN]: 'This account does not manage the platform.',
 
-  [ERROR_CODES.VALIDATION_FAILED]: 'Some of what was sent is not valid.',
-  [ERROR_CODES.RATE_LIMIT_EXCEEDED]:
-    'That is a lot of requests in a short time. Wait a moment and try again.',
+  [ERROR_CODES.VALIDATION_FAILED]: 'Check your entries and try again.',
+  [ERROR_CODES.RATE_LIMIT_EXCEEDED]: 'Too many requests. Wait a moment and try again.',
   [ERROR_CODES.NOT_FOUND]: 'That is not here, or you do not have access to it.',
-  [ERROR_CODES.INTERNAL]: 'Something broke on our side. We have logged it.',
+  [ERROR_CODES.INTERNAL]:
+    "We couldn't complete this request. Try again, or contact support if it continues.",
   [ERROR_CODES.UPSTREAM_UNAVAILABLE]:
-    'We could not reach the service that checks this. Nothing was wrong with what you sent — try again shortly.',
+    'The service needed for this request is temporarily unavailable. Try again shortly.',
 };

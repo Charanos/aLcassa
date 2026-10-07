@@ -41,7 +41,7 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
       <SectionHeading
         title="Headroom"
         note="Where each plan's workspaces actually sit"
-        align="right"
+        align="left"
         action={<BandLink href="/platform/tenants">Open workspaces</BandLink>}
       />
 

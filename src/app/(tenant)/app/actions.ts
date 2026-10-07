@@ -11,6 +11,7 @@ import {
   revokeInvitation as revokeInvitationService,
 } from '@/modules/membership';
 import { endSupportVisit as endSupportVisitService, updateOwnProfile } from '@/modules/identity';
+import { saveCompanySettings } from '@/modules/settings';
 
 /**
  * Tenant application server actions.
@@ -36,10 +37,8 @@ import { endSupportVisit as endSupportVisitService, updateOwnProfile } from '@/m
  * policies, audited identically. Nothing about them is a shortcut taken
  * because they are Server Actions rather than routes.
  *
- * The remaining four still refuse by name: company settings, both credential
- * actions and rule publishing wait on M4a and M5. The prediction above held —
- * their validation, shape and call sites did not change when the write
- * arrived, only the last line of each function did.
+ * Company settings now use the audited settings module with version checks.
+ * Credential actions and tenant rule publishing remain pending M4a/M5.
  */
 
 type ActionResult =
@@ -76,31 +75,36 @@ async function attempt(operation: () => Promise<string | void>): Promise<ActionR
     const notice = await operation();
     return notice ? { ok: true, notice } : { ok: true };
   } catch (error) {
-    if (isAppError(error)) return { ok: false, error: error.message };
-    logger.error('server action failed', { error });
-    return {
-      ok: false,
-      error: 'That did not go through. Try again, and get in touch if it keeps happening.',
-    };
+    return actionFailure(error);
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
+function actionFailure(error: unknown): { ok: false; error: string } {
+  if (isAppError(error)) return { ok: false, error: error.message };
+  logger.error('server action failed', { error });
+  return {
+    ok: false,
+    error: 'Your changes could not be saved. Try again. If the problem continues, contact support.',
+  };
+}
+
 export async function updateCompany(input: {
   name: string;
   contactEmail: string;
   timezone: string;
   locale: string;
-}): Promise<ActionResult> {
-  if (!input.name.trim()) return { ok: false, error: 'Company name is required.' };
-  if (!/.+@.+\..+/.test(input.contactEmail))
-    return { ok: false, error: 'Enter a valid contact email.' };
-
-  return {
-    ok: false,
-    error:
-      'Company settings write to tenant_settings, which is not wired until the tenant mutation module lands. The request itself is valid — nothing else is blocking it.',
-  };
+  version: number;
+}): Promise<{ ok: true; version: number } | { ok: false; error: string }> {
+  try {
+    const ctx = await currentSession();
+    const saved = await saveCompanySettings(ctx, input);
+    revalidatePath('/app/settings/company');
+    revalidatePath('/app/settings/audit');
+    revalidatePath('/platform/inside');
+    return { ok: true, version: saved.version };
+  } catch (error) {
+    return actionFailure(error);
+  }
 }
 
 export async function sendInvitation(input: {
@@ -173,8 +177,7 @@ export async function createCredential(input: {
 
   return {
     ok: false,
-    error:
-      'A credential cannot be minted without the api_credentials table — this is the one screen that should never fabricate a secret, so it refuses rather than showing one that is not real.',
+    error: 'Credential creation is unavailable. No credential has been created.',
   };
 }
 
@@ -183,7 +186,7 @@ export async function revokeCredential(id: string): Promise<ActionResult> {
   if (!id) return { ok: false, error: 'Select a credential to revoke.' };
   return {
     ok: false,
-    error: 'Revoking a credential is not wired until the api_credentials table lands.',
+    error: 'Credential revocation is unavailable. The credential has not been changed.',
   };
 }
 
@@ -192,15 +195,13 @@ export async function publishAiRules(input: { changeNote: string }): Promise<Act
   if (!input.changeNote.trim()) {
     return {
       ok: false,
-      error:
-        'A change note is required — it is what makes the version history readable six months later.',
+      error: 'Add a change note to explain this version.',
     };
   }
 
   return {
     ok: false,
-    error:
-      'Publishing writes an append-only version row to tenant_ai_rules, which is not wired until M4a. The change note and the edited fields are valid — nothing else is blocking it.',
+    error: 'Rules cannot be published yet. The current rules have not been changed.',
   };
 }
 

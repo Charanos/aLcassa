@@ -259,6 +259,7 @@ export function AvatarField({
           id={inputId}
           ref={inputRef}
           type="file"
+          aria-label="Choose a profile photo"
           accept={AVATAR_ACCEPT}
           className="sr-only"
           disabled={inert}

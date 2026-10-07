@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import {
-  IconArrowDown,
-  IconArrowUp,
   IconClock,
   IconCoin,
   IconDownload,
@@ -14,34 +12,19 @@ import {
   BandLink,
   ConsoleHeader,
   ConsolePage,
+  DataSource,
   ExportLink,
   Panel,
   SectionHeading,
 } from '@/components/console/Surface';
+import { FactCell, FactStrip } from '@/components/console/FactStrip';
 import { AgeingChart, MrrChart, PlanMixChart } from '@/components/console/Charts';
 import { CollectionQueueTable } from '@/components/console/CollectionQueueTable';
-import { getRevenue, type Kpi } from '@/lib/console/data';
 import { MovementBand } from '@/components/console/revenue/MovementBand';
+import { getRevenue, type Kpi } from '@/lib/console/data';
+import { getLiveRevenue } from '@/lib/console/liveRevenue';
 
-export const metadata: Metadata = { title: 'Revenue' };
-
-/**
- * Revenue. `Revenue.dc.html`.
- *
- * ⚠ THE SCREEN ENDS IN A QUEUE, NOT IN A CHART.
- *
- * Three charts sit above the fold and none of them is the point. The last
- * panel — five workspaces sorted by days late — is the only thing on this page
- * an operator can act on, and the design puts it last precisely because the
- * charts are context for it rather than the other way round. A revenue screen
- * that ends in a graph tells you how you are doing; one that ends in a list of
- * names tells you who to call.
- *
- * ⚠ IT REPORTS, IT DOES NOT CHARGE. Gateway integration is out of Phase 1
- * scope, so "Retry" hands the invoice to the finance operator with the failure
- * reason attached rather than moving money. That is stated on the surface
- * rather than left for someone to discover by pressing it.
- */
+export const metadata: Metadata = { title: 'Subscription value' };
 
 const KPI_ICON: Record<Kpi['icon'], TablerIcon> = {
   coin: IconCoin,
@@ -50,360 +33,158 @@ const KPI_ICON: Record<Kpi['icon'], TablerIcon> = {
   down: IconTrendingDown,
   clock: IconClock,
 };
+const KES = new Intl.NumberFormat('en-KE', { maximumFractionDigits: 0 });
 
 export default async function RevenuePage() {
-  const m = await getRevenue();
+  // Only a preview without a platform session may use examples. An empty account
+  // remains empty, and database failures reach the page's error boundary.
+  const m = (await getLiveRevenue()) ?? (await getRevenue());
 
   return (
     <ConsolePage>
-      <div
-        className="flex flex-col gap-5 border-b pb-5 lg:flex-row lg:items-end"
-        style={{ borderColor: 'var(--border-subtle)' }}
-      >
-        <div className="min-w-0 flex-1">
-          <ConsoleHeader
-            breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Revenue' }]}
-            title="Revenue"
-          />
-          <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}>
-            What the platform earns, what it is owed, and which workspaces are worth calling this
-            week.
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
+      <ConsoleHeader
+        breadcrumbs={[{ label: 'Platform', href: '/platform' }, { label: 'Subscription value' }]}
+        title="Subscription value"
+        rule
+        actions={
           <ExportLink resource="revenue">
             <IconDownload size={15} stroke={1.5} aria-hidden />
             Export CSV
           </ExportLink>
-        </div>
-      </div>
-
-      {/* ── KPIs ───────────────────────────────────
-          Dark ambient section matching the Overview aesthetic. */}
-      <section
-        className="relative mt-8 mb-12 overflow-hidden rounded-card shadow-2xl transition-all duration-300"
-        style={{
-          background: 'var(--chrome-bg-base)',
-          border: '1px solid var(--chrome-rule-strong)',
-          color: 'var(--invert-card-fg)',
-          boxShadow:
-            'var(--shadow-lg), inset 0 1px 1px color-mix(in oklab, var(--ink-0) 6%, transparent)',
-        }}
-      >
-        {/* Premium Ambient Background Art */}
-        <div
-          className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
-          aria-hidden="true"
-        >
-          <div
-            className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full opacity-[0.18] blur-[120px]"
-            style={{ background: 'var(--blue-500)' }}
-          />
-          <div
-            className="absolute -right-32 -bottom-32 h-[600px] w-[600px] rounded-full opacity-[0.12] blur-[140px]"
-            style={{ background: 'var(--blue-700)' }}
-          />
-
-          <svg
-            className="absolute inset-0 h-full w-full opacity-[0.4]"
-            viewBox="0 0 1000 400"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="xMidYMid slice"
+        }
+      />
+      <div className="mb-8 space-y-3">
+        <DataSource kind={m.source} />
+        <p className="t-body max-w-[72ch]" style={{ color: 'var(--text-secondary)' }}>
+          The value of workspace subscriptions, normalized to a monthly amount. These figures
+          describe contracts and estimated amounts due; they do not confirm payments received.
+        </p>
+        {m.source === 'designed' && (
+          <p className="t-caption" style={{ color: 'var(--warning-fg)' }}>
+            Example data for preview. These figures do not describe your account.
+          </p>
+        )}
+        {m.caveats.length > 0 && (
+          <aside
+            aria-label="Data requiring attention"
+            className="rounded-panel border p-4"
+            style={{ borderColor: 'var(--border-subtle)' }}
           >
-            <path
-              d="M -100 250 C 200 350 400 50 700 150 S 1100 0 1200 100"
-              stroke="url(#elegant-line-1)"
-              strokeWidth="1.5"
-            />
-            <path
-              d="M -50 300 C 250 400 450 100 750 200 S 1150 50 1250 150"
-              stroke="url(#elegant-line-2)"
-              strokeWidth="1"
-              strokeDasharray="4 8"
-            />
-            <defs>
-              <linearGradient id="elegant-line-1" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
-                <stop offset="40%" stopColor="var(--invert-card-fg)" stopOpacity="0.25" />
-                <stop offset="80%" stopColor="var(--blue-400)" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id="elegant-line-2" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
-                <stop offset="50%" stopColor="var(--invert-card-fg)" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="var(--invert-card-fg)" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-          </svg>
-
-          <div
-            className="absolute inset-0 opacity-[0.25]"
-            style={{
-              backgroundImage:
-                'radial-gradient(color-mix(in oklab, var(--ink-0) 70%, transparent) 1px, transparent 1px)',
-              backgroundSize: '32px 32px',
-              maskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
-              WebkitMaskImage: 'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%)',
-            }}
+            <p className="t-body font-medium">Some workspaces are excluded</p>
+            <ul className="t-caption mt-2 list-disc space-y-2 pl-5">
+              {m.caveats.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          </aside>
+        )}
+      </div>
+      <FactStrip label="Subscription value summary">
+        {m.kpis.slice(0, 4).map((kpi) => (
+          <FactCell
+            key={kpi.label}
+            icon={KPI_ICON[kpi.icon]}
+            label={kpi.label}
+            value={kpi.value}
+            note={kpi.note}
           />
-        </div>
+        ))}
+      </FactStrip>
 
-        {/* KPI Row (Signal Cards) */}
-        <div className="relative z-10 px-8 pb-8 lg:px-12 lg:pb-12">
-          <div className="absolute top-0 right-8 left-8 h-[1px] bg-gradient-to-r from-transparent via-[var(--chrome-rule-strong)] to-transparent opacity-60 lg:right-12 lg:left-12" />
-
-          <div className="grid w-full grid-cols-1 gap-6 pt-8 md:grid-cols-2 md:gap-8 lg:grid-cols-3 xl:grid-cols-5">
-            {m.kpis.map((k, i) => {
-              const Icon = KPI_ICON[k.icon];
-              const Arrow = k.direction === 'up' ? IconArrowUp : IconArrowDown;
-              const isPositive = k.good;
-              const isDanger = k.tone === 'danger';
-
-              return (
-                <div
-                  key={k.label}
-                  className="group relative -m-5 flex cursor-default flex-col justify-between rounded-overlay px-5 py-3 transition-all duration-300 hover:bg-[var(--chrome-hover)] hover:shadow-[var(--glass-highlight)]"
-                >
-                  <div className="pointer-events-none absolute right-3 -bottom-6 z-0 text-[var(--invert-card-fg)] opacity-[0.08] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.14]">
-                    <Icon size={120} stroke={1.5} aria-hidden />
-                  </div>
-
-                  {i < m.kpis.length - 1 && (
-                    <div className="pointer-events-none absolute top-1/2 -right-4 hidden h-16 w-[1px] -translate-y-1/2 bg-gradient-to-b from-transparent via-[var(--chrome-rule)] to-transparent xl:block" />
-                  )}
-
-                  <div className="relative z-10 mb-4 flex items-center justify-between">
-                    <span
-                      className="font-mono text-2xs font-medium tracking-[0.15em] uppercase"
-                      style={{ color: 'var(--invert-card-fg)', opacity: 0.5 }}
-                    >
-                      {k.label}
-                    </span>
-                  </div>
-
-                  <div className="relative z-10 mb-2 flex items-end gap-3">
-                    <div
-                      className="font-mono tracking-tight"
-                      style={{
-                        fontSize: 'var(--type-display)',
-                        fontWeight: 300,
-                        color: isDanger ? 'var(--chrome-danger)' : 'var(--invert-card-fg)',
-                        lineHeight: 1,
-                        textShadow: isDanger
-                          ? '0 4px 16px color-mix(in oklab, var(--chrome-danger) 30%, transparent)'
-                          : '0 4px 16px color-mix(in oklab, var(--chrome-bg-base) 50%, transparent)',
-                        letterSpacing: '-0.03em',
-                      }}
-                    >
-                      {k.value}
-                    </div>
-                  </div>
-
-                  <div
-                    className="relative z-10 mt-1 flex items-center gap-2"
-                    style={{
-                      font: '400 var(--type-compact)/1.4 var(--font-ui)',
-                      color: 'var(--invert-card-fg)',
-                      opacity: 0.7,
-                    }}
-                  >
-                    <span
-                      className="numeric inline-flex items-center gap-0.5 whitespace-nowrap"
-                      style={{
-                        fontSize: 'var(--type-chip)',
-                        color: isPositive ? 'var(--chrome-success)' : 'var(--chrome-danger)',
-                      }}
-                    >
-                      <Arrow size={12} stroke={2.5} aria-hidden />
-                      {k.delta}
-                    </span>
-                    <span className="truncate">{k.note}</span>
-                  </div>
-                </div>
-              );
-            })}
+      <SectionHeading title="Subscription trends" note="All amounts in KES" />
+      <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <Panel title="Monthly subscription value">
+          <div className="min-h-[280px]">
+            <MrrChart data={m.mrr} />
           </div>
-        </div>
-      </section>
-
-      <SectionHeading
-        title="Revenue Analytics"
-        note="Live breakdown of monthly recurring revenue trajectory and plan distribution."
-        align="right"
-      />
-      <div className="mt-8 grid items-stretch gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <Panel
-          title="Monthly recurring revenue"
-          variant="elevated"
-          action={
-            <span className="flex items-center gap-3.5">
-              <Legend swatch="var(--blue-500)" shape="line">
-                MRR
-              </Legend>
-              <Legend swatch="var(--success-fg)">Net new</Legend>
-            </span>
-          }
-          footer={<BandLink href="/platform/tenants">The workspaces behind the figure</BandLink>}
-        >
-          <MrrChart data={m.mrr} />
+          <p className="t-caption mt-4" style={{ color: 'var(--text-secondary)' }}>
+            Historical values are estimated from subscription dates and recorded price changes.
+          </p>
+          <details className="t-caption mt-4">
+            <summary className="cursor-pointer">View monthly values</summary>
+            <table className="mt-3 w-full text-left">
+              <caption className="sr-only">Monthly subscription value and net change, KES</caption>
+              <thead>
+                <tr>
+                  {['Month', 'Value', 'Net change'].map((label) => (
+                    <th scope="col" key={label} className="p-2 font-medium">
+                      {label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {m.mrr.map((point) => (
+                  <tr key={point.month}>
+                    <th scope="row" className="p-2 font-normal">
+                      {point.month}
+                    </th>
+                    <td className="p-2 tabular-nums">{KES.format(point.mrr)}</td>
+                    <td className="p-2 tabular-nums">{KES.format(point.net)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </details>
         </Panel>
-
         <Panel
-          title="Revenue by plan"
-          flush
-          variant="elevated"
-          footer={<BandLink href="/platform/plans">Plans and what they entitle</BandLink>}
+          title="Value by plan"
+          action={<BandLink href="/platform/plans">View plans</BandLink>}
         >
-          <div className="px-4 pt-3.5">
-            <PlanMixChart data={m.planMix.map((p) => ({ name: p.name, value: p.value }))} />
-          </div>
-          <div className="px-4 pb-4">
-            {m.planMix.map((p, i) => (
-              <div
-                key={p.name}
-                className="flex items-center gap-2.5 py-2.5"
-                style={{ borderTop: '1px solid var(--border-subtle)' }}
-              >
-                <span
-                  aria-hidden
-                  className="size-2.5 shrink-0 rounded-chip"
-                  style={{
-                    background: ['var(--blue-500)', 'var(--blue-400)', 'var(--ink-300)'][i],
-                  }}
-                />
-                <span className="t-compact flex-1" style={{ color: 'var(--text-primary)' }}>
-                  {p.name}
-                </span>
-                <span
-                  className="whitespace-nowrap"
-                  style={{
-                    font: '400 var(--type-chip)/1.3 var(--font-mono)',
-                    color: 'var(--text-tertiary)',
-                  }}
-                >
-                  {p.tenants}
-                </span>
-                <span
-                  className="numeric min-w-[74px] text-right whitespace-nowrap"
-                  style={{ fontSize: 'var(--type-compact)' }}
-                >
-                  {p.display}
-                </span>
+          {m.planMix.length > 0 ? (
+            <>
+              <div className="min-h-[220px]">
+                <PlanMixChart data={m.planMix} />
               </div>
-            ))}
-          </div>
+              <ul className="t-caption mt-4 space-y-3">
+                {m.planMix.map((plan) => (
+                  <li key={plan.name} className="flex flex-wrap justify-between gap-2">
+                    <span>
+                      {plan.name} · {plan.tenants}
+                    </span>
+                    <span className="tabular-nums">{plan.display}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="t-body" style={{ color: 'var(--text-secondary)' }}>
+              No priced subscriptions to show.
+            </p>
+          )}
         </Panel>
       </div>
+      <MovementBand movement={m.movement} />
 
-      <div className="mt-8 mb-16">
-        <MovementBand movement={m.movement} />
-      </div>
-
-      {/* ── Ageing + collection queue ────────────────────────────────── */}
       <SectionHeading
-        title="Collection Queue"
-        note="Outstanding invoices sorted by days late. The collection queue is the actionable priority."
-        align="right"
+        title="Payment follow-up"
+        note="Estimates from subscription prices and past-due dates"
       />
-      <div className="mt-8 grid items-stretch gap-6 lg:grid-cols-[1.1fr_1.5fr]">
-        <Panel
-          title="Invoice ageing"
-          variant="elevated"
-          action={
-            <span
-              className="numeric whitespace-nowrap"
-              style={{ fontSize: 'var(--type-compact)', color: 'var(--danger-fg)' }}
-            >
-              {m.outstanding} outstanding
-            </span>
-          }
-          /*
-            ⚠ THE LINK CARRIES THE FILTER, WHICH IS THE WHOLE POINT OF IT.
-
-            `BandLink`'s own documentation: "a band is a QUESTION, a
-            visualisation that answers it, and a route to the screen that owns
-            the follow-up. A reader who finishes a band and has nowhere to go
-            has been shown a fact rather than given a handle on it." Every band
-            on this page was a dead end.
-
-            A bare `/platform/tenants` would have been the weak version — this
-            band says some workspaces are behind, and the link would then ask
-            the operator to find them again by hand. `WorkspaceTable` seeds its
-            status chips from this parameter, so the link lands on exactly the
-            rows the chart is about.
-          */
-          footer={
-            <BandLink href="/platform/tenants?status=past+due">
-              The workspaces that are behind
-            </BandLink>
-          }
-        >
-          <div className="relative min-h-[220px] flex-1">
+      <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+        <Panel title="Estimated amounts due by age">
+          <p className="t-body mb-4">
+            Total estimated due: <span className="numeric">KES {m.outstanding}</span>
+          </p>
+          <div className="min-h-[220px]">
             <AgeingChart data={m.ageing} />
           </div>
+          <ul className="t-caption mt-4 space-y-2">
+            {m.ageing.map((bucket) => (
+              <li key={bucket.bucket} className="flex justify-between gap-3">
+                <span>{bucket.bucket}</span>
+                <span className="tabular-nums">KES {KES.format(bucket.amount)}</span>
+              </li>
+            ))}
+          </ul>
         </Panel>
-
-        <Panel
-          title="Collection queue"
-          flush
-          variant="elevated"
-          action={
-            <span className="t-caption whitespace-nowrap" style={{ color: 'var(--text-tertiary)' }}>
-              Sorted by days late
-            </span>
-          }
-        >
+        <Panel title="Workspaces requiring follow-up" flush>
           <CollectionQueueTable collections={m.collections} />
-
-          <div
-            className="px-4 py-3"
-            style={{
-              background: 'var(--surface-sunken)',
-              borderTop: '1px solid var(--border-subtle)',
-            }}
-          >
-            <p className="t-compact" style={{ color: 'var(--text-tertiary)' }}>
-              Phase 1 reports on this queue; it does not charge cards. <em>Retry</em> hands the
-              invoice to the finance operator with the failure reason attached.
-            </p>
-            <div className="mt-2 -ml-4">
-              <BandLink href="/platform/tenants?attention=1">
-                Every workspace needing attention
-              </BandLink>
-            </div>
-          </div>
         </Panel>
       </div>
+      <p className="t-caption mt-4 max-w-[80ch]" style={{ color: 'var(--text-secondary)' }}>
+        Amounts due are estimates of monthly periods since each past-due date. They are not invoice
+        balances. Open a workspace to review its subscription before following up.
+      </p>
     </ConsolePage>
-  );
-}
-
-function Legend({
-  swatch,
-  shape = 'square',
-  children,
-}: {
-  swatch: string;
-  shape?: 'square' | 'line';
-  children: React.ReactNode;
-}) {
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 whitespace-nowrap"
-      style={{ font: '400 var(--type-compact)/1 var(--font-ui)', color: 'var(--text-secondary)' }}
-    >
-      <span
-        aria-hidden
-        style={{
-          width: shape === 'line' ? 10 : 8,
-          height: shape === 'line' ? 2 : 8,
-          borderRadius: 'var(--radius-bar)',
-          background: swatch,
-          opacity: shape === 'line' ? 1 : 0.55,
-        }}
-      />
-      {children}
-    </span>
   );
 }

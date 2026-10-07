@@ -24,7 +24,7 @@ Three principles follow from the laws:
 
 1. **Tinted surfaces carry most of the depth.** The surface ramp — base, raised, sunken, inset — does the work that elevation would do elsewhere. Shadow exists, and it is small: `--shadow-sm` on a panel, `--shadow-lg` on an overlay. Glass exists, and it is budgeted (§2, glass).
 2. **Colour is functional and systematic.** A person reading a table of forty workspaces needs to distinguish six states at a glance, so colour carries state. Every colour has exactly one meaning and appears nowhere else.
-3. **There is no weight axis.** Every family here ships one usable weight. Hierarchy comes from size, family switch, colour, case, space and rules. See §5.
+3. **Weight is restrained.** Hierarchy comes from size, family switch, colour, case, space and rules. The current UI tokens use 400 and 500; 500 is the ceiling. See §5 and the later applied type tokens in §21.
 
 ### What happened to copper on vellum
 
@@ -191,7 +191,7 @@ Three families, three roles. **Revised 12 Sep 2026** — the UI and data faces b
 | --- | --- | --- | --- |
 | Display and headings | **Libertinus Serif Display** | `--font-display` | **400**, 500 |
 | Body and UI | **DM Sans** | `--font-ui` | **400**, 500 |
-| Data | **Lilex** | `--font-mono` | **400**, 500, 700 |
+| Data | **Lilex** | `--font-mono` | **400**, 500 |
 
 ### What changed, and why
 
@@ -1074,3 +1074,16 @@ This treatment shipped four times inline before it was a component — two sign-
 pages and two card helpers in one illustration — at four sizes, four radii and
 four grounds. None could be reused because none was a component, and the best of
 the four was on the page a reviewer never saw first.
+
+
+## 28. Console refinement direction — 6 October 2026
+
+The user's latest direction governs console refinement: restrained, precise surfaces inspired by Apple's attention to proportion and hierarchy, within aLcassa's cream canvas and inverted chrome identity.
+
+- Summary KPIs use the shared FactStrip: inverted chrome, a visible masked dot texture, 76px decorative background glyphs, compact leading icons, and readable labels. The texture uses 0.9px dots on a 14px grid at 20% opacity, with a 35% minimum mask strength so it remains visible across the band. Artwork is aria-hidden and never competes with the value. Avoid oversized watermark icons, saturated ambient glows, thick borders, and animated decoration.
+- Modal backdrops use the shared `console-modal-backdrop` treatment: the overlay tint and an 8px `--overlay-blur`, including the WebKit property. Apply this to the backdrop only; dialog content stays sharp. Confirmation, destructive confirmation, editing, provisioning, drawers, navigation sheets and command palettes share it. Browsers without backdrop-filter retain the dimming tint.
+- Keep the page title left. Major sections alternate right, left, right on desktop. A conditional section changes the following alignment accordingly. Phone layouts remain left-aligned for scanning and predictable reading order.
+- Use sunken cards to group tasks, records, and related facts. Raised controls and compact inset rows sit inside them. Leave editorial introductions and section headings open; do not wrap every sentence in another card. Workspace details use this same hierarchy.
+- Preserve the established typefaces and 400/500 weight ceiling. Use sentence case and ordinary user language. Technical references belong in expandable details or the audit context where they help an operator.
+- Unknown, unmeasured, unavailable, empty, and zero are distinct states. A signed-in page must not fill absent measurements with example incidents, invoices, customer records, or counts.
+- Acceptance requires desktop and phone evidence, readable text contrast, keyboard/focus review, loading/error/empty/pending states, and verification that the visual change preserves real actions. Implementation alone does not close a surface.

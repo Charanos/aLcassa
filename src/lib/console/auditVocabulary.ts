@@ -142,6 +142,11 @@ const VOCABULARY: Record<string, AuditDescription> = {
     icon: IconCreditCard,
     tone: 'info',
   },
+  'subscription.contract_set': {
+    label: 'Contract price set',
+    icon: IconCreditCard,
+    tone: 'info',
+  },
   'plan.limit_changed': { label: 'Plan limit changed', icon: IconCreditCard, tone: 'warning' },
 
   /* ── The rules every workspace inherits ──────────────────────────────── */
@@ -337,6 +342,11 @@ export const AUDIT_TONE: Record<AuditTone, { ink: string; bg: string; edge: stri
  * snake-case turned into words, for the same reason `describeAction` does.
  */
 const TARGETS: Record<string, string> = {
+  tenant_member: 'Team membership',
+  invitation: 'Team invitation',
+  api_credential: 'API credential',
+  tenant_settings: 'Company settings',
+  tenant_ai_rules: 'Workspace rules',
   tenant: 'A workspace',
   user_profile: 'An operator profile',
   subscription: 'A subscription',

@@ -32,8 +32,8 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
   return (
     <section className="mb-10">
       <SectionHeading
-        title="Portfolio & Capacity"
-        note="Workspace distribution, growth trends, limits pressure, and total platform capacity."
+        title="Portfolio and capacity"
+        note="Workspace status, recorded usage, and customers approaching a plan limit."
         action={<BandLink href="/platform/tenants">Open workspaces</BandLink>}
         align="right"
       />
@@ -91,13 +91,19 @@ export function PortfolioBand({ portfolio }: { portfolio: OverviewInsights['port
         </Panel>
 
         <Panel title="Events this period" variant="elevated">
-          <CapacityMeter
-            title="Events this period"
-            used={portfolio.events.used}
-            limit={portfolio.events.limit}
-            pct={portfolio.events.pct}
-            unit="events"
-          />
+          {portfolio.events ? (
+            <CapacityMeter
+              title="Events this period"
+              used={portfolio.events.used}
+              limit={portfolio.events.limit}
+              pct={portfolio.events.pct}
+              unit="events"
+            />
+          ) : (
+            <p className="t-body text-[var(--text-secondary)]">
+              Event usage is not measured in this phase.
+            </p>
+          )}
         </Panel>
       </div>
     </section>
@@ -141,13 +147,13 @@ function NoGrowthYet() {
         aria-hidden
       />
       <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-        Not enough history yet.
+        Workspace history is not available here.
       </p>
       <p
         className="t-caption"
         style={{ color: 'var(--text-secondary)', maxWidth: '34ch', textWrap: 'pretty' }}
       >
-        Opened against closed needs a month of workspaces behind it before the shape means anything.
+        Review a workspace’s details for its creation date and current status.
       </p>
     </div>
   );

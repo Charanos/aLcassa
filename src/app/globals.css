@@ -35,6 +35,76 @@
 
 @import './tokens.css';
 
+/* Keep modal content sharp while the page behind it recedes. */
+.console-modal-backdrop {
+  background: var(--surface-overlay);
+  -webkit-backdrop-filter: blur(var(--overlay-blur));
+  backdrop-filter: blur(var(--overlay-blur));
+}
+
+/* Console summary surfaces: one restrained chrome treatment across every page. */
+.console-fact-strip {
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--chrome-rule-strong);
+  border-radius: var(--radius-card);
+  background: var(--chrome-bg);
+  color: var(--chrome-fg);
+  box-shadow:
+    var(--chrome-highlight),
+    0 8px 24px -16px rgba(6, 9, 19, 0.45);
+}
+.console-fact-cell {
+  position: relative;
+  min-width: 0;
+  min-height: 164px;
+  padding: 24px;
+  overflow: hidden;
+  border: 0.5px solid var(--chrome-rule-strong);
+}
+.console-fact-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--chrome-fg) 0.9px, transparent 1.1px);
+  background-size: 14px 14px;
+  opacity: 0.2;
+  mask-image: linear-gradient(120deg, rgb(0 0 0 / 35%), #000 85%);
+}
+.console-fact-art {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  color: var(--chrome-fg);
+  opacity: 0.07;
+  pointer-events: none;
+}
+.console-fact-value {
+  font: 500 clamp(21px, 1.7vw, 28px)/1.2 var(--font-ui);
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.console-fact-source > span {
+  color: var(--chrome-fg-faint) !important;
+}
+.console-fact-source svg {
+  color: var(--chrome-fg-faint);
+}
+@media (max-width: 639px) {
+  .console-fact-cell {
+    min-height: 150px;
+    padding: 18px;
+  }
+  .console-fact-art {
+    width: 60px;
+    height: 60px;
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
 /*
  * Libertinus Serif Display, SIL OFL 1.1.
  *

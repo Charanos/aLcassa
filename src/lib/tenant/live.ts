@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, gte, isNull, lt, lte, or, sql } from 'drizzle-orm';
 import {
   auditLog,
   invitations,
@@ -14,6 +14,9 @@ import { currentSessionOrNull } from '@/lib/auth/resolve';
 import { listActiveSessions } from '@/lib/auth/session';
 import { withTenantContext, type ResolvedContext } from '@/lib/db';
 import { getEntitlementSnapshot } from '@/modules/entitlements';
+import { AppError, ERROR_CODES } from '@/lib/errors';
+import { describeAction, describeTarget } from '@/lib/console/auditVocabulary';
+import { activityDate, decodeActivityCursor, encodeActivityCursor } from './activity';
 import type {
   AccountModel,
   AccountSessionsModel,
@@ -269,6 +272,7 @@ export async function getLiveCompany(
     const [settings] = await tx
       .select({
         displayName: tenantSettings.displayName,
+        version: tenantSettings.version,
         logoPath: tenantSettings.logoPath,
         supportEmail: tenantSettings.supportEmail,
         timezone: tenantSettings.timezone,
@@ -280,6 +284,7 @@ export async function getLiveCompany(
 
     return {
       name: settings?.displayName ?? tenant?.name ?? '',
+      version: settings?.version ?? 0,
       /**
        * ⚠ THE PATH IS NOT A URL, AND IT IS NOT TURNED INTO ONE HERE.
        *
@@ -292,7 +297,7 @@ export async function getLiveCompany(
       logoUrl: null,
       contactEmail: settings?.supportEmail ?? '',
       timezone: settings?.timezone ?? 'Africa/Nairobi',
-      locale: settings?.locale ?? 'en',
+      locale: !settings?.locale || settings.locale === 'en' ? 'en-KE' : settings.locale,
     };
   });
 }
@@ -315,38 +320,85 @@ export async function getLiveCompany(
 export async function getLiveTenantAudit(
   /** A context already resolved — the console's support door. Doc 24 · Stage 3. */
   given?: ResolvedContext,
+  options: { cursor?: string } = {},
 ): Promise<TenantAuditModel | null> {
   const ctx = given ?? (await currentSessionOrNull());
   if (!ctx) return null;
+  if (!['owner', 'admin', 'support'].includes(ctx.role))
+    throw new AppError(ERROR_CODES.ROLE_NOT_PERMITTED);
+
+  const now = new Date();
+  let cursor;
+  try {
+    cursor = decodeActivityCursor(options.cursor, now);
+  } catch {
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message: 'This activity page link is invalid. Open Activity again to see the latest entries.',
+    });
+  }
+  const asOf = cursor?.asOf ?? now;
 
   const snapshot = await getEntitlementSnapshot(ctx);
-  const retentionDays = snapshot.byKey.audit_retention_days?.limit ?? null;
+  const retention = snapshot.byKey.audit_retention_days;
+  if (!retention) throw new AppError(ERROR_CODES.ENTITLEMENT_FEATURE_UNAVAILABLE);
+  const retentionDays = retention.limit;
+  // A caller may edit the cursor: retention always uses the current time.
+  const cutoff = retentionDays === null ? null : new Date(now.getTime() - retentionDays * 86400000);
 
   return withTenantContext(ctx, async (tx) => {
+    const [settings] = await tx
+      .select({ timezone: tenantSettings.timezone, locale: tenantSettings.locale })
+      .from(tenantSettings)
+      .limit(1);
+    const timezone = settings?.timezone ?? 'Africa/Nairobi';
+    const locale = settings?.locale ?? 'en-KE';
     const rows = await tx
       .select({
         id: auditLog.id,
         occurredAt: auditLog.occurredAt,
+        cursorAt: sql<string>`to_char(${auditLog.occurredAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
         actorLabel: auditLog.actorLabel,
         actorType: auditLog.actorType,
         supportMode: auditLog.supportMode,
         action: auditLog.action,
         entityType: auditLog.entityType,
+        requestId: auditLog.requestId,
       })
       .from(auditLog)
-      .where(eq(auditLog.tenantId, ctx.tenantId))
-      .orderBy(desc(auditLog.occurredAt))
-      .limit(100);
+      .where(
+        and(
+          lte(auditLog.occurredAt, asOf),
+          cutoff ? gte(auditLog.occurredAt, cutoff) : undefined,
+          cursor
+            ? or(
+                lt(auditLog.occurredAt, sql`${cursor.atWire}::timestamptz`),
+                and(
+                  eq(auditLog.occurredAt, sql`${cursor.atWire}::timestamptz`),
+                  lt(auditLog.id, cursor.id),
+                ),
+              )
+            : undefined,
+        ),
+      )
+      .orderBy(desc(auditLog.occurredAt), desc(auditLog.id))
+      .limit(51);
+
+    const page = rows.slice(0, 50);
+    const last = page[page.length - 1];
 
     return {
-      entries: rows.map((row) => ({
+      source: 'live',
+      timezone,
+      cutoff: cutoff?.toISOString() ?? null,
+      nextCursor:
+        rows.length > 50 && last
+          ? encodeActivityCursor({ at: last.occurredAt, atWire: last.cursorAt, id: last.id, asOf })
+          : null,
+      entries: page.map((row) => ({
         id: row.id,
-        time: row.occurredAt.toLocaleString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
+        time: activityDate(row.occurredAt, timezone, locale),
+        occurredAt: row.occurredAt.toISOString(),
+        requestId: row.requestId,
         // 09 §7. A support visit is labelled as one. The flag is what makes
         // the customer's "show me every time you looked" filter possible, so
         // it decides the label rather than the action string does.
@@ -355,7 +407,8 @@ export async function getLiveTenantAudit(
           : (row.actorLabel ?? 'System'),
         kind: tenantAuditKindOf(row.action, row.supportMode),
         action: row.action,
-        target: row.entityType,
+        actionLabel: describeAction(row.action).label,
+        target: describeTarget(row.entityType),
       })),
       retentionDays,
     };

@@ -245,10 +245,7 @@ export function ProvisionWorkspaceDialog({
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !working && onOpenChange(next)}>
       <Dialog.Portal>
-        <Dialog.Overlay
-          className="fixed inset-0 z-[150]"
-          style={{ background: 'var(--surface-overlay)', backdropFilter: 'blur(4px)' }}
-        />
+        <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         {/*
           ⚠ THE CENTRING IS NOT A TRANSFORM, AND THAT IS THE WHOLE FIX.
 

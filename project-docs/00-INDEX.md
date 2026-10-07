@@ -48,6 +48,14 @@ If a document here appears to expand scope beyond the brief, the brief wins and 
 | `16` | Channel Adapter Guide                    | Adding a channel. The typed interface, the webhook shell, the seam boundary  |
 | `17` | Console Density and Function Pass        | The console strengthening pass opened 12 Sep 2026. Audit, stages, gates      |
 | `18` | Surface Refinement Playbook              | Taking a section from correct to finished. The seven steps and the checklist |
+| `19` | Profile and Avatars | Identity, avatar handling, sessions and account refinement |
+| `20` | Status Update, 14 September 2026 | Historical client update; use doc 25 for the current closure assessment |
+| `21` | Console Canon Audit | Evidence of design drift and the shared component/token corrections |
+| `22` | Component Quality Review | Component consolidation, skeletons and regression protections |
+| `23` | Audit, Admins and Settings Plan | Operations surface work and its behavioral contracts |
+| `24` | Support Sessions Plan | Scoped support lifecycle, customer visibility and both audit trails |
+| `25` | [Phase One Completion Plan](25-phase-one-completion-plan.md) | Current milestone position, ordered work packages and release acceptance gates |
+| `26` | [Verification Matrix and Evidence Ledger](26-phase-one-verification-ledger.md) | Complete route/action coverage, scenario specifications and execution evidence |
 
 ---
 

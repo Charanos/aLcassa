@@ -75,6 +75,7 @@ Stable, because the client and Phase 2 both map these to behaviour.
 | `credential.scope_missing` | Carries the required scope in details |
 | `credential.limit_reached` | |
 | `rules.version_conflict` | Optimistic lock failure, carries both versions |
+| `tenant.settings_conflict` | 409. Company settings changed since the editor loaded them; reload before saving again |
 | `rules.field_locked` | A tenant attempted to override a platform-locked field |
 | `support.session_expired` | |
 | `support.not_permitted` | Cannot enter support mode. Checked at the switch, not once inside one; see `platform_admins.canEnterSupportMode` |

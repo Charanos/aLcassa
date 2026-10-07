@@ -31,7 +31,7 @@ export function PressureList({ rows, total }: { rows: PressureRow[]; total: numb
      stretches every card to the tallest, so a single pressure row left a large
      void beneath it — and a void reads as a panel that failed to finish
      loading. This fills it with the fact the list is missing. */
-  const resting = Math.max(0, total - rows.length);
+  const resting = Math.max(0, total - new Set(rows.map((row) => row.slug)).size);
 
   const shown = rows.slice(0, SHOWN);
   const hidden = rows.length - shown.length;

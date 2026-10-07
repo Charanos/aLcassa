@@ -12,7 +12,13 @@ import {
   IconUsers,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage, Panel, SectionHeading } from '@/components/console/Surface';
+import {
+  ConsoleHeader,
+  ConsolePage,
+  DataSource,
+  Panel,
+  SectionHeading,
+} from '@/components/console/Surface';
 import {
   getOverview,
   getOverviewInsights,
@@ -21,6 +27,7 @@ import {
   type Signal,
 } from '@/lib/console/data';
 import { getLiveOverview } from '@/lib/console/live';
+import { getLiveOverviewInsights } from '@/lib/console/liveOverview';
 import { resolveSupportSession } from '@/lib/console/session';
 import { OverviewChart } from '@/components/console/OverviewChart';
 import { ProvisionWorkspaceButton } from '@/components/console/ProvisionWorkspaceButton';
@@ -85,12 +92,13 @@ export default async function ConsoleOverviewPage() {
    * place the invented revenue and uptime figures still appear — see
    * `getLiveOverview` for why they are not reproduced against real rows.
    */
-  const [live, session, insights] = await Promise.all([
+  const [live, session, liveInsights] = await Promise.all([
     getLiveOverview(),
     resolveSupportSession(),
-    getOverviewInsights(),
+    getLiveOverviewInsights(),
   ]);
   const model = live ?? (await getOverview());
+  const insights = liveInsights ?? (await getOverviewInsights());
 
   return (
     <ConsolePage>
@@ -103,13 +111,13 @@ export default async function ConsoleOverviewPage() {
           className="absolute top-10 -right-8 hidden rotate-12 lg:block"
           style={{ color: 'var(--watermark-tint)' }}
         >
-          <IconDashboard size={360} stroke={1} />
+          <IconDashboard size={160} stroke={1} />
         </div>
         <div
           className="absolute top-[45%] -left-12 hidden -rotate-[10deg] lg:block"
           style={{ color: 'var(--watermark-tint)' }}
         >
-          <IconChartPie size={280} stroke={1} />
+          <IconChartPie size={128} stroke={1} />
         </div>
       </div>
 
@@ -144,6 +152,10 @@ export default async function ConsoleOverviewPage() {
           </>
         }
       />
+
+      <div className="mt-4">
+        <DataSource kind={insights.source} />
+      </div>
 
       {/* ── The situation & Chart ───────────────────────────────────────
           A completely overhauled inverse chrome section that combines the daily
@@ -234,7 +246,7 @@ export default async function ConsoleOverviewPage() {
                 The Situation
               </p>
               {/* Refined editorial headline */}
-              <h1
+              <h2
                 className="display display-md leading-[1.12]"
                 style={{
                   color: 'var(--invert-card-fg)',
@@ -259,7 +271,7 @@ export default async function ConsoleOverviewPage() {
                   {model.headline.figure}
                 </strong>
                 {model.headline.tail}
-              </h1>
+              </h2>
             </div>
 
             <div className="relative z-10 mt-10 flex flex-wrap items-center gap-4">
@@ -333,8 +345,8 @@ export default async function ConsoleOverviewPage() {
                   className="group relative -m-5 flex cursor-pointer flex-col justify-between rounded-overlay px-5 py-3 transition-all duration-300 hover:bg-[rgba(255,255,255,0.03)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                 >
                   {/* Absolute Background Artwork Icon */}
-                  <div className="pointer-events-none absolute right-2 -bottom-4 z-0 text-[var(--invert-card-fg)] opacity-[0.10] transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.18]">
-                    <Icon size={140} stroke={1} aria-hidden />
+                  <div className="pointer-events-none absolute right-5 bottom-5 z-0 text-[var(--invert-card-fg)] opacity-[0.07]">
+                    <Icon size={76} stroke={1} aria-hidden />
                   </div>
 
                   {/* Subtle right divider for grid columns */}
@@ -399,8 +411,8 @@ export default async function ConsoleOverviewPage() {
       {/* ── Queue + rail ─────────────────────────────────────────────────── */}
       <div className="mb-6 md:mt-24">
         <SectionHeading
-          title="Command & Telemetry"
-          note="The actionable queue, ordered by what it costs to ignore, alongside live platform vitals and recent audit logs."
+          title="Workspace follow-up"
+          note="Priority workspaces, available monitoring, and recent operator activity."
           align="right"
         />
       </div>
@@ -455,7 +467,7 @@ export default async function ConsoleOverviewPage() {
       */}
       <RevenueBand revenue={insights.revenue} />
       <PortfolioBand portfolio={insights.portfolio} />
-      <OperationsBand operations={insights.operations} />
+      <OperationsBand operations={insights.operations} source={insights.source} />
     </ConsolePage>
   );
 }

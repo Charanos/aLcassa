@@ -15,6 +15,8 @@ import type { NewAction } from '@/components/structure/TenantHeader';
 import { currentSessionOrNull } from '@/lib/auth/resolve';
 import { getShell } from '@/lib/tenant/data';
 import { loadMe } from '@/modules/identity';
+import { redirect } from 'next/navigation';
+import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 
 /**
  * 02 §4 · 02 §8. The tenant application.
@@ -156,8 +158,9 @@ function initialsOf(name: string) {
 
 export default async function TenantLayout({ children }: { children: React.ReactNode }) {
   const ctx = await currentSessionOrNull();
+  if (!ctx && !demoAccessEnabled()) redirect('/sign-in');
   const me = ctx ? await loadMe(ctx) : null;
-  const shell = await getShell();
+  const shell = me ? null : await getShell();
 
   const tenantName = me?.tenant?.name ?? 'Acme Industrial';
   const role = me?.membership?.role ?? 'owner';
@@ -169,20 +172,11 @@ export default async function TenantLayout({ children }: { children: React.React
       titleBlock={{ label: 'Workspace', value: tenantName }}
       navigation={navigation}
       role={role}
-      /*
-       * ⚠ THE WORKSPACE LIST IS STILL THE SEAM'S, NOT `loadMe`'S. `Me` carries
-       * ONE tenant — the session's — because that is what the session resolves
-       * to; the set a person belongs to is a different query against
-       * memberships that M2 has not grown yet. Wiring the switcher to the one
-       * tenant we know about would render a switcher that cannot switch, so it
-       * reads the fixture until that query exists and the shape it reads is
-       * the shape that query returns.
-       */
-      workspaces={shell.workspaces}
+      workspaces={shell?.workspaces}
       newActions={NEW_ACTIONS.filter((a) => !a.roles || a.roles.includes(role))}
-      notifications={shell.notifications}
-      notificationCount={shell.unread}
-      planMeter={shell.planMeter}
+      notifications={shell?.notifications}
+      notificationCount={shell?.unread ?? 0}
+      planMeter={shell?.planMeter}
       account={{
         name: operatorName,
         role: roleLabel(role),

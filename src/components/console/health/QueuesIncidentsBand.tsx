@@ -45,6 +45,7 @@ export function QueuesIncidentsBand({
   return (
     <section aria-labelledby="health-queues">
       <SectionHeading
+        id="health-queues"
         title="Queues & incidents"
         note="What is waiting now, and everything that went wrong this month."
         align="right"

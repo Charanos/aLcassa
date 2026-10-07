@@ -269,6 +269,7 @@
   --surface-sunken: var(--ink-50);
   --surface-inset: var(--ink-100);
   --surface-overlay: rgba(4, 10, 32, 0.45);
+  --overlay-blur: 8px;
 
   /* High-contrast neutral typography: crisp obsidian black on architectural off-white. */
   --text-primary: #09090b; /* rich obsidian black */

@@ -45,7 +45,12 @@ export function ActorBand({ entries }: { entries: AuditEntry[] }) {
 
   return (
     <section aria-labelledby="audit-operators">
-      <SectionHeading title="Operators" note="Who made the changes." align="right" />
+      <SectionHeading
+        id="audit-operators"
+        title="Operators"
+        note="Who made the changes."
+        align="left"
+      />
 
       <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Panel title="Share of changes" variant="elevated">

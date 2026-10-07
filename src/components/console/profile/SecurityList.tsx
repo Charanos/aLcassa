@@ -57,10 +57,9 @@ const GLYPH: Record<SecurityKey, TablerIcon> = {
  * silently the first time somebody improves the wording above them.
  */
 const REASON: Record<SecurityKey, string> = {
-  mfa: 'Enrolment and code regeneration are held by the identity provider. This console never sees a factor, which is also why it cannot show you whether one is enrolled.',
+  mfa: 'Two-factor setup and enrolment status are not available in this console yet.',
   password: '',
-  recovery:
-    'Recovery codes are issued once, at enrolment, and shown only that one time. Nothing stores them afterwards — not the identity provider, and not this screen.',
+  recovery: 'Recovery-code management is not available in this console yet.',
 };
 
 export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
@@ -68,7 +67,7 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
     <section className="flex flex-col">
       <SectionHeading
         title="Security"
-        note="You can see every workspace on the platform. These controls are the reason that is safe."
+        note="Manage your password and review the account-security controls available here."
         align="right"
         action={<BandLink href="/platform/settings">Go to settings</BandLink>}
       />
@@ -148,9 +147,8 @@ export function SecurityList({ items }: { items: readonly SecurityItem[] }) {
           className="text-sm leading-relaxed"
           style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
         >
-          Your password is changed here, and takes effect immediately. The other two state the
-          platform&rsquo;s policy rather than the state of your account &mdash; neither is read from
-          this screen, so neither is a claim about what you personally have enrolled.
+          Password changes take effect when saved. This page does not currently verify your
+          two-factor enrolment or recovery-code status.
         </p>
       </div>
     </section>

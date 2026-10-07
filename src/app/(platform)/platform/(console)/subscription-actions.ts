@@ -99,6 +99,7 @@ export async function assignWorkspacePlan(input: {
   tenantId: string;
   planCode: string;
   reason: string;
+  contractAmount?: number | null;
 }): Promise<ActionResult<{ planCode: string; status: SubscriptionStatus }>> {
   return attempt(async (actor) => {
     const result = await assignPlan(input, actor);

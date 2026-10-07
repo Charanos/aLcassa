@@ -383,6 +383,7 @@ export async function getOverview(): Promise<OverviewModel> {
 /* ── Company ──────────────────────────────────────────────────────────── */
 
 export type CompanyModel = {
+  version: number;
   name: string;
   logoUrl: string | null;
   contactEmail: string;
@@ -398,6 +399,7 @@ export type CompanyModel = {
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function getCompany(): Promise<CompanyModel> {
   return {
+    version: 0,
     name: 'Acme Industrial',
     logoUrl: null,
     contactEmail: 'hello@acmeindustrial.co.ke',
@@ -768,9 +770,19 @@ export type TenantAuditEntry = {
   kind: TenantAuditKind;
   action: string;
   target: string;
+  actionLabel?: string;
+  occurredAt?: string;
+  requestId?: string;
 };
 
-export type TenantAuditModel = { entries: TenantAuditEntry[]; retentionDays: number | null };
+export type TenantAuditModel = {
+  entries: TenantAuditEntry[];
+  retentionDays: number | null;
+  source?: 'live' | 'designed';
+  timezone?: string;
+  cutoff?: string | null;
+  nextCursor?: string | null;
+};
 
 /** `/app/settings/audit`. Owner and admin. The tenant's own log — a strict
  *  subset of what `/platform/audit` can see, filtered to this tenant_id by
@@ -782,6 +794,8 @@ export type TenantAuditModel = { entries: TenantAuditEntry[]; retentionDays: num
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function getTenantAudit(): Promise<TenantAuditModel> {
   return {
+    source: 'designed',
+    timezone: 'Africa/Nairobi',
     entries: [
       {
         id: 'a_1',

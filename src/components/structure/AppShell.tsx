@@ -88,13 +88,6 @@ export type AppShellProps = {
   children: React.ReactNode;
 };
 
-const DEFAULT_PROFILE: AdminProfile = {
-  name: 'Rafiqur Rahman',
-  email: 'rafiqur51@jira.com',
-  role: 'Platform Admin',
-  initials: 'RR',
-};
-
 export function AppShell({
   application,
   titleBlock,
@@ -104,7 +97,7 @@ export function AppShell({
   headerActions,
   tenants,
   onTenantSelect,
-  adminProfile = DEFAULT_PROFILE,
+  adminProfile,
   notificationCount = 0,
   onCommandPaletteOpen,
   workspaces,
@@ -560,17 +553,16 @@ export function AppShell({
           */}
           {planMeter ? (
             <PlanMeterCard meter={planMeter} collapsed={mounted && collapsed && !sidebarHovered} />
-          ) : (
+          ) : isPlatform && adminProfile ? (
             <AdminProfileCard profile={adminProfile} collapsed={mounted && collapsed} />
-          )}
+          ) : null}
         </nav>
 
         {/* MOBILE SLIDE-OVER */}
         {mobileOpen && (
           <div className="fixed inset-0 z-50 flex md:hidden">
             <div
-              className="fixed inset-0 transition-opacity"
-              style={{ background: 'var(--surface-overlay)' }}
+              className="console-modal-backdrop fixed inset-0 transition-opacity"
               onClick={() => setMobileOpen(false)}
               aria-hidden="true"
             />
@@ -610,9 +602,9 @@ export function AppShell({
               {renderNavGroups(true)}
               {planMeter ? (
                 <PlanMeterCard meter={planMeter} collapsed={false} />
-              ) : (
+              ) : isPlatform && adminProfile ? (
                 <AdminProfileCard profile={adminProfile} collapsed={false} />
-              )}
+              ) : null}
             </nav>
           </div>
         )}

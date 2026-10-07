@@ -420,8 +420,8 @@ function TelemetryUnwired() {
           className="t-caption mx-auto mt-1.5"
           style={{ color: 'var(--text-secondary)', maxWidth: '44ch', textWrap: 'pretty' }}
         >
-          Latency, delivery and queue depth arrive from the observability probes at M6. The
-          isolation suite is answerable today and is reported live on the health page.
+          Response times, delivery status, and queue depth need connected monitoring. Health
+          currently reports the database’s policy coverage.
         </p>
         <Link
           href="/platform/health"

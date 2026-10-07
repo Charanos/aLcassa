@@ -84,16 +84,15 @@ export function OverviewChart({
       />
 
       {/* t-eyebrow: refined typography with premium tracking */}
-      <div className="pointer-events-none absolute top-6 left-6 z-10">
+      <div className="pointer-events-none relative z-10 px-6 pt-6">
         <p
-          className="t-eyebrow mb-2.5"
+          className="t-compact mb-2.5"
           style={{
             color: 'var(--invert-card-fg)',
-            opacity: 0.6,
-            letterSpacing: '0.08em',
+            opacity: 0.85,
           }}
         >
-          RECURRING REVENUE · 12 MONTHS
+          Monthly subscription value
         </p>
         <div className="flex items-baseline gap-3.5">
           {/* numeric: robust and distinct figures */}
@@ -110,17 +109,14 @@ export function OverviewChart({
           >
             {headline}
           </div>
-          <span
-            className="font-mono text-sm"
-            style={{ color: 'var(--invert-card-fg)', opacity: 0.45 }}
-          >
+          <span className="font-mono text-sm" style={{ color: 'var(--chrome-fg-muted)' }}>
             {currency} per month
           </span>
         </div>
       </div>
 
       {/* The delta, signed. Green is earned here rather than assumed. */}
-      <div className="pointer-events-none absolute top-6 right-6 z-10 flex items-center gap-1.5">
+      <div className="pointer-events-none relative z-10 flex items-center gap-1.5 px-6 pt-3">
         {rising ? (
           <IconArrowUpRight size={14} stroke={2.5} style={{ color: 'var(--chrome-success)' }} />
         ) : (
@@ -135,7 +131,10 @@ export function OverviewChart({
         </span>
       </div>
 
-      <div className="absolute inset-0 px-3 pt-20 pb-2">
+      <div
+        className="h-[210px] w-full px-3 pt-4 pb-2"
+        aria-label="Estimated subscription value over twelve months"
+      >
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <defs>

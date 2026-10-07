@@ -174,9 +174,8 @@ export function ConsoleMobileNav({
       <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
         <Dialog.Portal>
           <Dialog.Overlay
-            className="fixed inset-0 z-50 md:hidden"
+            className="console-modal-backdrop fixed inset-0 z-50 md:hidden"
             style={{
-              background: 'var(--surface-overlay)',
               animation: 'overlay-in var(--duration-fast) linear',
             }}
           />

@@ -57,11 +57,7 @@ export function ProfileCardDialog({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0"
-      style={{
-        background: 'rgba(0, 0, 0, 0.4)',
-        backdropFilter: 'blur(4px)',
-      }}
+      className="console-modal-backdrop fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0"
       onClick={onClose}
     >
       <div

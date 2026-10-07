@@ -26,6 +26,14 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
     },
   });
 
+  if (collections.length === 0) {
+    return (
+      <p className="t-body p-6" style={{ color: 'var(--text-secondary)' }}>
+        No workspaces currently require payment follow-up.
+      </p>
+    );
+  }
+
   return (
     <>
       {/* Desktop table */}
@@ -35,10 +43,11 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
           style={{
             background: 'var(--surface-raised)',
             border: '1px solid color-mix(in srgb, var(--border-subtle) 15%, transparent)',
-            boxShadow: 'var(--shadow-lg), var(--glass-highlight)',
+            boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
           }}
         >
           <table className="w-full table-fixed border-collapse">
+            <caption className="sr-only">Workspaces with estimated amounts due in KES</caption>
             <colgroup>
               <col style={{ width: '34%' }} />
               <col style={{ width: '18%' }} />
@@ -50,25 +59,25 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
               <tr
                 style={{ background: 'color-mix(in srgb, var(--surface-sunken) 30%, transparent)' }}
               >
-                {['Workspace', 'Invoice', 'Amount', 'Late', 'Attempts'].map((h, i) => (
-                  <th
-                    key={h}
-                    scope="col"
-                    className="h-11"
-                    style={{
-                      padding: i === 0 ? '0 24px' : i === 4 ? '0 24px' : '0 12px',
-                      textAlign: i >= 2 ? 'right' : 'left',
-                      borderBottom:
-                        '1px solid color-mix(in srgb, var(--border-subtle) 25%, transparent)',
-                      font: '500 var(--type-chip)/1 var(--font-ui)',
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                      color: 'var(--text-tertiary)',
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
+                {['Workspace', 'Plan', 'Estimated due (KES)', 'Days overdue', 'Status'].map(
+                  (h, i) => (
+                    <th
+                      key={h}
+                      scope="col"
+                      className="h-11"
+                      style={{
+                        padding: i === 0 ? '0 24px' : i === 4 ? '0 24px' : '0 12px',
+                        textAlign: i >= 2 ? 'right' : 'left',
+                        borderBottom:
+                          '1px solid color-mix(in srgb, var(--border-subtle) 25%, transparent)',
+                        font: '500 var(--type-compact)/1.4 var(--font-ui)',
+                        color: 'var(--text-tertiary)',
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
@@ -113,7 +122,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                         color: 'var(--text-secondary)',
                       }}
                     >
-                      {c.invoice}
+                      {c.plan}
                     </span>
                   </td>
                   <td
@@ -129,6 +138,15 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                       }}
                     >
                       {c.amount}
+                    </span>
+                    <span
+                      className="mt-1 block"
+                      style={{
+                        font: '400 var(--type-chip)/1 var(--font-mono)',
+                        color: 'var(--text-tertiary)',
+                      }}
+                    >
+                      {c.periods} × {c.monthly}
                     </span>
                   </td>
                   <td
@@ -154,7 +172,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                         color: 'var(--text-tertiary)',
                       }}
                     >
-                      {c.attempts}
+                      {c.state}
                     </span>
                   </td>
                 </tr>
@@ -187,7 +205,7 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                 className="shrink-0 whitespace-nowrap"
                 style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: lateInk(c.days) }}
               >
-                {c.days}d late
+                {c.days} {c.days === 1 ? 'day' : 'days'} overdue
               </span>
             </div>
             <div className="mt-1.5 flex items-center justify-between gap-3">
@@ -197,10 +215,10 @@ export function CollectionQueueTable({ collections }: { collections: Collection[
                   color: 'var(--text-tertiary)',
                 }}
               >
-                {c.invoice} · {c.attempts}
+                {c.plan} · {c.state}
               </span>
               <span className="numeric" style={{ fontSize: 'var(--type-compact)' }}>
-                {c.amount}
+                KES {c.amount}
               </span>
             </div>
           </Link>

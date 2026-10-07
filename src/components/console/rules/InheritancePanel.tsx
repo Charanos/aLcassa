@@ -34,8 +34,8 @@ export function InheritancePanel({ doc }: { doc: MasterRulesDoc }) {
         Inheritance
       </p>
       <p className="t-compact" style={{ color: 'var(--text-secondary)' }}>
-        A workspace rule that contradicts a floor is rejected at save time, in their console, naming
-        the master rule that blocked it.
+        Required platform guidance defines the shared restrictions. Default guidance can be adapted
+        by a workspace. Review both before changing the shared instructions.
       </p>
 
       <div
@@ -43,13 +43,12 @@ export function InheritancePanel({ doc }: { doc: MasterRulesDoc }) {
         style={{ borderColor: 'var(--border-subtle)' }}
       >
         <Row label="Workspaces inheriting" value={String(doc.workspaceCount)} />
-        <Row label="Fields that are floors" value={`${floors} of ${doc.fields.length}`} />
+        <Row label="Required guidance fields" value={`${floors} of ${doc.fields.length}`} />
         <Row label="Published version" value={`v${doc.versionNumber}`} />
       </div>
 
       <p className="t-caption mt-3.5" style={{ color: 'var(--text-tertiary)' }}>
-        How many workspaces override an open field, and how many conflicts were refused, are not
-        counted yet. They are shown as absent rather than estimated.
+        Workspace customization and rejected conflicts are not measured here.
       </p>
     </section>
   );

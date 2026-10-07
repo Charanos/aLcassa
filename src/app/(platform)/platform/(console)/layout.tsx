@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 import { ConsoleShell } from '@/components/console/ConsoleShell';
 import type {
   ConsoleAccount,
@@ -40,7 +43,7 @@ const navigation: ConsoleNavGroup[] = [
          many customers the business has. */
       { href: '/platform/tenants', label: 'Workspaces', icon: 'building', badge: PORTFOLIO_COUNT },
       { href: '/platform/plans', label: 'Plans', icon: 'list' },
-      { href: '/platform/revenue', label: 'Revenue', icon: 'coin' },
+      { href: '/platform/revenue', label: 'Subscription value', icon: 'coin' },
       { href: '/platform/ai-rules', label: 'Master rules', icon: 'file' },
     ],
   },
@@ -168,6 +171,10 @@ export default async function PlatformLayout({ children }: { children: React.Rea
     getLiveIsolationStatus(),
     getLiveConsoleChrome(),
   ]);
+  if (!liveChrome && !demoAccessEnabled()) {
+    const path = (await headers()).get('x-pathname') ?? '/platform';
+    redirect(`/sign-in?next=${encodeURIComponent(path)}`);
+  }
   const isolation = live ?? (await getIsolationStatus());
 
   /*
@@ -198,7 +205,7 @@ export default async function PlatformLayout({ children }: { children: React.Rea
    * it. The ACCOUNT half is genuinely live now, because it reads the operator's
    * own rows under their own actor context.
    */
-  const switcherWorkspaces = liveChrome?.workspaces?.length ? liveChrome.workspaces : workspaces;
+  const switcherWorkspaces = liveChrome?.workspaces ?? workspaces;
   const signedInAccount = liveChrome?.account ?? account;
 
   /* The rail's badges, from the database when there is an operator. The
@@ -222,12 +229,13 @@ export default async function PlatformLayout({ children }: { children: React.Rea
     <ConsoleShell
       navigation={railNavigation}
       workspaces={switcherWorkspaces}
-      notices={notices}
+      notices={liveChrome ? [] : notices}
       account={signedInAccount}
       nav={chrome.nav}
       density={chrome.density}
       session={session}
       isolation={isolation}
+      preview={!liveChrome}
       onStartSession={startSupportSession}
       onEndSession={endSupportSession}
     >

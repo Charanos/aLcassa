@@ -50,7 +50,7 @@ export function SubscriptionControls({
   currentPlan: string;
   status: string;
   /** The catalogue, from the live plans read. */
-  plans: Array<{ code: string; name: string }>;
+  plans: Array<{ code: string; name: string; requiresContract?: boolean }>;
 }) {
   return (
     <div className="grid gap-3">
@@ -74,12 +74,13 @@ function PlanChange({
   tenantId: string;
   workspace: string;
   currentPlan: string;
-  plans: Array<{ code: string; name: string }>;
+  plans: Array<{ code: string; name: string; requiresContract?: boolean }>;
 }) {
   const router = useRouter();
   const toast = useToast();
   const [open, setOpen] = useState(false);
   const [planCode, setPlanCode] = useState('');
+  const [contractAmount, setContractAmount] = useState('');
   const [reason, setReason] = useState('');
   const [preview, setPreview] = useState<PlanChangePreview | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -89,9 +90,19 @@ function PlanChange({
      control that does nothing, which is what this whole pass removes. */
   const options = plans.filter((p) => p.name !== currentPlan);
   const stranded = preview?.rows.filter((r) => r.strands) ?? [];
+  const requiresContract =
+    options.find((plan) => plan.code === planCode)?.requiresContract ?? false;
+  const parsedAmount = Number(contractAmount);
+  const validAmount =
+    !requiresContract ||
+    (contractAmount.trim() !== '' &&
+      Number.isSafeInteger(parsedAmount) &&
+      parsedAmount >= 1 &&
+      parsedAmount <= 100_000_000);
 
   function choose(code: string) {
     setPlanCode(code);
+    setContractAmount('');
     setPreview(null);
     setError(null);
     if (!code) return;
@@ -107,19 +118,25 @@ function PlanChange({
   }
 
   function confirm() {
-    if (!planCode || reason.trim().length < 4) return;
+    if (!planCode || !preview || !validAmount || pending || reason.trim().length < 4) return;
     setError(null);
     startTransition(async () => {
-      const result = await assignWorkspacePlan({ tenantId, planCode, reason: reason.trim() });
+      const result = await assignWorkspacePlan({
+        tenantId,
+        planCode,
+        reason: reason.trim(),
+        contractAmount: requiresContract ? parsedAmount : null,
+      });
       if (result.ok) {
         setOpen(false);
         setPlanCode('');
+        setContractAmount('');
         setReason('');
         setPreview(null);
         toast({
           tone: 'success',
           title: 'Plan changed',
-          description: `${workspace} is now on ${result.data.planCode}. The customer can read why in their own activity log.`,
+          description: `${workspace} is now on ${plans.find((plan) => plan.code === result.data.planCode)?.name ?? result.data.planCode}. The reason is recorded in customer activity.`,
         });
         router.refresh();
       } else {
@@ -156,7 +173,7 @@ function PlanChange({
           }
         }}
         title={`Change ${workspace}'s plan`}
-        consequence="This changes what they are charged from the next period, and it takes effect immediately."
+        consequence="Plan allowances change immediately. This console updates the subscription record; it does not collect payment."
         details={
           <div className="grid gap-4">
             <label className="block">
@@ -164,6 +181,7 @@ function PlanChange({
                 New plan
               </span>
               <select
+                aria-label="New plan"
                 value={planCode}
                 onChange={(e) => choose(e.target.value)}
                 disabled={pending}
@@ -239,13 +257,28 @@ function PlanChange({
               </div>
             ) : null}
 
+            {requiresContract ? (
+              <Field
+                label="Agreed monthly price (KES)"
+                name="contract-amount"
+                type="number"
+                min={1}
+                max={100_000_000}
+                step={1}
+                inputMode="numeric"
+                value={contractAmount}
+                onChange={(event) => setContractAmount(event.target.value)}
+                disabled={pending}
+                helper="Enter the agreed monthly amount in whole shillings. This records the contract value without collecting payment."
+              />
+            ) : null}
             <Field
               label="Reason"
               name="reason"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               disabled={pending}
-              helper="Written into this customer's own activity log, where they will read it. Say why, not what."
+              helper="Explain why this change is needed. The customer can read this reason in their activity."
               placeholder="Moved to Business at their request on ticket 4412"
             />
           </div>
@@ -254,6 +287,7 @@ function PlanChange({
         tone={stranded.length > 0 ? 'destructive' : 'primary'}
         onConfirm={confirm}
         loading={pending}
+        disabled={!planCode || !preview || !validAmount || reason.trim().length < 4}
         error={error}
       />
     </>
@@ -291,7 +325,7 @@ function StatusChange({
   const options = DESTINATIONS.filter((d) => d !== status);
 
   function confirm() {
-    if (!to || reason.trim().length < 4) return;
+    if (!to || pending || reason.trim().length < 4) return;
     setError(null);
     startTransition(async () => {
       const result = await changeWorkspaceSubscriptionStatus({
@@ -340,7 +374,7 @@ function StatusChange({
           if (!next) setError(null);
         }}
         title={`Change ${workspace}'s subscription`}
-        consequence="Subscription state decides whether they are billed and whether they can use the product."
+        consequence="This updates the subscription record and may change workspace access. Review the new status before applying it."
         details={
           <div className="grid gap-4">
             <div className="flex items-center gap-2">
@@ -375,8 +409,7 @@ function StatusChange({
                 ))}
               </select>
               <span className="t-caption mt-2 block" style={{ color: 'var(--text-tertiary)' }}>
-                Not every move between states is legal. An illegal one is refused here, by the rule
-                that owns it, rather than hidden from this menu.
+                The selected change is checked against the current subscription before it is saved.
               </span>
             </label>
 
@@ -386,7 +419,7 @@ function StatusChange({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               disabled={pending}
-              helper="Recorded against this workspace, in both logs, in the same transaction as the change."
+              helper="Included in the operator audit log and the customer’s activity. Explain why the status is changing."
               placeholder="Payment cleared on 12 September"
             />
           </div>
@@ -395,6 +428,7 @@ function StatusChange({
         tone="destructive"
         onConfirm={confirm}
         loading={pending}
+        disabled={!to || reason.trim().length < 4}
         error={error}
       />
     </>

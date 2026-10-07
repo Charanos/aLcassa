@@ -1,6 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { randomUUID } from 'node:crypto';
 import {
   asActor,
+  adminQuery,
+  cleanup,
   closeHarness,
   knownRowId,
   rowCount,
@@ -8,7 +11,12 @@ import {
   withNoContext,
   type Actor,
 } from './harness';
-import { SEED_TENANT_A, SEED_TENANT_B, SEED_USER_A } from '../../src/db/seed/constants';
+import {
+  SEED_TENANT_A,
+  SEED_TENANT_B,
+  SEED_USER_A,
+  SEED_PLATFORM_ADMIN,
+} from '../../src/db/seed/constants';
 
 /**
  * 06 §4. Ten cases per tenant-scoped table, generated from the schema.
@@ -78,14 +86,23 @@ const SUPPORT_WRITE_ALLOWED = new Set([
   'usage_counters',
 ]);
 
-beforeAll(() => {
+const supportFixtureId = randomUUID();
+let supportFixtureCreated = false;
+
+beforeAll(async () => {
   expect(
     tables.length,
     'no tenant-scoped tables found: is the database migrated and seeded?',
   ).toBeGreaterThan(0);
+  // Login creates real user-owned sessions, which agents may manage themselves.
+  // The role-restricted session cases must target a support visit owned by an operator.
+  await adminQuery`insert into sessions (id, user_id, kind, tenant_id, effective_role, last_activity_at, expires_at)
+    values (${supportFixtureId}, ${SEED_PLATFORM_ADMIN}, 'support', ${SEED_TENANT_A}, 'support', now(), now() + interval '30 minutes')`;
+  supportFixtureCreated = true;
 });
 
 afterAll(async () => {
+  if (supportFixtureCreated) await cleanup`delete from sessions where id = ${supportFixtureId}`;
   await closeHarness();
 });
 
@@ -205,7 +222,7 @@ describe('isolation suite', () => {
     /** Case 7 · As A with role agent, modify a table restricted to owner and
      *  admin. Rejected. */
     it('7 · an agent cannot modify a table restricted to owner and admin', async () => {
-      const aRow = await knownRowId(table, SEED_TENANT_A);
+      const aRow = table === 'sessions' ? supportFixtureId : await knownRowId(table, SEED_TENANT_A);
       if (!aRow) return;
 
       // Catch outside the transaction — see case 5.
@@ -262,7 +279,7 @@ describe('isolation suite', () => {
      *  pass whether or not the carve-out logic in 00_context.sql and
      *  06_seams.sql is actually wired correctly. */
     it('9 · a support session can write only where 01 D-13 opened it', async () => {
-      const aRow = await knownRowId(table, SEED_TENANT_A);
+      const aRow = table === 'sessions' ? supportFixtureId : await knownRowId(table, SEED_TENANT_A);
       if (!aRow) return;
 
       // Catch outside the transaction — see case 5.

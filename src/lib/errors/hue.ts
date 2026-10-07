@@ -37,6 +37,7 @@ const HUE: Record<ErrorCode, ErrorHue> = {
 
   [ERROR_CODES.TENANT_SUSPENDED]: 'oxide',
   [ERROR_CODES.TENANT_NOT_FOUND]: 'slate',
+  [ERROR_CODES.TENANT_SETTINGS_CONFLICT]: 'ochre',
 
   [ERROR_CODES.MEMBER_LAST_OWNER]: 'ochre',
   [ERROR_CODES.MEMBER_ALREADY_EXISTS]: 'slate',
@@ -62,6 +63,7 @@ const HUE: Record<ErrorCode, ErrorHue> = {
   [ERROR_CODES.PLATFORM_CAPABILITY_MISSING]: 'oxide',
   // Reload and redo — something the reader can act on, so ochre.
   [ERROR_CODES.PLATFORM_SETTINGS_CONFLICT]: 'ochre',
+  [ERROR_CODES.SUBSCRIPTION_CHANGED]: 'ochre',
   // 01 D-13. One of the three permanent carve-outs was attempted. OXIDE rather
   // than OCHRE because there is nothing the reader can do about it: the ceiling
   // is the point, not a limit that a plan change or a retry would lift.

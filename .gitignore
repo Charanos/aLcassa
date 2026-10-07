@@ -45,3 +45,12 @@ conduit-appshell-boilerplate/
 .test-report/
 .screenshots/
 .next-verify/
+.next-build-verify/
+.next-local-verify/
+.next-live-verify/
+.verification-*.log
+
+# Private local tooling configuration and scratch state.
+.mcp.json
+.claude/settings.local.json
+.aider-desk/

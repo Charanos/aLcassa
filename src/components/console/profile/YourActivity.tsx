@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { IconArrowRight, IconShieldLock } from '@tabler/icons-react';
 import type { OperatorAction } from '@/lib/console/data';
+import { describeAction } from '@/lib/console/auditVocabulary';
 import { PagedList } from '@/components/primitives/Pagination';
 import { StatusBadge } from '@/components/primitives/StatusBadge';
 import { SettingsSection } from '@/components/console/Surface';
@@ -46,7 +47,7 @@ export function YourActivity({
   return (
     <SettingsSection
       title="Your recent activity"
-      standfirst="Every platform action carries your name. This is the last 30 days of it, as an auditor would read it."
+      standfirst="Your recorded platform actions from the last 30 days."
       flush
       action={
         /* ⚠ A BAND WITHOUT A ROUTE OUT IS DECORATION. Six rows is a sample; the
@@ -97,12 +98,12 @@ export function YourActivity({
                           `tenant.suspended`, `rules.published` — not prose, and
                           setting it in the UI face invites a reader to treat it
                           as a sentence somebody wrote. */}
-                      <span style={{ font: '500 var(--type-compact)/1.4 var(--font-mono)' }}>
-                        {entry.action}
+                      <span style={{ font: '500 var(--type-compact)/1.4 var(--font-ui)' }}>
+                        {describeAction(entry.action).label}
                       </span>
                       {entry.usedServiceRole ? (
                         <StatusBadge tone="info" variant="squircle" size="sm">
-                          service role
+                          Privileged action
                         </StatusBadge>
                       ) : null}
                     </span>

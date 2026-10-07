@@ -12,7 +12,7 @@ import {
   usageCounters,
 } from '@/db/schema';
 import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
-import { withActorContext, withoutTenantContext } from '@/lib/db';
+import { withActorContext } from '@/lib/db';
 import { closeLapsedSupportSessions, watchlist, type WatchlistEntry } from '@/modules/platform';
 import type {
   AuditLine,
@@ -66,7 +66,7 @@ export async function getLivePlans(): Promise<PlansModel | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const planRows = await tx
       .select({
         id: plans.id,
@@ -78,8 +78,6 @@ export async function getLivePlans(): Promise<PlansModel | null> {
       .from(plans)
       .where(eq(plans.isActive, true))
       .orderBy(asc(plans.sortOrder), asc(plans.priceAmount));
-
-    if (planRows.length === 0) return null;
 
     const entitlementRows = await tx
       .select({
@@ -114,6 +112,7 @@ export async function getLivePlans(): Promise<PlansModel | null> {
             : `${plan.currency} ${plan.priceAmount.toLocaleString('en-GB')}`,
         tenants: `${n} ${n === 1 ? 'workspace' : 'workspaces'}`,
         count: n,
+        requiresContract: plan.code === 'custom' || plan.priceAmount === 0,
       };
     });
 
@@ -248,7 +247,7 @@ export async function getLiveOverview(): Promise<OverviewModel | null> {
    * rather than alarming. The architectural fix is recorded in 21 §2; it is a
    * decision about RLS, not a patch.
    */
-  if (counts.total === 0) return null;
+  // An authenticated operator can have a genuinely empty portfolio.
 
   const firstName = ctx.actorLabel.split(/\s+/)[0] ?? 'there';
 
@@ -634,7 +633,7 @@ export async function getLiveHeadroom(): Promise<HeadroomModel | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const planRows = await tx
       .select({ id: plans.id, code: plans.code, name: plans.name, sortOrder: plans.sortOrder })
       .from(plans)
@@ -755,7 +754,7 @@ export async function getLiveMasterRules(): Promise<MasterRulesDoc | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
-  return withoutTenantContext(ctx.requestId, async (tx) => {
+  return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {
     const [root] = await tx
       .select({ id: masterAiRules.id, currentVersionId: masterAiRules.currentVersionId })
       .from(masterAiRules)
@@ -769,6 +768,8 @@ export async function getLiveMasterRules(): Promise<MasterRulesDoc | null> {
         versionNumber: masterAiRuleVersions.versionNumber,
         status: masterAiRuleVersions.status,
         content: masterAiRuleVersions.content,
+        lockedFields: masterAiRuleVersions.lockedFields,
+        publishedAt: masterAiRuleVersions.publishedAt,
         createdAt: masterAiRuleVersions.createdAt,
       })
       .from(masterAiRuleVersions)
@@ -779,7 +780,23 @@ export async function getLiveMasterRules(): Promise<MasterRulesDoc | null> {
        current version is exactly the case where "newest" is the wrong answer,
        and it is the case a rules screen will meet every time somebody is
        part-way through an edit. */
-    const current = versions.find((v) => v.id === root.currentVersionId) ?? versions[0];
+    // A restore can point to a version older than the twenty-row history rail.
+    // Resolve the published pointer directly; a newer draft is not a substitute.
+    const [current] = root.currentVersionId
+      ? await tx
+          .select({
+            id: masterAiRuleVersions.id,
+            versionNumber: masterAiRuleVersions.versionNumber,
+            status: masterAiRuleVersions.status,
+            content: masterAiRuleVersions.content,
+            lockedFields: masterAiRuleVersions.lockedFields,
+            publishedAt: masterAiRuleVersions.publishedAt,
+            createdAt: masterAiRuleVersions.createdAt,
+          })
+          .from(masterAiRuleVersions)
+          .where(eq(masterAiRuleVersions.id, root.currentVersionId))
+          .limit(1)
+      : [];
     if (!current) return null;
 
     const doc = current.content;
@@ -792,20 +809,25 @@ export async function getLiveMasterRules(): Promise<MasterRulesDoc | null> {
     return {
       versionNumber: current.versionNumber,
       status: current.status,
-      savedAt: stamp(current.createdAt),
+      savedAt: stamp(current.publishedAt ?? current.createdAt),
       fields: [
-        { key: 'tone', label: 'Tone', value: doc.tone ?? '', locked: false },
+        {
+          key: 'tone',
+          label: 'Tone',
+          value: doc.tone ?? '',
+          locked: current.lockedFields.includes('tone'),
+        },
         {
           key: 'responseGuidelines',
           label: 'Response guidelines',
           value: doc.responseGuidelines ?? '',
-          locked: false,
+          locked: current.lockedFields.includes('responseGuidelines'),
         },
         {
           key: 'businessInformation',
           label: 'Business information',
           value: doc.businessInformation ?? '',
-          locked: false,
+          locked: current.lockedFields.includes('businessInformation'),
         },
         /* 01 D-08, confirmed 24 Aug 2026: layered, master wins on conflict,
            and a field is master-authoritative unless explicitly opened. These
@@ -814,22 +836,25 @@ export async function getLiveMasterRules(): Promise<MasterRulesDoc | null> {
           key: 'escalationInstructions',
           label: 'Escalation instructions',
           value: doc.escalationInstructions ?? '',
-          locked: true,
+          locked: current.lockedFields.includes('escalationInstructions'),
         },
         {
           key: 'prohibitedTopics',
           label: 'Prohibited topics',
           value: (doc.prohibitedTopics ?? []).join('\n'),
-          locked: true,
+          locked: current.lockedFields.includes('prohibitedTopics'),
         },
         {
           key: 'customInstructions',
           label: 'Custom instructions',
           value: doc.customInstructions ?? '',
-          locked: false,
+          locked: current.lockedFields.includes('customInstructions'),
         },
       ],
-      versions: versions.map((v) => ({
+      versions: (versions.some((version) => version.id === current.id)
+        ? versions
+        : [...versions, current]
+      ).map((v) => ({
         id: v.id,
         versionNumber: v.versionNumber,
         status: v.status,

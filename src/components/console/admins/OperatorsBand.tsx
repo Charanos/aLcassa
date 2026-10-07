@@ -29,6 +29,7 @@ export function OperatorsBand({ admins, live }: { admins: Admin[]; live: boolean
   return (
     <section aria-labelledby="admins-operators">
       <SectionHeading
+        id="admins-operators"
         title="Operators"
         note="Everyone who can see every workspace. Short enough to name from memory."
         action={<DataSource kind={live ? 'live' : 'designed'} />}

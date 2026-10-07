@@ -1,7 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { IconShieldCheck, IconShieldExclamation } from '@tabler/icons-react';
-import { ConsoleHeader, ConsolePage } from '@/components/console/Surface';
+import {
+  IconShieldCheck,
+  IconShieldExclamation,
+  IconActivityHeartbeat,
+  IconDatabase,
+  IconClock,
+} from '@tabler/icons-react';
+import { ConsoleHeader, ConsolePage, Panel, SectionHeading } from '@/components/console/Surface';
+import { FactCell, FactStrip } from '@/components/console/FactStrip';
 import { StatusSlab } from '@/components/console/health/StatusSlab';
 import { ServicesBand } from '@/components/console/health/ServicesBand';
 import { IsolationBand } from '@/components/console/health/IsolationBand';
@@ -49,26 +56,79 @@ export default async function HealthPage() {
     <ConsolePage>
       <ConsoleHeader
         breadcrumbs={[{ label: 'Platform Console', href: '/platform' }, { label: 'Health' }]}
-        eyebrow="/platform/health"
         title="Health"
         actions={<IsolationChip isolation={isolation} live={liveIsolation !== null} />}
       />
 
-      <StatusSlab model={model} />
-      <ServicesBand model={model} />
-      <IsolationBand isolation={isolation} live={liveIsolation !== null} />
-      <PerformanceBand
-        latency={model.latency}
-        latencyBudget={model.latencyBudget}
-        throughput={model.throughput}
-        refusals={model.refusals}
-      />
-      <QueuesIncidentsBand
-        queues={model.queues}
-        incidents={model.incidents}
-        services={model.services}
-        window={model.window}
-      />
+      {liveIsolation ? (
+        <>
+          <FactStrip label="Available health checks">
+            <FactCell
+              icon={IconShieldCheck}
+              label="Policy coverage"
+              value={`${isolation.tablesPoliced} / ${isolation.tablesTotal}`}
+              note="Workspace tables with enforced row security and a policy"
+            />
+            <FactCell
+              icon={IconDatabase}
+              label="Database check"
+              value="Available"
+              note="Policy metadata was read successfully for this page."
+            />
+            <FactCell
+              icon={IconActivityHeartbeat}
+              label="Service monitoring"
+              value="Not connected"
+              note="Availability and incident status are not measured here."
+            />
+            <FactCell
+              icon={IconClock}
+              label="Response times"
+              value="Not measured"
+              note="No connected latency history"
+            />
+          </FactStrip>
+          <IsolationBand isolation={isolation} live />
+          <SectionHeading
+            title="Monitoring coverage"
+            align="left"
+            note="What this console can currently verify, and what still needs a reporting source."
+          />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Panel title="Available now">
+              <p className="t-body text-[var(--text-secondary)]">
+                The database check confirms policy configuration when you open this page. It does
+                not establish service uptime or prove that every access path is correctly
+                authorized.
+              </p>
+            </Panel>
+            <Panel title="Awaiting monitoring">
+              <p className="t-body text-[var(--text-secondary)]">
+                Service availability, response times, queue depth, and incident history need
+                connected monitoring. No operational status is reported for these measures yet.
+              </p>
+            </Panel>
+          </div>
+        </>
+      ) : (
+        <>
+          <StatusSlab model={model} />
+          <ServicesBand model={model} />
+          <IsolationBand isolation={isolation} live={liveIsolation !== null} />
+          <PerformanceBand
+            latency={model.latency}
+            latencyBudget={model.latencyBudget}
+            throughput={model.throughput}
+            refusals={model.refusals}
+          />
+          <QueuesIncidentsBand
+            queues={model.queues}
+            incidents={model.incidents}
+            services={model.services}
+            window={model.window}
+          />
+        </>
+      )}
     </ConsolePage>
   );
 }
@@ -103,14 +163,16 @@ function IsolationChip({ isolation, live }: { isolation: IsolationStatus; live: 
       <span
         style={{ font: '500 var(--type-compact)/1 var(--font-ui)', color: 'var(--text-primary)' }}
       >
-        {holding ? 'Isolation holding' : `Isolation gap · ${gap} ${gap === 1 ? 'table' : 'tables'}`}
+        {holding
+          ? 'Policy coverage complete'
+          : `Policy coverage gap · ${gap} ${gap === 1 ? 'table' : 'tables'}`}
       </span>
       <span
         className="tabular-nums"
         style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
       >
         {isolation.tablesPoliced}/{isolation.tablesTotal}
-        {live ? '' : ' · designed'}
+        {live ? '' : ' · example'}
       </span>
     </Link>
   );

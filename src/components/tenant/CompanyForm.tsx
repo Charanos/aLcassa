@@ -19,86 +19,113 @@ export function CompanyForm({ model }: { model: CompanyModel }) {
   const [contactEmail, setContactEmail] = useState(model.contactEmail);
   const [timezone, setTimezone] = useState(model.timezone);
   const [locale, setLocale] = useState(model.locale);
+  // Keep the version of the values this editor actually loaded. A refreshed
+  // server prop must not silently authorize overwriting another editor's work.
+  const [baseline, setBaseline] = useState(model);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const dirty =
-    name !== model.name ||
-    contactEmail !== model.contactEmail ||
-    timezone !== model.timezone ||
-    locale !== model.locale;
+    name !== baseline.name ||
+    contactEmail !== baseline.contactEmail ||
+    timezone !== baseline.timezone ||
+    locale !== baseline.locale;
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSaved(false);
     startTransition(async () => {
-      const result = await updateCompany({ name, contactEmail, timezone, locale });
-      if (result.ok) setSaved(true);
-      else setError(result.error);
+      const values = {
+        name: name.trim(),
+        contactEmail: contactEmail.trim(),
+        timezone,
+        locale,
+        version: baseline.version,
+      };
+      const result = await updateCompany(values);
+      if (result.ok) {
+        setName(values.name);
+        setContactEmail(values.contactEmail);
+        setBaseline({ ...baseline, ...values, version: result.version });
+        setSaved(true);
+      } else setError(result.error);
     });
   }
 
   return (
     <form onSubmit={submit} className="grid max-w-xl gap-5">
-      <Field
-        label="Company name"
-        value={name}
-        onChange={(e) => {
-          setName(e.target.value);
-          setSaved(false);
-        }}
-      />
-      <Field
-        label="Contact email"
-        type="email"
-        value={contactEmail}
-        onChange={(e) => {
-          setContactEmail(e.target.value);
-          setSaved(false);
-        }}
-        helper="Where customers and Andishi reach you about this workspace."
-      />
-
-      <label className="grid gap-1.5">
-        <span className="t-label text-[var(--text-secondary)]">Timezone</span>
-        <select
-          value={timezone}
+      <fieldset disabled={pending} className="grid min-w-0 gap-5">
+        <Field
+          label="Company name"
+          required
+          maxLength={200}
+          autoComplete="organization"
+          value={name}
           onChange={(e) => {
-            setTimezone(e.target.value);
+            setName(e.target.value);
             setSaved(false);
           }}
-          className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--text-primary)]"
-          style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
-        >
-          <option value="Africa/Nairobi">Africa/Nairobi (EAT, UTC+3)</option>
-          <option value="Africa/Lagos">Africa/Lagos (WAT, UTC+1)</option>
-          <option value="Africa/Johannesburg">Africa/Johannesburg (SAST, UTC+2)</option>
-          <option value="UTC">UTC</option>
-        </select>
-        <span className="t-caption min-h-[18px] text-[var(--text-tertiary)]">
-          Every timestamp in the product renders in this zone, with the UTC value on hover.
-        </span>
-      </label>
-
-      <label className="grid gap-1.5">
-        <span className="t-label text-[var(--text-secondary)]">Locale</span>
-        <select
-          value={locale}
+        />
+        <Field
+          label="Contact email"
+          type="email"
+          required
+          maxLength={320}
+          autoComplete="email"
+          value={contactEmail}
           onChange={(e) => {
-            setLocale(e.target.value);
+            setContactEmail(e.target.value);
             setSaved(false);
           }}
-          className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--text-primary)]"
-          style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
-        >
-          <option value="en-KE">English (Kenya)</option>
-          <option value="en-US">English (US)</option>
-          <option value="en-GB">English (UK)</option>
-        </select>
-        <span className="t-caption min-h-[18px]" aria-hidden />
-      </label>
+          helper="The contact address for this workspace."
+        />
+
+        <label className="grid gap-1.5">
+          <span className="t-label text-[var(--text-secondary)]">Timezone</span>
+          <select
+            value={timezone}
+            onChange={(e) => {
+              setTimezone(e.target.value);
+              setSaved(false);
+            }}
+            className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--text-primary)]"
+            style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
+          >
+            <option value="Africa/Nairobi">Africa/Nairobi (EAT, UTC+3)</option>
+            <option value="Africa/Lagos">Africa/Lagos (WAT, UTC+1)</option>
+            <option value="Africa/Johannesburg">Africa/Johannesburg (SAST, UTC+2)</option>
+            <option value="UTC">UTC</option>
+            {!['Africa/Nairobi', 'Africa/Lagos', 'Africa/Johannesburg', 'UTC'].includes(
+              timezone,
+            ) ? (
+              <option value={timezone}>{timezone}</option>
+            ) : null}
+          </select>
+          <span className="t-caption min-h-[18px] text-[var(--text-tertiary)]">
+            The timezone selected for this workspace.
+          </span>
+        </label>
+
+        <label className="grid gap-1.5">
+          <span className="t-label text-[var(--text-secondary)]">Number and date format</span>
+          <select
+            value={locale}
+            onChange={(e) => {
+              setLocale(e.target.value);
+              setSaved(false);
+            }}
+            className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--text-primary)]"
+            style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
+          >
+            <option value="en-KE">English (Kenya)</option>
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+          </select>
+          <span className="t-caption min-h-[18px]" aria-hidden />
+        </label>
+      </fieldset>
 
       {error ? (
         <p role="alert" className="t-compact" style={{ color: 'var(--red-500)' }}>
@@ -114,7 +141,7 @@ export function CompanyForm({ model }: { model: CompanyModel }) {
           Save changes
         </Button>
         {saved ? (
-          <span className="t-compact" style={{ color: 'var(--green-500)' }}>
+          <span role="status" className="t-compact" style={{ color: 'var(--green-500)' }}>
             Saved
           </span>
         ) : dirty ? (

@@ -27,9 +27,9 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
   return (
     <section className="mb-10">
       <SectionHeading
-        title="Revenue & Ageing"
-        note="Twelve months of MRR performance, plan mix distribution, and what is still owed to the platform."
-        action={<BandLink href="/platform/revenue">Open revenue</BandLink>}
+        title="Subscription value and follow-up"
+        note="Monthly contract values and estimated amounts due. Historical values are estimates; payments are not recorded here."
+        action={<BandLink href="/platform/revenue">Open subscription value</BandLink>}
         align="left"
       />
 
@@ -45,14 +45,14 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
           own convention already is.
         */}
         <Panel
-          title="Recurring revenue · net new"
+          title="Estimated monthly subscription value"
           variant="elevated"
           action={<Unit currency={revenue.currency} />}
         >
           <MrrChart data={revenue.mrr} />
         </Panel>
 
-        <Panel title="Where it comes from" variant="elevated">
+        <Panel title="Value by plan" variant="elevated">
           <PlanMixChart data={revenue.planMix} />
           <ul className="mt-5 grid border-t border-[var(--border-subtle)]/40 pt-2">
             {revenue.planMix.map((slice, i) => {
@@ -81,9 +81,6 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
                     className="font-mono text-sm font-medium tracking-[0.02em] transition-colors duration-300 group-hover:text-[var(--blue-500)]"
                     style={{ color: 'var(--text-primary)' }}
                   >
-                    <span className="mr-1 text-2xs tracking-[0.08em] text-[var(--text-tertiary)] uppercase">
-                      {revenue.currency}
-                    </span>
                     {slice.display}{' '}
                     <span className="mx-1 font-normal text-[var(--text-tertiary)]">·</span>{' '}
                     {slice.tenants}
@@ -96,7 +93,7 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.9fr)]">
-        <Panel title="Outstanding" variant="elevated">
+        <Panel title="Estimated amounts due" variant="elevated">
           {/*
             ⚠ TWO LEVELS, AND THE QUIET ONE COMES FIRST. The aggregate is
             context — it tells a reader how much of the platform's money is
@@ -109,7 +106,7 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
                 className="mb-1 font-mono text-2xs font-medium tracking-[0.12em] uppercase"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                Total platform debt
+                Total estimated due
               </p>
               <p className="flex items-baseline gap-1.5">
                 <span
@@ -138,13 +135,8 @@ export function RevenueBand({ revenue }: { revenue: OverviewInsights['revenue'] 
                 className="font-ui text-sm leading-relaxed text-pretty"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                Grouped by how far past due each invoice is. Debt gets harder to collect the further
-                right it sits, so the{' '}
-                <span className="font-medium" style={{ color: 'var(--danger-fg)' }}>
-                  90+ days
-                </span>{' '}
-                bucket is the one to work first — and the one most likely to be written off rather
-                than recovered.
+                Estimated from subscription prices and past-due dates, grouped by days overdue.
+                These amounts are not invoice balances. Review each workspace before following up.
               </p>
             </div>
             <div className="relative min-h-0 min-w-0 flex-1">

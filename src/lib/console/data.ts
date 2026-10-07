@@ -197,7 +197,6 @@ import {
   PORTFOLIO,
   SEAT_LIMIT,
   type PortfolioWorkspace,
-  revenueSeries,
   ARR,
   AVERAGE_PER_PAYING,
   MRR,
@@ -208,14 +207,14 @@ import {
   REVENUE_BY_PLAN,
   NEEDING_ATTENTION,
   UNCOLLECTED,
-  IN_ARREARS,
-  AGEING_BUCKETS,
   SEATS_CAPACITY,
   SEATS_IN_USE,
   SEATS_UNDER_PRESSURE,
   arrearsInvoice,
+  PORTFOLIO_REVENUE,
 } from './portfolio';
 import { invoiceReference } from './references';
+import { buildRevenueModel, toWorkspaceContract } from './revenueModel';
 
 /* Re-exported so every existing importer of `console/data` keeps working — the
    values simply stopped being literals. */
@@ -792,8 +791,33 @@ export type WorkspaceDetail = {
   residency: string;
   billingStats: Array<{ label: string; value: string; note: string; tone?: 'danger' }>;
   invoices: Invoice[];
+  /**
+   * The subscription as a contract: what it commits the customer to and where
+   * it stands. Null only when the workspace has no subscription row. Doc 25 · R1.
+   */
+  contract: WorkspaceContract | null;
   /** What a suspension actually costs, in people. Drives the confirm dialog. */
   impact: { staff: number; conversations: number; channels: number };
+};
+
+/** One workspace's contract, formatted for the billing tab. Nairobi dates. */
+export type WorkspaceContract = {
+  planCode: string;
+  planName: string;
+  /** List price, a negotiated Custom price, or Custom with none recorded. */
+  basis: 'list' | 'negotiated' | 'unpriced';
+  /** Whole KES a month. Null when unpriced. */
+  monthly: number | null;
+  subscriptionStatus: string;
+  /** Plain words for where the contract stands. */
+  standing: string;
+  standingTone: 'neutral' | 'success' | 'warning' | 'danger';
+  periodStart: string | null;
+  periodEnd: string | null;
+  trialEnds: string | null;
+  pastDueSince: string | null;
+  arrears: { days: number; periods: number; amount: number } | null;
+  cancelAtPeriodEnd: boolean;
 };
 
 /**
@@ -1089,6 +1113,10 @@ export async function getWorkspaceDetail(slug: string): Promise<WorkspaceDetail 
     status: row.status,
     plan: row.plan,
     monthlyValue: planMeta.monthly,
+    contract: (() => {
+      const contract = PORTFOLIO_REVENUE.contracts.find((item) => item.slug === row.slug);
+      return contract ? toWorkspaceContract(contract) : null;
+    })(),
     since: `Since ${row.created}`,
     lastActive: `Last active ${row.activity}`,
     alert,
@@ -1251,14 +1279,29 @@ export type Kpi = {
   tone?: 'danger';
 };
 
+/**
+ * One past-due subscription in the collection queue. Doc 25 · R1.
+ *
+ * ⚠ NO INVOICE NUMBER AND NO RETRY COUNT. Phase 1 raises no invoices and has no
+ * gateway to retry (08 §1), so both columns were fiction on the live screen.
+ * What the database does know is the plan, the contracted price, when the
+ * subscription went past due, and therefore how many monthly charges have
+ * fallen due since — which is what this carries.
+ */
 export type Collection = {
   id: string;
   slug: string;
   name: string;
-  invoice: string;
+  plan: string;
+  /** Contracted monthly value, formatted, no unit (the model carries it). */
+  monthly: string;
+  /** Unpaid contracted value, formatted, no unit. */
   amount: string;
+  /** Monthly charges fallen due since it went past due. */
+  periods: number;
   days: number;
-  attempts: string;
+  /** Still served (read-only), or suspended and no longer accruing. */
+  state: 'past due' | 'suspended';
 };
 
 /**
@@ -1307,6 +1350,16 @@ export type RevenueModel = {
   currency: string;
   outstanding: string;
   collections: Collection[];
+  /**
+   * What the figures rest on, and what they leave out, as sentences. Shown on
+   * the page and carried into the export. A Custom workspace with no contract
+   * price, or a workspace with no subscription row, is excluded from every
+   * total — and a total that silently excludes something is the defect this
+   * screen was rebuilt to remove.
+   */
+  caveats: string[];
+  /** Whether these figures came from the database or the designed portfolio. */
+  source: 'live' | 'designed';
 };
 
 /**
@@ -1326,151 +1379,9 @@ export type RevenueModel = {
  */
 // eslint-disable-next-line @typescript-eslint/require-await -- see getOverview
 export async function getRevenue(): Promise<RevenueModel> {
-  const series = revenueSeries();
-  const last = series[series.length - 1]!;
-  const previous = series[series.length - 2]!;
-  const inArrears = PORTFOLIO.filter((w) => w.status === 'past_due' || w.status === 'suspended');
-  /* Two periods unpaid is what tips a workspace from past due into suspended,
-     so the arrears figure is two months of each one's list price. */
-  const arrears = inArrears.reduce((sum, w) => sum + PLAN_PRICE[w.plan] * 2, 0);
-  const churnPct = Math.round((last.churn / Math.max(1, previous.mrr)) * 1000) / 10;
-  const growthPct = Math.round((Math.abs(last.net) / Math.max(1, previous.mrr)) * 1000) / 10;
-
-  return {
-    /*
-      ⚠ EVERY FIGURE HERE IS COMPUTED FROM THE TWELVE WORKSPACES.
-
-      These were five hand-written literals describing a 47-workspace business
-      turning over KES 6.04M a month, against a database holding three tenants
-      and a plan catalogue that had been retired in August. A reader comparing
-      this screen with the workspace table two clicks away saw two different
-      companies, and the bigger one did not exist.
-
-      `portfolio.ts` is the single list. These derive from it, so seeding a
-      thirteenth workspace moves the headline, the curve and the mix together.
-    */
-    kpis: [
-      {
-        label: 'MRR',
-        value: short(last.mrr),
-        note: `vs ${short(previous.mrr)} last month`,
-        delta: `${growthPct}%`,
-        direction: last.net >= 0 ? 'up' : 'down',
-        good: last.net >= 0,
-        icon: 'coin',
-      },
-      {
-        label: 'ARR run rate',
-        value: short(ARR),
-        note: 'KES, annualised',
-        delta: '—',
-        direction: 'up',
-        good: true,
-        icon: 'trend',
-      },
-      {
-        label: 'Average per workspace',
-        value: short(AVERAGE_PER_PAYING),
-        note: `across ${PAYING_COUNT} paying workspaces`,
-        delta: '—',
-        direction: 'up',
-        good: true,
-        icon: 'users',
-      },
-      {
-        label: 'Net revenue churn',
-        value: `${churnPct}%`,
-        note: last.churn > 0 ? 'one workspace suspended' : 'nothing lost this month',
-        delta: '—',
-        direction: last.churn > 0 ? 'up' : 'down',
-        good: last.churn === 0,
-        icon: 'down',
-      },
-      {
-        label: 'Outstanding',
-        value: short(arrears),
-        note: `${inArrears.length} ${inArrears.length === 1 ? 'workspace' : 'workspaces'} in arrears`,
-        delta: '—',
-        direction: 'up',
-        good: false,
-        icon: 'clock',
-        tone: 'danger',
-      },
-    ],
-
-    mrr: series.map((m) => ({ month: m.month, mrr: m.mrr, net: m.net })),
-
-    /*
-      ⚠ THE SAME TWELVE MONTHS, DECOMPOSED, AND THE SUMS MATCH.
-
-      Every row here adds to the `net` on the row above it. A fixture whose
-      parts do not reconcile with its own total is worse than no fixture: the
-      first person to check the arithmetic finds a bug that is not in the code,
-      and stops trusting the screen that is correct.
-
-      Designed, like everything else on this page — there is no gateway in
-      Phase 1. The band says so, and the CSV export carries the caveat in its
-      first column so it survives being mailed on.
-    */
-    /*
-      ⚠ THE PARTS RECONCILE WITH THE TOTAL BY CONSTRUCTION NOW.
-
-      This was a second hand-written table, with a comment promising "every
-      row here adds to the `net` on the row above it". That promise held only
-      while somebody maintained it by hand. Movement is now the difference
-      between two months computed per workspace, so it cannot fail to add up.
-
-      Expansion and contraction are honestly zero: nothing in the portfolio
-      records a workspace changing plan mid-life, and inventing a number to
-      make the chart livelier would show a reader a movement that never
-      happened. `subscription.plan_assigned` is already in the audit
-      catalogue, so they become real as soon as plan changes are recorded.
-    */
-    movement: series.map((m) => ({
-      month: m.month,
-      new: m.new,
-      expansion: m.expansion,
-      contraction: m.contraction,
-      churn: m.churn,
-    })),
-
-    planMix: REVENUE_BY_PLAN.map((p) => ({
-      name: p.name,
-      value: p.value,
-      tenants: p.tenants,
-      display: short(p.value),
-    })),
-
-    /**
-     * ⚠ THE AGEING CHART, THE OUTSTANDING FIGURE AND THE COLLECTION QUEUE WERE
-     *   THREE HAND-WRITTEN DATASETS THAT DISAGREED WITH EACH OTHER AND WITH
-     *   EVERY OTHER SCREEN.
-     *
-     * The buckets summed to 594,000. The queue beneath them summed to 486,000.
-     * The headline said 594k. And the five customers in the queue —
-     * Kilimanjaro Logistics, Mombasa Freight, Highfield Insurance, Aurora
-     * Dental, Nyali Property — exist in no other file, no fixture, no seed and
-     * no table: clicking one led to a workspace page that could not resolve.
-     *
-     * All three now derive from `arrears` on the portfolio, so the chart is
-     * the list is the headline, and a debtor in the queue is a workspace an
-     * operator can actually open.
-     */
-    ageing: AGEING_BUCKETS.map((b) => ({ bucket: b.bucket, amount: b.amount })),
-
-    currency: 'KES',
-    outstanding: short(UNCOLLECTED),
-
-    collections: IN_ARREARS.map((w) => ({
-      id: `c_${w.slug}`,
-      slug: w.slug,
-      name: w.name,
-      invoice: arrearsInvoice(w.slug, w.arrears.days),
-      amount: w.arrears.amount.toLocaleString('en-GB'),
-      days: w.arrears.days,
-      attempts: w.arrears.attempts,
-    })),
-  };
+  /* The seeded portfolio through the same arithmetic and the same builder as
+     the live reader (`liveRevenue.ts`). Doc 25 · R1. */
+  return buildRevenueModel(PORTFOLIO_REVENUE, 'designed');
 }
 
 /* ── Support sessions ───────────────────────────────────────────────────── */
@@ -2333,7 +2244,14 @@ export async function getHealth(): Promise<HealthModel> {
 
 /* ── Plans ──────────────────────────────────────────────────────────────── */
 
-export type PlanHead = { key: string; name: string; price: string; tenants: string; count: number };
+export type PlanHead = {
+  key: string;
+  name: string;
+  price: string;
+  tenants: string;
+  count: number;
+  requiresContract?: boolean;
+};
 
 export type EntitlementRow = {
   label: string;
@@ -2808,15 +2726,15 @@ export const SECURITY_POLICY: readonly SecurityItem[] = [
   {
     key: 'mfa',
     label: 'Two-factor authentication',
-    detail: 'Required for every platform admin. Enrolment is held by the identity provider.',
-    action: 'Regenerate codes',
-    state: 'good',
+    detail: 'Enrolment status is not available here.',
+    action: 'Set up',
+    state: 'neutral',
     measured: false,
   },
   {
     key: 'password',
     label: 'Password',
-    detail: 'No rotation requirement — length beats churn. Changes go through the recovery flow.',
+    detail: 'Choose a strong password that you do not use for another account.',
     action: 'Change',
     state: 'neutral',
     measured: false,
@@ -2824,7 +2742,7 @@ export const SECURITY_POLICY: readonly SecurityItem[] = [
   {
     key: 'recovery',
     label: 'Recovery codes',
-    detail: 'Ten are issued once, at enrolment, and shown only that one time.',
+    detail: 'Recovery-code status is not available here.',
     action: 'View',
     state: 'neutral',
     measured: false,
@@ -3314,7 +3232,7 @@ export type StatusSlice = { status: WorkspaceStatus; count: number; label: strin
 export type PressureRow = {
   slug: string;
   name: string;
-  metric: 'seats' | 'events';
+  metric: string;
   used: number;
   limit: number;
   /** 0–100, rounded. The bar reads this; nothing re-derives it from a string. */
@@ -3324,16 +3242,18 @@ export type PressureRow = {
 export type GrowthPoint = { month: string; opened: number; closed: number; net: number };
 
 export type OverviewInsights = {
+  source: 'live' | 'designed';
   portfolio: {
     statusMix: StatusSlice[];
     /** Worst first. Everything at or above `PRESSURE_THRESHOLD`. */
     pressure: PressureRow[];
     seats: { used: number; limit: number; pct: number };
-    events: { used: number; limit: number; pct: number };
+    events: { used: number; limit: number; pct: number } | null;
     /** Opened against closed, by month. See the note on the fixture below. */
     growth: GrowthPoint[];
   };
   revenue: {
+    source?: RevenueModel['source'];
     mrr: RevenueModel['mrr'];
     planMix: RevenueModel['planMix'];
     ageing: RevenueModel['ageing'];
@@ -3488,6 +3408,7 @@ export async function getOverviewInsights(): Promise<OverviewInsights> {
   };
 
   return {
+    source: 'designed',
     portfolio: {
       statusMix,
       pressure,
@@ -3512,6 +3433,7 @@ export async function getOverviewInsights(): Promise<OverviewInsights> {
     },
 
     revenue: {
+      source: revenue.source,
       mrr: revenue.mrr,
       planMix: revenue.planMix,
       ageing: revenue.ageing,

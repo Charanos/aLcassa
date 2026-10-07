@@ -69,4 +69,7 @@ create policy tenant_settings_modify on tenant_settings
   -- This is the classic RLS mistake. Isolation cases 5 and 6 catch it, and
   -- `pnpm check:policies` fails the build when a modify policy has no
   -- `with check` at all. 05 §2 · I-03.
-  with check (tenant_id = app.current_tenant_id());
+  with check (
+    tenant_id = app.current_tenant_id()
+    and app.can_write_settings()
+  );

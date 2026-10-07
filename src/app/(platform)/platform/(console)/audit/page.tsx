@@ -75,15 +75,15 @@ export default async function AuditPage() {
       <FactStrip label="How this log can be trusted">
         <FactCell
           icon={IconLock}
-          label="Append-only"
-          value="By policy"
-          note="Select, and no update or delete policy — for anyone, the platform included."
+          label="Recorded history"
+          value="Protected"
+          note="Application permissions prevent editing or removing recorded events."
         />
         <FactCell
           icon={IconTransfer}
           label="Same transaction"
-          value="Or it didn't happen"
-          note="Every change is written by the transaction that makes it. A change missing here did not occur."
+          value="Recorded together"
+          note="Supported changes commit with their audit entry. Reviews and reads are identified separately."
         />
         <FactCell
           icon={IconClockHour4}

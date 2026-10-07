@@ -163,8 +163,7 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
       role="dialog"
       aria-modal="true"
       aria-label="Command palette"
-      className="fixed inset-0 z-[100] flex items-start justify-center px-4 pt-[12vh]"
-      style={{ background: 'var(--surface-overlay)' }}
+      className="console-modal-backdrop fixed inset-0 z-[100] flex items-start justify-center px-4 pt-[12vh]"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) close();
       }}

@@ -29,6 +29,13 @@
       "when": 1790775769964,
       "tag": "0003_support_session_end",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790846079761,
+      "tag": "0004_contracted_value",
+      "breakpoints": true
     }
   ]
 }

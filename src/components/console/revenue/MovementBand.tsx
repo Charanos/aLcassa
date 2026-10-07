@@ -3,109 +3,73 @@ import { Panel, SectionHeading } from '../Surface';
 import type { MrrMovement } from '@/lib/console/data';
 import { Figure } from '@/components/primitives/Figure';
 
-/**
- * MRR MOVEMENT. 17 §7.
- *
- * ⚠ THIS IS THE BAND THE REVENUE PAGE WAS MISSING, and the reason is one
- * sentence: "MRR rose 4%" and "MRR rose 4% while churn doubled" are the same
- * line on the chart above it, and opposite businesses.
- *
- * ⚠ IT DOES NOT MOVE THE PAGE'S ENDING. The screen still finishes in the
- * collection queue — the page's stated law, and the right one: charts tell you
- * how you are doing, a list of names tells you who to call. This band sits
- * between the level chart and the queue, where the "why" belongs.
- *
- * ⚠ THE FIGURES ARE DESIGNED, AND THE BAND SAYS SO ONCE rather than hedging
- * every number. There is no payment gateway in Phase 1. The parts reconcile
- * with the level chart's `net` for every one of the twelve months — a fixture
- * whose arithmetic does not close is worse than no fixture, because the first
- * person to check it finds a bug that is not in the code and stops trusting
- * the screens that are correct.
- *
- * A server component. Only the chart crosses into the client, for the computed
- * palette and the tooltip; the ratios below are computed here, once.
- */
-
 const KES = new Intl.NumberFormat('en-KE', { maximumFractionDigits: 0 });
 
-function compact(n: number): string {
-  if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
-  if (Math.abs(n) >= 1_000) return `${Math.round(n / 1_000)}k`;
-  return KES.format(n);
-}
-
 export function MovementBand({ movement }: { movement: MrrMovement[] }) {
-  const window12 = movement.reduce(
+  const totals = movement.reduce(
     (acc, m) => ({
-      gained: acc.gained + m.new,
-      expansion: acc.expansion + m.expansion,
-      contraction: acc.contraction + m.contraction,
-      churn: acc.churn + m.churn,
+      added: acc.added + m.new + m.expansion,
+      removed: acc.removed + m.contraction + m.churn,
     }),
-    { gained: 0, expansion: 0, contraction: 0, churn: 0 },
+    { added: 0, removed: 0 },
   );
 
-  const gross = window12.gained + window12.expansion;
-  const lost = window12.contraction + window12.churn;
-  const net = gross - lost;
-
-  /*
-    ⚠ NET REVENUE RETENTION IS THE ONE RATIO WORTH A LINE ON THIS SCREEN.
-
-    Expansion minus contraction and churn, against the base — it answers
-    whether the existing book grows on its own, WITHOUT new customers. Above
-    100% means the business would grow with acquisition switched off entirely.
-    New logos are deliberately excluded: including them produces a number that
-    always flatters and answers nothing.
-
-    The base is approximated as the window's gross additions, because there is
-    no period-opening MRR in the read model. That approximation is stated
-    rather than hidden, and it is why the figure carries "approx".
-  */
-  const base = gross > 0 ? gross : 1;
-  const nrr = ((window12.expansion - window12.contraction - window12.churn) / base) * 100 + 100;
-
-  /* What share of what we won, we then lost. A leaking bucket reads high here
-     while the level chart still climbs. */
-  const leak = gross > 0 ? (lost / gross) * 100 : 0;
-
   return (
-    <section className="mt-8">
-      <SectionHeading title="Movement" note="Where the change came from" />
-
-      <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)]">
-        <Panel title="New, expansion, contraction and churn" variant="elevated">
-          <div className="relative min-h-[260px] flex-1">
+    <section>
+      <SectionHeading
+        title="Changes in subscription value"
+        note="Monthly estimates in KES"
+        align="left"
+      />
+      <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <Panel title="New subscriptions, increases, decreases and endings">
+          <div className="min-h-[260px]">
             <MovementChart data={movement} />
           </div>
         </Panel>
-
-        <Panel title="Twelve months">
+        <Panel title="Period summary">
           <div className="grid">
-            <Figure label="Gross added" value={compact(gross)} />
-            <Figure label="Lost" value={compact(lost)} tone="danger" />
-            <Figure label="Net" value={compact(net)} strong />
-            <Figure
-              label="Net revenue retention"
-              value={`${nrr.toFixed(0)}% approx`}
-              note="Existing workspaces only. Above 100% means the book grows with acquisition switched off."
-            />
-            <Figure
-              label="Of every shilling won"
-              value={`${leak.toFixed(0)}% lost again`}
-              note="High here with a rising level chart is a leaking bucket."
-            />
+            <Figure label="Added value" value={KES.format(totals.added)} />
+            <Figure label="Removed value" value={KES.format(totals.removed)} tone="danger" />
+            <Figure label="Net change" value={KES.format(totals.added - totals.removed)} strong />
           </div>
-
-          <p
-            className="t-caption mt-4 border-t pt-3.5"
-            style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}
-          >
-            Designed figures. There is no payment gateway in Phase 1, so nothing here was charged.
-            The parts reconcile with the level chart above for every month.
+          <p className="t-caption mt-4" style={{ color: 'var(--text-secondary)' }}>
+            Based on subscription dates and recorded price changes. Earlier values are estimates
+            where complete subscription history is unavailable.
           </p>
         </Panel>
       </div>
+      <details className="t-caption mt-4">
+        <summary className="cursor-pointer">View monthly changes</summary>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full text-left">
+            <caption className="sr-only">Monthly changes in subscription value, KES</caption>
+            <thead>
+              <tr>
+                {['Month', 'New', 'Increases', 'Decreases', 'Endings'].map((label) => (
+                  <th className="p-2 font-medium" scope="col" key={label}>
+                    {label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {movement.map((m) => (
+                <tr key={m.month}>
+                  <th scope="row" className="p-2 font-normal">
+                    {m.month}
+                  </th>
+                  {[m.new, m.expansion, m.contraction, m.churn].map((value, i) => (
+                    <td key={i} className="p-2 tabular-nums">
+                      {KES.format(value)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
     </section>
   );
 }

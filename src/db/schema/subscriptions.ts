@@ -88,6 +88,24 @@ export const subscriptions = pgTable(
     cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
 
     /**
+     * What this workspace has agreed to pay each month, in whole KES, when it
+     * is not the plan's list price. Null means the list price. Doc 25 · R1.
+     *
+     * ⚠ CUSTOM IS PRICED HERE OR NOWHERE. `plans.price_amount` is 0 for Custom
+     * because Custom is negotiated per customer, and the contracted value of a
+     * Custom workspace lived only in a code fixture. The revenue screen now
+     * reads it from this column, and a Custom plan cannot be assigned without
+     * it.
+     */
+    contractAmount: bigint('contract_amount', { mode: 'number' }),
+    /**
+     * When the subscription last became past due. Null unless it is past due.
+     * The collection queue counts the days and the unpaid periods from here,
+     * rather than guessing them from `current_period_start`.
+     */
+    pastDueSince: timestamp('past_due_since', { withTimezone: true }),
+
+    /**
      * 08 §1. THE PAYMENT STUBS. Three nullable columns, never populated in
      * Phase 1, so that connecting a gateway later is a service and a webhook
      * rather than a migration and a data backfill. "No billing automation"

@@ -91,7 +91,7 @@ export function RuleEditor({
         pushToast({
           tone: 'success',
           title: `Published v${result.versionNumber}`,
-          description: `Every workspace inherits this on its next generated reply.`,
+          description: `The shared platform guidance has been updated.`,
         });
         return;
       }
@@ -116,7 +116,7 @@ export function RuleEditor({
         }}
       >
         <IconPencil size={13} stroke={1.5} aria-hidden />
-        Edit rules
+        {versionNumber === 0 ? 'Create shared guidance' : 'Edit rules'}
       </button>
 
       <ConsoleDialog
@@ -134,23 +134,22 @@ export function RuleEditor({
            able to see the shape of what they are writing. */
         width="xl"
         operation="rules.published"
-        description={`Publishing appends v${versionNumber + 1} and points the platform at it. All ${workspaceCount} workspaces inherit the change on their next generated reply — nothing is overwritten, and restoring v${versionNumber} is one click.`}
+        description={`Publish a new shared rule version for ${workspaceCount} workspaces. Previous versions remain available to restore.`}
         facts={
           <>
             <DialogFact icon={IconStack2}>
-              Versions are <em>append-only</em>. Publishing moves a pointer, so every earlier set
-              stays readable and a rollback restores rather than rebuilds.
+              Earlier instructions remain available in version history.
             </DialogFact>
             <DialogFact icon={IconBroadcast}>
-              It reaches every workspace on their <em>next generated reply</em>. Replies already
-              sent are unaffected.
+              Review the shared instructions carefully before publishing. Existing replies are
+              unchanged.
             </DialogFact>
           </>
         }
         error={error}
         actions={
           <DialogActions
-            confirmLabel={`Publish v${versionNumber + 1}`}
+            confirmLabel="Publish rules"
             confirmIcon={IconUpload}
             onConfirm={submit}
             disabled={!ready}
@@ -231,7 +230,7 @@ export function RuleEditor({
               style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
             >
               {changed.length === 0
-                ? `In six months this sentence is the only explanation of why v${versionNumber + 1} differs from v${versionNumber}.`
+                ? 'Explain why these instructions are changing. This note is kept with the published version.'
                 : `${changed.length} ${changed.length === 1 ? 'field' : 'fields'} changed: ${changed.map((f) => f.label.toLowerCase()).join(', ')}.`}
             </span>
           </label>

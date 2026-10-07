@@ -44,8 +44,9 @@ export function IsolationBand({
   return (
     <section id="isolation" aria-labelledby="health-isolation" className="scroll-mt-24">
       <SectionHeading
+        id="health-isolation"
         title="Isolation"
-        note="The guarantee this product is sold on — read from the database, not from a report."
+        note="Workspace table policies checked against the current database configuration."
         align="right"
         action={
           live ? (
@@ -82,7 +83,7 @@ export function IsolationBand({
                     color: 'var(--text-tertiary)',
                   }}
                 >
-                  of {isolation.tablesTotal} tables policed
+                  of {isolation.tablesTotal} tables covered
                 </span>
               </p>
               <p
@@ -93,8 +94,8 @@ export function IsolationBand({
                 }}
               >
                 {holding
-                  ? 'Every table that carries a tenant_id is policed.'
-                  : `${gap} ${gap === 1 ? 'table carries' : 'tables carry'} a tenant_id with no working policy. Until ${gap === 1 ? 'it has' : 'they have'} one, those rows are not isolated.`}
+                  ? 'Every workspace table has row security enabled and enforced, with at least one policy.'
+                  : `${gap} workspace ${gap === 1 ? 'table needs' : 'tables need'} a policy-configuration review.`}
               </p>
             </div>
           </div>
@@ -107,10 +108,8 @@ export function IsolationBand({
               textWrap: 'pretty',
             }}
           >
-            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Policed</span> means
-            row-level security is enabled <em>and forced</em> on the table, and at least one policy
-            exists for it — read from <code>pg_class</code> and <code>pg_policies</code> each time
-            this page loads.
+            Coverage checks configuration when this page loads. Separate access tests are needed to
+            verify what each policy permits.
           </p>
 
           <div className="mt-5 grid">
@@ -139,22 +138,19 @@ export function IsolationBand({
               className="t-caption mt-3"
               style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
             >
-              Row-level security filters silently — a cross-tenant read returns zero rows, not an
-              error — so counting attempts means instrumenting the application to notice the
-              difference. Until that lands, this shows no number rather than a reassuring zero.
+              Cross-workspace access attempts are not currently measured by this console.
             </p>
           ) : null}
         </Panel>
 
         {/* ── The suite: do the policies work? ──────────────────────────── */}
         <Panel
-          title="What the suite proves, per table"
+          title="Access checks in the test suite"
           variant="elevated"
           footer={
             <p className="t-caption" style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}>
-              Generated for every tenant-scoped table and run against a real database on every push,
-              as a role that cannot bypass row-level security. A failure blocks the merge; there is
-              no override path.
+              These checks describe the verification suite. This page does not report the result of
+              a particular test run; review the release evidence for that result.
             </p>
           }
         >

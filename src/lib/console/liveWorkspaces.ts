@@ -1,4 +1,6 @@
 import 'server-only';
+import { classify, readSubscriptionInterval } from './revenue';
+import { toWorkspaceContract } from './revenueModel';
 import { and, desc, eq, gt, isNull, or, sql } from 'drizzle-orm';
 import {
   planEntitlements,
@@ -162,13 +164,8 @@ export async function getLiveWorkspaces(): Promise<WorkspaceRow[] | null> {
       [...summaries].map(([id, sum]) => [id, sum.lastActivity] as const),
     );
 
-    /* ⚠ AN EMPTY LIST IS NOT "NO WORKSPACES" HERE. `tenants_select` admits only
-       rows the reader is a member of, and a platform admin is a member of none —
-       so this comes back empty whether the business has zero customers or
-       twelve. Null hands the screen to the designed portfolio rather than
-       rendering an empty table over a full database. Same reasoning as the
-       overview's count guard; the architectural fix is in 21 §2. */
-    if (rows.length === 0) return null;
+    // Operator SELECT policies now authorize this reader. Zero rows is a
+    // valid empty portfolio; it must never inject the example workspaces.
 
     return rows.map((row) => ({
       id: row.id,
@@ -262,8 +259,22 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
         createdAt: tenants.createdAt,
         planName: plans.name,
         planId: plans.id,
+        planCode: plans.code,
+        priceAmount: plans.priceAmount,
+        intervalUnit: plans.intervalUnit,
+        intervalCount: plans.intervalCount,
+        provisionedAt: tenants.provisionedAt,
+        suspendedAt: tenants.suspendedAt,
+        tenantUpdatedAt: tenants.updatedAt,
         subscriptionStatus: subscriptions.status,
+        periodStart: subscriptions.currentPeriodStart,
         periodEnd: subscriptions.currentPeriodEnd,
+        trialEndsAt: subscriptions.trialEndsAt,
+        pastDueSince: subscriptions.pastDueSince,
+        contractAmount: subscriptions.contractAmount,
+        cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
+        cancelledAt: subscriptions.cancelledAt,
+        subscriptionUpdatedAt: subscriptions.updatedAt,
       })
       .from(tenants)
       .leftJoin(subscriptions, eq(subscriptions.tenantId, tenants.id))
@@ -309,18 +320,59 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
       const entitlement = entitlementRows.find((e) => e.key === m.key);
       if (!entitlement) return [];
       const override = overrideByKey.get(m.key);
-      const limit = override ? (override.limitValue ?? 0) : (entitlement.limitValue ?? 0);
+      const limit = override ? override.limitValue : entitlement.limitValue;
       return [
         {
           label: entitlement.displayName,
           icon: m.icon,
           used: usageByKey.get(m.key) ?? 0,
-          // 0 renders as ∞ — see the note on the list above.
+          // Null means unlimited; zero remains a real zero allowance.
           limit,
           source: override ? `${m.source} · override active` : m.source,
         },
       ];
     });
+
+    /* Doc 25 · R1. The same classification the revenue screen runs, so this
+       tab and the collection queue cannot disagree about one workspace. */
+    const contract = classify(
+      {
+        tenantId: tenant.id,
+        slug: tenant.slug,
+        name: tenant.name,
+        tenantStatus: tenant.status,
+        provisionedAt: tenant.provisionedAt ?? tenant.createdAt,
+        suspendedAt:
+          tenant.status === 'suspended' || tenant.status === 'closed'
+            ? (tenant.suspendedAt ?? tenant.tenantUpdatedAt)
+            : null,
+        subscription: tenant.subscriptionStatus
+          ? {
+              status: tenant.subscriptionStatus,
+              planCode: tenant.planCode ?? 'retired',
+              planName: tenant.planName ?? 'a retired plan',
+              listPrice: tenant.priceAmount ?? 0,
+              intervalUnit: readSubscriptionInterval(tenant.intervalUnit),
+              intervalCount: tenant.intervalCount ?? 1,
+              contractAmount: tenant.contractAmount,
+              trialEndsAt: tenant.trialEndsAt,
+              pastDueSince: tenant.pastDueSince,
+              stoppedAt:
+                tenant.subscriptionStatus === 'cancelled'
+                  ? (tenant.cancelledAt ?? tenant.subscriptionUpdatedAt)
+                  : tenant.subscriptionStatus === 'expired' ||
+                      tenant.subscriptionStatus === 'paused'
+                    ? tenant.subscriptionUpdatedAt
+                    : null,
+              currentPeriodStart: tenant.periodStart,
+              currentPeriodEnd: tenant.periodEnd,
+              cancelAtPeriodEnd: tenant.cancelAtPeriodEnd ?? false,
+            }
+          : null,
+      },
+      new Date(),
+    );
+    const contractView = toWorkspaceContract(contract);
 
     const summary = summaries.get(tenant.id);
     const owner =
@@ -337,12 +389,14 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
       status: toWorkspaceStatus(tenant.status, tenant.subscriptionStatus),
       plan: tenant.planName ?? 'No plan',
       /**
-       * ⚠ NO SOURCE. 08 §1 puts billing automation out of scope: there is no
-       * gateway, no invoice and no payment record. The plan carries a price,
-       * but a price is not revenue — reporting one as monthly value would be
-       * stating an assumption about collection as a fact.
+       * CONTRACTED, labelled as such wherever it is drawn. 08 §1 puts billing
+       * out of scope, so there is no payment record; what the subscription
+       * commits the customer to is a fact, and doc 25 · R1 reports it as one.
        */
-      monthlyValue: '—',
+      monthlyValue:
+        contract.monthly !== null && contract.standing !== 'stopped'
+          ? `KES ${contract.monthly.toLocaleString('en-GB')} / month`
+          : '—',
       since: formatDate(tenant.createdAt),
       lastActive: relative(summary?.lastActivity ?? null),
       alert:
@@ -380,10 +434,11 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
         channels: '—',
       },
       // 04. One region in Phase 1, stated rather than configurable.
-      residency: 'eu-central-1',
+      residency: 'eu-west-1',
       /** ⚠ NO SOURCE. See `monthlyValue`. */
       billingStats: [],
       invoices: [],
+      contract: contractView,
       impact: {
         // What a suspension actually costs, in people. This one IS real, and
         // it is the number the confirm dialog is built around.
@@ -396,7 +451,7 @@ export async function getLiveWorkspaceDetail(slug: string): Promise<WorkspaceDet
 }
 
 /** 05 §9 · sheet 05. The platform's own trail. */
-export async function getLiveAuditEntries(): Promise<AuditEntry[] | null> {
+export async function getLiveAuditEntries(tenantId?: string): Promise<AuditEntry[] | null> {
   const ctx = await currentPlatformSessionOrNull();
   if (!ctx) return null;
 
@@ -433,7 +488,10 @@ export async function getLiveAuditEntries(): Promise<AuditEntry[] | null> {
       .from(platformAuditLog)
       .leftJoin(tenants, eq(tenants.id, platformAuditLog.targetTenantId))
       .where(
-        sql`${platformAuditLog.occurredAt} >= (date_trunc('day', now() at time zone 'Africa/Nairobi') - interval '29 days') at time zone 'Africa/Nairobi'`,
+        and(
+          sql`${platformAuditLog.occurredAt} >= (date_trunc('day', now() at time zone 'Africa/Nairobi') - interval '29 days') at time zone 'Africa/Nairobi'`,
+          tenantId ? eq(platformAuditLog.targetTenantId, tenantId) : undefined,
+        ),
       )
       .orderBy(desc(platformAuditLog.occurredAt))
       .limit(AUDIT_WINDOW_CAP);

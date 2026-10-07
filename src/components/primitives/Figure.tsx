@@ -52,7 +52,7 @@ export function Figure({
       className="grid gap-1 border-t py-3.5 first:border-t-0 first:pt-0 last:pb-0"
       style={{ borderColor: 'var(--border-subtle)' }}
     >
-      <div className="flex items-baseline justify-between gap-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
         <span className="t-compact min-w-0" style={{ color: 'var(--text-secondary)' }}>
           {label}
         </span>
@@ -62,7 +62,6 @@ export function Figure({
             font: `${strong ? 500 : 400} ${strong ? 'var(--type-panel)' : 'var(--type-lede)'}/1 var(--font-mono)`,
             letterSpacing: strong ? '-0.02em' : undefined,
             color: TONE_INK[tone],
-            fontStyle: tone === 'muted' ? 'italic' : undefined,
           }}
         >
           {value}

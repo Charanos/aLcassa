@@ -157,6 +157,7 @@ export default async function InsidePage() {
       {subscription ? (
         <section aria-labelledby="inside-usage">
           <SectionHeading
+            id="inside-usage"
             title="Usage"
             note="Against their plan's limits, as their owner sees it."
           />
@@ -206,7 +207,9 @@ export default async function InsidePage() {
 
       <section aria-labelledby="inside-people">
         <SectionHeading
+          id="inside-people"
           title="People"
+          align={subscription ? 'left' : 'right'}
           note="Members and pending invitations. You can resend or revoke an invitation."
           action={<DataSource kind="live" detail="as support" />}
         />
@@ -286,9 +289,10 @@ export default async function InsidePage() {
 
       <section aria-labelledby="inside-activity">
         <SectionHeading
+          id="inside-activity"
           title="Their activity"
           note="The workspace's own log, as its owner reads it. Your actions appear here."
-          align="right"
+          align={subscription ? 'right' : 'left'}
         />
         <Panel variant="elevated" flush>
           <ul className="m-0 list-none p-0">
@@ -302,8 +306,8 @@ export default async function InsidePage() {
                   {a.time}
                 </span>
                 <span className="t-compact min-w-0" style={{ color: 'var(--text-secondary)' }}>
-                  <span style={{ color: 'var(--text-primary)' }}>{a.actor}</span> {a.action}{' '}
-                  <span className="break-all">{a.target}</span>
+                  <span style={{ color: 'var(--text-primary)' }}>{a.actor}</span>{' '}
+                  {a.actionLabel ?? a.action} <span className="break-all">{a.target}</span>
                 </span>
               </li>
             ))}
@@ -318,8 +322,10 @@ export default async function InsidePage() {
 
       <section aria-labelledby="inside-not-built" className="pb-4">
         <SectionHeading
+          id="inside-not-built"
           title="Not in the workspace yet"
-          note="Stated so its absence is not mistaken for a permission."
+          note="Features that are not yet available during a support visit."
+          align={subscription ? 'left' : 'right'}
         />
         <Panel variant="elevated">
           <p

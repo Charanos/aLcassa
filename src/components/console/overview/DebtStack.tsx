@@ -169,7 +169,7 @@ export function DebtStack({
             className="font-ui text-sm font-medium tracking-wide"
             style={{ color: 'var(--text-secondary)' }}
           >
-            Worth chasing first
+            Review first
           </span>
         </span>
 
@@ -311,13 +311,13 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
           </Link>
 
           {/*
-            ⚠ THE INVOICE NUMBER WAS IN THE MODEL AND UNDRAWN. It is the one
-            string an operator quotes on the phone and pastes into a search. A
-            debt card naming the amount and not the invoice sends somebody off
-            to look it up.
+            The plan and the arithmetic behind the amount: how many monthly
+            charges have fallen due since it went past due, at what price.
+            Phase 1 raises no invoices, so there is no invoice number to quote
+            (doc 25 · R1).
           */}
           <p className="mt-1.5 font-mono text-xs" style={{ color: 'var(--chrome-fg-faint)' }}>
-            {debt.invoice}
+            {debt.plan} · {debt.periods} × {currency} {debt.monthly}
           </p>
         </div>
 
@@ -350,11 +350,7 @@ function HeadCard({ debt, currency }: { debt: Collection; currency: string }) {
         >
           <Stat label="Days overdue" value={String(debt.days)} tone="danger" />
           <span aria-hidden className="w-px" style={{ background: 'var(--chrome-rule)' }} />
-          {/*
-            ⚠ THIS READ "2 of 3 / 3". `Collection.attempts` is already the phrase
-            "2 of 3" and the component appended "/ 3" on top of it.
-          */}
-          <Stat label="Collection attempts" value={debt.attempts} />
+          <Stat label="State" value={debt.state === 'suspended' ? 'Suspended' : 'Read-only'} />
         </dl>
       </div>
     </div>
@@ -458,14 +454,13 @@ function NothingOutstanding() {
     <div className="mt-6 flex flex-col items-start gap-2">
       <IconCircleCheck size={20} stroke={1.5} style={{ color: 'var(--success-fg)' }} aria-hidden />
       <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-        Every invoice is settled.
+        No estimated amounts due.
       </p>
       <p
         className="t-caption"
         style={{ color: 'var(--text-secondary)', maxWidth: '38ch', textWrap: 'pretty' }}
       >
-        Nothing is past due and no collection is in progress. This card names the debts worth
-        chasing when any appear.
+        No workspace currently requires payment follow-up in this subscription summary.
       </p>
     </div>
   );

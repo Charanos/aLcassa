@@ -48,6 +48,7 @@ export function SessionList({
     <section className="flex flex-col">
       <SectionHeading
         title="Active sessions"
+        align="left"
         note="Devices currently signed into this account. Ending one takes effect on its next request, not whenever a token expires."
         action={<RevokeOthersButton others={others} live={live} />}
       />

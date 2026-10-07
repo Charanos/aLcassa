@@ -71,6 +71,8 @@ export const AUDIT_ACTIONS = {
   PLAN_LIMIT_CHANGED: 'plan.limit_changed',
   SUBSCRIPTION_STATUS_CHANGED: 'subscription.status_changed',
   SUBSCRIPTION_OVERRIDE_GRANTED: 'subscription.override_granted',
+  /** A Custom workspace's negotiated monthly price was set or changed. Doc 25 · R1. */
+  SUBSCRIPTION_CONTRACT_SET: 'subscription.contract_set',
 
   SUPPORT_ENTERED: 'support.entered',
   SUPPORT_EXITED: 'support.exited',

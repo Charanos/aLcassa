@@ -114,6 +114,7 @@ export type ConsoleShellProps = {
   /** Sheet 05: isolation state sits under the navigation permanently, rather
    *  than being something the operator has to go and check. */
   isolation: IsolationStatus;
+  preview?: boolean;
   /*
    * ⚠ `onNavStateChange` USED TO LIVE HERE AND THE SHELL NEVER CALLED IT.
    * It was a required prop, the layout dutifully passed the `setNavState`
@@ -165,6 +166,7 @@ export function ConsoleShell({
   density,
   session,
   isolation,
+  preview = false,
   onStartSession,
   onEndSession,
   children,
@@ -185,6 +187,7 @@ export function ConsoleShell({
   const attemptsCounted =
     isolation.crossTenantAttempts30d !== null && isolation.crossTenantRefused30d !== null;
   const isolationOk =
+    !preview &&
     isolation.tablesPoliced === isolation.tablesTotal &&
     (!attemptsCounted || isolation.crossTenantAttempts30d === isolation.crossTenantRefused30d);
 
@@ -1004,6 +1007,11 @@ export function ConsoleShell({
                   */}
                 </div>
                 <div className="scrollbar-slim max-h-[360px] overflow-y-auto">
+                  {notices.length === 0 && (
+                    <p className="t-body px-5 py-4" style={{ color: 'var(--text-secondary)' }}>
+                      The notification feed is not connected yet.
+                    </p>
+                  )}
                   {notices.map((n) => {
                     const ink = NOTICE_INK[n.kind];
                     return (
@@ -1101,6 +1109,7 @@ export function ConsoleShell({
             <button
               type="button"
               onClick={(e) => toggleMenu('account', e.currentTarget)}
+              aria-label={`Account menu for ${account.name}`}
               aria-expanded={openMenu === 'account'}
               className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-overlay py-0 pr-2 pl-1 transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
               style={{
@@ -1505,9 +1514,9 @@ export function ConsoleShell({
           <Link
             href="/platform/health"
             title={
-              isolationOk
-                ? `Isolation green · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
-                : `Isolation gap · ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables policed · last run ${isolation.lastRun}`
+              preview
+                ? 'Example policy report. This preview has not verified tenant isolation.'
+                : `Policy coverage: ${isolation.tablesPoliced} of ${isolation.tablesTotal} tables. ${isolation.lastRun}`
             }
             className="group flex h-[38px] items-center rounded-overlay transition-colors hover:bg-[var(--chrome-hover)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--chrome-rule-strong)]"
             style={{
@@ -1561,10 +1570,14 @@ export function ConsoleShell({
                 <span
                   className="rounded-full"
                   style={{
-                    background: 'var(--warning-fg)',
+                    background: preview ? 'var(--chrome-fg-muted)' : 'var(--warning-fg)',
                     boxShadow: collapsed
-                      ? '0 0 10px var(--warning-fg)'
-                      : '0 0 7px var(--warning-fg)',
+                      ? preview
+                        ? 'none'
+                        : '0 0 10px var(--warning-fg)'
+                      : preview
+                        ? 'none'
+                        : '0 0 7px var(--warning-fg)',
                     width: collapsed ? '8px' : '7px',
                     height: collapsed ? '8px' : '7px',
                     transition:
@@ -1587,17 +1600,27 @@ export function ConsoleShell({
               <span
                 className="block truncate font-medium tracking-tight"
                 style={{
-                  color: isolationOk ? 'var(--success-fg)' : 'var(--warning-fg)',
+                  color: preview
+                    ? 'var(--chrome-fg-muted)'
+                    : isolationOk
+                      ? 'var(--success-fg)'
+                      : 'var(--warning-fg)',
                   fontSize: 'var(--type-chip)',
                 }}
               >
-                {isolationOk ? 'Isolation green' : 'Isolation gap'}
+                {preview
+                  ? 'Example policy report'
+                  : isolationOk
+                    ? 'Policy coverage complete'
+                    : 'Review policy coverage'}
               </span>
               <span
                 className="mt-[1.5px] block truncate font-mono"
                 style={{ color: 'var(--chrome-fg-faint)', fontSize: 'var(--type-micro)' }}
               >
-                {isolation.tablesPoliced}/{isolation.tablesTotal} tables · {isolation.lastRun}
+                {preview
+                  ? 'Preview data · not verified'
+                  : `${isolation.tablesPoliced}/${isolation.tablesTotal} tables · ${isolation.lastRun}`}
               </span>
             </span>
           </Link>
@@ -1789,6 +1812,20 @@ export function ConsoleShell({
           className="scrollbar-hide min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-[calc(76px+env(safe-area-inset-bottom,0px))] md:pb-0"
           style={{ background: 'var(--surface-base)' }}
         >
+          {preview && (
+            <aside
+              aria-label="Example preview"
+              className="t-caption mx-5 mt-5 rounded-panel border px-4 py-3 md:mx-8"
+              style={{
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--text-secondary)',
+                background: 'var(--surface-raised)',
+              }}
+            >
+              Example preview. Account details, workspaces and reports use sample data. Changes
+              cannot be saved.
+            </aside>
+          )}
           {children}
         </main>
 
@@ -1829,11 +1866,9 @@ export function ConsoleShell({
                   { opacity: 1, duration: 0.2, ease: 'power2.out' },
                 );
             }}
-            className="fixed inset-0 flex justify-center"
+            className="console-modal-backdrop fixed inset-0 flex justify-center"
             style={{
               zIndex: 80,
-              background: 'rgba(0, 0, 0, 0.4)',
-              backdropFilter: 'blur(6px)',
               paddingTop: '10dvh',
             }}
           />

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 // The isolation suite talks to a real database. Vitest does not load
 // .env.local the way Next.js does, so it is loaded here.
-loadEnv({ path: '.env.local', quiet: true });
+loadEnv({ path: process.env.VERIFICATION_ENV_FILE ?? '.env.local', quiet: true });
 
 export default defineConfig({
   resolve: {

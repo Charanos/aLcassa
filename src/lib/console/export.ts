@@ -1,12 +1,21 @@
 import 'server-only';
-import {
-  getAuditEntries,
-  getRevenue,
-  getWorkspaces,
-  type AuditEntry,
-  type WorkspaceRow,
-} from './data';
+import { getAuditEntries, getWorkspaces, type AuditEntry, type WorkspaceRow } from './data';
 import { getLiveAuditEntries, getLiveWorkspaces } from './liveWorkspaces';
+import { getLiveRevenueFigures } from './liveRevenue';
+import { PORTFOLIO_REVENUE } from './portfolio';
+import type { Standing } from './revenue';
+
+const STANDING_LABEL: Record<Standing, string> = {
+  billing: 'billing',
+  past_due: 'past due',
+  trial: 'on trial',
+  trial_ended: 'trial ended, undecided',
+  stopped: 'not billed',
+  none: 'no subscription',
+};
+
+const nairobiDate = (at: Date) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Nairobi' }).format(at);
 
 /**
  * CSV export for the console. 17 §6.1.
@@ -129,26 +138,47 @@ export async function buildExport(resource: ExportResource, stamp: Date): Promis
 
     case 'revenue': {
       /*
-        ⚠ THE FIRST COLUMN SAYS "designed". There is no payment gateway in
-        Phase 1, so every figure in this file is the designed one the screen
-        shows. A CSV outlives the screen it came from — it gets mailed,
-        pasted into a deck, and read a quarter later by somebody who never
-        saw the caveat on the page. The caveat travels with the data.
+        ⚠ THE FIRST COLUMN STATES THE BASIS. Contracted value from the
+        subscriptions, not payments received — Phase 1 has no gateway (08 §1).
+        A CSV outlives the screen it came from, so the caveat travels with
+        every row. Doc 25 · R1.
+
+        One row per workspace rather than only the debtors: a revenue export
+        that lists five rows cannot be reconciled against the headline it sits
+        under, and reconciling is what somebody opens a CSV to do.
       */
-      const m = await getRevenue();
+      const live = await getLiveRevenueFigures();
+      const figures = live ?? PORTFOLIO_REVENUE;
+      const basis = live
+        ? 'contracted value · from subscriptions · not payments received'
+        : 'designed portfolio · no platform session';
       return {
         filename: `alcassa-revenue-${date}.csv`,
-        rows: m.collections.length,
+        rows: figures.contracts.length,
         body: toCsv(
-          ['Source', 'Workspace', 'Slug', 'Invoice', 'Amount', 'Days late', 'Attempts'],
-          m.collections.map((c) => [
-            'designed — no payment gateway in Phase 1',
+          [
+            'Basis',
+            'Workspace',
+            'Slug',
+            'Plan',
+            'Standing',
+            'Contracted monthly (KES)',
+            'Unpaid (KES)',
+            'Unpaid periods',
+            'Days past due',
+            'Trial ends',
+          ],
+          figures.contracts.map((c) => [
+            basis,
             c.name,
             c.slug,
-            c.invoice,
-            c.amount,
-            c.days,
-            c.attempts,
+            c.subscription?.planName ?? 'none',
+            STANDING_LABEL[c.standing],
+            c.monthly ?? 'not recorded',
+            c.arrears?.amount ?? 0,
+            c.arrears?.periods ?? 0,
+            c.arrears?.days ?? '',
+            c.subscription?.trialEndsAt ? nairobiDate(c.subscription.trialEndsAt) : '',
           ]),
         ),
       };

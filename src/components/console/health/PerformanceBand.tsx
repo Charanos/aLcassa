@@ -57,6 +57,7 @@ export function PerformanceBand({
   return (
     <section aria-labelledby="health-performance">
       <SectionHeading
+        id="health-performance"
         title="Performance"
         note="The last twenty-four hours, against the same budgets."
         action={<DataSource kind="designed" detail="probes at M6" />}

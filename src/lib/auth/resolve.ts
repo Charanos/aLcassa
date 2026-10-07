@@ -66,7 +66,8 @@ export async function currentSession(requestId?: string): Promise<ResolvedContex
 export async function currentSessionOrNull(): Promise<ResolvedContext | null> {
   try {
     return await currentSession();
-  } catch {
+  } catch (error) {
+    if (!isExpectedSessionAbsence(error)) throw error;
     return null;
   }
 }
@@ -236,12 +237,26 @@ export async function currentPlatformSessionOrNull(): Promise<ResolvedContext | 
   try {
     return await currentPlatformSession();
   } catch (error) {
+    if (!isExpectedSessionAbsence(error)) throw error;
     logger.debug('no platform session resolved', {
       stage: isAppError(error) ? error.internal : undefined,
       reason: error instanceof Error ? error.message : String(error),
     });
     return null;
   }
+}
+
+/** Infrastructure failures must never replace account data with examples. */
+function isExpectedSessionAbsence(error: unknown): boolean {
+  return (
+    isAppError(error) &&
+    (error.code === ERROR_CODES.AUTH_SESSION_EXPIRED ||
+      error.code === ERROR_CODES.AUTH_NO_MEMBERSHIP ||
+      error.code === ERROR_CODES.AUTH_EMAIL_UNVERIFIED ||
+      error.code === ERROR_CODES.PLATFORM_NOT_ADMIN ||
+      error.code === ERROR_CODES.TENANT_NOT_FOUND ||
+      error.code === ERROR_CODES.SUPPORT_SESSION_EXPIRED)
+  );
 }
 
 export async function resolvePlatformDoor(

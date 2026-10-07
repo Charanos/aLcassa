@@ -173,11 +173,8 @@ export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) 
 
       <Dialog.Portal>
         <Dialog.Overlay
-          className="fixed inset-0 z-[150]"
+          className="console-modal-backdrop fixed inset-0 z-[150]"
           style={{
-            background: 'var(--surface-overlay)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
             animation: 'overlay-in var(--duration-fast) linear',
           }}
         />

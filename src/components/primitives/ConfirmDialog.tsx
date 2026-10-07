@@ -28,6 +28,7 @@ export function ConfirmDialog({
   tone = 'primary',
   onConfirm,
   loading = false,
+  disabled = false,
   error = null,
 }: {
   open: boolean;
@@ -48,6 +49,7 @@ export function ConfirmDialog({
   tone?: 'primary' | 'destructive';
   onConfirm: () => void;
   loading?: boolean;
+  disabled?: boolean;
   /** A submitted attempt's outcome, once the server has answered. Inline,
    *  never a toast — sheet 12. */
   error?: string | null;
@@ -55,10 +57,7 @@ export function ConfirmDialog({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay
-          className="fixed inset-0 z-[150]"
-          style={{ background: 'var(--surface-overlay)' }}
-        />
+        <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
           style={{
@@ -90,11 +89,14 @@ export function ConfirmDialog({
 
           <div className="mt-6 flex justify-end gap-2.5">
             <Dialog.Close asChild>
-              <Button variant="secondary">{cancelLabel}</Button>
+              <Button variant="secondary" disabled={loading}>
+                {cancelLabel}
+              </Button>
             </Dialog.Close>
             <Button
               variant={tone === 'destructive' ? 'destructive' : 'primary'}
               loading={loading}
+              disabled={disabled || loading}
               onClick={onConfirm}
             >
               {confirmLabel}
@@ -164,10 +166,7 @@ export function DestructiveConfirm({
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay
-          className="fixed inset-0 z-[150]"
-          style={{ background: 'var(--surface-overlay)' }}
-        />
+        <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <Dialog.Content
           className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
           style={{

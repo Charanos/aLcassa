@@ -89,20 +89,21 @@ export function ConsoleHeader({
     >
       <div className="min-w-0 flex-1">
         {breadcrumbs && breadcrumbs.length > 0 ? (
-          <nav className="mb-4 -ml-2.5 flex items-center gap-1.5">
+          <nav aria-label="Breadcrumb" className="mb-4 flex flex-wrap items-center gap-1.5">
             {breadcrumbs.map((bc, i) => (
               <React.Fragment key={i}>
                 {bc.href ? (
-                  <a
+                  <Link
                     href={bc.href}
-                    className="rounded-full px-2.5 py-1 font-mono text-2xs font-medium tracking-widest uppercase transition-all duration-200 hover:bg-[var(--chrome-hover)] hover:text-[var(--text-primary)]"
+                    className="t-caption rounded-chip px-2 py-1 transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)]"
                     style={{ color: 'var(--text-secondary)' }}
                   >
                     {bc.label}
-                  </a>
+                  </Link>
                 ) : (
                   <span
-                    className="rounded-full bg-[var(--chrome-hover)] px-2.5 py-1 font-mono text-2xs font-medium tracking-widest uppercase shadow-[var(--chrome-highlight)] ring-1 ring-[var(--chrome-rule)]"
+                    aria-current="page"
+                    className="t-caption px-2 py-1"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {bc.label}
@@ -110,6 +111,7 @@ export function ConsoleHeader({
                 )}
                 {i < breadcrumbs.length - 1 && (
                   <IconChevronRight
+                    aria-hidden
                     size={12}
                     stroke={2.5}
                     className="opacity-30"
@@ -134,7 +136,6 @@ export function ConsoleHeader({
           className="display display-md tracking-tight"
           style={{
             color: 'var(--text-primary)',
-            textShadow: '0 2px 10px color-mix(in oklab, var(--ink-950) 15%, transparent)',
           }}
         >
           {title}
@@ -156,11 +157,13 @@ export function ConsoleHeader({
  * precisely for this.
  */
 export function SectionHeading({
+  id,
   title,
   note,
   action,
-  align = 'left',
+  align = 'right',
 }: {
+  id?: string;
   title: string;
   note?: string;
   action?: React.ReactNode;
@@ -169,7 +172,7 @@ export function SectionHeading({
   const isRight = align === 'right';
 
   return (
-    <div className="mt-24 mb-12 w-full">
+    <div className="mt-12 mb-6 w-full sm:mt-16 sm:mb-8" data-section-heading data-align={align}>
       {/* Top Hairline spanning full width */}
       <div
         className={`mb-6 h-px w-full ${
@@ -184,20 +187,24 @@ export function SectionHeading({
         /* `flex-wrap`: on a phone the action used to run off the right edge,
            because nothing let it drop below a title and note that had already
            taken the width. It wraps under them now. */
-        className={`flex w-full flex-wrap items-start justify-between gap-x-8 gap-y-4 ${isRight ? 'flex-row-reverse' : ''}`}
+        className={`flex w-full flex-wrap items-start justify-between gap-x-8 gap-y-4 ${isRight ? 'sm:flex-row-reverse' : ''}`}
       >
         {/* Main Content Stack */}
         <div
-          className={`flex flex-col ${isRight ? 'items-end text-right' : 'items-start text-left'}`}
+          className={`flex min-w-0 flex-col ${isRight ? 'sm:items-end sm:text-right' : 'items-start text-left'}`}
         >
           <h2
+            id={id}
             className="display display-md tracking-tight"
             style={{ color: 'var(--text-primary)', fontWeight: 400 }}
           >
             {title}
           </h2>
           {note ? (
-            <p className="t-body mt-2.5" style={{ color: 'var(--text-secondary)' }}>
+            <p
+              className="t-body mt-2 max-w-[64ch] text-pretty"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               {note}
             </p>
           ) : null}
@@ -211,41 +218,9 @@ export function SectionHeading({
 }
 
 /**
- * THE CONSOLE SECTION. Three variants, and the choice between them is a design
- * decision rather than a styling one.
- *
- * ⚠ THIS COMMENT USED TO READ "the uncarded console section · replaces the
- * traditional nested white card", AND THE PRODUCT HAD STOPPED AGREEING WITH IT.
- *
- * The console was first built uncarded: sections separated by a hairline rule
- * and whitespace, content breathing directly on the page. That was the right
- * instinct for a dense operator screen and it is still the right default — it
- * is what `default` does.
- *
- * It stopped being right for the OVERVIEW specifically, and for one reason: the
- * overview is not one dense screen, it is **five bands of unrelated subjects**
- * stacked vertically — a queue, a telemetry rail, revenue, portfolio,
- * operations. Uncarded, a reader scrolling it cannot tell where revenue ends
- * and portfolio begins, because a hairline between two sections looks exactly
- * like a hairline inside one. Carding gives each band a boundary that survives
- * scrolling, which is what a briefing screen needs and a working screen does
- * not.
- *
- *   `default`      uncarded. A hairline above, content on the page ground.
- *                  The right choice on a single-subject working screen —
- *                  Workspaces, Audit, Plans — where the page IS the panel.
- *
- *   `elevated`     carded. Rounded, sunken ground, its own padding. The right
- *                  choice where unrelated subjects sit side by side or stack,
- *                  which is the overview and nothing else so far.
- *
- *   `flush-glass`  the carded SHAPE with no ground, for a panel that sits on a
- *                  surface already tinted — nesting a sunken card inside a
- *                  sunken well produces a second edge that means nothing.
- *
- * ⚠ THE TWO ARE NOT INTERCHANGEABLE AND MUST NOT BE MIXED WITHIN ONE BAND. A
- * carded panel beside an uncarded one reads as one of them having failed to
- * render. Pick per band, not per panel. `03 §26`.
+ * Group related work in a quiet sunken card by default. Use `default`
+ * explicitly for open editorial content, and `flush-glass` where the parent
+ * already supplies a tinted surface. Keep sibling panels at the same depth.
  */
 export function Panel({
   title,
@@ -253,7 +228,7 @@ export function Panel({
   children,
   flush,
   accent,
-  variant = 'default',
+  variant = 'elevated',
   /**
    * Under the body: the reason a control in the header is dead, a note, an
    * error.
@@ -290,12 +265,13 @@ export function Panel({
 
   return (
     <section
-      className={`group relative flex flex-col ${isElevated || isFlushGlass ? 'rounded-card px-5 py-4' : 'pt-1'} transition-all duration-400`}
+      className={`group relative flex min-w-0 flex-col ${isElevated || isFlushGlass ? 'rounded-card p-5 sm:p-6' : 'pt-1'}`}
       style={
         isElevated || isFlushGlass
           ? {
               background: isElevated ? 'var(--surface-sunken)' : 'transparent',
-              boxShadow: 'var(--glass-highlight)',
+              border: '1px solid var(--border-subtle)',
+              boxShadow: isElevated ? 'var(--glass-highlight), var(--shadow-sm)' : 'none',
             }
           : undefined
       }
@@ -316,20 +292,12 @@ export function Panel({
               <span className="relative flex size-2 shrink-0 items-center justify-center">
                 <span
                   aria-hidden
-                  className="absolute inset-0 animate-ping rounded-full opacity-40"
-                  style={{ background: accentInk, animationDuration: '3s' }}
-                />
-                <span
-                  aria-hidden
                   className="relative size-1.5 rounded-full"
                   style={{ background: accentInk }}
                 />
               </span>
             ) : null}
-            <h3
-              className="font-mono text-sm font-medium tracking-[0.15em] uppercase"
-              style={{ color: 'var(--text-secondary)' }}
-            >
+            <h3 className="t-body font-medium" style={{ color: 'var(--text-secondary)' }}>
               {title}
             </h3>
           </div>
@@ -737,29 +705,23 @@ export function DataSource({
 
   return (
     <span
-      className="inline-flex items-center gap-2 font-mono text-2xs tracking-[0.12em] whitespace-nowrap uppercase"
+      className="t-caption inline-flex flex-wrap items-center gap-2"
       style={{ color: ink }}
       title={
         explain ??
         (live
-          ? 'Read from the database when this page loaded.'
-          : 'No observability probes in Phase 1. These are the designed figures; the probes arrive at M6.')
+          ? 'Updated from your account when this page loaded.'
+          : 'Example data for preview. These figures do not describe your account.')
       }
     >
       <span aria-hidden className="relative flex size-2 items-center justify-center">
         {live ? (
-          <>
-            <span
-              className="absolute inset-0 animate-ping rounded-full opacity-40 motion-reduce:animate-none"
-              style={{ background: dot, animationDuration: '2.6s' }}
-            />
-            <span className="relative size-1.5 rounded-full" style={{ background: dot }} />
-          </>
+          <span className="size-1.5 rounded-full" style={{ background: dot }} />
         ) : (
           <span className="size-1.5 rounded-full" style={{ boxShadow: `inset 0 0 0 1px ${dot}` }} />
         )}
       </span>
-      {live ? 'live' : 'designed'}
+      {live ? 'Current data' : 'Example data'}
       {detail ? <span style={{ opacity: 0.75 }}>· {detail}</span> : null}
     </span>
   );

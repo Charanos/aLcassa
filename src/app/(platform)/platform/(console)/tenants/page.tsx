@@ -29,7 +29,8 @@ export default async function WorkspacesPage() {
    * surface uses. The fixture stays reachable behind the review bypass, where
    * there is no session for the live reader to resolve.
    */
-  const rows = (await getLiveWorkspaces()) ?? (await getWorkspaces());
+  const liveRows = await getLiveWorkspaces();
+  const rows = liveRows ?? (await getWorkspaces());
   const attention = countNeedingAttention(rows);
 
   return (
@@ -43,7 +44,7 @@ export default async function WorkspacesPage() {
           className="absolute top-[15%] -right-10 hidden rotate-6 lg:block"
           style={{ color: 'var(--watermark-tint)' }}
         >
-          <IconBuildings size={380} stroke={1} />
+          <IconBuildings size={160} stroke={1} />
         </div>
       </div>
 
@@ -88,7 +89,12 @@ export default async function WorkspacesPage() {
         )}
       </p>
 
-      <WorkspaceTable rows={rows} total={rows.length} onStartSession={startSupportSession} />
+      <WorkspaceTable
+        rows={rows}
+        total={rows.length}
+        source={liveRows === null ? 'designed' : 'live'}
+        onStartSession={startSupportSession}
+      />
     </ConsolePage>
   );
 }

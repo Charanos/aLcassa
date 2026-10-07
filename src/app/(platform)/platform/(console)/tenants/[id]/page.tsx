@@ -1,9 +1,18 @@
 import Link from 'next/link';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { IconChevronRight } from '@tabler/icons-react';
-import { ConsolePage } from '@/components/console/Surface';
+import { IconLock, IconPlugConnected } from '@tabler/icons-react';
+import {
+  ConsoleHeader,
+  ConsolePage,
+  DataSource,
+  Panel,
+  SectionHeading,
+} from '@/components/console/Surface';
 import { WorkspaceActions } from '@/components/console/WorkspaceActions';
+import { StatusBadge } from '@/components/primitives/StatusBadge';
+import { currentPlatformSessionOrNull } from '@/lib/auth/resolve';
 import {
   getWorkspaceDetail,
   getWorkspaceStaff,
@@ -14,8 +23,8 @@ import {
   getPlans,
 } from '@/lib/console/data';
 import { getLivePlans } from '@/lib/console/live';
+import { getLiveAuditEntries, getLiveWorkspaceDetail } from '@/lib/console/liveWorkspaces';
 import { startSupportSession } from '../../actions';
-
 import { OverviewTab } from '@/components/console/tenant/OverviewTab';
 import { BillingTab } from '@/components/console/tenant/BillingTab';
 import { StaffTab } from '@/components/console/tenant/StaffTab';
@@ -23,29 +32,30 @@ import { ChannelsTab } from '@/components/console/tenant/ChannelsTab';
 import { RulesTab } from '@/components/console/tenant/RulesTab';
 import { ActivityTab } from '@/components/console/tenant/ActivityTab';
 
-/**
- * 02 §6 · 09 §1. One workspace comprehensive detail view.
- */
-
 const TABS = [
   { key: 'overview', label: 'Overview' },
-  { key: 'billing', label: 'Billing' },
-  { key: 'staff', label: 'Staff' },
+  { key: 'billing', label: 'Subscription' },
+  { key: 'staff', label: 'Team' },
   { key: 'channels', label: 'Channels' },
-  { key: 'rules', label: 'AI Rules' },
+  { key: 'rules', label: 'Assistant rules' },
   { key: 'audit', label: 'Activity' },
 ] as const;
 
-type TabKey = (typeof TABS)[number]['key'];
+const readWorkspace = cache(async (slug: string) => {
+  const live = (await currentPlatformSessionOrNull()) !== null;
+  return {
+    live,
+    workspace: live ? await getLiveWorkspaceDetail(slug) : await getWorkspaceDetail(slug),
+  };
+});
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
-  const w = await getWorkspaceDetail(id);
-  return { title: w ? `${w.name} · Workspace` : 'Workspace' };
+  const { workspace } = await readWorkspace((await params).id);
+  return { title: workspace ? `${workspace.name} · Workspace` : 'Workspace' };
 }
 
 export default async function WorkspaceDetailPage({
@@ -56,181 +66,153 @@ export default async function WorkspaceDetailPage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const [{ id }, { tab }] = await Promise.all([params, searchParams]);
-  /* The catalogue the plan-change control offers. Live first, designed second —
-     the same seam every other read on this page uses, so the control lists the
-     plans that actually exist rather than a hardcoded three. */
-  const [w, catalogue] = await Promise.all([
-    getWorkspaceDetail(id),
-    getLivePlans().then((live) => live ?? getPlans()),
-  ]);
-
+  const { workspace: w, live } = await readWorkspace(id);
   if (!w) notFound();
-
-  const active: TabKey = TABS.some((t) => t.key === tab) ? (tab as TabKey) : 'overview';
+  const active = TABS.find((item) => item.key === tab)?.key ?? 'overview';
+  const catalogue = active === 'billing' ? (live ? await getLivePlans() : await getPlans()) : null;
+  const activity =
+    active === 'audit'
+      ? live
+        ? ((await getLiveAuditEntries(w.id)) ?? [])
+        : await getWorkspaceActivity(w.slug)
+      : [];
 
   return (
     <ConsolePage>
-      {/* Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="mb-3 flex items-center gap-2">
-        <Link
-          href="/platform/tenants"
-          className="t-compact whitespace-nowrap transition-colors hover:text-[var(--text-primary)]"
-          style={{ color: 'var(--text-secondary)' }}
+      <ConsoleHeader
+        breadcrumbs={[{ label: 'Workspaces', href: '/platform/tenants' }, { label: w.name }]}
+        title={w.name}
+        actions={
+          <WorkspaceActions
+            workspace={{
+              id: w.id,
+              name: w.name,
+              slug: w.slug,
+              plan: w.plan,
+              initials: w.owner.initials,
+            }}
+            impact={w.impact}
+            onStartSession={startSupportSession}
+          />
+        }
+      />
+      <div className="-mt-4 mb-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <StatusBadge
+          tone={w.status === 'active' ? 'success' : w.status === 'past due' ? 'danger' : 'neutral'}
+          dot
         >
-          Workspaces
-        </Link>
-        <IconChevronRight
-          size={13}
-          stroke={1.5}
-          style={{ color: 'var(--text-tertiary)' }}
-          aria-hidden
-        />
-        <span
-          style={{
-            font: '400 var(--type-compact)/1 var(--font-mono)',
-            color: 'var(--text-tertiary)',
-          }}
-        >
-          {w.slug}
-        </span>
-      </nav>
-
-      {/* Header Title & Actions */}
-      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start lg:gap-6">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1
-              className="display display-md tracking-tight"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              {w.name}
-            </h1>
-            <span
-              className="inline-flex h-[26px] items-center gap-1.5 rounded-full px-3 whitespace-nowrap"
-              style={{
-                background:
-                  w.status === 'active'
-                    ? 'rgba(16, 185, 129, 0.1)'
-                    : w.status === 'past due'
-                      ? 'var(--danger-bg)'
-                      : 'var(--surface-inset)',
-                color:
-                  w.status === 'active'
-                    ? 'var(--success-fg)'
-                    : w.status === 'past due'
-                      ? 'var(--danger-fg)'
-                      : 'var(--text-secondary)',
-                font: '500 var(--type-compact)/1 var(--font-mono)',
-                letterSpacing: '0.04em',
-              }}
-            >
-              <span
-                aria-hidden
-                className="size-1.5 rounded-full"
-                style={{
-                  background:
-                    w.status === 'active'
-                      ? 'var(--success-fg)'
-                      : w.status === 'past due'
-                        ? 'var(--danger-fg)'
-                        : 'var(--text-secondary)',
-                }}
-              />
-              {w.status}
-            </span>
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <Meta mono>{w.id}</Meta>
-            <Rule />
-            <Meta>
-              {w.plan} · {w.monthlyValue}
-            </Meta>
-            <Rule />
-            <Meta>{w.since}</Meta>
-            <Rule />
-            <Meta>{w.lastActive}</Meta>
-          </div>
-        </div>
-
-        <WorkspaceActions
-          workspace={{
-            id: w.id,
-            name: w.name,
-            slug: w.slug,
-            plan: w.plan,
-            initials: w.owner.initials,
-          }}
-          impact={w.impact}
-          onStartSession={startSupportSession}
-        />
+          {w.status}
+        </StatusBadge>
+        <DataSource kind={live ? 'live' : 'designed'} />
+        <p className="t-compact text-[var(--text-secondary)]">Created {w.since}</p>
+        <details className="t-caption">
+          <summary className="cursor-pointer text-[var(--text-secondary)]">
+            Workspace reference
+          </summary>
+          <p className="mt-2 font-mono break-all">{w.id}</p>
+        </details>
       </div>
-
-      {/* Tab Navigation */}
-      <div
-        role="tablist"
-        className="mt-6 mb-7 flex items-center gap-1 overflow-x-auto"
-        style={{ borderBottom: '1px solid var(--border-subtle)' }}
+      <nav
+        aria-label="Workspace sections"
+        className="mb-8 flex gap-1 overflow-x-auto rounded-overlay border border-[var(--border-subtle)] bg-[var(--surface-sunken)] p-1.5"
       >
-        {TABS.map((t) => {
-          const on = t.key === active;
-          return (
-            <Link
-              key={t.key}
-              role="tab"
-              aria-selected={on}
-              href={`/platform/tenants/${w.slug}?tab=${t.key}`}
-              scroll={false}
-              className="relative h-10 shrink-0 px-4 leading-10 whitespace-nowrap transition-colors"
-              style={{
-                color: on ? 'var(--text-primary)' : 'var(--text-secondary)',
-                font: `${on ? 500 : 400} var(--type-compact)/40px var(--font-ui)`,
-              }}
-            >
-              {t.label}
-              <span
-                aria-hidden
-                className="absolute right-2 -bottom-px left-2 h-0.5 rounded-full"
-                style={{ background: on ? 'var(--blue-500)' : 'transparent' }}
-              />
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* Tab Contents */}
+        {TABS.map((item) => (
+          <Link
+            key={item.key}
+            href={`/platform/tenants/${w.slug}?tab=${item.key}`}
+            scroll={false}
+            aria-current={active === item.key ? 'page' : undefined}
+            className={`t-compact flex min-h-11 shrink-0 items-center rounded-panel px-4 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)] ${active === item.key ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-raised)]'}`}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
       {active === 'overview' ? <OverviewTab w={w} /> : null}
       {active === 'billing' ? (
-        <BillingTab w={w} plans={catalogue.plans.map((p) => ({ code: p.key, name: p.name }))} />
+        <BillingTab
+          w={w}
+          plans={
+            catalogue?.plans.map((plan) => ({
+              code: plan.key,
+              name: plan.name,
+              requiresContract: plan.requiresContract ?? plan.key === 'custom',
+            })) ?? []
+          }
+        />
       ) : null}
-      {active === 'staff' ? <StaffTab w={w} staff={await getWorkspaceStaff(w.slug)} /> : null}
-      {active === 'channels' ? <ChannelsTab channels={await getWorkspaceChannels(w.slug)} /> : null}
+      {active === 'staff' ? (
+        live ? (
+          <RestrictedSection
+            title="Workspace team"
+            note={`${w.team.staff} active ${w.team.staff === '1' ? 'member' : 'members'} · ${w.team.admins} ${w.team.admins === '1' ? 'administrator' : 'administrators'}`}
+          />
+        ) : (
+          <StaffTab w={w} staff={await getWorkspaceStaff(w.slug)} />
+        )
+      ) : null}
       {active === 'rules' ? (
-        <RulesTab rules={await getWorkspaceRules(w.slug)} workspaceCount={PORTFOLIO_COUNT} />
+        live ? (
+          <RestrictedSection
+            title="Assistant rules"
+            note="Customer-specific instructions are available within a support session."
+          />
+        ) : (
+          <RulesTab rules={await getWorkspaceRules(w.slug)} workspaceCount={PORTFOLIO_COUNT} />
+        )
       ) : null}
-      {active === 'audit' ? <ActivityTab activity={await getWorkspaceActivity(w.slug)} /> : null}
+      {active === 'channels' ? (
+        live ? (
+          <>
+            <SectionHeading
+              title="Channel connections"
+              note="Messaging connections are planned for the next phase."
+            />
+            <Panel title="Channels are not connected yet">
+              <div className="flex items-start gap-4 rounded-overlay bg-[var(--surface-raised)] p-5">
+                <IconPlugConnected size={24} stroke={1.5} aria-hidden />
+                <p className="t-body max-w-[64ch] text-[var(--text-secondary)]">
+                  Delivery status, message counts and connection controls will appear when channel
+                  processing is available.
+                </p>
+              </div>
+            </Panel>
+          </>
+        ) : (
+          <ChannelsTab channels={await getWorkspaceChannels(w.slug)} />
+        )
+      ) : null}
+      {active === 'audit' ? <ActivityTab activity={activity} /> : null}
     </ConsolePage>
   );
 }
 
-function Meta({ children, mono }: { children: React.ReactNode; mono?: boolean }) {
+function RestrictedSection({ title, note }: { title: string; note: string }) {
   return (
-    <span
-      style={{
-        font: `400 var(--type-compact)/1 ${mono ? 'var(--font-mono)' : 'var(--font-ui)'}`,
-        color: mono ? 'var(--text-tertiary)' : 'var(--text-secondary)',
-      }}
-    >
-      {children}
-    </span>
-  );
-}
-
-function Rule() {
-  return (
-    <span
-      aria-hidden
-      className="hidden sm:block"
-      style={{ width: 1, height: 14, background: 'var(--border-subtle)' }}
-    />
+    <>
+      <SectionHeading title={title} note={note} />
+      <Panel title="Open a support session to continue">
+        <div className="flex items-start gap-4 rounded-overlay bg-[var(--surface-raised)] p-5">
+          <IconLock
+            size={24}
+            stroke={1.5}
+            aria-hidden
+            className="shrink-0 text-[var(--text-tertiary)]"
+          />
+          <div>
+            <p className="t-body text-[var(--text-secondary)]">
+              Use the support-session action above to enter this workspace with a recorded reason.
+              Customer records are restricted to that visit.
+            </p>
+            <Link
+              href="/platform/support-sessions"
+              className="t-compact mt-4 inline-flex min-h-11 items-center text-[var(--text-action)] underline underline-offset-4"
+            >
+              Review support visits
+            </Link>
+          </div>
+        </div>
+      </Panel>
+    </>
   );
 }

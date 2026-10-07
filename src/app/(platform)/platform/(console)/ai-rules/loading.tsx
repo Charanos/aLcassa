@@ -1,9 +1,11 @@
 import { ConsolePage } from '@/components/console/Surface';
+import { FactStripSkeleton } from '@/components/console/FactStrip';
 import {
   SkeletonBlock,
   SkeletonGroup,
   SkeletonHeader,
   SkeletonPanel,
+  SkeletonSectionHeading,
 } from '@/components/primitives/Skeleton';
 
 /**
@@ -24,12 +26,13 @@ export default function AiRulesLoading() {
     <ConsolePage>
       <SkeletonGroup label="Loading AI rules" className="flex flex-col">
         <SkeletonHeader withAction />
-        <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <SkeletonBlock height={520} className="rounded-card" />
-          <div className="grid gap-4">
-            <SkeletonPanel lines={5} />
-            <SkeletonPanel lines={3} />
-          </div>
+        <FactStripSkeleton />
+        <SkeletonSectionHeading align="right" />
+        <SkeletonBlock height={520} className="rounded-card" />
+        <SkeletonSectionHeading align="left" />
+        <div className="grid items-start gap-5 lg:grid-cols-2">
+          <SkeletonPanel lines={5} />
+          <SkeletonPanel lines={3} />
         </div>
       </SkeletonGroup>
     </ConsolePage>

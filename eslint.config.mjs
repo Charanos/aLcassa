@@ -18,6 +18,10 @@ export default tseslint.config(
   {
     ignores: [
       '.next/**',
+      '.next-verify/**',
+      '.next-build-verify/**',
+      '.next-local-verify/**',
+      '.next-live-verify/**',
       'node_modules/**',
       'project-docs/**',
       'design-docs/**',

@@ -50,6 +50,7 @@ export {
  */
 export {
   assignPlan,
+  setContractAmount,
   changeSubscriptionStatus,
   grantOverride,
   previewPlanChange,

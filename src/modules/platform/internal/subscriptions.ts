@@ -1,6 +1,7 @@
 import 'server-only';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import {
+  auditLog,
   planEntitlements,
   plans,
   subscriptionOverrides,
@@ -8,11 +9,40 @@ import {
   usageCounters,
 } from '@/db/schema';
 import { AUDIT_ACTIONS } from '@/lib/audit';
-import { asService } from '@/lib/db/serviceClient';
+import { withActorContext } from '@/lib/db';
+import { asService, type ServiceTransaction } from '@/lib/db/serviceClient';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { invalidateEntitlements, type EntitlementKey } from '@/modules/entitlements';
 import { canTransition, type SubscriptionStatus } from '@/modules/subscriptions';
 import { requireCapability } from './capabilities';
+
+/** Customer-visible changes share the mutation transaction and platform request reference. */
+async function writeSubscriptionActivity(
+  tx: ServiceTransaction,
+  actor: PlatformActor,
+  tenantId: string,
+  action: string,
+  entityType: string,
+  entityId: string,
+  reason: string,
+  before: Record<string, unknown> | null,
+  after: Record<string, unknown>,
+): Promise<void> {
+  await tx.insert(auditLog).values({
+    tenantId,
+    actorUserId: actor.userId,
+    actorType: 'platform_admin',
+    actorLabel: actor.label,
+    supportMode: false,
+    action,
+    entityType,
+    entityId,
+    before,
+    after: { ...after, reason },
+    requestId: actor.requestId,
+    ipAddress: actor.ipAddress ?? null,
+  });
+}
 
 /**
  * 08 §1 · 08 §7 · 08 §9. SUBSCRIPTION ADMINISTRATION.
@@ -72,7 +102,17 @@ export type PlatformActor = {
  * is hide it.
  */
 export async function assignPlan(
-  input: { tenantId: string; planCode: string; reason: string },
+  input: {
+    tenantId: string;
+    planCode: string;
+    reason: string;
+    /**
+     * The negotiated monthly price, whole KES. Required for Custom, whose list
+     * price is 0 because it is priced per contract; ignored for every other
+     * plan, which bills its list price. Doc 25 · R1.
+     */
+    contractAmount?: number | null;
+  },
   actor: PlatformActor,
 ): Promise<{ planCode: string; status: SubscriptionStatus }> {
   if (!input.reason.trim()) {
@@ -84,11 +124,34 @@ export async function assignPlan(
     });
   }
 
+  /*
+   * ⚠ THE MONTHLY VALUE BEFORE AND AFTER IS RECORDED, BECAUSE THE REVENUE
+   *   CURVE IS RECONSTRUCTED FROM IT. Phase 1 keeps no subscription history
+   *   table; the platform log is the history. Read as the operator first so the
+   *   audit row — which `asService` writes before the change — can carry both
+   *   values, then checked again inside the transaction so a change made in
+   *   between is refused rather than recorded against the wrong "before".
+   */
+  const current = await readContract(actor, input.tenantId);
+  const target = await withActorContext(actor.userId, actor.requestId, async (tx) => {
+    const [row] = await tx
+      .select({ code: plans.code, priceAmount: plans.priceAmount })
+      .from(plans)
+      .where(and(eq(plans.code, input.planCode), eq(plans.isActive, true)))
+      .limit(1);
+    return row ?? null;
+  });
+  const negotiated = target !== null && (target.code === 'custom' || target.priceAmount === 0);
+  const contractAmount = negotiated ? validContractAmount(input.contractAmount) : null;
+  const afterMonthly = target ? (contractAmount ?? target.priceAmount) : null;
+
   const result = await asService(
     {
       actorUserId: actor.userId,
       actorLabel: actor.label,
       action: AUDIT_ACTIONS.SUBSCRIPTION_PLAN_ASSIGNED,
+      before: current ? { plan: current.planCode, monthly: current.monthly } : null,
+      after: { plan: input.planCode, monthly: afterMonthly },
       targetTenantId: input.tenantId,
       entityType: 'subscription',
       reason: input.reason,
@@ -115,6 +178,7 @@ export async function assignPlan(
           id: subscriptions.id,
           status: subscriptions.status,
           planId: subscriptions.planId,
+          contractAmount: subscriptions.contractAmount,
         })
         .from(subscriptions)
         .where(eq(subscriptions.tenantId, input.tenantId))
@@ -124,6 +188,17 @@ export async function assignPlan(
         throw new AppError(ERROR_CODES.NOT_FOUND, {
           message: 'That workspace has no subscription record.',
           internal: { tenantId: input.tenantId },
+        });
+      }
+
+      if (
+        !current ||
+        current.planId !== existing.planId ||
+        current.contractAmount !== existing.contractAmount
+      ) {
+        throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED, {
+          message:
+            'This subscription changed while you were deciding. Reload the workspace and check the plan before changing it.',
         });
       }
 
@@ -149,10 +224,36 @@ export async function assignPlan(
         });
       }
 
-      await tx
+      const changed = await tx
         .update(subscriptions)
-        .set({ planId: plan.id, status: nextStatus, updatedAt: new Date() })
-        .where(eq(subscriptions.id, existing.id));
+        .set({ planId: plan.id, status: nextStatus, contractAmount, updatedAt: new Date() })
+        .where(
+          and(
+            eq(subscriptions.id, existing.id),
+            eq(subscriptions.planId, existing.planId),
+            eq(subscriptions.status, existing.status),
+            existing.contractAmount === null
+              ? isNull(subscriptions.contractAmount)
+              : eq(subscriptions.contractAmount, existing.contractAmount),
+          ),
+        )
+        .returning({ id: subscriptions.id });
+      if (changed.length === 0)
+        throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED, {
+          message:
+            'The subscription changed before this update was saved. Reload and review it again.',
+        });
+      await writeSubscriptionActivity(
+        tx,
+        actor,
+        input.tenantId,
+        AUDIT_ACTIONS.SUBSCRIPTION_PLAN_ASSIGNED,
+        'subscription',
+        existing.id,
+        input.reason,
+        { plan: current.planCode, monthly: current.monthly, status: existing.status },
+        { plan: plan.code, monthly: afterMonthly, status: nextStatus },
+      );
 
       return { planCode: plan.code, status: nextStatus };
     },
@@ -170,6 +271,154 @@ export async function assignPlan(
    */
   await invalidateEntitlements(input.tenantId);
   return result;
+}
+
+/** The highest monthly contract the console accepts: KES 100 million. A typo guard, not policy. */
+const CONTRACT_CEILING = 100_000_000;
+
+function validContractAmount(amount: number | null | undefined): number {
+  if (
+    amount === null ||
+    amount === undefined ||
+    !Number.isInteger(amount) ||
+    amount < 1 ||
+    amount > CONTRACT_CEILING
+  ) {
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message:
+        'A Custom plan is priced per contract. Enter the agreed monthly price in whole shillings.',
+      details: [
+        {
+          field: 'contractAmount',
+          code: ERROR_CODES.VALIDATION_FAILED,
+          message: 'Enter the monthly price, in whole KES.',
+        },
+      ],
+    });
+  }
+  return amount;
+}
+
+/** One workspace's plan and contracted monthly value, read as the operator. */
+async function readContract(
+  actor: PlatformActor,
+  tenantId: string,
+): Promise<{
+  planId: string;
+  planCode: string | null;
+  contractAmount: number | null;
+  monthly: number | null;
+} | null> {
+  return withActorContext(actor.userId, actor.requestId, async (tx) => {
+    const [row] = await tx
+      .select({
+        planId: subscriptions.planId,
+        planCode: plans.code,
+        priceAmount: plans.priceAmount,
+        contractAmount: subscriptions.contractAmount,
+      })
+      .from(subscriptions)
+      .leftJoin(plans, eq(plans.id, subscriptions.planId))
+      .where(eq(subscriptions.tenantId, tenantId))
+      .limit(1);
+    if (!row) return null;
+    const listed = row.priceAmount && row.priceAmount > 0 ? row.priceAmount : null;
+    return {
+      planId: row.planId,
+      planCode: row.planCode,
+      contractAmount: row.contractAmount,
+      monthly: row.contractAmount ?? listed,
+    };
+  });
+}
+
+/**
+ * Set a Custom workspace's negotiated monthly price. Doc 25 · R1.
+ *
+ * ⚠ CUSTOM ONLY. Every other plan bills its list price, and a per-workspace
+ *   discount is a commercial decision this console does not model — letting
+ *   the field be set anywhere would make the plan catalogue's prices advisory.
+ *
+ * Audited with the value before and after, because the revenue curve is
+ * reconstructed from exactly those two numbers.
+ */
+export async function setContractAmount(
+  input: { tenantId: string; amount: number; reason: string },
+  actor: PlatformActor,
+): Promise<{ amount: number }> {
+  if (!input.reason.trim()) {
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message: 'A reason is required. It appears in the tenant’s own audit log.',
+      details: [
+        { field: 'reason', code: ERROR_CODES.VALIDATION_FAILED, message: 'Give a reason.' },
+      ],
+    });
+  }
+  const amount = validContractAmount(input.amount);
+  const current = await readContract(actor, input.tenantId);
+  if (!current) {
+    throw new AppError(ERROR_CODES.NOT_FOUND, {
+      message: 'That workspace has no subscription record.',
+    });
+  }
+  if (current.planCode !== 'custom') {
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message: 'Only a Custom plan has a negotiated price. Every other plan bills its list price.',
+    });
+  }
+  if (current.contractAmount === amount) return { amount };
+
+  return asService(
+    {
+      actorUserId: actor.userId,
+      actorLabel: actor.label,
+      action: AUDIT_ACTIONS.SUBSCRIPTION_CONTRACT_SET,
+      targetTenantId: input.tenantId,
+      entityType: 'subscription',
+      reason: input.reason,
+      requestId: actor.requestId,
+      ipAddress: actor.ipAddress ?? null,
+      before: { plan: 'custom', monthly: current.monthly },
+      after: { plan: 'custom', monthly: amount },
+    },
+    async (tx) => {
+      await requireCapability(tx, actor.userId, 'manage_workspaces');
+      /* Guarded on the value just read, so two operators pricing the same
+         contract at once cannot both be recorded as changing it from the same
+         "before". */
+      const updated = await tx
+        .update(subscriptions)
+        .set({ contractAmount: amount, updatedAt: new Date() })
+        .where(
+          and(
+            eq(subscriptions.tenantId, input.tenantId),
+            eq(subscriptions.planId, current.planId),
+            current.contractAmount === null
+              ? isNull(subscriptions.contractAmount)
+              : eq(subscriptions.contractAmount, current.contractAmount),
+          ),
+        )
+        .returning({ id: subscriptions.id });
+      if (updated.length === 0) {
+        throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED, {
+          message:
+            'The contract price changed while you were editing it. Reload the workspace and check it first.',
+        });
+      }
+      await writeSubscriptionActivity(
+        tx,
+        actor,
+        input.tenantId,
+        AUDIT_ACTIONS.SUBSCRIPTION_CONTRACT_SET,
+        'subscription',
+        updated[0]!.id,
+        input.reason,
+        { plan: 'custom', monthly: current.monthly },
+        { plan: 'custom', monthly: amount },
+      );
+      return { amount };
+    },
+  );
 }
 
 /**
@@ -223,16 +472,38 @@ export async function changeSubscriptionStatus(
         throw new AppError(ERROR_CODES.VALIDATION_FAILED, { message: check.reason });
       }
 
-      await tx
+      const changed = await tx
         .update(subscriptions)
         .set({
           status: input.to,
           // 08 §7. Cancellation is recorded when it happens; access continues
           // to `currentPeriodEnd`, which the interface shows.
           ...(input.to === 'cancelled' ? { cancelledAt: new Date() } : {}),
+          /* Doc 25 · R1. The collection queue counts days and unpaid periods
+             from this date. Settled back to active, it is cleared; moved on to
+             expired or cancelled, it stays as the record of when it began. */
+          ...(input.to === 'past_due' ? { pastDueSince: new Date() } : {}),
+          ...(input.to === 'active' ? { pastDueSince: null } : {}),
           updatedAt: new Date(),
         })
-        .where(eq(subscriptions.id, existing.id));
+        .where(and(eq(subscriptions.id, existing.id), eq(subscriptions.status, from)))
+        .returning({ id: subscriptions.id });
+      if (changed.length === 0)
+        throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED, {
+          message:
+            'The subscription status changed before this update was saved. Reload and review it again.',
+        });
+      await writeSubscriptionActivity(
+        tx,
+        actor,
+        input.tenantId,
+        AUDIT_ACTIONS.SUBSCRIPTION_STATUS_CHANGED,
+        'subscription',
+        existing.id,
+        input.reason,
+        { status: from },
+        { status: input.to },
+      );
 
       return { from, to: input.to };
     },
@@ -283,7 +554,11 @@ export async function grantOverride(
       action: AUDIT_ACTIONS.SUBSCRIPTION_OVERRIDE_GRANTED,
       targetTenantId: input.tenantId,
       entityType: 'subscription_override',
-      entityId: input.key,
+      after: {
+        key: input.key,
+        limitValue: input.limitValue,
+        expiresAt: input.expiresAt?.toISOString() ?? null,
+      },
       reason: input.reason,
       requestId: actor.requestId,
       ipAddress: actor.ipAddress ?? null,
@@ -317,7 +592,21 @@ export async function grantOverride(
        * append-only by policy (05 §9), and a superseded override row would be
        * a second, weaker copy of a record that already exists.
        */
-      await tx
+      const [previous] = await tx
+        .select({
+          limitValue: subscriptionOverrides.limitValue,
+          featureEnabled: subscriptionOverrides.featureEnabled,
+          expiresAt: subscriptionOverrides.expiresAt,
+        })
+        .from(subscriptionOverrides)
+        .where(
+          and(
+            eq(subscriptionOverrides.tenantId, input.tenantId),
+            eq(subscriptionOverrides.key, input.key),
+          ),
+        )
+        .limit(1);
+      const granted = await tx
         .insert(subscriptionOverrides)
         .values({
           tenantId: input.tenantId,
@@ -338,8 +627,30 @@ export async function grantOverride(
             grantedBy: actor.userId,
             updatedAt: new Date(),
           },
+        })
+        .returning({ id: subscriptionOverrides.id });
+      if (!granted[0])
+        throw new AppError(ERROR_CODES.INTERNAL, {
+          message: 'The allowance override was not saved.',
         });
-
+      await writeSubscriptionActivity(
+        tx,
+        actor,
+        input.tenantId,
+        AUDIT_ACTIONS.SUBSCRIPTION_OVERRIDE_GRANTED,
+        'subscription_override',
+        granted[0].id,
+        input.reason,
+        previous
+          ? { key: input.key, ...previous, expiresAt: previous.expiresAt?.toISOString() ?? null }
+          : null,
+        {
+          key: input.key,
+          limitValue: input.limitValue,
+          featureEnabled: input.featureEnabled ?? null,
+          expiresAt: input.expiresAt?.toISOString() ?? null,
+        },
+      );
       return { key: input.key };
     },
   );

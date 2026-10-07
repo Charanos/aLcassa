@@ -1,527 +1,191 @@
-'use client';
-
-import React from 'react';
 import Link from 'next/link';
-import {
-  IconDatabase,
-  IconKey,
-  IconMail,
-  IconShieldCheck,
-  IconUsers,
-  IconCpu,
-  IconAlertTriangle,
-  type Icon as TablerIcon,
-} from '@tabler/icons-react';
-import { Panel } from '@/components/console/Surface';
-import type { Meter, WorkspaceDetail } from '@/lib/console/data';
-
-const METER_ICON: Record<Meter['icon'], TablerIcon> = {
-  seat: IconUsers,
-  bolt: IconCpu,
-  mail: IconMail,
-  db: IconDatabase,
-  key: IconKey,
-};
-
-function fmtNum(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
-  return `${n}`;
-}
+import { IconCreditCard, IconArmchair, IconKey, IconUsers } from '@tabler/icons-react';
+import { FactCell, FactStrip } from '@/components/console/FactStrip';
+import { Panel, SectionHeading } from '@/components/console/Surface';
+import type { WorkspaceDetail } from '@/lib/console/data';
 
 export function OverviewTab({ w }: { w: WorkspaceDetail }) {
-  const seatsMeter = w.meters.find((m) => m.icon === 'seat');
-  const eventsMeter = w.meters.find((m) => m.icon === 'bolt');
-
+  const seats = w.meters.find((meter) => meter.icon === 'seat');
+  const credentials = w.meters.find((meter) => meter.icon === 'key');
   return (
-    <div className="flex flex-col gap-6">
-      {/* ── Inverted Command Ribbon for Overview ─────────────────────────── */}
-      <div
-        className="flex flex-col overflow-hidden rounded-card sm:flex-row"
-        style={{
-          background: 'var(--invert-card-bg)',
-          color: 'var(--invert-card-fg)',
-          boxShadow: 'var(--invert-card-shadow)',
-          border: '1px solid var(--invert-card-border)',
-        }}
-      >
-        {/* Metric 1: Plan & Run Rate */}
-        <div className="relative flex-1 p-5 sm:p-6 sm:pr-8">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
-            Subscription Tier
-          </div>
-          <div className="mt-2 flex items-baseline gap-2.5">
-            <span
-              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
-              style={{ color: 'var(--invert-card-fg)' }}
-            >
-              {w.plan || 'Trial'}
-            </span>
-            <span
-              className="font-mono text-xs font-medium"
-              style={{ color: 'var(--invert-card-subtle)' }}
-            >
-              {w.monthlyValue.split(' /')[0]}
-            </span>
-          </div>
-          <div
-            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
-            style={{
-              background:
-                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
-            }}
-          />
-          <div
-            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
-            style={{
-              background:
-                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
-            }}
-          />
-        </div>
-
-        {/* Metric 2: Seats Allocation */}
-        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
-            Staff Seats
-          </div>
-          <div className="mt-2 flex items-baseline gap-2.5">
-            <span
-              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
-              style={{ color: 'var(--invert-card-fg)' }}
-            >
-              {seatsMeter ? seatsMeter.used : w.team.staff}
-            </span>
-            <span className="font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
-              {seatsMeter?.limit == null ? 'no limit' : `/ ${seatsMeter.limit} limit`}
-            </span>
-          </div>
-          <div
-            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
-            style={{
-              background:
-                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
-            }}
-          />
-          <div
-            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
-            style={{
-              background:
-                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
-            }}
-          />
-        </div>
-
-        {/* Metric 3: Monthly Ingestion */}
-        <div className="relative flex-1 p-5 sm:p-6 sm:px-8">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
-            Events MTD
-          </div>
-          <div className="mt-2 flex items-baseline gap-2.5">
-            <span
-              className="font-mono text-2xl font-medium tracking-tight sm:text-3xl"
-              style={{ color: 'var(--invert-card-fg)' }}
-            >
-              {eventsMeter ? fmtNum(eventsMeter.used) : '0'}
-            </span>
-            <span className="font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
-              {eventsMeter?.limit == null ? 'no limit' : `/ ${fmtNum(eventsMeter.limit)}`}
-            </span>
-          </div>
-          <div
-            className="absolute top-6 right-0 bottom-6 hidden w-px sm:block"
-            style={{
-              background:
-                'linear-gradient(to bottom, transparent, var(--invert-card-rule), transparent)',
-            }}
-          />
-          <div
-            className="absolute right-6 bottom-0 left-6 h-px sm:hidden"
-            style={{
-              background:
-                'linear-gradient(to right, transparent, var(--invert-card-rule), transparent)',
-            }}
-          />
-        </div>
-
-        {/* Metric 4: Health & Isolation */}
-        <div className="relative flex-1 p-5 sm:p-6 sm:pl-8">
-          <div className="t-eyebrow" style={{ color: 'var(--invert-card-subtle)' }}>
-            Isolation
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span
-              className="inline-flex size-2 rounded-full"
-              style={{ background: 'var(--success-fg)' }}
-            />
-            {/*
-              ⚠ THIS SAID "Isolated Schema", WHICH IS NOT WHAT THIS PRODUCT
-                DOES — the third place that claim appeared.
-
-              Isolation here is Row Level Security over a SHARED schema:
-              policies on every tenant-scoped table, evaluated per query, and a
-              generated suite that proves ten cases against each of them.
-              "Isolated schema" claims schema-per-tenant — a different
-              architecture with different guarantees — and it sat on the ribbon
-              of the page a client is walked through.
-
-              The true claim is also the stronger one, and it is the only one
-              the isolation suite actually backs.
-            */}
-            <span
-              className="font-mono text-base font-medium sm:text-lg"
-              style={{ color: 'var(--invert-card-fg)' }}
-            >
-              Row Level Security
-            </span>
-          </div>
-          <p className="mt-1 font-mono text-xs" style={{ color: 'var(--invert-card-subtle)' }}>
-            {w.residency.split(' · ')[0] ?? 'af-south-1'}
-          </p>
-        </div>
-      </div>
-
-      {/* ── Active Alert Banner (If Applicable) ───────────────────────── */}
-      {w.alert && (
+    <div>
+      <FactStrip label="Workspace at a glance">
+        <FactCell
+          icon={IconCreditCard}
+          label="Subscription plan"
+          value={w.plan}
+          note={
+            w.monthlyValue === '—'
+              ? 'Monthly contract value is not available.'
+              : `${w.monthlyValue} contracted`
+          }
+        />
+        <FactCell
+          icon={IconUsers}
+          label="Team members"
+          value={w.team.staff}
+          note={`${w.team.admins} ${w.team.admins === '1' ? 'administrator' : 'administrators'}`}
+        />
+        <FactCell
+          icon={IconKey}
+          label="API credentials"
+          value={credentials?.used ?? '—'}
+          note={
+            credentials
+              ? credentials.limit === null
+                ? 'No credential limit'
+                : `${credentials.limit} allowed by the current plan`
+              : 'Usage is not available.'
+          }
+        />
+        <FactCell
+          icon={IconArmchair}
+          label="Staff seats"
+          value={seats?.used ?? '—'}
+          note={
+            seats
+              ? seats.limit === null
+                ? 'No seat limit'
+                : `${seats.limit} ${seats.limit === 1 ? 'seat' : 'seats'} allowed by the plan`
+              : 'Usage is not available.'
+          }
+        />
+      </FactStrip>
+      {w.alert ? (
         <div
-          className="flex flex-col items-start justify-between gap-4 rounded-overlay p-5 sm:flex-row"
-          style={{
-            border: `1px solid ${w.status === 'past due' ? 'var(--badge-danger-edge)' : 'var(--badge-warning-edge)'}`,
-            background:
-              w.status === 'past due' ? 'var(--badge-danger-bg)' : 'var(--badge-warning-bg)',
-          }}
+          role="status"
+          className="mt-6 rounded-card border border-[var(--border-subtle)] bg-[var(--warning-bg)] p-5"
         >
-          <div className="flex items-start gap-3.5">
-            <span
-              className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-overlay"
-              style={{
-                background:
-                  w.status === 'past due' ? 'var(--badge-danger-bg)' : 'var(--badge-warning-bg)',
-                color: w.status === 'past due' ? 'var(--danger-fg)' : 'var(--warning-fg)',
-              }}
-              aria-hidden
-            >
-              <IconAlertTriangle size={18} stroke={1.5} />
-            </span>
-            <div>
-              <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                {w.alert.title}
-              </p>
-              <p
-                className="mt-1 text-xs"
-                style={{ color: 'var(--text-secondary)', maxWidth: '64ch' }}
-              >
-                {w.alert.body}
-              </p>
-              {/*
-                ⚠ THE REASON, AND DELIBERATELY NOT A `ReasonNote`.
-
-                Every other inert control on these tabs states its reason in the
-                shared note, which draws on `--surface-sunken`. This banner
-                already carries a danger or warning tint, so a grey chip inside
-                it would read as a foreign element rather than as the banner
-                continuing to speak. Same requirement, banner's own voice.
-              */}
-              {w.status === 'past due' && (
-                <p
-                  className="mt-2 text-xs"
-                  style={{
-                    color: 'var(--text-tertiary)',
-                    maxWidth: '64ch',
-                    textWrap: 'pretty',
-                  }}
-                >
-                  Charging a card is not something this console does &mdash; there is no payment
-                  gateway in Phase 1. It reports what is owed and records every change against the
-                  account; collection is the finance operator&rsquo;s, and the invoice history
-                  behind it is one click away.
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="flex shrink-0 items-center gap-2 sm:self-center">
-            {w.status === 'past due' && (
-              <button
-                type="button"
-                disabled
-                title="There is no payment gateway in Phase 1. A past-due invoice is handed to the finance operator."
-                className="h-8.5 rounded-overlay px-3.5 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
-                style={{ opacity: 0.45, cursor: 'not-allowed', background: 'var(--blue-500)' }}
-              >
-                Retry Charge
-              </button>
-            )}
-            <Link
-              href={`/platform/tenants/${w.slug}?tab=billing`}
-              className="inline-flex h-8.5 items-center gap-1 rounded-overlay px-3 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)]"
-              style={{
-                border: '1px solid var(--border-strong)',
-                background: 'var(--surface-raised)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              View Invoices
-            </Link>
-          </div>
+          <p className="t-body font-medium">{w.alert.title}</p>
+          <p className="t-compact mt-1">{w.alert.body}</p>
         </div>
-      )}
-
-      {/* ── Main 2-Column Content Area ─────────────────────────────────── */}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
-        {/* Left Column: Entitlements & Capacity */}
-        <div className="flex flex-col gap-6">
-          <Panel
-            title={`Entitlements · ${w.plan || 'Trial'}`}
-            action={
-              <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                Resets in 19 days
-              </span>
-            }
-          >
-            <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-              {w.meters.map((m) => {
-                /* Null is unlimited — see `Meter.limit`. Dividing by it gave
-                   `Infinity%` and a bar of infinite width on any Custom
-                   workspace. Bound to a local so the check narrows. */
-                const limit = m.limit;
-                const pct = limit === null ? 0 : m.used / limit;
-                const Icon = METER_ICON[m.icon] ?? IconCpu;
-                const color =
-                  pct >= 1
+      ) : null}
+      <SectionHeading
+        title="Usage and subscription"
+        note="Recorded usage against this workspace’s current limits."
+        align="right"
+      />
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <Panel title="Plan allowances">
+          {w.meters.length === 0 ? (
+            <p className="t-body text-[var(--text-secondary)]">
+              No measured allowances are available for this workspace.
+            </p>
+          ) : (
+            <div className="grid gap-4">
+              {w.meters.map((meter) => {
+                const bounded = meter.limit !== null;
+                const ratio =
+                  meter.limit === null
+                    ? 0
+                    : meter.limit === 0
+                      ? meter.used > 0
+                        ? 1
+                        : 0
+                      : meter.used / meter.limit;
+                const tone =
+                  ratio >= 1
                     ? 'var(--danger-fg)'
-                    : pct >= 0.9
+                    : ratio >= 0.9
                       ? 'var(--warning-fg)'
                       : 'var(--blue-500)';
-
-                const usedStr = m.unit ? `${m.used}${m.unit}` : m.used.toLocaleString('en-GB');
-                const limitStr =
-                  limit === null
-                    ? 'no limit'
-                    : m.unit
-                      ? `${limit}${m.unit}`
-                      : limit.toLocaleString('en-GB');
-
+                const allowance =
+                  meter.limit === null ? 'Unlimited' : meter.limit.toLocaleString('en-KE');
                 return (
-                  <div key={m.label} className="flex flex-col gap-2 py-3.5 first:pt-1 last:pb-1">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className="rounded-panel p-1"
-                          style={{ background: 'var(--surface-inset)' }}
-                        >
-                          <Icon
-                            size={15}
-                            stroke={1.5}
-                            style={{ color: 'var(--text-secondary)' }}
-                            aria-hidden
-                          />
-                        </div>
-                        <span
-                          className="text-xs font-medium"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {m.label}
-                        </span>
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <span
-                          className="font-mono text-xs font-medium"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {usedStr}
-                        </span>
-                        <span
-                          className="font-mono text-xs"
-                          style={{ color: 'var(--text-tertiary)' }}
-                        >
-                          / {limitStr}
-                        </span>
-                        <span
-                          className="rounded px-1.5 py-0.5 font-mono text-2xs font-medium"
-                          style={{
-                            background: pct >= 0.9 ? 'var(--warning-bg)' : 'var(--surface-inset)',
-                            color: color,
-                          }}
-                        >
-                          {Math.round(pct * 100)}%
-                        </span>
-                      </div>
+                  <div
+                    key={meter.label}
+                    data-source={meter.source}
+                    className="rounded-overlay border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-4"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="t-body font-medium">{meter.label}</p>
+                      <p className="t-compact text-[var(--text-secondary)] tabular-nums">
+                        {meter.used.toLocaleString('en-KE')} / {allowance}
+                      </p>
                     </div>
-
-                    {/* Neumorphic recessed meter bar */}
-                    <div
-                      className="h-2 w-full overflow-hidden rounded-full"
-                      style={{ background: 'var(--surface-inset)', boxShadow: 'var(--neu-inset)' }}
-                    >
+                    {bounded ? (
                       <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, pct * 100)}%`, background: color }}
-                      />
-                    </div>
-
-                    {/* Sheet 06: every number names its source. */}
-                    <p
-                      className="mt-1.5 font-mono text-2xs"
-                      style={{ color: 'var(--text-tertiary)' }}
-                    >
-                      from {m.source}
-                    </p>
+                        role="meter"
+                        aria-label={meter.label}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={Math.min(100, Math.round(ratio * 100))}
+                        aria-valuetext={`${meter.used} used of ${meter.limit} allowed`}
+                        className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--surface-inset)]"
+                      >
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${Math.min(100, Math.max(0, ratio * 100))}%`,
+                            background: tone,
+                          }}
+                        />
+                      </div>
+                    ) : null}
                   </div>
                 );
               })}
             </div>
-
-            <p
-              className="mt-4 font-mono text-xs leading-relaxed"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
-              Overrides on this workspace take precedence over the global plan blueprint. Two are
-              currently set.
-            </p>
-          </Panel>
-        </div>
-
-        {/* Right Column: Subscription & Governance Specs */}
-        <div className="flex flex-col gap-6">
-          {/* Subscription Facts */}
-          <Panel title="Subscription Details">
-            <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-              {w.facts.map((f) => (
-                <div
-                  key={f.label}
-                  className="flex items-center justify-between gap-3 py-2.5 text-xs"
+          )}
+          <p className="t-caption mt-4 text-[var(--text-secondary)]">
+            Active workspace overrides are included in these limits.
+          </p>
+        </Panel>
+        <Panel title="Subscription details">
+          <dl className="divide-y divide-[var(--border-subtle)]">
+            {w.facts.map((fact) => (
+              <div key={fact.label} className="flex flex-wrap justify-between gap-3 py-3">
+                <dt className="t-compact text-[var(--text-secondary)]">{fact.label}</dt>
+                <dd
+                  className="t-compact font-medium"
+                  style={{
+                    color: fact.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
+                  }}
                 >
-                  <span style={{ color: 'var(--text-tertiary)' }}>{f.label}</span>
-                  <span
-                    className="text-right font-mono font-medium"
-                    style={{
-                      color: f.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
-                    }}
-                  >
-                    {f.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <Link
-              href="/platform/plans"
-              className="mt-4 flex h-8.5 w-full items-center justify-center rounded-overlay text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
-              style={{
-                border: '1px solid var(--border-strong)',
-                background: 'var(--surface-raised)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              Change Tier Plan
-            </Link>
-          </Panel>
-
-          {/* Primary Owner Card */}
-          <Panel title="Primary Administrator">
-            <div className="flex items-center gap-3">
-              <div
-                className="grid size-10 shrink-0 place-items-center rounded-overlay text-xs font-medium"
-                style={{
-                  background: 'var(--surface-inset)',
-                  border: '1px solid var(--border-strong)',
-                  color: 'var(--text-primary)',
-                }}
-              >
-                {w.owner.initials}
+                  {fact.value.replaceAll('_', ' ')}
+                </dd>
               </div>
-              <div className="min-w-0 flex-1">
-                <p
-                  className="truncate text-xs font-medium"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {w.owner.name}
-                </p>
-                <p className="truncate font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                  {w.owner.email}
-                </p>
-              </div>
-            </div>
-
-            <div
-              className="mt-4 grid grid-cols-3 gap-2 divide-x border-t pt-3.5"
-              style={{ borderColor: 'var(--border-subtle)' }}
-            >
-              <div className="px-1">
-                <span className="t-eyebrow text-3xs" style={{ color: 'var(--text-tertiary)' }}>
-                  Staff
-                </span>
-                <p
-                  className="mt-0.5 font-mono text-xs font-medium"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {w.team.staff.split(' of ')[0]}
-                </p>
-              </div>
-              <div className="px-2">
-                <span className="t-eyebrow text-3xs" style={{ color: 'var(--text-tertiary)' }}>
-                  Admins
-                </span>
-                <p
-                  className="mt-0.5 font-mono text-xs font-medium"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {w.team.admins}
-                </p>
-              </div>
-              <div className="px-2">
-                <span className="t-eyebrow text-3xs" style={{ color: 'var(--text-tertiary)' }}>
-                  Channels
-                </span>
-                <p
-                  className="mt-0.5 font-mono text-xs font-medium"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {w.team.channels.split(' ')[0]}
-                </p>
-              </div>
-            </div>
-          </Panel>
-
-          {/* Data Isolation & Security Seal */}
-          <div
-            className="flex flex-col gap-2 rounded-overlay p-4"
-            style={{
-              border: '1px solid var(--border-subtle)',
-              background: 'var(--surface-sunken)',
-            }}
+            ))}
+          </dl>
+          <Link
+            href={`/platform/tenants/${w.slug}?tab=billing`}
+            className="t-compact mt-5 inline-flex min-h-11 items-center justify-center rounded-overlay border border-[var(--border-strong)] bg-[var(--surface-raised)] px-4 text-[var(--text-action)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)]"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <IconShieldCheck
-                  size={16}
-                  stroke={1.5}
-                  style={{ color: 'var(--success-fg)' }}
-                  aria-hidden
-                />
-                <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
-                  RLS Isolation
-                </span>
-              </div>
-              <span
-                className="rounded px-2 py-0.5 font-mono text-2xs"
-                style={{
-                  background: 'var(--success-bg)',
-                  color: 'var(--success-fg)',
-                  border: '1px solid var(--success-fg)',
-                }}
-              >
-                Active
-              </span>
+            Manage subscription
+          </Link>
+        </Panel>
+      </div>
+      <SectionHeading
+        title="Workspace ownership"
+        note="The primary contact and the boundary for customer access."
+        align="left"
+      />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Panel title="Workspace owner">
+          <div className="flex items-center gap-4 rounded-overlay bg-[var(--surface-raised)] p-4">
+            <span
+              aria-hidden
+              className="grid size-11 shrink-0 place-items-center rounded-overlay bg-[var(--surface-inset)] text-sm font-medium"
+            >
+              {w.owner.initials}
+            </span>
+            <div className="min-w-0">
+              <p className="t-body font-medium">{w.owner.name}</p>
+              <p className="t-compact mt-1 break-all text-[var(--text-secondary)]">
+                {w.owner.email}
+              </p>
             </div>
-            <p className="mt-1 font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
-              {w.residency}
-            </p>
-            <p className="mt-1 text-xs leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
-              Platform operators have zero visibility into conversation bodies or customer secret
-              keys outside an active support session.
-            </p>
           </div>
-        </div>
+        </Panel>
+        <Panel title="Customer access">
+          <p className="t-body text-[var(--text-secondary)]">
+            Open a support session to inspect customer settings and team records. The visit requires
+            a reason and has a limited duration.
+          </p>
+          <p className="t-caption mt-4 text-[var(--text-secondary)]">
+            The workspace actions above provide the support-session entry point.
+          </p>
+        </Panel>
       </div>
     </div>
   );

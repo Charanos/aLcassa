@@ -254,8 +254,7 @@ function QueueClear({ restingCount }: { restingCount: number }) {
           <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
             {restingCount}
           </span>{' '}
-          workspaces are inside every limit, paid up, and active in the last seven days. This list
-          fills itself when something changes — there is nothing to check.
+          workspaces have no past-due or usage-limit alerts in this queue.
         </p>
       </div>
     </div>
@@ -296,7 +295,7 @@ function RestingNote({ restingCount }: { restingCount: number }) {
         <span className="font-mono text-base font-medium" style={{ color: 'var(--text-primary)' }}>
           {restingCount}
         </span>{' '}
-        workspaces are inside every limit, paid up, and active in the last seven days.
+        workspaces have no past-due or usage-limit alerts in this queue.
       </p>
     </div>
   );

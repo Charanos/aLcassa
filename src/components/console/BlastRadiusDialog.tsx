@@ -71,9 +71,8 @@ export function BlastRadiusDialog({ change }: { change: PlansModel['pendingChang
 
       <Dialog.Portal>
         <Dialog.Overlay
-          className="fixed inset-0 z-[150]"
+          className="console-modal-backdrop fixed inset-0 z-[150]"
           style={{
-            background: 'var(--surface-overlay)',
             animation: 'overlay-in var(--duration-fast) linear',
           }}
         />

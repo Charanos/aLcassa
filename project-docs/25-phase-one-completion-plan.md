@@ -1,428 +1,377 @@
-# 25 · Phase 1 completion — the console, verified end to end
+# 25 · Phase One completion and full surface verification
 
-This plan takes the platform console to production grade, **every surface**,
-and closes out the Phase 1 milestones around it. It covers the console's
-Platform group first, then Operations, then the pages around them (profile,
-the console chrome, the operator's own sign-in), and finally the customer's
-activity page, which is where everything the console does to a workspace
-becomes visible to that workspace. The tenant dashboard as a whole is Phase 2
-and is out of scope, apart from the pieces Phase 1 milestones require (M4a,
-M5).
+**Revised:** 6 October 2026, Africa/Nairobi
 
-It is built from a survey of the code on 30 Sep 2026, not from memory. Where a
-claim below is a defect, it has a file.
+**Baseline:** commit `f82f5df` plus the working tree inspected on this date
 
----
+**Execution ledger:** [26 · Verification matrix and evidence ledger](26-phase-one-verification-ledger.md)
 
-## 1 · Where Phase 1 stands
+This is the closure plan for the whole Platform console, Operations, the pages and interactions around them, and the customer's Activity page. It also closes the tenant settings, credentials, rules API, and handover obligations required by Phase One. The wider tenant dashboard and messaging experience remain Phase Two. Existing tenant routes still receive the boundary and regression checks needed to prove Phase One.
 
-| Milestone | Gate | Tracker says | Actually | What is left |
-| --- | --- | --- | --- | --- |
-| **M0** Design lock | Approve before code | complete | complete | — |
-| **M1** Tenancy core | Isolation verified | complete, "280 tests" | complete; **318** tests, 235 of them isolation | Update the figure in the tracker |
-| **M2** Auth and access | Full account lifecycle | complete | complete in code; **email not delivering in production** until the Resend domain `alcassa.co.ke` is verified and `RESEND_API_KEY` / `EMAIL_FROM` / `NEXT_PUBLIC_APP_URL` are set in Vercel | Your action, then one live invitation as proof |
-| **M3** Subscriptions | Limit enforcement | complete | complete | — |
-| **M4** Platform console | Console operations | active: "running on real data: workspaces, **revenue**…" | 7 of 13 console surfaces rebuilt to canon. **Revenue has no data source at all** (billing is out of scope, 08 §1). Health's service figures are designed until probes exist. The notifications bell is a literal list. | This plan |
-| **M4a** AI rules and seams | A rules edit live through the API in 5 seconds | active | Master rules publish and roll back for real. The **customer's rules publish refuses** (`app/actions.ts:203`). **There is no rules API route**, so the gate cannot be demonstrated. | §6 |
-| **M5** Tenant settings | Secrets auditing | upcoming | Screens exist. **Company settings do not save** (`app/actions.ts:102`). **Credentials cannot be created or revoked** (`:166`, `:182`); the `api_credentials` table exists but has no module. | §6 |
-| **M6** Handover | Sign-off | upcoming | No staging environment. No per-route accessibility check in CI (the contract requires WCAG 2.1 AA at every gate). Documentation continuous. | §7 |
+This revision replaces the 30 September survey as the current execution plan. It incorporates the contracted-value work now in the working tree and corrects the previous plan's service API proposal. It is a source inspection and planning baseline, not a declaration that the deployed application passes verification.
 
-**The tracker needs correcting before Brian next reads it.** The M4 note says
-revenue is on real data, and that is not true. It is the same kind of false
-claim this project has removed from every screen it touched, and it is in the
-document the client reads to judge progress.
+## 1. Current position and evidence limits
 
----
+The console is substantially implemented. Its remaining work includes functional gaps, inconsistent presentation, unverified workflows, and release controls. A percentage of completion cannot express those risks accurately. Keep implementation status, test status, and client acceptance as separate fields.
 
-## 2 · The verification standard
+### 1.1 Milestone closure assessment
 
-Every surface is checked against the same eight dimensions. A surface is
-**done** when each has evidence, not when it looks right.
+| Milestone | Current record | Closure assessment on 6 October | Required evidence to close or reaffirm |
+| --- | --- | --- | --- |
+| M0 · Design lock | Tracker says complete | Design and architecture documents exist. The tracker itself still mentions an adapter signature outstanding. Later documents disagree on some design rules. | Locate acceptance and adapter sign-off; resolve current design authority before extending it. Preserve existing acceptance history. |
+| M1 · Tenancy core | Tracker says complete, 280 tests | Policies, isolation tests and CI database jobs exist. Doc 25 previously reported 318 tests, including 235 isolation tests. Neither number was rerun here. Staging is also part of M1's recorded deliverables. | Fresh migration, policy and isolation reports on the release candidate; per-table coverage; staging evidence; no skipped required cases. |
+| M2 · Auth and access | Tracker says complete | Auth and membership implementation exists. Prior plan records production email setup outstanding; present delivery and provider configuration were not checked. | Full account lifecycle in a browser, delivered invitation and reset email, expiry/revocation tests, role and redirect checks. |
+| M3 · Subscriptions | Tracker says complete | Plan and subscription implementation exists. Scoped credentials and the service-door limit demonstration remain tied to unfinished M5/M4a work. New contracted-value work is unverified. | Limits through both authenticated doors, concurrent writes, subscription transitions, overrides/expiry, reconciliation and cache-disabled proof. |
+| M4 · Platform console | Active, 80% in tracker | Fourteen console page routes exist, including New workspace and Inside. Several Ops surfaces were recently rebuilt. Revenue reader/calculation work is present but the page still uses the designed model. | Every console route and nested interaction passes the surface standard; console-to-customer audit proof; support lifecycle; truthful figures and exports. |
+| M5 · Tenant settings | Upcoming, 30% in tracker | Company save, credential create and credential revoke still return refusals in tenant actions. The credential table's existence does not mean its lifecycle is implemented. | Company persistence; credential reveal once, scopes, limits, rotation, revocation and redaction; team/account regressions. |
+| M4a · Rules and seams | Active, 45% in tracker | Master rule operations exist. Tenant publish returns a refusal. No FastAPI implementation was found in this repository. The agreed service-door owner is FastAPI. | Tenant and master versioning, compilation/precedence, authenticated service API, ETags, propagation within five seconds, seam isolation and contracts. |
+| M6 · Handover | Upcoming, 30% in tracker | CI has static, build, policy/isolation, test, cache-disabled and dependency-audit jobs. No browser, axe, OpenAPI contract or load job was found in that workflow. A basic health endpoint exists. | Release environment, load/security/accessibility evidence, real monitoring, recovery drill, complete documentation, timed setup and walkthrough. |
 
-**A · Data truth**
-- Every figure traced to its source query.
-- Each band marked live or designed (`DataSource`).
-- A zero means "none", not "could not read".
-- Every time is in Nairobi.
-- Every reader of a protected table uses the correct context, enforced by a
-  structural guard test.
+Milestones already accepted are not silently revoked by this document. Record the outstanding release evidence and contradictions alongside that acceptance. Only declare final Phase One closure when every applicable gate has current evidence.
 
-**B · Actions (CRUD)**
-- Every control either works end to end, or states on the surface why it
-  cannot yet.
-- Working means:
-  - a confirmation where the action is destructive or reaches customers;
-  - a capability check;
-  - an audit row in the platform log, and in the customer's log where the
-    action touches their workspace;
-  - idempotent (a double click records once);
-  - an error message the operator can act on.
+### 1.2 Source-confirmed findings
 
-**C · States**
-- Loading skeleton that matches the page's own shape.
-- Two separate empty states (never used, and filtered out).
-- An error boundary.
-- A signed-out or designed view.
-- A permission refusal.
+| ID | Finding | Source | Closure task |
+| --- | --- | --- | --- |
+| B01 | Baseline `pnpm typecheck` fails with TS2741: the designed workspace detail object lacks required `contract`. | `src/lib/console/data.ts:1112`; `WorkspaceDetail` type | Finish the model migration and restore a green static/build baseline before verifying surfaces. |
+| B02 | Contracted-value arithmetic, live reader, export changes and migration 0004 are uncommitted. Revenue page calls `getRevenue()`, which returns a designed portfolio. | `src/lib/console/revenue.ts`, `liveRevenue.ts`, `revenueModel.ts`, `data.ts:1380`, Revenue page | Review the current work, connect live reads, migrate safely, reconcile page/export/detail/overview, then verify. |
+| B03 | Revenue copy still describes earnings and money owed; comments in new reader describe labels/markers that the current page has not yet implemented. | Revenue page; `liveRevenue.ts` | Use contracted-value language and disclose the actual basis/history limitations on the surface. |
+| B04 | An authenticated revenue read with zero contract rows currently returns null and can become designed data. | `liveRevenue.ts:149` | Separate legitimate empty data, denied access, unavailable schema and explicitly designed review mode. Zero rows alone cannot prove a policy failure. |
+| B05 | Company save and credential create/revoke return implementation refusals. | `src/app/(tenant)/app/actions.ts`, named actions | Complete M5 services and UI contracts. Replace technical implementation messages with useful product copy. |
+| B06 | Tenant rules publish refuses and accepts only a change note, not the edited rule payload. | Same file, `publishAiRules` | Define/validate the complete publish input, expected version and audit contract before wiring the editor. |
+| B07 | Customer Activity reads 100 rows, has no cursor, exposes raw action/entity codes, formats time without explicit timezone and reports retention without applying a cutoff in this reader. | `src/lib/tenant/live.ts:315`; customer Activity page | Implement the customer activity workstream in section 6. Verify actual retention jobs separately. |
+| B08 | Console notifications are a literal list. Migration 0004 proposes a read watermark, but no live notices wiring was found in the shell. | Console layout:116; migration 0004 | Derive honest actionable notices and persistence, or omit the unsupported capability. No invented production notices. |
+| B09 | Screenshot script covers 11 named pages at only 1440/390 widths. Dynamic detail, provisioning and Inside are absent. | `scripts/screenshot.ts` | Replace the fixed screenshot list with the route/scenario manifest and assertions. |
+| B10 | Tracker claims revenue is live and M5's security work is done; it retains a historical test count. | `src/lib/presentation/engagement.ts` | Rewrite status notes from actual gate evidence without inventing a new completion percentage or changing commercial terms. |
+| B11 | Previous completion plan proposed `/api/v1/rules` on Next.js; D-14 assigns `/service/v1/*` to FastAPI. API examples also mix `/api/service/v1` and `/service/v1`. | `01` D-14; `07` section 8; `04` ADR-012 | Settle deployment/base-path routing, obtain any separate service repository, and implement the agreed boundary. |
+| B12 | Old build-guide design rules conflict with later design documentation and runtime tokens. Examples include weight 400 only versus 500, mono 700 in the type table versus a 500 ceiling, and different radii. | `11` section 6; `03` sections 5–6; `src/app/tokens.css` | Record the approved current canon and reconcile docs/lint before applying it throughout the app. |
 
-**D · Visual canon**
-- Header family (breadcrumbs, eyebrow, title, actions).
-- `FactStrip` / `Figure` / `SectionHeading` / `Panel`.
-- Tokens only; the lint rules must stay at zero.
-- Tone rules: an accent only where a fact *is* a warning.
+**Initial inspection evidence:** source inventory, working-tree inspection, and one baseline typecheck, which failed as B01 describes. This describes the starting point. Subsequent implementation and actual verification results are recorded in [doc 26, execution evidence](26-phase-one-verification-ledger.md#11-execution-evidence-6-october-2026); they do not automatically close a surface or milestone.
 
-**E · Responsive**
-- 1440, 1024, 768 and 390 wide.
-- No horizontal overflow, *including the chrome*. Doc 24's banner overflow
-  escaped a probe that only checked `main`.
-- Touch targets of at least 40 px on a phone.
+The working tree includes existing schema, audit, subscription and console changes. Preserve and review that work; do not overwrite it to recover an old baseline. Any later evidence must identify the precise commit and migration state it tested.
 
-**F · Accessibility (WCAG 2.1 AA, contractual)**
-- axe reports zero violations.
-- A keyboard-only pass.
-- Visible focus.
-- One `h1`, and an ordered heading outline.
-- Charts have text alternatives.
-- Reduced motion respected.
-- Contrast checked on both the page ground and the chrome.
+## 2. Scope and sequence
 
-**G · Performance**
-- Console routes answer within the 400 ms budget (09 §8) on a warm server.
-- No N+1 queries.
-- **No service-role read on a page view.** Every such read writes a
-  "bypassed RLS" audit row. That is the noise problem doc 23 found and doc 24
-  found again.
+### 2.1 Required surface families
 
-**H · Hydration and runtime**
-- Zero console errors at every width.
-- No time-derived output rendered on the server (doc 24's clock failure).
+| Family | Required coverage |
+| --- | --- |
+| Platform | Overview, workspace roster, workspace detail and drawer, provisioning, plans, contracted value, master AI rules. |
+| Operations | Health, platform Audit, support register, Inside/support boundary, admins, platform Settings. |
+| Peripheral console | Profile, rail, mobile dock, account menu, workspace switcher, command palette, notifications, preference persistence, sign-out, all dialogs/drawers/popovers. |
+| Customer Activity | `/app/settings/audit`, support visit drilldown, filters/pagination, both audit trails and customer termination of a visit. |
+| Phase One tenant gates | Company, team/invite, credentials/new, AI rules, subscription, appearance, account/sessions and settings redirects. Verify required functions and boundaries; wider tenant dashboard refinement is Phase Two. |
+| Access and system | All seven access page routes, OAuth callbacks, root/console/tenant errors and 404s, loading states, exports, preferences, health, reconciliation, demo access. |
+| Acceptance and handover | Tracker and documentation accuracy, legal links/access flow regressions, migration/deployment, observability, security, load, restore, README and walkthrough. |
 
-Each surface ends with a **verification record** in this document:
-- screenshots at four widths;
-- the axe result;
-- the test names that cover its actions;
-- the queries it runs, and their count.
+Inventory includes actions and states, not just URLs. A page is not verified if its drawer, tab, export or pending/error state was omitted. Route aliases, query-driven views and direct/deep links are included.
 
----
+### 2.2 Execution order
 
-## 3 · Stage 0 · The tooling that makes this repeatable
+1. **S0 · Establish the current baseline, design canon and verification harness.** Resolve B01, review the uncommitted contracted-value migration, build the route/action manifest, isolate test data and correct misleading tracker notes.
+2. **S1 · Platform**, in order: Overview, Workspaces, Detail/drawer, New workspace, Plans, Contracted value, Master rules.
+3. **S2 · Operations**, in order: Health, Audit, Support register/Inside, Admins, Settings. Reuse the established canon and preserve recently finished behavior.
+4. **S3 · Peripheral pages and access**, including Profile and every shared shell control.
+5. **S4 · Customer Activity**, linking the preceding operations into customer-visible evidence.
+6. **S5 · M5 completion**, then **S6 · M4a completion**. Credential verification unblocks the service API. Extend customer activity coverage for both milestones and rerun affected console flows.
+7. **S7 · Release qualification and handover**. Full candidate verification, performance, recovery, documentation and sign-off.
 
-Doing this by hand thirteen times is how drift gets back in. Build the
-harness first.
+Shared component fixes land with the first surface using them, followed immediately by a regression sweep of their other callers. Environment setup, service-repository discovery and delivery configuration begin in S0 so they do not become late surprises. This is implementation sequencing, not authorization to create new user-owned chats or publish a release.
 
-1. **`pnpm verify:surfaces`.** A Playwright runner that grows out of
-   `scripts/screenshot.ts` and the doc 24 verification script. For each route
-   it records:
-   - console errors, which must be zero;
-   - the overflow probe over the whole document, not only `main`;
-   - axe-core (`@axe-core/playwright`);
-   - server response time;
-   - screenshots at four widths.
+## 3. The common surface completion standard
 
-   It writes a JSON report and a one-page summary.
-2. **Scenario fixtures.** Several surfaces only show their real behaviour with
-   state: an open visit, a suspended workspace, an expired invitation, a
-   customer at the seat limit. Each scenario gets a setup and a teardown that
-   deletes everything it wrote, the pattern the isolation suite already uses.
-3. **A disposable database for end-to-end runs. Decision E1.** Every
-   verification so far wrote into the same development database the demo
-   uses, and cleaned up after itself. A Supabase branch for e2e removes the
-   risk entirely and lets CI run the same checks.
-4. **A seeded customer account. Decision E2.** No customer in the seed has a
-   password, so no customer-side surface can be verified signed in (doc 24
-   could not screenshot the customer's frame). Seed the owner of one tenant
-   with a development password from `.env.local`, as the operator already is.
-5. **Structural guards.**
-   - Extend `audit-readers.test.ts` into a readers test covering every console
-     reader of `tenants`, `sessions`, `platform_audit_log` and the billing
-     tables.
-   - Add a page test: any page that can fall back to fixture data must render
-     a `DataSource kind="designed"` marker when it does. Six pages currently
-     fall back with no marker at all: Overview, Workspaces, Plans, Revenue,
-     Master rules and Profile.
-6. **CI.** The doc 23 Stage 3 visual job, now running `verify:surfaces`
-   against the Vercel preview. This needs a CI operator account and three
-   secrets from you. It is merged once it has run green on its branch.
+A surface passes only when its required cells in doc 26 contain evidence against the same release candidate.
 
----
-
-## 4 · The surfaces
-
-The order is Platform, then Operations, then the pages around them, then the
-customer's activity page. **Status** is what the survey found. **Work** is
-what the verification pass must deliver on top of the standard in §2.
-
-### 4.1 Platform
-
-#### Overview · `/platform`
-- **Status:** live since D1 (workspace counts, open visits, members, queue,
-  recent activity). The insights band reads `getOverviewInsights()`, a
-  fixture, with no marker. The page predates the header, `FactStrip` and
-  `Figure` family.
-- **Work:**
-  - rebuild to the canon;
-  - make insights live, or mark them designed;
-  - check that the queue's acting control ("raise plan") runs end to end and
-    lands in the customer's log;
-  - confirm the numbers agree with Workspaces (the same counts, from the same
-    readers).
-
-#### Workspaces · `/platform/tenants`
-- **Status:** live since D1: plan, seats, and last activity through
-  `app.workspace_summaries`. The event columns read 0 because no source
-  exists (stated in the code, not on the page).
-- **Work:**
-  - say "not measured yet" on the surface;
-  - verify filter, sort and search, and put them in the URL;
-  - verify export, and that the export is itself audited;
-  - check the empty and filtered states;
-  - add phone cards;
-  - confirm row actions (enter workspace, suspend) use real ids.
-
-#### Workspace detail · `/platform/tenants/[id]` and the drawer
-- **Status:** live since D1 (owner contact, member counts). Billing stats and
-  invoices are intentionally empty ("no source").
-- **Work:** verify each action end to end, in both logs:
-  - suspend (type the slug to confirm) and reactivate;
-  - assign a plan (with its preview);
-  - grant an override (reason and expiry);
-  - start a support session.
-
-  Also: state "no billing source" on the surface; replace any designed
-  alerts; match the page and the drawer to one canon.
-
-#### New workspace · `/platform/tenants/new`
-- **Status:** wired (`provisionTenant`).
-- **Work:**
-  - verify slug-taken and owner-exists errors land on their fields;
-  - confirm the invitation email is sent, or its link is shown;
-  - confirm the new workspace appears in Workspaces, the Overview counts and
-    the switcher without a reload;
-  - fix the audit gap noted in doc 23: a self-registered workspace's audit
-    row has no tenant id.
-
-#### Plans · `/platform/plans`
-- **Status:** live plans and headroom; the limit editor is wired
-  (`setPlanLimit`, with capability, preview and audit). No live/designed
-  markers.
-- **Work:**
-  - verify the limit-change preview count against the database;
-  - check that a limit lowered below current usage behaves as stated ("keeps
-    what it has");
-  - check chart text alternatives;
-  - apply the canon.
-
-#### Revenue · `/platform/revenue` — **decision R1**
-- **Status:** entirely designed. There is no billing in Phase 1 (08 §1), and
-  the page presents figures no system produces. This is the surface most
-  likely to mislead a client.
-- **Options:**
-  - **(a) Recommended.** Rebuild it as **contracted value**: plan prices ×
-    active subscriptions, from real rows. Label it "not collected revenue",
-    say that payment is outside the product, and include the trial pipeline.
-  - **(b)** Keep the design, and label every band designed.
-  - **(c)** Remove it from Phase 1 navigation.
-- Whichever is chosen, correct the tracker's M4 note.
-
-#### Master rules · `/platform/ai-rules`
-- **Status:** live; publish and rollback are wired, capability-checked and
-  audited.
-- **Work:**
-  - verify the version history;
-  - check the diff before publish;
-  - verify rollback to a chosen version;
-  - check the "every workspace inherits" count;
-  - check a concurrent-edit conflict (`RULES_VERSION_CONFLICT`);
-  - apply the canon.
-
-  This page is half of the M4a gate (§6).
-
-### 4.2 Operations
-
-These five were rebuilt in docs 23–24. Their pass is **verification and
-regression**, not redesign.
-
-- **Health.** Isolation is live; service, queue and incident figures are
-  designed until probes exist (M6). Verify the markers stay honest, the
-  isolation chip agrees with the policy check, and the charts' text
-  alternatives.
-- **Audit log.** Verify:
-  - paging at 2,000 rows;
-  - filters in the URL;
-  - the detail drawer's workspace link;
-  - that the new doc 24 actions (`support.expired`,
-    `support.ended_by_customer`, `support.entry_refused`) read correctly;
-  - the CSV export against what is on screen.
-- **Support sessions and the inside view.** Run the full lifecycle in a
-  browser: open, work inside, resend an invitation, extend twice, have a
-  colleague end it, have the customer end it, let one lapse. Check the
-  register, the timeline and both logs after each. Every path is tested in
-  the database already; this proves the interface agrees.
-- **Admins.** Verify with a second operator. Operators can now see each
-  other; nobody ever has, because there has only ever been one.
-- **Settings.** Verify:
-  - save, the conflict refusal and "last changed";
-  - break glass engage and release, including that it closes open visits into
-    both logs, now that it does;
-  - export links.
-
-### 4.3 The pages around them
-
-- **Profile · `/platform/profile`.** Live. Verify:
-  - name change reaching the chrome;
-  - avatar upload (size, type, storage policy);
-  - password change (re-authentication, "sign out other devices" and its
-    email);
-  - device revocation, including a support session listed as a device;
-  - the activity panel's paging;
-  - the limits card.
-
-  Apply the canon.
-- **Console chrome.**
-  - The rail and its live badges.
-  - The collapse and density preferences, which persist through
-    `/api/console/prefs`.
-  - The workspace switcher: live since D1; verify that search finds beyond
-    the six shown.
-  - The command palette (⌘K): every command must go somewhere real.
-  - The **notifications bell: a literal list of made-up notices** (layout
-    line 116). **Decision N1:** either derive notices from real events (open
-    visits, workspaces past 90% of a limit, failed invitations, a break-glass
-    lock — all queryable today), or remove the bell until a store exists.
-  - The account menu, sign-out, the isolation chip and the mobile dock.
-- **Operator access.** Verify:
-  - operator sign-in (a wrong password, a non-operator account, the
-    `?next=` handling);
-  - forgot and reset password;
-  - sign-out revoking the session row;
-  - a revoked session being refused on the next request.
-- **System pages.**
-  - 404 and the error boundary inside the console, not only at the root.
-  - `global-error`.
-  - Every route's `loading.tsx` checked against its page. Doc 21 found
-    several that did not match.
-- **Exports** (`/api/platform/export/*`). Each must be audited, stream
-  correctly, use Nairobi dates, and escape CSV (formula injection in a
-  workspace name).
-
-### 4.4 The customer's activity page · `/app/settings/audit`
-
-The end of every console action is a line here. Today it is the weakest
-surface in the chain:
-
-- it shows raw codes ("support.entered support_session");
-- times are formatted in the **server's** zone, UTC on Vercel, not Nairobi;
-- it silently caps at 100 rows;
-- it has no filters, and its only live marker is a hard-coded "Live" tag;
-- a support visit is five unrelated lines;
-- `audit_retention_days` is read and never enforced or explained.
-
-**Work:**
-- **Vocabulary.** Plain sentences from a customer-facing counterpart of
-  `auditVocabulary` ("Brian from aLcassa support opened your workspace").
-- **Visits as one item.** Entered, what changed with its before and after,
-  extended, and how it ended — the same model as the console timeline, from
-  the customer's side.
-- **Controls.** A "Support visits only" filter, a date range and paging, all
-  in the URL.
-- **Time and retention.** Nairobi time, and the retention window stated (or
-  enforced, if a job is added in M6).
-- **Verification.** Signed in as the seeded customer (E2), against every
-  scenario in §3.
-
----
-
-## 5 · Cross-cutting fixes found in the survey
-
-1. Six pages fall back to fixtures with no designed marker (§3.5).
-2. The notifications bell is fiction (N1).
-3. Revenue is fiction, and the tracker says it is not (R1).
-4. Customer-facing times use the server's zone (§4.4). Sweep every
-   `toLocaleString` without `timeZone`.
-5. Duplicated start-session handlers. `ConsoleShell`, `WorkspaceTable`,
-   `WorkspaceActions` and `WorkspaceDetailDrawer` each have their own copy
-   (doc 24 had to fix four identical toasts). Consolidate them into one hook.
-6. `ConfirmDialog` and `ConsoleDialog` coexist (doc 22). Finish the migration
-   to `ConsoleDialog`.
-7. Doc 22 remainders: Badge delegating to StatusBadge; dead primitives
-   (Spinner, IconPill, ErrorBoundary); tile unification.
-
----
-
-## 6 · The Phase 1 work outside the console
-
-**M4a · a rules edit live through the API in five seconds.**
-- **Customer rules.** Wire the customer's rules publish: an append-only
-  `tenant_ai_rules` version with a change note and an audit row. The screen
-  exists; the action refuses.
-- **The API route.** Add `GET /api/v1/rules`, the effective rules (master
-  merged with the workspace's), authenticated by an API credential.
-- **Freshness.** A publish invalidates the cached effective rules, so the
-  next read reflects it. Test and time that path, which gives the "5 seconds"
-  its evidence.
-- **Dependency.** This depends on M5 credentials.
-
-**M5 · secrets auditing.**
-- **Credentials.** A `credentials` module over `api_credentials`:
-  - mint with argon2id, the value shown once;
-  - scopes;
-  - revoke;
-  - last used;
-  - every read of a secret refused, including in support mode, which the
-    policy already enforces;
-  - audited mint and revoke;
-  - the plan's credential limit enforced.
-- **Company settings.** Save to `tenant_settings`, audited.
-- **The gate.** A credential's lifecycle visible in the customer's activity
-  page (§4.4) and in the console audit log.
-
-**M2 closing proof.** One real invitation delivered to a real inbox after the
-Resend domain is verified.
-
----
-
-## 7 · M6 · handover readiness
-
-- **Staging.** A Vercel environment on its own Supabase project. Migrations
-  run by a deploy step, not by hand: doc 23 and doc 24 each had to warn that
-  deploys do not migrate.
-- **Accessibility in CI.** axe per route, from `verify:surfaces`. The
-  contract requires it, and the tracker already records that it does not
-  exist.
-- **Operations runbook.** Break glass, key rotation, the reconciliation cron,
-  restoring a suspended workspace, and adding an operator (still a database
-  action).
-- **Security.** Rotate the `alcassa_app` password, which is still
-  outstanding from doc 23.
-- **The handover package** (doc 12) assembled against what actually shipped.
-
----
-
-## 8 · Decisions needed
-
-| # | Question | Recommendation |
+| Dimension | Required result | Evidence |
 | --- | --- | --- |
-| **R1** | Revenue with no billing source | Contracted value from real subscriptions, labelled as such |
-| **N1** | The notifications bell | Derive notices from real events; no new table in Phase 1 |
-| **E1** | Where end-to-end verification writes | A Supabase branch database for e2e and CI |
-| **E2** | A seeded customer login | Yes: one tenant owner with a development password from `.env.local` |
-| **T1** | Correct the tracker now | Yes: revenue, the test count, and M4a/M5 reality |
+| Data correctness | Every figure has a source and definition. Unknown/unmeasured/error differs from zero. Authenticated failures never silently become successful fixture views. List, detail, chart and export agree. | Query/source map, independent fixture expectations, reconciliation report, failure-state screenshots. |
+| Identity and isolation | Direct requests enforce capability and tenant context. Tenant identity comes from trusted session/credential context. Support scope/expiry and revocation are checked on the next protected request. | Role matrix, cross-tenant negative cases, malicious-ID tests, live RLS suite. |
+| Mutations and audit | Valid writes persist and are audited transactionally. Failure rolls back both state and its success audit. Retries/double submit cannot duplicate the mutation; refused attempts follow the documented security-event policy. | Before/after DB assertions, platform/customer audit IDs, concurrency/idempotency tests. |
+| Interaction | Confirm consequential actions; show pending, field errors, success and retry. Preserve valid input on failure. Refresh affected counts, badges, list/detail and activity without a full browser reload. | Browser traces, fresh-session readback, second-operator checks. |
+| States | Normal, empty, filtered-empty, loading, large/long data, partial/unavailable data, error, unauthorized, expired and conflict states where applicable. | Scenario fixtures and state screenshots, including nested panels. |
+| Visual system | Shared layout, type, spacing, tokens, status semantics, table/form/dialog patterns and density. Consistent in the approved single theme and inside the support boundary. | Component/token inventory, approved baseline comparison and human review. |
+| Accessibility | WCAG 2.1 AA review across complete flows; axe plus manual keyboard, focus, labels, announcements, contrast and screen-reader checks. | Automated report plus manual checklist. Axe alone is not conformance proof. |
+| Responsive behavior | Whole document, chrome and overlays fit at 1440, 1024, 768, 390 and 360 CSS px. Also test 320px reflow and zoom. Tables needing two-dimensional layout have intentional contained scrolling. | Full-page images, overflow checks, keyboard/touch review. |
+| Runtime | No unexpected console errors, hydration warnings, unhandled rejections or failed required requests. Stable timestamp rendering and correct session transitions. | Browser error/network report; error cases distinguish intentional refusals from failures. |
+| Performance | No N+1 readers or unbounded list rendering. Request counts, payloads and timings are recorded. Contractual p95 below 400ms at 50 concurrent sessions is measured on required tenant dashboard/settings routes. | Query traces, repeatable production-build load report, error rates and environment details. |
+| Production readiness | No demo bypass or fallback secrets in production; deployed schema matches code; service/provider errors are observable and actionable. | Environment/migration proof, deployed smoke test and request-ID/log correlation. |
 
----
+Protected reads and writes use the approved tenant or actor database context, with no service-role import outside the platform module and no application tenant filter substituting for RLS. Inspect view/function privileges, pooled connection context reset, cache tenant/version keys and audit transactions. Every new tenant-scoped schema change includes its policies and isolation cases in the same delivery. Cross-tenant resource requests receive the documented non-disclosing response.
 
-## 9 · Order
+Visual/UX acceptance checks computed token use, aligned numbers, readable labels, truncation with an accessible full value, one clear primary action, consistent destructive language, predictable filter/reset behavior, and focus/scroll restoration when dialogs close. Verify hover, focus, disabled and pending variants of controls, form error association and live success/error announcements. Mobile controls have adequate touch space even when desktop tables use compact rows. Consolidate duplicated badges, tiles and dialog shells only after confirming their intended variants; remove unused primitives with verified callers.
 
-1. **Stage 0 tooling (§3), and T1.** Everything after it produces evidence
-   instead of opinion.
-2. **Platform group (§4.1)**, in page order. Revenue waits on R1.
-3. **Operations regression (§4.2).**
-4. **The surrounding pages (§4.3)**, with N1.
-5. **The customer's activity page (§4.4).** It closes the loop for every
-   console action above it.
-6. **Cross-cutting fixes (§5)**, folded into whichever surface they touch
-   first.
-7. **M5, then M4a (§6).** Credentials unblock the rules API.
-8. **M6 readiness (§7).**
+Required automated accessibility violations and manual accessibility defects must be resolved before closure. Stable state screenshots get an explicit human comparison for hierarchy, density and cross-page consistency, not only a pixel-diff result.
 
-Each surface ends as the last three stages did: its verification record, the
-full gate run, the isolation suite, a production build, and a push.
+For time, console displays use Africa/Nairobi explicitly. Customer views use the configured workspace timezone, defaulting to Nairobi, consistent with doc 03; make the zone visible and retain UTC timestamps in storage/API and precise tooltip values. UTC host defaults are never the product policy. Nairobi midnight/date-range boundaries receive dedicated cases.
+
+Use safe, stable server-rendered timestamps where possible; the problem is nondeterministic server/client output, not server formatting itself. Relative clocks use one initial reference and update after hydration.
+
+Accessibility reference: [W3C WCAG 2.1](https://www.w3.org/TR/WCAG21/). Aim for 44px touch targets where practical; that is a product usability target, not an AA requirement of WCAG 2.1.
+
+## 4. S0 · Foundation for repeatable verification
+
+### Production language and typography, required on every surface
+
+Added at the user's direction on 6 October. Every route and nested interaction receives a product-language and type review alongside functional refinement. This includes headings, navigation, labels, helpers, tooltips, confirmations, success/error notices, empty/loading/unavailable states, chart legends, audit sentences, exports and email.
+
+- Write for the business owner or operator's task. Say what happened, what it means and the next useful action. Implementation terms such as table names, migrations, modules, fixtures, RLS, hydration and milestone numbers belong in developer documentation/diagnostics unless the operator specifically needs them to make a decision.
+- Keep API integration terminology where it is useful, but explain it once: API credentials, permissions/scopes and assistant rules. Use one name per concept; navigation, page title, action label, confirmation and activity record agree.
+- Distinguish permissions, unavailable functionality, temporary service failure and validation. Do not offer a retry for a function that has not been implemented, or promise delivery, autosave, retention, recovery or propagation without evidence.
+- Prefer verb-and-object controls such as Save changes, Create workspace and End support visit. Destructive confirmations state the target, affected people, consequences, reversibility and where the change is recorded.
+- Preserve input on failure, associate errors with fields, announce results, and make the recovery action reachable by keyboard. Do not hide critical explanations in hover-only tooltips.
+- Replace ambiguous financial abbreviations with readable labels and explicit basis. Contracted subscription value is different from money received; estimated amounts and incomplete history say so beside the figures and in exports.
+- Make source labels readable: Current data, Example data and Data unavailable. Explicit preview mode may show examples; a failed authenticated read cannot turn into an example success.
+- Review typography at the rendered sizes: serif for the intended headings, UI face for prose/controls, mono for identifiers and values people compare. Avoid tiny uppercase paragraphs, decorative text shadows, clipped helper text and weight changes that exceed the current approved canon. Keep sentence case and consistent label/body/helper hierarchy.
+- Verify long names, narrow screens, the approved theme, zoom and text expansion. Numeric alignment, locale, units, precision, dates and timezone are part of the type/readability review.
+
+Doc 10 is the shared terminology and copy source. Update it with changed product strings, while preserving API error codes and developer contracts. Each doc 26 surface record gains a copy/type review result; the additional J29/X07 checks below are release obligations, not optional polish.
+
+**Environment decision:** the user selected a local disposable environment. **Service decision:** a separate private [FastAPI development repository](https://github.com/Charanos/alcassa-service) has been provisioned; its foundation is implemented, while the full agreed service door remains open. See doc 26 for execution evidence.
+
+### 4.1 Baseline and design authority
+
+- Inventory current branch, changed/untracked files and migration journal; identify the intended release candidate without discarding ongoing work.
+- Restore typecheck, lint, dependency/policy checks and production build. Record failures by source rather than hiding them with type casts or skipped tests.
+- Capture test totals from an actual machine-readable run, including passed/failed/skipped and per-table isolation coverage. Do not substitute source case counts for executions.
+- Establish a token/component reference from current `03`, `18`, `21`, `22`, runtime CSS and brand handoff. Reconcile conflicting historical rules in `11` and any stale lint configuration.
+- Select existing shared page/header, fact strip, figure, section, panel, data table, status, filter, pager, form, drawer and dialog components. Document intended differences instead of forcing visually similar but behaviorally distinct components together.
+- Correct tracker copy only to supported claims. Historical client updates remain historical records; add a current dated assessment instead of rewriting their past.
+
+The unified language is the current aLcassa brand and existing strongest components. This pass refines consistency and usability; it does not invent a new visual identity. Use current type roles, semantic statuses, blue action/focus treatment, restrained accents and the distinctive support boundary. Confirm actual computed colors/weights/radii, including inverted chrome against the approved page theme.
+
+**Current canon clarification:** `03` and its later applied sections, together with `src/app/tokens.css`, govern the product. It has one cream page theme with constant inverted console chrome; adding a dark mode is outside this plan. Current UI tokens allow 400/500 with a 500 ceiling. The stale 400-only instruction in `11` and the conflicting Lilex 700 entry in `03` have been reconciled. Continue checking actual token/type use and reference screenshots per surface; this clarification is not blanket visual acceptance.
+
+### 4.2 Verification harness deliverables
+
+Create planned commands `verify:surfaces`, `test:e2e` and `test:contract`, plus a documented load invocation. These do not exist at this baseline; keep existing `verify`, `test:isolation`, `test:cache-disabled` and `build` gates.
+
+The harness must:
+
+- Use a route/scenario manifest that includes dynamic detail, provisioning, Inside and every Phase One dependency. Fail when an in-scope discovered page/action lacks coverage.
+- Run browser journeys with real owner/operator sessions. Designed/demo mode is a separate visual scenario and cannot satisfy functional acceptance.
+- Capture console/page errors, unexpected network failures, axe findings, whole-document overflow, screenshots and traces for failure diagnosis.
+- Capture the approved single theme at the five baseline widths for default states, including inverted chrome/support framing; run every distinct state on desktop and phone, and more combinations where a breakpoint changes behavior. Include compact/comfortable density and reduced motion.
+- Use Chromium for the full suite; cover essential identity, forms, overlays and upload flows in Firefox/WebKit before release, with an actual mobile smoke pass where available.
+- Keep browser route response timing separate from load-service timing. Run performance against a production build, not development compilation or screenshot runtime.
+- Produce machine-readable results and a human summary. Retain named scenario, role, route, viewport, theme, build SHA, schema version, start/end time and artifacts.
+- Disable motion/fix reference clocks for visual baselines only. Run separate real-clock expiry, motion/reduced-motion and midnight-boundary checks.
+- Add focused structural checks for privileged readers, unauthorized fixture fallback, audit vocabulary completeness and duplicate/shared component drift. Structural checks supplement behavioral tests.
+
+### 4.3 Environment and fixtures
+
+Use disposable local/CI Postgres for fast policy and integration checks, plus an isolated full-stack environment with Auth, Storage, email testing and the service API for browser acceptance. A database-only fixture cannot prove Supabase Auth or avatar upload.
+
+A Supabase branch is one option; use it only after confirming availability and cost. A separate test project is the alternative. [Supabase branching documentation](https://supabase.com/docs/guides/deployment/branching) describes isolated environments; credentials and provider configuration still require deliberate setup. Do not point destructive scenario runs at the production database.
+
+Fixtures include two tenants with identifiable distinct data; owner/admin/agent roles; two platform operators with different capabilities; missing/suspended/closed tenants; empty and large portfolios; every subscription state; at/over/unlimited entitlement usage; expired/revoked/accepted invitations; scoped/revoked credentials; concurrent rules versions; open/extended/customer-ended/colleague-ended/expired support visits; and more than 2,000 audit rows with timestamp ties.
+
+Use deterministic labels, amounts and timestamps. Test credentials come from environment/CI secrets and belong only to the isolated environment. Setup and teardown are idempotent and run-scoped; cleanup never deletes unrelated rows. Record failed cleanup and the surviving run IDs.
+
+Before testing migration 0004, review its subscription backfill for existing tenants, missing/duplicate Pro plan rows, expired trial dates, rerun safety, audit obligations and transactional rollback. A missing subscription must not be silently converted into a trial without the approved lifecycle rule. Prove both fresh installation and upgrade from the prior schema. Confirm policies and privileges for the new operator read watermark as well as the subscription fields.
+
+### 4.4 CI and evidence gate
+
+Keep the existing static/build, isolation, full test, cache-disabled and dependency-audit jobs. Add browser/accessibility and contract jobs, with an authenticated preview environment and isolated fixtures. Load tests run as controlled candidate qualification, not on every documentation change.
+
+Missing configuration, missing fixtures, skipped required cases and unavailable environments are explicit failures or pending evidence. They cannot result in a green release gate. Confirm actual branch-protection requirements and latest CI results rather than inferring them from YAML.
+
+S0 exits when the baseline is green, the manifest covers scope, the full-stack fixture can log in as operator and tenant owner, evidence artifacts are reproducible, and design authority is documented.
+
+## 5. S1–S3 · Console and peripheral work packages
+
+Every row below also inherits section 3. Exact cases and evidence slots live in doc 26.
+
+### 5.1 Platform
+
+| Surface | Implementation and verification work | Acceptance example |
+| --- | --- | --- |
+| Overview `/platform` | Trace workspace/member/subscription counts, capacity, collection queue, insights and recent actions. Resolve designed insights. Reconcile all totals with roster/plans/value pages. Align header, bands, section hierarchy and loading composition. | Provision, change plan and suspend a fixture; affected counts and actions update, and independent DB expectations match. |
+| Workspaces `/platform/tenants` | URL-backed search/filter/sort/paging, correct badges/counts, contained mobile table or cards, accessible row actions and full export semantics. Replace unsourced event zeros with unavailable/unmeasured states. | Search finds a tenant beyond the initial page; back/refresh preserves controls; displayed IDs/actions/export refer to that tenant. |
+| Detail `/platform/tenants/[id]` and drawer | One source of truth and equivalent content/actions across full page and drawer. Verify route tabs/deep links, owner/team data, contract basis, alerts, overrides/reasons/expiry, suspension confirmation, reactivation and support entry. | Two operators edit the same record; stale edits receive a conflict. Every successful tenant-affecting operation has the expected two audit records. |
+| New workspace `/platform/tenants/new` | Validate slug/owner fields, uniqueness, provisioning transaction/recovery, delivery status, limits/default subscription, invalidated lists/switcher and correct audit tenant attribution. | Invitation to first successful login takes under two minutes with no manual DB edits; failed email does not claim delivered. |
+| Plans `/platform/plans` | Read definitions/headroom from consistent sources. Verify capability, impact preview, limit change, downgrade below current usage, unlimited/zero edge semantics and charts/text alternatives. | Preview affected tenants matches independent fixtures; concurrent seat invitations cannot exceed the enforced limit. |
+| Contracted value `/platform/revenue` | Complete existing arithmetic/reader/model work. Wire the page, overview, detail and CSV consistently; label contracted amounts and distinguish inferred arrears from invoices/payment collection. Separate priced/unpriced/trial/cancelled/suspended cases and real empty/error states. | A negotiated monthly amount and an annual plan produce independently specified totals; no trial contributes to billed value; no absent history creates an unlabeled trend. |
+| Master rules `/platform/ai-rules` | Publish/diff/history/rollback, expected version, capability enforcement, inheritance count, locked/overridable fields and clear precedence. Tenant cache/ETag effects join M4a proof. | A stale edit is refused; rollback creates the documented version event; an affected tenant receives the new effective version through the service API. |
+
+Contracted-value tests cover month/year/multiple intervals, null versus zero negotiated amounts, Custom without a price, rounding/overflow, missing/retired plans, missing subscriptions, cancelled-at-period-end versus immediately stopped, suspension/reactivation, partial historical audit coverage and Nairobi month boundaries. Compute expected amounts in fixture specifications rather than reusing the production calculator as the test oracle. No payment gateway, retries that imply charging, or invented invoice reconciliation is added to Phase One.
+
+### 5.2 Operations
+
+| Surface | Implementation and verification work | Acceptance example |
+| --- | --- | --- |
+| Health `/platform/health` | Separate live isolation/dependency probes from designed history/service/incident data. Connect existing `/api/health` where appropriate. Do not infer uptime or incidents from one liveness request. | Required database failure is observable; optional cache loss preserves correctness; freshness/source labels accurately describe each band. |
+| Audit `/platform/audit` | Stable pagination with `(occurred_at,id)` ordering, URL filters/date boundaries, readable action vocabulary, before/after redaction, detail/workspace links, export scope and large datasets. | Paging while new events arrive loses/duplicates no records; customer-ended/expired/refused visits have accurate language. |
+| Support register `/platform/support-sessions` | Open/reason, scoped access, register/search/filter, extend, end, expiry and all actor variants. Verify status updates and customer notices after transaction commit. | Open, work, extend, customer-end, colleague-end and timeout each update register, timeline, platform log and customer log correctly. |
+| Inside `/platform/inside` | Full boundary/frame, visible actor/tenant/reason/remaining access, explicit exit, allowed views/actions, prohibited credential/secret access and next-request expiry/revocation. | Two tabs attempt a write after the owner ends the visit; both are refused, and no state/success audit survives. |
+| Admins `/platform/admins` | At least two real operator fixtures, capability visibility, permissions enforced on direct requests, identity/activity links and honest membership-management affordances. | A restricted operator cannot gain capability by crafting an action request or accessing another operator's private session/profile data. |
+| Settings `/platform/settings` | Persist, validate, last-changed metadata, concurrent-edit refusal, export links, break-glass entry/release, reason and scope. Preserve warnings until resolved. | Break glass closes applicable open support visits in both logs; stale requests cannot re-open one; release is audited and restores only intended access. |
+
+Use a table-driven support scenario matrix: normal end, extension twice, expiry while idle, expiry during mutation, customer termination, colleague termination, platform break glass, operator revocation and workspace suspension. Assert the documented policy for each instead of assuming every state has the same termination behavior.
+
+### 5.3 Peripheral console, identity and system states
+
+| Surface | Required verification |
+| --- | --- |
+| Profile `/platform/profile` | Name update reaches chrome and persists after new login; avatar crop/upload/type/size/access policy and failed replacement; password reauthentication, recovery email and other-device revocation; current/other device handling; paginated activity; truthful capability/limits display. No double-revocation confusion between a login device and a support visit. |
+| Rail/header/mobile dock | Correct route/group highlighting, keyboard order, long identity/tenant names, badges from consistent readers, drawer focus/scroll, responsive collapse and whole-document fit. |
+| Density/theme/collapse preferences | Persist through `/api/console/prefs`, reload and a second tab. Invalid values and another actor's identifiers cannot change preferences. Failure does not silently claim saved. |
+| Workspace switcher | Search beyond the initially shown six items; keyboard navigation; correct tenant ID; no arbitrary-tenant context from URL/client payload; support lifecycle and exit remain explicit. |
+| Command palette | Every visible command resolves to a real permitted route/action. Cmd/Ctrl-K, Escape, focus restoration, empty search and restricted capability states work. |
+| Notifications | Replace literal notices with live facts or remove unsupported notices. If read watermark is retained, persist it per operator, distinguish new from unchanged items, and verify counts/deep links without treating it as delivery history. |
+| Access pages | Sign-in, sign-up, email verification/resend, sign-up finish, forgot/reset password and invitation acceptance: valid/invalid/expired/reused tokens, wrong password, rate limiting, role landing, safe `next`, no account enumeration, and session revocation. |
+| OAuth/callback | If enabled, prove state/redirect validation, trusted origin, callback errors and resulting session/role. If disabled, UI and contract clearly describe availability. |
+| Error/loading/404 | Console and tenant boundaries preserve the correct frame, safe retry and sign-out paths. Test nested errors and full root/global error. Skeletons match actual bands and drawers without broken focus or large layout shifts. |
+| Exports | Resource allowlist, authorization, live/design source truth, column/row/filter semantics, audit event, redaction, CSV quotes/newlines/Unicode/formula prefixes, correct MIME/filename and large output. Unauthorized export cannot leak data. |
+| Demo/health/cron | Demo bypass refused in production; health reports only safe data and correct dependency state; reconciliation requires trusted scheduler authorization, reports drift and follows its stated repair policy. |
+| Tracker/docs/legal links | Current status notes correspond to demonstrated gates; links and document navigation work; commercial numbers/accepted decisions are preserved; published product statements do not claim unsupported behavior. |
+
+## 6. S4 · Customer Activity as end-to-end evidence
+
+Customer Activity is a first-class Phase One surface. Its completion requires real customer authentication and tenant-isolated reads, not the console's Inside view alone.
+
+### 6.1 Data and presentation contract
+
+- Define a typed customer activity reader returning stable event ID/time, safe actor display, category, entity reference, permitted before/after fields, support visit correlation and a cursor. Do not expose internal IPs, secrets or platform-only metadata by copying the platform log wholesale.
+- Render plain language using a customer-facing vocabulary mapped to the audit action catalogue. Test every action used in Phase One; unknown/new actions receive a safe readable fallback and diagnostics.
+- Group support events by the existing visit/session ID where present. Keep underlying chronological events available in drilldown; grouping cannot obscure individual changes, refused actions or who ended access.
+- For older events without correlation IDs, show honest standalone items. Do not guess a visit relationship from similar actor names or nearby timestamps.
+- Show actor, what changed, the permitted before/after values, reason where safe, and when. Lifecycle views include entry, permitted work, extensions and normal/customer/colleague/expired endings.
+- Use explicit live/designed/unavailable state and appropriate failure handling. No fixture activity may appear as real customer history.
+
+### 6.2 Controls and retention
+
+Provide URL-backed category/support-only filter, date range, stable cursor paging and clear counts/ranges where known. Preserve query state on refresh/back and when opening an event. Distinguish never-used activity from no matching activity.
+
+Display workspace timezone explicitly, default Nairobi, and test midnight plus inclusive/exclusive range boundaries. Retention has two separate obligations: which rows the UI exposes under a plan, and what the storage/lifecycle policy retains. Implement/document the approved cutoff and deletion/archive policy. Never imply that rows are deleted because the page stopped showing them. Verify whether any actual retention job already exists before adding one.
+
+Handle plan retention changes consistently, including support visits spanning a cutoff. The list and detail must use the same authorization and retention rules. Secret fields stay redacted in list, detail, export, logs and support mode.
+
+### 6.3 Audit coverage across doors
+
+| Operation | Platform evidence | Customer evidence |
+| --- | --- | --- |
+| Provision/plan/override/suspend/reactivate | Actor, target tenant, reason, intended before/after and request ID | Relevant workspace change, readable actor and safe before/after. |
+| Support lifecycle and supported writes | Visit correlation, actor, scope, expiry and end cause | Linked visit and changes, identity/reason, clear end cause; customer can end an active visit. |
+| Company/team/invitation changes | Platform audit only where platform/support performed the operation | Correct customer audit for ordinary tenant operations and support operations. |
+| Credential mint/revoke/rotation | Where contract requires platform visibility, metadata only | Name/prefix/scopes/event, never the secret or hash. |
+| Tenant/master rule changes | Master/global events in platform audit | Tenant edits, and master effects only according to approved audit semantics; do not fabricate one tenant event per global change without that rule. |
+
+Successful tenant-affecting platform mutations require both contractual audit trails. Customer-originated writes do not automatically require duplicate global audit rows; use the documented model. For email/provider work performed after commit, failure records delivery status without rolling back a successful provisioning or inventing a second domain mutation.
+
+S4 exits when every preceding console-to-customer scenario can be followed from its platform action to the correct customer-visible evidence, with an unrelated tenant demonstrably unable to read it. S5/S6 add their events to the same regression suite.
+
+## 7. S5–S6 · Finish the remaining Phase One functions
+
+### 7.1 M5 · Tenant settings and credentials
+
+Complete audited company persistence with validated company name, contact, timezone and locale; expected-version/concurrency behavior; role restrictions; existing tenant context; and shared reads throughout the shell.
+
+Implement the credential module and route/UI contract around the existing schema:
+
+1. Validate name/scopes and enforce credential limit transactionally, including concurrent mint attempts.
+2. Generate a high-entropy secret, store the approved hash/prefix/metadata and reveal the value once only in the successful creation response. Adapt the current action result type; a generic success notice cannot carry the reveal-once contract safely.
+3. List metadata only. Test recursive secret/hash scans in all responses, server/client logs, audit payloads and telemetry. A deliberately authorized copy action is explicit; persistence in application storage is forbidden.
+4. Verify credential authentication and scope before a service handler. Tenant identity comes from that verified credential, not a caller-supplied tenant ID.
+5. Revoke and test immediate next-request refusal with normal cache, cache disabled and a previously warmed scope lookup. Rotation creates a new key and ends the previous key according to documented overlap behavior.
+6. Record last-use metadata without leaking the secret and without adding an unbounded write/query burden per request.
+7. Prove support mode and unauthorized tenant roles cannot mint, reveal, read or revoke credentials beyond their agreed scope.
+8. Verify team/invitation/ownership transfer and account/session dependencies, subscription visibility, settings redirects and appearance persistence needed for Phase One. Do not add Phase Two inbox/dashboard features.
+
+M5's demo creates a credential, reveals it once, confirms every later route returns metadata only, exercises a scoped request, revokes it, and shows the corresponding customer activity. The creation exception and later plaintext prohibition must be stated consistently across docs 07/11/12.
+
+### 7.2 M4a · Rules API, freshness and seams
+
+D-14 and ADR-012 remain the governing boundary: Next.js owns session/dashboard operations and FastAPI owns the machine service door. No separate FastAPI repository was inspected here. Discover/review it if it exists; otherwise estimate and implement the missing service within the recorded Phase One obligation. Resolve the existing staffing/effort decision explicitly instead of claiming the API is complete from a dashboard action.
+
+- Resolve canonical external routes and any proxy prefix in doc 07. Include the agreed service rules, tenant and health endpoints. A second unrelated Next.js rules endpoint does not satisfy this architecture by itself.
+- Wire tenant publish with validated edited fields, change note and expected version; use append-only versions and transactional auditing. Preserve master locks/precedence and expose effective rules/provenance correctly.
+- Share canonical schema/contracts and deterministic conformance fixtures between TypeScript and Python. If code cannot literally be shared across runtimes, enforce identical policy outcomes by cross-runtime tests.
+- Generate actual OpenAPI from implemented schemas on both services; test methods, paths, payload/error envelopes, status codes, auth/scopes, rate limits and reserved seam behavior. Server Actions are exercised as actions rather than falsely claimed to be public REST endpoints.
+- Include both tenant and master versions in strong ETags. Assert `200` content, unchanged `304` with no body, locked/provenance fields and correct conditional semantics after tenant publish, master publish and rollback.
+- Invalidate/version the compiled cache explicitly. Exercise cache misses, outage, disabled mode, warmed stale values, concurrent publish/read and master-wide invalidation. Reconcile the five-second requirement with older text allowing 300-second worst-case freshness; degraded behavior needs an explicit approved contract, not a hidden exception.
+- Measure from committed publish to the first API response containing the expected version/content. Demonstrate both tenant and master edits within five seconds over repeated runs with a real service credential; report all samples, maximum and failures.
+- Prove the knowledge-base and customer-record seam tables participate in migration, policy, isolation, redaction and contract checks. Keep channel processing, messaging, AGNO orchestration and the inbox experience in Phase Two.
+
+M3's pending service-door entitlement/scope proofs are rerun here, so the two-door acceptance condition is actually closed.
+
+## 8. S7 · Release qualification and operational readiness
+
+### 8.1 Production candidate
+
+Use an isolated staging environment with the same application/service topology and intended policies, migrations, Auth/Storage integrations and cache behavior. Document permitted differences such as email sinks and test credentials. Verify a fresh deployment and an upgrade against a pre-change database before promotion.
+
+Deploy migration and application changes with an explicit compatibility sequence. Verify least-privilege app access, RLS/grants/views, support restrictions, indexes and migration backfills. Exercise app rollback separately from database recovery; never assume a down migration can safely undo new customer data. For the uncommitted 0004, record affected rows and audit implications before any application.
+
+Check production configuration by presence/validity without emitting secret values. Prior documents flag email delivery, database password rotation, staging and provider setup; their current status requires fresh evidence. Seed/default passwords and demo cookies must not grant production access.
+
+### 8.2 Performance and resilience
+
+Run doc 11's required p95 below 400ms at 50 concurrent sessions on the required tenant dashboard/settings routes, even though wider dashboard refinement is Phase Two. Include list/detail/audit/service workloads relevant to the console; define their agreed budgets and measure console request latency against doc 09's budget separately. Publish environment, topology/region, data volume, warm/cold profile, request mix, duration, throughput, error rate, p50/p95/p99 and slow query findings.
+
+Performance cannot be passed by omitting failed requests or measuring only one fast endpoint. Correctness assertions run during load. Profile indexes, fan-out, pagination, response size and cache misses before proposing infrastructure changes.
+
+Exercise database unavailable, Redis unavailable/disabled, email rejected/delayed, storage denied/unavailable and service unavailable. Define visible user recovery and alert behavior. Test retry safety, transaction rollback, no connection-context leakage and no success audit for rolled-back writes.
+
+### 8.3 Observability, security and recovery
+
+- Prove request IDs connect browser/API failures, Next.js and FastAPI logs, audit rows and error monitoring. Scan seeded secrets/customer values for forbidden log/telemetry exposure.
+- Connect real health/uptime probes and status communication. Display historical uptime, queues and incidents only from actual sources with timestamp/freshness, or explain their absence.
+- Review direct capability/role enforcement, session cookies/CSRF/origin checks, redirect validation, credential scope checks, rate-limit behavior, export injection, avatar access and dependency advisories.
+- Record required security fixes and verify them on the candidate. Real secret rotation follows the operation's runbook and configured ownership; documentation cannot count as rotation.
+- Perform a staging backup/restore drill with measured recovery and integrity checks. Prove break-glass entry/release, suspended-tenant recovery, operator addition/removal, credential rotation and reconciliation handling.
+
+### 8.4 Handover
+
+Complete README, environment reference, actual merged API contract, schema/RLS reference, architecture decisions, adapter/seam guide, deployment/migration/recovery/rotation runbooks and an accurate tracker. Link evidence to the shipped version.
+
+Run the under-30-minute setup test with a developer new to the project, README alone, covering Next.js and FastAPI. Record stalls and fixes; repeat failed runs. Deliver the chaptered walkthrough and agreed live handover session. Record Brian's acceptance and the 30-day support arrangement without changing commercial or contractual terms in this plan.
+
+## 9. Original Phase One acceptance conditions
+
+These are the eleven recorded definition-of-done conditions in doc 11, with release proof. Also apply its accessibility and milestone-specific gates.
+
+| Condition | Required release proof |
+| --- | --- |
+| Every tenant-scoped table has RLS and failed cross-tenant read/write coverage | Migration/policy inventory plus actual per-table isolation results, including seam and credential tables. |
+| Provisioning invitation to first login under two minutes | Real browser lifecycle with measured duration and no manual DB work. |
+| Every qualifying write has complete audit | Per-module/action map plus transactional audit assertions with actor/tenant/entity/before-after/IP/request ID according to the approved audit schema. |
+| Credentials not retrievable in plaintext | Reveal-once creation exception documented; later responses, support paths, logs and audit recursively scanned. |
+| p95 below 400ms at 50 concurrent sessions | Candidate load report for required tenant dashboard/settings routes, including errors and correctness assertions. |
+| New developer runs locally under 30 minutes | Timed clean setup of both services, README alone, actual reviewer/result. |
+| OpenAPI matches implementation | Generated contract and passing endpoint conformance suite on both doors. |
+| Rules change visible through API within five seconds | Recorded committed-write-to-read timing for tenant/master publish and rollback with expected versions. |
+| Correctness holds with cache disabled | Complete applicable suite with cache disabled, no skipped mandatory cases. |
+| Missing scope rejected before handler | Per-scope negative matrix and evidence the protected handler did not execute. |
+| Both seam tables pass isolation | Included in the same generated/live isolation suite and report. |
+
+## 10. Execution management and completion rule
+
+### 10.1 Ownership and review
+
+Use the existing two-developer split: backend/isolation owner handles schema, policies, entitlement/audit invariants, credential verification and service integration; UI/identity owner handles console/access/customer activity and browser coverage. Both review shared contracts and critical boundary changes. FastAPI ownership and remaining effort must be resolved at S0. The project lead maintains the evidence ledger and coordinates acceptance; the client accepts milestone demonstrations.
+
+Each work package is a small reviewable change with its implementation, contract/doc updates and necessary tests. A source fix is **implemented**; it becomes **verified** only after its required checks pass. It becomes **accepted** only when the appropriate acceptance evidence exists.
+
+### 10.2 Defect and evidence rules
+
+- **P0:** isolation, secret exposure, unauthorized privileged mutation, corruption or unsafe production access. Blocks all release.
+- **P1:** build failure, broken milestone journey, missing required audit, misleading financial/data claims, failed required performance/contract gate or inaccessible core flow. Blocks Phase One closure.
+- **P2:** material UI inconsistency, incorrect state, responsive/accessibility defect outside the core journey, confusing customer activity or broken peripheral control. Required in-scope fixes remain open; document any explicitly accepted deferral.
+- **P3:** minor cosmetic issue. Track to closure or explicit acceptance; do not silently discard it under a production-grade claim.
+
+For each defect record source, reproduction, expected/actual, affected role/state, severity, owner, fix and retest artifact. For each passed case record build/environment/schema/fixture/test/artifact. Retries are visible; a later pass does not erase flakiness or the first failure. Reviewed visual baselines must not merely approve the current bug.
+
+### 10.3 Estimates and dependencies
+
+Do not carry forward the historical two-week estimate as a commitment. Size work after S0 resolves the source/build baseline and confirms the service repository, email delivery, isolated environment, design authority and migration state. Estimate implementation, fixture/harness work, verification, remediation and handover separately. Publish a range with dependencies and update it after each stage's evidence.
+
+The critical dependency chain is: green candidate and full-stack fixtures → Platform → Ops → peripheral/access → customer Activity → credentials/company → tenant rules + FastAPI service door → full regression/load/recovery → handover. Environment/provider setup and service discovery begin early; customer Activity is rerun after M5/M4a because those add new events.
+
+**Phase One is complete when:** every scoped surface/action has its required evidence; all eleven original conditions and milestone gates pass; unresolved P0/P1 defects are zero; remaining in-scope defects are closed or explicitly accepted; data/visual/audit behavior is consistent; staged upgrade/recovery and deployed smoke checks pass; handover is usable; and acceptance is recorded. Broader tenant dashboard work starts as Phase Two after this closure record is complete.
+
+
+## 11. Added execution scope — console refinement, 6 October 2026
+
+Apply doc 03 section 28 across Platform, Ops, workspace detail tabs, Profile, settings, support visits and every shared summary component. The user explicitly requested a complete console refinement, including inverted dotted KPI surfaces, quieter background artwork, alternating major-section headings, stronger grouping on workspace details, and production language. This is part of the existing per-surface acceptance gates, not a substitute for CRUD and data verification.
+
+Sequence: establish shared primitives; remove live/fixture ambiguity; restructure workspace overview/subscription/activity; apply to directory, plans, health, audit, administrators, support and profile; verify authenticated pages at desktop and phone widths; exercise their real actions and failure states; record defects and evidence in doc 26. Broader customer dashboard redesign remains Phase Two.

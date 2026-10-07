@@ -38,7 +38,7 @@ export function VersionRail({
           className="whitespace-nowrap"
           style={{ font: '400 var(--type-chip)/1 var(--font-mono)', color: 'var(--text-tertiary)' }}
         >
-          append-only
+          Previous versions retained
         </span>
       }
       flush

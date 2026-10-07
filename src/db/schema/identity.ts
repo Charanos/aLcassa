@@ -186,6 +186,13 @@ export const platformAdmins = pgTable('platform_admins', {
   canSuspendTenants: boolean('can_suspend_tenants').notNull().default(true),
   canEditMasterRules: boolean('can_edit_master_rules').notNull().default(true),
   canEnterSupportMode: boolean('can_enter_support_mode').notNull().default(true),
+  /**
+   * Everything in the notifications bell that happened before this is read.
+   * Doc 25 · N1. One timestamp per operator rather than a row per notice,
+   * because the notices are derived from the database's own state and events
+   * rather than stored. Written only through `app.mark_notifications_read()`.
+   */
+  notificationsReadAt: timestamp('notifications_read_at', { withTimezone: true }),
   ...timestamps,
   ...softDelete,
 });

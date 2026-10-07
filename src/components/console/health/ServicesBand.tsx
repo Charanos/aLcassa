@@ -34,6 +34,7 @@ export function ServicesBand({ model }: { model: HealthModel }) {
   return (
     <section aria-labelledby="health-services">
       <SectionHeading
+        id="health-services"
         title="Services"
         note="Thirty days each, held against the budget it answers to."
         action={<DataSource kind="designed" detail="probes at M6" />}
