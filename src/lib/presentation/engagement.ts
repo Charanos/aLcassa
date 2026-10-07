@@ -147,7 +147,7 @@ export const MILESTONES = [
     tranche: 2,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note: 'The database foundation and isolation gate are established. The latest complete verification run passed 420 tests with no skips, and policy coverage is 15 of 15 workspace tables. The deployed schema was repaired and checked against the release. Provisioning and release recovery still need their complete Phase One acceptance journeys.',
+    note: 'The database foundation and isolation gate are established. The latest complete local suite passed 440 tests without skips, and policy coverage is 15 of 15 workspace tables. Provisioning checks now precede invitations; workspace creation, concurrent refusal and account cleanup have verification coverage. A real local invitation was captured. Owner acceptance and release recovery remain part of final Phase One qualification.',
   },
   {
     id: 'M2',
@@ -181,7 +181,7 @@ export const MILESTONES = [
     tranche: 3,
     status: 'active' as MilestoneStatus,
     progress: 85,
-    note: 'The deployed console loads after the schema repair. Shared surfaces, settings and workspace details have been refined; subscription and allowance changes have browser and database evidence. Health charts and the default workspace grid are restored in the current candidate. Route loading, interactive canvas charts, both directory views, remaining action states and complete accessibility verification are being qualified.',
+    note: 'The deployed console loads after the schema repair. Shared surfaces, settings and workspace details have been refined; subscription and allowance changes have browser and database evidence. Health canvas charts, navigation loading and the default workspace grid are published, with desktop and phone checks for both directory views and customer Activity. Remaining action states, monitoring and complete accessibility verification still need acceptance.',
   },
   {
     id: 'M5',

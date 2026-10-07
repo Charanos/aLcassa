@@ -6,7 +6,7 @@
 
 **Execution ledger:** [26 · Verification matrix and evidence ledger](26-phase-one-verification-ledger.md)
 
-**Published checkpoint, 7 October 2026:** application candidate `7c7b551` is on `origin/main`. The dated assessment below remains the original planning baseline; sections 11–13 of the execution ledger record subsequent implementation and verification. Publication is not Phase One acceptance.
+**Published checkpoint, 7 October 2026:** application candidate `aa10c83` is on `origin/main` with all six CI jobs passing. The dated assessment below remains the original planning baseline; the execution ledger records subsequent implementation and verification. Publication is not Phase One acceptance.
 
 **Milestone execution instruction, 7 October 2026:** finish the current Health/loading/directory verification work package, then prioritize the earliest open acceptance gates in dependency order. Reaffirm M1 provisioning/upgrade/isolation; complete M2 account and recovery journeys; implement M5 credentials needed by M3's service-door enforcement; complete M4a tenant rules and FastAPI contracts; finish M4's full surface/action/accessibility matrix; and qualify M6 monitoring, performance, recovery and handover. A blocked production email dependency does not prevent independent local or service implementation. Preserve prior acceptance history and label remaining release qualification separately.
 

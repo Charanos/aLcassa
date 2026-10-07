@@ -1,5 +1,5 @@
 import { assertDisposableDatabase } from './disposable';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { adminQuery, cleanup, closeHarness } from './harness';
 import { createResolvedContext, type TenantRole } from '@/lib/db/context';
@@ -65,12 +65,31 @@ describe('customer Activity through the real reader and policies', () => {
       values(${tenantId},'platform_admin','Platform verifier','subscription.plan_assigned','subscription',${requestId},
         ${JSON.stringify({ plan: 'business', monthly: 17000, keyHash: 'secret-fixture-marker' })}::jsonb,
         ${JSON.stringify({ plan: 'pro', monthly: 3400, reason: 'Reviewed subscription change', secret: 'secret-fixture-marker' })}::jsonb)`;
-    const model = await getLiveTenantAudit(context());
-    const entry = model?.entries.find((event) => event.requestId === requestId);
-    expect(entry?.changes).toContainEqual({ label: 'Plan', before: 'Business', after: 'Pro' });
-    expect(entry?.reason).toBe('Reviewed subscription change');
-    expect(JSON.stringify(model)).not.toContain('secret-fixture-marker');
-    await cleanup`delete from audit_log where request_id=${requestId}`;
+    try {
+      const model = await getLiveTenantAudit(context());
+      const entry = model?.entries.find((event) => event.requestId === requestId);
+      expect(entry?.changes).toContainEqual({ label: 'Plan', before: 'Business', after: 'Pro' });
+      expect(entry?.reason).toBe('Reviewed subscription change');
+      expect(JSON.stringify(model)).not.toContain('secret-fixture-marker');
+    } finally {
+      await cleanup`delete from audit_log where request_id=${requestId}`;
+    }
+  });
+  it('uses database time when the application clock lags behind a recorded change', async () => {
+    const requestId = `clock-${randomUUID()}`;
+    await adminQuery`insert into audit_log(tenant_id,actor_type,action,entity_type,request_id) values(${tenantId},'system','tenant.settings_updated','tenant_settings',${requestId})`;
+    vi.useFakeTimers({ now: new Date('2020-01-01T00:00:00Z'), toFake: ['Date'] });
+    try {
+      const model = await getLiveTenantAudit(context());
+      expect(model?.entries.some((entry) => entry.requestId === requestId)).toBe(true);
+      expect(model?.nextCursor).toBeTruthy();
+      expect(
+        (await getLiveTenantAudit(context(), { cursor: model!.nextCursor! }))?.entries,
+      ).toHaveLength(50);
+    } finally {
+      vi.useRealTimers();
+      await cleanup`delete from audit_log where request_id=${requestId}`;
+    }
   });
   it('returns every retained event once across 2,101 records, ties and new arrivals', async () => {
     const expected = await adminQuery<

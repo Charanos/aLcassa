@@ -25,6 +25,7 @@ import { redact } from '@/lib/logger';
  */
 export const AUDIT_ACTIONS = {
   TENANT_PROVISIONED: 'tenant.provisioned',
+  TENANT_PROVISIONING_CHECKED: 'tenant.provisioning_checked',
   /**
    * A workspace the platform did not create. Distinct from
    * `tenant.provisioned` ON PURPOSE — the actor on that row is a platform

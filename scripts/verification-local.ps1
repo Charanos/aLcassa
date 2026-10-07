@@ -7,7 +7,8 @@ $verificationCli = 'supabase@2.119.0'
 
 function Invoke-Checked {
   param([string]$Program, [string[]]$Arguments)
-  & $Program @Arguments
+  if ($Program -eq 'pnpm') { & corepack pnpm @Arguments }
+  else { & $Program @Arguments }
   if ($LASTEXITCODE -ne 0) { throw "$Program failed (exit $LASTEXITCODE)." }
 }
 

@@ -74,6 +74,11 @@ export type AuditDescription = {
 const VOCABULARY: Record<string, AuditDescription> = {
   /* ── Workspaces ──────────────────────────────────────────────────────── */
   'tenant.provisioned': { label: 'Workspace created', icon: IconBuildingPlus, tone: 'success' },
+  'tenant.provisioning_checked': {
+    label: 'Workspace setup checked',
+    icon: IconEye,
+    tone: 'neutral',
+  },
   'tenant.self_registered': {
     label: 'Workspace signed itself up',
     icon: IconBuildingPlus,
@@ -192,6 +197,7 @@ export type AuditNature = 'change' | 'read';
 export const READ_ACTIONS: readonly string[] = [
   'support.session_read',
   'watchlist.read',
+  'tenant.provisioning_checked',
   'subscription.plan_change_previewed',
   'customer_record.read',
 ];

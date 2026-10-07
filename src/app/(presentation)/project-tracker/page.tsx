@@ -26,7 +26,7 @@ const WORKING_TODAY = [
     icon: IconShieldCheck,
     tone: 'success' as const,
     title: 'Customer separation, proven',
-    body: 'Database isolation has automated coverage. The latest full suite passed 420 tests; all 15 workspace tables pass policy coverage checks. Final review remains part of release qualification.',
+    body: 'Database isolation has automated coverage. The latest full local suite passed 440 tests; all 15 workspace tables pass policy coverage checks. Final review remains part of release qualification.',
   },
   {
     icon: IconUsers,
@@ -38,13 +38,13 @@ const WORKING_TODAY = [
     icon: IconCreditCard,
     tone: 'info' as const,
     title: 'Plans and limits',
-    body: 'Pricing tiers, seat and channel limits enforced at the limit, and every plan change recorded with who made it and why.',
+    body: 'Plans, allowance reviews and subscription changes use recorded data. Credential and service-boundary enforcement remain under verification.',
   },
   {
     icon: IconBuildingSkyscraper,
     tone: 'info' as const,
     title: 'The admin console',
-    body: 'Workspaces, subscription value, plans, Activity, support sessions and Profile use recorded data. The current candidate restores Health charts, makes the workspace grid the default and adds navigation loading feedback. Service monitoring and final surface acceptance remain open.',
+    body: 'Workspaces, subscription value, plans, Activity, support sessions and Profile use recorded data. Health canvas charts, the default workspace grid and navigation loading feedback are published. Service monitoring and final surface acceptance remain open.',
   },
   {
     icon: IconRobot,
@@ -95,7 +95,7 @@ export default function ProjectTrackerPage() {
 
         {/* Keep headline progress limited to the milestones, current stage and blockers. */}
         <p className="t-body mt-6 max-w-[64ch] text-[var(--text-secondary)]">
-          Verification checkpoint · 7 October 2026. The complete local suite passed 420 tests with
+          Verification checkpoint · 7 October 2026. The complete local suite passed 440 tests with
           no skips. Phase One remains in verification; email delivery, credentials, tenant rules and
           release qualification still have open gates.{' '}
           <Link

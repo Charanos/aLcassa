@@ -1,8 +1,11 @@
 import 'server-only';
+import { randomUUID } from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
 import { AUDIT_ACTIONS } from '@/lib/audit';
-import { asService } from '@/lib/db/serviceClient';
+import { asService, type ServiceTransaction } from '@/lib/db/serviceClient';
 import { createSupabaseAdminClient } from '@/lib/auth/supabase/admin';
+import { isAppError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 import {
   plans,
   subscriptions,
@@ -18,138 +21,123 @@ import {
 } from '../types';
 import { requireCapability } from './capabilities';
 
-/**
- * 02 §3 · 05 §3 · 06 §5 · 11 §6. PROVISION A TENANT.
- *
- * "Creates tenant, membership and owner in one transaction" — 02 §3. That
- * sentence is the entire specification and every awkward part of this file
- * exists to honour it.
- *
- * ⚠ WHY THIS IS ONE OF THE FOUR LEGITIMATE SERVICE-ROLE OPERATIONS.
- * `serviceClient.ts` lists it first and gives the reason: "the tenant does
- * not exist yet, so no context can resolve to it." There is no session to
- * run as and no tenant to scope to. Every OTHER read of tenant data goes
- * through `withTenantContext` and answers to RLS; this one cannot, which is
- * exactly why it is audited before it runs rather than after.
- *
- * ⚠ THE ONE THING THAT IS NOT TRANSACTIONAL, STATED PLAINLY.
- *
- * The auth user lives in Supabase's `auth.users`, reachable only over HTTP.
- * A Postgres transaction cannot enrol it, so a true single-transaction
- * provision across both is not available to us. What this does instead:
- *
- *   1. Create the auth user FIRST, outside the transaction.
- *   2. Do every Postgres write inside ONE transaction.
- *   3. If the transaction fails, DELETE the auth user.
- *
- * Step 3 is the part that is easy to skip and expensive to have skipped. An
- * orphaned auth user with no membership is a person who can sign in and
- * reach the "your account is not attached to a workspace" state (02 §11)
- * forever, with no route out that does not involve us. The compensation is
- * best-effort by nature — if it fails too, the error says so explicitly and
- * names the address, because a human then has to remove it.
- *
- * The alternative, creating the tenant first and the user second, is worse:
- * a tenant with no owner is invisible to every policy in `06`, so nobody can
- * see it in order to fix it.
- */
+type ProvisionActor = {
+  userId: string;
+  label: string;
+  requestId: string;
+  ipAddress?: string | null;
+};
+
+/** Validate before sending email; recheck at commit and compensate Auth if the database rolls back. */
 export async function provisionTenant(
   input: ProvisionTenantInput,
-  actor: { userId: string; label: string; requestId: string; ipAddress?: string | null },
+  actor: ProvisionActor,
 ): Promise<ProvisionTenantResult> {
   const parsed = provisionTenantSchema.safeParse(input);
   if (!parsed.success) {
     return {
       ok: false,
       code: 'validation_failed',
-      message: 'Some of what was sent is not valid.',
-      details: parsed.error.issues.map((i) => ({
-        field: i.path.join('.'),
-        message: i.message,
+      message: 'Check the highlighted workspace details.',
+      details: parsed.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
       })),
     };
   }
-
   const { name, slug, ownerEmail, ownerName, initialStatus, planCode } = parsed.data;
-  const admin = createSupabaseAdminClient();
+  const auditIdentity = {
+    actorUserId: actor.userId,
+    actorLabel: actor.label,
+    entityType: 'tenant',
+    requestId: actor.requestId,
+    ipAddress: actor.ipAddress ?? null,
+  };
 
-  // ── 1 · The auth user, before the transaction ──────────────────────────
-  //
-  // `inviteUserByEmail` rather than `createUser`: 02 §3 says the owner
-  // "receives an invitation and sets their own password". Creating a user
-  // with a password we generated would mean this system knew a credential
-  // it has no business knowing, which is the same principle the credential
-  // reveal screen is built on.
-  const invited = await admin.auth.admin.inviteUserByEmail(ownerEmail, {
-    data: { full_name: ownerName },
-  });
-
-  if (invited.error || !invited.data.user) {
-    const alreadyRegistered = invited.error?.message?.toLowerCase().includes('already') ?? false;
+  try {
+    await asService(
+      {
+        ...auditIdentity,
+        action: AUDIT_ACTIONS.TENANT_PROVISIONING_CHECKED,
+        reason: `Checked workspace setup for ${slug}`,
+      },
+      (tx) => checkProvisioning(tx, actor.userId, slug, planCode),
+    );
+  } catch (error) {
+    const refusal = validationRefusal(error);
+    if (refusal) return refusal;
+    if (isAppError(error)) throw error;
+    logger.error('workspace provisioning validation failed', {
+      requestId: actor.requestId,
+      actorId: actor.userId,
+    });
     return {
       ok: false,
-      code: alreadyRegistered ? 'owner_exists' : 'provisioning_failed',
-      message: alreadyRegistered
-        ? `${ownerEmail} already has an account. Invite them to this workspace instead of provisioning a new one.`
-        : `The owner account could not be created: ${invited.error?.message ?? 'unknown error'}`,
+      code: 'provisioning_failed',
+      message: 'Workspace setup could not be checked. No invitation was sent. Try again.',
     };
   }
 
-  const ownerUserId = invited.data.user.id;
+  const admin = createSupabaseAdminClient();
+  let ownerUserId: string;
+  try {
+    const invited = await admin.auth.admin.inviteUserByEmail(ownerEmail, {
+      data: { full_name: ownerName },
+    });
+    if (invited.error || !invited.data.user) {
+      const alreadyRegistered =
+        ['email_exists', 'user_already_exists'].includes(invited.error?.code ?? '') ||
+        /already (?:been )?registered/i.test(invited.error?.message ?? '');
+      logger.warn('workspace owner invitation was refused', {
+        requestId: actor.requestId,
+        actorId: actor.userId,
+        code: alreadyRegistered ? 'owner_exists' : 'provisioning_failed',
+      });
+      return {
+        ok: false,
+        code: alreadyRegistered ? 'owner_exists' : 'provisioning_failed',
+        message: alreadyRegistered
+          ? 'This email already has an account. Choose a different owner email; adding an existing owner is not supported by this setup flow.'
+          : 'The invitation service could not complete workspace setup. No workspace was created. Check the owner account before retrying.',
+      };
+    }
+    ownerUserId = invited.data.user.id;
+  } catch {
+    logger.error('workspace owner invitation failed', {
+      requestId: actor.requestId,
+      actorId: actor.userId,
+    });
+    return {
+      ok: false,
+      code: 'provisioning_failed',
+      message:
+        'The invitation service did not confirm the request. No workspace was created. Check the owner account before retrying.',
+    };
+  }
 
-  // ── 2 · Every Postgres write, in one transaction ───────────────────────
+  const workspaceId = randomUUID();
   try {
     const tenantId = await asService(
       {
+        ...auditIdentity,
         action: AUDIT_ACTIONS.TENANT_PROVISIONED,
-        actorUserId: actor.userId,
-        actorLabel: actor.label,
-        entityType: 'tenant',
+        targetTenantId: workspaceId,
+        entityId: workspaceId,
         reason: `Provisioned ${slug} with owner ${ownerEmail}`,
-        requestId: actor.requestId,
-        ipAddress: actor.ipAddress ?? null,
       },
       async (tx) => {
-        // Doc 23: the capability column is enforced here, before anything is written.
-        await requireCapability(tx, actor.userId, 'manage_workspaces');
-        // Slug uniqueness is enforced by the index; this read turns the
-        // resulting constraint violation into a message naming the field,
-        // which is what `07 §1`'s error envelope needs.
-        const existing = await tx
-          .select({ id: tenants.id })
-          .from(tenants)
-          .where(eq(tenants.slug, slug))
-          .limit(1);
-
-        if (existing.length > 0) throw new SlugTakenError(slug);
-
+        // The plan lock prevents deactivation until this provisioning transaction completes.
+        const plan = await checkProvisioning(tx, actor.userId, slug, planCode);
         const [tenant] = await tx
           .insert(tenants)
-          .values({
-            slug,
-            name,
-            status: initialStatus,
-            provisionedAt: new Date(),
-          })
+          .values({ id: workspaceId, slug, name, status: initialStatus, provisionedAt: new Date() })
           .returning({ id: tenants.id });
-
-        if (!tenant) throw new Error('The tenant row was not returned after insert.');
-
-        await tx.insert(tenantSettings).values({
-          tenantId: tenant.id,
-          displayName: name,
-        });
-
-        // The profile projection over `auth.users`. 05 §4.
+        if (!tenant) throw new Error('Workspace insert returned no row.');
+        await tx.insert(tenantSettings).values({ tenantId: tenant.id, displayName: name });
         await tx
           .insert(userProfiles)
           .values({ id: ownerUserId, fullName: ownerName, email: ownerEmail })
           .onConflictDoNothing();
-
-        // 06 §5: "A tenant always has exactly one owner." This is the row
-        // that makes that true from the first instant the tenant exists.
-        // `joinedAt` stays null until the invitation is accepted — they are
-        // the owner, they have simply not arrived yet.
         await tx.insert(tenantMembers).values({
           tenantId: tenant.id,
           userId: ownerUserId,
@@ -157,125 +145,122 @@ export async function provisionTenant(
           status: 'invited',
           invitedBy: actor.userId,
         });
-
-        /**
-         * ⚠ THE SUBSCRIPTION. THIS WAS MISSING ENTIRELY, AND IT IS THE STEP
-         *   THE MODAL HAS BEEN PROMISING IN WRITING SINCE IT SHIPPED.
-         *
-         * Without it a provisioned workspace has no plan row, so every
-         * entitlement resolves to nothing: no seat ceiling, no channel
-         * ceiling, "—" in the plan column of the workspace list, and an
-         * entitlement guard with no number to compare against. It is the one
-         * row that makes a tenant a CUSTOMER rather than an empty shell.
-         *
-         * It is resolved from the code inside the transaction rather than
-         * taken on trust from the caller: a code with no matching row throws,
-         * the tenant insert rolls back, and the invited auth user is cleaned
-         * up by the compensation below. That is the check that would have
-         * caught `growth` — a plan the provisioning modal offered for months
-         * and which has never existed in this product.
-         */
-        const [plan] = await tx
-          .select({ id: plans.id, trialDays: plans.trialDays })
-          .from(plans)
-          .where(and(eq(plans.code, planCode), eq(plans.isActive, true)))
-          .limit(1);
-
-        if (!plan) throw new UnknownPlanError(planCode);
-
-        /**
-         * The period. A trial ends when the plan says it does; an active
-         * workspace starts a month from now.
-         *
-         * ⚠ NO GATEWAY MEANS NOBODY RENEWS THIS AUTOMATICALLY. 08 §1: the
-         * payment stub columns stay null through Phase 1. The dates are real
-         * and the renewal is a human — which is exactly what the revenue
-         * screen's collection queue is for — so writing a period that has
-         * already expired, or none at all, would put every new workspace into
-         * that queue on day one.
-         */
         const now = new Date();
         const periodEnd = new Date(now);
         periodEnd.setMonth(periodEnd.getMonth() + 1);
-
         const trialEndsAt =
           initialStatus === 'trial' && plan.trialDays > 0
             ? new Date(now.getTime() + plan.trialDays * 24 * 60 * 60 * 1000)
             : null;
-
         await tx.insert(subscriptions).values({
           tenantId: tenant.id,
           planId: plan.id,
-          /* The subscription's status tracks the tenant's entry state: a
-             workspace provisioned as `trial` has a trialing subscription, not
-             an active one billing from day zero. */
           status: initialStatus === 'trial' ? 'trialing' : 'active',
           currentPeriodStart: now,
           currentPeriodEnd: trialEndsAt ?? periodEnd,
           trialEndsAt,
         });
-
         return tenant.id;
       },
     );
-
     return { ok: true, tenantId, slug, ownerUserId };
   } catch (error) {
-    // ── 3 · Compensate. See the note at the top on why this matters. ─────
-    const removed = await admin.auth.admin.deleteUser(ownerUserId).then(
-      (r) => !r.error,
-      () => false,
-    );
-
-    if (error instanceof SlugTakenError) {
+    let removed = false;
+    try {
+      const cleanup = await admin.auth.admin.deleteUser(ownerUserId);
+      removed = !cleanup.error;
+    } catch {
+      // Report recovery explicitly when Auth compensation cannot be confirmed.
+    }
+    if (!removed) {
+      logger.error('workspace provisioning requires owner-account recovery', {
+        requestId: actor.requestId,
+        actorId: actor.userId,
+        ownerUserId,
+      });
       return {
         ok: false,
-        code: 'slug_taken',
-        message: `The name ${error.slug} is already in use.`,
-        details: [{ field: 'slug', message: 'Already in use.' }],
+        code: 'provisioning_failed',
+        message:
+          'No workspace was created, but the invited owner account could not be removed. Ask the platform owner to recover that account before retrying. An invitation may already have been sent.',
       };
     }
-
-    if (error instanceof UnknownPlanError) {
+    const refusal = validationRefusal(error);
+    if (refusal)
       return {
-        ok: false,
-        code: 'unknown_plan',
-        message: `There is no active plan with the code "${error.code}". Reload the page — the plan list it was drawn from is out of date.`,
-        details: [{ field: 'planCode', message: 'Not an active plan.' }],
+        ...refusal,
+        message: `${refusal.message} The temporary owner account was removed; an invitation may already have been sent.`,
       };
-    }
-
+    if (isAppError(error)) throw error;
+    logger.error('workspace provisioning rolled back', {
+      requestId: actor.requestId,
+      actorId: actor.userId,
+    });
     return {
       ok: false,
       code: 'provisioning_failed',
-      message: removed
-        ? 'Provisioning failed and nothing was created. Try again.'
-        : `Provisioning failed, and the part-created account for ${ownerEmail} could not be removed automatically. It must be deleted by hand before retrying.`,
+      message:
+        'Workspace setup failed. No workspace was created and the temporary owner account was removed. An invitation may already have been sent.',
     };
   }
 }
 
-/**
- * Thrown when the plan code has no matching active row.
- *
- * ⚠ IT IS A DISTINCT ERROR BECAUSE IT NAMES A DIFFERENT FIELD. A workspace
- * refused for an unknown plan and one refused for a taken slug are two
- * different corrections, and a single 'provisioning failed' would send the
- * operator to re-type the name.
- */
-class UnknownPlanError extends Error {
-  constructor(readonly code: string) {
-    super(`unknown_plan:${code}`);
-    this.name = 'UnknownPlanError';
-  }
+async function checkProvisioning(
+  tx: ServiceTransaction,
+  actorUserId: string,
+  slug: string,
+  planCode: string,
+) {
+  await requireCapability(tx, actorUserId, 'manage_workspaces');
+  const [existing] = await tx
+    .select({ id: tenants.id })
+    .from(tenants)
+    .where(eq(tenants.slug, slug))
+    .limit(1);
+  if (existing) throw new SlugTakenError();
+  const [plan] = await tx
+    .select({ id: plans.id, trialDays: plans.trialDays })
+    .from(plans)
+    .where(and(eq(plans.code, planCode), eq(plans.isActive, true)))
+    .limit(1)
+    .for('share');
+  if (!plan) throw new UnknownPlanError();
+  return plan;
 }
 
-/** Thrown inside the transaction so the rollback happens, and caught outside
- *  so the caller gets a message naming the field rather than a constraint
- *  name. */
-class SlugTakenError extends Error {
-  constructor(readonly slug: string) {
-    super(`slug_taken:${slug}`);
-    this.name = 'SlugTakenError';
+function validationRefusal(error: unknown): Extract<ProvisionTenantResult, { ok: false }> | null {
+  if (error instanceof SlugTakenError || slugConstraintViolation(error)) {
+    return {
+      ok: false,
+      code: 'slug_taken',
+      message: 'This workspace address is already in use. Choose another address.',
+      details: [{ field: 'slug', message: 'Already in use.' }],
+    };
   }
+  if (error instanceof UnknownPlanError) {
+    return {
+      ok: false,
+      code: 'unknown_plan',
+      message:
+        'The selected plan is no longer available. Reload the page and choose an active plan.',
+      details: [{ field: 'planCode', message: 'Choose an active plan.' }],
+    };
+  }
+  return null;
 }
+
+/** Translate only the workspace slug indexes, including errors wrapped by Drizzle. */
+function slugConstraintViolation(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const failure = error as { code?: string; constraint_name?: string; cause?: unknown };
+  return (
+    (failure.code === '23505' &&
+      ['tenants_slug_unique', 'tenants_slug_idx'].includes(failure.constraint_name ?? '')) ||
+    (failure.cause !== undefined &&
+      failure.cause !== error &&
+      slugConstraintViolation(failure.cause))
+  );
+}
+
+class UnknownPlanError extends Error {}
+class SlugTakenError extends Error {}

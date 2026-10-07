@@ -13,3 +13,6 @@ runs:
     - name: Verify provider schema
       shell: bash
       run: node --import tsx scripts/verification-provider-check.ts
+    - name: Configure disposable Auth contract tests
+      shell: bash
+      run: node --import tsx scripts/verification-provider-env.ts

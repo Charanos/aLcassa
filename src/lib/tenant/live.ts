@@ -328,25 +328,31 @@ export async function getLiveTenantAudit(
   if (!['owner', 'admin', 'support'].includes(ctx.role))
     throw new AppError(ERROR_CODES.ROLE_NOT_PERMITTED);
 
-  const now = new Date();
-  let cursor;
-  try {
-    cursor = decodeActivityCursor(options.cursor, now);
-  } catch {
-    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
-      message: 'This activity page link is invalid. Open Activity again to see the latest entries.',
-    });
-  }
-  const asOf = cursor?.asOf ?? now;
-
   const snapshot = await getEntitlementSnapshot(ctx);
   const retention = snapshot.byKey.audit_retention_days;
   if (!retention) throw new AppError(ERROR_CODES.ENTITLEMENT_FEATURE_UNAVAILABLE);
   const retentionDays = retention.limit;
-  // A caller may edit the cursor: retention always uses the current time.
-  const cutoff = retentionDays === null ? null : new Date(now.getTime() - retentionDays * 86400000);
-
   return withTenantContext(ctx, async (tx) => {
+    // Audit timestamps and the snapshot use the same clock, retaining database microseconds.
+    const [clock] = await tx.execute<{ wire: string }>(sql`
+      select to_char(clock_timestamp() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as wire
+    `);
+    if (!clock) throw new AppError(ERROR_CODES.INTERNAL);
+    const now = new Date(clock.wire);
+    let cursor;
+    try {
+      cursor = decodeActivityCursor(options.cursor, now, clock.wire);
+    } catch {
+      throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+        message:
+          'This activity page link is invalid. Open Activity again to see the latest entries.',
+      });
+    }
+    const asOf = cursor?.asOf ?? now;
+    const asOfWire = cursor?.asOfWire ?? clock.wire;
+    // Retention uses current database time, never a caller-controlled snapshot.
+    const cutoff =
+      retentionDays === null ? null : new Date(now.getTime() - retentionDays * 86400000);
     const [settings] = await tx
       .select({ timezone: tenantSettings.timezone, locale: tenantSettings.locale })
       .from(tenantSettings)
@@ -370,7 +376,7 @@ export async function getLiveTenantAudit(
       .from(auditLog)
       .where(
         and(
-          lte(auditLog.occurredAt, asOf),
+          lte(auditLog.occurredAt, sql`${asOfWire}::timestamptz`),
           cutoff ? gte(auditLog.occurredAt, cutoff) : undefined,
           cursor
             ? or(
@@ -395,7 +401,13 @@ export async function getLiveTenantAudit(
       cutoff: cutoff?.toISOString() ?? null,
       nextCursor:
         rows.length > 50 && last
-          ? encodeActivityCursor({ at: last.occurredAt, atWire: last.cursorAt, id: last.id, asOf })
+          ? encodeActivityCursor({
+              at: last.occurredAt,
+              atWire: last.cursorAt,
+              id: last.id,
+              asOf,
+              asOfWire,
+            })
           : null,
       entries: page.map((row) => ({
         id: row.id,
