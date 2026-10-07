@@ -110,7 +110,7 @@ jobs:
       # 04 §11 · 11 §5. Blocks merge. No override, no exception path.
       # This is the gate that lets Brian be told the guarantee holds today.
       - name: Isolation suite
-        run: pnpm test:isolation --reporter=default --reporter=json --outputFile=.test-report/phase-one/isolation.json
+        run: pnpm run test:isolation --reporter=default --reporter=json --outputFile=.test-report/phase-one/isolation.json
 
       # 08 §3. The counters the entitlement guard reads must match the rows
       # they are derived from. Report only — it never repairs in CI, because
@@ -152,7 +152,7 @@ jobs:
       # anything connects as the app role.
       - run: pnpm db:app-role
       - run: pnpm db:seed
-      - run: pnpm test --reporter=default --reporter=json --outputFile=.test-report/phase-one/tests.json
+      - run: pnpm run test --reporter=default --reporter=json --outputFile=.test-report/phase-one/tests.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -194,7 +194,7 @@ jobs:
       # anything connects as the app role.
       - run: pnpm db:app-role
       - run: pnpm db:seed
-      - run: pnpm test --reporter=default --reporter=json --outputFile=.test-report/phase-one/cache-disabled.json
+      - run: pnpm run test --reporter=default --reporter=json --outputFile=.test-report/phase-one/cache-disabled.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

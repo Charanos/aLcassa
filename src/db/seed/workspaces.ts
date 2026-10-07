@@ -158,10 +158,14 @@ export async function seedWorkspaces(sql: Queryable): Promise<number> {
      * exactly that incoherence once, which the reconciliation job surfaced on
      * its first run — a peak that understates the present is worse than none.
      */
+    const [credentials] = await sql<{ count: number }[]>`
+      select count(*)::int as count from api_credentials
+      where tenant_id = ${w.id} and revoked_at is null and deleted_at is null
+    `;
     const counters: Array<[string, number]> = [
       ['seats', w.seats],
       ['channels', w.channels],
-      ['api_keys', w.plan === 'pro' ? 1 : 2],
+      ['api_keys', credentials?.count ?? 0],
     ];
 
     for (const [key, value] of counters) {
