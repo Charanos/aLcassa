@@ -52,7 +52,7 @@ export function AppearanceSettings() {
     <div ref={containerRef} className="grid gap-12">
       <section className="gsap-stagger rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-6 md:p-8">
         <h2 className="t-panel text-[var(--text-primary)]">Accent Palette</h2>
-        <p className="t-compact mt-2 max-w-xl text-[var(--text-secondary)]">
+        <p className="t-compact mt-2 text-[var(--text-secondary)]">
           Select the primary accent color for your workspace. This color will be applied to your
           organization&apos;s avatar, navigation highlights, and key charts.
         </p>
@@ -83,7 +83,7 @@ export function AppearanceSettings() {
 
       <section className="gsap-stagger rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-6 md:p-8">
         <h2 className="t-panel text-[var(--text-primary)]">Layout Behavior</h2>
-        <p className="t-compact mt-2 max-w-xl text-[var(--text-secondary)]">
+        <p className="t-compact mt-2 text-[var(--text-secondary)]">
           Customize how the workspace interface behaves to suit your workflow.
         </p>
 

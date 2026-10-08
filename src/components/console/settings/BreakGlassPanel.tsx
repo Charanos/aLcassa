@@ -118,7 +118,7 @@ export function BreakGlassPanel({
           </p>
           <p
             className="t-caption mt-1.5"
-            style={{ color: 'var(--text-secondary)', maxWidth: '62ch', textWrap: 'pretty' }}
+            style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
           >
             {active
               ? 'No admin, including you, can open a workspace until this is released.'
@@ -140,7 +140,6 @@ export function BreakGlassPanel({
               style={{
                 background: 'var(--surface-sunken)',
                 color: 'var(--text-tertiary)',
-                maxWidth: '62ch',
                 textWrap: 'pretty',
               }}
             >

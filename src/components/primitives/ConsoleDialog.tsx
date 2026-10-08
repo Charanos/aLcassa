@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { IconAlertTriangle, IconX, type Icon as TablerIcon } from '@tabler/icons-react';
 import { IconTile, type IconTileTone } from './IconTile';
@@ -68,6 +68,7 @@ export function ConsoleDialog({
   actions,
   children,
   dismissible = true,
+  returnFocusRef,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -103,6 +104,8 @@ export function ConsoleDialog({
   children?: React.ReactNode;
   /** False while a write is in flight, so Escape cannot orphan it. */
   dismissible?: boolean;
+  /** External triggers can restore keyboard focus when the dialog closes. */
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -144,6 +147,12 @@ export function ConsoleDialog({
         <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
           <Dialog.Content
             ref={panelRef}
+            onCloseAutoFocus={(event) => {
+              if (returnFocusRef?.current) {
+                event.preventDefault();
+                returnFocusRef.current.focus();
+              }
+            }}
             data-operation={operation}
             className="surface-glass-strong pointer-events-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-overlay"
             style={{
@@ -188,7 +197,6 @@ export function ConsoleDialog({
                     className="t-body mt-3"
                     style={{
                       color: 'var(--text-secondary)',
-                      maxWidth: '62ch',
                       textWrap: 'pretty',
                     }}
                   >

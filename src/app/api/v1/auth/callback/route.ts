@@ -25,11 +25,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error || !data.user) {
-      log.error('Failed to exchange code for session', { reason: error?.message });
+      log.error('Failed to exchange code for session', { code: error?.code ?? 'provider_failure' });
       throw new AppError(ERROR_CODES.AUTH_INVALID_CREDENTIALS);
     }
 
     const userId = data.user.id;
+    if (!data.user.email_confirmed_at) throw new AppError(ERROR_CODES.AUTH_EMAIL_UNVERIFIED);
 
     // 1. Is it a platform admin?
     const platform = await isPlatformAdmin(userId, requestId);
@@ -49,6 +50,29 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // 2. Do they have active memberships?
     const memberships = await membershipsFor(userId, requestId);
     const active = memberships.filter((m) => m.status === 'active');
+
+    // Invited owners finish their existing account instead of creating another workspace.
+    if (
+      active.length === 0 &&
+      memberships.some((m) => m.role === 'owner' && m.status === 'invited')
+    ) {
+      const flow = await createSession({
+        userId,
+        kind: 'recovery',
+        effectiveRole: 'invite',
+        requestId,
+      });
+      const response = NextResponse.redirect(
+        new URL('/reset-password?purpose=invite', request.url),
+        303,
+      );
+      response.cookies.set(
+        cookieNameFor('recovery'),
+        flow.id,
+        sessionCookieOptions(flow.expiresAt),
+      );
+      return response;
+    }
 
     // 3. New user from Google Auth without a workspace yet.
     if (active.length === 0) {

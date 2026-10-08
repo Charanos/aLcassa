@@ -111,10 +111,7 @@ export function VersionRail({
         ))}
       </div>
 
-      <p
-        className="t-caption px-5 pb-4"
-        style={{ color: 'var(--text-tertiary)', maxWidth: '40ch' }}
-      >
+      <p className="t-caption px-5 pb-4" style={{ color: 'var(--text-tertiary)' }}>
         {/*
           ⚠ NO DIFF YET, AND SAYING SO IS BETTER THAN A DISABLED "Compare".
           17 §7 asked for one. It needs two versions' documents in the reader

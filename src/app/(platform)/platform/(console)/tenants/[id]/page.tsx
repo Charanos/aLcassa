@@ -168,7 +168,7 @@ export default async function WorkspaceDetailPage({
             <Panel title="Channels are not connected yet">
               <div className="flex items-start gap-4 rounded-overlay bg-[var(--surface-raised)] p-5">
                 <IconPlugConnected size={24} stroke={1.5} aria-hidden />
-                <p className="t-body max-w-[64ch] text-[var(--text-secondary)]">
+                <p className="t-body text-[var(--text-secondary)]">
                   Delivery status, message counts and connection controls will appear when channel
                   processing is available.
                 </p>

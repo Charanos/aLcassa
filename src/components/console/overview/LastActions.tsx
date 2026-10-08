@@ -198,7 +198,7 @@ function NoActionsYet() {
         </p>
         <p
           className="t-caption mx-auto mt-1.5"
-          style={{ color: 'var(--text-secondary)', maxWidth: '42ch', textWrap: 'pretty' }}
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           Provisioning a workspace, changing a plan or entering a support session writes here in the
           same transaction that performs it. Nothing has happened yet — this is not a failure to

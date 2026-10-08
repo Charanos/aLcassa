@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { isPlatformAdmin, membershipsFor } from '@/lib/auth/resolve';
+import { activateProvisionedOwner } from '@/lib/auth/provisionedOwner';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
@@ -107,6 +108,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const memberships = await membershipsFor(userId, requestId);
     const active = memberships.filter((m) => m.status === 'active');
+    // A saved password can recover a provisioned owner whose activation previously failed.
+    if (
+      active.length === 0 &&
+      memberships.some((m) => m.role === 'owner' && m.status === 'invited')
+    ) {
+      const joined = await activateProvisionedOwner(
+        requestId,
+        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+      );
+      const membership = memberships.find((m) => m.tenantId === joined.tenantId)!;
+      active.push({ ...membership, status: 'active' });
+    }
 
     // 02 §11. A real state with a real screen. Signing them in and letting the
     // shell fail to render would be worse than saying so.

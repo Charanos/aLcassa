@@ -152,10 +152,7 @@ function NothingAtCeiling() {
       <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         Every workspace has headroom.
       </p>
-      <p
-        className="t-caption"
-        style={{ color: 'var(--text-secondary)', maxWidth: '34ch', textWrap: 'pretty' }}
-      >
+      <p className="t-caption" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
         Nothing is within {100 - PRESSURE_THRESHOLD}% of a limit. A workspace appears here before it
         is blocked, not after.
       </p>

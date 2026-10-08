@@ -68,7 +68,7 @@ export default async function SubscriptionSettingsPage() {
         ))}
       </section>
 
-      <p className="t-caption mt-6 max-w-prose text-[var(--text-tertiary)]">
+      <p className="t-caption mt-6 text-[var(--text-tertiary)]">
         Billing is handled directly for now rather than through automatic card charges. See{' '}
         <a href="/app/billing" className="underline hover:text-[var(--blue-500)]">
           Billing

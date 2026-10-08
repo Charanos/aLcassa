@@ -171,6 +171,8 @@ export const AUDIT_ACTIONS = {
    * unanswerable, so the two stay apart.
    */
   PASSWORD_CHANGED: 'password.changed',
+  PASSWORD_RESET: 'password.reset',
+  PASSWORD_SET: 'password.set',
   AUDIT_EXPORTED: 'audit.exported',
   /**
    * A platform-level CSV leaving the product: the workspace roster, revenue,

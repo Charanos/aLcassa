@@ -397,7 +397,7 @@ function TelemetryUnwired() {
         </p>
         <p
           className="t-caption mx-auto mt-1.5"
-          style={{ color: 'var(--text-secondary)', maxWidth: '44ch', textWrap: 'pretty' }}
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           Response times, delivery status, and queue depth need connected monitoring. Health
           currently reports the database’s policy coverage.

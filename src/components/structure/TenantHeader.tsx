@@ -87,10 +87,7 @@ export function WorkspaceSwitcher({ workspaces }: { workspaces: WorkspaceSummary
           }}
         >
           <Initials text={current.initials} size={22} />
-          <span
-            className="t-compact truncate"
-            style={{ color: 'var(--text-primary)', maxWidth: '22ch' }}
-          >
+          <span className="t-compact truncate" style={{ color: 'var(--text-primary)' }}>
             {current.name}
           </span>
           <IconChevronDown

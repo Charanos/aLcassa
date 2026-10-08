@@ -209,7 +209,6 @@ export default async function ConsoleOverviewPage() {
                 className="display display-md leading-[1.12]"
                 style={{
                   color: 'var(--invert-card-fg)',
-                  maxWidth: '32ch',
                   textWrap: 'pretty',
                   fontSize: 'var(--type-hero)',
                   letterSpacing: '-0.02em',

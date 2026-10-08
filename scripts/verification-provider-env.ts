@@ -29,6 +29,7 @@ try {
 }
 assert.equal(provider.API_URL, 'http://127.0.0.1:55421');
 const providerExports: Record<string, unknown> = {
+  NEXT_PUBLIC_APP_URL: 'http://localhost:3100',
   NEXT_PUBLIC_SUPABASE_URL: provider.API_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: provider.ANON_KEY,
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: provider.ANON_KEY,
@@ -40,6 +41,7 @@ for (const [name, value] of Object.entries(providerExports)) {
     typeof value === 'string' && value.length > 0 && !/[\r\n]/.test(value),
     `Missing or malformed ${name}.`,
   );
-  if (name !== 'NEXT_PUBLIC_SUPABASE_URL') console.log(`::add-mask::${value}`);
+  if (!['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_APP_URL'].includes(name))
+    console.log(`::add-mask::${value}`);
   appendFileSync(process.env.GITHUB_ENV, `${name}=${value}\n`, 'utf8');
 }

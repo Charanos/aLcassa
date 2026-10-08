@@ -1,9 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import {
+  authProviderEmail,
   credentialCreatedEmail,
   invitationEmail,
   supportSessionEmail,
 } from '../../src/modules/email/templates';
+
+describe('Auth provider email templates', () => {
+  it.each(['invite', 'recovery'] as const)(
+    'preserves the provider proof in %s without external assets',
+    (purpose) => {
+      const rendered = authProviderEmail(purpose);
+      expect(rendered.html).toContain('href="{{ .ConfirmationURL }}"');
+      expect(rendered.text).toContain('{{ .ConfirmationURL }}');
+      expect(rendered.html).not.toMatch(/<script|<svg|<img|@import|url\(/i);
+      expect(rendered.html).toContain('role="presentation"');
+      expect(rendered.html).toContain('Keep account links private');
+      expect(rendered.subject).not.toMatch(/[\r\n]/);
+    },
+  );
+});
 
 /**
  * 10 §14. The templates are pure — data in, three strings out — so they can be

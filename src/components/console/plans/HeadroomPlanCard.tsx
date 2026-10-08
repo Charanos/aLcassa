@@ -1,134 +1,122 @@
 'use client';
 
-import { useState } from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
+import { useRef, useState } from 'react';
+import Link from 'next/link';
 import {
-  IconInfoCircle,
-  IconUsers,
-  IconKey,
+  IconArrowUpRight,
+  IconBook,
+  IconClock,
   IconHash,
-  IconCircleDot,
+  IconKey,
+  IconMessageCircle,
+  IconStack2,
+  IconUsers,
+  IconGauge,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import { type HeadroomRow, type HeadroomModel } from '@/lib/console/data';
+import { ConsoleDialog } from '@/components/primitives/ConsoleDialog';
+import { Button } from '@/components/primitives/Button';
 import { LimitEditor } from './LimitEditor';
 
 const PRESSURE_THRESHOLD = 90;
+const number = new Intl.NumberFormat('en');
+const ROW_ICONS: Record<string, TablerIcon> = {
+  'Staff seats': IconUsers,
+  Seats: IconUsers,
+  'API keys': IconKey,
+  Channels: IconHash,
+  'Conversations this month': IconMessageCircle,
+  'Knowledge base documents': IconBook,
+  'Activity history': IconClock,
+  'Support response time': IconClock,
+  'Assistant rule versions retained': IconStack2,
+};
 
-const UNLIMITED_HEADROOM = 1.25;
-
-function scaleOf(row: HeadroomRow): number {
-  if (row.limit !== null && row.limit > 0) return row.limit;
-  return Math.max(row.max * UNLIMITED_HEADROOM, 1);
+function allowance(row: HeadroomRow) {
+  return row.limit === null ? 'Unlimited' : amount(row.limit, row.key);
 }
 
-function pct(value: number, scale: number): number {
-  return Math.max(0, Math.min(100, (value / scale) * 100));
+function amount(value: number, key: string) {
+  const unit = key === 'audit_retention_days' ? 'day' : key === 'support_sla_hours' ? 'hour' : null;
+  return `${number.format(value)}${unit ? ` ${unit}${value === 1 ? '' : 's'}` : ''}`;
 }
 
-function Row({
-  row,
-  /**
-   * Only the expanded dialog passes this. The collapsed card is a TRIGGER —
-   * the whole thing is one button — so a second button inside it would be
-   * nested interactive content, which is both invalid and unclickable.
-   */
-  editablePlan,
-}: {
-  row: HeadroomRow;
-  editablePlan?: string;
-}) {
-  const scale = scaleOf(row);
-  const medianPct = pct(row.p50, scale);
-  const maxPct = pct(row.max, scale);
-  const unbounded = row.limit === null;
-
-  const ROW_ICONS: Record<string, TablerIcon> = {
-    'Staff seats': IconUsers,
-    'API keys': IconKey,
-    Channels: IconHash,
-  };
-  const Icon = ROW_ICONS[row.label] || IconCircleDot;
-
-  const pressed = !unbounded && maxPct >= PRESSURE_THRESHOLD;
-  const maxInk = pressed ? 'var(--accent-mark)' : 'var(--blue-500)';
-
+/** Plot recorded usage only against a positive allowance; unlimited has no percentage. */
+function UsageRow({ row, planName }: { row: HeadroomRow; planName?: string }) {
+  const Icon = ROW_ICONS[row.label] ?? IconGauge;
+  const limit = row.limit;
+  const bounded = limit !== null && limit > 0;
+  const percentage = (value: number) =>
+    bounded ? Math.max(0, Math.min(100, (value / limit) * 100)) : 0;
   return (
-    <div
-      className="grid gap-2 py-4"
-      style={{
-        borderTop: '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-        boxShadow: 'var(--glass-highlight)',
-      }}
-    >
-      <div className="flex items-baseline justify-between gap-3">
-        <span
-          className="flex items-center gap-2.5 truncate text-sm font-medium tracking-tight"
-          style={{ color: 'var(--text-primary)' }}
-        >
-          <Icon size={16} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} aria-hidden />
-          {row.label}
-        </span>
-        <span className="flex shrink-0 items-baseline gap-2">
-          <span
-            className="font-mono text-xs whitespace-nowrap"
-            style={{ color: 'var(--text-tertiary)' }}
-          >
-            {row.tenants === 0
-              ? 'nothing reports this'
-              : unbounded
-                ? `median ${row.p50} · max ${row.max} · no limit`
-                : `median ${row.p50} · max ${row.max} of ${row.limit}`}
-          </span>
-          {editablePlan && row.entitlementId ? (
-            <LimitEditor row={row} planName={editablePlan} variant="inline" />
-          ) : null}
-        </span>
-      </div>
-
-      <div
-        className="relative mt-1 mb-1 h-2.5 w-full overflow-hidden rounded-full"
-        style={{
-          background: 'var(--surface-sunken)',
-          boxShadow: 'var(--neu-inset)',
-        }}
-        role="img"
-        aria-label={
-          row.tenants === 0
-            ? `${row.label}: no workspace reports this counter`
-            : `${row.label}: median ${row.p50}, maximum ${row.max}${
-                unbounded ? ', no limit' : ` of ${row.limit}`
-              }`
-        }
-      >
-        <span
-          className="absolute inset-y-0 left-0 rounded-full"
-          style={{
-            width: `${medianPct}%`,
-            background: 'var(--blue-200)',
-            boxShadow: 'var(--glass-highlight)',
-          }}
-        />
-        {row.tenants > 0 ? (
-          <span
-            className="absolute inset-y-0 w-[4px] rounded-full"
-            style={{
-              left: `calc(${maxPct}% - 2px)`,
-              background: maxInk,
-              boxShadow: `0 0 6px ${maxInk}80`,
-            }}
+    <div className="min-w-0 py-4">
+      <div className="flex items-start justify-between gap-3">
+        <span className="flex min-w-0 items-start gap-2 text-sm font-medium text-[var(--text-primary)]">
+          <Icon
+            size={16}
+            stroke={1.5}
+            aria-hidden
+            className="mt-0.5 shrink-0 text-[var(--text-tertiary)]"
           />
+          <span>{row.label}</span>
+        </span>
+        {planName && row.entitlementId ? (
+          <LimitEditor row={row} planName={planName} variant="inline" />
         ) : null}
       </div>
-
-      {row.atCeiling > 0 ? (
-        <span
-          className="font-mono text-2xs font-medium tracking-wide whitespace-nowrap uppercase"
-          style={{ color: 'var(--accent-mark-text)' }}
+      <div className="mt-3 grid grid-cols-3 gap-3">
+        {[
+          ['Median', amount(row.p50, row.key)],
+          ['Highest', amount(row.max, row.key)],
+          ['Allowance', allowance(row)],
+        ].map(([label, value]) => (
+          <span key={label} className="grid min-w-0 gap-1">
+            <span className="text-xs text-[var(--text-tertiary)]">{label}</span>
+            <span className="text-sm font-medium break-words text-[var(--text-primary)] tabular-nums">
+              {value}
+            </span>
+          </span>
+        ))}
+      </div>
+      {bounded ? (
+        <div
+          className="relative mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--surface-sunken)] shadow-[var(--neu-inset)]"
+          role="img"
+          aria-label={`${row.label}: median ${row.p50}, highest ${row.max}, allowance ${row.limit}`}
         >
-          {row.atCeiling} {row.atCeiling === 1 ? 'workspace is' : 'workspaces are'} at{' '}
-          {PRESSURE_THRESHOLD}% or above
-        </span>
+          <span
+            className="absolute inset-y-0 left-0 rounded-full bg-[var(--blue-200)]"
+            style={{ width: `${percentage(row.p50)}%` }}
+          />
+          <span
+            className="absolute inset-y-0 w-1 rounded-full"
+            style={{
+              left: `clamp(0px, calc(${percentage(row.max)}% - 2px), calc(100% - 4px))`,
+              background: row.atCeiling > 0 ? 'var(--accent-mark)' : 'var(--blue-500)',
+            }}
+          />
+        </div>
+      ) : (
+        <p className="mt-3 text-xs text-[var(--text-tertiary)]">
+          {row.limit === null
+            ? 'Usage is recorded without a plan ceiling.'
+            : 'This plan provides no allowance.'}
+        </p>
+      )}
+      {row.atCeiling > 0 && row.limit !== null ? (
+        <p className="mt-2 text-xs leading-relaxed text-[var(--accent-mark-text)]">
+          {row.atCeiling} {row.atCeiling === 1 ? 'workspace' : 'workspaces'}{' '}
+          {row.limit === 0
+            ? 'with a zero allowance'
+            : `at ${PRESSURE_THRESHOLD}% of the allowance or higher`}
+        </p>
+      ) : null}
+      {planName ? (
+        <p className="mt-2 text-xs text-[var(--text-tertiary)]">
+          Based on {row.tenants} {row.tenants === 1 ? 'workspace with' : 'workspaces with'} recorded
+          usage.
+        </p>
       ) : null}
     </div>
   );
@@ -136,202 +124,156 @@ function Row({
 
 export function HeadroomPlanCard({ plan }: { plan: HeadroomModel['plans'][0] }) {
   const [open, setOpen] = useState(false);
-
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const measured = plan.rows.filter((row) => row.tenants > 0);
+  const unmeasured = plan.rows.filter((row) => row.tenants === 0);
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className="group relative flex w-full cursor-pointer flex-col gap-2 rounded-panel bg-[var(--surface-raised)] p-5 text-left transition-colors hover:bg-[var(--surface-sunken)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blue-500)]"
-          style={{
-            border: '1px solid var(--border-subtle)',
-            boxShadow: 'var(--glass-highlight)',
-          }}
-        >
-          <div className="flex w-full items-center justify-between pb-2">
-            <h3
-              className="text-base font-medium tracking-tight"
-              style={{ color: 'var(--text-primary)' }}
-            >
+    <>
+      <article className="flex min-w-0 flex-col overflow-hidden rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] shadow-[var(--glass-highlight)]">
+        <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-5 py-5">
+          <div className="min-w-0">
+            <h3 className="text-lg font-medium tracking-tight text-[var(--text-primary)]">
               {plan.name}
             </h3>
-            <span
-              className="font-mono text-xs font-medium whitespace-nowrap"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
-              {plan.tenants} {plan.tenants === 1 ? 'workspace' : 'workspaces'}
-            </span>
+            <p className="mt-1 text-xs text-[var(--text-tertiary)]">
+              {plan.tenants} {plan.tenants === 1 ? 'workspace assigned' : 'workspaces assigned'}
+            </p>
           </div>
-          <div className="grid w-full">
-            {plan.rows.map((row) => (
-              <Row key={row.key} row={row} />
-            ))}
-          </div>
-        </button>
-      </Dialog.Trigger>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          className="console-modal-backdrop fixed inset-0 z-[150]"
-          style={{
-            animation: 'overlay-in var(--duration-fast) linear',
-          }}
-        />
-        {/* Centring on the wrapper, not on a transform — `panel-in` ends at
-            `transform: none` and the reduced-motion block forces it with
-            `!important`, either of which cancels translate-based centring.
-            See `ProvisionWorkspaceDialog` for the full account. */}
-        <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
-          <Dialog.Content
-            className="surface-glass-strong pointer-events-auto w-[880px] max-w-[92vw] overflow-hidden rounded-slab"
-            style={{
-              animation: 'panel-in var(--duration-base) var(--ease-out)',
-              border: '1px solid color-mix(in srgb, var(--border-subtle) 50%, transparent)',
+          <button
+            type="button"
+            aria-label={`Review ${plan.name} headroom`}
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            onClick={(event) => {
+              triggerRef.current = event.currentTarget;
+              setOpen(true);
             }}
+            className="grid size-9 shrink-0 place-items-center rounded-full border border-[var(--border-subtle)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
           >
-            <div className="flex items-center justify-between px-8 pt-8 pb-4">
-              <div>
-                <p
-                  className="mb-2 text-xs font-medium tracking-[0.1em] uppercase"
-                  style={{ color: 'var(--text-tertiary)' }}
-                >
-                  Plan Headroom Details
-                </p>
-                <Dialog.Title asChild>
-                  <h2
-                    className="font-serif text-2xl leading-none tracking-tight"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    {plan.name}
-                  </h2>
-                </Dialog.Title>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-end">
-                  <span
-                    className="font-mono text-xl leading-none font-medium"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    {plan.tenants}
-                  </span>
-                  <span
-                    className="mt-1 text-sm font-medium"
-                    style={{ color: 'var(--text-tertiary)' }}
-                  >
-                    {plan.tenants === 1 ? 'workspace assigned' : 'workspaces assigned'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="px-8 pt-2 pb-8">
-              <div
-                className="mb-8 grid w-full rounded-overlay p-6"
-                style={{
-                  background: 'var(--surface-raised)',
-                  boxShadow: 'var(--glass-highlight)',
-                }}
-              >
-                {plan.rows.map((row) => (
-                  <Row key={row.key} row={row} editablePlan={plan.name} />
-                ))}
-              </div>
-
-              {plan.workspaces && plan.workspaces.length > 0 && (
-                <div className="mb-8">
-                  <h4
-                    className="mb-4 text-xs font-medium tracking-[0.1em] uppercase"
-                    style={{ color: 'var(--text-tertiary)' }}
-                  >
-                    Assigned Workspaces
-                  </h4>
-                  <div
-                    className="flex max-h-[140px] flex-wrap gap-2 overflow-y-auto pr-2"
-                    style={{
-                      scrollbarWidth: 'thin',
-                      scrollbarColor: 'var(--border-subtle) transparent',
-                    }}
-                  >
-                    {plan.workspaces.map((ws, i) => (
-                      <div
-                        key={i}
-                        className="flex cursor-default items-center rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors hover:bg-[var(--surface-inset)]"
-                        style={{
-                          background: 'var(--surface-sunken)',
-                          color: 'var(--text-secondary)',
-                          border:
-                            '1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent)',
-                        }}
-                      >
-                        {ws.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div
-                className="flex items-center justify-between border-t pt-6"
-                style={{ borderColor: 'color-mix(in srgb, var(--border-subtle) 50%, transparent)' }}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                    style={{
-                      background: 'var(--surface-raised)',
-                      boxShadow: 'var(--shadow-sm), var(--glass-highlight)',
-                    }}
-                  >
-                    <IconInfoCircle
-                      size={20}
-                      stroke={1.5}
-                      style={{ color: 'var(--text-tertiary)' }}
-                      aria-hidden
-                    />
-                  </div>
-                  <p
-                    className="max-w-[32ch] text-sm leading-relaxed"
-                    style={{ color: 'var(--text-secondary)' }}
-                  >
-                    Median usage provides the typical footprint. The max line shows the absolute
-                    ceiling.
-                  </p>
-                  {/*
-                  ⚠ THE SENTENCE STAYS; THE DEAD BUTTON DOES NOT.
-
-                  "Manage limits" was disabled with this paragraph beside it, and
-                  the paragraph is correct — a limit belongs to the PLAN, and a
-                  ceiling for one customer is an override on that workspace. What
-                  it never justified was the platform owner being unable to
-                  change his own price list. It now reads as what it always was:
-                  which of the two things the control does, and where the other
-                  one lives.
-                */}
-                  <p
-                    className="mt-3 max-w-[36ch] text-sm leading-relaxed"
-                    style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
-                  >
-                    A limit is a property of the plan, so changing one changes what every workspace
-                    on it is entitled to &mdash; the dialog counts them first. To lift a ceiling for
-                    a single customer instead, grant an override on that workspace.
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Dialog.Close asChild>
-                    <button
-                      type="button"
-                      className="t-compact h-10 rounded-full px-5 transition-colors hover:bg-[var(--surface-inset)]"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      Close
-                    </button>
-                  </Dialog.Close>
-                </div>
-              </div>
-            </div>
-          </Dialog.Content>
+            <IconArrowUpRight size={17} stroke={1.5} aria-hidden />
+          </button>
         </div>
-      </Dialog.Portal>
-    </Dialog.Root>
+        <div className="divide-y divide-[var(--border-subtle)] px-5">
+          {measured.map((row) => (
+            <UsageRow key={row.key} row={row} />
+          ))}
+          {measured.length === 0 ? (
+            <p className="py-6 text-sm leading-relaxed text-[var(--text-secondary)]">
+              Usage has not been recorded for this plan. Review its allowances and assigned
+              workspaces below.
+            </p>
+          ) : null}
+        </div>
+        <div className="mt-auto border-t border-[var(--border-subtle)] bg-[var(--surface-sunken)]/50 px-5 py-4">
+          {unmeasured.length > 0 ? (
+            <p className="mb-3 text-xs leading-relaxed text-[var(--text-tertiary)]">
+              {unmeasured.length} {unmeasured.length === 1 ? 'allowance has' : 'allowances have'} no
+              recorded usage.
+            </p>
+          ) : null}
+          <button
+            type="button"
+            onClick={(event) => {
+              triggerRef.current = event.currentTarget;
+              setOpen(true);
+            }}
+            aria-haspopup="dialog"
+            className="flex min-h-9 w-full items-center justify-between gap-3 text-sm font-medium text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
+          >
+            <span>Review {plan.name} allowances</span>
+            <IconArrowUpRight size={16} stroke={1.5} aria-hidden className="shrink-0" />
+          </button>
+        </div>
+      </article>
+      <ConsoleDialog
+        returnFocusRef={triggerRef}
+        open={open}
+        onOpenChange={setOpen}
+        eyebrow="Plan headroom"
+        title={plan.name}
+        description={`${plan.tenants} ${plan.tenants === 1 ? 'workspace is' : 'workspaces are'} assigned to this plan. Review recorded usage before changing an allowance.`}
+        width="xl"
+        actions={<Button onClick={() => setOpen(false)}>Done</Button>}
+      >
+        {measured.length > 0 ? (
+          <section
+            aria-label="Recorded usage"
+            className="rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 sm:px-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-[var(--border-subtle)] py-4">
+              <h3 className="text-sm font-medium text-[var(--text-primary)]">Recorded usage</h3>
+              <p className="text-xs text-[var(--text-tertiary)]">
+                Bar: median · Mark: highest recorded usage
+              </p>
+            </div>
+            <div className="grid gap-x-8 sm:grid-cols-2">
+              {measured.map((row) => (
+                <div
+                  key={row.key}
+                  className="min-w-0 border-b border-[var(--border-subtle)] last:border-b-0"
+                >
+                  <UsageRow row={row} planName={plan.name} />
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+        {unmeasured.length > 0 ? (
+          <section
+            aria-label="Allowances without recorded usage"
+            className="mt-5 rounded-panel bg-[var(--surface-sunken)] px-4 py-4 sm:px-5"
+          >
+            <h3 className="text-sm font-medium text-[var(--text-primary)]">Usage not recorded</h3>
+            <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+              These allowances are configured, but no workspace reports the corresponding usage. An
+              absent measurement does not mean zero usage.
+            </p>
+            <div className="mt-3 divide-y divide-[var(--border-subtle)]">
+              {unmeasured.map((row) => (
+                <div
+                  key={row.key}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 py-3"
+                >
+                  <span className="text-sm text-[var(--text-primary)]">{row.label}</span>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <span className="text-sm text-[var(--text-secondary)] tabular-nums">
+                      {allowance(row)}
+                    </span>
+                    {row.entitlementId ? (
+                      <LimitEditor row={row} planName={plan.name} variant="inline" />
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+        <section aria-label="Assigned workspaces" className="mt-6">
+          <h3 className="text-sm font-medium text-[var(--text-primary)]">Assigned workspaces</h3>
+          {plan.workspaces.length > 0 ? (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {plan.workspaces.map((workspace) => (
+                <Link
+                  key={workspace.slug}
+                  href={`/platform/tenants/${encodeURIComponent(workspace.slug)}`}
+                  className="flex min-w-0 items-center justify-between gap-3 rounded-overlay px-3 py-2.5 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]"
+                >
+                  <span className="break-words">{workspace.name}</span>
+                  <IconArrowUpRight size={14} stroke={1.5} aria-hidden className="shrink-0" />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
+              No workspaces are assigned to this plan.
+            </p>
+          )}
+        </section>
+        <p className="mt-5 border-t border-[var(--border-subtle)] pt-4 text-xs leading-relaxed text-[var(--text-tertiary)]">
+          Editing a plan allowance affects every assigned workspace. Use a workspace override for an
+          individual exception. The highest recorded usage is a measurement, not the plan ceiling.
+        </p>
+      </ConsoleDialog>
+    </>
   );
 }

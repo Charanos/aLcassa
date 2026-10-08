@@ -100,3 +100,55 @@ does not replace browser upload, Storage HTTP or avatar lifecycle verification.
 blocks unresolved moderate, high and critical findings. Its one local remediation is
 documented in [the dependency security note](security/README.md). Registry/network
 errors, muted findings, incomplete reports or altered patch bytes fail the gate.
+
+The account checkpoint passes **463/463 cache-disabled cases in 34 files**, including
+actual provider invitations, PKCE recovery and token-hash confirmation. Those tests
+call the route handlers with a request-cookie harness; they do not replace the complete
+browser lifecycle or prove production delivery. A short-lived database session permits
+password setup only after a verified, recent provider OTP/invitation/recovery method.
+It cannot open either application door. Ordinary password sign-in proof is refused;
+a provider session cannot create the same email flow twice. Password writes serialize
+per account before the external provider call. A definite provider refusal allows retry;
+an uncertain response retains the claim until its 15-minute session expires.
+
+The policy catalogue revokes direct `sessions` table access from PUBLIC, anon and
+authenticated roles; issuance and revocation use the private application connection.
+The real provider contract verifies 403 responses for forged flows, attempted session
+revival and private-row reads. A regression checks effective database permissions and
+preserved application rights. Apply the maintained policy catalogue with `db:migrate`
+or `db:policies`; do not restore browser-facing grants when provisioning the app role.
+
+The provider redirect allowlist includes the complete URLs, including their query:
+
+- `http://localhost:3100/auth/confirm?type=invite`
+- `http://localhost:3100/auth/confirm?type=recovery`
+
+Matching loopback-IP URLs are reserved for provider configuration; browser journeys use
+localhost consistently. Restart the named local stack after changing `config.toml`.
+The launchers supply `NEXT_PUBLIC_APP_URL=http://localhost:3100`; CI exports the same
+non-secret origin. On Vercel production, email uses `VERCEL_PROJECT_PRODUCTION_URL`
+with HTTPS when available, otherwise an explicitly configured production APP URL.
+Before qualifying production email, allowlist both corresponding HTTPS confirmation
+URLs in the hosted Auth project, verify the sending domain/SMTP configuration and test
+delivery to an authorized recipient. No hosted configuration or delivery is implied by
+the disposable environment's capture.
+
+Auth invitation and recovery emails use the shared brand layout in
+`src/modules/email/templates.ts`. Run `pnpm email:templates` after a design change;
+`pnpm check:email-templates` checks the committed HTML against that source and runs
+in CI. The local provider loads `supabase/templates/invite.html` and `recovery.html`
+relative to `verification/local`. Restart it after changing these files.
+
+For the hosted Auth project, copy those HTML files into the matching Invite user
+and Reset password templates, with subjects “Your aLcassa workspace invitation”
+and “Reset your aLcassa password”. Preserve `{{ .ConfirmationURL }}` in both action
+and fallback link. These files have no external images, scripts or font requests;
+solid navy remains the fallback when a client drops the dotted background. Actual
+Outlook/Gmail client acceptance and hosted installation remain separate gates.
+Configure the sender name as aLcassa through verified SMTP; the disposable provider's
+default sender is not evidence of production sending-domain readiness.
+
+Confirmation responses use `strict-origin` referrer policy. It preserves the native
+form's Origin while withholding paths, query strings and proof values. `no-referrer`
+can make native POST origins opaque, so accepting a `null` origin is not a workaround.
+The explicit confirmation removes proof parameters before further navigation.

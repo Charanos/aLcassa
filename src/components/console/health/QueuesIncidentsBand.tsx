@@ -255,7 +255,6 @@ export function QueuesIncidentsBand({
                         className="t-compact mt-2"
                         style={{
                           color: 'var(--text-secondary)',
-                          maxWidth: '72ch',
                           textWrap: 'pretty',
                         }}
                       >

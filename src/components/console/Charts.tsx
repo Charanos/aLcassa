@@ -490,7 +490,7 @@ export function AgeingChart({ data }: { data: Array<{ bucket: string; amount: nu
   if (!data.some((row) => row.amount > 0)) {
     return (
       <div className="flex min-h-[260px] items-center justify-center px-6 text-center">
-        <p className="t-body max-w-[36ch]" style={{ color: 'var(--text-secondary)' }}>
+        <p className="t-body" style={{ color: 'var(--text-secondary)' }}>
           No estimated overdue amounts in this portfolio.
         </p>
       </div>

@@ -4,34 +4,7 @@ import { SkeletonGroup, SkeletonBar } from '@/components/primitives/Skeleton';
 import { type HeadroomModel } from '@/lib/console/data';
 import { HeadroomPlanCard } from './HeadroomPlanCard';
 
-/**
- * HEADROOM BY PLAN. 17 §7.
- *
- * ⚠ THIS IS THE QUESTION THE MATRIX ABOVE IT CANNOT ANSWER.
- *
- * The entitlement matrix says "staff seats: 25". It cannot say whether the
- * busiest workspace on that plan sits at 3 or at 24, and those two facts imply
- * opposite things about whether 25 was chosen well. Lowering a limit is a
- * blast-radius decision, and a blast radius nobody can see is one they guess.
- *
- * ⚠ IT IS DELIBERATELY NOT A RECHARTS CHART, and that is the interesting call.
- *
- * Every row has a DIFFERENT ceiling, so a single plot cannot carry one
- * reference line, and one chart per row is fourteen client components and a
- * hydration cost for something that is fundamentally two dots on a track. The
- * design system already specifies this shape — `03 §10`, the limit bar — so
- * this band is that component, repeated, drawn in CSS.
- *
- * The consequence is worth stating plainly: this whole band is a SERVER
- * component and ships no JavaScript at all. The data is already on the server;
- * the output is a stack of divs. Sending React to the browser to place two
- * markers on a track would be paying hydration for arithmetic.
- *
- * ⚠ THE MEDIAN AND THE MAXIMUM ARE BOTH SHOWN, and neither is enough alone. A
- * median at 8% with a maximum at 96% is a limit doing its job on exactly one
- * customer — which is a different business decision from a limit that half the
- * plan is pressed against, and an average would render them identically.
- */
+/** Recorded usage grouped by plan; absent measurements remain explicit. */
 
 export function HeadroomBand({ model }: { model: HeadroomModel }) {
   const plansWithRows = model.plans.filter((p) => p.rows.length > 0);
@@ -54,7 +27,7 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
       ) : (
         <div
           className="grid gap-6"
-          style={{ gridTemplateColumns: `repeat(auto-fit, minmax(280px, 1fr))` }}
+          style={{ gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, 280px), 1fr))` }}
         >
           {plansWithRows.map((plan) => (
             <HeadroomPlanCard key={plan.key} plan={plan} />
@@ -85,21 +58,16 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
         </div>
         <div className="flex-1">
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            The pale bar is the median workspace on that plan; the mark is the busiest one. A limit
-            nothing approaches is not protecting anything, and a limit one workspace is pressed
-            against is a conversation with that customer rather than a change to the plan.
+            The bar shows median usage and the mark shows the highest recorded usage against a
+            positive plan allowance. Unlimited allowances and metrics without recorded usage have no
+            percentage bar.
           </p>
         </div>
       </div>
 
-      {/*
-        ⚠ A COUNTER NOTHING BOUNDS IS DRIFT, AND IT IS SURFACED RATHER THAN
-        DROPPED. Something is counting a resource no plan limits — which is
-        either a limit somebody forgot to add, or a counter nobody removed.
-        Both are worth a line; neither is worth a silent filter.
-      */}
+      {/* Counters without a corresponding entitlement remain visible. */}
       {model.orphanedCounters.length > 0 ? (
-        <p className="t-compact mt-4" style={{ color: 'var(--warning-fg)', maxWidth: '72ch' }}>
+        <p className="t-compact mt-4" style={{ color: 'var(--warning-fg)' }}>
           {model.orphanedCounters.length}{' '}
           {model.orphanedCounters.length === 1 ? 'counter is' : 'counters are'} tracked against no
           plan entitlement: <span className="numeric">{model.orphanedCounters.join(', ')}</span>.
@@ -110,33 +78,19 @@ export function HeadroomBand({ model }: { model: HeadroomModel }) {
   );
 }
 
-/**
- * ⚠ THE PAGE'S SKELETON DREW THREE CARDS AND NOTHING ELSE OF THIS BAND.
- *
- * Two faults, both the kind that only a reading of the real component finds.
- * The band opens with a right-aligned `SectionHeading` carrying a note and a
- * link — roughly 100px of vertical space the skeleton did not reserve, so
- * every card below it arrived that much higher than it was drawn. And the card
- * grid is `auto-fit, minmax(280px, 1fr)` while the skeleton hardcoded
- * `lg:grid-cols-3`: they agree at wide desktop and nowhere else, which is the
- * failure mode a fixed column count always has.
- *
- * It lives here rather than in `loading.tsx` so it changes when this file
- * changes. A skeleton written a directory away from its component is one edit
- * from being wrong, and nothing catches it.
- */
+/** Recorded usage grouped by plan; absent measurements remain explicit. */
 export function HeadroomBandSkeleton() {
   return (
     <SkeletonGroup label="Loading headroom" className="mt-8 block">
       {/* The right-aligned heading, at the rhythm SectionHeading uses. */}
-      <div className="mt-24 mb-12 flex flex-col items-end">
+      <div className="mt-12 mb-6 flex flex-col items-start sm:mt-16 sm:mb-8">
         <SkeletonBar width="132px" height={20} />
-        <SkeletonBar width="min(46ch, 100%)" height={12} className="mt-2.5" />
+        <SkeletonBar width="min(420px, 100%)" height={12} className="mt-2.5" />
       </div>
 
       <div
         className="grid gap-6"
-        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))' }}
       >
         {[0, 1, 2].map((i) => (
           <div

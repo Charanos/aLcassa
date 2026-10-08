@@ -275,6 +275,10 @@ grant execute on function app.accept_invitation(text, uuid, text, text) to publi
 alter table sessions enable row level security;
 alter table sessions force row level security;
 
+-- Session issuance and revocation belong to the private application connection.
+-- A browser JWT must not create flows, change their purpose or undo revocation.
+revoke all privileges on table public.sessions from public, anon, authenticated;
+
 create policy sessions_select on sessions
   for select using (
     user_id = app.current_actor_id()

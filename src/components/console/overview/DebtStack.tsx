@@ -456,10 +456,7 @@ function NothingOutstanding() {
       <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         No estimated amounts due.
       </p>
-      <p
-        className="t-caption"
-        style={{ color: 'var(--text-secondary)', maxWidth: '38ch', textWrap: 'pretty' }}
-      >
+      <p className="t-caption" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
         No workspace currently requires payment follow-up in this subscription summary.
       </p>
     </div>

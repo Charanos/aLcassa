@@ -5,6 +5,7 @@ import { readRequestBody, wantsJson } from '@/lib/http/body';
 import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonNoContent } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
+import { authEmailRedirect } from '@/lib/auth/emailLink';
 
 /** Return the same password-reset response for unknown accounts and provider failures. */
 
@@ -35,16 +36,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (parsed.success && !limited) {
       const supabase = await createSupabaseServerClient();
       const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-        // Where the link lands. Supabase appends its own recovery token, and
-        // `/reset-password` exchanges it for a session before accepting a new
-        // password.
-        redirectTo: new URL('/reset-password', request.url).toString(),
+        redirectTo: authEmailRedirect('recovery'),
       });
 
       if (error) {
         // Logged, never surfaced. A failure here must look identical to
         // success from the outside.
-        log.error('reset email could not be sent', { reason: error.message });
+        log.error('reset email could not be sent', { code: error.code ?? 'provider_failure' });
       } else {
         // The address is NOT logged. 05 I-16: a log line naming who is trying
         // to recover an account is the same disclosure by another route.
@@ -53,8 +51,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } else {
       log.info('password reset requested with a malformed address');
     }
-  } catch (error) {
-    log.error('forgot-password handler failed', { error });
+  } catch {
+    log.error('forgot-password handler failed');
   }
 
   if (asJson) return jsonNoContent(requestId);

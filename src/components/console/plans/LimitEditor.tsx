@@ -32,9 +32,12 @@ export function LimitEditor({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const previewSequence = useRef(0);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   if (!row.entitlementId) return null;
   const entitlementId = row.entitlementId;
+  const unit =
+    row.key === 'audit_retention_days' ? 'days' : row.key === 'support_sla_hours' ? 'hours' : null;
 
   const parsed = unlimited ? null : Number(value);
   const valid =
@@ -101,6 +104,7 @@ export function LimitEditor({
   return (
     <>
       <button
+        ref={triggerRef}
         aria-label={`Edit ${planName} ${row.label} allowance`}
         type="button"
         onClick={(e) => {
@@ -115,12 +119,12 @@ export function LimitEditor({
         }}
         className={
           variant === 'inline'
-            ? 'inline-flex shrink-0 items-center gap-1 rounded-panel px-2 py-0.5 transition-colors hover:bg-[var(--surface-inset)]'
+            ? 'inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-chip px-2.5 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]'
             : 'inline-flex h-10 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium whitespace-nowrap transition-colors hover:bg-[var(--surface-inset)]'
         }
         style={
           variant === 'inline'
-            ? { font: '500 var(--type-micro)/1.6 var(--font-mono)', color: 'var(--text-tertiary)' }
+            ? { color: 'var(--text-secondary)' }
             : {
                 border: '1px solid var(--border-strong)',
                 background: 'var(--surface-raised)',
@@ -129,7 +133,7 @@ export function LimitEditor({
         }
       >
         {variant === 'inline' ? (
-          'edit'
+          'Edit'
         ) : (
           <>
             <IconSettings size={16} stroke={1.5} aria-hidden />
@@ -139,6 +143,7 @@ export function LimitEditor({
       </button>
 
       <ConsoleDialog
+        returnFocusRef={triggerRef}
         open={open}
         onOpenChange={(n) => setOpen(n)}
         dismissible={!pending}
@@ -175,7 +180,7 @@ export function LimitEditor({
           <div className="grid gap-4 sm:grid-cols-[200px_minmax(0,1fr)] sm:items-start">
             <div className="block">
               <span className="t-label mb-1.5 block" style={{ color: 'var(--text-primary)' }}>
-                New limit
+                New limit{unit ? ` (${unit})` : ''}
               </span>
               <div className="flex items-center gap-2.5">
                 <input
@@ -207,7 +212,7 @@ export function LimitEditor({
                   className="t-caption whitespace-nowrap"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
-                  was {row.limit === null ? '∞' : row.limit}
+                  was {row.limit === null ? 'unlimited' : `${row.limit}${unit ? ` ${unit}` : ''}`}
                 </span>
               </div>
               <label

@@ -46,10 +46,7 @@ export function SecuritySection() {
               </p>
             </div>
 
-            <h2
-              className="display display-md mt-4"
-              style={{ color: 'var(--invert-card-fg)', maxWidth: '24ch' }}
-            >
+            <h2 className="display display-md mt-4" style={{ color: 'var(--invert-card-fg)' }}>
               You can see every time we look at your workspace.
             </h2>
 

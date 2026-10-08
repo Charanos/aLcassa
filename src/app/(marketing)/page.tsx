@@ -66,13 +66,13 @@ export default async function MarketingPage() {
             </div>
 
             {/* Centered Editorial Headline */}
-            <h1 className="display mx-auto mt-6 max-w-[1020px] text-hero leading-[1.06] font-medium tracking-tight text-[var(--text-primary)]">
+            <h1 className="display mx-auto mt-6 text-hero leading-[1.06] font-medium tracking-tight text-[var(--text-primary)]">
               One inbox for every message
               <br className="hidden sm:inline" /> your customers send.
             </h1>
 
             {/* Centered Lede (Client-Facing, Value-Oriented) */}
-            <p className="t-lede mx-auto mt-6 max-w-[740px] text-md leading-[1.68] text-[var(--text-secondary)] sm:text-lg">
+            <p className="t-lede mx-auto mt-6 text-md leading-[1.68] text-[var(--text-secondary)] sm:text-lg">
               Unify WhatsApp, Instagram, Messenger, and live website chat into one intelligent
               workspace. Delight your customers with instant AI-powered resolutions and enterprise
               data isolation.
@@ -289,7 +289,7 @@ export default async function MarketingPage() {
             </h2>
 
             {/* Lede Prose */}
-            <p className="t-lede mt-4 max-w-[620px] text-md leading-relaxed text-[var(--text-secondary)] sm:text-md">
+            <p className="t-lede mt-4 text-md leading-relaxed text-[var(--text-secondary)] sm:text-md">
               Your workspace, your team, your credentials and your assistant rules are all live.
               When channels arrive, there is nothing left to configure.
             </p>
@@ -372,7 +372,7 @@ export default async function MarketingPage() {
                   </p>
                 </div>
               </div>
-              <p className="t-compact max-w-sm text-base leading-relaxed text-[var(--text-secondary)]">
+              <p className="t-compact text-base leading-relaxed text-[var(--text-secondary)]">
                 Architected for strict database tenant isolation, machine-readable assistant rules,
                 and zero master key vulnerability.
               </p>

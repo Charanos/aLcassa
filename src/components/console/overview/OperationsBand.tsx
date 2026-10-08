@@ -347,10 +347,7 @@ function NoProbes({ title, body }: { title: string; body: string }) {
       <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         {title}
       </p>
-      <p
-        className="t-caption"
-        style={{ color: 'var(--text-secondary)', maxWidth: '38ch', textWrap: 'pretty' }}
-      >
+      <p className="t-caption" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
         {body}
       </p>
     </div>
@@ -371,10 +368,7 @@ function NoSessionsYet() {
       <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         No support session has been opened.
       </p>
-      <p
-        className="t-caption"
-        style={{ color: 'var(--text-secondary)', maxWidth: '52ch', textWrap: 'pretty' }}
-      >
+      <p className="t-caption" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
         Entering a workspace writes a row here and in that customer&rsquo;s own activity log, in the
         same transaction. Nothing has been entered.
       </p>

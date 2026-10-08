@@ -102,10 +102,7 @@ export function DashboardHero({
           <h1 className="t-display mt-2" style={{ color: 'var(--text-primary)' }}>
             Good to see you, {operatorFirstName}
           </h1>
-          <p
-            className="t-body mt-2.5 max-w-[62ch] text-pretty"
-            style={{ color: 'var(--text-secondary)' }}
-          >
+          <p className="t-body mt-2.5 text-pretty" style={{ color: 'var(--text-secondary)' }}>
             {summary}
           </p>
         </div>

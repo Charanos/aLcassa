@@ -127,7 +127,7 @@ export function QueueCard({ item }: { item: QueueItem }) {
         {/* Detail Text */}
         <p
           className="mt-2 pl-[42px] text-base leading-relaxed opacity-90"
-          style={{ color: 'var(--text-secondary)', maxWidth: '80ch', textWrap: 'pretty' }}
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           {item.detail}
         </p>
@@ -173,7 +173,7 @@ export function QueueCard({ item }: { item: QueueItem }) {
         {'unavailable' in item.action ? (
           <p
             className="t-caption mt-2.5 pl-[42px]"
-            style={{ color: 'var(--text-tertiary)', maxWidth: '72ch', textWrap: 'pretty' }}
+            style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
           >
             {item.action.unavailable}
           </p>
@@ -248,7 +248,7 @@ function QueueClear({ restingCount }: { restingCount: number }) {
         </p>
         <p
           className="t-compact mt-1.5"
-          style={{ color: 'var(--text-secondary)', maxWidth: '62ch', textWrap: 'pretty' }}
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           All{' '}
           <span className="font-mono" style={{ color: 'var(--text-primary)' }}>

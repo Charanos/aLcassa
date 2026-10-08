@@ -26,13 +26,13 @@ const WORKING_TODAY = [
     icon: IconShieldCheck,
     tone: 'success' as const,
     title: 'Customer separation, proven',
-    body: 'Database isolation has automated coverage. The latest full local suite passed 440 tests; all 15 workspace tables pass policy coverage checks. Final review remains part of release qualification.',
+    body: 'Database isolation has automated coverage. The latest full local suite passed 463 tests; all 15 workspace tables pass policy coverage checks. Application session records are private to the server connection. Final review remains part of release qualification.',
   },
   {
     icon: IconUsers,
     tone: 'info' as const,
     title: 'Accounts and teams',
-    body: 'Sign-in, sessions, roles and ownership controls are implemented. Invitations and recovery are still being verified; production email needs a verified sending domain.',
+    body: 'Owner setup and password recovery pass with the local identity provider. Email confirmation, expiry and earlier-session revocation have coverage. Browser account acceptance and colleague invitations remain open; production email needs verified delivery and redirect configuration.',
   },
   {
     icon: IconCreditCard,
@@ -84,18 +84,15 @@ export default function ProjectTrackerPage() {
           aLcassa
         </h1>
 
-        <p
-          className="t-body mt-4 max-w-[62ch]"
-          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
-        >
+        <p className="t-body mt-4" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
           A multi-tenant messaging platform for {ENGAGEMENT.client}, built by {ENGAGEMENT.team} over{' '}
           {ENGAGEMENT.duration}. This page is the honest state of the work — updated as it changes,
           not written for a meeting.
         </p>
 
         {/* Keep headline progress limited to the milestones, current stage and blockers. */}
-        <p className="t-body mt-6 max-w-[64ch] text-[var(--text-secondary)]">
-          Verification checkpoint · 7 October 2026. The complete local suite passed 440 tests with
+        <p className="t-body mt-6 text-[var(--text-secondary)]">
+          Verification checkpoint · 8 October 2026. The complete local suite passed 463 tests with
           no skips. Phase One remains in verification; email delivery, credentials, tenant rules and
           release qualification still have open gates.{' '}
           <Link
@@ -304,10 +301,7 @@ function Section({
         <h2 className="display display-md tracking-tight" style={{ color: 'var(--text-primary)' }}>
           {title}
         </h2>
-        <p
-          className="t-body mt-2 max-w-[62ch]"
-          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
-        >
+        <p className="t-body mt-2" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
           {standfirst}
         </p>
       </div>

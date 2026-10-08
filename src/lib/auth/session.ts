@@ -36,12 +36,13 @@ import { withActorContext, type Transaction } from '@/lib/db';
 export const TENANT_COOKIE = process.env.SESSION_COOKIE_TENANT ?? 'aLcassa_tenant_session';
 export const PLATFORM_COOKIE = process.env.SESSION_COOKIE_PLATFORM ?? 'aLcassa_platform_session';
 
-export type SessionKind = 'tenant' | 'platform' | 'support';
+export type SessionKind = 'tenant' | 'platform' | 'support' | 'recovery';
 
 /** 04 §6. Absolute, not sliding. A session that renews itself never ends. */
 const SESSION_LIFETIME_HOURS = 12;
 
 export function cookieNameFor(kind: SessionKind): string {
+  if (kind === 'recovery') return 'aLcassa_email_flow';
   return kind === 'platform' ? PLATFORM_COOKIE : TENANT_COOKIE;
 }
 
@@ -64,6 +65,8 @@ export function sessionCookieOptions(expiresAt: Date) {
 }
 
 export type CreateSessionInput = {
+  /** Email proofs use a deterministic ID so a consumed provider session cannot restart setup. */
+  id?: string;
   userId: string;
   kind: SessionKind;
   tenantId?: string | null;
@@ -83,12 +86,16 @@ export type CreateSessionInput = {
  */
 export async function createSession(input: CreateSessionInput): Promise<Session> {
   const headerList = await headers();
-  const expiresAt = new Date(Date.now() + SESSION_LIFETIME_HOURS * 60 * 60 * 1000);
+  const expiresAt = new Date(
+    Date.now() +
+      (input.kind === 'recovery' ? 15 * 60 * 1000 : SESSION_LIFETIME_HOURS * 60 * 60 * 1000),
+  );
 
   return withActorContext(input.userId, input.requestId, async (tx) => {
     const [row] = await tx
       .insert(sessions)
       .values({
+        ...(input.id ? { id: input.id } : {}),
         userId: input.userId,
         kind: input.kind,
         tenantId: input.tenantId ?? null,
@@ -244,6 +251,7 @@ export async function listActiveSessions(userId: string, requestId: string): Pro
           eq(sessions.userId, userId),
           isNull(sessions.revokedAt),
           sql`${sessions.expiresAt} > now()`,
+          ne(sessions.kind, 'recovery'),
         ),
       )
       .orderBy(desc(sessions.lastActivityAt)),

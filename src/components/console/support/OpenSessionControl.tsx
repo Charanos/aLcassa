@@ -62,7 +62,7 @@ export function OpenSessionControl({
       {disabled && disabledReason ? (
         <p
           id="open-session-reason"
-          className="t-caption max-w-[34ch] sm:text-right"
+          className="t-caption sm:text-right"
           style={{ color: 'var(--text-tertiary)' }}
         >
           {disabledReason}

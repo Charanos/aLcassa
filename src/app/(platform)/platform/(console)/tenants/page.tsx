@@ -51,7 +51,7 @@ export default async function WorkspacesPage() {
       />
 
       {/* Use the same attention condition and warning tone in the summary, filter and directory rows. */}
-      <p className="t-body -mt-3 mb-6" style={{ color: 'var(--text-secondary)', maxWidth: '62ch' }}>
+      <p className="t-body -mt-3 mb-6" style={{ color: 'var(--text-secondary)' }}>
         <span className="numeric" style={{ color: 'var(--text-primary)' }}>
           {rows.length}
         </span>{' '}

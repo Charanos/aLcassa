@@ -380,7 +380,7 @@ function Reader({
         </p>
         <p
           className="t-caption mt-0.5"
-          style={{ color: 'var(--text-secondary)', textWrap: 'pretty', maxWidth: '68ch' }}
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           {children}
         </p>

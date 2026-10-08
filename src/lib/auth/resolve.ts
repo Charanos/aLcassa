@@ -118,7 +118,7 @@ async function resolveSessionCore(
   }
 
   const session = await resolveSession(sessionId, userId, requestId);
-  if (!session) {
+  if (!session || !['tenant', 'support'].includes(session.kind)) {
     throw new AppError(ERROR_CODES.AUTH_SESSION_EXPIRED, {
       internal: { stage: 'session-row', sessionId },
     });

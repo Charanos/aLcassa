@@ -110,7 +110,6 @@ export function StatusSlab({ model }: { model: HealthModel }) {
               className="display display-md"
               style={{
                 color: 'var(--invert-card-fg)',
-                maxWidth: '24ch',
                 textWrap: 'balance',
                 letterSpacing: '-0.02em',
               }}
@@ -119,7 +118,7 @@ export function StatusSlab({ model }: { model: HealthModel }) {
             </h2>
             <p
               className="t-body mt-5"
-              style={{ color: 'var(--chrome-fg-muted)', maxWidth: '62ch', textWrap: 'pretty' }}
+              style={{ color: 'var(--chrome-fg-muted)', textWrap: 'pretty' }}
             >
               {diagnosis.sentence}
             </p>

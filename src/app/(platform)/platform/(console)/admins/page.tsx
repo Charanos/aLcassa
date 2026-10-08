@@ -118,7 +118,7 @@ function InviteControl() {
       </button>
       <p
         id="invite-reason"
-        className="t-caption max-w-[34ch] sm:text-right"
+        className="t-caption sm:text-right"
         style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
       >
         Platform access is granted in the database, not invited — invitations belong to one

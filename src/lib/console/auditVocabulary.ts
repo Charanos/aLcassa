@@ -133,6 +133,8 @@ const VOCABULARY: Record<string, AuditDescription> = {
   /* ── The operator's own account ──────────────────────────────────────── */
   'profile.updated': { label: 'Profile updated', icon: IconPencil, tone: 'neutral' },
   'password.changed': { label: 'Password changed', icon: IconKey, tone: 'warning' },
+  'password.reset': { label: 'Password recovered', icon: IconKey, tone: 'warning' },
+  'password.set': { label: 'Account password set', icon: IconKey, tone: 'neutral' },
   'session.revoked': { label: 'Device signed out', icon: IconShieldLock, tone: 'warning' },
 
   /* ── Money ───────────────────────────────────────────────────────────── */

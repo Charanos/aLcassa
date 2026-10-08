@@ -72,10 +72,7 @@ export function FactCell({
         </div>
         <div className="console-fact-value mt-4">{value}</div>
         {note ? (
-          <p
-            className="t-caption mt-2 max-w-[32ch] text-pretty"
-            style={{ color: 'var(--chrome-fg-muted)' }}
-          >
+          <p className="t-caption mt-2 text-pretty" style={{ color: 'var(--chrome-fg-muted)' }}>
             {note}
           </p>
         ) : null}

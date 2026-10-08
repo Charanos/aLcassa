@@ -1,32 +1,12 @@
 import type { RenderedTemplate } from './types';
 
-/**
- * 10 §14. THE FIVE TEMPLATES, TRANSCRIBED RATHER THAN WRITTEN.
- *
- * Every subject and opening line below is copied from the copy deck. Where a
- * sentence here differs from that document, the document is right and this is
- * a bug — which is the same rule the interface copy follows, and the reason
- * both live in one reviewable place rather than being invented at call sites.
- *
- * ⚠ EMAIL IS NOT THE WEB, AND THREE HABITS HAVE TO GO.
- *
- *   No stylesheet.   Gmail strips <style> in some contexts and Outlook in
- *                    others. Every rule is an inline attribute.
- *   No CSS variables. The token layer cannot reach here, so the brand values
- *                    are literals — the only place in the codebase where
- *                    that is correct rather than a violation of 03 §2.
- *   No web fonts.    DM Sans will not load in most clients, so the stack
- *                    falls through to what the reader already has.
- *
- * Tables rather than flex, for the same reason: Outlook's rendering engine is
- * Word, and Word does not do flexbox.
- */
+/** Shared email markup uses inline styles, system fonts and presentation tables. */
 
 // 03 §2's palette, resolved. Kept together so a brand change is one edit.
 const BRAND = {
   blue: '#043ae1',
   navy: '#17225d',
-  cream: '#fbfdf4',
+  cream: '#f4f5f7',
   rule: '#e9edf5',
   muted: '#64708b',
   white: '#ffffff',
@@ -35,15 +15,7 @@ const BRAND = {
 const FONT_STACK =
   "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
-/**
- * The shell every template renders into.
- *
- * `preheader` is the line a client shows in the inbox list beside the
- * subject. Left unset, clients scrape the first text they find, which here
- * would be "aLcassa" — so every invitation would preview identically and
- * usefully say nothing. It is hidden in the body by being zero-height rather
- * than by `display: none`, which some clients ignore.
- */
+/** The hidden preheader gives inbox previews useful context before the visible brand. */
 function layout(input: { preheader: string; heading: string; body: string }): string {
   return `<!doctype html>
 <html lang="en">
@@ -57,21 +29,27 @@ function layout(input: { preheader: string; heading: string; body: string }): st
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND.cream};padding:32px 16px;">
   <tr>
     <td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;background:${BRAND.white};border:1px solid ${BRAND.rule};border-radius:8px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background:${BRAND.white};border:1px solid ${BRAND.rule};border-radius:20px;overflow:hidden;">
         <tr>
-          <td style="padding:28px 32px 0 32px;">
-            <span style="font:600 15px/1 ${FONT_STACK};color:${BRAND.navy};letter-spacing:-0.01em;">aLcassa</span>
+          <td style="padding:28px 28px 30px;background:${BRAND.navy};background-image:radial-gradient(rgba(255,255,255,0.12) 0.7px,transparent 0.9px);background-size:18px 18px;border-radius:20px 20px 0 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td><span style="font:600 19px/1 ${FONT_STACK};color:${BRAND.white};letter-spacing:-0.03em;">aLcassa</span></td>
+                <td align="right" aria-hidden="true" style="font:400 34px/1 ${FONT_STACK};color:#a2abce;">&#9993;</td>
+              </tr>
+            </table>
+            <p style="margin:28px 0 10px;font:500 10px/1.4 ${FONT_STACK};color:#bdc5e2;letter-spacing:0.16em;text-transform:uppercase;">Workspace &amp; account updates</p>
+            <h1 style="margin:0;font:500 28px/1.16 ${FONT_STACK};letter-spacing:-0.035em;color:${BRAND.white};">${escapeHtml(input.heading)}</h1>
           </td>
         </tr>
         <tr>
-          <td style="padding:20px 32px 32px 32px;font:400 15px/1.55 ${FONT_STACK};color:${BRAND.navy};">
-            <h1 style="margin:0 0 14px 0;font:500 20px/1.3 ${FONT_STACK};color:${BRAND.navy};">${escapeHtml(input.heading)}</h1>
+          <td style="padding:28px;font:400 15px/1.65 ${FONT_STACK};color:${BRAND.navy};">
             ${input.body}
           </td>
         </tr>
       </table>
       <p style="max-width:520px;margin:16px auto 0 auto;font:400 12px/1.5 ${FONT_STACK};color:${BRAND.muted};text-align:center;">
-        Sent by aLcassa because someone acted on an account you are part of.
+        aLcassa &middot; Workspace and account updates<br>Keep account links private. Never forward a password reset email.
       </p>
     </td>
   </tr>
@@ -80,20 +58,12 @@ function layout(input: { preheader: string; heading: string; body: string }): st
 </html>`;
 }
 
-/**
- * A button that survives Outlook.
- *
- * The URL is repeated as visible text underneath, and that is not clutter: a
- * client that strips the anchor, a forwarded plain-text copy, or a reader who
- * distrusts buttons in email — all of them still need a way in. An
- * invitation whose only route is a styled link is an invitation that fails
- * silently for the people most careful about email.
- */
+/** Keep a visible URL fallback for clients that strip button styling. */
 function action(url: string, label: string): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0 18px 0;">
   <tr>
-    <td style="background:${BRAND.blue};border-radius:6px;">
-      <a href="${escapeAttr(url)}" style="display:inline-block;padding:11px 22px;font:500 15px/1 ${FONT_STACK};color:${BRAND.white};text-decoration:none;">${escapeHtml(label)}</a>
+    <td style="background:${BRAND.blue};border-radius:10px;">
+      <a href="${escapeAttr(url)}" style="display:inline-block;padding:15px 24px;font:500 15px/1.2 ${FONT_STACK};color:${BRAND.white};text-decoration:none;">${escapeHtml(label)}</a>
     </td>
   </tr>
 </table>
@@ -101,14 +71,7 @@ function action(url: string, label: string): string {
 <p style="margin:0;font:400 12px/1.5 ${FONT_STACK};color:${BRAND.muted};word-break:break-all;">${escapeHtml(url)}</p>`;
 }
 
-/**
- * ⚠ EVERY INTERPOLATED VALUE IS ESCAPED, AND THESE ARE NOT ALL OURS.
- *
- * `companyName` and `inviterName` are typed by tenants. Dropping either into
- * markup unescaped is stored XSS with an email client as the sink — and a
- * mail client is a worse place to have it than a browser, because the reader
- * has no origin to inspect and no console to check.
- */
+/** Escape customer-supplied names and values before inserting them into email markup. */
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -123,11 +86,32 @@ function escapeAttr(value: string): string {
   return escapeHtml(value).replace(/`/g, '&#96;');
 }
 
-/**
- * 10 §14 · Invitation.
- *   Subject      `{inviterName} invited you to {companyName}`
- *   Opening line `You have been invited to join {companyName} as {role}.`
- */
+/** Auth supplies the verification URL. Do not substitute customer metadata into its markup. */
+export function authProviderEmail(purpose: 'invite' | 'recovery'): RenderedTemplate {
+  const invited = purpose === 'invite';
+  const subject = invited ? 'Your aLcassa workspace invitation' : 'Reset your aLcassa password';
+  const opening = invited
+    ? 'Your workspace is ready for you. Open your invitation to verify your email and choose a password.'
+    : 'A password reset was requested for your aLcassa account. Open this link to verify your email before choosing a new password.';
+  const label = invited ? 'Open your invitation' : 'Reset your password';
+  const guidance = invited
+    ? 'If you were not expecting this invitation, you can ignore this email. No action is needed.'
+    : 'If you did not request a reset, ignore this email. Your password has not changed.';
+  const url = '{{ .ConfirmationURL }}';
+  return {
+    subject,
+    html: layout({
+      preheader: opening,
+      heading: invited ? 'A place to begin.' : 'A clear path back in.',
+      body: `<p style="margin:0 0 16px;">${escapeHtml(opening)}</p>
+${action(url, label)}
+<p style="margin:24px 0 0;padding-top:20px;border-top:1px solid ${BRAND.rule};font:400 13px/1.65 ${FONT_STACK};color:${BRAND.muted};">${escapeHtml(guidance)} Open the latest email; an expired or used link cannot be reused.</p>`,
+    }),
+    text: `${opening}\n\n${label}:\n${url}\n\n${guidance}\nOpen the latest email and keep its link private.`,
+  };
+}
+
+/** Render the workspace invitation with its recorded role and expiry. */
 export function invitationEmail(input: {
   inviterName: string;
   companyName: string;
@@ -164,14 +148,7 @@ This invitation expires on ${expires}. If you were not expecting it, you can ign
   return { subject, html, text };
 }
 
-/**
- * 10 §14 · Credential created. M5.
- *
- * The copy deck calls this one unusual and argues for it anyway: "A
- * credential creation notification catches a compromised account." It is
- * written now because the wording is settled, and it costs nothing to have
- * ready when the credential module lands.
- */
+/** Credential creation notification; activation depends on the credential milestone. */
 export function credentialCreatedEmail(input: {
   actorName: string;
   credentialName: string;
@@ -193,13 +170,7 @@ ${action(input.dashboardUrl, 'Review credentials')}`,
   };
 }
 
-/**
- * 10 §14 · Support session. M4.
- *
- * "The transparency claim in 09 §7 made active rather than passive, and it
- * costs one email." A tenant who has to go looking for the fact that we
- * entered their workspace has been told in a way that does not count.
- */
+/** Notify the customer when support opens their workspace. */
 export function supportSessionEmail(input: {
   platformAdminName: string;
   companyName: string;
@@ -228,31 +199,7 @@ ${input.activityUrl}`,
   };
 }
 
-/**
- * "We signed out your other devices."
- *
- * ⚠ THE SIXTH TEMPLATE, AND THE FIRST ONE ADDRESSED TO AN OPERATOR RATHER THAN
- * TO A CUSTOMER. The other five tell a tenant something the platform did; this
- * one tells a platform admin something they did to their own account.
- *
- * ⚠ WHY A SWEEP IS WORTH AN EMAIL AND A RENAME IS NOT.
- *
- * The value of this message is not the confirmation — the operator pressed the
- * button and watched the list empty. It is the SECOND reader: the person who
- * gets this and did not do it. Session revocation is the one action on the
- * profile screen whose unexpected arrival means an account is compromised, and
- * an email is the only channel that reaches somebody who is not currently
- * looking at the console. Changing a display name or a photograph has no such
- * reading, and mailing every profile edit would train the recipient to ignore
- * the one message that matters.
- *
- * ⚠ IT DOES NOT LINK A "THIS WASN'T ME" ACTION, because there is nothing
- * honest to link to. A one-click lockout needs a flow that does not exist yet;
- * pointing at the profile screen would be pointing a possibly-locked-out person
- * at a page they cannot reach. It names the one thing that is true and
- * actionable: the password is what an intruder needs, and changing it goes
- * through recovery.
- */
+/** Unexpected device revocation gives the recipient a reason to review account access. */
 export function sessionsRevokedEmail(input: {
   name: string;
   count: number;

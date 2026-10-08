@@ -4,6 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService, type ServiceTransaction } from '@/lib/db/serviceClient';
 import { createSupabaseAdminClient } from '@/lib/auth/supabase/admin';
+import { authEmailRedirect } from '@/lib/auth/emailLink';
 import { isAppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import {
@@ -78,11 +79,23 @@ export async function provisionTenant(
     };
   }
 
+  let redirectTo: string;
+  try {
+    redirectTo = authEmailRedirect('invite');
+  } catch {
+    return {
+      ok: false,
+      code: 'provisioning_failed',
+      message:
+        'Workspace setup is unavailable because its invitation destination is not configured. No invitation was sent.',
+    };
+  }
   const admin = createSupabaseAdminClient();
   let ownerUserId: string;
   try {
     const invited = await admin.auth.admin.inviteUserByEmail(ownerEmail, {
       data: { full_name: ownerName },
+      redirectTo,
     });
     if (invited.error || !invited.data.user) {
       const alreadyRegistered =

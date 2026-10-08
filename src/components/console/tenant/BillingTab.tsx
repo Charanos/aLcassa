@@ -122,7 +122,7 @@ export function BillingTab({
           />
           <div>
             <p className="t-body font-medium">Payment records are not connected.</p>
-            <p className="t-compact mt-2 max-w-[70ch] text-[var(--text-secondary)]">
+            <p className="t-compact mt-2 text-[var(--text-secondary)]">
               This console does not issue invoices or collect payments yet. Estimated amounts due
               are calculated from subscription prices and recorded dates.
             </p>

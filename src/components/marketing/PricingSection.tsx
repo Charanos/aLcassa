@@ -202,7 +202,7 @@ export function PricingSection() {
               Predictable plans for growing teams
               <br className="hidden sm:block" /> & high-throughput enterprises.
             </h2>
-            <p className="mt-3 max-w-2xl text-md leading-relaxed text-[var(--text-secondary)] sm:text-md">
+            <p className="mt-3 text-md leading-relaxed text-[var(--text-secondary)] sm:text-md">
               No surprise overages or per-event penalties. Scale your customer support operations on
               dedicated PostgreSQL isolation with transparent billing in Kenyan Shillings (KES).
             </p>

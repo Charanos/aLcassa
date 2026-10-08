@@ -64,10 +64,7 @@ export function VisitsLedger({ register }: { register: SupportRegister }) {
                 ? 'No visits in the last 30 days.'
                 : 'No visit matches these filters.'}
           </p>
-          <p
-            className="t-caption mx-auto mt-1.5 max-w-[56ch]"
-            style={{ color: 'var(--text-tertiary)' }}
-          >
+          <p className="t-caption mx-auto mt-1.5" style={{ color: 'var(--text-tertiary)' }}>
             {!register.everUsed
               ? 'When one is, it appears here and in the customer’s own activity log in the same transaction.'
               : register.facts.visits === 0

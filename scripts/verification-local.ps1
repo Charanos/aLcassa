@@ -88,8 +88,14 @@ if ($Mode -in @('Start', 'Stop')) {
   }
   if ($LASTEXITCODE -ne 0) { throw "Local stack $Mode failed (exit $LASTEXITCODE)." }
   if ($Mode -eq 'Stop') { exit }
-  $verificationStatusRaw = & npx --yes $verificationCli status --workdir verification/local --output json 2>$null
-  if ($LASTEXITCODE -ne 0) { throw 'Could not read the local stack status.' }
+  # Windows PowerShell treats the CLI's successful "Stopped services" notice as an error.
+  $verificationStatusPreference = $ErrorActionPreference
+  try {
+    $ErrorActionPreference = 'Continue'
+    $verificationStatusRaw = & npx --yes $verificationCli status --workdir verification/local --output json 2>$null
+    $verificationStatusExit = $LASTEXITCODE
+  } finally { $ErrorActionPreference = $verificationStatusPreference }
+  if ($verificationStatusExit -ne 0) { throw 'Could not read the local stack status.' }
   $verificationStatus = ($verificationStatusRaw -join "`n") | ConvertFrom-Json
   if ($verificationStatus.API_URL -ne 'http://127.0.0.1:55421') { throw 'Unexpected local stack URL. Refusing to create environment settings.' }
   $verificationPassword = [Guid]::NewGuid().ToString('N')

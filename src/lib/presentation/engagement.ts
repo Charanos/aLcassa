@@ -147,7 +147,7 @@ export const MILESTONES = [
     tranche: 2,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note: 'The database foundation and isolation gate are established. The latest complete local suite passed 440 tests without skips, and policy coverage is 15 of 15 workspace tables. Provisioning checks now precede invitations; workspace creation, concurrent refusal and account cleanup have verification coverage. A real local invitation was captured. Owner acceptance and release recovery remain part of final Phase One qualification.',
+    note: 'The database foundation and isolation gate are established. The latest complete local suite passed 463 tests without skips; policy coverage is 15 of 15 workspace tables. Provisioning, captured invitations and owner activation have real provider coverage. Session records are private to the server connection. Browser acceptance and release recovery remain part of final Phase One qualification.',
   },
   {
     id: 'M2',
@@ -158,7 +158,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 90,
-    note: 'Sign-in, session controls, roles and ownership operations are implemented. Customer sign-out was repaired and verified in the browser. Full invitation and recovery journeys remain under verification; production email delivery is blocked until a sending domain is configured and verified.',
+    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Customer sign-out is verified in the browser. Full browser account acceptance, colleague invitations and OAuth remain open; production email needs verified delivery and redirect configuration.',
   },
   {
     id: 'M3',

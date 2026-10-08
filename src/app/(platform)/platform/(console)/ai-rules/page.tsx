@@ -34,7 +34,7 @@ export default async function AiRulesPage() {
           </span>
         }
       />
-      <p className="t-body mb-8 max-w-[70ch] text-[var(--text-secondary)]">
+      <p className="t-body mb-8 text-[var(--text-secondary)]">
         Shared guidance for every workspace. Customers can add their own instructions; required
         platform rules continue to apply.
       </p>

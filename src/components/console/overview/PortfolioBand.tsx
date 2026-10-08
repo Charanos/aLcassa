@@ -122,10 +122,7 @@ function NoWorkspaces() {
       <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         No workspaces yet.
       </p>
-      <p
-        className="t-caption"
-        style={{ color: 'var(--text-secondary)', maxWidth: '34ch', textWrap: 'pretty' }}
-      >
+      <p className="t-caption" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
         The first provisioned workspace appears here, split by status. Nothing has been created —
         this is not a failure to load.
       </p>
@@ -149,10 +146,7 @@ function NoGrowthYet() {
       <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         Workspace history is not available here.
       </p>
-      <p
-        className="t-caption"
-        style={{ color: 'var(--text-secondary)', maxWidth: '34ch', textWrap: 'pretty' }}
-      >
+      <p className="t-caption" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
         Review a workspace’s details for its creation date and current status.
       </p>
     </div>

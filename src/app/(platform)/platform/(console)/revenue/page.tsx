@@ -55,7 +55,7 @@ export default async function RevenuePage() {
       />
       <div className="mb-8 space-y-3">
         <DataSource kind={m.source} />
-        <p className="t-body max-w-[72ch]" style={{ color: 'var(--text-secondary)' }}>
+        <p className="t-body" style={{ color: 'var(--text-secondary)' }}>
           The value of workspace subscriptions, normalized to a monthly amount. These figures
           describe contracts and estimated amounts due; they do not confirm payments received.
         </p>
@@ -181,7 +181,7 @@ export default async function RevenuePage() {
           <CollectionQueueTable collections={m.collections} />
         </Panel>
       </div>
-      <p className="t-caption mt-4 max-w-[80ch]" style={{ color: 'var(--text-secondary)' }}>
+      <p className="t-caption mt-4" style={{ color: 'var(--text-secondary)' }}>
         Amounts due are estimates of monthly periods since each past-due date. They are not invoice
         balances. Open a workspace to review its subscription before following up.
       </p>

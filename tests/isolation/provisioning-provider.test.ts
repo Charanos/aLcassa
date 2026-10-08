@@ -95,7 +95,7 @@ describe('Provisioning against actual local Supabase Auth and SMTP capture', () 
           return mail.messages.filter(
             (message) =>
               message.To.some((recipient) => recipient.Address === email) &&
-              /invite/i.test(message.Subject),
+              /invit/i.test(message.Subject),
           ).length;
         },
         { timeout: 10_000, interval: 100 },

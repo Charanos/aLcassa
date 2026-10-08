@@ -38,7 +38,7 @@ export default async function InsidePage() {
           ]}
           title="Not inside a workspace"
         />
-        <p className="t-body mt-4 max-w-[64ch]" style={{ color: 'var(--text-secondary)' }}>
+        <p className="t-body mt-4" style={{ color: 'var(--text-secondary)' }}>
           There is no open support visit for you. It may have reached its time limit, been ended by
           the customer, or been closed by a colleague — the register says which.
         </p>
@@ -314,10 +314,7 @@ export default async function InsidePage() {
           align={subscription ? 'left' : 'right'}
         />
         <Panel variant="elevated">
-          <p
-            className="t-compact"
-            style={{ color: 'var(--text-secondary)', textWrap: 'pretty', maxWidth: '72ch' }}
-          >
+          <p className="t-compact" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
             AI rules, the knowledge base and channel connections are not yet saved in the
             customer&rsquo;s own workspace &mdash; their pages there show designed content and do
             not persist &mdash; so there is nothing real to read or correct here. They will appear

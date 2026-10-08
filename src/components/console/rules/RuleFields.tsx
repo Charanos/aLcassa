@@ -168,7 +168,7 @@ export function RuleFields({
         </span>
       }
     >
-      <p className="t-compact mb-4" style={{ color: 'var(--text-secondary)', maxWidth: '68ch' }}>
+      <p className="t-compact mb-4" style={{ color: 'var(--text-secondary)' }}>
         <span className="numeric">{set}</span> of {fields.length} fields have instructions;{' '}
         <span className="numeric">{floors}</span> are required platform guidance.
       </p>
@@ -228,7 +228,6 @@ export function RuleFields({
         style={{
           borderColor: 'var(--border-subtle)',
           color: 'var(--text-tertiary)',
-          maxWidth: '72ch',
         }}
       >
         Publishing creates a new version and keeps the previous instructions available to restore. A

@@ -156,9 +156,7 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
           Legal
         </p>
         <h1 className="t-display mt-2">{found.title}</h1>
-        <p className="t-lede mt-3 max-w-[62ch] text-pretty text-[var(--text-secondary)]">
-          {found.summary}
-        </p>
+        <p className="t-lede mt-3 text-pretty text-[var(--text-secondary)]">{found.summary}</p>
 
         {/*
           OCHRE, not oxide. The reader can act on this — there is a contact
@@ -203,7 +201,7 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
               </span>
               <div>
                 <h2 className="t-panel">{section.heading}</h2>
-                <p className="t-compact mt-1 max-w-[62ch] text-pretty text-[var(--text-secondary)]">
+                <p className="t-compact mt-1 text-pretty text-[var(--text-secondary)]">
                   {section.blurb}
                 </p>
               </div>

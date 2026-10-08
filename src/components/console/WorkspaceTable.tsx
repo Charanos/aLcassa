@@ -1042,7 +1042,7 @@ export function WorkspaceTable({
         </>
       )}
 
-      <p className="t-compact mt-8" style={{ color: 'var(--text-tertiary)', maxWidth: '82ch' }}>
+      <p className="t-compact mt-8" style={{ color: 'var(--text-tertiary)' }}>
         Workspaces using 90% or more of a finite allowance appear in <em>Needs attention</em>.
         Unlimited allowances do not trigger a capacity alert. Event usage is not measured yet.
       </p>

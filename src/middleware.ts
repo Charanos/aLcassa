@@ -177,6 +177,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   response.headers.set('Content-Security-Policy', csp);
   response.headers.set('X-Request-Id', requestId);
+  // Preserve the native form's Origin without disclosing the email-proof URL.
+  if (pathname === '/auth/confirm') response.headers.set('Referrer-Policy', 'strict-origin');
 
   // 02 §10. Nothing under these trees is ever indexed.
   if (isTenantTree || pathname.startsWith('/platform') || pathname.startsWith('/invite')) {

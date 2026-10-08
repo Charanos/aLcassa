@@ -743,10 +743,7 @@ function Empty({ title, body }: { title: string; body: string }) {
       <p style={{ font: '500 var(--type-body)/1.4 var(--font-ui)', color: 'var(--text-primary)' }}>
         {title}
       </p>
-      <p
-        className="t-compact"
-        style={{ color: 'var(--text-tertiary)', maxWidth: '56ch', textWrap: 'pretty' }}
-      >
+      <p className="t-compact" style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}>
         {body}
       </p>
     </div>

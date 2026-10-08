@@ -143,10 +143,7 @@ export function ConsoleHeader({
           {title}
         </h1>
         {lede ? (
-          <p
-            className="t-body mt-3 max-w-[68ch] text-pretty"
-            style={{ color: 'var(--text-secondary)' }}
-          >
+          <p className="t-body mt-3 text-pretty" style={{ color: 'var(--text-secondary)' }}>
             {lede}
           </p>
         ) : null}
@@ -211,10 +208,7 @@ export function SectionHeading({
             {title}
           </h2>
           {note ? (
-            <p
-              className="t-body mt-2 max-w-[64ch] text-pretty"
-              style={{ color: 'var(--text-secondary)' }}
-            >
+            <p className="t-body mt-2 text-pretty" style={{ color: 'var(--text-secondary)' }}>
               {note}
             </p>
           ) : null}

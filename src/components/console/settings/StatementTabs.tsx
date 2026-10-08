@@ -90,7 +90,7 @@ function ControlRow({ control: c, enforced }: { control: Control; enforced: bool
         </p>
         <p
           className="t-caption mt-1"
-          style={{ color: 'var(--text-secondary)', textWrap: 'pretty', maxWidth: '68ch' }}
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           {c.detail}
         </p>
@@ -343,7 +343,7 @@ function DeveloperRow({
         </div>
         <p
           className="t-caption mt-1"
-          style={{ color: 'var(--text-secondary)', textWrap: 'pretty', maxWidth: '68ch' }}
+          style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
         >
           {children}
         </p>

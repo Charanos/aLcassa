@@ -40,6 +40,8 @@
     "test:report": "vitest run --reporter=default --reporter=json --outputFile=.test-report/results.json",
     "test:prove": "tsx scripts/prove-tests.ts",
     "check:email": "tsx scripts/check-email.ts",
+    "email:templates": "tsx scripts/auth-email-templates.ts",
+    "check:email-templates": "tsx scripts/auth-email-templates.ts --check",
     "check:deployment": "tsx scripts/check-deployment.ts",
     "shots": "tsx scripts/screenshot.ts"
   },

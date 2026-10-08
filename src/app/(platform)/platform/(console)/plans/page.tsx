@@ -63,7 +63,7 @@ export default async function PlansPage() {
               New plan
             </button>
             <p
-              className="t-caption max-w-[34ch] text-right"
+              className="t-caption text-right"
               style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
             >
               New plans require a managed catalogue update. Existing plan limits can be edited
@@ -72,7 +72,7 @@ export default async function PlansPage() {
           </div>
         }
       />
-      <p className="t-body -mt-3 mb-8" style={{ color: 'var(--text-secondary)', maxWidth: '66ch' }}>
+      <p className="t-body -mt-3 mb-8" style={{ color: 'var(--text-secondary)' }}>
         Review plan allowances and their impact. Saving a limit change applies it to every workspace
         on that plan.
       </p>

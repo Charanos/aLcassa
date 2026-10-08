@@ -31,15 +31,12 @@ export function HealthHero({
       <div className="relative z-10 grid gap-10 p-6 sm:p-8 lg:grid-cols-[1.15fr_1fr] lg:p-10">
         <div>
           <p className="t-eyebrow text-[var(--chrome-fg-muted)]">Operational health</p>
-          <h2
-            id="health-diagnosis"
-            className="display display-md mt-4 max-w-[22ch] text-[var(--chrome-fg)]"
-          >
+          <h2 id="health-diagnosis" className="display display-md mt-4 text-[var(--chrome-fg)]">
             {holding
               ? 'Policy coverage holds. Monitoring is the next step.'
               : 'Policy coverage needs attention.'}
           </h2>
-          <p className="t-body mt-5 max-w-[54ch] text-[var(--chrome-fg-muted)]">
+          <p className="t-body mt-5 text-[var(--chrome-fg-muted)]">
             {isolation.tablesPoliced} of {isolation.tablesTotal} workspace tables have enforced row
             security and a policy. Service availability and response-time history are not yet
             measured.

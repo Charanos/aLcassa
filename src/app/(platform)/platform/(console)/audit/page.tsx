@@ -89,7 +89,7 @@ export default async function AuditPage() {
         <AuditStream entries={entries} today={today} />
       </Suspense>
 
-      <p className="t-compact mt-4" style={{ color: 'var(--text-tertiary)', maxWidth: '84ch' }}>
+      <p className="t-compact mt-4" style={{ color: 'var(--text-tertiary)' }}>
         Redacted fields appear as changed without revealing either value. A credential rotation
         shows that the secret moved; it never shows the secret. Times are Nairobi time.
       </p>

@@ -14,6 +14,7 @@ export const ERROR_CODES = {
   AUTH_INVALID_CREDENTIALS: 'auth.invalid_credentials',
   AUTH_ACCOUNT_LOCKED: 'auth.account_locked',
   AUTH_SESSION_EXPIRED: 'auth.session_expired',
+  AUTH_FLOW_IN_PROGRESS: 'auth.flow_in_progress',
   AUTH_EMAIL_UNVERIFIED: 'auth.email_unverified',
   AUTH_NO_MEMBERSHIP: 'auth.no_membership',
   /** A member whose role does not allow the action. Doc 24: ending a support
@@ -103,6 +104,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   [ERROR_CODES.AUTH_INVALID_CREDENTIALS]: 401,
   [ERROR_CODES.AUTH_ACCOUNT_LOCKED]: 423,
   [ERROR_CODES.AUTH_SESSION_EXPIRED]: 401,
+  [ERROR_CODES.AUTH_FLOW_IN_PROGRESS]: 409,
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 403,
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]: 403,
   [ERROR_CODES.ROLE_NOT_PERMITTED]: 403,
@@ -158,6 +160,8 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.AUTH_ACCOUNT_LOCKED]: 'Too many sign-in attempts. Try again shortly.',
   [ERROR_CODES.AUTH_SESSION_EXPIRED]:
     'You have been signed out. Sign in again and we will bring you back here.',
+  [ERROR_CODES.AUTH_FLOW_IN_PROGRESS]:
+    'A password update is already being processed. Wait for it to finish before continuing.',
   [ERROR_CODES.AUTH_EMAIL_UNVERIFIED]: 'Confirm your email before continuing.',
   [ERROR_CODES.AUTH_NO_MEMBERSHIP]:
     'Your account is not attached to a workspace. If you were invited, use the link in your invitation email. Otherwise get in touch.',

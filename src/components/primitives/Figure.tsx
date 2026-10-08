@@ -68,10 +68,7 @@ export function Figure({
         </span>
       </div>
       {note ? (
-        <p
-          className="t-caption m-0"
-          style={{ color: 'var(--text-tertiary)', maxWidth: '44ch', textWrap: 'pretty' }}
-        >
+        <p className="t-caption m-0" style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}>
           {note}
         </p>
       ) : null}

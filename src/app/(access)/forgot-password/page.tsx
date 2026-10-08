@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { AuthShell } from '@/components/access/AuthShell';
+import { EmailAccessShell } from '@/components/access/EmailAccessShell';
 import { Button } from '@/components/primitives/Button';
 import { Field } from '@/components/primitives/Field';
 
@@ -10,11 +10,40 @@ export const metadata: Metadata = {
 };
 
 /** Password-reset responses never confirm whether an account exists. */
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sent?: string }>;
+}) {
+  const { sent } = await searchParams;
+  if (sent === '1')
+    return (
+      <EmailAccessShell
+        purpose="recovery"
+        title="Check your email"
+        lede="If an account matches that address, a reset link will arrive shortly. Open the latest email to continue."
+      >
+        <div className="grid gap-4">
+          <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+            Check your spam folder too. If nothing arrives, try again in a few minutes.
+          </p>
+          <Button asChild variant="primary" className="w-full">
+            <Link href="/sign-in">Return to sign in</Link>
+          </Button>
+          <Link
+            href="/forgot-password"
+            className="text-center text-sm text-[var(--blue-600)] underline underline-offset-4"
+          >
+            Use another email address
+          </Link>
+        </div>
+      </EmailAccessShell>
+    );
   return (
-    <AuthShell
+    <EmailAccessShell
+      purpose="recovery"
       title="Reset your password"
-      lede="Enter the email associated with your workspace account and we will dispatch a secure reset link."
+      lede="Enter your account email to request a password reset link."
       footer={
         <p className="text-center text-sm text-[var(--text-secondary)]">
           Remembered your password?{' '}
@@ -46,6 +75,6 @@ export default function ForgotPasswordPage() {
           Send reset link
         </Button>
       </form>
-    </AuthShell>
+    </EmailAccessShell>
   );
 }

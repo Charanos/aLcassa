@@ -6,6 +6,7 @@ import { Button } from '@/components/primitives/Button';
 import { Field } from '@/components/primitives/Field';
 import { NewPasswordFields } from '@/components/access/NewPasswordFields';
 import { readInvitationByToken } from '@/modules/membership';
+import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 
 export const metadata: Metadata = {
   title: 'Accept your invitation',
@@ -17,26 +18,28 @@ export default async function InvitePage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ state?: 'expired' | 'accepted' | 'revoked' }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { token } = await params;
-  const { state: stateParam } = await searchParams;
+  const { error } = await searchParams;
 
-  /** Invitation status comes from the token hash lookup; query-string states are limited to demo review. */
+  // Invitation state comes only from the stored token hash.
   const invitation = await readInvitationByToken(token, crypto.randomUUID());
-
-  // 'pending' is a state the refusal screens must NOT render, so it collapses
-  // to undefined and the accept form shows instead.
-  const state =
-    invitation && invitation.state !== 'pending'
-      ? invitation.state
-      : invitation
-        ? undefined
-        : stateParam;
-
-  const company = invitation?.tenantName ?? 'Acme Industrial';
-  const inviter = invitation?.invitedByName ?? 'Grace Wanjiku';
-  const role = invitation?.invitedRole ?? 'agent';
+  if (!invitation)
+    return (
+      <AuthShell
+        title="This invitation is not valid"
+        lede="Ask the workspace administrator for a new invitation. Open the latest email when it arrives."
+      >
+        <Button asChild variant="secondary" className="w-full">
+          <Link href="/sign-in">Return to sign in</Link>
+        </Button>
+      </AuthShell>
+    );
+  const state = invitation.state === 'pending' ? undefined : invitation.state;
+  const company = invitation.tenantName;
+  const inviter = invitation.invitedByName || 'Your workspace administrator';
+  const role = invitation.invitedRole;
 
   if (state) {
     const copy = {
@@ -63,10 +66,14 @@ export default async function InvitePage({
     );
   }
 
+  const supabase = await createSupabaseServerClient();
+  const identity = await supabase.auth.getUser();
+  const signedIn = !identity.error && Boolean(identity.data.user?.email_confirmed_at);
+
   return (
     <AuthShell
       title={`Join ${company}`}
-      lede="You have been granted access to this workspace. Complete your profile to proceed."
+      lede="Review your invitation and confirm to join this workspace."
       cardMaxWidth="max-w-[620px]"
     >
       <div className="mb-5 flex items-start gap-3 rounded-card border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/60 p-4 shadow-2xs">
@@ -83,22 +90,41 @@ export default async function InvitePage({
             </span>
           </div>
           <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
-            As a team member on {company}, you can access customer threads and collaborate in
-            real-time.
+            This invitation is for {invitation.invitedEmail}. Your access follows the {role} role.
           </p>
         </div>
       </div>
 
       <form className="grid gap-4" method="post" action={`/api/v1/invitations/accept/${token}`}>
-        <Field
-          label="Your full name"
-          name="fullName"
-          autoComplete="name"
-          required
-          placeholder="e.g. Amina Wanjiku"
-        />
+        {error ? (
+          <p role="alert" className="text-sm text-[var(--danger-fg)]">
+            The invitation could not be accepted. Sign in with the invited email address, or ask the
+            administrator for a new invitation.
+          </p>
+        ) : null}
+        {!signedIn ? (
+          <>
+            <Field
+              label="Your full name"
+              name="fullName"
+              autoComplete="name"
+              required
+              placeholder="e.g. Amina Wanjiku"
+            />
 
-        <NewPasswordFields label="Create your account password" showConfirm={false} />
+            <NewPasswordFields label="Create your account password" showConfirm={false} />
+            <Link
+              href={`/sign-in?next=${encodeURIComponent(`/invite/${token}`)}`}
+              className="text-sm text-[var(--blue-600)] underline underline-offset-4"
+            >
+              Already have an account? Sign in
+            </Link>
+          </>
+        ) : (
+          <p className="text-sm text-[var(--text-secondary)]">
+            You are signed in as {identity.data.user?.email}.
+          </p>
+        )}
 
         <Button
           type="submit"
