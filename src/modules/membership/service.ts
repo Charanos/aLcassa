@@ -1,37 +1,133 @@
 import 'server-only';
 import { createHash, randomBytes } from 'node:crypto';
-import { and, eq, isNull } from 'drizzle-orm';
-import { invitations, tenantMembers, tenants, type MemberRole } from '@/db/schema';
+import { and, eq, isNull, sql } from 'drizzle-orm';
+import { z } from 'zod';
+import {
+  invitations,
+  tenantMembers,
+  tenants,
+  userProfiles,
+  usageCounters,
+  subscriptions,
+  planEntitlements,
+  subscriptionOverrides,
+  type MemberRole,
+} from '@/db/schema';
 import { AUDIT_ACTIONS, audited } from '@/lib/audit';
 import { withTenantContext, type Transaction } from '@/lib/db';
 import type { ResolvedContext } from '@/lib/db/context';
 import { AppError, ERROR_CODES } from '@/lib/errors';
-import { assertEntitlement, incrementUsage, invalidateEntitlements } from '@/modules/entitlements';
+import { incrementUsage, invalidateEntitlements } from '@/modules/entitlements';
 import { invitationEmail, sendEmail } from '@/modules/email';
-
-/**
- * 06 §5 · 07 §5. MEMBERSHIP, INVITATIONS AND THE OWNER INVARIANT.
- *
- * ⚠ THE INVARIANT THIS MODULE EXISTS TO HOLD:
- *   A TENANT HAS EXACTLY ONE OWNER. NEVER ZERO. NEVER TWO.
- *
- * Zero owners is unrecoverable without us: no one can invite, no one can
- * transfer, and every owner-gated control is dead. Two owners is a governance
- * problem that surfaces as a support conversation months later. Both are
- * reachable through perfectly reasonable-looking individual operations —
- * demote the only owner, remove the only owner, promote a second — which is
- * why the checks live HERE, in the one module every path goes through, rather
- * than in each route.
- *
- * Transfer is the only operation that changes who the owner is, and it does
- * both halves in one transaction. There is no "promote then demote" sequence
- * that could be interrupted between the two.
- */
 
 /** 02 §9. 32 bytes from a CSPRNG, hashed at rest, single use, 7 day expiry. */
 const INVITATION_TTL_DAYS = 7;
 
-export type InviteInput = { email: string; role: MemberRole };
+export type InviteInput = { email: string; role: Exclude<MemberRole, 'owner'> };
+
+const inviteInput = z
+  .object({
+    email: z.string().trim().toLowerCase().email().max(254),
+    role: z.enum(['admin', 'agent']),
+  })
+  .strict();
+
+/** Serialize every team mutation, including the SQL invitation-acceptance path. */
+async function manage(tx: Transaction, ctx: ResolvedContext, ownerOnly = false) {
+  await tx.execute(
+    sql`select pg_advisory_xact_lock(hashtextextended(${`membership:${ctx.tenantId}`}, 0))`,
+  );
+  const [tenant] = await tx
+    .select({ status: tenants.status })
+    .from(tenants)
+    .where(eq(tenants.id, ctx.tenantId));
+  if (!tenant) throw new AppError(ERROR_CODES.TENANT_NOT_FOUND);
+  if (!['active', 'trial'].includes(tenant.status))
+    throw new AppError(ERROR_CODES.TENANT_SUSPENDED);
+  if (ctx.supportMode || ctx.role === 'support') {
+    if (ownerOnly || !ctx.supportMode || ctx.role !== 'support')
+      throw new AppError(ERROR_CODES.SUPPORT_WRITE_DENIED);
+  } else {
+    if (
+      ctx.actorType !== 'user' ||
+      !['owner', 'admin'].includes(ctx.role) ||
+      (ownerOnly && ctx.role !== 'owner')
+    )
+      throw new AppError(ERROR_CODES.ROLE_NOT_PERMITTED);
+    const [actor] = await tx
+      .select({ role: tenantMembers.role, status: tenantMembers.status })
+      .from(tenantMembers)
+      .where(
+        and(
+          eq(tenantMembers.tenantId, ctx.tenantId),
+          eq(tenantMembers.userId, ctx.actorId),
+          isNull(tenantMembers.deletedAt),
+        ),
+      )
+      .limit(1)
+      .for('update');
+    if (!actor || actor.status !== 'active' || actor.role !== ctx.role)
+      throw new AppError(ERROR_CODES.ROLE_NOT_PERMITTED);
+  }
+}
+
+/** Counter locking also coordinates with the console's reviewed plan changes. */
+async function lockSeats(tx: Transaction, tenantId: string) {
+  const [source] = await tx.execute<{ n: number }>(sql`select (
+    (select count(*) from tenant_members where tenant_id = ${tenantId} and status = 'active' and deleted_at is null)
+    + (select count(*) from invitations where tenant_id = ${tenantId} and accepted_at is null and revoked_at is null)
+  )::int as n`);
+  const initial = source?.n ?? 0;
+  await tx
+    .insert(usageCounters)
+    .values({ tenantId, key: 'seats', currentValue: initial, peakValue: initial })
+    .onConflictDoNothing();
+  const [counter] = await tx
+    .select({ current: usageCounters.currentValue })
+    .from(usageCounters)
+    .where(and(eq(usageCounters.tenantId, tenantId), eq(usageCounters.key, 'seats')))
+    .for('update');
+  if (!counter || counter.current !== initial)
+    throw new AppError(ERROR_CODES.INTERNAL, {
+      message:
+        'Seat usage could not be verified. Ask support to review this workspace before changing the team.',
+    });
+  return counter.current;
+}
+
+async function availableSeat(tx: Transaction, ctx: ResolvedContext) {
+  const current = await lockSeats(tx, ctx.tenantId);
+  const [subscription] = await tx
+    .select({ planId: subscriptions.planId, status: subscriptions.status })
+    .from(subscriptions)
+    .where(eq(subscriptions.tenantId, ctx.tenantId));
+  if (!subscription || !['active', 'trialing'].includes(subscription.status))
+    throw new AppError(ERROR_CODES.SUBSCRIPTION_NOT_ACTIVE);
+  const [allowance] = await tx
+    .select()
+    .from(planEntitlements)
+    .where(
+      and(eq(planEntitlements.planId, subscription.planId), eq(planEntitlements.key, 'seats')),
+    );
+  const [override] = await tx
+    .select()
+    .from(subscriptionOverrides)
+    .where(
+      and(
+        eq(subscriptionOverrides.tenantId, ctx.tenantId),
+        eq(subscriptionOverrides.key, 'seats'),
+        sql`(${subscriptionOverrides.expiresAt} is null or ${subscriptionOverrides.expiresAt} > now())`,
+      ),
+    );
+  if (override ? override.featureEnabled !== null : !allowance || allowance.kind !== 'limit')
+    throw new AppError(ERROR_CODES.ENTITLEMENT_FEATURE_UNAVAILABLE);
+  const limit = override ? override.limitValue : allowance!.limitValue;
+  if (limit !== null && current + 1 > limit)
+    throw new AppError(ERROR_CODES.ENTITLEMENT_LIMIT_REACHED, {
+      message:
+        'All seats are in use. Withdraw an invitation or review your plan before inviting someone else.',
+    });
+}
 
 /**
  * The token is returned ONCE, in plaintext, to be put in an email — and only
@@ -45,14 +141,7 @@ export type InviteResult = {
   role: MemberRole;
   token: string;
   expiresAt: Date;
-  /**
-   * ⚠ WHETHER THE EMAIL ACTUALLY LEFT, REPORTED RATHER THAN ASSUMED.
-   *
-   * The invitation exists either way — it is a committed row — so this is
-   * not a success flag for the operation. It is what lets the interface say
-   * "we have emailed them" when that is true and "send them this link" when
-   * it is not, instead of claiming the first and being wrong.
-   */
+
   delivery: { sent: boolean; reason?: string };
 };
 
@@ -68,21 +157,36 @@ export async function inviteMember(
   ctx: ResolvedContext,
   input: InviteInput,
 ): Promise<InviteResult> {
-  /**
-   * 07 §5. "Inviting counts against `seats` at invitation time, not at
-   * acceptance. Otherwise a tenant on a 5-seat plan can send fifty
-   * invitations and blow through the limit the moment they are accepted."
-   *
-   * The remedy at that point would be removing people who have already
-   * joined, which is a conversation nobody should have to have.
-   */
-  await assertEntitlement(ctx, 'seats', 1);
+  const parsed = inviteInput.safeParse(input);
+  if (!parsed.success)
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message: 'Enter a valid email address and choose Administrator or Agent.',
+    });
+  input = parsed.data;
 
   const token = randomBytes(32).toString('base64url');
   const expiresAt = new Date(Date.now() + INVITATION_TTL_DAYS * 24 * 60 * 60 * 1000);
   const email = input.email.trim().toLowerCase();
 
   const { created, tenantName } = await withTenantContext(ctx, async (tx) => {
+    await manage(tx, ctx);
+    await availableSeat(tx, ctx);
+    const [member] = await tx
+      .select({ id: tenantMembers.id })
+      .from(tenantMembers)
+      .innerJoin(userProfiles, eq(tenantMembers.userId, userProfiles.id))
+      .where(
+        and(
+          eq(tenantMembers.tenantId, ctx.tenantId),
+          isNull(tenantMembers.deletedAt),
+          sql`lower(${userProfiles.email}) = ${email}`,
+        ),
+      )
+      .limit(1);
+    if (member)
+      throw new AppError(ERROR_CODES.MEMBER_ALREADY_EXISTS, {
+        message: 'This person already belongs to the workspace.',
+      });
     // The workspace name for the email. Read inside the transaction because
     // it is the same tenant the invitation is being written against, and a
     // second read outside could resolve differently under a rename.
@@ -149,34 +253,14 @@ export async function inviteMember(
 
     // Counted at invitation time. See the note above.
     await incrementUsage(tx, ctx.tenantId, 'seats', 1);
-    await invalidateEntitlements(ctx.tenantId);
 
     return {
       created: { id: row.id, email, role: input.role, token, expiresAt },
       tenantName: tenant?.name ?? 'your workspace',
     };
   });
+  await invalidateEntitlements(ctx.tenantId);
 
-  /**
-   * ⚠ THE EMAIL GOES AFTER THE TRANSACTION COMMITS, NOT INSIDE IT.
-   *
-   * Two failure modes, and only one of them is survivable:
-   *
-   *   send inside the transaction   a slow provider holds a database
-   *                                 transaction open for its whole timeout,
-   *                                 and a rollback after a successful send
-   *                                 mails a link to an invitation that no
-   *                                 longer exists
-   *   send after it commits         a failed send leaves a real invitation
-   *                                 whose link the owner can still pass on
-   *
-   * The second is a nuisance the interface can explain. The first is an
-   * invitation that cannot be accepted and cannot be withdrawn, because
-   * nobody has a row for it.
-   *
-   * It does not throw: `sendEmail` reports rather than raises, precisely so
-   * this cannot roll back work that already succeeded.
-   */
   const delivery = await sendEmail({
     to: created.email,
     template: invitationEmail({
@@ -195,49 +279,11 @@ export async function inviteMember(
   };
 }
 
-/**
- * The absolute URL an invitation link points at.
- *
- * ⚠ FROM CONFIGURATION, NEVER FROM THE REQUEST.
- *
- * Building it from a `Host` header would let anyone who can reach this
- * endpoint have us mail a link to a domain they chose — the recipient sees a
- * genuine aLcassa invitation pointing at an attacker's copy of the accept
- * screen, and types their new password into it. Host header injection is
- * exactly this attack, and password-reset and invitation mails are its
- * classic targets.
- */
 function acceptUrlFor(token: string): string {
   const base = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/+$/, '') ?? 'http://localhost:3000';
   return `${base}/invite/${token}`;
 }
 
-/**
- * 07 §5 · `POST /v1/invitations/:id/resend`. "Rate limited per invitation."
- *
- * ⚠ IT MINTS A NEW TOKEN AND RETIRES THE OLD ONE.
- *
- * The tempting implementation re-sends the existing link, and it is wrong in
- * both directions. A token that has been sitting in an inbox for six days
- * expires in one, so resending it delivers a link that dies almost
- * immediately — which is precisely the situation the owner is trying to fix.
- * And a token that has been mailed twice now exists in two inboxes, two mail
- * servers and two sets of logs, for twice as long.
- *
- * So the row keeps its identity, its address and its role — it is the same
- * invitation, and the seat it reserved is not counted again — while the
- * credential inside it is replaced and the clock restarts. The previous link
- * stops working the moment this returns.
- *
- * ⚠ THE RATE LIMIT IS THE EXPIRY WINDOW, NOT A COUNTER.
- *
- * 07 §5 asks for rate limiting per invitation. A counter in Redis would be a
- * fifth cache use, and `04` ADR-006 scopes that to four. The cheaper control
- * is already in the row: resending is refused while the existing link still
- * has most of its life left, because there is no legitimate reason to reissue
- * a token the recipient received an hour ago — and an owner clicking twice by
- * accident is the common case, not an attack.
- */
 export async function resendInvitation(
   ctx: ResolvedContext,
   invitationId: string,
@@ -246,6 +292,7 @@ export async function resendInvitation(
   const expiresAt = new Date(Date.now() + INVITATION_TTL_DAYS * 24 * 60 * 60 * 1000);
 
   const { updated, tenantName } = await withTenantContext(ctx, async (tx) => {
+    await manage(tx, ctx);
     const [tenant] = await tx
       .select({ name: tenants.name })
       .from(tenants)
@@ -264,11 +311,13 @@ export async function resendInvitation(
       .where(
         and(
           eq(invitations.id, invitationId),
+          eq(invitations.tenantId, ctx.tenantId),
           isNull(invitations.acceptedAt),
           isNull(invitations.revokedAt),
         ),
       )
-      .limit(1);
+      .limit(1)
+      .for('update');
 
     if (!existing) {
       throw new AppError(ERROR_CODES.NOT_FOUND, {
@@ -333,17 +382,21 @@ export async function resendInvitation(
 
 export async function revokeInvitation(ctx: ResolvedContext, invitationId: string): Promise<void> {
   await withTenantContext(ctx, async (tx) => {
+    await manage(tx, ctx);
+    await lockSeats(tx, ctx.tenantId);
     const [row] = await tx
       .select({ id: invitations.id, email: invitations.email, role: invitations.role })
       .from(invitations)
       .where(
         and(
           eq(invitations.id, invitationId),
+          eq(invitations.tenantId, ctx.tenantId),
           isNull(invitations.acceptedAt),
           isNull(invitations.revokedAt),
         ),
       )
-      .limit(1);
+      .limit(1)
+      .for('update');
 
     if (!row) {
       throw new AppError(ERROR_CODES.NOT_FOUND, {
@@ -372,29 +425,19 @@ export async function revokeInvitation(ctx: ResolvedContext, invitationId: strin
     // The seat goes back. Counting it at invitation time is only fair if
     // withdrawing the invitation returns it.
     await incrementUsage(tx, ctx.tenantId, 'seats', -1);
-    await invalidateEntitlements(ctx.tenantId);
   });
+  await invalidateEntitlements(ctx.tenantId);
 }
 
-/**
- * 07 §5 · `PATCH /v1/members/:id/role`. Owner only. "Rejects
- * `member.last_owner`."
- *
- * ⚠ BOTH DIRECTIONS ARE GUARDED, AND THE SECOND IS THE ONE THAT GETS MISSED.
- *
- *   Demoting the last owner  → zero owners. Obvious, usually checked.
- *   Promoting a second owner → two owners. Less obvious, equally forbidden by
- *                              06 §5, and it is how "who can suspend this
- *                              workspace" becomes ambiguous.
- *
- * Promotion to owner therefore is not available here at all: it is
- * `transferOwnership`, which demotes the incumbent in the same transaction.
- */
 export async function changeMemberRole(
   ctx: ResolvedContext,
   memberId: string,
   role: MemberRole,
 ): Promise<void> {
+  if (!['owner', 'admin', 'agent'].includes(role))
+    throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message: 'Choose Administrator or Agent.',
+    });
   if (role === 'owner') {
     throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
       message:
@@ -406,6 +449,7 @@ export async function changeMemberRole(
   }
 
   await withTenantContext(ctx, async (tx) => {
+    await manage(tx, ctx, true);
     const member = await loadMember(tx, ctx.tenantId, memberId);
 
     if (member.role === 'owner') {
@@ -437,6 +481,8 @@ export async function changeMemberRole(
 
 export async function removeMember(ctx: ResolvedContext, memberId: string): Promise<void> {
   await withTenantContext(ctx, async (tx) => {
+    await manage(tx, ctx);
+    await lockSeats(tx, ctx.tenantId);
     const member = await loadMember(tx, ctx.tenantId, memberId);
 
     if (member.role === 'owner') {
@@ -475,32 +521,17 @@ export async function removeMember(ctx: ResolvedContext, memberId: string): Prom
       },
     );
 
-    await incrementUsage(tx, ctx.tenantId, 'seats', -1);
-    await invalidateEntitlements(ctx.tenantId);
+    if (member.status === 'active') await incrementUsage(tx, ctx.tenantId, 'seats', -1);
   });
+  await invalidateEntitlements(ctx.tenantId);
 }
 
-/**
- * 07 §4 · `POST /v1/tenant/transfer-ownership`. "Owner. Atomic, requires
- * password confirmation."
- *
- * ⚠ ATOMIC IS THE WHOLE SPECIFICATION. Promote and demote in ONE transaction.
- *
- * Two statements from a route handler would leave a window — however brief,
- * and a network hiccup makes it arbitrarily long — in which the workspace has
- * two owners or none. Neither state has a screen, because neither is supposed
- * to exist.
- *
- * The password confirmation is enforced by the ROUTE, before this is called:
- * re-authentication is an auth concern and this module has no business
- * holding a password. What this guarantees is that once called, the outcome
- * is one owner or an unchanged workspace.
- */
 export async function transferOwnership(
   ctx: ResolvedContext,
   newOwnerMemberId: string,
 ): Promise<{ previousOwnerId: string; newOwnerId: string }> {
   return withTenantContext(ctx, async (tx) => {
+    await manage(tx, ctx, true);
     const incoming = await loadMember(tx, ctx.tenantId, newOwnerMemberId);
 
     if (incoming.userId === ctx.actorId) {
@@ -524,9 +555,10 @@ export async function transferOwnership(
           isNull(tenantMembers.deletedAt),
         ),
       )
-      .limit(1);
+      .limit(1)
+      .for('update');
 
-    if (!outgoing) {
+    if (!outgoing || outgoing.userId !== ctx.actorId) {
       // Unreachable if the invariant has held. Loud rather than silent,
       // because reaching it means it did not.
       throw new AppError(ERROR_CODES.INTERNAL, {
@@ -567,21 +599,6 @@ export async function transferOwnership(
   });
 }
 
-/**
- * ⚠ `acceptInvitation` USED TO LIVE HERE AND IT COULD NEVER HAVE WORKED.
- *
- * It wrote to `invitations` and `tenant_members` through Drizzle under a
- * context with no tenant — which is the only context available before the
- * membership it creates exists. Every policy on both tables compares against
- * a null tenant, so the writes matched nothing and the acceptance silently
- * did nothing at all. The isolation probe caught it; a user would have
- * reported "the link says it worked and I am not in the workspace".
- *
- * It now lives in `./invitationAccess.ts`, over the SECURITY DEFINER
- * functions in `02_identity.sql` — which is what that file's comment said
- * the design was from the beginning.
- */
-
 async function loadMember(
   tx: Transaction,
   tenantId: string,
@@ -602,7 +619,8 @@ async function loadMember(
         isNull(tenantMembers.deletedAt),
       ),
     )
-    .limit(1);
+    .limit(1)
+    .for('update');
 
   if (!row) {
     // RLS already returned nothing for another tenant's member, so this is
@@ -614,10 +632,9 @@ async function loadMember(
 }
 
 function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    (error as { code?: string }).code === '23505'
-  );
+  for (let depth = 0; depth < 5 && typeof error === 'object' && error !== null; depth++) {
+    if ('code' in error && error.code === '23505') return true;
+    error = 'cause' in error ? error.cause : null;
+  }
+  return false;
 }

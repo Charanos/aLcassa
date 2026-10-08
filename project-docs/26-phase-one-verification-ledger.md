@@ -799,3 +799,70 @@ proof: `.test-report/phase-one/auth-20261008/tracker-plan-desktop-final.jpg` and
 The staged scan checks 30 files against 14 private values and verifies every public
 fingerprint against Git blob bytes. Exact release CI/deployment readback follows
 the push; the published reference checkpoint remains explicitly separate.
+
+## 27. Team integrity and confirmed UI state — 8 October 2026
+
+The first seven real-database membership regression cases reproduced unsafe
+concurrent seat reservations, repeated releases/resends, stale owner authority,
+administrator role edits and repeated acceptance. A later normalized duplicate
+case reproduced a generic 500 caused by the database driver's nested unique-error
+wrapper. All now pass with transaction locks, current actor/allowance reads and
+bounded duplicate-error inspection.
+
+The full disposable regression passes **545/545 cases in 43 files, no skips**.
+Twenty-one membership cases cover single-use acceptance, acceptance versus
+withdrawal, final-seat contention, live/expired grants, missing counters versus
+existing drift, suspended-member removal, owner preservation, transfer concurrency,
+retired links and transactional audit rollback. Five action cases verify confirmed
+team readback and distinguish committed writes from later cache/read failures.
+The policy check still reports 15/15 workspace tables and zero problems. Module
+email delivery is mocked; these results do not demonstrate external delivery.
+
+Native replay reduced a disposable administrator to agent, removed a suspended
+teammate and withdrew an expired invitation. Database reads show one audit per
+operation and the correct seat count. The first UI replay exposed stale state
+after a successful withdrawal. Actions now return a fresh team model and timestamp;
+the interface keeps it until a newer server read arrives. The corrected replay
+shows zero outstanding invitations and two used seats immediately, without a
+reload. A committed operation whose readback fails instead asks for a reload and
+disables further writes; it does not invite a duplicate retry.
+
+Desktop and 390px phone layouts, section focus and the withdrawal review were
+checked. Cancel receives initial focus; the backdrop uses 8px blur. Reviewed images
+and bounded browser/database/cleanup outcomes appear in the verification record's
+team checkpoint and separate `membership-manifest.json`. Publication excludes
+private fixture IDs, credentials, logs and machine paths. All owned review rows,
+their temporary allowance and audits were removed; the original owner and source
+capacity remain intact. Historical release artifacts retain their original bytes.
+
+Tenant settings advances **70→75%** based on this verified work. Provider invitation
+journeys, ownership reauthentication review, credential clipboard/error journeys,
+usage persistence and the final secrets review remain open. No milestone is newly
+marked complete. The next closure order is account/team provider gates, shared
+service budgets and usage, the complete Platform/Ops/peripheral matrix, then
+load, monitoring, restore/setup drills and handover. Service hosting verification
+remains local by the user's decision.
+
+The hosted development sandbox's older acceptance helper was updated separately,
+using the explicit project guard and only `app.accept_invitation`. Readback matches
+the release body; its owner, execute grants, definer rights and pinned search path
+remain unchanged. Body SHA-256: `6b62d4a49e165ec06c41be1d388b05f29bb4a18af87c2b59957e99d73d2f35d2`.
+No workspace or invitation data changed in that update. The concurrency suite and
+native team acceptance remain local measurements, distinct from this hosted
+definition/permission check.
+
+The preceding tracker checkpoint `85585cd` passed all six application CI jobs
+([run 37793553772](https://github.com/Charanos/aLcassa/actions/runs/37793553772)) and
+[Vercel deployment](https://vercel.com/dennis-munges-projects/a-lcassa/9zcvB2KCUTHMqhbNBn5CxkF8KmG7).
+Deployed read-only checks covered 28 routes, 58 anchors and ten evidence assets;
+the private source returned 404. The new team checkpoint receives separate final
+build, static and exact release readbacks before release qualification.
+
+Final local release checks pass: production build 94/94 routes, sequential post-build
+typecheck, full-repository lint and formatting, declared dependencies and the
+pinned-package security gate. Thirteen focused evidence/navigation checks pass
+against the new artifact set. Built verification covers 28 document/tracker routes,
+58 anchors and all 16 public assets; the internal source returns 404. The record
+fits 390px without horizontal overflow. The staged scan checks 26 files against
+14 private values; all six additional team artifact fingerprints match Git bytes.
+Exact CI and deployment results are recorded separately after the push.

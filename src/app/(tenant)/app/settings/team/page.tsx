@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import Link from '@/components/structure/NavigationLink';
 import { PageHeader } from '@/components/structure/PageHeader';
 import { Button } from '@/components/primitives/Button';
-import { LimitBar } from '@/components/domain/LimitBar';
 import { TeamPanel } from '@/components/tenant/TeamPanel';
 import { getTeam } from '@/lib/tenant/data';
 import { getLiveTeam } from '@/lib/tenant/live';
+import { currentSessionOrNull } from '@/lib/auth/resolve';
 
 export const metadata: Metadata = { title: 'Team' };
 
@@ -14,8 +14,8 @@ export const metadata: Metadata = { title: 'Team' };
  *  bar reads the same total the invite form's own guard will check. */
 export default async function TeamSettingsPage() {
   /** Authenticated readers use live workspace data; fixtures are limited to explicit demo sessions. */
-  const model = (await getLiveTeam()) ?? (await getTeam());
-  const pendingCount = model.invitations.filter((i) => i.status === 'pending').length;
+  const ctx = await currentSessionOrNull();
+  const model = (await getLiveTeam(ctx ?? undefined)) ?? (await getTeam());
 
   return (
     <div>
@@ -24,21 +24,15 @@ export default async function TeamSettingsPage() {
         description="Everyone with access to this workspace, and everyone waiting to join it."
         breadcrumbs={[{ label: 'Settings', href: '/app/settings/company' }, { label: 'Team' }]}
         actions={
-          <Button asChild variant="primary">
-            <Link href="/app/settings/team/invite">Invite a teammate</Link>
-          </Button>
+          ctx && ['owner', 'admin', 'support'].includes(ctx.role) ? (
+            <Button asChild variant="primary">
+              <Link href="/app/settings/team/invite">Invite a teammate</Link>
+            </Button>
+          ) : null
         }
       />
 
-      <div className="mb-6 max-w-sm">
-        <LimitBar
-          label={`Seats (${model.members.length} active${pendingCount ? ` + ${pendingCount} pending` : ''})`}
-          current={model.seatsUsed}
-          limit={model.seatsLimit}
-        />
-      </div>
-
-      <TeamPanel members={model.members} invitations={model.invitations} />
+      <TeamPanel model={model} role={ctx?.role ?? null} />
     </div>
   );
 }

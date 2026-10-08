@@ -225,6 +225,7 @@ export async function getLiveTeam(
   /** A context already resolved — the console's support door. Doc 24 · Stage 3. */
   given?: ResolvedContext,
 ): Promise<TeamModel | null> {
+  const readAt = new Date().toISOString();
   const ctx = given ?? (await currentSessionOrNull());
   if (!ctx) return null;
 
@@ -266,6 +267,7 @@ export async function getLiveTeam(
       .orderBy(desc(invitations.createdAt));
 
     return {
+      readAt,
       members: memberRows.map((row) => ({
         id: row.id,
         name: row.fullName ?? 'Pending',
@@ -286,6 +288,7 @@ export async function getLiveTeam(
         // Sheet 12: an expired invitation is a state with a remedy, not an
         // error. It stays in the list so the owner can send a fresh one.
         status: row.expiresAt.getTime() <= Date.now() ? ('expired' as const) : ('pending' as const),
+        canResend: row.expiresAt.getTime() - Date.now() <= 6 * 24 * 60 * 60 * 1000,
       })),
       seatsUsed: seats?.current ?? memberRows.length + invitationRows.length,
       seatsLimit: seats?.limit ?? null,

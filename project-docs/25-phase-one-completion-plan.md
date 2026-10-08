@@ -475,3 +475,18 @@ demonstration advances completion to 100%.
 Service hosting verification remains local at the user's request while Vercel
 access is unavailable. Retain hosted topology as a visible open dependency; local
 qualification does not demonstrate a deployed service.
+
+## 16. Team gate checkpoint — 8 October 2026
+
+Tenant settings is now assessed at 75%. The current local regression passes 545
+cases in 43 files, including 21 real-database membership cases and five team-action
+cases. Native role reduction, suspended removal and expired invitation withdrawal
+agree with audit and capacity records. Confirmed UI readback, section focus, phone
+layout and review blur are verified; owned fixtures are cleaned up.
+
+Next close provider invitation/account journeys and ownership reauthentication,
+credential clipboard/error states and final secrets review. Then finish shared
+service budgets and usage persistence, the full Platform/Ops/profile/customer
+Activity matrix, and operational load, monitoring, restore and setup drills.
+Publish evidence, build and push each qualified checkpoint. A completed test
+package advances progress; acceptance still requires every milestone gate.

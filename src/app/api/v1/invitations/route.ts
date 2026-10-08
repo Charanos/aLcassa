@@ -50,12 +50,11 @@ export const GET = defineRoute({
   },
 });
 
-/** Check seats before the handler and again in the service so direct callers cannot bypass enforcement. */
+/** Membership reserves seats atomically against fresh allowance data. */
 export const POST = defineRoute({
   door: 'session',
   resolve: resolveSessionDoor,
   roles: ['owner', 'admin'],
-  entitlement: { key: 'seats', delta: 1 },
   bodySchema: z.object({
     email: z.string().trim().toLowerCase().email('Enter a valid email address.'),
     role: z.enum(['admin', 'agent']),

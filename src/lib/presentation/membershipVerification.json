@@ -1,0 +1,45 @@
+{
+  "date": "8 October 2026",
+  "environment": "Disposable local database and development browser; email delivery mocked in module tests",
+  "baseCommit": "85585cd51ad2b0ec37173df31265b0fccd740995",
+  "scope": "Membership concurrency, current permissions, capacity integrity and confirmed team readback",
+  "passed": 545,
+  "files": 43,
+  "databaseCases": 21,
+  "actionCases": 5,
+  "results": {
+    "path": "/verification/2026-10-08/membership-regression.json",
+    "sha256": "160634137518a64603be428d8d377c870e53df69a7016ead1a0efafee65970ad"
+  },
+  "native": {
+    "path": "/verification/2026-10-08/team-native.json",
+    "sha256": "a6987be767b7d5705a4f5dbe48b97b9e4dbc7f65281485b760066d824571da4b"
+  },
+  "images": [
+    {
+      "path": "/verification/2026-10-08/team-desktop-final.jpg",
+      "label": "Team desktop after suspended teammate removal",
+      "width": 1269,
+      "height": 1028,
+      "sha256": "0c631c9713e95df35de9f292a3a8279d193f7669db68eb81bf754c33d37b19e9"
+    },
+    {
+      "path": "/verification/2026-10-08/team-phone-final.jpg",
+      "label": "Phone readback after invitation withdrawal",
+      "width": 380,
+      "height": 822,
+      "sha256": "b5b7b0daf93a043263b960de18dba2968e56541ddc2ba5d764000cb89a5f2cef"
+    },
+    {
+      "path": "/verification/2026-10-08/team-phone-withdraw-review.jpg",
+      "label": "Phone withdrawal review with Cancel focus and background blur",
+      "width": 390,
+      "height": 843,
+      "sha256": "89bacd5b02ce7b783f5d4982ebe489c4d9ae2bc3c799968adfbf31b443fdccce"
+    }
+  ],
+  "manifest": {
+    "path": "/verification/2026-10-08/membership-manifest.json",
+    "sha256": "b0c15eab873c99ef6b9ad0df58498af36d9c6656b74284b7a988941a026f0e51"
+  }
+}

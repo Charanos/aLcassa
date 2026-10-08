@@ -1,0 +1,76 @@
+{
+  "ui": {
+    "localOnly": true,
+    "checkedAt": "2026-10-08T15:32:27.989Z",
+    "roleReduction": {
+      "result": "agent",
+      "focus": "team-members-title"
+    },
+    "suspendedRemoval": {
+      "remainingPeople": 2,
+      "seatsUsed": 3,
+      "focus": "team-members-title"
+    },
+    "withdrawal": {
+      "remainingInvitations": 0,
+      "seatsUsed": 2,
+      "focus": "team-invitations-title",
+      "requiredReload": false
+    },
+    "phone": {
+      "viewportWidth": 390,
+      "documentWidth": 380
+    },
+    "review": {
+      "initialFocus": "Cancel",
+      "backdropBlurPx": 8
+    }
+  },
+  "database": {
+    "localOnly": true,
+    "members": [
+      {
+        "role": "agent",
+        "status": "active",
+        "removed": false
+      },
+      {
+        "role": "agent",
+        "status": "suspended",
+        "removed": true
+      }
+    ],
+    "invitations": [
+      {
+        "accepted": false,
+        "revoked": true
+      }
+    ],
+    "counters": [
+      {
+        "current_value": 2
+      }
+    ],
+    "audits": [
+      {
+        "action": "invitation.revoked",
+        "count": 1
+      },
+      {
+        "action": "member.removed",
+        "count": 1
+      },
+      {
+        "action": "member.role_changed",
+        "count": 1
+      }
+    ]
+  },
+  "cleanup": {
+    "localOnly": true,
+    "passed": true,
+    "remainingOwnedFixtures": 0,
+    "seatsUsed": 1,
+    "ownerPreserved": true
+  }
+}

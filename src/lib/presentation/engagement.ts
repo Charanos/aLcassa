@@ -115,8 +115,8 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
   date: '8 October 2026',
-  applicationTests: 519,
-  applicationFiles: 41,
+  applicationTests: 545,
+  applicationFiles: 43,
   serviceTests: 21,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -190,8 +190,8 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 70,
-    note: 'Company settings persist with conflict protection and customer Activity reads retained, safe changes. Credentials pass 16 real database cases, including audit rollback and concurrent limits. The disposable owner browser verified creation, one-time reveal, download, replacement grace and revocation; both keys ended revoked. Clipboard readback, phone/error journeys, usage persistence and the remaining secrets review stay open.',
+    progress: 75,
+    note: 'Company changes and customer Activity are verified. Credentials pass 16 database cases and native lifecycle checks; both test keys ended revoked. Team management adds 21 database cases for permissions, concurrent invitations, ownership, capacity and audit rollback, plus five confirmed-action cases. Native role reduction, suspended removal and invitation withdrawal update the page immediately, with keyboard focus and phone checks. Provider invitation journeys, ownership review, clipboard/error journeys, usage persistence and the final secrets review remain open.',
   },
   {
     id: 'M4a',
@@ -225,14 +225,16 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
   { previous: number; evidence: string[]; remaining: string[] }
 > = {
   M5: {
-    previous: 45,
+    previous: 70,
     evidence: [
       'Company saves, conflicts and recorded Activity',
       '16 database credential cases, including concurrent limits and audit rollback',
       'Native creation, one-time reveal, download, replacement, revocation and focus',
+      '21 database team cases and five confirmed-action/readback cases',
+      'Native role reduction, suspended removal and seat release without a reload; phone review and focus',
     ],
     remaining: [
-      'Complete team and invitation journeys',
+      'Complete provider invitation journeys and ownership transfer review',
       'Clipboard, phone and failure-state acceptance',
       'Last-use persistence and final secrets review',
     ],
@@ -373,6 +375,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-08',
+    title: 'Team capacity, permissions and immediate readback verified',
+    body: 'The local regression now passes 545 cases in 43 files. Team writes check current permissions and share transaction locks; concurrent invitations cannot consume the same final seat, and acceptance cannot race withdrawal. Browser role reduction, suspended removal and invitation withdrawal agree with database and audit records, including immediate capacity updates, phone layout, keyboard focus and modal blur. Tenant settings moves from 70% to 75%. The verification record contains the bounded results and reviewed images; remaining provider and operational gates stay open.',
+    milestone: 'M5, M6',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-09-12',
     title: 'The design document was describing a system we no longer build',

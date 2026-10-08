@@ -192,6 +192,13 @@ begin
   if not found then
     raise exception 'invitation_not_found' using errcode = 'P0002';
   end if;
+  -- Match the team's lock order, then reread the token after waiting. A resend,
+  -- withdrawal or earlier acceptance may have changed it while queued.
+  perform pg_advisory_xact_lock(hashtextextended('membership:' || inv.tenant_id::text, 0));
+  select i.* into inv from invitations i where i.token_hash = p_token_hash for update;
+  if not found then
+    raise exception 'invitation_not_found' using errcode = 'P0002';
+  end if;
   if inv.revoked_at is not null then
     raise exception 'invitation_revoked' using errcode = 'P0001';
   end if;

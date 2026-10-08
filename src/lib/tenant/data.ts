@@ -431,9 +431,11 @@ export type Invitation = {
   sentAt: string;
   expiresAt: string;
   status: 'pending' | 'expired';
+  canResend?: boolean;
 };
 
 export type TeamModel = {
+  readAt?: string;
   members: Member[];
   invitations: Invitation[];
   seatsUsed: number;

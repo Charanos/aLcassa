@@ -9,6 +9,8 @@ import {
   inviteMember,
   removeMember as removeMemberService,
   revokeInvitation as revokeInvitationService,
+  resendInvitation as resendInvitationService,
+  changeMemberRole as changeMemberRoleService,
 } from '@/modules/membership';
 import { endSupportVisit as endSupportVisitService, updateOwnProfile } from '@/modules/identity';
 import { saveCompanySettings } from '@/modules/settings';
@@ -17,8 +19,8 @@ import {
   revokeCredential as revokeCredentialService,
 } from '@/modules/credentials';
 import { publishTenantRules, restoreTenantRules } from '@/modules/aiRules';
-import { getLiveTenantAiRules } from '@/lib/tenant/live';
-import type { TenantRulesModel } from '@/lib/tenant/data';
+import { getLiveTenantAiRules, getLiveTeam } from '@/lib/tenant/live';
+import type { TenantRulesModel, TeamModel } from '@/lib/tenant/data';
 import type { ResolvedContext } from '@/lib/db/context';
 
 /** Resolve and validate tenant context on every action; unavailable operations return an explicit refusal. */
@@ -28,6 +30,8 @@ type ActionResult =
       ok: true;
       /** A committed invitation may still require the owner to share its link when email delivery fails. */
       notice?: string;
+      team?: TeamModel;
+      refreshRequired?: boolean;
     }
   | { ok: false; error: string };
 
@@ -38,6 +42,39 @@ async function attempt(operation: () => Promise<string | void>): Promise<ActionR
     return notice ? { ok: true, notice } : { ok: true };
   } catch (error) {
     return actionFailure(error);
+  }
+}
+
+/** A failed readback cannot turn a committed team change into a failed write. */
+async function mutateTeam(
+  operation: (ctx: ResolvedContext) => Promise<string | void>,
+): Promise<ActionResult> {
+  let ctx: ResolvedContext;
+  let notice: string | void;
+  try {
+    ctx = await currentSession();
+    notice = await operation(ctx);
+  } catch (error) {
+    return actionFailure(error);
+  }
+  try {
+    revalidatePath('/app/settings/team');
+    revalidatePath('/app/settings/audit');
+    const team = await getLiveTeam(ctx);
+    if (!team) throw new Error('Committed team change has no readback');
+    return { ok: true, team, ...(notice ? { notice } : {}) };
+  } catch (error) {
+    logger.error('team change committed; readback unavailable', {
+      requestId: ctx.requestId,
+      error,
+    });
+    return {
+      ok: true,
+      refreshRequired: true,
+      notice: notice
+        ? `${notice} The change was saved. Reload this page to confirm the latest team details.`
+        : 'The change was saved. Reload this page to confirm the latest team details.',
+    };
   }
 }
 
@@ -78,13 +115,11 @@ export async function sendInvitation(input: {
   // handing it over is a transfer rather than an invitation.
   if (!['admin', 'agent'].includes(input.role)) return { ok: false, error: 'Select a role.' };
 
-  return attempt(async () => {
-    const ctx = await currentSession();
+  return mutateTeam(async (ctx) => {
     const invitation = await inviteMember(ctx, {
       email: input.email,
       role: input.role as 'admin' | 'agent',
     });
-    revalidatePath('/app/settings/team');
 
     if (invitation.delivery.sent) return;
 
@@ -99,26 +134,36 @@ function appUrl(): string {
   return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/+$/, '') ?? 'http://localhost:3000';
 }
 
+export async function updateMemberRole(id: string, role: 'admin' | 'agent'): Promise<ActionResult> {
+  return mutateTeam(async (ctx) => {
+    await changeMemberRoleService(ctx, id, role);
+  });
+}
+
+export async function resendTeamInvitation(id: string): Promise<ActionResult> {
+  return mutateTeam(async (ctx) => {
+    const invitation = await resendInvitationService(ctx, id);
+    if (!invitation.delivery.sent)
+      return `The invitation was renewed, but email delivery was unavailable. Share this private link with the intended teammate: ${appUrl()}/invite/${invitation.token}`;
+  });
+}
+
 export async function revokeInvitation(id: string): Promise<ActionResult> {
   if (!id) return { ok: false, error: 'Select an invitation to revoke.' };
 
-  return attempt(async () => {
-    const ctx = await currentSession();
+  return mutateTeam(async (ctx) => {
     await revokeInvitationService(ctx, id);
-    revalidatePath('/app/settings/team');
   });
 }
 
 export async function removeMember(id: string): Promise<ActionResult> {
   if (!id) return { ok: false, error: 'Select a member to remove.' };
 
-  return attempt(async () => {
-    const ctx = await currentSession();
+  return mutateTeam(async (ctx) => {
     // The owner check and the "an admin may only remove agents" rule both
     // live in the service, next to each other, rather than being restated
     // here where they could drift from the route's copy.
     await removeMemberService(ctx, id);
-    revalidatePath('/app/settings/team');
   });
 }
 

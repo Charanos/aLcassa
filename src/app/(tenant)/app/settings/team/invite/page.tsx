@@ -17,11 +17,8 @@ export default async function InviteTeamMemberPage() {
   // component used to say "Growth", which was never one of ours.
   const ctx = await currentSessionOrNull();
   const me = ctx ? await loadMe(ctx) : null;
-  const pendingCount = model.invitations.filter((i) => i.status === 'pending').length;
   const seatsRemaining =
-    model.seatsLimit === null
-      ? null
-      : Math.max(0, model.seatsLimit - model.members.length - pendingCount);
+    model.seatsLimit === null ? null : Math.max(0, model.seatsLimit - model.seatsUsed);
 
   return (
     <div>
@@ -39,7 +36,14 @@ export default async function InviteTeamMemberPage() {
           { label: 'Invite' },
         ]}
       />
-      <InviteForm seatsRemaining={seatsRemaining} planName={me?.subscription?.planName} />
+      {ctx && ['owner', 'admin', 'support'].includes(ctx.role) ? (
+        <InviteForm seatsRemaining={seatsRemaining} planName={me?.subscription?.planName} />
+      ) : (
+        <p role="status" className="t-body text-[var(--text-secondary)]">
+          Your workspace role does not allow invitations. Ask the owner or an administrator to
+          invite your teammate.
+        </p>
+      )}
     </div>
   );
 }

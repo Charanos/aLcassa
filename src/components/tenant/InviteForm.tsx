@@ -9,7 +9,11 @@ import { sendInvitation } from '@/app/(tenant)/app/actions';
 import type { MemberRole } from '@/lib/tenant/data';
 
 const ROLES: Array<{ value: MemberRole; label: string; detail: string }> = [
-  { value: 'admin', label: 'Admin', detail: 'Manages team, credentials read access and settings.' },
+  {
+    value: 'admin',
+    label: 'Administrator',
+    detail: 'Manages teammates and workspace settings. Credentials remain private to the owner.',
+  },
   { value: 'agent', label: 'Agent', detail: 'Handles conversations. No access to settings.' },
 ];
 
@@ -76,9 +80,8 @@ export function InviteForm({
           }}
         >
           {seatsRemaining} {seatsRemaining === 1 ? 'seat' : 'seats'} left
-          {planName ? ` on ${planName}` : ''}. 07 §5: a seat is reserved when the invitation is
-          SENT, not when it is accepted — so this one counts immediately, and comes back if you
-          withdraw it.
+          {planName ? ` on ${planName}` : ''}. Invitations reserve a seat until accepted or
+          withdrawn.
         </p>
       ) : null}
 

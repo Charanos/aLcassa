@@ -3,10 +3,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { IconArrowLeft, IconArrowUpRight, IconCheck, IconFileDownload } from '@tabler/icons-react';
 import record from '@/lib/presentation/verificationRecord.json';
+import membership from '@/lib/presentation/membershipVerification.json';
 import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
-  title: 'Verification record · aLcassa',
+  title: 'Verification record',
   description:
     'Recorded test results, release checks, browser evidence and remaining Phase One gates.',
   robots: { index: false, follow: false },
@@ -66,9 +67,9 @@ export default function VerificationRecordPage() {
         </div>
         <dl className="surface-sunken mt-5 grid gap-px overflow-hidden rounded-panel border border-[var(--border-subtle)] sm:grid-cols-2 lg:grid-cols-4">
           <Metric
-            value={`${record.localCandidate.passed}`}
+            value={`${membership.passed}`}
             label="Current local cases passed"
-            detail={`${record.localCandidate.files} files · no failures or skips`}
+            detail={`${membership.files} files · no failures or skips`}
           />
           <Metric
             value={`${record.service.databaseCases}`}
@@ -87,7 +88,7 @@ export default function VerificationRecordPage() {
           />
         </dl>
         <div className="mt-6 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-inset)] p-5 md:p-6">
-          <h3 className="t-heading">Current local regression</h3>
+          <h3 className="t-heading">Earlier tracker checkpoint</h3>
           <p className="t-compact mt-3 text-[var(--text-secondary)]">
             {record.localCandidate.environment}. The tracker/evidence follow-up adds five checks for
             redaction, reconciled totals, safe paths, revoked fixtures and published fingerprints,
@@ -153,6 +154,76 @@ export default function VerificationRecordPage() {
             </div>
             <Digest value={record.service.results.sha256} />
           </Release>
+        </div>
+      </section>
+
+      <section
+        id="team-checkpoint"
+        aria-labelledby="team-checkpoint-title"
+        className="mt-14 border-t border-[var(--border-subtle)] pt-10"
+      >
+        <h2 id="team-checkpoint-title" className="t-heading text-right">
+          Team integrity and confirmed readback
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          {membership.environment}. The current {membership.passed}-case regression includes{' '}
+          {membership.databaseCases} real-database membership cases and {membership.actionCases}{' '}
+          action-result cases. Concurrent writes share workspace and capacity locks, current
+          permissions are checked inside each transaction, and accepted links are single use. This
+          follow-up was verified on baseline <code>{membership.baseCommit.slice(0, 7)}</code>; the
+          earlier CI references below remain separate release snapshots.
+        </p>
+        <div className="surface-sunken mt-6 rounded-panel border border-[var(--border-subtle)] p-5 md:p-7">
+          <h3 className="t-heading">Browser and database outcomes agree</h3>
+          <p className="t-compact mt-3 text-[var(--text-secondary)]">
+            Administrator-to-agent reduction, suspended teammate removal and expired invitation
+            withdrawal were replayed in the browser. Removal kept the reserved capacity correct;
+            withdrawal released one seat immediately without reloading. Keyboard focus returned to
+            the relevant heading. The 390px page fits its viewport; the review starts on Cancel and
+            uses an 8px backdrop blur. Owned fixtures and their temporary allowance were removed,
+            preserving the original owner.
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            <div>
+              <EvidenceDownload href={membership.results.path} label="545-case local catalogue" />
+              <Digest value={membership.results.sha256} />
+            </div>
+            <div>
+              <EvidenceDownload
+                href={membership.native.path}
+                label="Browser, database and cleanup outcomes"
+              />
+              <Digest value={membership.native.sha256} />
+            </div>
+            <div>
+              <EvidenceDownload href={membership.manifest.path} label="Team evidence index" />
+              <Digest value={membership.manifest.sha256} />
+            </div>
+          </div>
+        </div>
+        <div className="mt-6 grid gap-5 md:grid-cols-3">
+          {membership.images.map((item) => (
+            <figure key={item.path} className="min-w-0">
+              <a
+                href={item.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Open ${item.label}`}
+              >
+                <Image
+                  src={item.path}
+                  alt={item.label}
+                  width={item.width}
+                  height={item.height}
+                  className="h-auto w-full rounded-panel border border-[var(--border-subtle)]"
+                  unoptimized
+                />
+              </a>
+              <figcaption className="t-compact mt-3 text-[var(--text-secondary)]">
+                {item.label}
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
