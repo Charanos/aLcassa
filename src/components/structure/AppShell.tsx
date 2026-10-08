@@ -127,7 +127,6 @@ export function AppShell({
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [mounted, setMounted] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const [sidebarHovered, setSidebarHovered] = useState(false);
 
   // Mobile sheet state
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -165,25 +164,10 @@ export function AppShell({
     setMobileOpen(false);
   }, [pathname]);
 
-  /* The tenant shell's own controls. Guarded on `!isPlatform` as well as on
-     the payload, so handing the console a tenant prop by accident cannot put
-     a workspace switcher next to its tenant switcher. */
+  // Workspace controls belong only to the tenant shell.
   const showWorkspaceSwitcher = !isPlatform && Boolean(workspaces && workspaces.length > 0);
 
-  /*
-   * The current-item treatment: a tint plus a 2px rule on the leading edge,
-   * which is how BOTH `Tenant-Shell` and `Console-Shell` mark it. Only the
-   * palette differs — the tenant's chrome is white and takes `--blue-50`
-   * behind `--text-action`; a dark chrome would take the `--chrome-*` tier.
-   *
-   * ⚠ THE PLATFORM ARM IS UNREACHED TODAY AND IS KEPT ONLY BECAUSE
-   * `application` IS PART OF THIS COMPONENT'S PUBLIC SHAPE. The platform
-   * console does not render this shell at all — it has its own `ConsoleShell`
-   * — so the sole live consumer is the tenant layout. Anyone who does light
-   * up `application="platform"` gets the inverted-solid treatment this
-   * component has always had rather than an untested navy-on-navy tint, and
-   * should port the mark properly with `Console-Shell` open beside them.
-   */
+  // Mark the current destination with both a tint and a leading rule.
   const navActive = isPlatform
     ? {
         item: 'bg-[var(--text-primary)] font-medium text-[var(--surface-base)] shadow-sm',
@@ -200,21 +184,7 @@ export function AppShell({
         mark: 'var(--blue-500)' as string | null,
       };
 
-  /*
-   * ⚠ NO `data-theme` STAMP ANY MORE. This used to flip the sidebar to the
-   * opposite theme of the page. The product ships one theme, so there is no
-   * opposite to flip to, and the token block that stamp resolved against is
-   * gone.
-   *
-   * ⚠ TWO CHROME TIERS, DELIBERATELY UNMISTAKABLE FROM EACH OTHER. 03 §4:
-   * Brian has both applications open at once, and confusing them is a real
-   * operational risk. The platform console's chrome reads `--chrome-*` — a
-   * constant dark navy slab, tokens.css TIER 4. The tenant application's
-   * chrome reads `--tenant-chrome-*` — literal white, same tier number, the
-   * opposite answer on purpose. Neither is a theme; both survive the removal
-   * of dark mode untouched, and swapping `application` on this shell swaps
-   * which one paints the header and sidebar.
-   */
+  // Console and workspace chrome use distinct, fixed token sets.
   const chromeBg = isPlatform ? 'var(--chrome-bg)' : 'var(--tenant-chrome-bg)';
   const chromeFg = isPlatform ? 'var(--chrome-fg)' : 'var(--tenant-chrome-fg)';
   const chromeRule = isPlatform ? 'var(--chrome-rule-strong)' : 'var(--tenant-chrome-rule)';
@@ -228,7 +198,7 @@ export function AppShell({
         return (
           <div key={group.label} data-slot="nav-group" className="flex flex-col">
             {/* Group Label / Separator */}
-            {!collapsed || sidebarHovered || isMobile ? (
+            {!collapsed || isMobile ? (
               <h2 className="t-eyebrow mb-1.5 px-2.5 text-2xs tracking-widest text-[var(--text-tertiary)] uppercase opacity-50 select-none">
                 {group.label}
               </h2>
@@ -252,6 +222,8 @@ export function AppShell({
                   >
                     <Link
                       href={item.href}
+                      aria-label={item.label}
+                      title={collapsed && !isMobile ? item.label : undefined}
                       aria-current={active ? 'page' : undefined}
                       data-slot="nav-item"
                       data-active={active}
@@ -260,7 +232,7 @@ export function AppShell({
                           ? navActive.item
                           : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-inset)] hover:text-[var(--text-primary)]'
                       } ${
-                        collapsed && !sidebarHovered && !isMobile
+                        collapsed && !isMobile
                           ? 'mx-auto h-10 w-10 justify-center p-0'
                           : 'h-10 gap-3 px-3'
                       } `}
@@ -291,7 +263,7 @@ export function AppShell({
                         {item.icon}
 
                         {/* Micro badge in collapsed mode */}
-                        {collapsed && !sidebarHovered && !isMobile && item.badge ? (
+                        {collapsed && !isMobile && item.badge ? (
                           <span
                             aria-hidden
                             className="absolute -top-1 -right-1 size-2.5 rounded-full ring-2 ring-[var(--surface-base)]"
@@ -303,7 +275,7 @@ export function AppShell({
                       </span>
 
                       {/* Expanded label & details */}
-                      {(!collapsed || sidebarHovered || isMobile) && (
+                      {(!collapsed || isMobile) && (
                         <>
                           <span className="t-compact flex-1 truncate tracking-wide">
                             {item.label}
@@ -325,7 +297,7 @@ export function AppShell({
                     </Link>
 
                     {/* Floating Tooltip in Collapsed Rail Mode */}
-                    {collapsed && !sidebarHovered && !isMobile && isHovered && (
+                    {collapsed && !isMobile && isHovered && (
                       <div
                         role="tooltip"
                         className="pointer-events-none absolute top-1/2 left-[calc(100%+10px)] z-50 flex -translate-y-1/2 items-center gap-2 rounded-panel border px-2.5 py-1.5 whitespace-nowrap shadow-md"
@@ -507,14 +479,9 @@ export function AppShell({
         <nav
           data-slot="sidebar"
           aria-label={isPlatform ? 'Platform navigation' : 'Workspace navigation'}
-          onMouseEnter={() => setSidebarHovered(true)}
-          onMouseLeave={() => setSidebarHovered(false)}
           className="relative hidden shrink-0 flex-col border-r transition-[width] duration-200 ease-out select-none md:flex"
           style={{
-            width:
-              mounted && collapsed && !sidebarHovered
-                ? 'var(--nav-rail-width)'
-                : 'var(--nav-width)',
+            width: mounted && collapsed ? 'var(--nav-rail-width)' : 'var(--nav-width)',
             background: chromeBg,
             borderColor: chromeRule,
           }}
@@ -552,7 +519,7 @@ export function AppShell({
             anchor and it has no plan of its own to run out of.
           */}
           {planMeter ? (
-            <PlanMeterCard meter={planMeter} collapsed={mounted && collapsed && !sidebarHovered} />
+            <PlanMeterCard meter={planMeter} collapsed={mounted && collapsed} />
           ) : isPlatform && adminProfile ? (
             <AdminProfileCard profile={adminProfile} collapsed={mounted && collapsed} />
           ) : null}

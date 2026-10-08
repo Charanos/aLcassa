@@ -211,7 +211,9 @@ Redis TTL is 300 seconds. If an invalidation fails entirely, the maximum stalene
 
 ### Measurement
 
-The required automated test must publish a change, poll the service door and measure propagation under five seconds. Record every sample and failure at the M4a gate; the current local read/ETag checks do not satisfy this measurement.
+The disposable `verification-service.ps1 Propagation` check now performs three actual workspace publications, three workspace restorations, three platform publications and three platform restorations. Each operation is followed by a real authenticated FastAPI read with the previous ETag; changed rules must return 200 with a changed ETag and the expected effective content/version. Every operation-start-to-read upper bound must stay below five seconds. Samples are retained in `.test-report/phase-one/rules-propagation.json`. This qualifies repeated local propagation; it does not qualify hosted topology, Redis behavior or load latency.
+
+Workspace publication serializes on a tenant transaction advisory lock and coordinates with platform writes through a shared master lock, without granting ordinary actors master-table writes. The request revision includes workspace pointer/time and platform pointer/time; stale and A→B→A edits are refused. Published content is immutable in SQL. Retention archives older versions while preserving the current version, and restoration moves the pointer without inventing another version. Usage and attributed audit records commit with the change or all roll back together.
 
 ---
 

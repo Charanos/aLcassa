@@ -1,4 +1,5 @@
 import 'server-only';
+import type { RulesFields, RulesRevision } from '@/modules/aiRules';
 
 /**
  * Tenant application read models.
@@ -582,7 +583,7 @@ export async function getCredentials(): Promise<CredentialsModel> {
 
 /* ── Tenant AI rules ──────────────────────────────────────────────────── */
 
-export type RuleFieldKey = 'tone' | 'responseGuidelines' | 'prohibitedTopics' | 'escalationRules';
+export type RuleFieldKey = keyof RulesFields;
 
 export type RuleField = {
   key: RuleFieldKey;
@@ -601,6 +602,9 @@ export type RuleField = {
 };
 
 export type RulesVersion = {
+  id: string;
+  status: 'published' | 'archived';
+  fields: RulesFields;
   version: number;
   publishedAt: string;
   publishedBy: string;
@@ -608,6 +612,9 @@ export type RulesVersion = {
 };
 
 export type TenantRulesModel = {
+  revision: RulesRevision | null;
+  canWrite: boolean;
+  unavailable?: boolean;
   fields: RuleField[];
   currentVersion: number;
   versions: RulesVersion[];
@@ -615,73 +622,22 @@ export type TenantRulesModel = {
   versionsLimit: number | null;
 };
 
-/** `/app/settings/ai-rules`. Owner and admin. Field-by-field, never one
- *  textarea (08 §4) — the compiled document has structure, and a blob would
- *  make provenance meaningless. `prohibitedTopics` is always the union case:
- *  a tenant can add a prohibition, never remove a platform one. */
-// eslint-disable-next-line @typescript-eslint/require-await
+/** Authenticated rules reads never fall back to invented instructions or versions. */
 export async function getTenantAiRules(): Promise<TenantRulesModel> {
-  return {
-    fields: [
-      {
-        key: 'tone',
-        label: 'Tone',
-        lockedByMaster: false,
-        masterValue: 'Professional, concise, never presumes intent.',
-        tenantValue: 'Warm and direct. Use the customer’s name once they have given it.',
-        provenance: 'tenant',
-      },
-      {
-        key: 'responseGuidelines',
-        label: 'Response guidelines',
-        lockedByMaster: false,
-        masterValue: 'Answer the question asked before offering anything adjacent.',
-        tenantValue: 'Always confirm order numbers back to the customer before acting on them.',
-        provenance: 'master + tenant (combined)',
-      },
-      {
-        key: 'prohibitedTopics',
-        label: 'Prohibited topics',
-        lockedByMaster: true,
-        masterValue: 'Medical advice, legal advice, financial advice, competitor pricing.',
-        tenantValue: 'Internal supplier names.',
-        provenance: 'master (locked)',
-      },
-      {
-        key: 'escalationRules',
-        label: 'Escalation rules',
-        lockedByMaster: false,
-        masterValue: 'Escalate on any mention of legal action or repeated unresolved complaints.',
-        tenantValue: '',
-        provenance: 'master (default)',
-      },
-    ],
-    currentVersion: 14,
-    versions: [
-      {
-        version: 14,
-        publishedAt: '11 Aug 2026, 09:12',
-        publishedBy: 'Amina Yusuf',
-        changeNote: 'Tightened order-number confirmation wording after a mismatch.',
-      },
-      {
-        version: 13,
-        publishedAt: '02 Aug 2026, 14:30',
-        publishedBy: 'David Kimani',
-        changeNote: 'Added warmer tone guidance for repeat customers.',
-      },
-      {
-        version: 12,
-        publishedAt: '20 Jul 2026, 11:05',
-        publishedBy: 'Amina Yusuf',
-        changeNote: 'Initial rules published at workspace setup.',
-      },
-    ],
-    versionsRetained: 3,
-    versionsLimit: 50,
-  };
+  const { getLiveTenantAiRules } = await import('./live');
+  return (
+    (await getLiveTenantAiRules()) ?? {
+      fields: [],
+      currentVersion: 0,
+      versions: [],
+      versionsRetained: 0,
+      versionsLimit: 0,
+      revision: null,
+      canWrite: false,
+      unavailable: true,
+    }
+  );
 }
-
 /* ── Subscription and entitlements ───────────────────────────────────── */
 
 export type EntitlementKey =

@@ -16,6 +16,7 @@ import { withTenantContext, type ResolvedContext } from '@/lib/db';
 import { getEntitlementSnapshot } from '@/modules/entitlements';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { listCredentials } from '@/modules/credentials';
+import { readTenantRules, type RulesFields } from '@/modules/aiRules';
 import { describeAction, describeTarget } from '@/lib/console/auditVocabulary';
 import { activityDate, decodeActivityCursor, encodeActivityCursor } from './activity';
 import { activityDetails } from './activityDetails';
@@ -29,7 +30,102 @@ import type {
   SubscriptionModel,
   TeamModel,
   CredentialsModel,
+  TenantRulesModel,
+  RuleField,
 } from './data';
+
+/** Published workspace history and the platform floor from one consistent snapshot. */
+export async function getLiveTenantAiRules(
+  given?: ResolvedContext,
+): Promise<TenantRulesModel | null> {
+  const ctx = given ?? (await currentSessionOrNull());
+  if (!ctx) return null;
+  let state;
+  try {
+    state = await readTenantRules(ctx);
+  } catch (error) {
+    if (!(error instanceof AppError) || error.code !== ERROR_CODES.UPSTREAM_UNAVAILABLE)
+      throw error;
+    return {
+      fields: [],
+      currentVersion: 0,
+      versions: [],
+      versionsRetained: 0,
+      versionsLimit: 0,
+      revision: null,
+      canWrite: false,
+      unavailable: true,
+    };
+  }
+  const snapshot = await getEntitlementSnapshot(ctx);
+  const entitlement = snapshot.byKey.ai_rules_versions;
+  const limit = entitlement?.limit ?? (entitlement ? null : 0);
+  const labels: Record<keyof RulesFields, string> = {
+    tone: 'Tone',
+    responseGuidelines: 'Response guidelines',
+    businessInformation: 'Business information',
+    escalationInstructions: 'Escalation instructions',
+    prohibitedTopics: 'Prohibited topics',
+    customInstructions: 'Additional instructions',
+  };
+  const text = (value: string | string[] | undefined) =>
+    Array.isArray(value) ? value.join('\n') : (value ?? '');
+  const fields: RuleField[] = (Object.keys(labels) as (keyof RulesFields)[]).map((key) => {
+    const m = state.master.content[key];
+    const t = state.current?.content[key];
+    const locked = state.master.lockedFields.includes(key);
+    return {
+      key,
+      label: labels[key],
+      lockedByMaster: locked,
+      masterValue: text(m),
+      tenantValue: text(t),
+      provenance: locked
+        ? 'master (locked)'
+        : m && t && ['responseGuidelines', 'prohibitedTopics'].includes(key)
+          ? 'master + tenant (combined)'
+          : t
+            ? 'tenant'
+            : 'master (default)',
+    };
+  });
+  return {
+    fields,
+    currentVersion: state.current?.versionNumber ?? 0,
+    revision: state.revision,
+    canWrite:
+      ['owner', 'admin', 'support'].includes(ctx.role) &&
+      ['active', 'trial'].includes(state.tenantStatus) &&
+      ['active', 'trialing'].includes(snapshot.subscriptionStatus) &&
+      (limit === null || limit > 0),
+    versionsRetained: state.versions.filter((version) => version.status === 'published').length,
+    versionsLimit: limit,
+    versions: state.versions
+      .filter(
+        (version) =>
+          ['owner', 'admin', 'support'].includes(ctx.role) || version.id === state.current?.id,
+      )
+      .map((version) => ({
+        id: version.id,
+        status: version.status as 'published' | 'archived',
+        fields: Object.fromEntries(
+          (Object.keys(labels) as (keyof RulesFields)[]).map((key) => [
+            key,
+            text(version.content[key]),
+          ]),
+        ) as RulesFields,
+        version: version.versionNumber,
+        publishedAt:
+          version.publishedAt?.toLocaleString('en-GB', { timeZone: 'Africa/Nairobi' }) ??
+          'Date not recorded',
+        publishedBy:
+          version.authoredBy === ctx.actorId
+            ? 'You'
+            : (state.authors[version.authoredBy] ?? 'Name not recorded'),
+        changeNote: version.changeNote ?? 'No change note recorded',
+      })),
+  };
+}
 
 /** Owner metadata only; authenticated read failures never become fixture credentials. */
 export async function getLiveCredentials(): Promise<CredentialsModel | null> {

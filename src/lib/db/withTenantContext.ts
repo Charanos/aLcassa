@@ -33,6 +33,7 @@ import type { ResolvedContext } from './context';
 export async function withTenantContext<T>(
   ctx: ResolvedContext,
   fn: (tx: Transaction) => Promise<T>,
+  options?: { isolationLevel?: 'read committed' | 'repeatable read'; readOnly?: boolean },
 ): Promise<T> {
   return db.transaction(async (tx) => {
     // Set once, on this connection, for the life of this transaction only.
@@ -44,7 +45,7 @@ export async function withTenantContext<T>(
     await tx.execute(sql`select set_config('app.request_id', ${ctx.requestId}, true)`);
 
     return fn(tx);
-  });
+  }, options);
 }
 
 /**

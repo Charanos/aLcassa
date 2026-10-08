@@ -2,6 +2,27 @@ import { describe, expect, it } from 'vitest';
 import { activityDetails } from '@/lib/tenant/activityDetails';
 
 describe('Customer-safe Activity details', () => {
+  it('shows recorded instruction publication and restoration notes without exposing content', () => {
+    for (const action of ['rules.published', 'rules.rolled_back']) {
+      expect(
+        activityDetails(
+          action,
+          { versionNumber: 3 },
+          {
+            versionNumber: 1,
+            changeNote: 'Restore agreed support hours',
+            content: { secret: 'private-content' },
+          },
+        ),
+      ).toEqual({
+        changes: [{ label: 'Version', before: '3', after: '1' }],
+        reason: 'Restore agreed support hours',
+      });
+    }
+    expect(activityDetails('credential.created', {}, { changeNote: 'private-marker' })).toEqual({
+      changes: [],
+    });
+  });
   it('shows the before and after subscription and its customer-facing reason', () => {
     const details = activityDetails(
       'subscription.plan_assigned',

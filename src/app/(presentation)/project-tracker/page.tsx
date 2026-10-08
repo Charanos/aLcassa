@@ -11,7 +11,13 @@ import {
 } from '@tabler/icons-react';
 import { IconTile } from '@/components/primitives/IconTile';
 import { MilestoneBoard } from '@/components/presentation/MilestoneBoard';
-import { COMMERCIAL, ENGAGEMENT, MILESTONES, OUT_OF_SCOPE } from '@/lib/presentation/engagement';
+import {
+  COMMERCIAL,
+  ENGAGEMENT,
+  MILESTONES,
+  OUT_OF_SCOPE,
+  PHASE_ONE_VERIFICATION,
+} from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
   title: 'Project tracker · aLcassa',
@@ -26,7 +32,7 @@ const WORKING_TODAY = [
     icon: IconShieldCheck,
     tone: 'success' as const,
     title: 'Customer separation, proven',
-    body: 'The full local suite passed 479 tests; all 15 workspace tables pass policy coverage checks. Session and credential rows are private to the server connection. Final review remains part of release qualification.',
+    body: `The full local suite passed ${PHASE_ONE_VERIFICATION.applicationTests} tests; all 15 workspace tables pass policy coverage checks. Session and credential rows are private to the server connection. Final review remains part of release qualification.`,
   },
   {
     icon: IconUsers,
@@ -50,13 +56,13 @@ const WORKING_TODAY = [
     icon: IconRobot,
     tone: 'warning' as const,
     title: 'Assistant rules',
-    body: 'Master instructions can be published and restored with conflict checks. Authenticated service reads and conditional responses pass local checks. Tenant publishing and measured propagation remain open.',
+    body: `Workspace and platform instructions can be published and restored with conflict checks, safeguards and recorded history. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore operations reached FastAPI within five seconds locally. Hosted service and full API acceptance remain open.`,
   },
   {
     icon: IconLock,
     tone: 'neutral' as const,
     title: 'Customer settings',
-    body: 'Company saves and customer Activity use recorded data. Owner credential creation, one-time display, rotation and revocation are implemented. Browser acceptance and usage tracking remain open.',
+    body: 'Company saves and customer Activity use recorded data. The disposable owner browser verified credential creation, one-time display, downloaded replacement, grace and revocation. Clipboard, phone/error journeys and usage persistence remain open.',
   },
 ];
 
@@ -92,10 +98,12 @@ export default function ProjectTrackerPage() {
 
         {/* Keep headline progress limited to the milestones, current stage and blockers. */}
         <p className="t-body mt-6 text-[var(--text-secondary)]">
-          Verification checkpoint · 8 October 2026. The application passed 479 local tests; the
-          service passed 20 local tests and five cross-runtime checks. Phase One remains in
-          verification; email delivery, tenant publishing and operational qualification have open
-          gates.{' '}
+          Verification checkpoint · {PHASE_ONE_VERIFICATION.date}. The application passed{' '}
+          {PHASE_ONE_VERIFICATION.applicationTests} local tests; the service passed{' '}
+          {PHASE_ONE_VERIFICATION.serviceTests} local tests, {PHASE_ONE_VERIFICATION.bridgeChecks}{' '}
+          cross-runtime checks and {PHASE_ONE_VERIFICATION.propagationChecks} measured
+          publish/restore checks. Phase One remains in verification; email delivery, hosted service
+          and operational qualification have open gates.{' '}
           <Link
             href="/docs/26-phase-one-verification-ledger"
             className="text-[var(--text-action)] underline underline-offset-4"

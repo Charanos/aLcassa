@@ -3,7 +3,7 @@
 **Bases:** `/api/v1` session door, Next.js · `/service/v1` machine door, FastAPI · `/api/platform/v1` console, Next.js
 **Specification target:** generated boundary schemas with cross-language conformance and CI verification. FastAPI currently generates typed read/error contracts; the merged Next.js/service specification and database integration CI remain acceptance gates.
 
-**Implementation checkpoint, 8 October 2026:** authenticated tenant/rules reads, scopes, ETags, correlation, liveness and database readiness pass local contracts. Hosting, rate limits, last-used rollup, tenant publication and measured propagation remain open. Endpoint tables retain planned behavior unless qualified in the verification ledger.
+**Implementation checkpoint, 8 October 2026:** authenticated tenant/rules reads, scopes, ETags, correlation, liveness and database readiness pass local contracts. Workspace publication/restoration now use strict revisions, immutable history, retention and transactional audit records. Twelve actual workspace/platform publish/restore operations reached the local FastAPI service within five seconds. Hosting, shared rate limits, last-used rollup and complete merged conformance remain open. Endpoint tables retain planned behavior unless qualified in the verification ledger.
 
 **24 Aug 2026, per `01 D-14` and `04` ADR-012.** The service door moved from a Next.js route to a purpose-built FastAPI service. Nothing in this document's shape, authentication scheme, ETag behaviour or response bodies changes as a result: `07 §8` was written as a contract independent of runtime, and the point of ADR-012 is that the contract survives the move unchanged. Where this document previously implied one shared TypeScript function enforces both doors, it now means one specification enforced by a cross-language conformance suite, per `07 §12`.
 
@@ -361,10 +361,10 @@ Reviewed and signed at M0, before the schema locks. Getting this wrong is the ri
 
 ## 12. Contract testing
 
-Every endpoint has a contract test asserting its response shape against the OpenAPI specification. On the Next.js side the specification is generated from Zod; on the FastAPI side, from Pydantic; a single merged OpenAPI document is what CI checks both services against, so a handler in either runtime and its documentation cannot diverge.
+The required final gate is a contract test for every endpoint against one merged OpenAPI specification, generated from Next.js Zod and FastAPI Pydantic models. This gate is not complete. FastAPI has typed local contract coverage and trusted-main database integration CI; the new session rule routes have focused boundary checks. Those results do not constitute complete merged conformance.
 
 Three tests carry more weight than the rest and are named individually in the definition of done:
 
 1. **No secret in any response.** Recursive key scan across every route's response, one documented exception.
 2. **Scope enforcement.** For each scope, a credential lacking it is rejected before the handler.
-3. **Both doors, one guard, now cross-language.** The same entitlement scenario driven through the Next.js session door and the FastAPI service door produces an identical decision. Before `01 D-14` this was one function called from both doors in a single runtime; now it is two independent implementations of the same specification, so this test is the thing standing in for that former structural guarantee. It runs in CI on every pull request to either service, not just at the M3 gate, per `04` ADR-005's amendment.
+3. **Both doors, one guard, now cross-language.** The same entitlement scenario driven through the Next.js session door and the FastAPI service door produces an identical decision. Before `01 D-14` this was one function called from both doors in a single runtime; now it is two independent implementations of the same specification, so this test is the thing standing in for that former structural guarantee. The final gate must run on changes to either service, per `04` ADR-005. Current private cross-runtime integration runs only on trusted main pushes; full two-door entitlement conformance remains open.

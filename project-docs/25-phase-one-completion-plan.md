@@ -420,3 +420,34 @@ Redis and backup recovery, usage persistence, tenant publishing/propagation,
 hosted service, complete browser/accessibility acceptance, load and handover remain
 open. Current local and Vercel environments are development sandboxes; these
 quality checks do not constitute production launch or client acceptance.
+
+## 14. Workspace rule publication checkpoint — 8 October 2026
+
+The next M4a checkpoint replaces the tenant editor's example history with recorded
+instructions. Publication validates six structured fields and a required change
+note, preserves platform safeguards and rejects stale workspace/platform revisions.
+Retention archives older versions; restoration moves the live pointer without
+deleting history. Pointer, content, usage and audit changes are transactional.
+
+The complete cache-disabled regression passes **506/506 tests in 39 files**, with
+no skips. Twelve real-database lifecycle cases cover concurrency, isolation,
+immutability, retention/overrides, restoration, missing safeguards and audit failure.
+Six HTTP boundary cases, five bounded line-comparison cases and three confirmed-action cases also pass.
+Twelve actual workspace/platform publish/restore operations reached FastAPI within
+five seconds; the latest local maximum was **1,053 ms**. These measurements include
+the write invocation, commit and effective HTTP response. They are not load p95.
+
+The hosted development sandbox received only two reviewed rule-policy replacements
+and the invoker-rights immutability trigger. Table grants and forced RLS were
+preserved; no-context reads returned zero rows. No customer instruction rows changed.
+Native publication, comparison, restoration, stale-draft preservation, keyboard
+focus and desktop/phone layout checks pass in the disposable owner workspace.
+Activity records prior/restored versions and change reasons; sidebar navigation
+keeps stable targets in collapsed mode. Temporary credentials are revoked and the
+original platform pointer is restored. Exact release readbacks and service
+integration CI for the newly pinned rule checkpoint remain release gates in ledger §24.
+
+Shared rate budgets, usage rollup, hosted service, merged OpenAPI conformance,
+complete Platform/Ops/accessibility coverage, provider delivery, monitoring, load,
+backup recovery and handover remain open. Milestone percentages and acceptance
+are unchanged by this implementation checkpoint.

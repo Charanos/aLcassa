@@ -166,6 +166,7 @@ With the disposable stack prepared, run these sequentially from the main repo:
 ./scripts/verification-service.ps1 Serve
 # In another terminal, with Serve running:
 ./scripts/verification-service.ps1 Bridge
+./scripts/verification-service.ps1 Propagation
 ```
 
 The launcher refuses non-local provider/database URLs. Serve receives only the
@@ -177,8 +178,11 @@ database fixtures.
 
 The five HTTP bridge checks use an actual Node-minted Argon2id key against FastAPI
 and verify stored identity, rules, empty 304, missing scope and revoked-key refusal
-before conditional reads. They do not prove hosted topology, propagation timing,
-rate budgets or load. Service CI runs nine unit/OpenAPI cases, packaging and a
+before conditional reads. The twelve Propagation samples perform actual workspace
+and platform publish/restore operations and verify effective content, versions and
+changed ETags through FastAPI within five seconds. Run this after Bridge, never
+concurrently with database or rule suites. These checks do not prove hosted topology,
+shared rate budgets or load. Service CI runs nine unit/OpenAPI cases, packaging and a
 hashed runtime dependency audit. The preceding 20-case checkpoint and all five
 bridge checks passed in [integration CI](https://github.com/Charanos/alcassa-service/actions/runs/37747687080).
 Trusted main pushes use a read-only, single-repository deploy key and immutable
@@ -190,3 +194,9 @@ actual FastAPI responses. Both test keys ended revoked with zero allowance usage
 The browser clipboard API did not expose the copied contents, so clipboard readback
 remains unqualified despite the UI reporting copy success. Usage persistence,
 phone/error journeys and the remaining secrets review stay open.
+
+The workspace-rules follow-up passes **506/506 cache-disabled application tests
+in 39 files**, including 12 real-database lifecycle cases, six session HTTP boundary
+cases, five line-comparison cases and three confirmed-action cases. The editor reads recorded history and supports
+publication, platform safeguards, comparison and restoration. Missing published
+platform instructions pause publication explicitly instead of substituting examples.

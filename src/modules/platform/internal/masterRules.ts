@@ -1,5 +1,5 @@
 import 'server-only';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { masterAiRuleVersions, masterAiRules, type RulesDocument } from '@/db/schema';
 import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService, type ServiceTransaction } from '@/lib/db/serviceClient';
@@ -116,6 +116,7 @@ export async function publishMasterRules(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtextextended('master-rules',0))`);
       // Doc 23: the capability column is enforced here, before anything is written.
       await requireCapability(tx, actor.userId, 'edit_master_rules');
       const [root] = await tx
@@ -172,7 +173,10 @@ export async function publishMasterRules(
       // not pointed at is a draft; one pointed at without existing is nothing.
       await tx
         .update(masterAiRules)
-        .set({ currentVersionId: created.id, updatedAt: new Date() })
+        .set({
+          currentVersionId: created.id,
+          updatedAt: sql`greatest(now(),${masterAiRules.updatedAt} + interval '1 millisecond')`,
+        })
         .where(eq(masterAiRules.id, root.id));
 
       return { versionId: created.id, versionNumber };
@@ -212,6 +216,7 @@ export async function rollbackMasterRules(
       ipAddress: actor.ipAddress ?? null,
     },
     async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtextextended('master-rules',0))`);
       // Doc 23: the capability column is enforced here, before anything is written.
       await requireCapability(tx, actor.userId, 'edit_master_rules');
       const [root] = await tx
@@ -247,7 +252,10 @@ export async function rollbackMasterRules(
 
       await tx
         .update(masterAiRules)
-        .set({ currentVersionId: target.id, updatedAt: new Date() })
+        .set({
+          currentVersionId: target.id,
+          updatedAt: sql`greatest(now(),${masterAiRules.updatedAt} + interval '1 millisecond')`,
+        })
         .where(eq(masterAiRules.id, root.id));
 
       return { versionNumber: target.versionNumber };

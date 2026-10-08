@@ -1,4 +1,4 @@
-param([ValidateSet('Test', 'Serve', 'Bridge')][string]$Mode = 'Test')
+param([ValidateSet('Test', 'Serve', 'Bridge', 'Propagation')][string]$Mode = 'Test')
 $ErrorActionPreference = 'Stop'
 $verificationRoot = Split-Path -Parent $PSScriptRoot
 $serviceRoot = Join-Path (Split-Path -Parent $verificationRoot) 'aLcassa-service'
@@ -29,8 +29,9 @@ $env:DATABASE_URL_TEST = $env:DATABASE_URL
 $env:SERVICE_DATABASE_URL = $env:DATABASE_URL
 $env:SERVICE_DATABASE_URL_ADMIN = ''
 $env:VERIFICATION_SERVICE_URL = 'http://127.0.0.1:8100'
-if ($Mode -eq 'Bridge') {
-  & node --conditions=react-server --import tsx scripts/verification-service-contract.ts
+if ($Mode -in @('Bridge','Propagation')) {
+  $verificationScript = if ($Mode -eq 'Bridge') {'scripts/verification-service-contract.ts'} else {'scripts/verification-rules-propagation.ts'}
+  & node --conditions=react-server --import tsx $verificationScript
 } else {
   if ($Mode -eq 'Test') { $env:SERVICE_DATABASE_URL_ADMIN = $env:DATABASE_URL_ADMIN }
   # The runtime receives no administrative connection; only the test fixture may use it.

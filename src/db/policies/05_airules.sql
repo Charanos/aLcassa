@@ -37,7 +37,10 @@ create policy tenant_ai_rules_modify on tenant_ai_rules
     tenant_id = app.current_tenant_id()
     and app.can_write_settings()
   )
-  with check (tenant_id = app.current_tenant_id());
+  with check (
+    tenant_id = app.current_tenant_id()
+    and app.can_write_settings()
+  );
 
 -- ─── tenant_ai_rule_versions ────────────────────────────────────────────────
 -- Every role may READ, including agent: 06 §5 grants "view AI rules" to all
@@ -52,8 +55,8 @@ create policy tenant_ai_rule_versions_select on tenant_ai_rule_versions
 -- I-10 · APPEND-ONLY AFTER PUBLICATION.
 --
 -- Two separate policies rather than one, because insert and update need
--- different predicates and folding them into `for all` would permit editing a
--- published version. Publishing moves a pointer on the parent row; a published
+--- different predicates and folding them into `for all` would permit deleting a
+--- published version. Publishing moves a pointer on the parent row; a published
 -- version row itself is immutable, which is what makes a rollback a pointer
 -- move rather than a data restore and keeps every historical version readable
 -- in the audit trail. 08 §4.
@@ -69,8 +72,30 @@ create policy tenant_ai_rule_versions_update on tenant_ai_rule_versions
   using (
     tenant_id = app.current_tenant_id()
     and app.can_write_settings()
-    and status = 'draft'          -- a published version is never updated
   )
-  with check (tenant_id = app.current_tenant_id());
+  with check (
+    tenant_id = app.current_tenant_id()
+    and app.can_write_settings()
+  );
+
+-- Published content stays immutable even while retention changes its status.
+-- Invoker rights preserve RLS; this function grants no additional access.
+create or replace function app.preserve_tenant_rule_version() returns trigger as $$
+begin
+  if old.status <> 'draft' then
+    if (to_jsonb(new) - 'status' - 'updated_at') is distinct from
+       (to_jsonb(old) - 'status' - 'updated_at')
+       or new.status not in ('published', 'archived') then
+      raise exception 'Published instruction versions are immutable'
+        using errcode = '42501';
+    end if;
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists preserve_tenant_rule_version on tenant_ai_rule_versions;
+create trigger preserve_tenant_rule_version before update on tenant_ai_rule_versions
+  for each row execute function app.preserve_tenant_rule_version();
 
 -- No delete policy. A version is archived by status, never removed.

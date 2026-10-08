@@ -124,6 +124,16 @@ export const REQUIREMENTS = [
  */
 export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 
+/** Qualified local checkpoint; milestone acceptance is recorded separately. */
+export const PHASE_ONE_VERIFICATION = {
+  date: '8 October 2026',
+  applicationTests: 506,
+  applicationFiles: 39,
+  serviceTests: 21,
+  bridgeChecks: 5,
+  propagationChecks: 12,
+} as const;
+
 export const MILESTONES = [
   {
     id: 'M0',
@@ -147,7 +157,7 @@ export const MILESTONES = [
     tranche: 2,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note: 'The database foundation and isolation gate are established. The complete local suite passed 479 tests without skips; policy coverage is 15 of 15 workspace tables. Provisioning, captured invitations and owner activation have real provider coverage. Session and credential rows are private to the server connection. Browser acceptance and release recovery remain part of final Phase One qualification.',
+    note: `The database foundation and isolation gate are established. The complete local suite passed ${PHASE_ONE_VERIFICATION.applicationTests} tests without skips; policy coverage is 15 of 15 workspace tables. Provisioning, captured invitations and owner activation have real provider coverage. Session and credential rows are private to the server connection. Browser acceptance and release recovery remain part of final Phase One qualification.`,
   },
   {
     id: 'M2',
@@ -205,7 +215,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 45,
-    note: 'Master publication and restoration reject stale edits. FastAPI reads, permissions, ETags, revocation and safe database-outage responses pass 21 local service cases. Restricted database and five Node-to-HTTP checks also pass integration CI. Tenant publication, measured propagation, hosted service and complete merged API conformance remain open acceptance gates.',
+    note: `Workspace publication and restoration use immutable history, retention and transactional audit records. Platform safeguards and stale-edit checks pass real database cases. FastAPI passes ${PHASE_ONE_VERIFICATION.serviceTests} local cases; ${PHASE_ONE_VERIFICATION.bridgeChecks} Node-to-HTTP checks pass integration CI. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore samples reached the local service within five seconds. Native publication, comparison, restoration, stale-draft and desktop/phone checks pass. Broader browser failure states, hosted service, shared rate budgets and complete merged API conformance remain open acceptance gates.`,
   },
   {
     id: 'M6',

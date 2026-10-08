@@ -73,9 +73,13 @@ export function activityDetails(
     Boolean(FIELDS[action]) ||
     action.startsWith('support.') ||
     ['tenant.suspended', 'tenant.reactivated'].includes(action);
-  const reason =
-    reasonAllowed && typeof after.reason === 'string'
-      ? after.reason.trim().slice(0, 2000)
-      : undefined;
+  const recordedReason =
+    typeof after.reason === 'string'
+      ? after.reason
+      : ['rules.published', 'rules.rolled_back'].includes(action) &&
+          typeof after.changeNote === 'string'
+        ? after.changeNote
+        : undefined;
+  const reason = reasonAllowed ? recordedReason?.trim().slice(0, 2000) : undefined;
   return { changes, ...(reason ? { reason } : {}) };
 }

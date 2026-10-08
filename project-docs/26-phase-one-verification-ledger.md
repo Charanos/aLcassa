@@ -599,3 +599,92 @@ qualify wider Redis/provider outages, monitoring, backup restoration or hosted
 service topology. Usage rollup, tenant publication, repeated five-second propagation,
 phone/error/clipboard acceptance, load and handover stay open. Current environments
 are development sandboxes. No milestone percentage or acceptance is advanced here.
+
+## 24. Workspace rules and measured propagation — 8 October 2026
+
+### Implemented boundary
+
+The tenant editor now reads a consistent recorded snapshot, including six structured
+fields, platform locks, actual authors and published/archived version history.
+Publication and restoration require an authorized human role, active workspace and
+subscription, a fresh allowance and exact workspace/platform revision. Per-workspace
+transaction locks serialize first and subsequent publications. Monotonic pointer
+timestamps detect A→B→A changes. Master writes coordinate through an exclusive
+advisory lock; tenant writes take its shared counterpart without master write grants.
+
+Published content is immutable in SQL. Retention archives without deleting history;
+the live version is always retained. Restoration reuses the recorded version rather
+than inventing another. Usage and attributed audit entries commit with the pointer
+or all roll back. Current session API reads omit historical authors and notes;
+history routes require owner/admin/support. Cross-origin writes are refused.
+The editor keeps a stale draft bound to its original revision and provides a bounded
+line-level comparison with readable added/removed markers.
+
+### Qualified local evidence
+
+| Check | Result | Receipt |
+| --- | --- | --- |
+| Cache-disabled regression | **506/506**, 39 files, no skips | `.verification-rules-activity-full.log`; `.test-report/phase-one/cache-disabled.json` |
+| Real-database tenant lifecycle | **12/12** | `.verification-tenant-rules-final-focused.log` |
+| Session HTTP boundary and line comparison | **11/11** | `.verification-rules-boundary.log` |
+| Confirmed server-action readback and failure semantics | **3/3** | `.verification-rules-action-confirmation.log` |
+| Actual workspace/platform publish and restore to effective FastAPI read | **12/12**, latest maximum **1,053 ms**, all below five seconds | `.verification-rules-propagation-release.log`; `.test-report/phase-one/rules-propagation.json` |
+| Hosted sandbox policy reconciliation | Two bounded policy replacements and one invoker-rights trigger; grants unchanged, forced RLS and zero no-context rows | `.test-report/phase-one/rules-hosted-policies.json` |
+
+The first focused attempt failed because `FOR SHARE` on the SELECT-only master
+table does not expose rows under ordinary tenant RLS. It was replaced with the
+shared/exclusive advisory coordination above, preserving master read-only access.
+A subsequent attempt exposed fixture helper/column mistakes; these were corrected.
+Failed logs are retained as `.verification-tenant-rules-focused.log` and
+`.verification-tenant-rules-focused-replay.log`; the corrected 12-case replay and
+full regression passed. The first propagation run's maximum was 404 ms; the later
+qualified replay under concurrent build load measured 2,034 ms. Neither sample set
+is a 50-session/p95 measurement.
+
+### Native verification and corrections
+
+The approved disposable owner published three recorded versions, compared changed
+support-hour lines, cancelled restoration and restored version 1 without deleting
+later history. Independent database and actual FastAPI readbacks matched the live
+version and retained counter. The editor and modal fit a 390px viewport without
+document overflow; the review backdrop computes to `blur(8px)`. Desktop history
+uses two columns at 1440px. Publication/restoration return focus to the stable
+heading; cancellation returns it to its trigger. A stale draft was refused with
+its text preserved and keyboard focus on the error.
+
+Native replay initially exposed stale version 1 after version 2 committed. Actions
+now return a fresh recorded model after commit; the editor adopts its own confirmed
+revision without silently advancing a stale draft. A failed confirmation read says
+the change was saved and requires reload before another change. Activity review
+exposed a missing prior restore version and invisible change note. Restore now
+records the prior number, and Activity exposes rule notes through its safe field
+allowlist. The 12-case database replay additionally checks the exact correlated
+restore event; five Activity projection cases pass.
+
+Browser navigation also exposed hover expansion moving collapsed links under the
+pointer and removing their accessible names. The workspace rail now keeps stable
+positions on hover and retains named links; expansion uses the explicit toggle.
+The final build passes with 82 generated pages. Native collapsed navigation reached
+Assistant rules and Activity, and the explicit expansion toggle retained its
+destination. Two final restores recorded 1→2 and 2→1 with their visible reasons;
+independent readback confirmed version 1, three retained versions and FastAPI content.
+All disposable owner credentials ended revoked, with HTTP 401, and the original
+platform pointer was restored. Earlier incomplete audit events remain historical.
+
+Receipts: `.test-report/phase-one/native-rules-browser.json`,
+`.test-report/phase-one/native-rules-restored.json` and
+`.verification-rules-audit-focused.log`,
+`.test-report/phase-one/native-rules-activity-browser.json` and
+`.test-report/phase-one/native-rules-cleanup.json`. Safe screenshots:
+`.test-report/phase-one/auth-20261008/rules-desktop-restored-final.png`,
+`rules-activity-final.png`,
+`rules-phone-comparison.png`, `rules-phone-restore-review.png` and
+`rules-stale-focus-final.png` in the same directory.
+
+### Remaining qualification
+
+Exact application CI/deployment and newly pinned service propagation CI need release
+readbacks. Shared Redis rate budgets, usage/last-used persistence, hosted service,
+complete merged API conformance, unsaved-navigation/failure journeys and the wider
+surface/operational matrix remain open. Current environments are development
+sandboxes; no milestone percentage or handover acceptance advances here.

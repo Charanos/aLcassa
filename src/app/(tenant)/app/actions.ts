@@ -16,6 +16,10 @@ import {
   createCredential as createCredentialService,
   revokeCredential as revokeCredentialService,
 } from '@/modules/credentials';
+import { publishTenantRules, restoreTenantRules } from '@/modules/aiRules';
+import { getLiveTenantAiRules } from '@/lib/tenant/live';
+import type { TenantRulesModel } from '@/lib/tenant/data';
+import type { ResolvedContext } from '@/lib/db/context';
 
 /** Resolve and validate tenant context on every action; unavailable operations return an explicit refusal. */
 
@@ -145,19 +149,41 @@ export async function revokeCredential(id: string): Promise<ActionResult> {
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
-export async function publishAiRules(input: { changeNote: string }): Promise<ActionResult> {
-  if (!input.changeNote.trim()) {
-    return {
-      ok: false,
-      error: 'Add a change note to explain this version.',
-    };
-  }
+type RulesActionResult = { ok: true; model: TenantRulesModel } | { ok: false; error: string };
 
-  return {
-    ok: false,
-    error: 'Rules cannot be published yet. The current rules have not been changed.',
-  };
+async function changeInstructions(
+  operation: (ctx: ResolvedContext) => Promise<unknown>,
+): Promise<RulesActionResult> {
+  let committed = false;
+  try {
+    const ctx = await currentSession();
+    await operation(ctx);
+    committed = true;
+    revalidatePath('/app/settings/ai-rules');
+    revalidatePath('/app/settings/audit');
+    revalidatePath('/app/settings/subscription');
+    const model = await getLiveTenantAiRules(ctx);
+    if (!model || model.unavailable) throw new Error('Confirmed instruction snapshot unavailable');
+    return { ok: true, model };
+  } catch (error) {
+    if (committed) {
+      logger.error('instruction confirmation read failed', { error });
+      return {
+        ok: false,
+        error:
+          'The change was saved, but the live instructions could not be reloaded. Reload the version history before making another change.',
+      };
+    }
+    return actionFailure(error);
+  }
+}
+
+export async function publishAiRules(input: unknown): Promise<RulesActionResult> {
+  return changeInstructions((ctx) => publishTenantRules(ctx, input));
+}
+
+export async function restoreAiRules(input: unknown): Promise<RulesActionResult> {
+  return changeInstructions((ctx) => restoreTenantRules(ctx, input));
 }
 
 export async function updateProfile(input: { name: string }): Promise<ActionResult> {
