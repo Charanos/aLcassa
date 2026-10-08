@@ -1,26 +1,14 @@
 import { IconCheck, IconClock, IconLoader, IconLock } from '@tabler/icons-react';
 import type { Icon as TablerIcon } from '@tabler/icons-react';
-import { MILESTONES, type MilestoneStatus } from '@/lib/presentation/engagement';
+import Link from 'next/link';
+import {
+  MILESTONES,
+  MILESTONE_PROGRESS_REVIEW,
+  type MilestoneStatus,
+} from '@/lib/presentation/engagement';
 import { IconTile } from '@/components/primitives/IconTile';
 
-/**
- * WHERE THE PROJECT IS. The one thing a client opens this page to find out.
- *
- * ⚠ IT REPLACES A TIMELINE THAT EXPLAINED THE ENGINEERING RATHER THAN THE
- * PROJECT.
- *
- * The milestone notes used to run to two hundred words each about policy
- * catalogues, ordered state pairs and adapter seams. Every word was true and
- * none of it answered the question the reader arrived with, which is: what
- * works, what is left, and is anything stuck. The notes are now four sentences
- * of plain English and the engineering detail lives in the documents, where
- * somebody who wants it will go looking.
- *
- * ⚠ THE STATUS IS THE LOUDEST THING ON EACH CARD, because it is the only part
- * most readers will take in. Progress bars are deliberately secondary: a
- * percentage invites an argument about whether 80 is really 80, where "complete"
- * and "in progress" do not.
- */
+/** Milestone state, engineering estimate and the evidence behind each reassessment. */
 
 const TONE: Record<
   MilestoneStatus,
@@ -45,6 +33,7 @@ export function MilestoneBoard() {
       <ol className="grid gap-3">
         {MILESTONES.map((m) => {
           const tone = TONE[m.status];
+          const review = MILESTONE_PROGRESS_REVIEW[m.id];
           return (
             <li
               key={m.id}
@@ -98,20 +87,16 @@ export function MilestoneBoard() {
                     {m.note}
                   </p>
 
-                  {/*
-                    ⚠ THE BAR IS ONLY DRAWN WHERE IT MEANS SOMETHING. On a
-                    complete milestone it is a full bar saying what the word
-                    beside it already said, and on one not started it is an empty
-                    trough. Both are decoration; only a part-finished milestone
-                    has a figure worth a shape.
-                  */}
                   {m.status === 'active' ? (
                     <div className="mt-3 flex items-center gap-3">
                       <div
                         className="h-1.5 flex-1 overflow-hidden rounded-full"
                         style={{ background: 'var(--surface-inset)' }}
-                        role="img"
-                        aria-label={`${m.name} is about ${m.progress}% done`}
+                        role="progressbar"
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={m.progress}
+                        aria-label={`${m.name} estimated implementation progress`}
                       >
                         <div
                           className="h-full rounded-full"
@@ -128,6 +113,19 @@ export function MilestoneBoard() {
                         {m.progress}%
                       </span>
                     </div>
+                  ) : null}
+                  {review ? (
+                    <p className="t-compact mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[var(--text-secondary)]">
+                      <span>
+                        Reassessed {review.previous}% → {m.progress}% · 8 October
+                      </span>
+                      <Link
+                        href={`/project-tracker/verification#milestone-${m.id}`}
+                        className="text-[var(--text-action)] underline underline-offset-4"
+                      >
+                        Evidence and remaining work
+                      </Link>
+                    </p>
                   ) : null}
                 </div>
               </div>

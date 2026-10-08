@@ -1,21 +1,4 @@
-/**
- * The document index behind the presentation surface.
- *
- * ⚠ AUDIENCE NOTE, AND IT IS NOT A DETAIL.
- *
- * `01-brief-and-decisions.md` opens with "internal working document, not
- * client-facing". It contains the decision log, the risk register including
- * "scope drift through helpfulness", and candid notes about where we disagree
- * with an implication of the brief. It is marked `internal` below and it is NOT
- * rendered on the client-facing index.
- *
- * The commercial terms are likewise absent from the shared surface. They are
- * agreed between Ian and Brian directly, and a shared link is the wrong place
- * for a payment schedule.
- *
- * If Brian should see either, that is a decision for Dennis and Ian, and it is
- * one flag flip here rather than a rewrite.
- */
+/** Maintained document catalogue. Internal working sources are excluded from public routes. */
 
 export type DocAudience = 'client' | 'internal';
 
@@ -175,6 +158,96 @@ export const PROJECT_DOCS: ProjectDoc[] = [
     settles:
       'The Phase 2 messaging seam: the connection table, the internal event shape, the adapter interface, and how a tenant is resolved from an inbound webhook',
     source: 'Requirement 7',
+    band: 'delivery',
+    audience: 'client',
+  },
+  {
+    slug: '17-console-density-pass',
+    n: '17',
+    title: 'Console structure review',
+    settles: 'Recorded console structure, density and functionality review',
+    source: 'Console refinement',
+    band: 'surface',
+    audience: 'client',
+  },
+  {
+    slug: '18-surface-refinement-playbook',
+    n: '18',
+    title: 'Surface refinement guide',
+    settles: 'Shared layout, surface and interaction refinement principles',
+    source: 'Console refinement',
+    band: 'surface',
+    audience: 'client',
+  },
+  {
+    slug: '19-profile-and-avatars',
+    n: '19',
+    title: 'Profile and avatars',
+    settles: 'Account identity, profile and avatar behavior',
+    source: 'Peripheral surfaces',
+    band: 'surface',
+    audience: 'client',
+  },
+  {
+    slug: '20-status-14-sep-2026',
+    n: '20',
+    title: 'Delivery snapshot · 14 September',
+    settles: 'Historical implementation status; current progress is on the tracker',
+    source: 'Historical review',
+    band: 'delivery',
+    audience: 'client',
+  },
+  {
+    slug: '21-console-canon-audit',
+    n: '21',
+    title: 'Console design audit',
+    settles: 'Console consistency findings and shared design conventions',
+    source: 'Console refinement',
+    band: 'surface',
+    audience: 'client',
+  },
+  {
+    slug: '22-component-quality-review',
+    n: '22',
+    title: 'Component quality review',
+    settles: 'Component quality criteria and recorded refinement work',
+    source: 'Console refinement',
+    band: 'surface',
+    audience: 'client',
+  },
+  {
+    slug: '23-audit-admins-settings-plan',
+    n: '23',
+    title: 'Activity, administrators and settings',
+    settles: 'Action and permission plans for administration and configuration',
+    source: 'Platform console',
+    band: 'surface',
+    audience: 'client',
+  },
+  {
+    slug: '24-support-sessions-plan',
+    n: '24',
+    title: 'Support session verification',
+    settles: 'Scoped support visits, customer visibility and access boundaries',
+    source: 'Platform support',
+    band: 'surface',
+    audience: 'client',
+  },
+  {
+    slug: '25-phase-one-completion-plan',
+    n: '25',
+    title: 'Phase One completion plan',
+    settles: 'Ordered remaining work, full milestone checklists and acceptance gates',
+    source: 'Current execution plan',
+    band: 'delivery',
+    audience: 'client',
+  },
+  {
+    slug: '26-phase-one-verification-ledger',
+    n: '26',
+    title: 'Verification matrix and evidence ledger',
+    settles: 'Surface coverage, execution outcomes and the remaining qualification gates',
+    source: 'Current verification record',
     band: 'delivery',
     audience: 'client',
   },

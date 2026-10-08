@@ -11,6 +11,7 @@ import {
 } from '@tabler/icons-react';
 import { IconTile } from '@/components/primitives/IconTile';
 import { MilestoneBoard } from '@/components/presentation/MilestoneBoard';
+import { PROJECT_DOCS } from '@/lib/presentation/documents';
 import {
   COMMERCIAL,
   ENGAGEMENT,
@@ -22,6 +23,7 @@ import {
 export const metadata: Metadata = {
   title: 'Project tracker · aLcassa',
   description: 'Where the aLcassa platform build has reached.',
+  robots: { index: false, follow: false },
 };
 
 /** Present milestone progress and blockers in client language, with supporting technical detail linked separately. */
@@ -92,20 +94,20 @@ export default function ProjectTrackerPage() {
 
         <p className="t-body mt-4" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
           A multi-tenant messaging platform for {ENGAGEMENT.client}, built by {ENGAGEMENT.team} over{' '}
-          {ENGAGEMENT.duration}. This page is the honest state of the work — updated as it changes,
-          not written for a meeting.
+          {ENGAGEMENT.duration}. Progress is reviewed against implemented work and verified
+          journeys; final acceptance is tracked separately.
         </p>
 
         {/* Keep headline progress limited to the milestones, current stage and blockers. */}
         <p className="t-body mt-6 text-[var(--text-secondary)]">
-          Verification checkpoint · {PHASE_ONE_VERIFICATION.date}. The application passed{' '}
+          Verified checkpoint · {PHASE_ONE_VERIFICATION.date}. The application passed{' '}
           {PHASE_ONE_VERIFICATION.applicationTests} local tests; the service passed{' '}
           {PHASE_ONE_VERIFICATION.serviceTests} local tests, {PHASE_ONE_VERIFICATION.bridgeChecks}{' '}
           cross-runtime checks and {PHASE_ONE_VERIFICATION.propagationChecks} measured
           publish/restore checks. Phase One remains in verification; email delivery, hosted service
           and operational qualification have open gates.{' '}
           <Link
-            href="/docs/26-phase-one-verification-ledger"
+            href="/project-tracker/verification"
             className="text-[var(--text-action)] underline underline-offset-4"
           >
             Read the verification record
@@ -251,6 +253,43 @@ export default function ProjectTrackerPage() {
             </li>
           ))}
         </ul>
+      </Section>
+
+      <Section
+        id="documents"
+        title="Project documents"
+        standfirst="The maintained scope, system references, completion plan and verification ledger. Historical reviews remain labelled by date; current outcomes are in the verification record."
+      >
+        <div className="mb-5 flex flex-wrap gap-3">
+          <Door href="/docs/25-phase-one-completion-plan" label="Completion plan" />
+          <Door href="/docs/26-phase-one-verification-ledger" label="Verification ledger" />
+          <Door href="/project-tracker/security" label="Dependency security record" />
+        </div>
+        <details className="rounded-overlay border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-5 py-4">
+          <summary className="t-compact cursor-pointer text-[var(--text-primary)]">
+            Browse the documentation set ·{' '}
+            {PROJECT_DOCS.filter((doc) => doc.audience === 'client').length} documents
+          </summary>
+          <nav aria-label="Project documentation" className="mt-4 grid gap-x-8 sm:grid-cols-2">
+            {PROJECT_DOCS.filter((doc) => doc.audience === 'client').map((doc) => (
+              <Link
+                key={doc.slug}
+                href={`/docs/${doc.slug}`}
+                className="group flex gap-3 border-t border-[var(--border-subtle)] py-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--border-focus)]"
+              >
+                <span className="t-data text-[var(--text-tertiary)]">{doc.n}</span>
+                <span className="min-w-0">
+                  <span className="t-compact block text-[var(--text-primary)] group-hover:text-[var(--text-action)]">
+                    {doc.title}
+                  </span>
+                  <span className="t-caption mt-1 block text-[var(--text-secondary)]">
+                    {doc.settles}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </nav>
+        </details>
       </Section>
 
       <footer className="mt-16 border-t pt-8" style={{ borderColor: 'var(--border-subtle)' }}>

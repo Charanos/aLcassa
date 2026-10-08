@@ -19,7 +19,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const doc = findDoc(slug);
-  if (!doc) return { title: 'Not found' };
+  if (!doc || doc.audience !== 'client') return { title: 'Not found' };
 
   return {
     title: `${doc.n} · ${doc.title}`,
@@ -47,7 +47,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
         style={{ background: 'var(--surface-base)', borderColor: 'var(--border-subtle)' }}
       >
         <div
-          className="mx-auto flex h-14 items-center gap-4 px-5 md:px-8"
+          className="mx-auto flex min-h-14 flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 md:px-8"
           style={{ maxWidth: 'var(--surface-width)' }}
         >
           <Link href="/project-tracker" className="flex items-center gap-2.5">
@@ -64,6 +64,12 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
           </Link>
 
           <div className="ml-auto flex items-center gap-3">
+            <Link
+              href="/project-tracker/verification"
+              className="t-caption text-[var(--text-action)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-4"
+            >
+              Verification record
+            </Link>
             <span className="t-eyebrow hidden text-[var(--ink-300)] md:block">
               Document {doc.n}
             </span>
@@ -75,12 +81,10 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
         className="mx-auto flex gap-10 px-5 pb-24 md:px-8"
         style={{ maxWidth: 'var(--surface-width)' }}
       >
-        {/* The index, fixed. A reader in a review meeting jumps between
-            documents constantly, and a back-and-forth through the hub would
-            lose their place every time. */}
+        {/* Keep the published document index available while reading. */}
         <nav
           aria-label="Documentation set"
-          className="sticky top-20 hidden h-fit w-56 shrink-0 self-start py-10 lg:block"
+          className="sticky top-24 hidden max-h-[calc(100dvh-7rem)] w-56 shrink-0 self-start overflow-y-auto py-5 lg:block"
         >
           <h2 className="t-eyebrow text-[var(--ink-300)]">Documents</h2>
           <ul className="mt-3 grid gap-0.5">
@@ -107,20 +111,33 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
         </nav>
 
         <main id="main" className="min-w-0 flex-1 py-10">
+          <details className="mb-8 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-4 lg:hidden">
+            <summary className="t-compact cursor-pointer text-[var(--text-primary)]">
+              Browse documents · {all.length}
+            </summary>
+            <nav aria-label="Mobile documentation set" className="mt-4 grid gap-1">
+              {all.map((entry) => (
+                <Link
+                  key={entry.slug}
+                  href={`/docs/${entry.slug}`}
+                  aria-current={entry.slug === slug ? 'page' : undefined}
+                  className="t-caption flex gap-3 rounded-chip px-2 py-2 hover:bg-[var(--surface-inset)] focus-visible:outline-2 focus-visible:outline-offset-2"
+                >
+                  <span className="t-data text-[var(--text-tertiary)]">{entry.n}</span>
+                  <span>{entry.title}</span>
+                </Link>
+              ))}
+            </nav>
+          </details>
           <div className="flex items-baseline gap-3">
             <span className="t-eyebrow text-[var(--blue-500)]">{doc.source}</span>
             <span className="t-eyebrow text-[var(--ink-300)]">{doc.band}</span>
           </div>
-          <p
-            className="t-lede mt-3 text-[var(--text-secondary)]"
-            style={{ maxWidth: 'var(--measure-prose)' }}
-          >
-            {doc.settles}
-          </p>
+          <p className="t-lede mt-3 text-[var(--text-secondary)]">{doc.settles}</p>
 
           <hr className="my-8 border-0 border-t" style={{ borderColor: 'var(--border-strong)' }} />
 
-          <article>
+          <article className="rounded-card border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 md:p-8">
             <Markdown source={source} />
           </article>
 
@@ -133,7 +150,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
               <Link
                 href={`/docs/${previous.slug}`}
                 className="t-compact flex flex-1 items-center gap-3 rounded-panel border p-4 transition-colors duration-[var(--motion-fade)] hover:border-[var(--blue-200)] hover:bg-[var(--blue-50)]"
-                style={{ borderColor: 'var(--border-subtle)', minWidth: '240px' }}
+                style={{ borderColor: 'var(--border-subtle)' }}
               >
                 <IconArrowLeft
                   size={16}
@@ -154,7 +171,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
               <Link
                 href={`/docs/${next.slug}`}
                 className="t-compact flex flex-1 items-center justify-end gap-3 rounded-panel border p-4 text-right transition-colors duration-[var(--motion-fade)] hover:border-[var(--blue-200)] hover:bg-[var(--blue-50)]"
-                style={{ borderColor: 'var(--border-subtle)', minWidth: '240px' }}
+                style={{ borderColor: 'var(--border-subtle)' }}
               >
                 <span>
                   <span className="t-eyebrow block text-[var(--ink-300)]">Next</span>

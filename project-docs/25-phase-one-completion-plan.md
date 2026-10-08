@@ -453,3 +453,25 @@ Shared rate budgets, usage rollup, hosted service, merged OpenAPI conformance,
 complete Platform/Ops/accessibility coverage, provider delivery, monitoring, load,
 backup recovery and handover remain open. Milestone percentages and acceptance
 are unchanged by this implementation checkpoint.
+
+## 15. Milestone closure order and evidence publication — 8 October 2026
+
+The tracker follow-up reassesses Tenant settings to 70%, AI rules and seams to
+75%, and Handover preparation to 40%, producing an 81% rounded engineering
+estimate. Two of eight milestones are complete. The verification record at
+`/project-tracker/verification` now exposes reviewed test catalogues, measured
+service checks, revoked-credential readbacks and browser images with fingerprints.
+The current local regression passes 519 cases in 41 files; its scope and baseline
+are distinct from the qualified 506-case CI reference.
+
+Complete every outstanding Phase One milestone checklist and acceptance gate
+before landing-page refinement or wider tenant dashboard/shell polish. Close
+shared rate budgets and usage persistence, team/account journeys, the remaining
+Platform/Ops/peripheral action and accessibility matrix, then load, monitoring,
+recovery and handover qualification. Build, update evidence and push each verified
+checkpoint. A checkpoint advances assessed progress; only a complete milestone
+demonstration advances completion to 100%.
+
+Service hosting verification remains local at the user's request while Vercel
+access is unavailable. Retain hosted topology as a visible open dependency; local
+qualification does not demonstrate a deployed service.

@@ -9,6 +9,8 @@
 .next-live-verify/
 .screenshots/
 .test-report/
+public/verification/
+src/lib/presentation/verificationRecord.json
 node_modules/
 
 # Vendored agent skills. Third-party documentation — reformatting it would make

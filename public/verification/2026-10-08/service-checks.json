@@ -1,0 +1,105 @@
+{
+  "environment": "Disposable Linux CI provider and FastAPI on loopback",
+  "hostedServiceQualified": false,
+  "bridge": [
+    {
+      "route": "/service/v1/tenant",
+      "status": 200,
+      "elapsedMs": 72
+    },
+    {
+      "route": "/service/v1/ai-rules",
+      "status": 200,
+      "elapsedMs": 34
+    },
+    {
+      "route": "/service/v1/ai-rules",
+      "status": 304,
+      "elapsedMs": 30
+    },
+    {
+      "route": "/service/v1/ai-rules",
+      "status": 403,
+      "elapsedMs": 44
+    },
+    {
+      "route": "/service/v1/ai-rules",
+      "status": 401,
+      "elapsedMs": 27
+    }
+  ],
+  "propagation": [
+    {
+      "operation": "tenant.publish.1",
+      "invocationToReadMs": 89,
+      "committedResponseToReadMs": 59,
+      "status": 200
+    },
+    {
+      "operation": "tenant.restore.1",
+      "invocationToReadMs": 55,
+      "committedResponseToReadMs": 29,
+      "status": 200
+    },
+    {
+      "operation": "master.publish.1",
+      "invocationToReadMs": 47,
+      "committedResponseToReadMs": 36,
+      "status": 200
+    },
+    {
+      "operation": "master.restore.1",
+      "invocationToReadMs": 42,
+      "committedResponseToReadMs": 32,
+      "status": 200
+    },
+    {
+      "operation": "tenant.publish.2",
+      "invocationToReadMs": 54,
+      "committedResponseToReadMs": 28,
+      "status": 200
+    },
+    {
+      "operation": "tenant.restore.2",
+      "invocationToReadMs": 56,
+      "committedResponseToReadMs": 31,
+      "status": 200
+    },
+    {
+      "operation": "master.publish.2",
+      "invocationToReadMs": 43,
+      "committedResponseToReadMs": 32,
+      "status": 200
+    },
+    {
+      "operation": "master.restore.2",
+      "invocationToReadMs": 37,
+      "committedResponseToReadMs": 27,
+      "status": 200
+    },
+    {
+      "operation": "tenant.publish.3",
+      "invocationToReadMs": 53,
+      "committedResponseToReadMs": 29,
+      "status": 200
+    },
+    {
+      "operation": "tenant.restore.3",
+      "invocationToReadMs": 57,
+      "committedResponseToReadMs": 29,
+      "status": 200
+    },
+    {
+      "operation": "master.publish.3",
+      "invocationToReadMs": 36,
+      "committedResponseToReadMs": 28,
+      "status": 200
+    },
+    {
+      "operation": "master.restore.3",
+      "invocationToReadMs": 33,
+      "committedResponseToReadMs": 26,
+      "status": 200
+    }
+  ]
+}

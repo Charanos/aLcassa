@@ -8,9 +8,13 @@
 
 This is the execution record for the plan. Source inspection is not a test pass. All verification cells start **Pending**, except the baseline typecheck failure recorded below. The case IDs are specifications for tests to implement/run, not names of an existing automated suite.
 
+**Latest review, 8 October:** [Published verification record](/project-tracker/verification)
+contains downloadable results, fingerprints and reviewed browser images. Matrix
+rows below distinguish partial recorded coverage from pending acceptance checks.
+
 ## 1. Recording rules
 
-States: **Pending**, **In progress**, **Passed**, **Failed**, **Blocked**, or **Not applicable**. A Passed cell requires a linked artifact, candidate SHA and environment/schema identity. A Blocked cell requires its exact dependency; Not applicable requires a reason. Do not merge implementation progress and test results into one green status.
+States: **Pending**, **Partial**, **In progress**, **Passed**, **Failed**, **Blocked**, or **Not applicable**. A Passed cell requires a linked artifact, candidate SHA and environment/schema identity. Partial means named checks have evidence while the full row manifest remains open. A Blocked cell requires its exact dependency; Not applicable requires a reason. Do not merge implementation progress and test results into one green status.
 
 For each page row, expand an action/state manifest before implementation: every visible tab, button, link, menu, dialog, drawer, chart, export, preference and route variant gets an ID. Mark read-only helpers as reads; a page view should not manufacture mutation/audit events. Derive API/action roles and audit expectations from docs 06/07/09 and actual service contracts.
 
@@ -22,20 +26,20 @@ Fourteen existing console page routes, in the requested execution order. Each ro
 
 | ID | Route | Required actions/data | Case families | D | F | V |
 | --- | --- | --- | --- | --- | --- | --- |
-| P01 | `/platform` | Counts, queue actions, insights, portfolio, capacity, recent activity and links | J01, J03, J04, J05, J06, X01 | Pending | Pending | Pending |
-| P02 | `/platform/tenants` | Search, filters, sort, pagination, row menus, detail drawer, support entry, roster CSV | J01, J02, J03, J04, J08, X01, X05 | Pending | Pending | Pending |
-| P03 | `/platform/tenants/[id]` | Deep-linked tabs, drawer parity, plan/subscription/override/suspend/reactivate, contract, support | J03, J04, J05, J06, J08, X02 | Pending | Pending | Pending |
-| P04 | `/platform/tenants/new` | Field validation, unique slug, owner/delivery state, provisioning/recovery, list invalidation | J01, J02, X02 | Pending | Pending | Pending |
-| P05 | `/platform/plans` | Limit preview/change, headroom, unlimited/over-limit, chart alternative, impact counts | J03, J05, X01, X02 | Pending | Pending | Pending |
-| P06 | `/platform/revenue` | Live contracted value, pricing basis, pipeline, history, queue, source labels and CSV | J06, X01, X05 | Pending | Pending | Pending |
-| P07 | `/platform/ai-rules` | Diff, publish, history, rollback, concurrent version, inheritance and locks | J07, J22, J23, X02 | Pending | Pending | Pending |
-| O01 | `/platform/health` | Live dependency/isolation proof, source/freshness, no invented historic metrics | J25, J27, X01 | Pending | Pending | Pending |
-| O02 | `/platform/audit` | Filters/date/pagination, readable action detail, before-after, workspace link and CSV | J08–J13, J19–J23, X04, X05 | Pending | Pending | Pending |
+| P01 | `/platform` | Counts, queue actions, insights, portfolio, capacity, recent activity and links | J01, J03, J04, J05, J06, X01 | Partial (§12) | Partial (§12) | Partial (§12) |
+| P02 | `/platform/tenants` | Search, filters, sort, pagination, row menus, detail drawer, support entry, roster CSV | J01, J02, J03, J04, J08, X01, X05 | Partial (§17–18) | Partial (§17–18) | Partial (§17–18) |
+| P03 | `/platform/tenants/[id]` | Deep-linked tabs, drawer parity, plan/subscription/override/suspend/reactivate, contract, support | J03, J04, J05, J06, J08, X02 | Partial (§12,16) | Partial (§12,16) | Partial (§12,16) |
+| P04 | `/platform/tenants/new` | Field validation, unique slug, owner/delivery state, provisioning/recovery, list invalidation | J01, J02, X02 | Partial (§19–21) | Partial (§19–21) | Partial (§19–21) |
+| P05 | `/platform/plans` | Limit preview/change, headroom, unlimited/over-limit, chart alternative, impact counts | J03, J05, X01, X02 | Partial (§21) | Partial (§21) | Partial (§21) |
+| P06 | `/platform/revenue` | Live contracted value, pricing basis, pipeline, history, queue, source labels and CSV | J06, X01, X05 | Partial (§12,16) | Partial (§12,16) | Partial (§12,16) |
+| P07 | `/platform/ai-rules` | Diff, publish, history, rollback, concurrent version, inheritance and locks | J07, J22, J23, X02 | Partial (§24) | Partial (§24) | Partial (§24) |
+| O01 | `/platform/health` | Live dependency/isolation proof, source/freshness, no invented historic metrics | J25, J27, X01 | Partial (§17–18) | Partial (§17–18) | Partial (§17–18) |
+| O02 | `/platform/audit` | Filters/date/pagination, readable action detail, before-after, workspace link and CSV | J08–J13, J19–J23, X04, X05 | Partial (§15–16) | Partial (§15–16) | Partial (§15–16) |
 | O03 | `/platform/support-sessions` | Open, reason, register, visit drawer/timeline, extend/end/expiry and actor variants | J08–J13, X02, X04 | Pending | Pending | Pending |
 | O04 | `/platform/inside` | Scope/frame, allowed reads/actions, invite resend/revoke, clock, exit and refusal | J08–J13, J19, X03 | Pending | Pending | Pending |
 | O05 | `/platform/admins` | Two operators, capabilities, readable activity, profile/session privacy, real affordances | J14, X03 | Pending | Pending | Pending |
-| O06 | `/platform/settings` | Save, field errors, conflict/last change, export links, break-glass engage/release | J12, J15, X02 | Pending | Pending | Pending |
-| C01 | `/platform/profile` | Name/avatar/remove/password, current/other devices, activity pager, capabilities | J16, J17, J18, X03 | Pending | Pending | Pending |
+| O06 | `/platform/settings` | Save, field errors, conflict/last change, export links, break-glass engage/release | J12, J15, X02 | Partial (§15) | Partial (§15) | Partial (§15) |
+| C01 | `/platform/profile` | Name/avatar/remove/password, current/other devices, activity pager, capabilities | J16, J17, J18, X03 | Partial (§15) | Partial (§15) | Partial (§15) |
 
 Shared shell has its own row: **C02**, rail/header/mobile dock, badges, density/theme/collapse, workspace switcher, command palette, notifications, account menu and sign-out. Required cases: J08, J14, J16–J18, J24, X01, X03, X06. All evidence: **Pending**.
 
@@ -43,25 +47,25 @@ Shared shell has its own row: **C02**, rail/header/mobile dock, badges, density/
 
 | ID | Route(s) | Phase One coverage | Cases | Status |
 | --- | --- | --- | --- | --- |
-| T01 | `/app/settings/audit` | Complete customer Activity pass: vocabulary, visits, drilldown, filters/paging, time/retention, permissions and audit reconciliation | J03, J04, J08–J13, J19–J23, X04 | Pending |
-| T02 | `/app/settings/company` | Audited persistence, validation, conflicts, role controls and shell readback | J20, X02, X03 | Pending |
+| T01 | `/app/settings/audit` | Complete customer Activity pass: vocabulary, visits, drilldown, filters/paging, time/retention, permissions and audit reconciliation | J03, J04, J08–J13, J19–J23, X04 | Partial (§16,23–24) |
+| T02 | `/app/settings/company` | Audited persistence, validation, conflicts, role controls and shell readback | J20, X02, X03 | Partial (§12) |
 | T03 | `/app/settings/team`, `/app/settings/team/invite` | Membership/invitation lifecycle, seat limits, roles and owner transfer | J01, J02, J05, J19 | Pending |
-| T04 | `/app/settings/credentials`, `/app/settings/credentials/new` | Mint/reveal once, metadata, scopes/limits, revoke/rotation and redaction | J21, X03 | Pending |
-| T05 | `/app/settings/ai-rules` | Tenant edit payload, version/diff/history/publish, effective rules and audit | J22, J23, X02 | Pending |
+| T04 | `/app/settings/credentials`, `/app/settings/credentials/new` | Mint/reveal once, metadata, scopes/limits, revoke/rotation and redaction | J21, X03 | Partial (§22–23) |
+| T05 | `/app/settings/ai-rules` | Tenant edit payload, version/diff/history/publish, effective rules and audit | J22, J23, X02 | Partial (§24) |
 | T06 | `/app/settings/subscription` | Plan/limits/state visibility and correct downstream changes | J03, J05, J06 | Pending |
 | T07 | `/app/settings/appearance` | Existing appearance persistence, theme/accent boundaries and regression | J24, X06 | Pending |
 | T08 | `/app/account`, `/app/account/sessions` | Identity persistence, own sessions and revocation, support termination where offered | J09, J16, J17, J18 | Pending |
 | T09 | `/app/settings` | Correct redirect, permissions and back/deep-link behavior | X03, X06 | Pending |
 | T10 | `/app`, `/app/billing`, `/app/inbox` | Phase One landing/boundary/data-truth regression; contractual load on required dashboard routes; honest Phase Two seam. Wider redesign deferred. | J03, J04, J08, J26, X01 | Pending |
-| A01 | `/sign-in` | Wrong/valid credentials, role landing, safe next, revoked session, mobile/keyboard | J17, J18, X03, X06 | Pending |
+| A01 | `/sign-in` | Wrong/valid credentials, role landing, safe next, revoked session, mobile/keyboard | J17, J18, X03, X06 | Partial (§20–23) |
 | A02 | `/sign-up` | Fields, duplicates, throttling, verification state and safe continuation | J01, J02, X03 | Pending |
 | A03 | `/sign-up/verify` | Resend, delivery status, expiry and repeated action behavior | J01, J02 | Pending |
 | A04 | `/sign-up/finish` | Verified continuation, provisioning/default plan/audit and replay safety | J01, J02, X02 | Pending |
-| A05 | `/forgot-password` | Non-enumerating response, throttling, provider failure and delivery | J17 | Pending |
-| A06 | `/reset-password` | Invalid/expired/reused token, validation, session handling and login | J17, J18 | Pending |
-| A07 | `/invite/[token]` | Valid/expired/revoked/used token; correct identity/workspace/role; replay | J01, J02, J19 | Pending |
-| E01 | Root, console and tenant error/404/loading boundaries | Correct shell, safe retry/navigation, nested/global failure and skeleton shape | X06 | Pending |
-| E02 | `/project-tracker`, `/docs/[slug]` | Accurate current gate statements, links and document navigation | J28, X06 | Pending |
+| A05 | `/forgot-password` | Non-enumerating response, throttling, provider failure and delivery | J17 | Partial (§20–23) |
+| A06 | `/reset-password` | Invalid/expired/reused token, validation, session handling and login | J17, J18 | Partial (§20–23) |
+| A07 | `/invite/[token]` | Valid/expired/revoked/used token; correct identity/workspace/role; replay | J01, J02, J19 | Partial (§20–23) |
+| E01 | Root, console and tenant error/404/loading boundaries | Correct shell, safe retry/navigation, nested/global failure and skeleton shape | X06 | Partial (§18,21) |
+| E02 | `/project-tracker`, `/docs/[slug]` | Accurate current gate statements, links and document navigation | J28, X06 | Partial (§25) |
 | E03 | `/`, `/legal/[doc]` | Access/legal links and data/brand/runtime smoke; no marketing expansion | X06 | Pending |
 
 ## 4. Browser and cross-layer case specifications
@@ -712,3 +716,86 @@ Shared Redis rate budgets, usage/last-used persistence, hosted service,
 complete merged API conformance, unsaved-navigation/failure journeys and the wider
 surface/operational matrix remain open. Current environments are development
 sandboxes; no milestone percentage or handover acceptance advances here.
+
+## 25. Progress reassessment and published evidence — 8 October 2026
+
+The tracker now links to `/project-tracker/verification`, with a downloadable
+manifest, the 519-case current local catalogue, the 506-case qualified CI catalogue, 17 cross-runtime measurements,
+native credential lifecycle/focus readbacks and five reviewed browser images.
+The catalogue is an immutable snapshot of application `275a0ad` / CI `37783667886`;
+service samples are from `46ddcf3` / CI `37783721097`, pinned to that application.
+Each export has a SHA-256 fingerprint. The publication boundary drops raw errors,
+logs, unknown fields and absolute machine paths, and refuses credential-bearing
+test titles or unreconciled totals. Images retain their reviewed bytes.
+
+The tracker/evidence follow-up passes **519/519 local cases in 41 files, no skips**,
+including five publication-boundary/integrity cases and eight document-navigation cases. Its local catalogue identifies
+the `e68b4a4` baseline and the follow-up scope; it is separate from the immutable
+506-case CI reference. Older local artifacts not available in this workspace are
+not republished as if freshly verified.
+
+Milestone engineering estimates are reassessed: Tenant settings 45→70%, AI rules
+and seams 45→75%, Handover preparation 30→40%. Overall rounded estimate moves
+73→81%. These are work assessments with visible verified/remaining criteria, not
+percentages of test cases or client acceptance. Two of eight milestones remain
+complete; no incomplete final demonstration is promoted. Handover is actively in
+verification rather than displayed as not started. Other estimates remain unchanged.
+
+The route matrix now distinguishes partial recorded coverage from untouched
+pending checks. Partial rows do not imply all actions, roles, failure states or
+accessibility checks passed. Historical ledger notes and unavailable older local
+artifacts do not substitute for the new downloadable checkpoint. Next execution
+gates remain shared credential rate budgets, usage persistence, complete team/
+account journeys, hosted topology, the remaining surface/accessibility matrix,
+load, monitoring, backup restoration and final walkthrough.
+
+Native verification follows the tracker link to the record, downloads its index,
+expands the fingerprint disclosure and loads all five gallery images. The record
+has no horizontal overflow at 390px; desktop and phone proof are retained under
+`.test-report/phase-one/auth-20261008/tracker-evidence-{desktop,phone}.jpg`.
+Explicit typecheck, format and dependency checks pass; the production build
+generates the tracker and evidence routes. `test:prove` reconciles the 519-case report. Published JSON
+uses LF on every checkout so its byte fingerprints remain portable.
+
+## 26. Auxiliary document routes — 8 October 2026
+
+The completion-plan and ledger links previously returned 404 because their sources
+were absent from the static document catalogue. The documentation-set return link
+pointed to a missing tracker section. Relative `.md` links resolved to unserved
+paths, and historical local artifacts appeared as downloadable links.
+
+The catalogue now includes all 25 client sources, with a tracker index and desktop/
+phone reader navigation. The security remediation source has its own maintained
+page. Relative source links resolve to registered document routes; section links
+resolve to stable, duplicate-safe heading IDs. Private working sources remain
+unpublished. Historical local artifacts are labelled as unavailable on the shared
+site; no private logs are exposed or relabelled as freshly verified evidence.
+
+Eight regression cases check every client source, private/path refusal, adjacent
+navigation, local references, unsafe protocols, formatted/repeated heading IDs and
+the complete rendered document link graph. The first render test exposed the test
+runner's classic JSX import requirement; the component import was corrected and
+all eight cases passed. Publication inputs now use typed, bounded schemas; the
+initial propagation-name schema refused `master` samples until corrected to the
+actual operation vocabulary. Raw artifacts remained excluded throughout.
+
+The full disposable regression passes 519/519 cases in 41 files. Final built-route,
+native responsive and exact release checks follow before this checkpoint qualifies.
+Service hosting remains local by user decision. Every incomplete Phase One gate
+remains open; landing-page and broader tenant shell work follow milestone closure.
+
+Final local acceptance passes all 28 tracker/document routes, 58 section anchors
+and ten public evidence assets. The internal working document returns 404.
+Native navigation opens the plan and ledger from the record, switches documents
+through the phone index, returns to the tracker index and opens the security
+reference. Both document pages fit 390px; wide tables retain 720px or greater
+readable content within 282px keyboard-accessible scroll regions. Desktop paragraphs
+use the available article width. The final production build generates 94/94 routes.
+Full-repository lint, formatting and declared-dependency checks pass, with focused
+lint/format checks after the final table/script changes. A parallel typecheck collided
+with regenerated Next types; the sequential post-build typecheck passes. Native
+proof: `.test-report/phase-one/auth-20261008/tracker-plan-desktop-final.jpg` and
+`tracker-ledger-phone-final.jpg`; route receipt: `.test-report/phase-one/document-pages.json`.
+The staged scan checks 30 files against 14 private values and verifies every public
+fingerprint against Git blob bytes. Exact release CI/deployment readback follows
+the push; the published reference checkpoint remains explicitly separate.

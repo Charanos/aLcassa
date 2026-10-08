@@ -1,73 +1,50 @@
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import React, { Children, createElement, isValidElement, type ReactNode } from 'react';
+import { documentHeadingId, resolveDocumentLink } from '@/lib/presentation/documentLinks';
 
-/**
- * Renders a project document in the aLcassa type system.
- *
- * WHY react-markdown RATHER THAN A STRING OF HTML: 04 §7 forbids
- * `dangerouslySetInnerHTML` anywhere in Phase 1. A markdown-to-HTML pipeline
- * would need it. react-markdown builds React elements directly, so the rule
- * holds and there is no sanitiser to get wrong.
- *
- * Every element below maps to a token from sheets 01 and 02. Nothing here
- * introduces a size, a colour or a spacing value of its own, which is why these
- * documents read as part of the same drawing as the rest of the surface.
- */
+/** Render maintained Markdown with shared typography and published-route links. */
+
+function nodeText(node: ReactNode): string {
+  return Children.toArray(node)
+    .map((child) => {
+      if (typeof child === 'string' || typeof child === 'number') return String(child);
+      return isValidElement<{ children?: ReactNode }>(child) ? nodeText(child.props.children) : '';
+    })
+    .join('');
+}
 
 const components: Components = {
-  h1: ({ children }) => (
-    <h1 className="t-title mt-10 mb-4 text-[var(--text-primary)] first:mt-0">{children}</h1>
-  ),
-  h2: ({ children }) => (
-    <h2
-      className="t-heading mt-10 mb-3 border-t pt-6 text-[var(--text-primary)]"
-      style={{ borderColor: 'var(--ink-100)' }}
-    >
-      {children}
-    </h2>
-  ),
-  h3: ({ children }) => (
-    <h3 className="t-panel mt-7 mb-2 text-[var(--text-primary)]">{children}</h3>
-  ),
-  h4: ({ children }) => (
-    <h4 className="t-micro mt-6 mb-2 text-[var(--text-tertiary)]">{children}</h4>
-  ),
-
   p: ({ children }) => (
-    <p
-      className="t-body my-3.5 text-[var(--text-secondary)]"
-      style={{ maxWidth: 'var(--measure-prose)' }}
-    >
+    <p className="t-body my-3.5 [overflow-wrap:anywhere] text-[var(--text-secondary)]">
       {children}
     </p>
   ),
 
-  a: ({ href, children }) => (
-    <a
-      href={href}
-      className="text-[var(--blue-500)] underline decoration-[var(--blue-200)] underline-offset-2 hover:decoration-[var(--blue-500)]"
-    >
-      {children}
-    </a>
-  ),
+  a: ({ href, children }) => {
+    const target = resolveDocumentLink(href);
+    if (target.kind === 'unavailable')
+      return (
+        <span className="text-[var(--text-secondary)]">
+          {children}{' '}
+          <span className="t-caption text-[var(--text-tertiary)]">({target.reason})</span>
+        </span>
+      );
+    return (
+      <a
+        href={target.href}
+        className="[overflow-wrap:anywhere] text-[var(--blue-500)] underline decoration-[var(--blue-200)] underline-offset-2 hover:decoration-[var(--blue-500)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--border-focus)]"
+      >
+        {children}
+      </a>
+    );
+  },
 
-  ul: ({ children }) => (
-    <ul className="my-3.5 grid list-disc gap-1.5 pl-5" style={{ maxWidth: 'var(--measure-prose)' }}>
-      {children}
-    </ul>
-  ),
-  ol: ({ children }) => (
-    <ol
-      className="my-3.5 grid list-decimal gap-1.5 pl-5"
-      style={{ maxWidth: 'var(--measure-prose)' }}
-    >
-      {children}
-    </ol>
-  ),
+  ul: ({ children }) => <ul className="my-3.5 grid list-disc gap-1.5 pl-5">{children}</ul>,
+  ol: ({ children }) => <ol className="my-3.5 grid list-decimal gap-1.5 pl-5">{children}</ol>,
   li: ({ children }) => <li className="t-body text-[var(--text-secondary)]">{children}</li>,
 
-  // Emphasis is a FAMILY SWITCH or a step of ink, never a weight change and
-  // never an oblique. There is no weight axis in this system. 03 §5.
+  // Preserve the design system's single-weight emphasis.
   strong: ({ children }) => (
     <strong className="font-normal text-[var(--text-primary)]">{children}</strong>
   ),
@@ -103,6 +80,8 @@ const components: Components = {
   pre: ({ children }) => (
     <pre
       className="t-code my-5 overflow-x-auto rounded-panel border p-4"
+      tabIndex={0}
+      aria-label="Code example"
       style={{
         background: 'var(--surface-sunken)',
         borderColor: 'var(--border-subtle)',
@@ -113,14 +92,18 @@ const components: Components = {
     </pre>
   ),
 
-  // Tables carry most of the load in this document set. They scroll inside
-  // their own container so the page body never scrolls sideways.
+  // Contain wide tables within a keyboard-accessible scroll region.
   table: ({ children }) => (
     <div
       className="my-5 overflow-x-auto rounded-panel border"
+      tabIndex={0}
+      role="region"
+      aria-label="Document table"
       style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-raised)' }}
     >
-      <table className="w-full border-collapse text-left">{children}</table>
+      <table className="w-full min-w-[720px] border-collapse text-left [overflow-wrap:normal]">
+        {children}
+      </table>
     </div>
   ),
   thead: ({ children }) => (
@@ -152,9 +135,31 @@ const components: Components = {
 };
 
 export function Markdown({ source }: { source: string }) {
+  const ids = new Map<string, number>();
+  const headings = Object.fromEntries(
+    (['h1', 'h2', 'h3', 'h4'] as const).map((tag) => [
+      tag,
+      ({ children }: { children?: ReactNode }) => {
+        const base = documentHeadingId(nodeText(children));
+        const count = ids.get(base) ?? 0;
+        ids.set(base, count + 1);
+        const classes = {
+          h1: 't-title mb-6 scroll-mt-24 text-[var(--text-primary)]',
+          h2: 't-heading mt-12 mb-4 scroll-mt-24 border-t border-[var(--border-subtle)] pt-7 text-[var(--text-primary)]',
+          h3: 't-panel mt-8 mb-3 scroll-mt-24 text-[var(--text-primary)]',
+          h4: 't-micro mt-6 mb-2 scroll-mt-24 text-[var(--text-tertiary)]',
+        };
+        return createElement(
+          tag,
+          { id: count ? `${base}-${count}` : base, className: classes[tag] },
+          children,
+        );
+      },
+    ]),
+  ) as Components;
   return (
-    <div data-slot="markdown">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+    <div data-slot="markdown" className="min-w-0 [overflow-wrap:anywhere]">
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ ...components, ...headings }}>
         {source}
       </ReactMarkdown>
     </div>

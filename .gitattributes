@@ -1,2 +1,5 @@
 # Unified diffs require a literal space for empty context lines.
 patches/*.patch text eol=lf -whitespace
+# Published evidence fingerprints cover exact exported bytes.
+public/verification/**/*.json text eol=lf
+src/lib/presentation/verificationRecord.json text eol=lf

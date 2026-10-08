@@ -1,16 +1,4 @@
-/**
- * The engagement, as data.
- *
- * Every figure, date, milestone, gate and tranche below is taken verbatim from
- * Andishi_Project_Brief_Customer_Support_SaaS_Phase1_Rev3.1.pdf, 29 July 2026,
- * and cross-checked against project-docs/11 (build plan) and design sheet 14
- * (handover). Nothing here is inferred. Where the brief and a project document
- * disagreed, the brief wins and the difference is recorded in 15-spec-delta.md.
- *
- * This file exists so the client-facing presentation surface cannot drift from
- * the signed document: change a milestone here and it changes everywhere it is
- * rendered, or it changes nowhere.
- */
+/** Shared engagement data: signed scope and commercial terms, with recorded delivery assessments. */
 
 export const ENGAGEMENT = {
   client: 'Brian',
@@ -127,8 +115,8 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
   date: '8 October 2026',
-  applicationTests: 506,
-  applicationFiles: 39,
+  applicationTests: 519,
+  applicationFiles: 41,
   serviceTests: 21,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -202,7 +190,7 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 45,
+    progress: 70,
     note: 'Company settings persist with conflict protection and customer Activity reads retained, safe changes. Credentials pass 16 real database cases, including audit rollback and concurrent limits. The disposable owner browser verified creation, one-time reveal, download, replacement grace and revocation; both keys ended revoked. Clipboard readback, phone/error journeys, usage persistence and the remaining secrets review stay open.',
   },
   {
@@ -214,7 +202,7 @@ export const MILESTONES = [
     gate: 'Demo: a rules edit live through the API in 5 seconds',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 45,
+    progress: 75,
     note: `Workspace publication and restoration use immutable history, retention and transactional audit records. Platform safeguards and stale-edit checks pass real database cases. FastAPI passes ${PHASE_ONE_VERIFICATION.serviceTests} local cases; ${PHASE_ONE_VERIFICATION.bridgeChecks} Node-to-HTTP checks pass integration CI. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore samples reached the local service within five seconds. Native publication, comparison, restoration, stale-draft and desktop/phone checks pass. Broader browser failure states, hosted service, shared rate budgets and complete merged API conformance remain open acceptance gates.`,
   },
   {
@@ -225,11 +213,57 @@ export const MILESTONES = [
       'Load and security pass, health page, uptime and status page, logs review, documentation set, walkthrough.',
     gate: 'Sign-off',
     tranche: 4,
-    status: 'upcoming' as MilestoneStatus,
-    progress: 30,
+    status: 'active' as MilestoneStatus,
+    progress: 40,
     note: 'The disposable verification environment, release schema check, upgrade drill and complete local suite are available. Load, monitoring, backup recovery, provider delivery, timed clean setup and the final walkthrough remain open. Phase One is not yet accepted for handover.',
   },
 ] as const;
+
+/** Engineering estimates reassessed against verified work; final demonstrations remain separate. */
+export const MILESTONE_PROGRESS_REVIEW: Record<
+  string,
+  { previous: number; evidence: string[]; remaining: string[] }
+> = {
+  M5: {
+    previous: 45,
+    evidence: [
+      'Company saves, conflicts and recorded Activity',
+      '16 database credential cases, including concurrent limits and audit rollback',
+      'Native creation, one-time reveal, download, replacement, revocation and focus',
+    ],
+    remaining: [
+      'Complete team and invitation journeys',
+      'Clipboard, phone and failure-state acceptance',
+      'Last-use persistence and final secrets review',
+    ],
+  },
+  M4a: {
+    previous: 45,
+    evidence: [
+      '12 database rule lifecycle cases and six session-route cases',
+      'Native publication, comparison, restore, stale-draft and responsive checks',
+      '21 service cases, five bridge checks and 12 propagation operations in pinned CI',
+    ],
+    remaining: [
+      'Shared rate budgets and usage rollup',
+      'Hosted service topology and full merged API contracts',
+      'Unsaved navigation, wider failure cases and load qualification',
+    ],
+  },
+  M6: {
+    previous: 30,
+    evidence: [
+      'Disposable provider, upgrade verification and repeatable builds',
+      'Exact application/service CI, dependency audits and database-outage checks',
+      'Published test catalogue, measured service samples and reviewed browser evidence',
+    ],
+    remaining: [
+      '50-session load and complete accessibility review',
+      'Monitoring, backup restoration and provider delivery',
+      'Timed clean setup, walkthrough and handover sign-off',
+    ],
+  },
+};
 
 /**
  * Compliance and data protection, tracked rather than asserted.

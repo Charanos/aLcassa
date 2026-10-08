@@ -1,0 +1,100 @@
+{
+  "date": "8 October 2026",
+  "qualification": "Verified development checkpoint. Production launch and final handover remain open.",
+  "localCandidate": {
+    "baseCommit": "e68b4a414659a82cac123ee66f965a9a9c67a5b8",
+    "scope": "Tracker, evidence and document-navigation follow-up, verified locally before publication",
+    "environment": "Disposable local provider, restricted database role, cache disabled",
+    "passed": 519,
+    "files": 41,
+    "failed": 0,
+    "skipped": 0,
+    "results": {
+      "path": "/verification/2026-10-08/current-local-tests.json",
+      "sha256": "6f82624285f8e125b05278f33bb4a84c7be7f212858e072f9aa07c609e7f1fbc"
+    }
+  },
+  "application": {
+    "commit": "275a0ad33ab95730ea0cc53467d676c242781520",
+    "ci": "https://github.com/Charanos/aLcassa/actions/runs/37783667886",
+    "deployment": "https://vercel.com/dennis-munges-projects/a-lcassa/J1WJGqCA1eTa8z7vd3GN1FEN7BKC",
+    "jobs": 6,
+    "passed": 506,
+    "files": 39,
+    "failed": 0,
+    "skipped": 0,
+    "results": {
+      "path": "/verification/2026-10-08/application-tests.json",
+      "sha256": "89aed52707d270b68d8e30f30edc08a6cc182a90112f1206f0803981d2ada1d7"
+    }
+  },
+  "service": {
+    "commit": "46ddcf3b18e0c6c994c2c07ea8ab1641d00e23f4",
+    "pinnedApplicationCommit": "275a0ad33ab95730ea0cc53467d676c242781520",
+    "ci": "https://github.com/Charanos/alcassa-service/actions/runs/37783721097",
+    "jobs": 2,
+    "unitCases": 9,
+    "databaseCases": 21,
+    "bridgeChecks": 5,
+    "propagationChecks": 12,
+    "maximumPropagationMs": 89,
+    "audit": {
+      "dependencies": 21,
+      "vulnerableDependencies": 0
+    },
+    "results": {
+      "path": "/verification/2026-10-08/service-checks.json",
+      "sha256": "147aeac8aa55a751e0e89ada6ce69782c09e9c569cdd95cbd2e23b832623d6cb"
+    }
+  },
+  "browser": {
+    "environment": "Disposable local owner workspace",
+    "cleanup": "All test credentials revoked; original platform pointer restored; workspace history preserved.",
+    "credentials": {
+      "path": "/verification/2026-10-08/native-credentials.json",
+      "sha256": "01930532cd8eba028c9522fa16f4fbcd9175e9affc10b379791cf49b53caefba"
+    },
+    "images": [
+      {
+        "title": "Recorded instructions and version history",
+        "context": "Desktop, 1440px",
+        "path": "/verification/2026-10-08/rules-desktop-restored-final.jpg",
+        "width": 1430,
+        "height": 993,
+        "sha256": "5c9ec26a08ae5527efc9786d2deffdce36c4ad5742c69b1bfc96acd00934b535"
+      },
+      {
+        "title": "Readable line comparison",
+        "context": "Phone, 390px",
+        "path": "/verification/2026-10-08/rules-phone-comparison.jpg",
+        "width": 380,
+        "height": 822,
+        "sha256": "1faec76975462e2fe8e5f66b557a3ad6f4f5be5172da7b7727dd462b2f0c3887"
+      },
+      {
+        "title": "Restoration review and background blur",
+        "context": "Phone, 390px",
+        "path": "/verification/2026-10-08/rules-phone-restore-review.jpg",
+        "width": 390,
+        "height": 843,
+        "sha256": "220823173e341ae4374250787eebbbf1ab18082e3a10eccee73f49afd9159653"
+      },
+      {
+        "title": "Stale draft retained after refusal",
+        "context": "Keyboard and conflict state",
+        "path": "/verification/2026-10-08/rules-stale-focus-final.jpg",
+        "width": 1470,
+        "height": 710,
+        "sha256": "de8b5f44d50fe3fea286c103a81aed26765a40205ef7b4e36c19a24f008b0c10"
+      },
+      {
+        "title": "Restored versions and reasons in Activity",
+        "context": "Recorded customer changes",
+        "path": "/verification/2026-10-08/rules-activity-final.jpg",
+        "width": 1048,
+        "height": 708,
+        "sha256": "912433f5d97ef784ef9542b28f6fd7926baa9a8a2204cd314e4a1200f2bfefce"
+      }
+    ]
+  }
+}
