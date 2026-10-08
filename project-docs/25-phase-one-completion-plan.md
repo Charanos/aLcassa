@@ -444,8 +444,10 @@ Native publication, comparison, restoration, stale-draft preservation, keyboard
 focus and desktop/phone layout checks pass in the disposable owner workspace.
 Activity records prior/restored versions and change reasons; sidebar navigation
 keeps stable targets in collapsed mode. Temporary credentials are revoked and the
-original platform pointer is restored. Exact release readbacks and service
-integration CI for the newly pinned rule checkpoint remain release gates in ledger §24.
+original platform pointer is restored. The qualified code checkpoint passed all six
+application CI jobs and Vercel deployment; the pinned service passed both CI jobs,
+including all twelve propagation samples (maximum 89 ms). Exact release links and
+readbacks are recorded in ledger §24.
 
 Shared rate budgets, usage rollup, hosted service, merged OpenAPI conformance,
 complete Platform/Ops/accessibility coverage, provider delivery, monitoring, load,

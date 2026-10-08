@@ -681,15 +681,34 @@ Receipts: `.test-report/phase-one/native-rules-browser.json`,
 `rules-phone-comparison.png`, `rules-phone-restore-review.png` and
 `rules-stale-focus-final.png` in the same directory.
 
-### Remaining qualification
-
 The first pushed candidate's static job caught unsafe access to untyped audit JSON
 in the added restore assertion. The assertion now matches the JSON shape safely,
 and explicit repository typechecking covers test files omitted by Next's build.
 The failed run is retained as `37783254432`; it is not qualified release evidence.
 
-Exact application CI/deployment and newly pinned service propagation CI need release
-readbacks. Shared Redis rate budgets, usage/last-used persistence, hosted service,
+### Release readbacks
+
+Application code checkpoint `275a0ad33ab95730ea0cc53467d676c242781520` passed all
+six jobs in [its exact CI run](https://github.com/Charanos/aLcassa/actions/runs/37783667886)
+and [Vercel deployment](https://vercel.com/dennis-munges-projects/a-lcassa/J1WJGqCA1eTa8z7vd3GN1FEN7BKC).
+The deployed tracker reads 506 application cases, 21 service cases, five bridge
+checks and twelve measured propagation checks; progress remains 73%, two of eight
+milestones complete.
+
+Service `46ddcf3b18e0c6c994c2c07ea8ab1641d00e23f4`, pinned to that application
+code commit, passed both jobs in [its exact CI run](https://github.com/Charanos/alcassa-service/actions/runs/37783721097):
+nine unit/OpenAPI cases, 21 real-database cases, five actual HTTP bridge checks and
+twelve actual publication/restore operations. The downloaded propagation artifact
+reports a maximum of 89 ms; the Linux runtime audit contains 21 dependencies and
+zero vulnerable dependencies. This qualifies the disposable CI topology, not hosted
+service latency. Receipt: `.test-report/phase-one/rules-release-20261008.json`.
+
+This release record is a documentation follow-up to the qualified code checkpoint;
+the service pin remains on the unchanged application implementation.
+
+### Remaining qualification
+
+Shared Redis rate budgets, usage/last-used persistence, hosted service,
 complete merged API conformance, unsaved-navigation/failure journeys and the wider
 surface/operational matrix remain open. Current environments are development
 sandboxes; no milestone percentage or handover acceptance advances here.
