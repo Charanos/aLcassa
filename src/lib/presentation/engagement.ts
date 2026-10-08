@@ -193,7 +193,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 45,
-    note: 'Company settings persist with conflict protection and customer Activity reads retained, safe changes. Owner credential creation, one-time display, retry safety, rotation and revocation are implemented; 16 real database cases pass, including audit rollback and concurrent limits. Owner browser acceptance, usage persistence and the remaining secrets review stay open.',
+    note: 'Company settings persist with conflict protection and customer Activity reads retained, safe changes. Credentials pass 16 real database cases, including audit rollback and concurrent limits. The disposable owner browser verified creation, one-time reveal, download, replacement grace and revocation; both keys ended revoked. Clipboard readback, phone/error journeys, usage persistence and the remaining secrets review stay open.',
   },
   {
     id: 'M4a',
@@ -205,7 +205,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 45,
-    note: 'Master publication and restoration reject stale edits. FastAPI tenant/rules reads, permissions, ETags and revocation pass 20 local service cases and five Node-to-HTTP checks. Tenant publication, measured propagation, hosted service and complete cross-language CI remain open acceptance gates.',
+    note: 'Master publication and restoration reject stale edits. FastAPI reads, permissions, ETags, revocation and safe database-outage responses pass 21 local service cases. Restricted database and five Node-to-HTTP checks also pass integration CI. Tenant publication, measured propagation, hosted service and complete merged API conformance remain open acceptance gates.',
   },
   {
     id: 'M6',

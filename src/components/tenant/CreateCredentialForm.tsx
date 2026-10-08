@@ -27,7 +27,7 @@ export function CreateCredentialForm({
   onDone,
 }: {
   replacement?: Credential;
-  onDone?: () => void;
+  onDone?: (created: boolean) => void;
 }) {
   const router = useRouter();
   const requestKey = useRef<string | null>(null);
@@ -42,9 +42,10 @@ export function CreateCredentialForm({
   const [replayed, setReplayed] = useState(false);
   const [pending, startTransition] = useTransition();
   const done = () => {
+    const created = secret !== null || replayed;
     setSecret(null);
     router.refresh();
-    if (onDone) onDone();
+    if (onDone) onDone(created);
     else router.push('/app/settings/credentials');
   };
 

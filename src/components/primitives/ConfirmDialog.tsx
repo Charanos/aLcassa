@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId, useState, type RefObject } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Button } from './Button';
@@ -30,6 +30,7 @@ export function ConfirmDialog({
   loading = false,
   disabled = false,
   error = null,
+  returnFocusRef,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -53,12 +54,20 @@ export function ConfirmDialog({
   /** A submitted attempt's outcome, once the server has answered. Inline,
    *  never a toast — sheet 12. */
   error?: string | null;
+  /** A surviving trigger or heading for focus after a mutation. */
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <Dialog.Content
+          onCloseAutoFocus={(event) => {
+            if (returnFocusRef?.current) {
+              event.preventDefault();
+              returnFocusRef.current.focus();
+            }
+          }}
           className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
           style={{
             background: 'var(--surface-raised)',

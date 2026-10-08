@@ -157,7 +157,7 @@ The explicit confirmation removes proof parameters before further navigation.
 
 The 8 October credential checkpoint passes **479/479 cache-disabled application
 tests in 35 files**. The separate private repository
-[alcassa-service](https://github.com/Charanos/alcassa-service) passes **20 local
+[alcassa-service](https://github.com/Charanos/alcassa-service) passes **21 local
 tests**. Clone it beside `aLcassa`, install uv, and run `uv sync --locked` there.
 With the disposable stack prepared, run these sequentially from the main repo:
 
@@ -178,5 +178,15 @@ database fixtures.
 The five HTTP bridge checks use an actual Node-minted Argon2id key against FastAPI
 and verify stored identity, rules, empty 304, missing scope and revoked-key refusal
 before conditional reads. They do not prove hosted topology, propagation timing,
-rate budgets or load. Service CI currently runs eight unit/OpenAPI cases and a
-package build; private cross-repository database CI access remains an open gate.
+rate budgets or load. Service CI runs nine unit/OpenAPI cases, packaging and a
+hashed runtime dependency audit. The preceding 20-case checkpoint and all five
+bridge checks passed in [integration CI](https://github.com/Charanos/alcassa-service/actions/runs/37747687080).
+Trusted main pushes use a read-only, single-repository deploy key and immutable
+platform checkout. No private checkout secret executes unreviewed pull-request code.
+
+The approved disposable owner browser run verified creation, one-time reveal,
+download, replacement grace and revocation against recorded database state and
+actual FastAPI responses. Both test keys ended revoked with zero allowance usage.
+The browser clipboard API did not expose the copied contents, so clipboard readback
+remains unqualified despite the UI reporting copy success. Usage persistence,
+phone/error journeys and the remaining secrets review stay open.

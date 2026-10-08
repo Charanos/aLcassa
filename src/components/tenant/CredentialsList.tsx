@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconAlertTriangle, IconKey } from '@tabler/icons-react';
 import { Badge, type BadgeTone } from '@/components/primitives/Badge';
@@ -12,11 +12,7 @@ import { CreateCredentialForm } from './CreateCredentialForm';
 import { revokeCredential } from '@/app/(tenant)/app/actions';
 import type { Credential } from '@/lib/tenant/data';
 
-/**
- * 02 §4 · 03 §14. Owner only. "Never used" and "unused 90 days" are their own
- * badge states — the list says which credential is worth revoking rather
- * than making the reader compute it from a date.
- */
+/** Owner metadata with recorded usage and explicit credential state. */
 export function CredentialsList({ credentials }: { credentials: Credential[] }) {
   if (credentials.length === 0) {
     return (
@@ -51,11 +47,20 @@ function usageBadge(credential: Credential): { tone: BadgeTone; label: string } 
 function CredentialRow({ credential }: { credential: Credential }) {
   const router = useRouter();
   const rotationTrigger = useRef<HTMLButtonElement>(null);
+  const revokeTrigger = useRef<HTMLButtonElement>(null);
+  const rowName = useRef<HTMLHeadingElement>(null);
+  const restoreAfterMutation = useRef(false);
   const [confirm, setConfirm] = useState(false);
   const [rotating, setRotating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const usage = usageBadge(credential);
+  useEffect(() => {
+    if (restoreAfterMutation.current) {
+      rowName.current?.focus();
+      restoreAfterMutation.current = false;
+    }
+  }, [credential.status]);
 
   function submit() {
     setError(null);
@@ -63,6 +68,7 @@ function CredentialRow({ credential }: { credential: Credential }) {
       const result = await revokeCredential(credential.id);
       if (!result.ok) setError(result.error);
       else {
+        restoreAfterMutation.current = true;
         setConfirm(false);
         router.refresh();
       }
@@ -74,7 +80,13 @@ function CredentialRow({ credential }: { credential: Credential }) {
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="t-body font-medium text-[var(--text-primary)]">{credential.name}</span>
+            <h3
+              ref={rowName}
+              tabIndex={-1}
+              className="t-body font-medium text-[var(--text-primary)]"
+            >
+              {credential.name}
+            </h3>
             {credential.status === 'revoked' ? <Badge tone="pastDue">Revoked</Badge> : null}
             {credential.status === 'rotating' ? (
               <Badge tone="nearLimit">Being replaced</Badge>
@@ -117,6 +129,7 @@ function CredentialRow({ credential }: { credential: Credential }) {
               </Button>
             ) : null}
             <Button
+              ref={revokeTrigger}
               variant="quiet"
               size="sm"
               onClick={() => {
@@ -142,9 +155,16 @@ function CredentialRow({ credential }: { credential: Credential }) {
       ) : null}
       <ConfirmDialog
         open={confirm}
+        returnFocusRef={
+          credential.status === 'revoked' || restoreAfterMutation.current ? rowName : revokeTrigger
+        }
         onOpenChange={setConfirm}
         title={`Revoke ${credential.name}?`}
-        consequence="This key will stop working immediately. Integrations using it will need another credential."
+        consequence={
+          credential.rotatedFromId
+            ? 'This key and any previous key still in its replacement grace period will stop working immediately. Update integrations to use another credential.'
+            : 'This key will stop working immediately. Integrations using it will need another credential.'
+        }
         confirmLabel="Revoke credential"
         tone="destructive"
         onConfirm={submit}
@@ -158,10 +178,18 @@ function CredentialRow({ credential }: { credential: Credential }) {
         title={`Replace ${credential.name}`}
         width="lg"
         actions={null}
-        returnFocusRef={rotationTrigger}
+        returnFocusRef={
+          credential.status !== 'active' || restoreAfterMutation.current ? rowName : rotationTrigger
+        }
       >
         {rotating ? (
-          <CreateCredentialForm replacement={credential} onDone={() => setRotating(false)} />
+          <CreateCredentialForm
+            replacement={credential}
+            onDone={(created) => {
+              restoreAfterMutation.current = created;
+              setRotating(false);
+            }}
+          />
         ) : null}
       </ConsoleDialog>
     </li>

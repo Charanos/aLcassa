@@ -514,3 +514,88 @@ No milestone percentages or client acceptance are changed by this package.
 
 Final release checks, bounded production policy reconciliation, publication and
 exact-commit CI/deployment readbacks are recorded separately in the release receipt.
+
+## 23. Credential browser and service operational follow-up — 8 October 2026
+
+### Published baseline and integration CI
+
+Application `d9450d56a75e3a8bbb1e5381818df6206112bb90` passed all six jobs in
+[its exact CI run](https://github.com/Charanos/aLcassa/actions/runs/37747386894)
+and its Vercel check succeeded. Authenticated hosted tracker readback showed the
+479-case application checkpoint and the then-current 20-case/five-check service
+evidence, with open gates and milestone percentages preserved.
+
+Service `9ac88bd9e9879917ae3cf35a304074c955db0b2e` passed both jobs in
+[its exact CI run](https://github.com/Charanos/alcassa-service/actions/runs/37747687080).
+The integration job provisioned a disposable provider, applied maintained schema
+and policies, passed 20 service cases and five Node-to-HTTP checks. The platform
+checkout is pinned to `d9450d5`; its read-only deploy key is limited to that repo.
+Private checkout secrets do not execute pull-request code. This supersedes §22's
+open private integration CI access gate; full merged API conformance remains open.
+
+### Approved native owner journey
+
+Only the named disposable localhost workspace was changed. The user approved
+creation, equivalent replacement and revocation with the two implemented read
+permissions and Test environment. Its disposable owner password was reset through
+the local provider admin API, prior app session revoked, and native sign-in verified.
+This was fixture maintenance, not evidence of an email recovery journey.
+
+- Creation showed a complete random key once; subsequent list reads contained
+  metadata only. Database Argon2id verification and a real FastAPI read returned
+  the same recorded workspace identity.
+- Replacement retained permissions/environment, produced a distinct key and
+  downloaded an actual `.env` containing only the replacement. During recorded
+  24-hour grace both keys returned 200 while consuming one allowance slot.
+- Revoking the successor also ended its predecessor's grace. Both stored rows
+  ended revoked, both HTTP requests returned 401, and allowance usage became zero.
+  Creation, replacement and both revocations had retained transactional audit rows.
+- Dialog cancellation restored the Replace trigger; the modal had 8px backdrop
+  blur and no document/dialog overflow. Successful replacement exposed a missing
+  focus destination after the trigger disappeared. The follow-up focuses the
+  stable credential heading after status refresh. Its native replay verified
+  heading focus after successful replacement and revocation, trigger focus on
+  revocation cancellation, accurate grace consequences, no overflow and no
+  complete key in the final document.
+- Copy reported success but the browser clipboard API returned no contents.
+  Download contents were verified; clipboard readback remains unqualified.
+
+Private keys/passwords are retained only in ignored local fixture files and were
+not printed or committed. Receipt: `.test-report/phase-one/native-credential-readback.json`.
+The rebuilt focus replay independently repeated database/hash/HTTP/audit readbacks
+and ended both additional keys revoked with zero allowance usage. Receipts:
+`.test-report/phase-one/native-focus-readback.json` and
+`.test-report/phase-one/native-focus-browser.json`. Final screenshot:
+`.test-report/phase-one/auth-20261008/credential-focus-revoked-final.png`.
+Customer Activity showed the actual creation, rotation and both revocation records
+with the recorded actor and time; no key appeared. Its screenshot and redacted
+DOM evidence are retained under the same ignored evidence directory.
+
+One collapsed-sidebar click intended for Activity navigated to Plan and usage
+after hover expansion; selecting Activity from the expanded navigation succeeded.
+That observation remains an open shell navigation regression to isolate, not a
+qualification of every navigation state.
+
+### Operational follow-up
+
+| Evidence | Result | Receipt |
+| --- | --- | --- |
+| Service database, HTTP, compiler and OpenAPI suite | **21/21** | `.verification-service-operational-qualified.log` |
+| Unit/OpenAPI subset | **9/9** | Service `.verification-operational-unit.log` |
+| Real loopback database outage | Readiness and authenticated read return safe **503**, `no-store`, correlation and `Retry-After: 5`; secret canaries absent from response/logs | Service `tests/test_foundation.py` and unit XML |
+| Hashed locked runtime vulnerability audit | **Zero known findings**, no ignored advisories | Service `.test-report/python-audit-hashed.json` |
+| Node-minted key against refreshed FastAPI source | **5/5** | `.verification-service-operational-bridge.log` |
+
+Service follow-up `78a71efcb95c7081151baf34487e35d4ad938dc9` passed both jobs in
+[its exact CI run](https://github.com/Charanos/alcassa-service/actions/runs/37750905152):
+21 full cases, nine unit cases and five live bridge checks. The downloaded Linux
+audit artifact contains 21 runtime dependencies and zero vulnerable dependencies.
+Receipts: `.test-report/phase-one/service-operational-ci.log` and
+`.test-report/phase-one/service-operational-audit/python-audit.json`.
+
+The maintained service launcher now strips privileged identity-provider secrets as
+well as administrative database URLs from the runtime. Local fault checks do not
+qualify wider Redis/provider outages, monitoring, backup restoration or hosted
+service topology. Usage rollup, tenant publication, repeated five-second propagation,
+phone/error/clipboard acceptance, load and handover stay open. Current environments
+are development sandboxes. No milestone percentage or acceptance is advanced here.

@@ -396,3 +396,27 @@ Sequence: establish shared primitives; remove live/fixture ambiguity; restructur
 6. **Qualify release and handover.** Finish provider delivery/readiness, full regression, required load and p95 checks, dependency/security review, failure recovery and backup/restore, deployed smoke checks, the timed clean setup and usable runbooks/walkthrough. Record acceptance only after the eleven original conditions and all scoped milestone gates pass.
 
 Keep this order active through remediation and retesting. Retain failed attempts and dependencies in the ledger. The wider tenant dashboard stays in Phase Two; required Phase One boundary/load regressions still apply.
+
+## 13. Service and operational checkpoint — 8 October 2026
+
+Application `d9450d5` passed all six CI jobs and deployed successfully. Service
+`9ac88bd` passed both CI jobs, including its 20-case database suite and five live
+Node-to-HTTP checks against pinned application `d9450d5`. Private checkout now
+uses a read-only, single-repository deploy key on trusted main pushes. This closes
+the private integration CI access gate; it does not close merged API conformance.
+
+The approved disposable owner browser verified real credential creation,
+one-time reveal, a downloaded replacement, recorded grace, and final revocation.
+Both keys returned 401 after revocation and the allowance counter returned to zero.
+Clipboard contents were unavailable through browser automation; that acceptance
+case remains open. Successful replacement exposed lost focus when its trigger
+disappeared. The corrected candidate passed native replacement/revocation focus
+replays, with every disposable test key left revoked.
+
+The operational follow-up passes 21 service cases, including a real connection
+outage with safe 503 responses, request correlation and retry guidance. Its
+hashed runtime dependency audit reports zero known findings. Wider provider,
+Redis and backup recovery, usage persistence, tenant publishing/propagation,
+hosted service, complete browser/accessibility acceptance, load and handover remain
+open. Current local and Vercel environments are development sandboxes; these
+quality checks do not constitute production launch or client acceptance.

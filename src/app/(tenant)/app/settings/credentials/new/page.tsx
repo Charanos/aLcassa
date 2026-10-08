@@ -14,7 +14,7 @@ export default async function CreateCredentialPage() {
     <div>
       <PageHeader
         title="Create a credential"
-        description="Choose what it can do before creating it — scopes cannot be widened later without creating a new credential."
+        description="Choose the permissions your integration needs. To change its access later, create a new credential."
         breadcrumbs={[
           { label: 'Settings', href: '/app/settings/company' },
           { label: 'Credentials', href: '/app/settings/credentials' },

@@ -55,6 +55,7 @@ export async function getLiveCredentials(): Promise<CredentialsModel | null> {
       lastUsedAt: row.lastUsedAt?.toISOString() ?? null,
       environment: row.environment === 'test' ? 'test' : 'live',
       expiresAt: row.expiresAt?.toISOString() ?? null,
+      rotatedFromId: row.rotatedFromId,
     })),
     keysUsed: rows.filter((row) => row.status === 'active' && !row.revokedAt).length,
     keysLimit: allowance?.limit ?? 0,

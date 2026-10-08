@@ -527,6 +527,7 @@ export type Credential = {
   environment?: 'live' | 'test';
   expiresAt?: string | null;
   lastUsedAt?: string | null;
+  rotatedFromId?: string | null;
 };
 
 export type CredentialsModel = {

@@ -19,7 +19,7 @@ foreach ($name in @('DATABASE_URL', 'DATABASE_URL_ADMIN')) {
   if ($value -notmatch '^postgresql://[^@]+@127\.0\.0\.1:55422/postgres$') { throw 'Verification requires the disposable database.' }
 }
 if ($env:DATABASE_URL -notmatch '^postgresql://alcassa_app:[^@]+@127\.0\.0\.1:55422/postgres$') { throw 'Use the restricted local application role.' }
-foreach ($name in @('RESEND_API_KEY','UPSTASH_REDIS_REST_URL','UPSTASH_REDIS_REST_TOKEN','AXIOM_TOKEN','AXIOM_DATASET','SENTRY_DSN','NEXT_PUBLIC_SENTRY_DSN','SENTRY_AUTH_TOKEN','GOOGLE_CLIENT_SECRET','OPENAI_API_KEY','EMAIL_FROM','CRON_SECRET')) {
+foreach ($name in @('SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SECRET_KEY','RESEND_API_KEY','UPSTASH_REDIS_REST_URL','UPSTASH_REDIS_REST_TOKEN','AXIOM_TOKEN','AXIOM_DATASET','SENTRY_DSN','NEXT_PUBLIC_SENTRY_DSN','SENTRY_AUTH_TOKEN','GOOGLE_CLIENT_SECRET','OPENAI_API_KEY','EMAIL_FROM','CRON_SECRET')) {
   [Environment]::SetEnvironmentVariable($name, '', 'Process')
 }
 $env:CACHE_DISABLED = 'true'
