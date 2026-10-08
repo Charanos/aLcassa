@@ -26,7 +26,7 @@ export const POST = defineRoute({
       });
     }
 
-    await verifyPassword(body.password);
+    await verifyPassword(body.password, ctx.actorId);
 
     const result = await transferOwnership(ctx, body.memberId);
 
@@ -43,19 +43,13 @@ export const POST = defineRoute({
   },
 });
 
-/**
- * Re-authentication that cannot touch the caller's session.
- *
- * The client is built with a no-op cookie adapter, so Supabase's attempt to
- * persist the session it creates goes nowhere. What comes back is only the
- * verdict.
- */
-async function verifyPassword(password: string): Promise<void> {
+/** Reauthenticate the resolved owner without persisting or globally ending provider sessions. */
+async function verifyPassword(password: string, actorId: string): Promise<void> {
   const sessionClient = await createSupabaseServerClient();
-  const { data: current } = await sessionClient.auth.getUser();
+  const { data: current, error: identityError } = await sessionClient.auth.getUser();
   const email = current.user?.email;
 
-  if (!email) {
+  if (identityError || !email || current.user?.id !== actorId) {
     throw new AppError(ERROR_CODES.AUTH_SESSION_EXPIRED, {
       message: 'Sign in again before transferring ownership.',
     });
@@ -83,8 +77,11 @@ async function verifyPassword(password: string): Promise<void> {
     });
   }
 
-  // Nothing was persisted, but ending it explicitly means the token this
-  // check minted is dead before the function returns rather than left to
-  // expire on Supabase's schedule.
-  await throwaway.auth.signOut();
+  // Revoke only this temporary refresh session. Access JWTs retain their normal expiry.
+  const { error: cleanupError } = await throwaway.auth.signOut({ scope: 'local' });
+  if (cleanupError)
+    throw new AppError(ERROR_CODES.UPSTREAM_UNAVAILABLE, {
+      message:
+        'Password verification could not be completed. Ownership has not changed. Try again shortly.',
+    });
 }

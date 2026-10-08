@@ -5,31 +5,8 @@ import { withoutTenantContext, type Transaction } from '@/lib/db';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import type { MemberRole } from '@/db/schema';
 
-/**
- * 07 §5. THE TWO READS THAT HAPPEN BEFORE ANYBODY HAS A MEMBERSHIP.
- *
- * ⚠ WHY THESE GO THROUGH DATABASE FUNCTIONS RATHER THAN DRIZZLE QUERIES.
- *
- * Accepting an invitation is the one flow with no tenant context available:
- * resolving one requires a membership, and creating that membership is the
- * whole operation. Every policy on `invitations` and `tenant_members`
- * therefore matches nothing, and a plain query returns zero rows — which is
- * the policies working, not a bug in them.
- *
- * There are three ways out and only one is right:
- *
- *   a public SELECT policy    would let any unauthenticated caller read the
- *                             table by some other predicate, leaking every
- *                             pending invitation and address on the platform
- *   the service role          forbidden: `serviceClient.ts` lists four
- *                             permitted operations and says in terms that it
- *                             may NEVER read a tenant's members
- *   a narrow SECURITY DEFINER FUNCTION, keyed by the token hash  ← this
- *
- * The function sees past RLS, so it is deliberately narrow: it takes a hash
- * rather than an id, returns no token material, and can only ever return the
- * single row whose token the caller already holds. `02_identity.sql` carries
- * the same reasoning next to the definitions.
+/** Token-scoped database helpers allow joining before a tenant context exists.
+ * Definer functions return only the invitation identified by the caller's token.
  */
 
 export function hashInvitationToken(token: string): string {
@@ -59,12 +36,7 @@ type PreviewRow = {
   revoked_at: string | Date | null;
 };
 
-/**
- * The accept screen's read. Answers null when the token names nothing, so a
- * caller can render "this link is not valid" rather than distinguishing a
- * malformed token from an unknown one — which would confirm which tokens are
- * real.
- */
+/** Read a token-scoped preview; unknown and malformed links both return null. */
 export async function readInvitationByToken(
   token: string,
   requestId: string,
@@ -100,15 +72,7 @@ export async function readInvitationByToken(
   };
 }
 
-/**
- * The acceptance. One database function, so marking the token used and
- * creating the membership cannot come apart — see the note on
- * `app.accept_invitation` for why that matters more than it looks.
- *
- * The function raises named exceptions for the four refusals; they are mapped
- * back onto the error catalogue here so the caller gets the same codes, the
- * same statuses and the same sentences as every other route.
- */
+/** Commit membership, single-use acceptance and its audit record together. */
 export async function acceptInvitationByToken(
   token: string,
   userId: string,
@@ -136,13 +100,16 @@ export async function acceptInvitationByToken(
   });
 }
 
-/** Postgres exception → the catalogue. Anything unrecognised is rethrown
- *  untouched: swallowing an unexpected database error into a friendly
- *  invitation message would hide a real fault behind a plausible story. */
+/** Map named database refusals while preserving unexpected failures. */
 function translate(error: unknown): unknown {
   if (error instanceof AppError) return error;
 
-  const message = error instanceof Error ? error.message : String(error);
+  let message = '';
+  let cause: unknown = error;
+  for (let depth = 0; cause instanceof Error && depth < 5; depth++) {
+    message += ` ${cause.message}`;
+    cause = cause.cause;
+  }
 
   if (message.includes('invitation_not_found')) {
     return new AppError(ERROR_CODES.NOT_FOUND, {
@@ -154,6 +121,14 @@ function translate(error: unknown): unknown {
     return new AppError(ERROR_CODES.INVITATION_ALREADY_ACCEPTED);
   }
   if (message.includes('invitation_expired')) return new AppError(ERROR_CODES.INVITATION_EXPIRED);
+  if (message.includes('invitation_tenant_suspended'))
+    return new AppError(ERROR_CODES.TENANT_SUSPENDED);
+  if (message.includes('invitation_existing_member'))
+    return new AppError(ERROR_CODES.MEMBER_ALREADY_EXISTS);
+  if (message.includes('invitation_owner_role'))
+    return new AppError(ERROR_CODES.VALIDATION_FAILED, {
+      message: 'Ownership changes require a transfer by the current owner.',
+    });
 
   return error;
 }

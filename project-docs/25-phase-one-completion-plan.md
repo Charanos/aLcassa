@@ -490,3 +490,18 @@ service budgets and usage persistence, the full Platform/Ops/profile/customer
 Activity matrix, and operational load, monitoring, restore and setup drills.
 Publish evidence, build and push each qualified checkpoint. A completed test
 package advances progress; acceptance still requires every milestone gate.
+
+## 17. Account acceptance checkpoint — 8 October 2026
+
+The qualified local regression now passes 564 cases in 45 files. Membership
+restoration, typed invitation refusals and sole-owner protection pass 31 database
+cases. Eight ownership-route cases and an actual provider/database transfer verify
+current-owner identity, temporary-session cleanup and preservation of two existing
+sign-in sessions. Tenant settings advances to 80%; Auth stays at 90% until its
+complete browser lifecycle, colleague invitation and OAuth gates pass.
+
+The record adds a separate account catalogue and evidence index. Earlier artifacts
+remain immutable. Complete provider/browser account journeys and credential
+failure/clipboard/usage acceptance next, then shared service budgets, the remaining
+Platform/Ops/peripheral matrix and operational drills. Build and push each qualified
+checkpoint. Landing-page and broader tenant-shell refinement follow Phase One closure.

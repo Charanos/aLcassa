@@ -1,0 +1,20 @@
+{
+  "date": "8 October 2026",
+  "environment": "Disposable local PostgreSQL and Supabase Auth; invitation email delivery mocked",
+  "baseCommit": "3674cfe5542a9e1e04a767ddf1f5fb4f5a3dcb5e",
+  "scope": "Invitation acceptance, membership restoration and ownership reauthentication",
+  "passed": 564,
+  "files": 45,
+  "membershipCases": 31,
+  "ownershipRouteCases": 8,
+  "ownershipProviderCases": 1,
+  "results": {
+    "path": "/verification/2026-10-08/account-gates-regression.json",
+    "sha256": "2d6d811bd7bb15fbf2efa5d8732b20181c8d9aa60bdb6f2006cc18e47bb58fb9"
+  },
+  "limits": "The ownership route uses the actual provider and database with the session resolver and cookie adapter replaced by disposable test context. This is not native browser acceptance, OAuth or external email delivery evidence.",
+  "manifest": {
+    "path": "/verification/2026-10-08/account-gates-manifest.json",
+    "sha256": "2670fef2e6cce5b63eb257146ee8f80f9ab0cb7f12a15cf3f77919bc17d11c0a"
+  }
+}

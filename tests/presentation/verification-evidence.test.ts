@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import record from '@/lib/presentation/verificationRecord.json';
 import membership from '@/lib/presentation/membershipVerification.json';
+import account from '@/lib/presentation/accountVerification.json';
 import {
   projectTestEvidence,
   projectCredentialEvidence,
@@ -44,6 +45,8 @@ describe('Public verification evidence boundary', () => {
       membership.native,
       membership.manifest,
       ...membership.images,
+      account.results,
+      account.manifest,
     ];
     for (const file of files) {
       expect(file.path).toMatch(/^\/verification\/2026-10-08\/[a-z0-9-]+\.(?:json|jpg|png)$/);
@@ -57,6 +60,10 @@ describe('Public verification evidence boundary', () => {
       readFileSync(`public${membership.manifest.path}`, 'utf8'),
     ) as Omit<typeof membership, 'manifest'>;
     expect({ ...teamCheckpoint, manifest: membership.manifest }).toEqual(membership);
+    const accountCheckpoint = JSON.parse(
+      readFileSync(`public${account.manifest.path}`, 'utf8'),
+    ) as Omit<typeof account, 'manifest'>;
+    expect({ ...accountCheckpoint, manifest: account.manifest }).toEqual(account);
   });
   it('excludes private paths, logs, errors and unknown secret fields', () => {
     const projected = projectTestEvidence(report());

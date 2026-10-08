@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { IconArrowLeft, IconArrowUpRight, IconCheck, IconFileDownload } from '@tabler/icons-react';
 import record from '@/lib/presentation/verificationRecord.json';
 import membership from '@/lib/presentation/membershipVerification.json';
+import account from '@/lib/presentation/accountVerification.json';
 import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
@@ -67,9 +68,9 @@ export default function VerificationRecordPage() {
         </div>
         <dl className="surface-sunken mt-5 grid gap-px overflow-hidden rounded-panel border border-[var(--border-subtle)] sm:grid-cols-2 lg:grid-cols-4">
           <Metric
-            value={`${membership.passed}`}
+            value={`${account.passed}`}
             label="Current local cases passed"
-            detail={`${membership.files} files · no failures or skips`}
+            detail={`${account.files} files · no failures or skips`}
           />
           <Metric
             value={`${record.service.databaseCases}`}
@@ -158,6 +159,45 @@ export default function VerificationRecordPage() {
       </section>
 
       <section
+        id="account-checkpoint"
+        aria-labelledby="account-checkpoint-title"
+        className="mt-14 border-t border-[var(--border-subtle)] pt-10"
+      >
+        <h2 id="account-checkpoint-title" className="t-heading">
+          Invitation acceptance and ownership sessions
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          {account.environment}. This {account.passed}-case checkpoint includes{' '}
+          {account.membershipCases} membership cases, {account.ownershipRouteCases} ownership-route
+          cases and an actual provider/database transfer. Verified on baseline{' '}
+          <code>{account.baseCommit.slice(0, 7)}</code>; earlier release snapshots remain separate.
+        </p>
+        <div className="surface-sunken mt-6 rounded-panel border border-[var(--border-subtle)] p-5 md:p-7">
+          <h3 className="t-heading">Rejoining and reauthentication preserve existing access</h3>
+          <p className="t-compact mt-3 text-[var(--text-secondary)]">
+            A removed teammate rejoins on the original membership with the invited role, one audit
+            receipt and no additional seat. Expired, withdrawn, used and unknown links return their
+            intended errors. Suspended memberships cannot be reactivated through outstanding
+            invitations, and the sole owner remains protected. Ownership password verification binds
+            the provider identity to the current owner, ends only its temporary refresh session and
+            refuses transfer if cleanup fails. Both original provider sessions still refresh after
+            the verified transfer; its disposable owner account is removed afterwards.
+          </p>
+          <p className="t-compact mt-4 text-[var(--text-secondary)]">{account.limits}</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div>
+              <EvidenceDownload href={account.results.path} label="564-case local catalogue" />
+              <Digest value={account.results.sha256} />
+            </div>
+            <div>
+              <EvidenceDownload href={account.manifest.path} label="Account evidence index" />
+              <Digest value={account.manifest.sha256} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
         id="team-checkpoint"
         aria-labelledby="team-checkpoint-title"
         className="mt-14 border-t border-[var(--border-subtle)] pt-10"
@@ -166,12 +206,12 @@ export default function VerificationRecordPage() {
           Team integrity and confirmed readback
         </h2>
         <p className="t-body mt-4 text-[var(--text-secondary)]">
-          {membership.environment}. The current {membership.passed}-case regression includes{' '}
+          {membership.environment}. The earlier {membership.passed}-case regression includes{' '}
           {membership.databaseCases} real-database membership cases and {membership.actionCases}{' '}
           action-result cases. Concurrent writes share workspace and capacity locks, current
           permissions are checked inside each transaction, and accepted links are single use. This
           follow-up was verified on baseline <code>{membership.baseCommit.slice(0, 7)}</code>; the
-          earlier CI references below remain separate release snapshots.
+          earlier CI references remain separate release snapshots.
         </p>
         <div className="surface-sunken mt-6 rounded-panel border border-[var(--border-subtle)] p-5 md:p-7">
           <h3 className="t-heading">Browser and database outcomes agree</h3>
@@ -231,7 +271,7 @@ export default function VerificationRecordPage() {
         aria-labelledby="progress-title"
         className="mt-14 border-t border-[var(--border-subtle)] pt-10"
       >
-        <h2 id="progress-title" className="t-heading text-right">
+        <h2 id="progress-title" className="t-heading">
           Milestone reassessment
         </h2>
         <p className="t-body mt-3 text-[var(--text-secondary)]">

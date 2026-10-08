@@ -115,8 +115,8 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
   date: '8 October 2026',
-  applicationTests: 545,
-  applicationFiles: 43,
+  applicationTests: 564,
+  applicationFiles: 45,
   serviceTests: 21,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -156,7 +156,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 90,
-    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Customer sign-out is verified in the browser. Full browser account acceptance, colleague invitations and OAuth remain open; production email needs verified delivery and redirect configuration.',
+    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Ownership password verification preserves two existing provider sessions and binds the current identity to the owner. Customer sign-out is verified in the browser. Full browser account acceptance, colleague invitations and OAuth remain open; external email needs verified delivery and redirect configuration.',
   },
   {
     id: 'M3',
@@ -190,8 +190,8 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 75,
-    note: 'Company changes and customer Activity are verified. Credentials pass 16 database cases and native lifecycle checks; both test keys ended revoked. Team management adds 21 database cases for permissions, concurrent invitations, ownership, capacity and audit rollback, plus five confirmed-action cases. Native role reduction, suspended removal and invitation withdrawal update the page immediately, with keyboard focus and phone checks. Provider invitation journeys, ownership review, clipboard/error journeys, usage persistence and the final secrets review remain open.',
+    progress: 80,
+    note: 'Company changes and customer Activity are verified. Credentials pass 16 database cases and native lifecycle checks; both test keys ended revoked. Team management passes 31 database cases and five confirmed-action cases. Rejoining restores the original membership without adding a seat; invalid invitations, suspended memberships and the sole owner are protected. Eight ownership-route cases and an actual provider/database transfer verify password identity, refusal paths and preservation of two existing sign-in sessions. Native team mutations update immediately with focus and phone checks. Complete provider invitation journeys, browser ownership review, clipboard/error journeys, usage persistence and the final secrets review remain open.',
   },
   {
     id: 'M4a',
@@ -225,12 +225,13 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
   { previous: number; evidence: string[]; remaining: string[] }
 > = {
   M5: {
-    previous: 70,
+    previous: 75,
     evidence: [
       'Company saves, conflicts and recorded Activity',
       '16 database credential cases, including concurrent limits and audit rollback',
       'Native creation, one-time reveal, download, replacement, revocation and focus',
-      '21 database team cases and five confirmed-action/readback cases',
+      '31 database team cases and five confirmed-action/readback cases',
+      'Eight ownership-route cases and an actual provider/database transfer preserving two existing sessions',
       'Native role reduction, suspended removal and seat release without a reload; phone review and focus',
     ],
     remaining: [
@@ -375,6 +376,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-08',
+    title: 'Invitation acceptance and ownership sessions verified',
+    body: 'The local regression passes 564 cases in 45 files. Removed teammates can rejoin on the original membership, invalid links retain their clear error codes, and suspended memberships and the sole owner stay protected. Actual provider testing verifies that ownership password reauthentication preserves two existing sign-in sessions. Tenant settings advances from 75% to 80%; the verification record adds a separate account evidence index. Browser invitation journeys, OAuth and operational acceptance remain open.',
+    milestone: 'M2, M5',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-08',
     title: 'Team capacity, permissions and immediate readback verified',

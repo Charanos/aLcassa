@@ -866,3 +866,67 @@ against the new artifact set. Built verification covers 28 document/tracker rout
 fits 390px without horizontal overflow. The staged scan checks 26 files against
 14 private values; all six additional team artifact fingerprints match Git bytes.
 Exact CI and deployment results are recorded separately after the push.
+
+## 28. Invitation acceptance and ownership sessions — 8 October 2026
+
+Six initial database cases reproduced failed rejoining, generic wrapped database
+errors and acceptance into a suspended workspace. Three HTTP cases reproduced
+global provider sign-out, mismatched identity acceptance and ignored temporary
+session cleanup failure. These failures were fixed before qualification.
+
+Acceptance now restores a removed teammate's original membership with the invited
+role, without adding a seat. It retains single-use token ordering, refuses active
+or suspended existing memberships, protects provisioned owners and rejects legacy
+owner invitations. Workspace status is locked during acceptance. Joining writes
+the actual membership ID and, for restored rows, the previous state into its
+transactional audit receipt. Named database errors survive the driver's bounded
+cause chain and retain their intended user-facing codes.
+
+Ownership reauthentication checks the provider identity against the resolved
+owner. Only its temporary refresh session is ended; a cleanup failure prevents
+transfer. An actual disposable-provider/database transfer preserves two independent
+original sessions, both of which successfully refresh afterwards, and records
+one ownership audit. The test removes its owner account and owned database rows.
+The session resolver and cookie adapter are replaced by disposable test context;
+this is route/provider evidence, not native browser acceptance.
+
+The complete cache-disabled local regression passes **564/564 cases in 45 files,
+with no skips**. It includes 31 membership cases, eight ownership-route cases and
+one actual-provider ownership case. Policies cover 15/15 workspace tables with
+zero issues. Invitation email delivery remains mocked. The verification record
+publishes a separate `account-gates-manifest.json` and redacted catalogue; historical
+545-case team and earlier CI artifacts retain their original bytes. Focused
+publication/navigation checks qualify the new fingerprints and document graph.
+
+Tenant settings advances **75→80%**; the rounded overall engineering estimate is
+83%. Auth remains 90%, pending the complete browser account lifecycle, colleague
+invitation and OAuth demonstrations. No milestone is newly complete. Next close
+those account journeys, credential failure/clipboard and usage persistence, shared
+service budgets, the Platform/Ops/peripheral acceptance matrix, and operational
+load, monitoring, recovery and clean-setup drills. Service hosting remains local
+by the user's decision.
+
+The hosted development sandbox receives only the qualified acceptance helper.
+Readback preserves its owner, execution grants, definer rights and pinned search
+path; no workspace or invitation data changes. Function body SHA-256:
+`830c555a6d2957f9ce167e4029a6e1083bd62e47ab7c9161ed5baaf6017252ad`.
+
+The previous team checkpoint `3674cfe` passes all six application CI jobs
+([run 37804171774](https://github.com/Charanos/aLcassa/actions/runs/37804171774))
+and [Vercel deployment](https://vercel.com/dennis-munges-projects/a-lcassa/8bAkwUiuLj7ZQkJeUZZ4rwV8UApR).
+Its downloaded cache-disabled artifact confirms 545 cases in 43 files with no skips.
+Read-only deployed checks cover 28 routes, 58 anchors and 16 assets; the private
+source returns 404. Current build, static and exact release checks qualify the
+account checkpoint separately.
+
+Final local checks pass: full lint/format/dependency and security gates, 94/94
+production routes, sequential post-build typecheck and 13 focused evidence/document
+checks. Built read-only verification covers 28 routes, 58 anchors and 18 evidence
+assets; the private working source returns 404. Native navigation opens the record
+from the tracker, showing 83% overall and 80% Tenant settings. The record fits a
+390px viewport with 380px document width. An unknown invitation renders its refusal
+screen and returns to sign-in; the built preview endpoint responds 404 / `not_found`.
+The browser-downloaded account index matches its published SHA-256. All 16 staged
+owned files pass 14 private-value comparisons; both new account fingerprints and
+all historical artifact hashes match Git bytes. Exact CI/deployment results follow
+the push and remain separate from these local measurements.

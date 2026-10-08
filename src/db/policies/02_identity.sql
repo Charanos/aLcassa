@@ -186,6 +186,8 @@ set search_path = public, pg_temp
 as $$
 declare
   inv record;
+  existing_member record;
+  joined_member_id uuid;
 begin
   select i.* into inv from invitations i where i.token_hash = p_token_hash;
 
@@ -208,6 +210,21 @@ begin
   if inv.expires_at <= now() then
     raise exception 'invitation_expired' using errcode = 'P0001';
   end if;
+  perform id from tenants where id = inv.tenant_id and status in ('active', 'trial') and deleted_at is null for share;
+  if not found then
+    raise exception 'invitation_tenant_suspended' using errcode = 'P0001';
+  end if;
+  if inv.role = 'owner' then
+    raise exception 'invitation_owner_role' using errcode = 'P0001';
+  end if;
+  select m.* into existing_member from tenant_members m
+    where m.tenant_id = inv.tenant_id and m.user_id = p_user_id for update;
+  if found and existing_member.deleted_at is null and existing_member.role = 'owner' then
+    raise exception 'invitation_owner_role' using errcode = 'P0001';
+  end if;
+  if found and existing_member.deleted_at is null and existing_member.status <> 'invited' then
+    raise exception 'invitation_existing_member' using errcode = 'P0001';
+  end if;
 
   update invitations set accepted_at = now() where id = inv.id;
 
@@ -225,27 +242,12 @@ begin
 
   insert into tenant_members (tenant_id, user_id, role, status, invited_by, joined_at)
   values (inv.tenant_id, p_user_id, inv.role, 'active', inv.invited_by, now())
-  on conflict (tenant_id, user_id) do nothing;
+  on conflict (tenant_id, user_id) do update set
+    role = excluded.role, status = 'active', deleted_at = null,
+    invited_by = excluded.invited_by, joined_at = now(), updated_at = now()
+  returning id into joined_member_id;
 
-  -- ⚠ THE JOIN WAS NOT AUDITED, AND EVERY OTHER MEMBERSHIP CHANGE IS.
-  --
-  -- Definition of done, condition 3: "Every write action produces an audit
-  -- entry recording actor, tenant, action, entity, before and after state."
-  -- Inviting was audited. Removing was audited. Changing a role was audited.
-  -- ACCEPTING was not — so a workspace's own activity log showed an
-  -- invitation going out and then nothing, and a new person simply appeared
-  -- in the team list with no record of when or how.
-  --
-  -- `member.joined` was defined in AUDIT_ACTIONS from the beginning and never
-  -- emitted, because the write moved into this function when the acceptance
-  -- flow was repaired (C31) and the audit row did not come with it.
-  --
-  -- It goes here rather than in the caller so it cannot come apart from the
-  -- membership: same function, same transaction, both or neither.
-  --
-  -- `actor_user_id` is the person joining. They are acting on their own
-  -- behalf — nobody did this TO them — which is why this is not a
-  -- platform_admin entry and why support_mode is false.
+  -- Joining and its receipt commit together, against the actual membership row.
   insert into audit_log (
     tenant_id, actor_user_id, actor_type, actor_label, support_mode,
     action, entity_type, entity_id, before, after, request_id
@@ -254,8 +256,10 @@ begin
     inv.tenant_id, p_user_id, 'user',
     coalesce(nullif(btrim(p_full_name), ''), inv.email),
     false,
-    'member.joined', 'tenant_member', null,
-    null,
+    'member.joined', 'tenant_member', joined_member_id,
+    case when existing_member.id is null then null else
+      jsonb_build_object('role', existing_member.role, 'status', existing_member.status,
+        'removed', existing_member.deleted_at is not null) end,
     jsonb_build_object('role', inv.role, 'invitedBy', inv.invited_by),
     -- The function has no request id of its own. Naming the flow is more
     -- useful in a log than a null, and it is not pretending to be one.

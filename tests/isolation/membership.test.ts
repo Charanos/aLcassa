@@ -19,6 +19,12 @@ import {
 
 const tenant = randomUUID();
 const plan = randomUUID();
+const acceptingUsers: string[] = [];
+const acceptingUser = () => {
+  const id = randomUUID();
+  acceptingUsers.push(id);
+  return id;
+};
 const agents = [randomUUID(), randomUUID()];
 const memberIds = [randomUUID(), randomUUID(), randomUUID()];
 const context = (role: TenantRole = 'owner', actorId = SEED_USER_A) =>
@@ -73,7 +79,7 @@ afterAll(async () => {
     await cleanup`delete from plan_entitlements where plan_id = ${plan}`;
     await cleanup`delete from plans where id = ${plan}`;
     await cleanup`delete from tenants where id = ${tenant}`;
-    await cleanup`delete from user_profiles where id = any(${agents})`;
+    await cleanup`delete from user_profiles where id = any(${[...agents, ...acceptingUsers]})`;
   }
   await closeHarness();
 });
@@ -94,6 +100,164 @@ async function audits(action: string) {
 }
 
 describe('membership mutations under actual policies', () => {
+  it('restores a removed teammate on acceptance without creating another membership or seat', async () => {
+    await removeMember(context(), memberIds[1]!);
+    const invitation = await inviteMember(context(), {
+      email: `${agents[0]}@example.invalid`,
+      role: 'admin',
+    });
+    await acceptInvitationByToken(
+      invitation.token,
+      agents[0]!,
+      { fullName: 'Returning teammate', email: invitation.email },
+      randomUUID(),
+    );
+    const rows =
+      await adminQuery`select id,role,status,deleted_at from tenant_members where tenant_id=${tenant} and user_id=${agents[0]!}`;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      id: memberIds[1],
+      role: 'admin',
+      status: 'active',
+      deleted_at: null,
+    });
+    expect(await seats()).toBe(3);
+    expect(await audits('member.joined')).toBe(1);
+    expect(
+      await adminQuery`select entity_id, before from audit_log where tenant_id=${tenant} and action='member.joined'`,
+    ).toEqual([
+      { entity_id: memberIds[1], before: { role: 'agent', status: 'active', removed: true } },
+    ]);
+  });
+  it('refuses an existing active member without burning the invitation or changing their role', async () => {
+    const invitation = await invite();
+    await expect(
+      acceptInvitationByToken(
+        invitation.token,
+        agents[0]!,
+        { fullName: 'Test', email: invitation.email },
+        randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: 'member.already_exists' });
+    expect(await adminQuery`select accepted_at from invitations where id=${invitation.id}`).toEqual(
+      [{ accepted_at: null }],
+    );
+    expect(await audits('member.joined')).toBe(0);
+  });
+  it('does not use an outstanding invitation to reactivate a suspended member', async () => {
+    await adminQuery`update tenant_members set status='suspended' where id=${memberIds[1]!}`;
+    await adminQuery`update usage_counters set current_value=2 where tenant_id=${tenant} and key='seats'`;
+    const invitation = await invite();
+    await expect(
+      acceptInvitationByToken(
+        invitation.token,
+        agents[0]!,
+        { fullName: 'Test', email: invitation.email },
+        randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: 'member.already_exists' });
+    expect(await adminQuery`select status from tenant_members where id=${memberIds[1]!}`).toEqual([
+      { status: 'suspended' },
+    ]);
+    expect(await seats()).toBe(3);
+  });
+  it('refuses a legacy owner invitation instead of creating a second owner', async () => {
+    const invitation = await invite();
+    await adminQuery`update invitations set role='owner' where id=${invitation.id}`;
+    await expect(
+      acceptInvitationByToken(
+        invitation.token,
+        acceptingUser(),
+        { fullName: 'Test', email: invitation.email },
+        randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: 'validation.failed' });
+    expect(
+      await adminQuery`select id from tenant_members where tenant_id=${tenant} and role='owner'`,
+    ).toHaveLength(1);
+  });
+  it('preserves a provisioned owner when another invitation targets the same identity', async () => {
+    const invitation = await invite();
+    await adminQuery`update tenant_members set status='invited' where id=${memberIds[0]!}`;
+    await expect(
+      acceptInvitationByToken(
+        invitation.token,
+        SEED_USER_A,
+        { fullName: 'Owner', email: invitation.email },
+        randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: 'validation.failed' });
+    expect(
+      await adminQuery`select role,status from tenant_members where id=${memberIds[0]!}`,
+    ).toEqual([{ role: 'owner', status: 'invited' }]);
+  });
+  it('returns a typed expired-link refusal without consuming it', async () => {
+    const invitation = await invite();
+    await adminQuery`update invitations set expires_at=now()-interval '1 hour' where id=${invitation.id}`;
+    await expect(
+      acceptInvitationByToken(
+        invitation.token,
+        acceptingUser(),
+        { fullName: 'Test', email: invitation.email },
+        randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: 'invitation.expired' });
+    expect(await seats()).toBe(4);
+    expect(await audits('member.joined')).toBe(0);
+  });
+  it('returns a typed withdrawal refusal', async () => {
+    const invitation = await invite();
+    await revokeInvitation(context(), invitation.id);
+    await expect(
+      acceptInvitationByToken(
+        invitation.token,
+        acceptingUser(),
+        { fullName: 'Test', email: invitation.email },
+        randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: 'invitation.revoked' });
+  });
+  it('returns a typed single-use refusal after acceptance', async () => {
+    const invitation = await invite();
+    const user = acceptingUser();
+    await acceptInvitationByToken(
+      invitation.token,
+      user,
+      { fullName: 'Test', email: invitation.email },
+      randomUUID(),
+    );
+    await expect(
+      acceptInvitationByToken(
+        invitation.token,
+        user,
+        { fullName: 'Test', email: invitation.email },
+        randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: 'invitation.already_accepted' });
+  });
+  it('returns a typed unknown-link refusal', async () => {
+    await expect(
+      acceptInvitationByToken(
+        'unknown-local-invitation',
+        randomUUID(),
+        { fullName: 'Test', email: 'test@example.invalid' },
+        randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: 'not_found' });
+  });
+  it('does not accept into a suspended workspace', async () => {
+    const invitation = await invite();
+    await adminQuery`update tenants set status='suspended' where id=${tenant}`;
+    await expect(
+      acceptInvitationByToken(
+        invitation.token,
+        acceptingUser(),
+        { fullName: 'Test', email: invitation.email },
+        randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: 'tenant.suspended' });
+    expect(await audits('member.joined')).toBe(0);
+  });
   it('returns a conflict for a second normalized pending address without consuming a seat', async () => {
     await adminQuery`update plan_entitlements set limit_value = 5 where plan_id = ${plan}`;
     await inviteMember(context(), { email: 'pending-review@example.invalid', role: 'agent' });

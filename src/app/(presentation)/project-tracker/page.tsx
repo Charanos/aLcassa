@@ -21,7 +21,7 @@ import {
 } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
-  title: 'Project tracker · aLcassa',
+  title: 'Project tracker',
   description: 'Where the aLcassa platform build has reached.',
   robots: { index: false, follow: false },
 };
