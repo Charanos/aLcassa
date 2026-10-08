@@ -148,8 +148,8 @@ describe('recorded tenant instruction lifecycle under real policies', () => {
     expect(restored.versionId).toBe(target.id);
     const [event] =
       await adminQuery`select before,after from audit_log where tenant_id=${tenant} and request_id=${actor.requestId} and action='rules.rolled_back'`;
-    expect(event.before.versionNumber).toBe(before.current!.versionNumber);
-    expect(event.after.versionNumber).toBe(target.versionNumber);
+    expect(event?.before).toMatchObject({ versionNumber: before.current!.versionNumber });
+    expect(event?.after).toMatchObject({ versionNumber: target.versionNumber });
     const middle = await readTenantRules(ctx());
     await restoreTenantRules(ctx(), {
       versionId: before.current!.id,

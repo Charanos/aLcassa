@@ -683,6 +683,11 @@ Receipts: `.test-report/phase-one/native-rules-browser.json`,
 
 ### Remaining qualification
 
+The first pushed candidate's static job caught unsafe access to untyped audit JSON
+in the added restore assertion. The assertion now matches the JSON shape safely,
+and explicit repository typechecking covers test files omitted by Next's build.
+The failed run is retained as `37783254432`; it is not qualified release evidence.
+
 Exact application CI/deployment and newly pinned service propagation CI need release
 readbacks. Shared Redis rate budgets, usage/last-used persistence, hosted service,
 complete merged API conformance, unsaved-navigation/failure journeys and the wider
