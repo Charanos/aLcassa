@@ -48,12 +48,7 @@ export const apiCredentials = pgTable(
     environment: text('environment').notNull().default('live'), // live | test
     status: credentialStatus('status').notNull().default('active'),
     createdBy: uuid('created_by').notNull(),
-    /**
-     * Updated asynchronously by a 60-second rollup rather than on every
-     * request. Writing to the credential row on every service-door call would
-     * serialise the hottest path in the system, and a last-used timestamp
-     * accurate to the minute is entirely sufficient for its purpose. 05 §6.
-     */
+    /** Reserved for the usage rollup; timestamp persistence remains an operational gate. */
     lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
     lastUsedIp: text('last_used_ip'),
     useCount: bigint('use_count', { mode: 'number' }).notNull().default(0),

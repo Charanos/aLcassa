@@ -37,7 +37,7 @@ alter table subscriptions force row level security;
 create policy subscriptions_select on subscriptions
   for select using (
     tenant_id = app.current_tenant_id()
-    and app.current_role() in ('owner', 'admin', 'support')
+    and app.current_role() in ('owner', 'admin', 'support', 'service')
   );
 
 -- ─── subscription_overrides ─────────────────────────────────────────────────
@@ -51,7 +51,7 @@ alter table subscription_overrides force row level security;
 create policy subscription_overrides_select on subscription_overrides
   for select using (
     tenant_id = app.current_tenant_id()
-    and app.current_role() in ('owner', 'admin', 'support')
+    and app.current_role() in ('owner', 'admin', 'support', 'service')
   );
 
 -- ─── usage_counters ─────────────────────────────────────────────────────────

@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/structure/PageHeader';
 import { CreateCredentialForm } from '@/components/tenant/CreateCredentialForm';
+import { currentSession } from '@/lib/auth/resolve';
+import { AppError, ERROR_CODES } from '@/lib/errors';
 
 export const metadata: Metadata = { title: 'Create a credential' };
 
-/** 02 §4 · 03 §10. Owner only. The screen that will show a secret exactly
- *  once, once there is a real one to show. */
-export default function CreateCredentialPage() {
+/** The owner creates a scoped key and saves its single displayed value. */
+export default async function CreateCredentialPage() {
+  const ctx = await currentSession();
+  if (ctx.supportMode || ctx.role !== 'owner') throw new AppError(ERROR_CODES.ROLE_NOT_PERMITTED);
   return (
     <div>
       <PageHeader

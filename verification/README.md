@@ -152,3 +152,31 @@ Confirmation responses use `strict-origin` referrer policy. It preserves the nat
 form's Origin while withholding paths, query strings and proof values. `no-referrer`
 can make native POST origins opaque, so accepting a `null` origin is not a workaround.
 The explicit confirmation removes proof parameters before further navigation.
+
+## Credentials and the service door
+
+The 8 October credential checkpoint passes **479/479 cache-disabled application
+tests in 35 files**. The separate private repository
+[alcassa-service](https://github.com/Charanos/alcassa-service) passes **20 local
+tests**. Clone it beside `aLcassa`, install uv, and run `uv sync --locked` there.
+With the disposable stack prepared, run these sequentially from the main repo:
+
+```powershell
+./scripts/verification-service.ps1 Test
+./scripts/verification-service.ps1 Serve
+# In another terminal, with Serve running:
+./scripts/verification-service.ps1 Bridge
+```
+
+The launcher refuses non-local provider/database URLs. Serve receives only the
+restricted database connection; test fixtures receive the local administrator
+connection for arrangement and cleanup. Database suites and Bridge temporarily
+change the disposable master rules pointer and restore it, so do not run them
+concurrently with other rules suites. Never use customer credentials or hosted
+database fixtures.
+
+The five HTTP bridge checks use an actual Node-minted Argon2id key against FastAPI
+and verify stored identity, rules, empty 304, missing scope and revoked-key refusal
+before conditional reads. They do not prove hosted topology, propagation timing,
+rate budgets or load. Service CI currently runs eight unit/OpenAPI cases and a
+package build; private cross-repository database CI access remains an open gate.

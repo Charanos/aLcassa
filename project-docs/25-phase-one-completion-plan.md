@@ -1,6 +1,6 @@
 # 25 · Phase One completion and full surface verification
 
-**Revised:** 7 October 2026, Africa/Nairobi. The dated baseline assessments below remain historical.
+**Revised:** 8 October 2026, Africa/Nairobi. The dated baseline assessments below remain historical.
 
 **Baseline:** commit `f82f5df` plus the working tree inspected on this date
 
@@ -13,6 +13,8 @@
 **Account checkpoint, 8 October 2026:** the full local suite passes 463 cases in 34 files without skips. Actual-provider owner acceptance and password recovery now verify invitation capture, the correct stored workspace/role, one joining event, recent provider proof, single-use application confirmation, expiry and prior-session revocation. Account-level password claims prevent concurrent writes before calling Auth. Native owner acceptance opened the stored disposable workspace; remaining browser lifecycle, colleague invitation scenarios, OAuth, provider outage recovery and hosted redirect/delivery readiness remain open M2 gates. Continue those browser checks, then implement credentials and the authenticated service contract; do not treat this checkpoint as milestone or handover acceptance.
 
 For each milestone: define its unresolved gates, implement and verify them, update the tracker and ledger with actual results, run the candidate's production build and release checks, then commit/push to the verified `origin/main` and confirm CI for that exact commit. Keep implementation, verification, publication and client acceptance distinct. A completed work package may be published under the user's existing authorization without declaring the whole milestone accepted. Never substitute an older build, test report or CI run for the candidate being released.
+
+**Credential/service checkpoint, 8 October 2026:** the full cache-disabled application suite passes **479 cases in 35 files**, including 16 real-database credential cases. The private FastAPI service passes **20 local cases**, and the actual Node-minted key passes five HTTP cross-runtime checks. Owner creation/reveal-once, idempotency, concurrent allowances, rotation, revocation, audit rollback, scope refusal, stored tenant resolution and ETags are implemented and locally qualified. Next: finish owner browser credential acceptance and usage persistence, tenant publishing and measured propagation, then hosted service/Redis/load/monitoring/recovery gates. Private cross-repository database CI remains unconfigured; unit/OpenAPI CI is a separate proof. No milestone or handover is closed by these local results.
 
 This is the closure plan for the whole Platform console, Operations, the pages and interactions around them, and the customer's Activity page. It also closes the tenant settings, credentials, rules API, and handover obligations required by Phase One. The wider tenant dashboard and messaging experience remain Phase Two. Existing tenant routes still receive the boundary and regression checks needed to prove Phase One.
 

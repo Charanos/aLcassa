@@ -425,3 +425,92 @@ Final build, responsive browser replay, publication and exact-commit CI are reta
 - Native-form validation review also found that an invalid invitation password defaulted its error redirect to recovery, losing the usable invitation retry path. The route now preserves the validated invitation purpose before password parsing. The actual-provider contract submits a mismatched URL-encoded form, verifies the invitation error destination and unchanged setup flow, then completes acceptance. The final focused Auth set passed **21/21 in four files**. The complete 463-case report remains the earlier aggregate checkpoint; exact-commit CI qualifies these final refinements.
 
 Final candidate build, publication and exact-commit CI are recorded in the release receipt. M2, Phase One and handover remain open: colleague/OAuth/failure-recovery journeys, hosted delivery, credentials/service contracts and the remaining operational acceptance gates still require evidence.
+
+## 22. Credential lifecycle and authenticated service reads · 8 October 2026
+
+The previous account/Headroom package was published as `6fd8579e349f5a56d4137e5f69bee9a83b26401d`.
+All six jobs passed in [its exact CI run](https://github.com/Charanos/aLcassa/actions/runs/37712466640),
+and its Vercel deployment succeeded. Authenticated production Headroom readback
+showed correct hours/days, no document/modal overflow, 8px backdrop blur and
+nested cancellation returning focus to both triggers. No production allowance
+was changed. Receipt: `.test-report/phase-one/auth-release-20261008.json`.
+
+### Implemented boundary
+
+- The owner module creates random live/test keys, stores Argon2id hashes and
+  returns plaintext only from the first successful creation invocation. Metadata
+  reads and retries omit the secret/hash/IP. A UUID request reference derives the
+  operation identity without retaining recoverable secrets; changed retries fail.
+- Tenant locks and the allowance counter serialize concurrent creation. Current
+  plan/live overrides are read inside the transaction. Zero, finite and unlimited
+  allowances are distinct. A replacement preserves permissions/environment,
+  shares its predecessor's slot and gives the old key 24 hours. Nested grace
+  chains are refused; successor revocation also closes its predecessor's grace.
+- Creation/rotation/revocation, counters and customer audit commit together. A
+  deliberately refused audit rolls back the actual database write. Admin, agent
+  and support writes are refused, including direct credential INSERT policy
+  checks. Browser database grants are removed; private application grants remain.
+- The credential INSERT `WITH CHECK` now repeats owner authorization. The former
+  tenant-only predicate allowed a direct admin insert. Free-text redaction now
+  covers the full underscore/base64url key format rather than masking only its
+  prefix. These findings were fixed before qualification.
+- Customer settings now read recorded credential metadata and use the shared
+  owner module. The create screen offers only the two implemented permissions,
+  explains that a test label does not isolate the workspace, and shows the key
+  once. Replacement and revocation use accessible shared dialogs. Copy success
+  is shown only after clipboard confirmation. No timestamp is claimed when
+  usage has not been recorded.
+- The private [FastAPI repository](https://github.com/Charanos/alcassa-service)
+  resolves an indexed stored prefix through a constrained `service_lookup`
+  policy, verifies the complete key, then sets transaction-local tenant context.
+  Scope checks precede handlers. Protected reads use a read-only transaction,
+  reject administrative/BYPASSRLS connections and require forced RLS on all
+  eight queried protected tables. No caller-supplied tenant selects the workspace.
+- Rules compile immutable published versions with recorded locks, additive
+  unlocked guidance/prohibitions and explicit provenance. ETags include immutable
+  identities and content, excluding compilation time. Missing published platform
+  instructions return 503. Authentication/revocation run before conditional 304;
+  responses use `no-store`. Database readiness is distinct from process liveness.
+
+### Qualified local evidence
+
+| Evidence | Result | Receipt |
+| --- | --- | --- |
+| Complete cache-disabled application suite | **479/479; 35 files; no skips** | `.verification-credentials-full.log`, `.test-report/phase-one/credentials-cache-disabled.json` |
+| Focused real-database credential/fault suite | **16/16** | `.verification-credentials-faults.log` |
+| Final service database, HTTP, compiler and OpenAPI suite | **20/20** | `.verification-service-final-qualified.log`, service `.test-report/service-contract.xml` |
+| Node-minted key against live FastAPI HTTP | **5/5** | `.verification-service-cross-runtime-final-green.log`, `.test-report/phase-one/service-cross-runtime.json` |
+| Maintained local policy catalogue | **47 policies** | `.verification-credentials-service-policies-qualified.log` |
+| Bounded hosted policy reconciliation | **Five selected policies; browser grants denied; private role retained; no-context read returns zero** | `.verification-credentials-production-policy-qualified.log`, `.test-report/phase-one/credential-production-policies.json` |
+
+The first service replay exposed a subscription policy that hid rows from the
+service role; tenant-scoped SELECT now admits it, without granting writes. The
+final replay also exposed reliance on an existing published master fixture; the
+test now explicitly publishes and restores its disposable fixture, with a separate
+missing-master refusal case. An initial Node fixture used an unsupported harness
+JSON helper, then encoded a JSON string instead of an object; explicit typed
+fixture literals corrected it. Failed logs remain retained alongside the green
+replays. Database/rules suites run sequentially to avoid competing singleton fixtures.
+
+The hosted policy transaction changed only credential grants/the three credential
+policies and the two tenant subscription read policies. Project/role identity,
+restricted runtime connection and application rights were checked before applying;
+lock/statement timeouts bounded the operation. Customer rows were not changed.
+
+### Remaining gates and release boundary
+
+The service package builds a wheel/source distribution. Service CI covers eight
+unit/OpenAPI cases plus lint, formatting and packaging. Its 12 real-database cases
+and Node-to-HTTP replay remain local: private cross-repository integration CI needs
+narrowly scoped read access, not a broad personal token. The maintained local
+launcher validates both URLs and passes no administrative URL to the runtime.
+
+Owner browser reveal/replacement/revocation acceptance, persisted usage rollup,
+tenant publishing, repeated five-second propagation, merged API conformance,
+reserved endpoint stubs, hosted service configuration, real Redis rate budgets,
+load, monitoring, outage/recovery and backup restoration remain open. Email domain,
+hosted template/SMTP delivery, colleague/OAuth journeys and handover remain open.
+No milestone percentages or client acceptance are changed by this package.
+
+Final release checks, bounded production policy reconciliation, publication and
+exact-commit CI/deployment readbacks are recorded separately in the release receipt.

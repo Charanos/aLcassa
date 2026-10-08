@@ -15,6 +15,7 @@ import { listActiveSessions } from '@/lib/auth/session';
 import { withTenantContext, type ResolvedContext } from '@/lib/db';
 import { getEntitlementSnapshot } from '@/modules/entitlements';
 import { AppError, ERROR_CODES } from '@/lib/errors';
+import { listCredentials } from '@/modules/credentials';
 import { describeAction, describeTarget } from '@/lib/console/auditVocabulary';
 import { activityDate, decodeActivityCursor, encodeActivityCursor } from './activity';
 import { activityDetails } from './activityDetails';
@@ -27,7 +28,38 @@ import type {
   EntitlementKey as SeamEntitlementKey,
   SubscriptionModel,
   TeamModel,
+  CredentialsModel,
 } from './data';
+
+/** Owner metadata only; authenticated read failures never become fixture credentials. */
+export async function getLiveCredentials(): Promise<CredentialsModel | null> {
+  const ctx = await currentSessionOrNull();
+  if (!ctx) return null;
+  const rows = await listCredentials(ctx);
+  const allowance = (await getEntitlementSnapshot(ctx)).byKey.api_keys;
+  return {
+    credentials: rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      prefix: row.keyPrefix,
+      scopes: row.scopes,
+      status: row.status,
+      createdAt: row.createdAt.toLocaleDateString('en-GB', {
+        timeZone: 'Africa/Nairobi',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      createdBy: row.createdBy === ctx.actorId ? 'You' : 'Workspace owner',
+      lastUsed: row.lastUsedAt ? relative(row.lastUsedAt) : null,
+      lastUsedAt: row.lastUsedAt?.toISOString() ?? null,
+      environment: row.environment === 'test' ? 'test' : 'live',
+      expiresAt: row.expiresAt?.toISOString() ?? null,
+    })),
+    keysUsed: rows.filter((row) => row.status === 'active' && !row.revokedAt).length,
+    keysLimit: allowance?.limit ?? 0,
+  };
+}
 
 /**
  * The M2 half of the tenant read model, against the real database.

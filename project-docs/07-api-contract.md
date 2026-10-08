@@ -1,7 +1,9 @@
 # 07 · API Contract
 
-**Bases:** `/api/v1` session door, Next.js · `/api/service/v1` machine door, FastAPI · `/api/platform/v1` console, Next.js
-**Specification:** OpenAPI 3.1, generated from Zod schemas on the Next.js side and from Pydantic on the FastAPI side, verified by contract tests in CI against one merged specification. The specification and the implementation cannot drift, because the tests fail if they do.
+**Bases:** `/api/v1` session door, Next.js · `/service/v1` machine door, FastAPI · `/api/platform/v1` console, Next.js
+**Specification target:** generated boundary schemas with cross-language conformance and CI verification. FastAPI currently generates typed read/error contracts; the merged Next.js/service specification and database integration CI remain acceptance gates.
+
+**Implementation checkpoint, 8 October 2026:** authenticated tenant/rules reads, scopes, ETags, correlation, liveness and database readiness pass local contracts. Hosting, rate limits, last-used rollup, tenant publication and measured propagation remain open. Endpoint tables retain planned behavior unless qualified in the verification ledger.
 
 **24 Aug 2026, per `01 D-14` and `04` ADR-012.** The service door moved from a Next.js route to a purpose-built FastAPI service. Nothing in this document's shape, authentication scheme, ETag behaviour or response bodies changes as a result: `07 §8` was written as a contract independent of runtime, and the point of ADR-012 is that the contract survives the move unchanged. Where this document previously implied one shared TypeScript function enforces both doors, it now means one specification enforced by a cross-language conformance suite, per `07 §12`.
 
@@ -153,7 +155,7 @@ Inviting counts against `seats` at invitation time, not at acceptance. Otherwise
 |---|---|---|
 | `GET` | `/v1/credentials` | owner. **Metadata only** |
 | `POST` | `/v1/credentials` | owner. Idempotent. **The only response that ever contains a secret** |
-| `POST` | `/v1/credentials/:id/rotate` | owner. Creates a successor, old one enters `rotating` with a grace window |
+| `POST` | `/v1/credentials` with `rotateFromId` | owner. Creates a successor; the predecessor enters a bounded grace window |
 | `DELETE` | `/v1/credentials/:id` | owner. Immediate revocation |
 
 ```ts
@@ -161,24 +163,30 @@ Inviting counts against `seats` at invitation time, not at acceptance. Otherwise
 type CredentialView = {
   id: string;
   name: string;
-  keyPrefix: string;              // 'csk_live_8f2a', display only
+  keyPrefix: string;              // 'csk_live_' + 16 hexadecimal characters, display only
   scopes: string[];
   environment: 'live' | 'test';
   status: 'active' | 'rotating' | 'revoked';
   createdAt: string;
-  createdByName: string;
+  createdBy: string;
   lastUsedAt: string | null;
-  lastUsedIp: string | null;
   useCount: number;
+  expiresAt: string | null;
+  revokedAt: string | null;
+  revokedBy: string | null;
+  rotatedFromId: string | null;
+  updatedAt: string;
 };
 
 // POST response, once, never again.
-type CredentialCreated = CredentialView & { secret: string };
+type CredentialCreated = { credential: CredentialView; secret?: string; replayed: boolean };
 ```
 
 **`05 I-08` is tested here:** a contract test asserts that no response from any route in `/v1` or `/v1/platform` contains a `secret` or `keyHash` key at any nesting depth, with the single documented exception of `POST /v1/credentials`. That test is in the definition of done.
 
-Rotation grace window: the old credential stays valid for 24 hours in `rotating` status, so Phase 2 can deploy the new key without an outage. The window is visible in the interface with a countdown.
+Creation requires a UUID `Idempotency-Key`. A first successful response contains the random key once; a duplicate returns metadata with `replayed: true` and no secret. A changed payload using the same reference is refused. Server Actions use the same module and pass their request reference explicitly. Session mutations require an owner and same origin.
+
+Rotation preserves permissions/environment and gives the old key 24 hours in `rotating` status. The pair consumes one allowance slot. Further replacement is refused until the previous grace ends or is revoked; revoking a successor also revokes its rotating predecessor. The interface shows the actual expiry. Last-used persistence remains unqualified; an absent timestamp reads “No recorded usage”.
 
 ---
 
@@ -209,7 +217,7 @@ The machine's contract. Phase 2 lives here, so it gets the most careful treatmen
 Authorization: Bearer csk_live_8f2a...
 ```
 
-Verification: parse the prefix, look up the credential row by prefix (indexed), verify the full key against the argon2id hash, check status, check expiry, check the required scope. Cached in Redis for 60 seconds keyed on a hash of the presented key, so a hot path does not re-run argon2id on every request.
+Verification: resolve exactly the stored prefix through the restricted connection, verify the complete key against its Argon2id hash, check status/expiry/scope, then resolve the stored workspace and subscription. The implementation rechecks Postgres on every request. Any future cache must retain fresh revocation checks before business reads or a 304; a TTL alone does not satisfy immediate revocation.
 
 **Scope is checked before the handler runs.** A credential lacking `ai_rules:read` never reaches business logic, and the definition of done tests this for each scope.
 
@@ -220,13 +228,14 @@ Verification: parse the prefix, look up the credential row by prefix (indexed), 
 | `GET` | `/service/v1/ai-rules` | `ai_rules:read` | **The one that matters.** Compiled master plus tenant rules |
 | `GET` | `/service/v1/tenant` | `tenant:read` | Tenant name, timezone, locale, status |
 | `GET` | `/service/v1/health` | none | Liveness, for Phase 2's own monitoring |
+| `GET` | `/service/v1/ready` | none | Restricted database role and forced RLS readiness |
 
-Three endpoints in Phase 1. Every other scope in `05 §6` is reserved and returns `501 Not Implemented` with a body naming the phase, so Phase 2 discovers the shape rather than a 404.
+These four routes are implemented locally. Other scopes are refused at credential creation. Reserved Phase Two endpoint stubs remain an open contract gate; unspecified paths currently return a safe 404 envelope.
 
 ### The AI rules read, in full
 
 ```http
-GET /api/service/v1/ai-rules HTTP/1.1
+GET /service/v1/ai-rules HTTP/1.1
 Authorization: Bearer csk_live_8f2a...
 If-None-Match: "t7-v42-m5"
 ```
@@ -234,7 +243,7 @@ If-None-Match: "t7-v42-m5"
 ```http
 HTTP/1.1 200 OK
 ETag: "t7-v42-m5"
-Cache-Control: private, max-age=5, must-revalidate
+Cache-Control: no-store
 X-Rules-Master-Version: 5
 X-Rules-Tenant-Version: 42
 X-Request-Id: 01J8...

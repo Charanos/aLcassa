@@ -5,18 +5,19 @@ import { Button } from '@/components/primitives/Button';
 import { LimitBar } from '@/components/domain/LimitBar';
 import { CredentialsList } from '@/components/tenant/CredentialsList';
 import { getCredentials } from '@/lib/tenant/data';
+import { getLiveCredentials } from '@/lib/tenant/live';
 
 export const metadata: Metadata = { title: 'API credentials' };
 
 /** 02 §4. Masked, scopes, last used, rotate, revoke. Owner only. */
 export default async function CredentialsSettingsPage() {
-  const model = await getCredentials();
+  const model = (await getLiveCredentials()) ?? (await getCredentials());
 
   return (
     <div>
       <PageHeader
         title="API credentials"
-        description="Scoped keys for anything reading from or writing to your workspace through the service door."
+        description="Manage permissions for systems reading your workspace and assistant rules. Keys are shown once when created."
         breadcrumbs={[
           { label: 'Settings', href: '/app/settings/company' },
           { label: 'Credentials' },
@@ -32,7 +33,9 @@ export default async function CredentialsSettingsPage() {
         <LimitBar label="Active credentials" current={model.keysUsed} limit={model.keysLimit} />
       </div>
 
-      <CredentialsList credentials={model.credentials} />
+      <div className="rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-5 py-2">
+        <CredentialsList credentials={model.credentials} />
+      </div>
     </div>
   );
 }

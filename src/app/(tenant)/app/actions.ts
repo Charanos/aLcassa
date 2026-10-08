@@ -12,6 +12,10 @@ import {
 } from '@/modules/membership';
 import { endSupportVisit as endSupportVisitService, updateOwnProfile } from '@/modules/identity';
 import { saveCompanySettings } from '@/modules/settings';
+import {
+  createCredential as createCredentialService,
+  revokeCredential as revokeCredentialService,
+} from '@/modules/credentials';
 
 /** Resolve and validate tenant context on every action; unavailable operations return an explicit refusal. */
 
@@ -114,28 +118,31 @@ export async function removeMember(id: string): Promise<ActionResult> {
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function createCredential(input: {
   name: string;
   scopes: string[];
-}): Promise<ActionResult> {
-  if (!input.name.trim())
-    return { ok: false, error: 'Name the credential so it is recognisable in the list later.' };
-  if (input.scopes.length === 0) return { ok: false, error: 'Select at least one scope.' };
-
-  return {
-    ok: false,
-    error: 'Credential creation is unavailable. No credential has been created.',
-  };
+  requestKey: string;
+  environment?: 'live' | 'test';
+  rotateFromId?: string;
+}): Promise<
+  { ok: true; id: string; secret?: string; replayed: boolean } | { ok: false; error: string }
+> {
+  try {
+    const result = await createCredentialService(await currentSession(), input);
+    revalidatePath('/app/settings/credentials');
+    revalidatePath('/app/settings/audit');
+    return { ok: true, id: result.credential.id, secret: result.secret, replayed: result.replayed };
+  } catch (error) {
+    return actionFailure(error);
+  }
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above
 export async function revokeCredential(id: string): Promise<ActionResult> {
-  if (!id) return { ok: false, error: 'Select a credential to revoke.' };
-  return {
-    ok: false,
-    error: 'Credential revocation is unavailable. The credential has not been changed.',
-  };
+  return attempt(async () => {
+    await revokeCredentialService(await currentSession(), id);
+    revalidatePath('/app/settings/credentials');
+    revalidatePath('/app/settings/audit');
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await -- see the file-level note above

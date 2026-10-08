@@ -181,6 +181,13 @@ The `ai_rules_versions` entitlement caps retention. Beyond the cap, the oldest v
 
 ## 5. The read path and the five-second contract
 
+**Execution status, 8 October 2026:** the local FastAPI read path uses immutable
+published versions and checks the stored credential on every request. It has no
+Redis rules/authentication cache yet. The invalidation and propagation sequence
+below remains the target contract; repeated publish-to-service measurements and
+their CI integration are not yet qualified. An absent published master produces
+503. A rotating predecessor shares its successor's API-key allowance slot.
+
 The brief's stated contract: a rules change made in the dashboard is visible through the API within five seconds, measured rather than asserted.
 
 ### How it is met
@@ -204,7 +211,7 @@ Redis TTL is 300 seconds. If an invalidation fails entirely, the maximum stalene
 
 ### Measurement
 
-An automated test publishes a change, polls the service door, and asserts propagation under five seconds. It runs in CI and the result is quoted at the M4a gate. The brief says measured rather than asserted, so it is measured.
+The required automated test must publish a change, poll the service door and measure propagation under five seconds. Record every sample and failure at the M4a gate; the current local read/ETag checks do not satisfy this measurement.
 
 ---
 
@@ -244,7 +251,7 @@ The argon2id detail is the one that is easy to miss. Password hashing is slow by
 
 ### Credential verification caching, carefully
 
-Caching a credential lookup keyed on a hash of the presented key is safe because a revoked credential's cache entry is deleted synchronously on revocation, and the 60-second TTL bounds the worst case. Revocation is the operation where staleness matters most, so it invalidates before returning, exactly like a rules publish.
+Any future credential cache must retain a fresh stored revocation/expiry check before serving data or a 304. Synchronous invalidation is still required, but a 60-second TTL cannot substitute for the immediate revocation contract. The current service rechecks Postgres and verifies Argon2id on every request; performance qualification remains open.
 
 ---
 

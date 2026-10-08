@@ -1,10 +1,14 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { IconAlertTriangle, IconKey } from '@tabler/icons-react';
 import { Badge, type BadgeTone } from '@/components/primitives/Badge';
 import { Button } from '@/components/primitives/Button';
 import { EmptyState } from '@/components/primitives/EmptyState';
+import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
+import { ConsoleDialog } from '@/components/primitives/ConsoleDialog';
+import { CreateCredentialForm } from './CreateCredentialForm';
 import { revokeCredential } from '@/app/(tenant)/app/actions';
 import type { Credential } from '@/lib/tenant/data';
 
@@ -19,7 +23,7 @@ export function CredentialsList({ credentials }: { credentials: Credential[] }) 
       <EmptyState
         icon={IconKey}
         title="No API credentials yet"
-        body="A credential lets an external system read and write messages through the service door, scoped to exactly what it needs."
+        body="Create a key with permission to read workspace details or assistant rules. Keep its access limited to what the integration needs."
       />
     );
   }
@@ -36,13 +40,19 @@ export function CredentialsList({ credentials }: { credentials: Credential[] }) 
 /** The usage badge only — revoked status renders its own badge separately. */
 function usageBadge(credential: Credential): { tone: BadgeTone; label: string } | null {
   if (credential.status === 'revoked') return null;
-  if (!credential.lastUsed) return { tone: 'trialing', label: 'Never used' };
-  const days = Number(credential.lastUsed.match(/(\d+)\s*days?/)?.[1] ?? 0);
+  if (!credential.lastUsed) return { tone: 'trialing', label: 'No recorded usage' };
+  const days = credential.lastUsedAt
+    ? (Date.now() - Date.parse(credential.lastUsedAt)) / 86_400_000
+    : Number(credential.lastUsed.match(/(\d+)\s*days?/)?.[1] ?? 0);
   if (days >= 90) return { tone: 'nearLimit', label: `Unused ${credential.lastUsed}` };
   return null;
 }
 
 function CredentialRow({ credential }: { credential: Credential }) {
+  const router = useRouter();
+  const rotationTrigger = useRef<HTMLButtonElement>(null);
+  const [confirm, setConfirm] = useState(false);
+  const [rotating, setRotating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const usage = usageBadge(credential);
@@ -52,6 +62,10 @@ function CredentialRow({ credential }: { credential: Credential }) {
     startTransition(async () => {
       const result = await revokeCredential(credential.id);
       if (!result.ok) setError(result.error);
+      else {
+        setConfirm(false);
+        router.refresh();
+      }
     });
   }
 
@@ -62,18 +76,58 @@ function CredentialRow({ credential }: { credential: Credential }) {
           <div className="flex flex-wrap items-center gap-2">
             <span className="t-body font-medium text-[var(--text-primary)]">{credential.name}</span>
             {credential.status === 'revoked' ? <Badge tone="pastDue">Revoked</Badge> : null}
+            {credential.status === 'rotating' ? (
+              <Badge tone="nearLimit">Being replaced</Badge>
+            ) : null}
             {usage ? <Badge tone={usage.tone}>{usage.label}</Badge> : null}
           </div>
           <p className="t-data mt-1 text-[var(--text-tertiary)]">{credential.prefix}…</p>
           <p className="t-caption mt-1 text-[var(--text-tertiary)]">
-            {credential.scopes.join(' · ')} — created {credential.createdAt} by{' '}
-            {credential.createdBy}
+            {credential.scopes
+              .map((scope) =>
+                scope === 'ai_rules:read'
+                  ? 'Assistant rules'
+                  : scope === 'tenant:read'
+                    ? 'Workspace details'
+                    : scope,
+              )
+              .join(' · ')}{' '}
+            · created {credential.createdAt} by {credential.createdBy}
           </p>
+          {credential.status === 'rotating' && credential.expiresAt ? (
+            <p className="t-caption mt-2 text-[var(--text-secondary)]">
+              Existing key expires{' '}
+              {new Date(credential.expiresAt).toLocaleString('en-GB', {
+                timeZone: 'Africa/Nairobi',
+              })}{' '}
+              EAT.
+            </p>
+          ) : null}
         </div>
         {credential.status !== 'revoked' ? (
-          <Button variant="quiet" size="sm" onClick={submit} loading={pending} disabled={pending}>
-            Revoke
-          </Button>
+          <div className="flex shrink-0 flex-wrap gap-1">
+            {credential.status === 'active' ? (
+              <Button
+                ref={rotationTrigger}
+                variant="quiet"
+                size="sm"
+                onClick={() => setRotating(true)}
+              >
+                Replace
+              </Button>
+            ) : null}
+            <Button
+              variant="quiet"
+              size="sm"
+              onClick={() => {
+                setError(null);
+                setConfirm(true);
+              }}
+              disabled={pending}
+            >
+              Revoke
+            </Button>
+          </div>
         ) : null}
       </div>
       {error ? (
@@ -86,6 +140,30 @@ function CredentialRow({ credential }: { credential: Credential }) {
           {error}
         </p>
       ) : null}
+      <ConfirmDialog
+        open={confirm}
+        onOpenChange={setConfirm}
+        title={`Revoke ${credential.name}?`}
+        consequence="This key will stop working immediately. Integrations using it will need another credential."
+        confirmLabel="Revoke credential"
+        tone="destructive"
+        onConfirm={submit}
+        loading={pending}
+        error={error}
+      />
+      <ConsoleDialog
+        open={rotating}
+        onOpenChange={setRotating}
+        eyebrow="API credential"
+        title={`Replace ${credential.name}`}
+        width="lg"
+        actions={null}
+        returnFocusRef={rotationTrigger}
+      >
+        {rotating ? (
+          <CreateCredentialForm replacement={credential} onDone={() => setRotating(false)} />
+        ) : null}
+      </ConsoleDialog>
     </li>
   );
 }

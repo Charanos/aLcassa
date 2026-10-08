@@ -4,22 +4,7 @@ import { useState } from 'react';
 import { IconAlertTriangle, IconCheck, IconCopy, IconDownload } from '@tabler/icons-react';
 import { Button } from '@/components/primitives/Button';
 
-/**
- * 01 D-11 · 03 §10. "The one screen in the product that shows a secret, and
- * it never shows it again."
- *
- * ⚠ NOT WIRED TO LIVE DATA YET, AND DELIBERATELY NOT DEMONSTRATED WITH A
- * FAKE ONE EITHER. `createCredential` in `app/(tenant)/app/actions.ts`
- * refuses honestly rather than minting a secret, because this is precisely
- * the one screen where a fabricated value would be actively dangerous —
- * someone could copy a "demo" key believing it real. This component exists,
- * fully built to spec, for the day a real secret has somewhere to come from;
- * it is not mounted in the credentials flow until then.
- *
- * No screenshot deterrence, no blur-until-hover, no auto-hide timer — 03
- * §10 calls those "theatre." One clear statement and one deliberate
- * confirmation is the whole mechanism.
- */
+/** Holds the creation response in memory until the owner acknowledges saving it. */
 export function CredentialReveal({
   name,
   secret,
@@ -33,12 +18,17 @@ export function CredentialReveal({
 }) {
   const [copied, setCopied] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
+  const [copyError, setCopyError] = useState(false);
 
-  function copy() {
-    void navigator.clipboard.writeText(secret);
-    setCopied(true);
-    setAcknowledged(true);
-    setTimeout(() => setCopied(false), 1600);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(secret);
+      setCopied(true);
+      setCopyError(false);
+      setAcknowledged(true);
+    } catch {
+      setCopyError(true);
+    }
   }
 
   function download() {
@@ -76,7 +66,9 @@ export function CredentialReveal({
           <Button
             variant="secondary"
             size="sm"
-            onClick={copy}
+            onClick={() => {
+              void copy();
+            }}
             icon={copied ? <IconCheck /> : <IconCopy />}
           >
             {copied ? 'Copied' : 'Copy'}
@@ -96,9 +88,22 @@ export function CredentialReveal({
           }}
         >
           <IconAlertTriangle size={15} stroke={1.5} className="mt-px shrink-0" aria-hidden />
-          This is the only time this key will be shown. It is not retrievable after you leave this
-          page.
+          This is the only time this key will be shown. Store it in your secret manager. It is not
+          retrievable after you leave this page.
         </p>
+        {copyError ? (
+          <p role="alert" className="t-caption mt-3">
+            Copy was unavailable. Select the key manually or download it, then store it securely.
+          </p>
+        ) : null}
+        <label className="t-compact mt-4 flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={acknowledged}
+            onChange={(event) => setAcknowledged(event.target.checked)}
+          />
+          I have stored this key securely.
+        </label>
       </div>
 
       <div

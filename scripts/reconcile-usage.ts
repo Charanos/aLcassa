@@ -128,11 +128,11 @@ const COUNTERS: CounterSpec[] = [
   },
   {
     key: 'api_keys',
-    note: 'active credentials',
+    note: 'active credential slots; rotating predecessors share a successor slot',
     truth: async (tenantId) => {
       const [row] = await sql<{ n: number }[]>`
         select count(*)::int as n from api_credentials
-        where tenant_id = ${tenantId} and revoked_at is null and deleted_at is null
+        where tenant_id = ${tenantId} and status = 'active' and revoked_at is null and deleted_at is null
       `;
       return row?.n ?? 0;
     },

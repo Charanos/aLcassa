@@ -147,7 +147,7 @@ export const MILESTONES = [
     tranche: 2,
     status: 'complete' as MilestoneStatus,
     progress: 100,
-    note: 'The database foundation and isolation gate are established. The latest complete local suite passed 463 tests without skips; policy coverage is 15 of 15 workspace tables. Provisioning, captured invitations and owner activation have real provider coverage. Session records are private to the server connection. Browser acceptance and release recovery remain part of final Phase One qualification.',
+    note: 'The database foundation and isolation gate are established. The complete local suite passed 479 tests without skips; policy coverage is 15 of 15 workspace tables. Provisioning, captured invitations and owner activation have real provider coverage. Session and credential rows are private to the server connection. Browser acceptance and release recovery remain part of final Phase One qualification.',
   },
   {
     id: 'M2',
@@ -170,7 +170,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 90,
-    note: 'Subscription changes and shared allowances are live, audited and protected against stale impact reviews. Browser changes were restored and independently matched to customer and platform audit records. Scoped credentials and enforcement through the FastAPI service remain required before the milestone closes.',
+    note: 'Subscription changes and shared allowances are live, audited and protected against stale impact reviews. Credential limits, concurrent creation and overrides pass real database checks. FastAPI refuses missing permissions and inactive access before protected reads. Hosted service, shared rate budgets and remaining two-door acceptance checks stay open.',
   },
   {
     id: 'M4',
@@ -187,17 +187,13 @@ export const MILESTONES = [
     id: 'M5',
     name: 'Tenant settings',
     week: '7',
-    /* ⚠ HASHED, NOT ENCRYPTED, AND THE DIFFERENCE IS THE FEATURE. Encrypted
-       implies recoverable; `credentials.key_hash` is argon2id and is never
-       selected by any application route. A reader who takes "encrypted" at
-       face value would expect us to be able to retrieve a lost key — which is
-       precisely the thing the design refuses to be able to do. */
+    // Stored hashes cannot recover a key; only its creation response contains the secret.
     lands: 'Company profile, team management, a credential store that hashes and never reveals.',
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 45,
-    note: 'Company settings persist with conflict protection. Customer Activity reads recorded changes, safe before-and-after details, reasons and correlation references within the workspace’s retention window. The credential lifecycle, reveal-once behavior, scopes and revocation remain to be implemented and verified.',
+    note: 'Company settings persist with conflict protection and customer Activity reads retained, safe changes. Owner credential creation, one-time display, retry safety, rotation and revocation are implemented; 16 real database cases pass, including audit rollback and concurrent limits. Owner browser acceptance, usage persistence and the remaining secrets review stay open.',
   },
   {
     id: 'M4a',
@@ -209,7 +205,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 45,
-    note: 'Master rule publishing and restoration reject stale edits. Tenant rule publishing and the authenticated FastAPI service are still incomplete. Cross-runtime contracts, scope checks, ETags and propagation within five seconds remain open acceptance gates.',
+    note: 'Master publication and restoration reject stale edits. FastAPI tenant/rules reads, permissions, ETags and revocation pass 20 local service cases and five Node-to-HTTP checks. Tenant publication, measured propagation, hosted service and complete cross-language CI remain open acceptance gates.',
   },
   {
     id: 'M6',

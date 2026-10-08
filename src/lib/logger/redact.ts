@@ -117,8 +117,8 @@ export function redact(input: unknown, depth = 0): unknown {
   // A bare string that looks like a credential is redacted wherever it appears,
   // because the commonest way a key reaches a log is inside a message rather
   // than under a named field.
-  if (typeof input === 'string' && /\b(?:c?sk)_(?:live|test)_[A-Za-z0-9]+/.test(input)) {
-    return input.replace(/\b((?:c?sk)_(?:live|test)_)[A-Za-z0-9]+/g, '$1[redacted]');
+  if (typeof input === 'string' && /\b(?:c?sk)_(?:live|test)_[A-Za-z0-9_-]+/.test(input)) {
+    return input.replace(/\b((?:c?sk)_(?:live|test)_)[A-Za-z0-9_-]+/g, '$1[redacted]');
   }
 
   return input;

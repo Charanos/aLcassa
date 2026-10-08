@@ -26,7 +26,7 @@ const WORKING_TODAY = [
     icon: IconShieldCheck,
     tone: 'success' as const,
     title: 'Customer separation, proven',
-    body: 'Database isolation has automated coverage. The latest full local suite passed 463 tests; all 15 workspace tables pass policy coverage checks. Application session records are private to the server connection. Final review remains part of release qualification.',
+    body: 'The full local suite passed 479 tests; all 15 workspace tables pass policy coverage checks. Session and credential rows are private to the server connection. Final review remains part of release qualification.',
   },
   {
     icon: IconUsers,
@@ -38,7 +38,7 @@ const WORKING_TODAY = [
     icon: IconCreditCard,
     tone: 'info' as const,
     title: 'Plans and limits',
-    body: 'Plans, allowance reviews and subscription changes use recorded data. Credential and service-boundary enforcement remain under verification.',
+    body: 'Plans and subscription changes use recorded data. Concurrent credential limits and overrides pass database checks. Shared rate budgets and hosted service acceptance remain open.',
   },
   {
     icon: IconBuildingSkyscraper,
@@ -50,13 +50,13 @@ const WORKING_TODAY = [
     icon: IconRobot,
     tone: 'warning' as const,
     title: 'Assistant rules',
-    body: 'Master instructions can be published and restored with conflict checks. Tenant publishing and authenticated service access are still in progress.',
+    body: 'Master instructions can be published and restored with conflict checks. Authenticated service reads and conditional responses pass local checks. Tenant publishing and measured propagation remain open.',
   },
   {
     icon: IconLock,
     tone: 'neutral' as const,
     title: 'Customer settings',
-    body: 'Company saves and customer Activity use recorded data. Credential creation, rotation, scopes and revocation remain open work.',
+    body: 'Company saves and customer Activity use recorded data. Owner credential creation, one-time display, rotation and revocation are implemented. Browser acceptance and usage tracking remain open.',
   },
 ];
 
@@ -92,9 +92,10 @@ export default function ProjectTrackerPage() {
 
         {/* Keep headline progress limited to the milestones, current stage and blockers. */}
         <p className="t-body mt-6 text-[var(--text-secondary)]">
-          Verification checkpoint · 8 October 2026. The complete local suite passed 463 tests with
-          no skips. Phase One remains in verification; email delivery, credentials, tenant rules and
-          release qualification still have open gates.{' '}
+          Verification checkpoint · 8 October 2026. The application passed 479 local tests; the
+          service passed 20 local tests and five cross-runtime checks. Phase One remains in
+          verification; email delivery, tenant publishing and operational qualification have open
+          gates.{' '}
           <Link
             href="/docs/26-phase-one-verification-ledger"
             className="text-[var(--text-action)] underline underline-offset-4"
