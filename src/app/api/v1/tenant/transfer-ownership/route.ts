@@ -34,6 +34,7 @@ export const POST = defineRoute({
       {
         previousOwnerId: result.previousOwnerId,
         newOwnerId: result.newOwnerId,
+        newOwnerMemberId: body.memberId,
         // The caller is now an admin. Saying so lets the interface refresh
         // its own permissions rather than discovering them by being refused.
         yourRoleNow: 'admin',
@@ -62,9 +63,14 @@ async function verifyPassword(password: string, actorId: string): Promise<void> 
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 
-  const { error } = await throwaway.auth.signInWithPassword({ email, password });
+  const { data: proof, error } = await throwaway.auth.signInWithPassword({ email, password });
 
   if (error) {
+    if (error.status === 429) throw new AppError(ERROR_CODES.AUTH_ACCOUNT_LOCKED);
+    if (!error.status || error.status >= 500 || error.name === 'AuthRetryableFetchError')
+      throw new AppError(ERROR_CODES.UPSTREAM_UNAVAILABLE, {
+        message: 'Password verification is temporarily unavailable. Ownership has not changed.',
+      });
     throw new AppError(ERROR_CODES.AUTH_INVALID_CREDENTIALS, {
       message: 'That password is not correct.',
       details: [
@@ -83,5 +89,10 @@ async function verifyPassword(password: string, actorId: string): Promise<void> 
     throw new AppError(ERROR_CODES.UPSTREAM_UNAVAILABLE, {
       message:
         'Password verification could not be completed. Ownership has not changed. Try again shortly.',
+    });
+
+  if (!proof.user || proof.user.id !== actorId)
+    throw new AppError(ERROR_CODES.AUTH_SESSION_EXPIRED, {
+      message: 'Sign in again before transferring ownership. Ownership has not changed.',
     });
 }

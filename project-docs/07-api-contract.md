@@ -133,6 +133,16 @@ type Me = {
 | `POST` | `/v1/tenant/logo` | owner, admin. Signed upload to a tenant-scoped bucket path |
 | `POST` | `/v1/tenant/transfer-ownership` | owner. Atomic, requires password confirmation |
 
+Ownership transfer confirms the current owner's password against the same Auth
+identity and ends only the temporary verification session. The committed receipt
+contains `previousOwnerId`, `newOwnerId`, `newOwnerMemberId` and
+`yourRoleNow: "admin"`. Clients must match the selected membership before showing
+success. Provider unavailability returns 503; rate refusal returns 423; neither
+changes ownership. An unreadable or lost response is unconfirmed and must not be
+automatically retried. Refresh membership and Activity before attempting another
+transfer. The owner-only Team review excludes suspended teammates and support
+sessions; the service repeats authority and successor checks inside its transaction.
+
 ## 5. Team and invitations
 
 | Method | Path | Role |

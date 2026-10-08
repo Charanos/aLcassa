@@ -1,0 +1,22 @@
+{
+  "localOnly": true,
+  "checkedAt": "2026-10-08T20:10:00.000Z",
+  "eligibleSelection": true,
+  "cancelAndFocus": true,
+  "backdropBlurPx": 8,
+  "incorrectPasswordRefused": true,
+  "refusalAuditCount": 0,
+  "passwordClearedAndFocused": true,
+  "transferConfirmed": true,
+  "transferAuditCount": 1,
+  "oneActiveOwner": true,
+  "formerOwnerIsAdministrator": true,
+  "freshPermissionsAgree": true,
+  "originalSignInPreserved": true,
+  "ownerControlsRemoved": true,
+  "successFocusReturned": true,
+  "phoneViewportPx": 390,
+  "phoneDocumentPx": 380,
+  "fixtureRemoved": true,
+  "establishedWorkspacePreserved": true
+}

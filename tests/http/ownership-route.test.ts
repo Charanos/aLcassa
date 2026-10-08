@@ -69,7 +69,9 @@ describe('Ownership reauthentication boundary', () => {
     expect(mocks.signOut.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.transfer.mock.invocationCallOrder[0]!,
     );
-    expect((await response.json()) as unknown).toMatchObject({ data: { yourRoleNow: 'admin' } });
+    expect((await response.json()) as unknown).toMatchObject({
+      data: { yourRoleNow: 'admin', newOwnerMemberId: target },
+    });
   });
   it('refuses a provider identity different from the resolved owner', async () => {
     mocks.getUser.mockResolvedValue({
@@ -91,7 +93,7 @@ describe('Ownership reauthentication boundary', () => {
   it('refuses an incorrect password before ownership changes', async () => {
     mocks.signIn.mockResolvedValue({
       data: { user: null },
-      error: { message: 'Invalid credentials' },
+      error: { message: 'Invalid credentials', status: 400 },
     });
     expect((await POST(request(), segment)).status).toBe(401);
     expect(mocks.signOut).not.toHaveBeenCalled();
@@ -100,6 +102,33 @@ describe('Ownership reauthentication boundary', () => {
   it('does not transfer if temporary session cleanup fails', async () => {
     mocks.signOut.mockResolvedValue({ error: { message: 'Provider unavailable' } });
     expect((await POST(request(), segment)).status).toBe(503);
+    expect(mocks.transfer).not.toHaveBeenCalled();
+  });
+  it('refuses a password proof for a different provider identity and cleans up that session', async () => {
+    mocks.signIn.mockResolvedValue({ data: { user: { id: randomUUID() } }, error: null });
+    expect((await POST(request(), segment)).status).toBe(401);
+    expect(mocks.signOut).toHaveBeenCalledWith({ scope: 'local' });
+    expect(mocks.transfer).not.toHaveBeenCalled();
+  });
+  it('refuses a missing password-proof identity rather than accepting an empty provider result', async () => {
+    mocks.signIn.mockResolvedValue({ data: { user: null }, error: null });
+    expect((await POST(request(), segment)).status).toBe(401);
+    expect(mocks.transfer).not.toHaveBeenCalled();
+  });
+  it('distinguishes an unavailable password provider from a rejected password', async () => {
+    mocks.signIn.mockResolvedValue({
+      data: { user: null },
+      error: { status: 503, message: 'Provider unavailable' },
+    });
+    expect((await POST(request(), segment)).status).toBe(503);
+    expect(mocks.transfer).not.toHaveBeenCalled();
+  });
+  it('retains the provider lockout outcome instead of calling it an incorrect password', async () => {
+    mocks.signIn.mockResolvedValue({
+      data: { user: null },
+      error: { status: 429, message: 'Rate limited' },
+    });
+    expect((await POST(request(), segment)).status).toBe(423);
     expect(mocks.transfer).not.toHaveBeenCalled();
   });
   it('refuses administrators before password verification', async () => {

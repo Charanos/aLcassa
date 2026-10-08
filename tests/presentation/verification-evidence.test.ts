@@ -4,9 +4,11 @@ import { createHash } from 'node:crypto';
 import record from '@/lib/presentation/verificationRecord.json';
 import membership from '@/lib/presentation/membershipVerification.json';
 import account from '@/lib/presentation/accountVerification.json';
+import ownership from '@/lib/presentation/ownershipVerification.json';
 import {
   projectTestEvidence,
   projectCredentialEvidence,
+  projectOwnershipEvidence,
 } from '@/lib/presentation/verificationEvidence';
 
 const report = () => ({
@@ -47,6 +49,9 @@ describe('Public verification evidence boundary', () => {
       ...membership.images,
       account.results,
       account.manifest,
+      ownership.results,
+      ownership.native,
+      ownership.manifest,
     ];
     for (const file of files) {
       expect(file.path).toMatch(/^\/verification\/2026-10-08\/[a-z0-9-]+\.(?:json|jpg|png)$/);
@@ -64,6 +69,16 @@ describe('Public verification evidence boundary', () => {
       readFileSync(`public${account.manifest.path}`, 'utf8'),
     ) as Omit<typeof account, 'manifest'>;
     expect({ ...accountCheckpoint, manifest: account.manifest }).toEqual(account);
+    const ownershipCheckpoint = JSON.parse(
+      readFileSync(`public${ownership.manifest.path}`, 'utf8'),
+    ) as Omit<typeof ownership, 'manifest'>;
+    expect({ ...ownershipCheckpoint, manifest: ownership.manifest }).toEqual(ownership);
+    const native = projectOwnershipEvidence(
+      JSON.parse(readFileSync(`public${ownership.native.path}`, 'utf8')),
+    );
+    expect(projectOwnershipEvidence({ ...native, token: 'PRIVATE_TOKEN_CANARY' })).toEqual(native);
+    expect(() => projectOwnershipEvidence({ ...native, fixtureRemoved: false })).toThrow();
+    expect(() => projectOwnershipEvidence({ ...native, transferAuditCount: 2 })).toThrow();
   });
   it('excludes private paths, logs, errors and unknown secret fields', () => {
     const projected = projectTestEvidence(report());

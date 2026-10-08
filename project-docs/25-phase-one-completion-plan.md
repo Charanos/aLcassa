@@ -2,7 +2,11 @@
 
 **Revised:** 8 October 2026, Africa/Nairobi. The dated baseline assessments below remain historical.
 
-**Baseline:** commit `f82f5df` plus the working tree inspected on this date
+**Current execution authority:** [section 18, remaining gate closure plan](#18-remaining-gate-closure-plan--8-october-2026) supersedes the earlier sequencing and open-work assessments. Sections 1–17 retain the original scope, surveys and checkpoint history; a historical finding is not evidence that the same defect remains today.
+
+**Qualified baseline:** application `3857988424d166518b515c92c425bd11e547a6d1`, [six successful CI jobs](https://github.com/Charanos/aLcassa/actions/runs/37809298145), 564 passing cases in 45 files without skips, and [successful frontend deployment](https://vercel.com/dennis-munges-projects/a-lcassa/4N2A51VeXyDgxzueXd5PnjgseVg9). Deployed verification covers 28 tracker/document routes, 58 anchors and 18 evidence assets. Tracker engineering estimates are 83% overall and 80% Tenant settings; two of eight milestones are accepted. The current service reference remains a separately pinned release, not a new measurement against this application commit.
+
+**Historical survey baseline:** commit `f82f5df` plus its inspected working tree
 
 **Execution ledger:** [26 · Verification matrix and evidence ledger](26-phase-one-verification-ledger.md)
 
@@ -505,3 +509,241 @@ remain immutable. Complete provider/browser account journeys and credential
 failure/clipboard/usage acceptance next, then shared service budgets, the remaining
 Platform/Ops/peripheral matrix and operational drills. Build and push each qualified
 checkpoint. Landing-page and broader tenant-shell refinement follow Phase One closure.
+
+## 18. Remaining gate closure plan — 8 October 2026
+
+### 18.1 Objective, authority and environment
+
+Complete the remaining Phase One engineering gates, demonstrate every milestone,
+and assemble a handover-ready release. Execute against the disposable local
+environment and the existing hosted development sandbox. This is production
+readiness verification; it does not designate either environment as actual production.
+
+Preserve the original disposable owner, accepted milestones, unrelated working
+changes and immutable evidence. Isolate each new fixture by run ID, workspace,
+actor and environment. Clean up only owned records, credentials and temporary
+overrides. Never reseed the established browser workspace to make a test pass.
+
+The Next.js application owns the console, customer settings and session door.
+FastAPI owns `/service/v1/*`. Use the restricted application database role for
+observed behavior; fixture administration must not replace the authorization
+path under test. Freeze exact revisions of both repositories for every integrated
+release measurement. Run suites that change shared rules pointers sequentially.
+
+Local service hosting is the current user-directed verification scope. Real local
+Auth and captured email prove the sandbox workflow; external sender DNS and
+internet delivery remain a separately visible launch qualification. Production
+project creation, credential rotation and final domain cutover belong to launch.
+These do not prevent completing independent sandbox gates. Conversely, local
+results cannot be relabelled as hosted service, public email or production uptime
+evidence. Any contractual hosted-environment requirement needs its own evidence
+or an explicit recorded scope decision before contractual acceptance.
+
+Landing-page refinement and the wider tenant dashboard/shell begin after this
+closure sequence. Phase One still includes tenant settings, account boundaries,
+customer Activity and the minimal dashboard routes needed for regression/load tests.
+
+### 18.2 Current milestone position and 100% rules
+
+The ownership/recovery package in [ledger section 30](26-phase-one-verification-ledger.md#30-ownership-review-and-recovery-recipients--8-october-2026)
+qualifies native owner review, refusal, transfer and fresh-role readback, plus
+actual-provider recipient-existence checks. G02's wider native failure cases and
+G01/G03's remaining invitation/account/OAuth journeys remain open. These estimates
+reflect demonstrated work; no new milestone acceptance is recorded.
+
+| Milestone | Current estimate | Remaining engineering closure | Completion demonstration |
+| --- | --- | --- | --- |
+| M0 · Design lock | 100%, accepted | Preserve acceptance; reconcile any remaining canon or adapter-signature discrepancy in G18. | Governing design and contract references agree. |
+| M1 · Tenancy core | 100%, accepted | Reaffirm current migration/isolation, upgrade, restore and restricted-role guarantees through G16/G17. | Fresh and upgraded environments preserve isolation; recovery reconciles business data. |
+| M2 · Auth/access | 92% | G01–G03; relevant account/profile, copy and accessibility checks in G11/G13. | Full sandbox account lifecycle, role landing and session revocation; real provider journeys, including invitation refusal/recovery. |
+| M3 · Subscriptions | 90% | G05–G08 and the plans/value/limits scenarios in G09/G13. | Both doors make the same entitlement decisions under contention, expiry and cache loss; usage reconciles. |
+| M4 · Platform | 85% | G09–G13; relevant monitoring truth and deployment smoke checks in G14/G19. | Complete Platform → Ops → peripheral → customer Activity matrix with correct CRUD, figures, exports and accessible states. |
+| M5 · Tenant settings | 85% | G01/G02, G04/G05, company/appearance/account regressions in G11, Activity in G12 and G13/G17. | Company/team changes persist; secrets are shown once; credential use, replacement, refusal and revocation are auditable and safe. |
+| M4a · Rules/seams | 75% | G06–G08; complete rules UI failure-state coverage in G09/G13 and propagation/load qualification in G15. | Actual session publication and restoration reach the actual service within five seconds, with correct scopes, precedence, ETags and isolation. |
+| M6 · Handover | 40% | G13–G19 and evidence that every preceding engineering gate is closed. | Load/security/recovery/monitoring qualification, documented setup and walkthrough; final sign-off recorded separately. |
+
+An engineering estimate reaches 100% only when every assigned technical acceptance
+item has current proof, all relevant defects are resolved and its demonstration
+is ready. Tracker `complete` still means the demonstration has occurred and been
+accepted. A technically ready milestone may remain `active` at 100% while awaiting
+its demonstration or handover sign-off, with that reason stated plainly. Do not
+invent client acceptance, raise percentages for writing this plan, or use test
+count growth as a completion formula.
+
+### 18.3 Dependency order and work packages
+
+| Order | Work package | Gates | Required exit before the next dependent package |
+| --- | --- | --- | --- |
+| 1 | Account and team acceptance | G01–G03 | Real sandbox identities can complete the account/invitation lifecycle; ownership and session boundaries are demonstrated. |
+| 2 | Credentials and persisted usage | G04–G05 | Revealed secrets, error recovery, usage/last-use readbacks and revocation are qualified. |
+| 3 | Shared service enforcement and contracts | G06–G08 | Shared budgets, durable usage and both API contracts pass against the same pinned schema and revisions. |
+| 4 | Full surface/action acceptance | G09–G12 | Platform, Ops, peripheral controls and customer Activity each have a closed scenario matrix. |
+| Throughout, then final sweep | Design, copy and accessibility | G13 | Each completed package passes the surface standard; final shared-component changes receive a caller regression sweep. |
+| 5 | Operational qualification | G14–G17 | Dependency failures, load, monitoring, recovery and security have measured evidence and usable runbooks. |
+| 6 | Handover-ready release | G18–G19 | Clean setup, documentation, exact release checks, evidence publication and milestone demonstrations are complete. |
+
+Prepare monitoring, restoration tooling and documentation while earlier packages
+run so they cannot become last-minute discoveries. Independent read-only work can
+continue during CI; mutations of shared fixtures remain serialized. Close one
+reviewable package at a time and publish its qualified checkpoint before moving
+to the next dependent package. If a dependency is genuinely unavailable, record
+its precise missing input and continue gates that do not depend on it.
+
+### 18.4 Account, team and credential gate register
+
+All gates below start **open**, with earlier passing evidence retained. Reuse
+qualified checks; add cases for unresolved behaviors rather than duplicating tests.
+
+| Gate | Required cases and implementation | Proof required to close |
+| --- | --- | --- |
+| G01 · Browser account/invitation lifecycle | New owner activation, new colleague signup, existing-account acceptance and removed-member rejoining. Invite, resend, withdraw, expired/used/unknown links, wrong signed-in identity, concurrent acceptance/withdrawal, paused workspace and provider/email failure. Verify the invited address, role and stored workspace; no account may appear successfully joined without membership and session readback. Resolve whether signup confirmation and provider cookies complete correctly under the actual configured Auth policy. | Native positive/refusal journeys with actual local Auth and captured emails; independent memberships, reserved seats, audit rows and session checks; owned-fixture cleanup. Use isolated test identities for repeatable password/setup checks; batch any genuinely user-only provider interactions into one acceptance session. |
+| G02 · Ownership review | Review identity of the successor, explicit consequence and cancel path; password refusal, expired/mismatched provider identity, duplicate submit, temporary-session cleanup failure and stale owner authority. Verify exactly one active owner and both parties' fresh permissions after transfer. If no native ownership surface exists, explicitly implement the required surface or demonstrate the agreed API-only contract; do not imply browser coverage. | Real provider/database transfer, existing-session refresh proof, one audit, native review/cancel/failure evidence for the supported surface and safe successor access readback. |
+| G03 · Remaining Auth/provider states | Complete signup/resend/recovery, safe `next`, protected deep links, current/other-device revocation and return after sign-out. Exercise OAuth state/redirect/callback/cancellation/session landing using a real configured sandbox provider when offered. If unavailable, make availability truthful and settle the agreed scope; mocked callback tests alone do not close the live journey. Verify ambiguous provider outcomes do not cause unsafe duplicate password writes. | Real provider results plus native account/session journeys; negative direct requests; safe logs and callback/redirect configuration receipt. Explicit distinction between local captured mail and external delivery. |
+| G04 · Credential UX and secrets | Clipboard success/refusal/unavailable API, download filename/content, one-time reveal, refresh/back/second-tab behavior, duplicate creation, stale limits, network uncertainty, rotation grace/cancel and revoked state. Apply phone, keyboard and focus checks to create/reveal/review/error surfaces. UI must never encourage retrying a possibly committed mint without resolving its idempotency result. | Actual native clipboard/download verification; metadata-only subsequent responses; database hash/scope/status readback; redaction scan of DOM, exports, logs and public evidence. End test keys revoked. |
+| G05 · Last use and credential lifecycle under requests | Trace current last-use behavior in both runtimes. Persist legitimate successful use without an administrative connection; define whether 304 counts as authorized use. Refused auth must not fabricate success; role/workspace/subscription changes must invalidate access. Test replacement grace boundaries, warmed cache, in-flight requests, expiry, parallel reads and service restart. Define the permitted consistency window for display timestamps before implementing a batching policy. | Actual key use through FastAPI and Next.js, durable fresh-page/database readbacks, independent expected usage, revoked/expired 401/403 outcomes before protected reads and a reconciled final state. |
+
+### 18.5 Shared enforcement and rules contract gate register
+
+| Gate | Required cases and implementation | Proof required to close |
+| --- | --- | --- |
+| G06 · Shared rate budgets | Inventory public-abuse mitigations separately from tenant/service budgets and hard plan allowances. Define one key/window/unit vocabulary for Node and Python; identity comes from verified context, never a caller-selected tenant. Use atomic admission and window expiry. Alternate concurrent requests across two application/service workers, credentials and restarts; test boundary/reset, 429 headers, unrelated tenant separation and configuration changes. Preserve the documented public-auth cache-outage behavior; cache loss must never bypass durable entitlements. Specify each limiter's outage policy rather than applying one blanket rule. | A real disposable Redis-backed cross-runtime contention run, exact admitted/refused counts, no missing TTL or fresh budget from switching runtime/key, Retry-After/readback, and cache-disabled/outage tests. Mocked limiter tests alone are insufficient. |
+| G07 · Durable usage and reconciliation | Define each counter's authoritative source, successful/refused request semantics, rolling/monthly versus retained limits and peak behavior. Test atomic reservation/release, idempotent retries, reset/date boundaries, concurrent writes, override expiry, lowering below usage and zero/unlimited limits. Trace service usage writes separately from read-only content queries. Reconciliation reports drift; authorized repair records actor/reason and cannot silently turn CI green. Verify scheduler authentication and repeated-run behavior. | Independently counted source rows/requests equal counters and UI; an intentionally introduced owned-fixture drift is detected, audited repair is demonstrated where supported, and subsequent report is clean. Cross-tenant and wrong-role repair attempts refuse. |
+| G08 · Merged API and rules completeness | Inventory actual routes/methods and Server Actions; reconcile documented scopes, statuses, error fields, version schemas, conditional responses and authorization order with both implementations. Verify master/tenant locks, override semantics, empty/missing rules, retention, publish/restore conflicts, unsaved navigation, refused writes and history integrity. Retarget service integration CI to the intended application revision; retain previous pin evidence as history. Verify KB/customer seams for schema and isolation only. | Schema/contract cases plus actual Node-to-HTTP results, wrong tenant/scope/role refusal, 200/304 and changed ETags, publish/master change/restore content readback, pointer cleanup and twelve or more specified propagation operations each within five seconds. No failed sample is hidden by the average. |
+
+Implementation of an atomic Redis budget must address increment/expiry consistency,
+not merely port the current TypeScript helper into Python. The vendor's
+[INCR rate-limiter patterns](https://redis.io/docs/latest/commands/incr/) are a
+reference; the repository's tenant identity, outage and quota contracts remain
+the acceptance oracle. Provider session/SSR checks follow the actual Auth policy
+and [Supabase's server-side guidance](https://supabase.com/docs/guides/auth/server-side/advanced-guide).
+
+### 18.6 Full surface and customer Activity gate register
+
+| Gate | Required scope | Proof required to close |
+| --- | --- | --- |
+| G09 · Platform matrix | Overview; workspace grid/list/search/filter/sort/pagination; provisioning; workspace detail page and drawer, every query tab and action; plans, plan editor and Headroom cards/modal; contracted-value page/CSV; master rules. Cover direct/deep links, valid empty data, denied/unavailable states, slow loading, committed readback, stale reviews, double submit and two-tab changes. Reconcile every KPI, label, chart and export with its declared reader and independent fixtures. | Route/action/state rows closed in the ledger; native journeys plus authorization/data/audit checks. Every advertised CRUD control either works as described or has an explicit supported availability state. |
+| G10 · Ops/support/security matrix | Health, platform Audit, support register/Inside, Admins and platform Settings. Two operators with different capabilities; start/work/extend/end, customer/colleague termination, idle and in-flight expiry, operator revocation, workspace suspension and break glass. Two stale support tabs must lose unauthorized access on their next protected request. Verify scope banner/frame, linked event histories and allowed versus prohibited writes. | Permission/scenario table with actual protected requests and both applicable logs; one terminal state under races; no success receipt for rolled-back work; correctly scoped readback after revocation. Health chart semantics and historical data provenance remain honest. |
+| G11 · Peripheral and tenant settings | Platform Profile and customer account/sessions; company/appearance/subscription/settings redirects; avatar upload/crop/type/size/replacement failure/storage isolation; rail/header/mobile dock; account menu; workspace switcher beyond initial results; palette; preferences and cross-tab persistence; truthful notices/read watermark; sign-out. Include long identities and names, collapsed navigation, deep links, root/nested errors, 404s and loading boundaries. | Native save/reload/fresh-login readbacks, identity/storage isolation, direct permission refusals, keyboard/focus and phone evidence. No exposed control or visible link is left unverified. Preserve the broader tenant-shell work for the later phase. |
+| G12 · Customer Activity and exports | Real owner authentication, every Phase One event vocabulary, safe actor/entity/before-after fields and support visit correlation. More than 2,000 owned events, tied timestamps, concurrent inserts, filters/date windows, explicit timezone, retention cutoff and visit drilldown/customer termination. Exports: allowlisted resources, row/filter scope, quotes/newlines/Unicode/formula prefixes, redaction, correct filename/MIME and large datasets. | No cursor skips/duplicates or cross-tenant rows; UI/export/source values reconcile; denied exports leak nothing; customer events accurately identify change actor/cause without exposing platform-only data. Retention claims have actual reader/job proof or are clearly unclaimed. |
+
+Expand G09–G12 into the existing P/O/C/A/T surface families, J01–J29 journeys and
+X01–X07 packs in the ledger. Inventory nested tabs, dialogs, menus, drawers and
+responsive controls as scenarios. A successful top-level GET does not close a
+surface. Check Platform first, Ops second, then peripherals and customer Activity;
+use affected-surface regressions during the earlier account/service packages.
+
+### 18.7 Design, copy and accessibility gate
+
+**G13 applies to every package and receives one final complete sweep.** Use the
+approved product tokens and overview reference as the design authority. Retain
+the single cream page theme and inverted chrome. Review in the actual viewport;
+screenshots do not replace interaction or data verification.
+
+- Shared KPI bands: broadly distributed, visibly controlled dots; restrained
+  background icon art; clean text contrast; no “Current data” badge or its dot.
+- Structure: slim tabs and controls, coherent spacing and type scale, clear page
+  hierarchy, restrained sunken grouping and intentional uncarded content. Keep
+  page headers left and alternate subsequent section headings where that improves
+  composition without reversing meaningful reading order.
+- Review workspace detail tabs, Settings, Health, plans/Headroom cards and modal,
+  profile/account, auth confirmation and email templates against the same canon.
+  Charts must be functional chart components with correct units, empty/unmeasured
+  states, useful labels and no text collisions; decorative SVG is not a data chart.
+- Modal/drawer states: complete backdrop coverage and visible blur, safe initial
+  focus, Escape/cancel policy, trapped focus where appropriate, scroll containment,
+  return focus and no keyboard obstruction. Check actual computed styles and behavior.
+- Type and language: use available text width, avoiding arbitrary narrow measures;
+  retain readable phone reflow. Replace implementation jargon, raw enum labels,
+  invented source/payment claims and unsupported “logged/saved” assertions with
+  specific outcomes and useful next actions. Trim comments to concise rationale
+  while preserving authorization, concurrency and architectural explanations.
+- Check 1440/1280 desktop, 1024, 768, 390 and 320px breakpoints; actual browser zoom,
+  long/translated-length text, keyboard-only operation, reduced motion, contrast,
+  accessible names/errors/live announcements and a manual screen-reader sample
+  covering each complete critical process. Tables/charts may use intentional,
+  labelled keyboard-accessible scrolling; the entire page must not overflow.
+
+Close G13 with reviewed reference images, automated accessibility findings and
+manual journey evidence. Resolve all required visual/copy/accessibility findings;
+do not declare compliance from a clean automated scan. Apply the repository's
+[WCAG 2.1 AA baseline](https://www.w3.org/TR/WCAG21/) to full pages and complete
+processes. Shared-component changes reopen affected callers for regression.
+
+### 18.8 Operational, security and handover gate register
+
+| Gate | Required cases and implementation | Proof required to close |
+| --- | --- | --- |
+| G14 · Observability and dependency failure | Required database/schema failure, optional cache loss, Auth/email/storage failure, service unavailability, slow responses and committed-write/readback uncertainty. Exercise log/request-ID correlation, error reporting, readiness versus liveness, safe health output and outage/recovery UX. Produce real alert and recovery notifications in a controlled sandbox sink; historical chart/uptime/incident values require a measured source. Document thresholds, recipient ownership and recovery action. | Injected failure → observed safe response → correlated event/alert → recovery receipt. No credentials, bearer links, passwords or sensitive bodies in logs. A status page and monitoring setup accurately describe what is measured; external pager delivery remains separately qualified if unavailable locally. |
+| G15 · Load and propagation | Use production builds, 50 distinct authenticated sessions and representative owned tenants/data. Run the required dashboard/settings routes with measured request definitions, warm-up and sustained steady state; report per-route p50/p95/p99, throughput, refusals, server errors, query fan-out, connection/memory usage and cold/warm/cache-disabled conditions separately. Verify fixture/counter integrity afterwards. Repeat rules propagation while reads are loaded. | Contractual dashboard/settings p95 below 400ms and every required propagation operation within five seconds. Document whether timing measures server requests or browser navigation; include route entry/aggregation methodology and runner/runtime/network topology. Assess internal service targets separately: 304 <60ms, warm <120ms, cold <350ms p95. Do not substitute the previous 89ms single CI sample for a load result or claim hosted latency from local measurements. |
+| G16 · Recovery, upgrade and rollback | Restore a full owned verification dataset into a separate disposable target, including the supported storage/configuration dependencies. Check policies, grants, definer settings, ownership, audit ordering, quotas, rules history/pointers and revoked credentials after restoration. Run clean install and upgrade from the supported prior release. Demonstrate application rollback compatibility and reviewed forward schema recovery; do not destructively roll back data to repair code. Specify recovery objectives and measure actual restore time/data loss. | Successful restored Auth/application/service journeys and independent before/after reconciliation; documented restore and rollback steps with measured recovery results. Do not invent RTO/RPO or claim production PITR from a local SQL restore. Provider-managed identities/secrets and separately stored objects have explicitly tested or documented recovery boundaries. |
+| G17 · Final security and secret lifecycle | Threat-model both doors, support mode, token/cookie/origin/redirect handling, export/storage/cron/webhook seams and all user-selected identifiers. Check live permissions/limits after revocation, hashing/reveal-once, idempotency, race safety, SQL/RLS/definer exposure, dependency remediation and disabled demo bypass in a production-mode sandbox build. Scan both repos, Git/public artifacts, DOM, responses and logs. Review final config templates and service least privilege. | Required negative/security cases pass; no unresolved security/data-integrity findings or private material in published artifacts; accepted remediation records remain reproducible. Document actual-launch secret/db rotation separately rather than resetting the current sandbox during verification. |
+| G18 · Documentation and timed clean setup | Reconcile README/env examples, architecture/ERD/RLS/role map, merged API/scopes, adapter/seam contract, failure/monitoring/restore/deploy runbooks, current design/copy canon and user instructions. Remove dead links and stale implementation promises. Run both repositories from fresh checkouts with documented versions and no hidden machine state. | A cold setup rehearsal records downloads, installation, migrations, seed, both runtimes and actual authenticated request. The existing handover standard requires an unfamiliar developer to reach that verified state in under 30 minutes using the README; an executor's own rehearsal is preparation, not a substitute. Record and repair stalls; arrange the external walkthrough and outstanding adapter sign-off. |
+| G19 · Final release, evidence and acceptance | Freeze revisions/schema/env identity, reconcile gate assignments and defects, run required suites/static/build/security checks, document/browser smoke, cross-runtime contracts and owned-fixture cleanup. Publish bounded artifacts and demonstrate each milestone. Push explicitly to the verified `origin/main`; validate exact app/service CI pins and frontend deployment. Keep service-hosting launch qualification in its user-agreed local scope. | All technical gates verified, complete evidence manifest/download graph, exact run/deployment receipts, source parity and rollback-ready release. Technical readiness may reach 100% pending handover; client demonstrations and final sign-off determine accepted completion. Landing-page and Phase Two shell work follow this readiness decision. |
+
+### 18.9 Evidence and tracker contract
+
+For every gate maintain: gate ID, assigned milestone(s), scenarios, prerequisite
+IDs, status (`open`, `in progress`, `verified`, or `deferred by recorded decision`),
+test/native evidence references, application/service revisions, schema/policy
+fingerprints, environment and fixture class, timestamps, independent expected and
+observed values, defects, cleanup outcome and any untested boundary. A deferred
+decision is visible; it is not a passing test.
+
+Publish only bounded catalogues, redacted measurements and reviewed screenshots.
+Each public file has a SHA-256 and an actual working download link through
+`/project-tracker/verification`. Keep raw reports, fixture IDs and provider secrets
+private. Add a distinct checkpoint/manifest rather than overwriting a historical
+file. Test the link graph, source hashes and one actual browser download.
+
+Update the tracker after each qualified package: explain what moved, the gate IDs
+closed, the evidence and remaining work. Update milestone estimates only after
+verification. The latest CI run and deployed source must match the candidate;
+older successful references remain explicitly historical. A planning update adds
+no completed gate and does not increase the current 83% estimate.
+
+### 18.10 Execution checklist for each package
+
+1. Confirm baseline, fixtures, roles, intended oracles and the exact acceptance
+   rows. Recover existing proof before inventing more work.
+2. Reproduce unresolved defects. Separate functional/data fixes from appearance
+   adjustments and retain concise evidence of the original failure.
+3. Implement shared contracts/components first where required; qualify the changed
+   behavior with real authorization and data paths. Check failure, stale, retry
+   and concurrent states alongside the successful path.
+4. Perform native desktop/phone/keyboard checks and G13 copy/design review. For
+   every mutation, verify committed state, relevant audits and fresh UI readback.
+5. Run focused checks, then the applicable full regression with cache disabled,
+   policies, typecheck, lint, format, declared dependencies, templates and security.
+   Run service lint/format/unit/database/contracts when the service path changes.
+6. Run the production build and sequential post-build typecheck. Use maintained
+   local commands; do not run reset/seed preparation over the preserved browser
+   fixture. Capture actual timing and cleanup results.
+7. Update ledger, tracker and immutable public evidence. Verify staged contents,
+   private-value absence, hashes, branch and remote. Commit/push the qualified
+   package; confirm exact CI, artifact totals, deployment and affected-route smoke.
+8. Close the engineering acceptance rows, reassess assigned milestones and prepare
+   the demonstration. Reopen affected rows when subsequent shared changes invalidate
+   their proof. Record acceptance separately from publication.
+
+Known maintained starting commands include `scripts/verification-local.ps1 Test`,
+`BuildLive` and `Serve`, `scripts/check-document-pages.ts`, `pnpm check:policies`,
+`check:deps`, `check:security`, `check:email-templates`, and the service's locked
+`uv` workflow. New load, distributed-budget and recovery runners must be implemented
+and documented as deliverables; naming them in this plan does not make them exist.
+
+### 18.11 Immediate next package and final readiness review
+
+Start with **G01–G03**: inventory the advertised account/ownership/OAuth journeys;
+prepare a new colleague fixture and captured invitation; reproduce wrong-identity,
+confirmation and session-landing cases through the actual provider; then qualify
+native acceptance/refusal/recovery and ownership review. Complete G04/G05 next,
+including actual clipboard and durable last-use proof. Prepare the disposable
+Redis contract and recovery tooling while these bounded packages are qualified.
+
+Before calling Phase One engineering complete, review every remaining gate against
+the record, not against its narrative summary. Require no unresolved assigned
+technical scenarios, all supported surfaces/actions reviewed, data/audit agreement,
+measured performance/recovery, truthful monitoring/provider scope, clean setup and
+an exact qualified release. Produce a concise handover-ready statement with known
+launch-only prerequisites and any explicitly accepted scope decisions. Formal
+walkthrough/sign-off remains a distinct recorded event.

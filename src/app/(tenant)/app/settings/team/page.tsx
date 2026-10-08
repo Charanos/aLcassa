@@ -9,9 +9,7 @@ import { currentSessionOrNull } from '@/lib/auth/resolve';
 
 export const metadata: Metadata = { title: 'Team' };
 
-/** 02 §4. Members, roles, pending invitations, revoke. Owner and admin.
- *  08 §2: seats count active members PLUS pending invitations, so the limit
- *  bar reads the same total the invite form's own guard will check. */
+/** Team capacity and reviewed actions use the same live membership and entitlement sources. */
 export default async function TeamSettingsPage() {
   /** Authenticated readers use live workspace data; fixtures are limited to explicit demo sessions. */
   const ctx = await currentSessionOrNull();
@@ -32,7 +30,7 @@ export default async function TeamSettingsPage() {
         }
       />
 
-      <TeamPanel model={model} role={ctx?.role ?? null} />
+      <TeamPanel model={model} role={ctx?.role ?? null} supportMode={ctx?.supportMode ?? false} />
     </div>
   );
 }

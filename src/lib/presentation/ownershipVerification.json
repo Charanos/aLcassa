@@ -1,0 +1,25 @@
+{
+  "date": "8 October 2026",
+  "environment": "Disposable local PostgreSQL, Supabase Auth and captured mail; native browser ownership review",
+  "baseCommit": "3857988424d166518b515c92c425bd11e547a6d1",
+  "scope": "Owner review, password-proof identity, transfer readback and recovery recipients",
+  "passed": 578,
+  "files": 46,
+  "ownershipRouteCases": 12,
+  "ownershipOutcomeCases": 8,
+  "recoveryProviderCases": 4,
+  "ownershipProviderCases": 1,
+  "results": {
+    "path": "/verification/2026-10-08/ownership-recovery-regression.json",
+    "sha256": "5425b89cc164991b262d75e11a59a8239a91c7dd3bd7435c07e7377b2e292b1e"
+  },
+  "native": {
+    "path": "/verification/2026-10-08/ownership-recovery-browser.json",
+    "sha256": "05e094e563f07b9dd1bfa21c82e7316d7c406e97b8e7d59c7b7f5f164b031e18"
+  },
+  "limits": "Native ownership uses actual sign-in, cookies, Auth and database reads. Recovery-recipient cases use actual Auth, database and captured mail, with a disposable cookie adapter. Uncertain ownership replies are covered by client outcome cases, not native fault injection. Colleague invitations, remaining account and OAuth journeys, wider failure-state acceptance and external delivery remain open. The separately pinned service results are unchanged.",
+  "manifest": {
+    "path": "/verification/2026-10-08/ownership-recovery-manifest.json",
+    "sha256": "475fdc21e0d2e1841fb59aaa958ef15ec01e7c4397f02a7e60077ee353cd5dc9"
+  }
+}

@@ -7,6 +7,7 @@ import { Badge, MEMBER_STATUS_TONE } from '@/components/primitives/Badge';
 import { Button } from '@/components/primitives/Button';
 import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
 import { LimitBar } from '@/components/domain/LimitBar';
+import { OwnershipTransfer } from './OwnershipTransfer';
 import {
   removeMember,
   revokeInvitation,
@@ -25,7 +26,15 @@ const roleName = (role: string) =>
   role === 'admin' ? 'Administrator' : role === 'owner' ? 'Owner' : 'Agent';
 
 /** Shared review keeps errors, focus and pending state stable when a row disappears. */
-export function TeamPanel({ model, role }: { model: TeamModel; role: TenantRole | null }) {
+export function TeamPanel({
+  model,
+  role,
+  supportMode = false,
+}: {
+  model: TeamModel;
+  role: TenantRole | null;
+  supportMode?: boolean;
+}) {
   const router = useRouter();
   const [review, setReview] = useState<Review | null>(null);
   const [nextRole, setNextRole] = useState<'admin' | 'agent'>('agent');
@@ -33,6 +42,8 @@ export function TeamPanel({ model, role }: { model: TeamModel; role: TenantRole 
   const [notice, setNotice] = useState<string | null>(null);
   const [confirmedModel, setConfirmedModel] = useState<TeamModel | null>(null);
   const [refreshRequired, setRefreshRequired] = useState(false);
+  const [ownershipTransferred, setOwnershipTransferred] = useState(false);
+  const effectiveRole = ownershipTransferred ? 'admin' : role;
   const shown =
     confirmedModel && (confirmedModel.readAt ?? '') >= (model.readAt ?? '')
       ? confirmedModel
@@ -43,7 +54,8 @@ export function TeamPanel({ model, role }: { model: TeamModel; role: TenantRole 
   const memberHeading = useRef<HTMLHeadingElement>(null);
   const invitationHeading = useRef<HTMLHeadingElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
-  const canManage = role === 'owner' || role === 'admin' || role === 'support';
+  const canManage =
+    effectiveRole === 'owner' || effectiveRole === 'admin' || effectiveRole === 'support';
 
   function open(value: Review, trigger: HTMLElement) {
     if (pending || refreshRequired) return;
@@ -180,7 +192,7 @@ export function TeamPanel({ model, role }: { model: TeamModel; role: TenantRole 
               <span className="t-compact text-[var(--text-secondary)]">
                 {roleName(member.role)}
               </span>
-              {role === 'owner' && member.role !== 'owner' ? (
+              {effectiveRole === 'owner' && member.role !== 'owner' ? (
                 <Button
                   variant="quiet"
                   size="sm"
@@ -192,7 +204,8 @@ export function TeamPanel({ model, role }: { model: TeamModel; role: TenantRole 
                 </Button>
               ) : null}
               {canManage &&
-              (member.role === 'agent' || (role === 'owner' && member.role === 'admin')) ? (
+              (member.role === 'agent' ||
+                (effectiveRole === 'owner' && member.role === 'admin')) ? (
                 <Button
                   variant="quiet"
                   size="sm"
@@ -308,6 +321,36 @@ export function TeamPanel({ model, role }: { model: TeamModel; role: TenantRole 
           ) : null}
         </ul>
       </section>
+      {effectiveRole === 'owner' && !supportMode ? (
+        <OwnershipTransfer
+          members={members}
+          disabled={pending || refreshRequired}
+          onTransferred={(successor) => {
+            setOwnershipTransferred(true);
+            setConfirmedModel({
+              ...shown,
+              readAt: new Date().toISOString(),
+              members: members.map((member) =>
+                member.id === successor.id
+                  ? { ...member, role: 'owner' }
+                  : member.role === 'owner'
+                    ? { ...member, role: 'admin' }
+                    : member,
+              ),
+            });
+            setNotice(`${successor.name} is now the workspace owner. You remain an administrator.`);
+            memberHeading.current?.focus();
+            router.refresh();
+          }}
+          onUnconfirmed={() => {
+            setRefreshRequired(true);
+            setNotice(
+              'Reload the team and check Activity to confirm ownership before making another change.',
+            );
+          }}
+          returnFocusRef={memberHeading}
+        />
+      ) : null}
       <ConfirmDialog
         open={review !== null}
         onOpenChange={(value) => {

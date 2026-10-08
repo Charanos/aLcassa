@@ -5,6 +5,7 @@ import { IconArrowLeft, IconArrowUpRight, IconCheck, IconFileDownload } from '@t
 import record from '@/lib/presentation/verificationRecord.json';
 import membership from '@/lib/presentation/membershipVerification.json';
 import account from '@/lib/presentation/accountVerification.json';
+import ownership from '@/lib/presentation/ownershipVerification.json';
 import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
@@ -68,9 +69,9 @@ export default function VerificationRecordPage() {
         </div>
         <dl className="surface-sunken mt-5 grid gap-px overflow-hidden rounded-panel border border-[var(--border-subtle)] sm:grid-cols-2 lg:grid-cols-4">
           <Metric
-            value={`${account.passed}`}
+            value={`${ownership.passed}`}
             label="Current local cases passed"
-            detail={`${account.files} files · no failures or skips`}
+            detail={`${ownership.files} files · no failures or skips`}
           />
           <Metric
             value={`${record.service.databaseCases}`}
@@ -155,6 +156,56 @@ export default function VerificationRecordPage() {
             </div>
             <Digest value={record.service.results.sha256} />
           </Release>
+        </div>
+      </section>
+
+      <section
+        id="ownership-checkpoint"
+        aria-labelledby="ownership-checkpoint-title"
+        className="mt-14 border-t border-[var(--border-subtle)] pt-10"
+      >
+        <h2 id="ownership-checkpoint-title" className="t-heading">
+          Ownership review and recovery recipients
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          {ownership.environment}. All {ownership.passed} cases in {ownership.files} files pass,
+          including {ownership.ownershipRouteCases} ownership-route cases,{' '}
+          {ownership.ownershipOutcomeCases} client outcome cases and{' '}
+          {ownership.recoveryProviderCases} actual-provider account/recovery cases. Verified against
+          baseline <code>{ownership.baseCommit.slice(0, 7)}</code>.
+        </p>
+        <div className="surface-sunken mt-6 rounded-panel border border-[var(--border-subtle)] p-5 md:p-7">
+          <h3 className="t-heading">Browser actions agree with identity, membership and audit</h3>
+          <p className="t-compact mt-3 text-[var(--text-secondary)]">
+            The owner reviews an active successor and the consequences before entering their current
+            password. An incorrect password leaves ownership unchanged. A confirmed transfer records
+            one audit, leaves exactly one owner and makes the former owner an administrator without
+            ending their original sign-in. Fresh permissions agree for both people; owner controls
+            disappear immediately. Cancel and completion return keyboard focus, the refusal clears
+            and focuses the password field, and the review fits a 390px viewport with an 8px
+            backdrop blur. The owned workspace and identities are removed after verification.
+          </p>
+          <p className="t-compact mt-4 text-[var(--text-secondary)]">
+            Recovery recipients resolve to matching Auth and application records. Unknown addresses
+            and profiles without an Auth identity receive no reset link and create no account. Both
+            JSON and form responses remain generic; identity and captured-mail reads independently
+            verify the outcome.
+          </p>
+          <p className="t-compact mt-4 text-[var(--text-secondary)]">{ownership.limits}</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            <div>
+              <EvidenceDownload href={ownership.results.path} label="578-case local catalogue" />
+              <Digest value={ownership.results.sha256} />
+            </div>
+            <div>
+              <EvidenceDownload href={ownership.native.path} label="Bounded browser outcomes" />
+              <Digest value={ownership.native.sha256} />
+            </div>
+            <div>
+              <EvidenceDownload href={ownership.manifest.path} label="Ownership evidence index" />
+              <Digest value={ownership.manifest.sha256} />
+            </div>
+          </div>
         </div>
       </section>
 

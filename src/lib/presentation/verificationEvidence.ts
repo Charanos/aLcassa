@@ -77,3 +77,31 @@ export function projectCredentialEvidence(input: unknown) {
     throw Error('Credential cleanup is not qualified');
   return value;
 }
+
+/** Publish only independently checked ownership outcomes, without fixture or session identifiers. */
+export function projectOwnershipEvidence(input: unknown) {
+  return z
+    .object({
+      localOnly: z.literal(true),
+      checkedAt: z.string().datetime(),
+      eligibleSelection: z.literal(true),
+      cancelAndFocus: z.literal(true),
+      backdropBlurPx: z.literal(8),
+      incorrectPasswordRefused: z.literal(true),
+      refusalAuditCount: z.literal(0),
+      passwordClearedAndFocused: z.literal(true),
+      transferConfirmed: z.literal(true),
+      transferAuditCount: z.literal(1),
+      oneActiveOwner: z.literal(true),
+      formerOwnerIsAdministrator: z.literal(true),
+      freshPermissionsAgree: z.literal(true),
+      originalSignInPreserved: z.literal(true),
+      ownerControlsRemoved: z.literal(true),
+      successFocusReturned: z.literal(true),
+      phoneViewportPx: z.literal(390),
+      phoneDocumentPx: z.number().int().positive().max(390),
+      fixtureRemoved: z.literal(true),
+      establishedWorkspacePreserved: z.literal(true),
+    })
+    .parse(input);
+}

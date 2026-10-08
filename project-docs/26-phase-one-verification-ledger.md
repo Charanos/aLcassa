@@ -930,3 +930,97 @@ The browser-downloaded account index matches its published SHA-256. All 16 stage
 owned files pass 14 private-value comparisons; both new account fingerprints and
 all historical artifact hashes match Git bytes. Exact CI/deployment results follow
 the push and remain separate from these local measurements.
+
+## 29. Qualified account release and remaining-gate plan — 8 October 2026
+
+Account release `3857988424d166518b515c92c425bd11e547a6d1` passes all six application
+CI jobs ([run 37809298145](https://github.com/Charanos/aLcassa/actions/runs/37809298145))
+and [Vercel deployment](https://vercel.com/dennis-munges-projects/a-lcassa/4N2A51VeXyDgxzueXd5PnjgseVg9).
+The downloaded cache-disabled CI artifact confirms 564 cases in 45 files with no
+skips. Deployed read-only verification covers 28 document/tracker routes, 58
+anchors and 18 evidence assets. Native deployed verification opens the account
+record and confirms its published totals. These qualify section 28's release;
+they do not close its remaining browser/provider scenarios or retarget the
+separately pinned FastAPI integration run.
+
+[Completion plan, section 18](25-phase-one-completion-plan.md#18-remaining-gate-closure-plan--8-october-2026)
+now defines G01–G19 as the authoritative remaining-gate register. It maps gates
+to milestones, orders account/team, credentials, shared service enforcement,
+Platform/Ops/peripheral/Activity acceptance, operational qualification and
+handover, and makes design/copy/accessibility a requirement throughout.
+Every gate specifies cases and closure evidence. Technical readiness, deployment,
+demonstration acceptance and actual production launch remain distinct.
+
+This is a planning update, with no newly executed gate or new milestone acceptance.
+The tracker retains 83% overall, 80% Tenant settings and two accepted milestones.
+Local service hosting remains the user-directed verification scope. External
+sending-domain readiness and final production secrets/database cutover remain
+explicit launch qualifications. The next implementation package is G01–G03;
+each qualified package receives fresh evidence, tracker updates, build, push and
+exact release verification before dependent work advances.
+
+## 30. Ownership review and recovery recipients — 8 October 2026
+
+The owner-only Team section now provides a native ownership review: active
+successor selection, explicit consequences, current-password confirmation,
+cancel and typed result handling. Suspended teammates, the owner and support
+visits are excluded. Only a matching committed receipt confirms the selected
+membership; lost, unreadable or server-error responses are unconfirmed and do
+not trigger an automatic retry. Other team writes pause until fresh readback.
+
+Four new route cases reproduced incorrect behaviour before the fix: missing or
+mismatched password-proof identities could proceed, and provider outages or
+rate refusal were reported as incorrect passwords. All are corrected. The
+current identity and password-proof identity must agree with the resolved
+owner; the temporary provider session is cleaned up before authority is used.
+Provider outage returns 503 and rate refusal 423 without changing ownership.
+Original provider sessions retain their access. The committed receipt includes
+the successor's membership ID for client-side matching.
+
+The user-approved native test used a separate **Ownership acceptance workspace**
+with real disposable Auth accounts. The review starts on Cancel, returns focus
+on cancellation and computes an 8px backdrop blur. Incorrect password returns
+401 with zero transfer audits and leaves the original owner unchanged. The
+successful Alex Review → Maya Review transfer agrees with independent database
+readback: exactly one active owner, the former owner is an administrator and
+one matching audit. Owner-only controls disappear immediately, focus returns
+to the surviving Team heading, and the original sign-in remains active. Fresh
+protected requests verify both people's permissions; customer Activity displays
+the transfer. The 390px viewport has a 380px document and 348px review, without
+horizontal overflow. A refusal-focus timing defect found in that test is fixed
+and replayed on the rebuilt surface: the password is empty, associated with its
+error and focused after the request finishes. The successor's additional
+incorrect-password check does not produce another transfer. Owned identities,
+sessions, profiles, membership, usage, subscription and workspace data are
+removed; established owners are unchanged.
+
+Recovery-recipient coverage uses actual Auth, application records and captured
+mail. A registered recipient resolves to the same Auth identity and application
+profile before receiving a recovery link. Unknown addresses and application-only
+profiles receive no mail and create no identity or session. Normalized JSON
+requests return empty 204 and native form requests return the same generic 303
+destination for both. The application continues using the provider's Auth
+identity check rather than adding a privileged public lookup that would reveal
+registration. These route/provider cases use a disposable cookie adapter and
+are distinct from full native password-change acceptance and external delivery.
+
+The cache-disabled local regression passes **578/578 cases in 46 files, no skips**,
+including 12 ownership-route, eight client-outcome, one actual-provider ownership
+and four actual-provider account/recovery cases. Policies cover 15/15 workspace
+tables with zero issues. The independent `ownership-recovery-manifest.json`,
+bounded browser outcomes and redacted catalogue extend the verification record.
+Previous account, team and CI artifacts retain their original bytes. Public
+evidence strips fixture IDs, addresses, credentials, raw logs and unknown fields;
+publication refuses uncleaned fixtures or inconsistent results.
+
+Auth advances **90→92%** and Tenant settings **80→85%**. The rounded overall
+engineering estimate remains 83%, with two accepted milestones. G02's wider
+native failure cases and G01/G03's remaining colleague invitation, account,
+OAuth and device-session journeys remain open. The successor's native sign-in
+and sign-out requests are confirmed by the server and fresh access checks, but
+automatic browser redirect completion was not qualified in this replay. Keep
+that navigation check in G03. Clipboard/error and durable usage acceptance,
+shared service budgets, the Platform/Ops/peripheral matrix, operational drills
+and final walkthrough remain required. Local service hosting is the agreed
+verification environment; sending-domain and actual production cutover remain
+separate launch qualifications. No new milestone acceptance is inferred.

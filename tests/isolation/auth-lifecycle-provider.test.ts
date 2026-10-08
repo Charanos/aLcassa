@@ -37,6 +37,9 @@ const operatorId = randomUUID();
 const planId = randomUUID();
 const slug = `lifecycle-${randomUUID()}`;
 const email = `${slug}@example.invalid`;
+const profileOnlyId = randomUUID();
+const profileOnlyEmail = `profile-only-${randomUUID()}@example.invalid`;
+const unknownEmail = `unknown-recovery-${randomUUID()}@example.invalid`;
 const origin = 'http://localhost:3100';
 const requestIds: string[] = [];
 let ownerId: string | undefined;
@@ -107,6 +110,7 @@ beforeAll(async () => {
   vi.stubEnv('NEXT_PUBLIC_APP_URL', origin);
   prepared = true;
   await adminQuery`insert into user_profiles(id,full_name) values(${operatorId},'Lifecycle verifier')`;
+  await adminQuery`insert into user_profiles(id,full_name,email) values(${profileOnlyId},'Profile without Auth identity',${profileOnlyEmail})`;
   await adminQuery`insert into platform_admins(user_id,display_name,can_suspend_tenants) values(${operatorId},'Lifecycle verifier',true)`;
   await adminQuery`insert into plans(id,code,name,trial_days) values(${planId},${slug},'Lifecycle verification',14)`;
 });
@@ -137,6 +141,7 @@ afterAll(async () => {
   await cleanup`delete from platform_audit_log where request_id=any(${requestIds}::text[])`;
   await cleanup`delete from platform_admins where user_id=${operatorId}`;
   await cleanup`delete from user_profiles where id=${operatorId}`;
+  await cleanup`delete from user_profiles where id=${profileOnlyId}`;
   await cleanup`delete from plans where id=${planId}`;
   await closeHarness();
   vi.unstubAllEnvs();
@@ -250,6 +255,12 @@ describe('Real-provider owner acceptance and PKCE password recovery', () => {
       tenantId: result.tenantId,
       requestId: randomUUID(),
     });
+    expect(await adminQuery`select id from auth.users where email=${email}`).toEqual([
+      { id: ownerId },
+    ]);
+    expect(await adminQuery`select id from user_profiles where email=${email}`).toEqual([
+      { id: ownerId },
+    ]);
     const recoveryRequested = await requestReset(
       request('/api/v1/auth/password/forgot', { email }),
     );
@@ -408,5 +419,36 @@ describe('Real-provider owner acceptance and PKCE password recovery', () => {
       }),
     );
     expect(expired.status).toBe(401);
+  });
+  it.each([
+    ['an unknown address', unknownEmail],
+    ['an application profile without an Auth account', profileOnlyEmail],
+  ])('does not send recovery mail or create an identity for %s', async (_label, address) => {
+    expect(await adminQuery`select id from auth.users where email=${address}`).toEqual([]);
+    const profileBefore =
+      await adminQuery`select id,email from user_profiles where email=${address}`;
+    const response = await requestReset(
+      request('/api/v1/auth/password/forgot', { email: ` ${address.toUpperCase()} ` }),
+    );
+    expect(response.status).toBe(204);
+    expect(await response.text()).toBe('');
+    const form = await requestReset(
+      request('/api/v1/auth/password/forgot', { email: address }, true),
+    );
+    expect(form.status).toBe(303);
+    expect(form.headers.get('location')).toBe(origin + '/forgot-password?sent=1');
+    for (let sample = 0; sample < 4; sample++) {
+      const messages = await fetch(
+        `http://127.0.0.1:55424/api/v1/search?query=${encodeURIComponent(`to:${address}`)}`,
+      );
+      expect(messages.ok).toBe(true);
+      expect(((await messages.json()) as { messages: unknown[] }).messages).toEqual([]);
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    expect(await adminQuery`select id from auth.users where email=${address}`).toEqual([]);
+    expect(await adminQuery`select id,email from user_profiles where email=${address}`).toEqual(
+      profileBefore,
+    );
+    expect(await adminQuery`select id from sessions where user_id=${profileOnlyId}`).toEqual([]);
   });
 });

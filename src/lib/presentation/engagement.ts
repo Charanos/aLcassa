@@ -115,8 +115,8 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
   date: '8 October 2026',
-  applicationTests: 564,
-  applicationFiles: 45,
+  applicationTests: 578,
+  applicationFiles: 46,
   serviceTests: 21,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -155,8 +155,8 @@ export const MILESTONES = [
     gate: 'Demo: full account lifecycle',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 90,
-    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Ownership password verification preserves two existing provider sessions and binds the current identity to the owner. Customer sign-out is verified in the browser. Full browser account acceptance, colleague invitations and OAuth remain open; external email needs verified delivery and redirect configuration.',
+    progress: 92,
+    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Recovery recipients resolve to real Auth and application records; unknown and profile-only addresses receive no link and create no identity. Ownership checks both current and password-proof identities, preserves existing sessions and has native refusal and transfer evidence. Customer sign-out is verified in the browser. Complete account acceptance, colleague invitations and OAuth remain open; external email delivery is a separate launch qualification.',
   },
   {
     id: 'M3',
@@ -190,8 +190,8 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 80,
-    note: 'Company changes and customer Activity are verified. Credentials pass 16 database cases and native lifecycle checks; both test keys ended revoked. Team management passes 31 database cases and five confirmed-action cases. Rejoining restores the original membership without adding a seat; invalid invitations, suspended memberships and the sole owner are protected. Eight ownership-route cases and an actual provider/database transfer verify password identity, refusal paths and preservation of two existing sign-in sessions. Native team mutations update immediately with focus and phone checks. Complete provider invitation journeys, browser ownership review, clipboard/error journeys, usage persistence and the final secrets review remain open.',
+    progress: 85,
+    note: 'Company changes and customer Activity are verified. Credentials pass 16 database cases and native lifecycle checks; both test keys ended revoked. Team management passes 31 database cases and five confirmed-action cases. The owner-only review includes successor selection, consequences, password refusal, cancel and uncertain-response handling. The actual browser transfer agrees with fresh roles and one audit, removes owner-only controls and fits a phone viewport. Twelve ownership-route cases and actual provider coverage preserve existing sign-in sessions. Complete colleague invitation journeys, clipboard/error journeys, usage persistence and the final secrets review remain open.',
   },
   {
     id: 'M4a',
@@ -224,18 +224,32 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
   string,
   { previous: number; evidence: string[]; remaining: string[] }
 > = {
+  M2: {
+    previous: 90,
+    evidence: [
+      'Actual Auth and application records agree for the recovery recipient',
+      'Unknown and profile-only addresses receive no reset link or new identity',
+      'Native ownership refusal, transfer, fresh permissions and existing sign-in',
+    ],
+    remaining: [
+      'Complete browser account lifecycle and colleague invitations',
+      'Configured OAuth acceptance and device-session review',
+      'External sending-domain and redirect qualification before launch',
+    ],
+  },
   M5: {
-    previous: 75,
+    previous: 80,
     evidence: [
       'Company saves, conflicts and recorded Activity',
       '16 database credential cases, including concurrent limits and audit rollback',
       'Native creation, one-time reveal, download, replacement, revocation and focus',
       '31 database team cases and five confirmed-action/readback cases',
-      'Eight ownership-route cases and an actual provider/database transfer preserving two existing sessions',
+      'Twelve ownership-route cases and an actual provider/database transfer preserving two existing sessions',
+      'Native owner review, password refusal, single audited transfer and fresh roles; phone fit and keyboard focus',
       'Native role reduction, suspended removal and seat release without a reload; phone review and focus',
     ],
     remaining: [
-      'Complete provider invitation journeys and ownership transfer review',
+      'Complete provider invitation journeys and wider ownership failure-state acceptance',
       'Clipboard, phone and failure-state acceptance',
       'Last-use persistence and final secrets review',
     ],
@@ -376,6 +390,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-08',
+    title: 'Ownership review and recovery recipients verified',
+    body: 'The owner-only Team review now offers an eligible successor, clear consequences and password confirmation. Native refusal and transfer agree with fresh roles and one audit; the former owner stays signed in. Recovery links go to existing Auth identities, with unknown and profile-only addresses receiving no mail or new account. All 578 local cases in 46 files pass. Auth advances from 90% to 92%, Tenant settings from 80% to 85%; invitation, OAuth, wider failure-state and operational acceptance remain open. Read the separate ownership/recovery evidence index in the verification record.',
+    milestone: 'M2, M5',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-08',
     title: 'Invitation acceptance and ownership sessions verified',
