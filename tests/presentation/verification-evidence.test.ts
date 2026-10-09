@@ -123,10 +123,14 @@ describe('Public verification evidence boundary', () => {
       readFileSync(`public${devices.manifest.path}`, 'utf8'),
     ) as Omit<typeof devices, 'manifest'>;
     expect({ ...deviceCheckpoint, manifest: devices.manifest }).toEqual(devices);
-    const deviceCatalogue = JSON.parse(readFileSync(`public${devices.results.path}`, 'utf8'));
+    const deviceCatalogue = JSON.parse(
+      readFileSync(`public${devices.results.path}`, 'utf8'),
+    ) as ReturnType<typeof projectTestEvidence>;
     expect(deviceCatalogue).toMatchObject({ passed: 617, failed: 0, skipped: 0 });
     expect(deviceCatalogue.files).toHaveLength(52);
-    const combinedCatalogue = JSON.parse(readFileSync(`public${hardening.results.path}`, 'utf8'));
+    const combinedCatalogue = JSON.parse(
+      readFileSync(`public${hardening.results.path}`, 'utf8'),
+    ) as ReturnType<typeof projectTestEvidence>;
     expect(combinedCatalogue).toMatchObject({ passed: 626, failed: 0, skipped: 0 });
     expect(combinedCatalogue.files).toHaveLength(54);
     expect(JSON.parse(readFileSync(`public${hardening.manifest.path}`, 'utf8'))).toEqual(

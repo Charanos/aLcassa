@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { z } from 'zod';
 import { projectTestEvidence } from '../src/lib/presentation/verificationEvidence';
 const root = 'public/verification/2026-10-09';
 mkdirSync(root, { recursive: true });
@@ -15,12 +16,23 @@ for (const [path, count] of [
 ] as const)
   if (tests.files.find((file) => file.path === path)?.cases.length !== count)
     throw Error('Device gate absent');
-const readback = JSON.parse(
-  readFileSync('.test-report/phase-one/device-sessions-native-readback.json', 'utf8'),
-);
-const cleanup = JSON.parse(
-  readFileSync('.test-report/phase-one/device-sessions-native-cleanup.json', 'utf8'),
-);
+const readback = z
+  .object({
+    activeSessions: z.number(),
+    endedSessions: z.number(),
+    audits: z.number(),
+    bulkCount: z.number(),
+    actualCurrentSessionPreserved: z.boolean(),
+    individualAndBulkAuditMatch: z.boolean(),
+  })
+  .parse(
+    JSON.parse(readFileSync('.test-report/phase-one/device-sessions-native-readback.json', 'utf8')),
+  );
+const cleanup = z
+  .object({ fixtureRemoved: z.boolean(), establishedWorkspacePreserved: z.boolean() })
+  .parse(
+    JSON.parse(readFileSync('.test-report/phase-one/device-sessions-native-cleanup.json', 'utf8')),
+  );
 if (
   readback.activeSessions !== 1 ||
   readback.endedSessions !== 4 ||

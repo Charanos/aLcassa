@@ -118,7 +118,8 @@ const signInRequest = (next: string) =>
 it('lets a confirmed account without a workspace return to its own pending invitation without app authority', async () => {
   const response = await signInRequest('/invite/owned-token');
   expect(response.status).toBe(200);
-  expect((await response.json()).data).toMatchObject({
+  const body = (await response.json()) as { data: unknown };
+  expect(body.data).toMatchObject({
     door: 'invitation',
     destination: '/invite/owned-token',
   });
