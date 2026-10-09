@@ -1,3 +1,4 @@
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { isPlatformAdmin, membershipsFor } from '@/lib/auth/resolve';
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (platform) {
       const session = await createSession({ userId, kind: 'platform', requestId });
-      const response = NextResponse.redirect(new URL('/platform', request.url), 303);
+      const response = NextResponse.redirect(new URL('/platform', authRequestOrigin(request)), 303);
       response.cookies.set(
         cookieNameFor('platform'),
         session.id,
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         requestId,
       });
       const response = NextResponse.redirect(
-        new URL('/reset-password?purpose=invite', request.url),
+        new URL('/reset-password?purpose=invite', authRequestOrigin(request)),
         303,
       );
       response.cookies.set(
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       // We don't issue a custom aLcassa session yet because they don't have a workspace.
       // But they *are* authenticated with Supabase. The finish-signup route will create
       // the workspace and issue the session.
-      return NextResponse.redirect(new URL('/sign-up/finish', request.url), 303);
+      return NextResponse.redirect(new URL('/sign-up/finish', authRequestOrigin(request)), 303);
     }
 
     // 4. Existing user, sign them into their first workspace.
@@ -95,7 +96,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     log.info('OAuth signed in', { userId, tenantId: tenant.tenantId, role: tenant.role });
 
-    const response = NextResponse.redirect(new URL(next, request.url), 303);
+    const response = NextResponse.redirect(new URL(next, authRequestOrigin(request)), 303);
     response.cookies.set(
       cookieNameFor('tenant'),
       session.id,
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     const code = error instanceof AppError ? error.code : ERROR_CODES.INTERNAL;
     log.warn('OAuth callback failed', { code });
-    const url = new URL('/sign-in', request.url);
+    const url = new URL('/sign-in', authRequestOrigin(request));
     url.searchParams.set('error', code);
     return NextResponse.redirect(url, 303);
   }

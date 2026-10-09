@@ -5,10 +5,12 @@ import record from '@/lib/presentation/verificationRecord.json';
 import membership from '@/lib/presentation/membershipVerification.json';
 import account from '@/lib/presentation/accountVerification.json';
 import ownership from '@/lib/presentation/ownershipVerification.json';
+import navigation from '@/lib/presentation/authNavigationVerification.json';
 import {
   projectTestEvidence,
   projectCredentialEvidence,
   projectOwnershipEvidence,
+  projectAuthNavigationEvidence,
 } from '@/lib/presentation/verificationEvidence';
 
 const report = () => ({
@@ -36,6 +38,32 @@ const report = () => ({
   token: 'PRIVATE_TOKEN_CANARY',
 });
 describe('Public verification evidence boundary', () => {
+  it('excludes private navigation fixture fields and refuses incomplete browser qualification', () => {
+    const receipt = {
+      localOnly: true,
+      checkedAt: new Date().toISOString(),
+      browserHost: '127.0.0.1',
+      protectedDeepLinkPreserved: true,
+      invalidPasswordRefused: true,
+      refusalReturnPathPreserved: true,
+      signInAutomatic: true,
+      signOutAutomatic: true,
+      signedOutProtectedRequestRefused: true,
+      recoveryFormGeneric: true,
+      strictFormActionPreserved: true,
+      noFormCspViolations: true,
+      phoneViewportPx: 390,
+      phoneDocumentPx: 380,
+      fixtureRemoved: true,
+      establishedWorkspacePreserved: true,
+    };
+    expect(
+      projectAuthNavigationEvidence({ ...receipt, password: 'PRIVATE_PASSWORD_CANARY' }),
+    ).toEqual(receipt);
+    expect(() => projectAuthNavigationEvidence({ ...receipt, signInAutomatic: false })).toThrow();
+    expect(() => projectAuthNavigationEvidence({ ...receipt, fixtureRemoved: false })).toThrow();
+    expect(() => projectAuthNavigationEvidence({ ...receipt, phoneDocumentPx: 391 })).toThrow();
+  });
   it('keeps published artifacts and their fingerprints consistent with the evidence index', () => {
     const files = [
       record.localCandidate.results,
@@ -52,9 +80,15 @@ describe('Public verification evidence boundary', () => {
       ownership.results,
       ownership.native,
       ownership.manifest,
+      navigation.results,
+      navigation.native,
+      navigation.manifest,
+      ...navigation.images,
     ];
     for (const file of files) {
-      expect(file.path).toMatch(/^\/verification\/2026-10-08\/[a-z0-9-]+\.(?:json|jpg|png)$/);
+      expect(file.path).toMatch(
+        /^\/verification\/2026-10-(?:08|09)\/[a-z0-9-]+\.(?:json|jpg|png)$/,
+      );
       const bytes = readFileSync(`public${file.path}`);
       expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);
     }
@@ -73,6 +107,15 @@ describe('Public verification evidence boundary', () => {
       readFileSync(`public${ownership.manifest.path}`, 'utf8'),
     ) as Omit<typeof ownership, 'manifest'>;
     expect({ ...ownershipCheckpoint, manifest: ownership.manifest }).toEqual(ownership);
+    const navigationCheckpoint = JSON.parse(
+      readFileSync(`public${navigation.manifest.path}`, 'utf8'),
+    ) as Omit<typeof navigation, 'manifest'>;
+    expect({ ...navigationCheckpoint, manifest: navigation.manifest }).toEqual(navigation);
+    expect(
+      projectAuthNavigationEvidence(
+        JSON.parse(readFileSync(`public${navigation.native.path}`, 'utf8')),
+      ).refusalReturnPathPreserved,
+    ).toBe(true);
     const native = projectOwnershipEvidence(
       JSON.parse(readFileSync(`public${ownership.native.path}`, 'utf8')),
     );

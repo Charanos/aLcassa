@@ -6,6 +6,7 @@ import record from '@/lib/presentation/verificationRecord.json';
 import membership from '@/lib/presentation/membershipVerification.json';
 import account from '@/lib/presentation/accountVerification.json';
 import ownership from '@/lib/presentation/ownershipVerification.json';
+import navigation from '@/lib/presentation/authNavigationVerification.json';
 import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
@@ -28,7 +29,7 @@ export default function VerificationRecordPage() {
         <IconArrowLeft size={16} aria-hidden /> Project tracker
       </Link>
       <header className="mt-10 border-b border-[var(--border-subtle)] pb-10">
-        <p className="t-eyebrow text-[var(--text-tertiary)]">Phase One · {record.date}</p>
+        <p className="t-eyebrow text-[var(--text-tertiary)]">Phase One · {navigation.date}</p>
         <h1 className="display display-lg mt-3 tracking-tight">Verification record</h1>
         <p className="t-body mt-5 text-[var(--text-secondary)]">
           Current local verification and the qualified CI reference checkpoint, with the work still
@@ -49,7 +50,7 @@ export default function VerificationRecordPage() {
             Completion plan <IconArrowUpRight size={16} aria-hidden />
           </Link>
           <a
-            href="/verification/2026-10-08/manifest.json"
+            href={navigation.manifest.path}
             download
             className="t-compact inline-flex items-center gap-2 text-[var(--text-action)] underline underline-offset-4"
           >
@@ -69,9 +70,9 @@ export default function VerificationRecordPage() {
         </div>
         <dl className="surface-sunken mt-5 grid gap-px overflow-hidden rounded-panel border border-[var(--border-subtle)] sm:grid-cols-2 lg:grid-cols-4">
           <Metric
-            value={`${ownership.passed}`}
+            value={`${navigation.passed}`}
             label="Current local cases passed"
-            detail={`${ownership.files} files · no failures or skips`}
+            detail={`${navigation.files} files · no failures or skips`}
           />
           <Metric
             value={`${record.service.databaseCases}`}
@@ -103,6 +104,12 @@ export default function VerificationRecordPage() {
               label={`${record.localCandidate.passed}-case local catalogue`}
             />
             <Digest value={record.localCandidate.results.sha256} />
+            <div className="mt-3">
+              <EvidenceDownload
+                href="/verification/2026-10-08/manifest.json"
+                label="Earlier tracker evidence index"
+              />
+            </div>
           </div>
         </div>
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
@@ -156,6 +163,74 @@ export default function VerificationRecordPage() {
             </div>
             <Digest value={record.service.results.sha256} />
           </Release>
+        </div>
+      </section>
+
+      <section
+        id="auth-navigation-checkpoint"
+        aria-labelledby="auth-navigation-title"
+        className="mt-14 border-t border-[var(--border-subtle)] pt-10"
+      >
+        <h2 id="auth-navigation-title" className="t-heading text-right">
+          Sign in and return to your work
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          {navigation.environment}. All {navigation.passed} cases in {navigation.files} files pass.
+          Verified against baseline <code>{navigation.baseCommit.slice(0, 7)}</code>.
+        </p>
+        <div className="surface-sunken mt-6 rounded-panel border border-[var(--border-subtle)] p-5 md:p-7">
+          <h3 className="t-heading">Automatic navigation, including a refused retry</h3>
+          <p className="t-compact mt-3 text-[var(--text-secondary)]">
+            A protected Team link retains its page and query through missing or stale sessions and
+            an incorrect-password retry. The correct password opens that exact page automatically.
+            Sign-out returns to sign-in, and a fresh protected request is refused. Independent
+            database readback confirms the owned sessions ended. The recovery form keeps its generic
+            response and fits a 390px viewport; strict form-action protection remains in place with
+            no browser violations. Owned accounts and workspace data are removed after verification.
+          </p>
+          <p className="t-compact mt-4 text-[var(--text-secondary)]">{navigation.limits}</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            <div>
+              <EvidenceDownload href={navigation.results.path} label="605-case local catalogue" />
+              <Digest value={navigation.results.sha256} />
+            </div>
+            <div>
+              <EvidenceDownload href={navigation.native.path} label="Bounded navigation outcomes" />
+              <Digest value={navigation.native.sha256} />
+            </div>
+            <div>
+              <EvidenceDownload
+                href={navigation.manifest.path}
+                label="Auth navigation evidence index"
+              />
+              <Digest value={navigation.manifest.sha256} />
+            </div>
+          </div>
+        </div>
+        <div className="mt-6 grid items-start gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          {navigation.images.map((item) => (
+            <figure key={item.path} className="min-w-0">
+              <a
+                href={item.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Open ${item.label}`}
+              >
+                <Image
+                  src={item.path}
+                  alt={item.label}
+                  width={item.width}
+                  height={item.height}
+                  className="h-auto w-full rounded-panel border border-[var(--border-subtle)]"
+                  unoptimized
+                />
+              </a>
+              <figcaption className="t-compact mt-3 text-[var(--text-secondary)]">
+                {item.label}
+                <Digest value={item.sha256} />
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 

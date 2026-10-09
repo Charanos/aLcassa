@@ -16,6 +16,8 @@ import { currentSessionOrNull } from '@/lib/auth/resolve';
 import { getShell } from '@/lib/tenant/data';
 import { loadMe } from '@/modules/identity';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+import { safeReturnPath } from '@/lib/auth/returnPath';
 import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 
 /** Resolve workspace identity and role on the server; filter navigation against the current membership. */
@@ -127,7 +129,10 @@ function initialsOf(name: string) {
 
 export default async function TenantLayout({ children }: { children: React.ReactNode }) {
   const ctx = await currentSessionOrNull();
-  if (!ctx && !demoAccessEnabled()) redirect('/sign-in');
+  if (!ctx && !demoAccessEnabled()) {
+    const path = safeReturnPath((await headers()).get('x-auth-return-path'), '/app');
+    redirect(`/sign-in?next=${encodeURIComponent(path)}`);
+  }
   const me = ctx ? await loadMe(ctx) : null;
   const shell = me ? null : await getShell();
 

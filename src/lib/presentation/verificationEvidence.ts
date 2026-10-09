@@ -17,6 +17,30 @@ const report = z.object({
 const privateText =
   /csk_(?:live|test)_[a-f0-9]{16}_|Bearer\s+\S+|[\w.+-]+@[\w.-]+\.[a-z]{2,}|eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\./i;
 
+/** Keep local navigation proof separate from password changes and external OAuth acceptance. */
+export function projectAuthNavigationEvidence(input: unknown) {
+  return z
+    .object({
+      localOnly: z.literal(true),
+      checkedAt: z.string().datetime(),
+      browserHost: z.literal('127.0.0.1'),
+      protectedDeepLinkPreserved: z.literal(true),
+      invalidPasswordRefused: z.literal(true),
+      refusalReturnPathPreserved: z.literal(true),
+      signInAutomatic: z.literal(true),
+      signOutAutomatic: z.literal(true),
+      signedOutProtectedRequestRefused: z.literal(true),
+      recoveryFormGeneric: z.literal(true),
+      strictFormActionPreserved: z.literal(true),
+      noFormCspViolations: z.literal(true),
+      phoneViewportPx: z.literal(390),
+      phoneDocumentPx: z.number().int().positive().max(390),
+      fixtureRemoved: z.literal(true),
+      establishedWorkspacePreserved: z.literal(true),
+    })
+    .parse(input);
+}
+
 /** Publish only test names, outcomes and timing; never logs, errors or machine paths. */
 export function projectTestEvidence(input: unknown) {
   const parsed = report.parse(input);

@@ -1,3 +1,4 @@
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
@@ -58,5 +59,5 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (asJson) return jsonNoContent(requestId);
 
   // The form post lands on a page that says the same thing regardless.
-  return NextResponse.redirect(new URL('/forgot-password?sent=1', request.url), 303);
+  return NextResponse.redirect(new URL('/forgot-password?sent=1', authRequestOrigin(request)), 303);
 }

@@ -1,3 +1,4 @@
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { activateProvisionedOwner } from '@/lib/auth/provisionedOwner';
 import {
@@ -14,7 +15,7 @@ import { logger } from '@/lib/logger';
 export async function POST(request: NextRequest) {
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
   try {
-    if (request.headers.get('origin') !== new URL(request.url).origin)
+    if (request.headers.get('origin') !== authRequestOrigin(request))
       throw new Error('origin_refused');
     await enforceRateLimit(request, RATE_LIMITS.passwordReset);
     const { user, session: flow, passwordSaved } = await requireEmailSession('invite', requestId);
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       requestId,
     });
     await revokeSession(flow.id, user.id, requestId, 'email setup completed');
-    const response = NextResponse.redirect(new URL('/app', request.url), 303);
+    const response = NextResponse.redirect(new URL('/app', authRequestOrigin(request)), 303);
     response.cookies.set(
       cookieNameFor('tenant'),
       session.id,
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
   } catch {
     logger.child({ requestId }).warn('workspace activation could not complete');
     return NextResponse.redirect(
-      new URL('/reset-password?purpose=invite&error=setup_pending', request.url),
+      new URL('/reset-password?purpose=invite&error=setup_pending', authRequestOrigin(request)),
       303,
     );
   }

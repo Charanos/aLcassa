@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { demoAccessEnabled } from '@/lib/auth/demoAccess';
+import { safeReturnPath } from '@/lib/auth/returnPath';
 import { ConsoleShell } from '@/components/console/ConsoleShell';
 import type {
   ConsoleAccount,
@@ -142,7 +143,7 @@ export default async function PlatformLayout({ children }: { children: React.Rea
     getLiveConsoleChrome(),
   ]);
   if (!liveChrome && !demoAccessEnabled()) {
-    const path = (await headers()).get('x-pathname') ?? '/platform';
+    const path = safeReturnPath((await headers()).get('x-auth-return-path'), '/platform');
     redirect(`/sign-in?next=${encodeURIComponent(path)}`);
   }
   const isolation = live ?? (await getIsolationStatus());

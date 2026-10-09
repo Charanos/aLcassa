@@ -699,7 +699,7 @@ Update the tracker after each qualified package: explain what moved, the gate ID
 closed, the evidence and remaining work. Update milestone estimates only after
 verification. The latest CI run and deployed source must match the candidate;
 older successful references remain explicitly historical. A planning update adds
-no completed gate and does not increase the current 83% estimate.
+no completed gate and does not increase the estimate without new verification.
 
 ### 18.10 Execution checklist for each package
 
@@ -747,3 +747,28 @@ measured performance/recovery, truthful monitoring/provider scope, clean setup a
 an exact qualified release. Produce a concise handover-ready statement with known
 launch-only prerequisites and any explicitly accepted scope decisions. Formal
 walkthrough/sign-off remains a distinct recorded event.
+
+### 18.12 Qualified local navigation subset — 9 October 2026
+
+The G03 navigation checkpoint passes 605 cache-disabled cases in 49 files and
+native production-build sign-in, wrong-password retry, sign-out and fresh-access
+refusal. Missing and stale sessions preserve the page and query; built checks cover
+both local addresses, and independently observed session readback and owned-fixture
+cleanup agree. Read the [verification record](/project-tracker/verification#auth-navigation-checkpoint)
+and [ledger checkpoint](26-phase-one-verification-ledger.md#32-auth-navigation-checkpoint--9-october-2026).
+Auth is now 93%; the rounded overall engineering estimate is 84%. These are verified
+engineering estimates, with two accepted milestones and no new acceptance event.
+
+Next complete G01–G03's colleague invitation and confirmed-identity journeys,
+configured OAuth or an explicitly recorded product scope decision, full native
+password-change acceptance and current/other-device session review. Invitation
+acceptance must not create workspace authority from an unconfirmed provider identity
+or a failed identity read. Existing accounts without an active workspace must be able
+to sign in and return safely to their valid invitation. Follow with G04/G05 credential
+clipboard/last-use qualification, then the remaining Platform/Ops and operational
+register. The 83% values in earlier dated planning snapshots remain historical.
+
+Maintained built acceptance: after `BuildLive` and `Serve`, run
+`pnpm exec tsx scripts/check-auth-navigation.ts`, then repeat with
+`AUTH_NAVIGATION_BASE_URL=http://localhost:3100`. The same two-address check is part
+of the build job in CI. Keep the strict CSP and existing browser workspace intact.

@@ -1,23 +1,6 @@
 name: CI
 
-# 04 §9 · 11 §5. The gates that block a merge.
-#
-# ⚠ THIS WORKFLOW HAD NEVER RUN A SINGLE JOB BEFORE 28 Aug 2026.
-#
-# It called `pnpm install --frozen-lockfile` while the repository contained only
-# `package-lock.json`. pnpm exits immediately when asked for a frozen install
-# with no `pnpm-lock.yaml`, so every job died at the install step — including
-# the isolation suite that `04 §11` calls "blocking with no override path" and
-# the policy check that `06 §2` says "fails the build".
-#
-# Both pass, and have passed throughout, because they were run by hand. But the
-# enforcement everybody was relying on was not there. The lockfile is now
-# committed and this file describes only what it actually does.
-#
-# The previous header also promised contract tests against the OpenAPI
-# specification, Playwright on the critical paths and an axe accessibility
-# scan. None of those existed as jobs. They are recorded as outstanding in
-# `12 · Handover` rather than described here as though they run.
+# Required static, build, isolation and integration release checks.
 
 on:
   pull_request:
@@ -74,6 +57,25 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - name: Verify built authentication redirects
+        run: |
+          pnpm exec next start --hostname 127.0.0.1 --port 3100 > /tmp/alcassa-auth-navigation.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=false
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:3100/sign-in > /dev/null; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != true ]; then
+            echo 'Built authentication server did not become ready.'
+            exit 1
+          fi
+          pnpm exec tsx scripts/check-auth-navigation.ts
+          AUTH_NAVIGATION_BASE_URL=http://localhost:3100 pnpm exec tsx scripts/check-auth-navigation.ts
 
   isolation:
     name: Policies and isolation

@@ -114,9 +114,9 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
-  date: '8 October 2026',
-  applicationTests: 578,
-  applicationFiles: 46,
+  date: '9 October 2026',
+  applicationTests: 605,
+  applicationFiles: 49,
   serviceTests: 21,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -155,8 +155,8 @@ export const MILESTONES = [
     gate: 'Demo: full account lifecycle',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 92,
-    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Recovery recipients resolve to real Auth and application records; unknown and profile-only addresses receive no link and create no identity. Ownership checks both current and password-proof identities, preserves existing sessions and has native refusal and transfer evidence. Customer sign-out is verified in the browser. Complete account acceptance, colleague invitations and OAuth remain open; external email delivery is a separate launch qualification.',
+    progress: 93,
+    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Recovery recipients resolve to real Auth and application records; unknown and profile-only addresses receive no link and create no identity. Ownership preserves existing sessions and has native refusal and transfer evidence. Native sign-in, wrong-password retry and sign-out retain the requested page and query in a production build; fresh access is refused after sign-out, with session readback and fixture cleanup. Complete account acceptance, colleague invitations, OAuth and device-session review remain open; external email delivery is a separate launch qualification.',
   },
   {
     id: 'M3',
@@ -225,11 +225,13 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
   { previous: number; evidence: string[]; remaining: string[] }
 > = {
   M2: {
-    previous: 90,
+    previous: 92,
     evidence: [
       'Actual Auth and application records agree for the recovery recipient',
       'Unknown and profile-only addresses receive no reset link or new identity',
       'Native ownership refusal, transfer, fresh permissions and existing sign-in',
+      'Production-build sign-in, wrong-password retry and sign-out resume the intended page and query',
+      'Built Edge and route origin checks on both local addresses; fresh denial and session readback after sign-out',
     ],
     remaining: [
       'Complete browser account lifecycle and colleague invitations',
@@ -390,6 +392,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-09',
+    title: 'Auth navigation and sign-in retries verified',
+    body: 'Native sign-in, incorrect-password retry and sign-out now complete automatically in a production build without losing the requested page or query. Fresh protected access is refused after sign-out, and database readback confirms the owned sessions ended. All 605 local cases in 49 files pass; the verification record adds immutable browser outcomes, reviewed images and a separate evidence index. Auth advances from 92% to 93%, bringing the rounded engineering estimate to 84%. Invitation, OAuth, device-session and operational acceptance remain open.',
+    milestone: 'M2',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-08',
     title: 'Ownership review and recovery recipients verified',

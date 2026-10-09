@@ -1,3 +1,4 @@
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
@@ -17,17 +18,22 @@ import { safeReturnPath } from '@/lib/auth/returnPath';
 const signInSchema = z.object({
   email: z.string().trim().toLowerCase().email('Enter a valid email address.'),
   password: z.string().min(1, 'Enter your password.'),
-  next: z.string().optional(),
+  next: z.string().max(2048).optional(),
 });
+const continuationSchema = signInSchema.pick({ next: true });
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
   const log = logger.child({ requestId, route: '/api/v1/auth/sign-in' });
 
   const asJson = wantsJson(request);
+  let returnPath: string | undefined;
 
   try {
     const raw = await readRequestBody(request);
+    const continuation = continuationSchema.safeParse(raw);
+    if (continuation.success && continuation.data.next)
+      returnPath = safeReturnPath(continuation.data.next, '/app');
 
     const parsed = signInSchema.safeParse(raw);
     if (!parsed.success) {
@@ -163,8 +169,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     /** Form failures redirect with a catalogue error code; raw provider messages are not exposed. */
     const code = error instanceof AppError ? error.code : ERROR_CODES.INTERNAL;
     logger.child({ requestId }).warn('sign-in failed', { code });
-    const url = new URL('/sign-in', request.url);
+    const url = new URL('/sign-in', authRequestOrigin(request));
     url.searchParams.set('error', code);
+    if (returnPath) url.searchParams.set('next', returnPath);
     return NextResponse.redirect(url, 303);
   }
 }
@@ -183,7 +190,7 @@ function respond(input: {
     ? jsonOk(input.payload, { requestId: input.requestId })
     : // 303, not 302: it turns the browser's follow-up into a GET, so a
       // refresh on the destination does not repost the credentials.
-      NextResponse.redirect(new URL(input.destination, input.request.url), 303);
+      NextResponse.redirect(new URL(input.destination, authRequestOrigin(input.request)), 303);
 
   response.cookies.set(
     input.cookie.name,

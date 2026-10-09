@@ -1024,3 +1024,64 @@ shared service budgets, the Platform/Ops/peripheral matrix, operational drills
 and final walkthrough remain required. Local service hosting is the agreed
 verification environment; sending-domain and actual production cutover remain
 separate launch qualifications. No new milestone acceptance is inferred.
+
+## 31. Qualified ownership and recovery release — 8 October 2026
+
+Release `8b2de0507ab6fe0265026eeabfef769f5586473c` passes all six application CI
+jobs ([run 37838562338](https://github.com/Charanos/aLcassa/actions/runs/37838562338))
+and [Vercel deployment](https://vercel.com/dennis-munges-projects/a-lcassa/9BEbbpcgdY7nJMFjyNcukpBdWckD).
+The downloaded cache-disabled CI report confirms 578 cases in 46 files without
+failures or skips. Deployed read-only verification covers 28 tracker/document
+routes, 62 anchors and 21 evidence assets; private source returns 404. Native
+deployed navigation reaches the ownership checkpoint and its matching downloads.
+These results qualify section 30's release; remaining G01–G19 scenarios and the
+separately pinned service results retain their stated boundaries.
+
+## 32. Auth navigation checkpoint — 9 October 2026
+
+G03's local navigation subset now has production-build and native-browser proof.
+Next's request parser and Edge adapter normalized loopback authorities to
+`localhost`, so requests made to `127.0.0.1` could redirect to a different origin
+and be refused by strict `form-action 'self'`. A shared origin resolver restores
+only recognized loopback authorities on the same port; client Origin and forwarded
+hosts cannot choose the redirect destination. `skipMiddlewareUrlNormalize` retains
+the middleware's authority through the installed Edge adapter. Hosted authorities
+remain unchanged. [Next's middleware reference](https://nextjs.org/docs/15/app/api-reference/file-conventions/middleware)
+describes the normalization option; built-server checks cover both IPv4 and localhost
+rather than relying only on route mocks. CSP protection is unchanged.
+
+Middleware overwrites the internal return-path header with the actual pathname and
+query. Both protected layouts validate that path when an expired or stale session
+reaches the server. Sign-in refusals retain a separately validated continuation,
+including an invalid-email refusal; external destinations fall back locally. The
+new built-server CI check verifies missing/stale sessions, forged headers, form
+refusal, same-origin redirects and strict form-action on both local addresses.
+
+Native verification uses an isolated Auth navigation workspace and existing test
+credentials. An incorrect password refuses access while retaining the exact Team
+URL and query; the correct password opens that URL automatically. Sign-out returns
+to sign-in without manual navigation. A fresh protected request refuses access,
+and independent database readback confirms no active owned tenant sessions remain.
+Recovery submission returns the generic response; its 390px viewport has a 380px
+document. No form-action violations occur. Owned accounts, sessions and workspace
+data are removed, and established workspace owners remain unchanged.
+
+The cache-disabled regression passes **605 cases in 49 files, no failures or skips**;
+workspace policy coverage remains 15/15 with zero issues. This includes 15 origin,
+four middleware, 12 email-confirmation and three refused-sign-in continuation cases.
+The production build renders all 94 routes. Reviewed anonymous desktop and phone
+images, bounded browser outcomes and a redacted test catalogue are indexed in
+`auth-navigation-manifest.json` through the verification record. Every artifact has
+a SHA-256; earlier checkpoints retain their bytes. Public projections reject
+incomplete cleanup and strip fixture credentials, identities and raw logs.
+
+Auth advances **92→93%**, bringing the rounded overall engineering estimate to
+**84%**, with two accepted milestones. This qualifies local G03 navigation, not the
+whole account lifecycle. Full native password change, colleague invitation joining,
+configured Google OAuth and current/other-device session review remain open. IPv6
+has route/unit coverage; the native replay uses IPv4. Wider failure states, shared
+service enforcement, the Platform/Ops/peripheral matrix, load, recovery, monitoring,
+clean setup and handover remain required. Local service hosting is the agreed
+verification scope; external sending-domain readiness and actual-launch cutover are
+separate. Exact CI/deployment qualification is recorded after this package is pushed;
+section 31 remains the qualified application release reference until then.

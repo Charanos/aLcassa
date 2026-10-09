@@ -1,3 +1,4 @@
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // ─ 3 · ours ───────────────────────────────────────────────────────────────
   const response = wantsJson
     ? jsonOk({ signedOut: true }, { requestId })
-    : NextResponse.redirect(new URL('/sign-in', request.url), 303);
+    : NextResponse.redirect(new URL('/sign-in', authRequestOrigin(request)), 303);
 
   /* Confirm sign-out on the destination page, including partial provider failures. */
   if (!wantsJson) {

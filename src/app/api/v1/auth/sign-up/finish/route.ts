@@ -1,3 +1,4 @@
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           },
           { requestId },
         )
-      : NextResponse.redirect(new URL(destination, request.url), 303);
+      : NextResponse.redirect(new URL(destination, authRequestOrigin(request)), 303);
 
     response.cookies.set(
       cookieNameFor('tenant'),
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const code = error instanceof AppError ? error.code : ERROR_CODES.INTERNAL;
     log.warn('finish oauth sign-up failed', { code });
-    const url = new URL('/sign-up/finish', request.url);
+    const url = new URL('/sign-up/finish', authRequestOrigin(request));
     url.searchParams.set('error', code);
     return NextResponse.redirect(url, 303);
   }

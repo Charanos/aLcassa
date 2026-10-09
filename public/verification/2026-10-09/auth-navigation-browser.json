@@ -1,0 +1,18 @@
+{
+  "localOnly": true,
+  "checkedAt": "2026-10-08T21:54:58.191Z",
+  "browserHost": "127.0.0.1",
+  "protectedDeepLinkPreserved": true,
+  "invalidPasswordRefused": true,
+  "refusalReturnPathPreserved": true,
+  "signInAutomatic": true,
+  "signOutAutomatic": true,
+  "signedOutProtectedRequestRefused": true,
+  "recoveryFormGeneric": true,
+  "strictFormActionPreserved": true,
+  "noFormCspViolations": true,
+  "phoneViewportPx": 390,
+  "phoneDocumentPx": 380,
+  "fixtureRemoved": true,
+  "establishedWorkspacePreserved": true
+}

@@ -1,3 +1,4 @@
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
@@ -38,12 +39,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return asJson
       ? jsonOk({ sent: true }, { requestId })
-      : NextResponse.redirect(new URL(destination, request.url), 303);
+      : NextResponse.redirect(new URL(destination, authRequestOrigin(request)), 303);
   } catch (error) {
     if (asJson) return jsonError(error, requestId);
 
     const code = error instanceof AppError ? error.code : ERROR_CODES.INTERNAL;
-    const url = new URL('/sign-up/verify', request.url);
+    const url = new URL('/sign-up/verify', authRequestOrigin(request));
     url.searchParams.set('error', code);
     return NextResponse.redirect(url, 303);
   }

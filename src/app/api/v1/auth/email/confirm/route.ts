@@ -1,3 +1,4 @@
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let purpose = 'recovery';
   let stage = 'request';
   try {
-    if (request.headers.get('origin') !== new URL(request.url).origin)
+    if (request.headers.get('origin') !== authRequestOrigin(request))
       throw new Error('origin_refused');
     await enforceRateLimit(request, RATE_LIMITS.passwordReset);
     const input = emailProofSchema.parse(await readRequestBody(request));
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       requestId,
     });
     const destination = purpose === 'invite' ? '/reset-password?purpose=invite' : '/reset-password';
-    const response = NextResponse.redirect(new URL(destination, request.url), 303);
+    const response = NextResponse.redirect(new URL(destination, authRequestOrigin(request)), 303);
     response.cookies.set(cookieNameFor('recovery'), flow.id, sessionCookieOptions(flow.expiresAt));
     for (const kind of ['tenant', 'platform'] as const)
       response.cookies.set(cookieNameFor(kind), '', {
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return response;
   } catch {
     logger.child({ requestId }).warn('email link confirmation refused', { stage });
-    const url = new URL('/auth/confirm', request.url);
+    const url = new URL('/auth/confirm', authRequestOrigin(request));
     url.searchParams.set('type', purpose);
     url.searchParams.set('error', 'link_unavailable');
     return NextResponse.redirect(url, 303);

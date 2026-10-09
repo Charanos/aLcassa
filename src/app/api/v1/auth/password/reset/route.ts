@@ -1,3 +1,4 @@
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import {
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let updateUnconfirmed = false;
 
   try {
-    if (request.headers.get('origin') !== new URL(request.url).origin)
+    if (request.headers.get('origin') !== authRequestOrigin(request))
       throw new AppError(ERROR_CODES.AUTH_INVALID_CREDENTIALS);
     await enforceRateLimit(request, RATE_LIMITS.passwordReset);
 
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       await revokeSession(flow.id, userId, requestId, 'email setup completed');
       const response = asJson
         ? jsonOk({ passwordChanged: true, destination: '/app' }, { requestId })
-        : NextResponse.redirect(new URL('/app', request.url), 303);
+        : NextResponse.redirect(new URL('/app', authRequestOrigin(request)), 303);
       response.cookies.set(
         cookieNameFor('tenant'),
         session.id,
@@ -150,7 +151,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const response = asJson
       ? jsonOk({ passwordChanged: true, sessionsRevoked: revoked }, { requestId })
-      : NextResponse.redirect(new URL('/sign-in?reset=1', request.url), 303);
+      : NextResponse.redirect(new URL('/sign-in?reset=1', authRequestOrigin(request)), 303);
 
     for (const kind of ['tenant', 'platform', 'recovery'] as const) {
       response.cookies.set(cookieNameFor(kind), '', {
@@ -181,7 +182,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     const code = error instanceof AppError ? error.code : ERROR_CODES.INTERNAL;
     log.warn('password reset failed', { code });
-    const url = new URL('/reset-password', request.url);
+    const url = new URL('/reset-password', authRequestOrigin(request));
     if (purpose === 'invite') url.searchParams.set('purpose', 'invite');
     url.searchParams.set(
       'error',

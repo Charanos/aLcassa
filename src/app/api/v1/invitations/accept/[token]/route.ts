@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { z } from 'zod';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
@@ -160,7 +161,7 @@ export async function POST(
 
     const response = asJson
       ? jsonOk({ tenantId: result.tenantId, role: result.role, destination: '/app' }, { requestId })
-      : NextResponse.redirect(new URL('/app', request.url), 303);
+      : NextResponse.redirect(new URL('/app', authRequestOrigin(request)), 303);
 
     response.cookies.set(
       cookieNameFor('tenant'),
@@ -182,7 +183,7 @@ export async function POST(
      * what happened to their invitation.
      */
     const { token } = await segment.params;
-    const url = new URL(`/invite/${token}`, request.url);
+    const url = new URL(`/invite/${token}`, authRequestOrigin(request));
     url.searchParams.set('error', code);
     return NextResponse.redirect(url, 303);
   }

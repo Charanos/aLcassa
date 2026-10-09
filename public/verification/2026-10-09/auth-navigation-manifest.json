@@ -1,0 +1,33 @@
+{
+  "date": "9 October 2026",
+  "baseCommit": "8b2de0507ab6fe0265026eeabfef769f5586473c",
+  "environment": "Production build with disposable local Supabase Auth, PostgreSQL and native browser navigation",
+  "passed": 605,
+  "files": 49,
+  "scope": "G03 local sign-in, sign-out, protected deep links and same-origin email confirmation",
+  "results": {
+    "path": "/verification/2026-10-09/auth-navigation-regression.json",
+    "sha256": "71f42585e54820a65af18ce05f28f4fbbfaf0f687f507401811056c18b2add0d"
+  },
+  "native": {
+    "path": "/verification/2026-10-09/auth-navigation-browser.json",
+    "sha256": "6c276adff0ce96071c09e74b0fc71159aa0da8105a795b5dc388fc79b6c55c54"
+  },
+  "images": [
+    {
+      "path": "/verification/2026-10-09/auth-signed-out-desktop.jpg",
+      "label": "Signed-out entry on desktop",
+      "width": 1280,
+      "height": 800,
+      "sha256": "e2af6e89b81c59d77ca607a7859ea30ab55b92a2eb836ad0d94472a82d9f4a9a"
+    },
+    {
+      "path": "/verification/2026-10-09/auth-recovery-phone.jpg",
+      "label": "Generic recovery response at 390px",
+      "width": 390,
+      "height": 843,
+      "sha256": "ba37218b58e272b46026e9fb07672ca3d8446e814b5460d4b5e797eac5326999"
+    }
+  ],
+  "limits": "Native navigation is qualified on IPv4 loopback, with built HTTP checks on IPv4 and localhost and IPv6 route/unit coverage. Email proof guards include expired-code refusal; this checkpoint adds no native password change, colleague invitation acceptance or Google OAuth acceptance. Remaining G01/G03 journeys, wider failure states and operational gates stay open. Local captured mail is separate from external email delivery; service evidence retains its prior pin."
+}

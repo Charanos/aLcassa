@@ -20,6 +20,43 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe('Email confirmation refusals before provider access', () => {
+  it.each(['127.0.0.1', '[::1]'])(
+    'checks a same-origin proof on %s before refusing an expired code',
+    async (host) => {
+      const exchange = vi
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: { code: 'expired' } });
+      provider.client.mockResolvedValue({ auth: { exchangeCodeForSession: exchange } });
+      const origin = `http://${host}:3100`;
+      const response = await POST(
+        new NextRequest(`${origin}/api/v1/auth/email/confirm`, {
+          method: 'POST',
+          headers: { host: `${host}:3100`, origin, 'content-type': 'application/json' },
+          body: JSON.stringify({ proof: 'code', purpose: 'recovery', code: 'held-code' }),
+        }),
+      );
+      expect(exchange).toHaveBeenCalledWith('held-code');
+      expect(response.headers.get('location')).toBe(
+        `${origin}/auth/confirm?type=recovery&error=link_unavailable`,
+      );
+      expect(response.headers.get('set-cookie')).toBeNull();
+    },
+  );
+  it.each(['localhost:3100', '127.0.0.1:3200'])(
+    'refuses a mismatched local authority %s before provider access',
+    async (host) => {
+      const response = await POST(
+        new NextRequest('http://127.0.0.1:3100/api/v1/auth/email/confirm', {
+          method: 'POST',
+          headers: { host, origin: 'http://127.0.0.1:3100', 'content-type': 'application/json' },
+          body: JSON.stringify({ proof: 'code', purpose: 'recovery', code: 'held-code' }),
+        }),
+      );
+      expect(provider.client).not.toHaveBeenCalled();
+      expect(response.status).toBe(303);
+      expect(response.headers.get('set-cookie')).toBeNull();
+    },
+  );
   it.each([
     {
       name: 'cross-origin submission',
