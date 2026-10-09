@@ -787,3 +787,7 @@ The exact prior navigation release is qualified in ledger section 33.
 ### 18.14 Combined account safeguards
 
 626 cache-disabled local cases in 54 files now pass. Invitation identity and continuation guards and credential metadata export are verified automatically; device session native evidence remains separately linked. Keep M2 at 94% until the remaining complete password change, native invitation and OAuth acceptance gates pass. Next service batch must persist successful credential last-use through the restricted role and prove refused requests remain unchanged. Native credential feedback still needs acceptance before closing its gate.
+
+### 18.15 Durable last-use subset qualified locally
+
+The credential last-use subset of G05 passes 29 service cases, five cross-runtime HTTP checks and twelve publish/restore samples, alongside all 626 application cases. M5 advances to 86%. Keep shared budgets and durable request rollup open; last-use does not measure billable requests. Complete native credential feedback and final secrets review before closing G04/G05. Pin service integration to the new application policy revision and qualify both exact releases.

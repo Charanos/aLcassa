@@ -1,0 +1,265 @@
+{
+  "cases": [
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_ready_and_stored_tenant_identity_cannot_be_replaced_by_query_or_header",
+      "seconds": 0.369,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_scope_refused_before_handler_and_query",
+      "seconds": 0.292,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_missing_published_platform_rules_is_unavailable",
+      "seconds": 0.366,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_published_rules_etag_304_and_revocation_checked_before_conditional_response",
+      "seconds": 0.445,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_lifecycle_refusals[expired]",
+      "seconds": 0.232,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_lifecycle_refusals[rotating_expired]",
+      "seconds": 0.297,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_lifecycle_refusals[wrong_secret]",
+      "seconds": 0.263,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_lifecycle_refusals[suspended]",
+      "seconds": 0.237,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_lifecycle_refusals[paused]",
+      "seconds": 0.248,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_handler_failure_does_not_record_usage",
+      "seconds": 0.242,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_usage_write_connection_failure_is_not_reported_as_success",
+      "seconds": 0.252,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_revocation_between_snapshot_and_usage_write_refuses_response",
+      "seconds": 0.245,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_concurrent_successes_record_usage_without_serialization_failure",
+      "seconds": 0.452,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_service_cannot_update_another_tenant_or_credential_fields",
+      "seconds": 0.151,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_service_cannot_clear_backdate_or_future_date_usage[null]",
+      "seconds": 0.148,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_service_cannot_clear_backdate_or_future_date_usage[now()-interval '1 day']",
+      "seconds": 0.163,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_service_cannot_clear_backdate_or_future_date_usage[now()+interval '1 day']",
+      "seconds": 0.187,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_bypass_database_is_refused",
+      "seconds": 0.213,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_lookup_and_tenant_settings_do_not_leak_across_reused_connection",
+      "seconds": 0.149,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_database_contract",
+      "name": "test_missing_database_is_unavailable_without_secret_or_exception_details",
+      "seconds": 0.013,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_foundation",
+      "name": "test_liveness_is_explicit_and_correlated",
+      "seconds": 0.011,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_foundation",
+      "name": "test_untrusted_request_id_is_replaced",
+      "seconds": 0.01,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_foundation",
+      "name": "test_unknown_resource_has_safe_error_envelope",
+      "seconds": 0.013,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_foundation",
+      "name": "test_openapi_documents_only_implemented_routes",
+      "seconds": 0.036,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_foundation",
+      "name": "test_missing_and_malformed_credentials_refuse_before_database",
+      "seconds": 0.017,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_foundation",
+      "name": "test_database_connection_outage_preserves_safe_error_and_correlation",
+      "seconds": 7.067,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_rules",
+      "name": "test_master_locks_and_additive_fields",
+      "seconds": 0.002,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_rules",
+      "name": "test_locked_prohibitions_do_not_accept_tenant_changes",
+      "seconds": 0.001,
+      "status": "passed"
+    },
+    {
+      "suite": "tests.test_rules",
+      "name": "test_etag_matches_lists_weak_validators_and_star_without_requiring_a_body",
+      "seconds": 0.002,
+      "status": "passed"
+    }
+  ],
+  "bridge": {
+    "passed": true,
+    "localOnly": true,
+    "checkedAt": "2026-10-09T08:30:18.076Z",
+    "samples": [
+      {
+        "case": "/service/v1/tenant",
+        "status": 200,
+        "elapsedMs": 188
+      },
+      {
+        "case": "/service/v1/ai-rules",
+        "status": 200,
+        "elapsedMs": 88
+      },
+      {
+        "case": "/service/v1/ai-rules",
+        "status": 304,
+        "elapsedMs": 108
+      },
+      {
+        "case": "/service/v1/ai-rules",
+        "status": 403,
+        "elapsedMs": 45
+      },
+      {
+        "case": "/service/v1/ai-rules",
+        "status": 401,
+        "elapsedMs": 48
+      }
+    ]
+  },
+  "propagation": {
+    "passed": true,
+    "localOnly": true,
+    "checkedAt": "2026-10-09T08:30:41.871Z",
+    "samples": [
+      {
+        "operation": "tenant.publish.1",
+        "operationStartToReadMs": 205
+      },
+      {
+        "operation": "tenant.restore.1",
+        "operationStartToReadMs": 193
+      },
+      {
+        "operation": "master.publish.1",
+        "operationStartToReadMs": 118
+      },
+      {
+        "operation": "master.restore.1",
+        "operationStartToReadMs": 92
+      },
+      {
+        "operation": "tenant.publish.2",
+        "operationStartToReadMs": 147
+      },
+      {
+        "operation": "tenant.restore.2",
+        "operationStartToReadMs": 171
+      },
+      {
+        "operation": "master.publish.2",
+        "operationStartToReadMs": 113
+      },
+      {
+        "operation": "master.restore.2",
+        "operationStartToReadMs": 108
+      },
+      {
+        "operation": "tenant.publish.3",
+        "operationStartToReadMs": 192
+      },
+      {
+        "operation": "tenant.restore.3",
+        "operationStartToReadMs": 167
+      },
+      {
+        "operation": "master.publish.3",
+        "operationStartToReadMs": 97
+      },
+      {
+        "operation": "master.restore.3",
+        "operationStartToReadMs": 97
+      }
+    ]
+  }
+}

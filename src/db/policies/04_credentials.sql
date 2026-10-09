@@ -34,6 +34,50 @@ create policy api_credentials_service_lookup on api_credentials
     and deleted_at is null
   );
 
+-- A verified service request may record usage only for its own credential.
+create policy api_credentials_service_usage_select on api_credentials
+  for select using (
+    app.current_role() = 'service'
+    and tenant_id = app.current_tenant_id()
+    and id = app.current_actor_id()
+    and deleted_at is null
+  );
+create policy api_credentials_service_usage_update on api_credentials
+  for update using (
+    app.current_role() = 'service'
+    and tenant_id = app.current_tenant_id()
+    and id = app.current_actor_id()
+    and deleted_at is null
+    and status in ('active', 'rotating') and revoked_at is null
+    and (expires_at is null or expires_at > now())
+  ) with check (
+    app.current_role() = 'service'
+    and tenant_id = app.current_tenant_id()
+    and id = app.current_actor_id()
+    and deleted_at is null
+    and status in ('active', 'rotating') and revoked_at is null
+    and (expires_at is null or expires_at > now())
+  );
+
+-- The private connection also serves owners: constrain service writes by column.
+create or replace function app.guard_credential_usage_update()
+returns trigger language plpgsql security invoker set search_path = pg_catalog as $$
+begin
+  if current_setting('app.role', true) = 'service' and (
+    (to_jsonb(new) - 'last_used_at') is distinct from (to_jsonb(old) - 'last_used_at')
+    or new.last_used_at is null
+    or (old.last_used_at is not null and new.last_used_at < old.last_used_at)
+    or new.last_used_at > clock_timestamp()
+  ) then
+    raise exception 'Service writes are limited to a monotonic usage timestamp' using errcode = '42501';
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists guard_credential_usage_update on api_credentials;
+create trigger guard_credential_usage_update before update on api_credentials
+  for each row execute function app.guard_credential_usage_update();
+
 -- Create, rotate and revoke are owner-only, and never in support mode.
 --
 -- 09 §4 is explicit about the secret itself: NEVER READABLE BY ANYONE, EVER.

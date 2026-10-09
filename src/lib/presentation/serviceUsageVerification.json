@@ -1,0 +1,21 @@
+{
+  "date": "9 October 2026",
+  "environment": "Disposable local PostgreSQL and actual Node-to-FastAPI HTTP",
+  "applicationCases": 626,
+  "applicationFiles": 54,
+  "serviceCases": 29,
+  "databaseCases": 20,
+  "bridgeChecks": 5,
+  "propagationSamples": 12,
+  "maximumPropagationMs": 205,
+  "results": {
+    "path": "/verification/2026-10-09/service-usage-results.json",
+    "sha256": "36d7a445f33a669e2f6905e38b3a11d3b63ed447508e579e1cf7eadd1f2b35db"
+  },
+  "scope": "Durable last-use for successful 200/304 reads; refusal, failure, concurrency and database write boundaries.",
+  "limits": "Local engineering checkpoint. Shared rate budgets, request rollup, hosted topology, load, backup recovery and full surface acceptance remain open. This records last-use, not billable request counts.",
+  "manifest": {
+    "path": "/verification/2026-10-09/service-usage-manifest.json",
+    "sha256": "8fe18123e3dbb9eccafa9650e9ee881a356fbd519d6998ada357e32bbecb665f"
+  }
+}

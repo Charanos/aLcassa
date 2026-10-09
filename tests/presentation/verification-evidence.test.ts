@@ -8,6 +8,7 @@ import ownership from '@/lib/presentation/ownershipVerification.json';
 import navigation from '@/lib/presentation/authNavigationVerification.json';
 import devices from '@/lib/presentation/deviceSessionsVerification.json';
 import hardening from '@/lib/presentation/accountHardeningVerification.json';
+import usage from '@/lib/presentation/serviceUsageVerification.json';
 import {
   projectTestEvidence,
   projectCredentialEvidence,
@@ -92,6 +93,8 @@ describe('Public verification evidence boundary', () => {
       ...devices.images,
       hardening.results,
       hardening.manifest,
+      usage.results,
+      usage.manifest,
     ];
     for (const file of files) {
       expect(file.path).toMatch(
@@ -133,6 +136,16 @@ describe('Public verification evidence boundary', () => {
     ) as ReturnType<typeof projectTestEvidence>;
     expect(combinedCatalogue).toMatchObject({ passed: 626, failed: 0, skipped: 0 });
     expect(combinedCatalogue.files).toHaveLength(54);
+    expect(usage).toMatchObject({
+      serviceCases: 29,
+      databaseCases: 20,
+      bridgeChecks: 5,
+      propagationSamples: 12,
+    });
+    expect(usage.maximumPropagationMs).toBeLessThanOrEqual(5000);
+    expect(JSON.parse(readFileSync(`public${usage.manifest.path}`, 'utf8'))).toEqual(
+      Object.fromEntries(Object.entries(usage).filter(([key]) => key !== 'manifest')),
+    );
     expect(JSON.parse(readFileSync(`public${hardening.manifest.path}`, 'utf8'))).toEqual(
       Object.fromEntries(Object.entries(hardening).filter(([key]) => key !== 'manifest')),
     );

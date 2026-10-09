@@ -69,6 +69,14 @@ async function main() {
     const body = (await tenantResponse.json()) as { data: { id: string; name: string } };
     assert.equal(body.data.id, tenant);
     assert.equal(body.data.name, 'Node credential service verification');
+    async function lastUse(id: string) {
+      const [row] = await adminQuery<{ last_used_at: Date | null }[]>`
+        select last_used_at from api_credentials where id=${id}`;
+      assert(row);
+      return row.last_used_at?.getTime() ?? null;
+    }
+    const firstUse = await lastUse(minted.credential.id);
+    assert(firstUse !== null, 'Successful service read must persist last-use.');
     const rules = await read('/service/v1/ai-rules', minted.secret, 200);
     const etag = rules.headers.get('etag');
     assert(etag);
@@ -76,6 +84,8 @@ async function main() {
       'If-None-Match': etag,
     });
     assert.equal(await conditional.text(), '');
+    const conditionalUse = await lastUse(minted.credential.id);
+    assert(conditionalUse !== null && conditionalUse > firstUse);
     const limited = await createCredential(ctx, {
       name: 'Scope refusal',
       scopes: ['tenant:read'],
@@ -83,8 +93,10 @@ async function main() {
     });
     assert(limited.secret);
     await read('/service/v1/ai-rules', limited.secret, 403);
+    assert.equal(await lastUse(limited.credential.id), null);
     await revokeCredential(ctx, minted.credential.id);
     await read('/service/v1/ai-rules', minted.secret, 401, { 'If-None-Match': etag });
+    assert.equal(await lastUse(minted.credential.id), conditionalUse);
     await mkdir('.test-report/phase-one', { recursive: true });
     await writeFile(
       '.test-report/phase-one/service-cross-runtime.json',
@@ -100,6 +112,8 @@ async function main() {
             'Scope refused before rules handler',
             'Empty conditional response',
             'Revocation checked before 304',
+            'Successful and conditional reads persist last-use',
+            'Scope and revocation refusals preserve last-use',
           ],
           releaseQualified: false,
         },

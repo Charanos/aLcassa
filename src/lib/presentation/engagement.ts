@@ -190,8 +190,8 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 85,
-    note: 'Company changes and customer Activity are verified. Credentials pass 16 database cases and native lifecycle checks; both test keys ended revoked. Team management passes 31 database cases and five confirmed-action cases. The owner-only review includes successor selection, consequences, password refusal, cancel and uncertain-response handling. The actual browser transfer agrees with fresh roles and one audit, removes owner-only controls and fits a phone viewport. Twelve ownership-route cases and actual provider coverage preserve existing sign-in sessions. Complete colleague invitation journeys, clipboard/error journeys, usage persistence and the final secrets review remain open.',
+    progress: 86,
+    note: 'Company changes and customer Activity are verified. Credentials pass 16 database cases and native lifecycle checks; both test keys ended revoked. Team management passes 31 database cases and five confirmed-action cases. Ownership has native review, refusal, transfer and fresh-role evidence. Durable credential last-use now passes actual service/database and cross-runtime checks, including conditional reads, refusal, failure and concurrency boundaries. Complete colleague invitation journeys, clipboard/error journeys, request rollup and the final secrets review remain open.',
   },
   {
     id: 'M4a',
@@ -242,7 +242,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M5: {
-    previous: 80,
+    previous: 85,
     evidence: [
       'Company saves, conflicts and recorded Activity',
       '16 database credential cases, including concurrent limits and audit rollback',
@@ -251,11 +251,12 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Twelve ownership-route cases and an actual provider/database transfer preserving two existing sessions',
       'Native owner review, password refusal, single audited transfer and fresh roles; phone fit and keyboard focus',
       'Native role reduction, suspended removal and seat release without a reload; phone review and focus',
+      'Durable service last-use with successful/conditional reads, concurrency, failure and restricted database write checks',
     ],
     remaining: [
       'Complete provider invitation journeys and wider ownership failure-state acceptance',
       'Clipboard, phone and failure-state acceptance',
-      'Last-use persistence and final secrets review',
+      'Durable request rollup and final secrets review',
     ],
   },
   M4a: {
@@ -394,6 +395,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-09',
+    title: 'Durable service last-use verified',
+    body: 'Successful and conditional service reads now persist credential last-use. Refusal, failure, concurrency and database write boundaries pass in 29 service cases; five actual HTTP checks and twelve publish/restore samples also pass. All 626 application cases remain green. Tenant Settings advances from 85% to 86%. Shared budgets, request rollup and remaining native acceptance stay open; the verification record links the measured results and fingerprinted evidence index.',
+    milestone: 'M5',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-09',
     title: 'Device sessions and local sign-out verified',

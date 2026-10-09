@@ -9,6 +9,7 @@ import ownership from '@/lib/presentation/ownershipVerification.json';
 import navigation from '@/lib/presentation/authNavigationVerification.json';
 import devices from '@/lib/presentation/deviceSessionsVerification.json';
 import hardening from '@/lib/presentation/accountHardeningVerification.json';
+import usage from '@/lib/presentation/serviceUsageVerification.json';
 import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
@@ -52,7 +53,7 @@ export default function VerificationRecordPage() {
             Completion plan <IconArrowUpRight size={16} aria-hidden />
           </Link>
           <a
-            href={hardening.manifest.path}
+            href={usage.manifest.path}
             download
             className="t-compact inline-flex items-center gap-2 text-[var(--text-action)] underline underline-offset-4"
           >
@@ -77,9 +78,9 @@ export default function VerificationRecordPage() {
             detail={`${hardening.files} files · no failures or skips`}
           />
           <Metric
-            value={`${record.service.databaseCases}`}
+            value={`${usage.databaseCases}`}
             label="Service database cases"
-            detail={`${record.service.unitCases} additional unit / schema cases`}
+            detail={`${usage.serviceCases - usage.databaseCases} additional unit / schema cases · local`}
           />
           <Metric
             value={`${record.service.bridgeChecks + record.service.propagationChecks}`}
@@ -87,8 +88,8 @@ export default function VerificationRecordPage() {
             detail="5 credential checks · 12 publish / restore samples"
           />
           <Metric
-            value={`${record.service.maximumPropagationMs} ms`}
-            label="Slowest CI propagation sample"
+            value={`${usage.maximumPropagationMs} ms`}
+            label="Slowest local propagation sample"
             detail="12 samples · five-second budget · not load p95"
           />
         </dl>
@@ -166,6 +167,27 @@ export default function VerificationRecordPage() {
             <Digest value={record.service.results.sha256} />
           </Release>
         </div>
+      </section>
+
+      <section
+        id="service-usage-checkpoint"
+        aria-labelledby="service-usage-title"
+        className="mt-14 border-t border-[var(--border-subtle)] pt-10"
+      >
+        <h2 id="service-usage-title" className="t-heading text-right">
+          Durable credential last-use
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          {usage.scope} The local checkpoint passes {usage.serviceCases} service cases,{' '}
+          {usage.bridgeChecks} Node-to-HTTP checks and {usage.propagationSamples} publish/restore
+          samples. All {usage.applicationCases} application cases still pass with the new policies.
+        </p>
+        <p className="t-compact mt-3 text-[var(--text-secondary)]">{usage.limits}</p>
+        <div className="mt-5 flex flex-wrap gap-5">
+          <EvidenceDownload href={usage.results.path} label="Service usage results" />
+          <EvidenceDownload href={usage.manifest.path} label="Service usage evidence index" />
+        </div>
+        <Digest value={usage.results.sha256} />
       </section>
 
       <section
