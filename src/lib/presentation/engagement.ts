@@ -115,9 +115,9 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
   date: '9 October 2026',
-  applicationTests: 626,
-  applicationFiles: 54,
-  serviceTests: 21,
+  applicationTests: 632,
+  applicationFiles: 55,
+  serviceTests: 34,
   bridgeChecks: 5,
   propagationChecks: 12,
 } as const;
@@ -167,8 +167,8 @@ export const MILESTONES = [
     gate: 'Demo: limit enforcement',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 90,
-    note: 'Subscription changes and shared allowances are live, audited and protected against stale impact reviews. Credential limits, concurrent creation and overrides pass real database checks. FastAPI refuses missing permissions and inactive access before protected reads. Hosted service, shared rate budgets and remaining two-door acceptance checks stay open.',
+    progress: 92,
+    note: 'Subscription changes and shared allowances are live, audited and protected against stale impact reviews. Credential limits, concurrent creation and overrides pass real database checks. FastAPI refuses missing permissions and inactive access before protected reads. Eight real Redis scenarios prove shared tenant admission, expiry, restart, configuration and outage boundaries across Node processes and authenticated Python workers. Native Node HTTP contention, hosted service and remaining two-door acceptance checks stay open.',
   },
   {
     id: 'M4',
@@ -202,8 +202,8 @@ export const MILESTONES = [
     gate: 'Demo: a rules edit live through the API in 5 seconds',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 75,
-    note: `Workspace publication and restoration use immutable history, retention and transactional audit records. Platform safeguards and stale-edit checks pass real database cases. FastAPI passes ${PHASE_ONE_VERIFICATION.serviceTests} local cases; ${PHASE_ONE_VERIFICATION.bridgeChecks} Node-to-HTTP checks pass integration CI. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore samples reached the local service within five seconds. Native publication, comparison, restoration, stale-draft and desktop/phone checks pass. Broader browser failure states, hosted service, shared rate budgets and complete merged API conformance remain open acceptance gates.`,
+    progress: 78,
+    note: `Workspace publication and restoration use immutable history, retention and transactional audit records. Platform safeguards and stale-edit checks pass real database cases. FastAPI passes ${PHASE_ONE_VERIFICATION.serviceTests} local cases; ${PHASE_ONE_VERIFICATION.bridgeChecks} Node-to-HTTP checks pass integration CI. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore samples reached the local service within five seconds. Native publication, comparison, restoration, stale-draft and desktop/phone checks pass. Real Redis tenant budgets now pass eight scenarios across both runtimes. Native Node HTTP contention, broader browser failure states, hosted service and complete merged API conformance remain open acceptance gates.`,
   },
   {
     id: 'M6',
@@ -214,8 +214,8 @@ export const MILESTONES = [
     gate: 'Sign-off',
     tranche: 4,
     status: 'active' as MilestoneStatus,
-    progress: 40,
-    note: 'The disposable verification environment, release schema check, upgrade drill and complete local suite are available. Load, monitoring, backup recovery, provider delivery, timed clean setup and the final walkthrough remain open. Phase One is not yet accepted for handover.',
+    progress: 42,
+    note: 'The disposable verification environment, release schema check, upgrade drill and complete local suite are available. Eight mutable function search paths are pinned and the security scan confirms their warnings are resolved; two extension-placement warnings remain. Load, monitoring, backup recovery, provider delivery, timed clean setup and the final walkthrough remain open. Phase One is not yet accepted for handover.',
   },
 ] as const;
 
@@ -241,6 +241,17 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'External sending-domain and redirect qualification before launch',
     ],
   },
+  M3: {
+    previous: 90,
+    evidence: [
+      'Real Redis contention admits six and refuses four requests across both runtimes',
+      'Worker restart, tenant separation, expiry, configuration changes and outage checks',
+    ],
+    remaining: [
+      'Native Node session-to-HTTP contention',
+      'Hosted topology and complete two-door acceptance',
+    ],
+  },
   M5: {
     previous: 85,
     evidence: [
@@ -260,27 +271,29 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M4a: {
-    previous: 45,
+    previous: 75,
     evidence: [
       '12 database rule lifecycle cases and six session-route cases',
       'Native publication, comparison, restore, stale-draft and responsive checks',
-      '21 service cases, five bridge checks and 12 propagation operations in pinned CI',
+      '29 service cases, five bridge checks and 12 propagation operations in qualified pinned CI; 34 current local cases',
+      'Eight real Redis scenarios across independent Node processes and authenticated Python workers',
     ],
     remaining: [
-      'Shared rate budgets and usage rollup',
+      'Native Node HTTP budget contention and durable request rollup',
       'Hosted service topology and full merged API contracts',
       'Unsaved navigation, wider failure cases and load qualification',
     ],
   },
   M6: {
-    previous: 30,
+    previous: 40,
     evidence: [
       'Disposable provider, upgrade verification and repeatable builds',
       'Exact application/service CI, dependency audits and database-outage checks',
       'Published test catalogue, measured service samples and reviewed browser evidence',
+      'Eight mutable function search paths fixed; scan reduced from ten to two warnings',
     ],
     remaining: [
-      '50-session load and complete accessibility review',
+      'Two extension-placement warnings, 50-session load and complete accessibility review',
       'Monitoring, backup restoration and provider delivery',
       'Timed clean setup, walkthrough and handover sign-off',
     ],
@@ -395,6 +408,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-09',
+    title: 'Shared request budgets and database safeguards verified',
+    body: 'All 632 application and 34 service cases pass. Real Redis contention admits exactly six of ten simultaneous requests across Node processes, Python workers and two credentials. Eight scenarios cover restart, expiry, configuration, separation, public limiter atomicity and outage safeguards. Eight function warnings are resolved; two extension-placement warnings remain. Subscriptions advances to 92%, AI rules and seams to 78%, Handover to 42%. Native Node HTTP contention, request rollup and operational acceptance remain open. Fingerprinted evidence is available in the verification record.',
+    milestone: 'M3, M4a, M6',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-09',
     title: 'Durable service last-use verified',

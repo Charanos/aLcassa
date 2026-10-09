@@ -94,37 +94,22 @@ export async function cacheSet<T>(key: string, value: T, ttlSeconds: number): Pr
 }
 
 /**
- * Atomic increment against a window, for rate limiting.
- *
- * ⚠ NOT `cacheGet` THEN `cacheSet`. That is a read-modify-write, and two
- * requests arriving together both read the same count and both write the same
- * number back — so a limit of five admits ten under exactly the load that
- * makes a rate limiter worth having. `INCR` is atomic in Redis; this is the
- * one place in the cache module that needs that property.
- *
- * The TTL is set only when the counter is created (`count === 1`). Refreshing
- * it on every hit would make a busy caller's window slide forward
- * indefinitely, so a sustained attack would never reset — which sounds
- * stricter and is actually wrong: the window stops being a window.
- *
- * ⚠ RETURNS null WHEN THERE IS NO CACHE, AND CALLERS MUST TREAT THAT AS
- *   "ALLOWED".
- *
- * `CACHE_DISABLED` is a supported mode with a CI job dedicated to proving the
- * product still works in it (08 §6, definition of done condition 9). A rate
- * limiter that failed closed would take the entire application down with the
- * cache, converting a latency problem into an outage — the exact coupling
- * 04 §11 says to avoid. Rate limiting is a mitigation, not a correctness
- * property; correctness is enforced by the policies.
+ * Increment and expiry commit in one Redis operation. Existing windows keep
+ * their expiry; legacy counters without one gain a TTL without losing count.
+ * A null result permits the request in the supported cache-disabled/outage mode.
+ * Database authorization and entitlements remain independent of Redis.
  */
+export const RATE_LIMIT_INCREMENT_SCRIPT =
+  "local n=redis.call('INCR',KEYS[1]); if redis.call('TTL',KEYS[1])<0 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return n";
+
 export async function cacheIncrement(key: string, ttlSeconds: number): Promise<number | null> {
   const redis = getClient();
   if (!redis) return null;
 
   try {
-    const count = await redis.incr(key);
-    if (count === 1) await redis.expire(key, ttlSeconds);
-    return count;
+    const result = await redis.eval(RATE_LIMIT_INCREMENT_SCRIPT, [key], [ttlSeconds]);
+    if (typeof result !== 'number' || !Number.isSafeInteger(result)) return null;
+    return result;
   } catch (error) {
     logger.warn('rate limit counter failed, allowing the request', { key, error });
     return null;

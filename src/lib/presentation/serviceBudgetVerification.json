@@ -1,0 +1,24 @@
+{
+  "date": "9 October 2026",
+  "applicationCases": 632,
+  "applicationFiles": 55,
+  "serviceCases": 34,
+  "databaseCases": 20,
+  "budgetScenarios": 8,
+  "repairedFunctionWarnings": 8,
+  "remainingSecurityWarnings": 2,
+  "results": {
+    "path": "/verification/2026-10-09/service-budget-results.json",
+    "sha256": "db5d659dd73bde5547593a6565db47a892678e3fb359243de720538b0f285b32"
+  },
+  "priorRelease": {
+    "path": "/verification/2026-10-09/service-usage-qualified-release.json",
+    "sha256": "768b0bdcec1135e827f936c5cdd1e8cfef3b734152d536ae8ec1e59895f4ccc8"
+  },
+  "scope": "Atomic tenant request budgets across independent Node processes and authenticated Python workers, plus public limiter expiry and pinned database function search paths.",
+  "limits": "Disposable local verification. Native Node session-to-HTTP contention, hosted topology, billable request rollup, load, recovery and remaining surface acceptance stay open. Two extension-placement warnings remain.",
+  "manifest": {
+    "path": "/verification/2026-10-09/service-budget-manifest.json",
+    "sha256": "093184b40481a040c9fcf5f2f67f0a61b2effcc4ab5602572837708a26c63253"
+  }
+}

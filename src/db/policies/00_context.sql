@@ -21,15 +21,15 @@ create schema if not exists app;
 -- than every row. Isolation case 8 asserts exactly this.
 create or replace function app.current_tenant_id() returns uuid as $$
   select nullif(current_setting('app.tenant_id', true), '')::uuid;
-$$ language sql stable;
+$$ language sql stable set search_path = pg_catalog;
 
 create or replace function app.current_role() returns text as $$
   select coalesce(nullif(current_setting('app.role', true), ''), 'none');
-$$ language sql stable;
+$$ language sql stable set search_path = pg_catalog;
 
 create or replace function app.is_support_session() returns boolean as $$
   select coalesce(nullif(current_setting('app.support_mode', true), ''), 'false')::boolean;
-$$ language sql stable;
+$$ language sql stable set search_path = pg_catalog;
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- THE ACTOR, AND WHY THIS FUNCTION IS NOT A ONE-LINER.
@@ -82,7 +82,7 @@ begin
 
   return from_jwt;
 end;
-$$ language plpgsql stable security definer;
+$$ language plpgsql stable security definer set search_path = pg_catalog;
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- IS THE ACTOR A PLATFORM OPERATOR. Doc 23 · S0.2.
@@ -147,7 +147,7 @@ create or replace function app.tenant_is_writable() returns boolean as $$
       and t.status not in ('suspended', 'closed')
       and t.deleted_at is null
   );
-$$ language sql stable;
+$$ language sql stable set search_path = pg_catalog;
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- 01 D-13 · SUPPORT MODE IS READ AND WRITE, CONFIRMED 24 Aug 2026.
@@ -169,10 +169,10 @@ $$ language sql stable;
 create or replace function app.can_write_settings() returns boolean as $$
   select app.current_role() in ('owner', 'admin', 'support')
      and app.tenant_is_writable();
-$$ language sql stable;
+$$ language sql stable set search_path = pg_catalog;
 
 create or replace function app.can_write_as_owner() returns boolean as $$
   select app.current_role() = 'owner'
      and not app.is_support_session()
      and app.tenant_is_writable();
-$$ language sql stable;
+$$ language sql stable set search_path = pg_catalog;

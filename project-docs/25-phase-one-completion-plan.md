@@ -791,3 +791,9 @@ The exact prior navigation release is qualified in ledger section 33.
 ### 18.15 Durable last-use subset qualified locally
 
 The credential last-use subset of G05 passes 29 service cases, five cross-runtime HTTP checks and twelve publish/restore samples, alongside all 626 application cases. M5 advances to 86%. Keep shared budgets and durable request rollup open; last-use does not measure billable requests. Complete native credential feedback and final secrets review before closing G04/G05. Pin service integration to the new application policy revision and qualify both exact releases.
+
+### 18.16 Shared-budget engineering checkpoint
+
+Eight real Redis scenarios and the complete 632-case application / 34-case service regression pass. Tenant admission shares one atomic script and key across both runtimes; public limiter increment/expiry is atomic. Eight function search-path warnings are resolved and two extension-placement warnings remain. M3 is 92%, M4a 78%, M6 42%; M2 and M5 remain 94% and 86%.
+
+G06 still needs native Node session-to-HTTP contention to complement authenticated Python HTTP and independent Node admission workers. Keep hosted qualification separate under the user's local-hosting scope. Next batch: qualify the exact pushed revisions, complete that Node HTTP path, then implement and verify durable request rollup (G07) without conflating throttle slots, credential last-use and billable counters. Preserve G01/G04 native acceptance and the load, monitoring, backup/restore and accessibility gates. See verification ledger section 39 for measured scope, failed harness attempts and remaining findings.

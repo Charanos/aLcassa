@@ -6,6 +6,7 @@ import { logger } from '@/lib/logger';
 import { hasRole, type ResolvedContext, type TenantRole } from '@/lib/db/context';
 import { assertEntitlement, type EntitlementKey } from '@/modules/entitlements';
 import { jsonError } from './response';
+import { enforceTenantBudget } from './serviceBudget';
 
 /**
  * 04 §2. THE REQUEST PIPELINE.
@@ -125,6 +126,7 @@ export function defineRoute<TBody = undefined, TParams = undefined>(
         ? parse(definition.bodySchema, await readJson(request))
         : (undefined as TBody);
 
+      if (definition.door !== 'platform') await enforceTenantBudget(ctx);
       const response = await definition.handle({ ctx, body, params, request, requestId });
 
       log.info('request completed', {

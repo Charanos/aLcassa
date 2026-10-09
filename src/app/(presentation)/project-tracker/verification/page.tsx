@@ -10,6 +10,7 @@ import navigation from '@/lib/presentation/authNavigationVerification.json';
 import devices from '@/lib/presentation/deviceSessionsVerification.json';
 import hardening from '@/lib/presentation/accountHardeningVerification.json';
 import usage from '@/lib/presentation/serviceUsageVerification.json';
+import budget from '@/lib/presentation/serviceBudgetVerification.json';
 import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
@@ -53,7 +54,7 @@ export default function VerificationRecordPage() {
             Completion plan <IconArrowUpRight size={16} aria-hidden />
           </Link>
           <a
-            href={usage.manifest.path}
+            href={budget.manifest.path}
             download
             className="t-compact inline-flex items-center gap-2 text-[var(--text-action)] underline underline-offset-4"
           >
@@ -73,14 +74,14 @@ export default function VerificationRecordPage() {
         </div>
         <dl className="surface-sunken mt-5 grid gap-px overflow-hidden rounded-panel border border-[var(--border-subtle)] sm:grid-cols-2 lg:grid-cols-4">
           <Metric
-            value={`${hardening.passed}`}
+            value={`${budget.applicationCases}`}
             label="Current local cases passed"
-            detail={`${hardening.files} files · no failures or skips`}
+            detail={`${budget.applicationFiles} files · no failures or skips`}
           />
           <Metric
             value={`${usage.databaseCases}`}
             label="Service database cases"
-            detail={`${usage.serviceCases - usage.databaseCases} additional unit / schema cases · local`}
+            detail={`${budget.serviceCases - budget.databaseCases} additional unit / schema cases · local`}
           />
           <Metric
             value={`${record.service.bridgeChecks + record.service.propagationChecks}`}
@@ -167,6 +168,50 @@ export default function VerificationRecordPage() {
             <Digest value={record.service.results.sha256} />
           </Release>
         </div>
+      </section>
+
+      <section
+        id="shared-budget-checkpoint"
+        aria-labelledby="shared-budget-title"
+        className="surface-sunken mt-12 rounded-panel border border-[var(--border-subtle)] p-5 md:p-7"
+      >
+        <h2 id="shared-budget-title" className="t-heading">
+          Shared request budgets and database safeguards
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">{budget.scope}</p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-5 sm:grid-cols-3">
+          <Metric
+            value="6 / 10"
+            label="Requests admitted"
+            detail="4 refused · one shared tenant window"
+            plain
+          />
+          <Metric
+            value={`${budget.budgetScenarios}`}
+            label="Redis scenarios passed"
+            detail="Restart, expiry, limits and outages"
+            plain
+          />
+          <Metric
+            value={`${budget.repairedFunctionWarnings}`}
+            label="Function warnings resolved"
+            detail={`${budget.remainingSecurityWarnings} extension warnings remain`}
+            plain
+          />
+        </dl>
+        <p className="t-compact mt-5 text-[var(--text-secondary)]">{budget.limits}</p>
+        <div className="mt-5 flex flex-wrap gap-5">
+          <EvidenceDownload
+            href={budget.results.path}
+            label="Request budget and security results"
+          />
+          <EvidenceDownload href={budget.manifest.path} label="Current evidence index" />
+          <EvidenceDownload
+            href={budget.priorRelease.path}
+            label="Previous release qualification"
+          />
+        </div>
+        <Digest value={budget.results.sha256} />
       </section>
 
       <section
@@ -636,8 +681,8 @@ export default function VerificationRecordPage() {
 
       <footer className="mt-14 border-t border-[var(--border-subtle)] pt-7">
         <p className="t-body text-[var(--text-secondary)]">
-          Phase One remains in verification. Shared rate budgets, usage persistence, hosted service,
-          full surface/accessibility coverage, provider delivery, monitoring, load, backup
+          Phase One remains in verification. Native two-door rate acceptance, request rollup, hosted
+          service, full surface/accessibility coverage, provider delivery, monitoring, load, backup
           restoration and final handover still require evidence.
         </p>
         <p className="t-compact mt-4 text-[var(--text-tertiary)]">
@@ -649,11 +694,21 @@ export default function VerificationRecordPage() {
   );
 }
 
-function Metric({ value, label, detail }: { value: string; label: string; detail: string }) {
+function Metric({
+  value,
+  label,
+  detail,
+  plain = false,
+}: {
+  value: string;
+  label: string;
+  detail: string;
+  plain?: boolean;
+}) {
   return (
-    <div className="min-w-0 bg-[var(--surface-inset)] p-5 md:p-6">
+    <div className={plain ? 'min-w-0' : 'min-w-0 bg-[var(--surface-inset)] p-5 md:p-6'}>
       <dt className="t-compact text-[var(--text-secondary)]">{label}</dt>
-      <dd className="numeric mt-3 text-3xl tracking-tight">{value}</dd>
+      <dd className="numeric mt-3 text-[1.75rem] leading-none tracking-tight">{value}</dd>
       <dd className="t-compact mt-3 text-[var(--text-tertiary)]">{detail}</dd>
     </div>
   );

@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "prefix": "rl:service:v1:",
+  "defaultLimit": 120,
+  "defaultWindowSeconds": 60,
+  "script": "local count = tonumber(redis.call('GET', KEYS[1]) or '0')\nlocal ttl = redis.call('PTTL', KEYS[1])\nif ttl < 0 then\n  redis.call('SET', KEYS[1], count, 'PX', ARGV[2] * 1000)\nend\nif count >= tonumber(ARGV[1]) then\n  return {0, count, math.max(1, math.ceil(redis.call('PTTL', KEYS[1]) / 1000))}\nend\ncount = redis.call('INCR', KEYS[1])\nreturn {1, count, math.max(1, math.ceil(redis.call('PTTL', KEYS[1]) / 1000))}"
+}

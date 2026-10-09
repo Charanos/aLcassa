@@ -92,7 +92,7 @@ begin
   end if;
   return new;
 end;
-$$ language plpgsql;
+$$ language plpgsql set search_path = pg_catalog;
 
 drop trigger if exists preserve_tenant_rule_version on tenant_ai_rule_versions;
 create trigger preserve_tenant_rule_version before update on tenant_ai_rule_versions

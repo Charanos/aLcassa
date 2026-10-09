@@ -9,6 +9,7 @@ import navigation from '@/lib/presentation/authNavigationVerification.json';
 import devices from '@/lib/presentation/deviceSessionsVerification.json';
 import hardening from '@/lib/presentation/accountHardeningVerification.json';
 import usage from '@/lib/presentation/serviceUsageVerification.json';
+import budget from '@/lib/presentation/serviceBudgetVerification.json';
 import {
   projectTestEvidence,
   projectCredentialEvidence,
@@ -95,6 +96,9 @@ describe('Public verification evidence boundary', () => {
       hardening.manifest,
       usage.results,
       usage.manifest,
+      budget.results,
+      budget.priorRelease,
+      budget.manifest,
     ];
     for (const file of files) {
       expect(file.path).toMatch(
@@ -143,6 +147,17 @@ describe('Public verification evidence boundary', () => {
       propagationSamples: 12,
     });
     expect(usage.maximumPropagationMs).toBeLessThanOrEqual(5000);
+    expect(budget).toMatchObject({
+      applicationCases: 632,
+      applicationFiles: 55,
+      serviceCases: 34,
+      budgetScenarios: 8,
+      repairedFunctionWarnings: 8,
+      remainingSecurityWarnings: 2,
+    });
+    expect(JSON.parse(readFileSync(`public${budget.manifest.path}`, 'utf8'))).toEqual(
+      Object.fromEntries(Object.entries(budget).filter(([key]) => key !== 'manifest')),
+    );
     expect(JSON.parse(readFileSync(`public${usage.manifest.path}`, 'utf8'))).toEqual(
       Object.fromEntries(Object.entries(usage).filter(([key]) => key !== 'manifest')),
     );
