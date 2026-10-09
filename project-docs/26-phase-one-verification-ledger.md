@@ -1230,3 +1230,104 @@ Monitoring delivery, broad provider/browser/accessibility acceptance, independen
 recovery/upgrade, clean setup, security review and final handover remain open.
 The [verification record](/project-tracker/verification#operational-gates-checkpoint)
 publishes bounded results and SHA-256 fingerprints without raw identities or logs.
+
+## 41. Operational release qualification and monitoring — 10 October 2026
+
+Application `0b510a13e5c606bb84e44ac491ee3c3d605357e3` passes all six jobs in
+[run 37988683925](https://github.com/Charanos/aLcassa/actions/runs/37988683925).
+Its downloaded cache-disabled catalogue reconciles 639 cases in 57 files.
+GitHub reports the matching Vercel deployment successful. Service
+`cf2a9361644c6cc716b8106eeaa1759c27fb0fa6` passes both jobs in
+[run 37988746727](https://github.com/Charanos/alcassa-service/actions/runs/37988746727),
+pinned to that application revision. CI builds the application and replays the
+real provider-backed application/service HTTP budget scenarios; resource
+reconciliation passes without repairs. This qualifies section 40 separately from
+the newer monitoring/Activity candidate.
+
+The local candidate passes 645 automated cases in 58 files. Six added monitor
+cases exercise threshold/reset behavior, incident correlation, failed delivery
+retention/order, URL policy, response redaction, redirects and connection failure.
+The actual CLI persists state atomically under an exclusive lock and queues
+outage/recovery events with stable IDs. Webhook delivery requires an accepted
+HTTP response; a failed sink leaves the original event queued for retry.
+
+Actual isolated production Next and FastAPI workers were configured first with
+unavailable local database connections, then with the working restricted connection.
+Service liveness remained 200 while readiness refused 503; application health
+refused 503. Responses retained safe descriptions and Retry-After. Three
+consecutive failing/slow probes open an incident; two healthy observations recover
+it. The authenticated local sink accepted four notifications, one outage and one
+recovery per runtime. Its deliberate first delivery failure retried with the same
+event ID; no accepted duplicates or pending events remained. Workers and private
+monitor state were removed. This advances the G14 readiness/notification subset;
+external paging, broader Auth/email/storage failure and committed-write uncertainty
+remain distinct work.
+
+An isolated headless Chrome review uses actual UI sign-in for two generated local
+identities, with separate operator/member sessions and no access to a user's
+browser profile. The first pass visits 32 surfaces at three widths (96 visits).
+It finds Activity entering the error boundary when a valid plan omits activity
+history; the reader correctly refuses history, but the page fails to present that
+expected plan state. The fix preserves the reader's refusal and gives an explicit
+plan-availability state and plan link. A legacy provisioning redirect requires
+dialog acceptance rather than an h1 assertion while its modal makes the page
+inert. The initial six findings are retained as history. Repeat acceptance is
+recorded separately below; a rendered-page sweep alone never closes every CRUD
+or accessibility scenario.
+
+The repeat passes all 96 rendered visits, with no HTTP failures, visible error
+boundaries, retired data badges, uncaught page errors or document overflow.
+Both UI sign-ins create their own durable application sessions. The missing-plan
+Activity state is explicit; after granting the owned plan one-day history, the
+browser sees the current event and excludes an expired event and another
+workspace's event. The company workflow fills both required name and contact
+email, saves successfully, reloads the saved name and agrees with the database
+and exactly one user audit. Earlier rehearsal failures included missing fixture
+request IDs and an empty required contact field; these did not establish a
+product mutation failure. All owned identities, rows and workers were removed.
+
+Manual inspection of the retained Activity screenshot finds timestamp crowding
+at 320px despite zero document overflow. This is a remaining layout correction,
+not a reason to claim the viewport sweep proves visual or accessibility quality.
+Immutable results retain this bounded scope and the initial failed route sample.
+M4 advances 85→88%, M5 86→89%, M6 52→60%; the remaining acceptance register stays open.
+
+### Account and layout follow-up
+
+The focused Activity correction replaces the narrow flex row with an explicit
+description/timestamp grid and a smaller icon. Actual retained activity with a
+long actor name passes at 320, 390 and 1440px: timestamp and description bounds
+do not overlap, the document fits, and Reference opens and closes with Enter.
+Reviewed screenshots show the corrected phone layout. This follow-up identifies
+its own build and source fingerprint; the earlier surface receipt remains immutable.
+
+Seven combined account/colleague workflows pass against actual disposable Auth
+and production Next. Incorrect current-password proof produces no password-change
+audit and leaves the original password usable. A valid update rejects the old
+password, accepts the new one, records one password-change event, preserves the
+current browser and denies another previously signed-in device. Database session
+readback confirms exactly one remaining application session.
+
+New and existing colleagues accept actual browser invitations into the intended
+workspace as administrators. A wrong signed-in identity cannot submit acceptance;
+the used invitation shows the already-joined state. Renewing an expired invitation
+invalidates its old token and retains the new private link when email is unavailable.
+Withdrawing it updates the team list, refuses the renewed link and releases its
+reserved seat. Independent membership and counter readback reconcile the owner
+and two accepted colleagues to three occupied seats. All generated Auth identities,
+memberships, invitations, sessions, rows and workers are removed.
+
+Local signup email confirmation is disabled by the disposable configuration;
+confirmation-required colleague signup is not qualified by this result. Application
+email is deliberately unavailable, so this tests the private-link fallback rather
+than external delivery. Earlier full-load browser waits timed out despite rendered
+navigation; the final rehearsal waits for document rendering and explicit outcomes.
+Private failed-run diagnostics are retained and are not public evidence.
+
+The dependency security gate passes with no unresolved findings; auth email
+templates match their maintained source. Fourteen presentation checks pass,
+including current fingerprints and document navigation. Auth advances 94→97%,
+Tenant Settings 89→94%, Handover 60→64%; Console remains 88%. Configured OAuth or
+truthful unavailable-provider behavior, remaining action/failure/accessibility
+states, latency, independent recovery and final handover remain open. A complete
+download index links twelve historical/current checkpoints and retained failures.

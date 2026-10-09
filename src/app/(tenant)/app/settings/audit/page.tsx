@@ -14,6 +14,7 @@ import { getTenantAudit } from '@/lib/tenant/data';
 import { getLiveTenantAudit } from '@/lib/tenant/live';
 import type { TenantAuditKind } from '@/lib/tenant/data';
 import { DataSource } from '@/components/console/Surface';
+import { isAppError, ERROR_CODES } from '@/lib/errors';
 
 export const metadata: Metadata = { title: 'Activity' };
 
@@ -36,7 +37,39 @@ export default async function AuditSettingsPage({
   searchParams: Promise<{ cursor?: string }>;
 }) {
   const { cursor } = await searchParams;
-  const model = (await getLiveTenantAudit(undefined, { cursor })) ?? (await getTenantAudit());
+  const live = await getLiveTenantAudit(undefined, { cursor }).catch((error: unknown) => {
+    if (isAppError(error) && error.code === ERROR_CODES.ENTITLEMENT_FEATURE_UNAVAILABLE)
+      return 'not-in-plan' as const;
+    throw error;
+  });
+  if (live === 'not-in-plan') {
+    return (
+      <div>
+        <PageHeader
+          title="Activity"
+          description="Workspace changes and support visits."
+          breadcrumbs={[
+            { label: 'Settings', href: '/app/settings/company' },
+            { label: 'Activity' },
+          ]}
+        />
+        <EmptyState
+          icon={IconFileText}
+          title="Activity history is not included in this plan"
+          body="Review your workspace plan to see the available activity history. Your workspace access is unchanged."
+          action={
+            <Link
+              href="/app/settings/subscription"
+              className="text-[var(--text-action)] underline underline-offset-4"
+            >
+              View your plan
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+  const model = live ?? (await getTenantAudit());
 
   return (
     <div>
@@ -98,11 +131,11 @@ export default async function AuditSettingsPage({
             return (
               <li
                 key={entry.id}
-                className="flex flex-wrap items-start gap-3 border-t px-4 py-4 first:border-t-0"
+                className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 gap-y-2 border-t px-4 py-4 first:border-t-0 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
                 style={{ borderColor: 'var(--border-subtle)' }}
               >
                 <span
-                  className="grid size-7 shrink-0 place-items-center rounded-panel"
+                  className="row-span-2 grid size-5 place-items-center rounded-chip sm:row-span-1"
                   style={{ background: meta.tint, color: meta.ink }}
                   aria-hidden
                 >
@@ -157,7 +190,7 @@ export default async function AuditSettingsPage({
                 <time
                   dateTime={entry.occurredAt}
                   title={entry.occurredAt}
-                  className="t-caption text-[var(--text-secondary)]"
+                  className="t-caption col-start-2 whitespace-nowrap text-[var(--text-secondary)] sm:col-start-3 sm:row-start-1"
                 >
                   {entry.time}
                 </time>

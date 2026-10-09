@@ -280,3 +280,37 @@ Do not reach for the admin database credentials. `06 §7` permits the service
 role for exactly four operations, none of which is reading a tenant's content,
 and `06 §10` says a feature that seems to need it is a request to weaken the
 isolation model rather than a reason to.
+
+## Verified operational rehearsals
+
+The maintained Windows verification entry points are in the README. `Recovery`
+uses an exported repeatable-read snapshot for both the independent source
+fingerprints and `pg_dump`. It restores into a separately named owned database,
+compares rows, policies, grants, owners and definer settings, exercises application
+and restricted-service reads/refusals, then removes the owned target and dump.
+It never restores over the source. The passing local checkpoint restores 61
+tables in 7,815 ms; this is not a hosted RTO/RPO or PITR promise. Separately managed
+Auth processes and object bytes require their own recovery qualification.
+
+`Monitoring` starts isolated application/service workers with broken and working
+database connections, then exercises the actual monitor command and an authenticated
+local notification sink. It verifies readiness refusal, safe errors, sustained
+outage/recovery thresholds, retained delivery failure, stable event IDs and four
+accepted notifications. Process liveness remains separate from database readiness.
+
+For operational use, configure the `MONITOR_*` variables and run
+`pnpm monitor:dependencies` once per minute through the chosen external scheduler.
+State must persist between invocations. Three failing/slow probes open an incident;
+two healthy probes recover it. Outage/recovery share an incident ID. The sink must
+deduplicate `Idempotency-Key`; failed deliveries remain queued. Payloads exclude
+URLs, response bodies and credentials. A failed monitor invocation, undelivered
+queue or absent scheduled run requires operator attention. Confirm the receiving
+owner, webhook authentication, actual delivery and recovery procedure before launch.
+The local rehearsal does not claim that an external paging account is configured.
+
+After a forced monitor termination, verify the process is no longer running before
+removing only its `.lock` file. Preserve the state and pending queue. For application
+rollback, redeploy the last qualified code compatible with the forward schema;
+do not reverse data migrations to fix a code failure. Clean prior-release upgrade,
+code rollback, independent Auth/object recovery and the unfamiliar-developer
+walkthrough remain distinct acceptance steps in the completion plan.

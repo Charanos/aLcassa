@@ -1,0 +1,20 @@
+{
+  "date": "10 October 2026",
+  "applicationCases": 645,
+  "applicationFiles": 58,
+  "monitorDeliveredEvents": 4,
+  "surfaceVisits": 96,
+  "surfaceCount": 32,
+  "surfacePassed": true,
+  "activityWindowAndTenantIsolation": true,
+  "scope": "Actual application/service database failure and recovery, durable alert retries, and an isolated Chrome review of 32 surfaces at 1440, 390 and 320px. Minimum-plan Activity availability, actual retained activity and tenant isolation are verified.",
+  "limits": "Local sandbox. The automated route review does not replace complete CRUD, keyboard, screen-reader or accessibility acceptance. Performance, provider journeys, independent Auth/object recovery, clean setup and final handover remain open.",
+  "results": {
+    "path": "/verification/2026-10-10/operational-followup-results.json",
+    "sha256": "0b64ac46c6b477cacd4a146284331c028269d6c2907399923fd7dbe35ad7bc90"
+  },
+  "qualifiedRelease": {
+    "path": "/verification/2026-10-10/operational-qualified-release.json",
+    "sha256": "d52c5261e9236c36d2b25cf838df66cf3aeee955df5046fdc7f4dfefac2fdedb"
+  }
+}

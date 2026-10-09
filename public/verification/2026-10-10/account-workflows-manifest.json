@@ -1,0 +1,15 @@
+{
+  "date": "10 October 2026",
+  "workflowChecks": 7,
+  "layoutWidths": [
+    320,
+    390,
+    1440
+  ],
+  "scope": "Actual browser password reauthentication, update, provider readback and device revocation; new and existing colleague acceptance, wrong-account refusal, renewal and withdrawal with seat readback. Narrow Activity layout and keyboard disclosure are verified separately.",
+  "limits": "Actual browser journeys against disposable Auth with signup email confirmation disabled by local configuration. Application email is deliberately unavailable and its private-link fallback is verified. External sending domains, confirmation-required colleague signup and configured OAuth remain separate. Complete accessibility and CRUD acceptance remain open.",
+  "results": {
+    "path": "/verification/2026-10-10/account-workflows-results.json",
+    "sha256": "81149b7e974042df0cbdf7a67f40851c998e1e648899afe6c67a1de4d87a6c8e"
+  }
+}

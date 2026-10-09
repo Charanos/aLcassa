@@ -841,3 +841,47 @@ boundaries (G16/G18); finish provider and native surface/accessibility acceptanc
 (G01–G05/G09–G13); qualify exact pushed revisions and complete handover (G17/G19).
 The [operational checkpoint](/project-tracker/verification#operational-gates-checkpoint)
 links immutable results, failed load samples and the preceding qualified release.
+
+### 18.18 Monitoring and browser batch — 10 October 2026
+
+The preceding operational release is qualified at application `0b510a1` (all six
+CI jobs and Vercel successful) and service `cf2a936` (both CI jobs successful,
+pinned to that application). The next candidate passes 645 cases in 58 files.
+
+G14 now has actual application and service database failure/recovery evidence:
+safe readiness refusals, liveness independence, bounded retry instructions, three
+failed probes to open an incident and two healthy probes to recover it. Four
+notifications reached an authenticated local sink. An injected delivery failure
+retained the same event ID for retry; outage/recovery correlation and an empty
+pending queue were verified. Configure a durable state path, scheduler and actual
+destination before claiming continuous external monitoring. The handover package
+documents state ownership, locking and consumer deduplication.
+
+An isolated Chrome context performs actual UI sign-in and reviews 32 application
+surfaces at 1440, 390 and 320px. It found a missing-plan Activity error, now replaced
+by an explicit plan-availability state. The follow-up verifies retained/expired
+events and workspace separation, plus company save, reload, database value and
+single audit readback. Route checks are not comprehensive CRUD or accessibility
+acceptance. Initial failed checks remain in evidence.
+
+M4 advances 85→88%, M5 86→89%, M6 52→60%, reflecting these demonstrated additions.
+M2 94%, M3 technical 100%, M4a 82% remain unchanged. No final acceptance is implied.
+
+Continue with the largest remaining engineering risks together: provider account
+journeys and complete console/settings action states; request fan-out and the
+unchanged 50-session benchmark; merged API contract; independent Auth and stored
+object recovery; clean setup/upgrade/rollback; keyboard/accessibility; security
+review and final handover. Keep hosted launch configuration separate under the
+agreed local verification scope. The [monitoring checkpoint](/project-tracker/verification#monitoring-checkpoint)
+links the complete bounded receipts and exact prior-release qualification.
+
+The following combined browser batch completes seven owned account/colleague
+workflows and focused Activity timestamp/keyboard checks at three widths. Actual
+password refusal/update, provider old/new checks, current/other-device outcomes,
+new/existing colleague acceptance, wrong-account/replay refusal, renewal and
+withdrawal agree with independent session/membership/seat/audit readback.
+Auth advances to 97%, Tenant Settings to 94%, Handover to 64%; Console stays 88%.
+Confirmation-required colleague signup is still distinct from this local
+auto-confirmed configuration, and external email delivery is not claimed. See the
+[account workflow checkpoint](/project-tracker/verification#colleague-workflows-checkpoint).
+The evidence index now includes all twelve historical/current checkpoints.

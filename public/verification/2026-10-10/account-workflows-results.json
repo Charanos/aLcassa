@@ -1,0 +1,62 @@
+{
+  "accounts": {
+    "checkedAt": "2026-10-09T21:36:13.135Z",
+    "localOnly": true,
+    "productionBuild": true,
+    "checks": [
+      "Incorrect current password refused; provider password and audit unchanged",
+      "Password changed; old password refused, new password verified, one audit, current device preserved and other device denied",
+      "Wrong signed-in identity cannot accept invitation",
+      "New colleague creates provider identity and active administrator membership; used link refuses replay",
+      "Existing confirmed colleague joins correct workspace without creating a duplicate identity",
+      "Expired invitation renewed in UI; old token invalidated and new private link retained",
+      "Withdrawn link refused; reserved seat released; two accepted colleagues and owner reconcile to three seats"
+    ],
+    "passed": true,
+    "fixtureCleanup": true,
+    "boundary": "Actual browser journeys against disposable Auth with signup email confirmation disabled by local configuration. Application email is deliberately unavailable and its private-link fallback is verified. External sending domains, confirmation-required colleague signup and configured OAuth remain separate."
+  },
+  "layout": {
+    "checkedAt": "2026-10-09T21:21:19.004Z",
+    "localOnly": true,
+    "productionBuild": true,
+    "source": {
+      "path": "src/app/(tenant)/app/settings/audit/page.tsx",
+      "sha256": "d594ea54d10e2697a4b6ee137a98ce08b7576632012bce007b849e3160d0b45d"
+    },
+    "applicationBuildId": "uOgTOShpEK1bdcfvOjNIS",
+    "rows": [
+      {
+        "width": 320,
+        "overflowPx": 0,
+        "timeSeparated": true,
+        "referenceKeyboardAccessible": true
+      },
+      {
+        "width": 390,
+        "overflowPx": 0,
+        "timeSeparated": true,
+        "referenceKeyboardAccessible": true
+      },
+      {
+        "width": 1440,
+        "overflowPx": 0,
+        "timeSeparated": true,
+        "referenceKeyboardAccessible": true
+      }
+    ],
+    "fixtureCleanup": true,
+    "passed": true,
+    "boundary": "Follow-up to the 96-visit surface sweep. Actual retained Activity with a longer actor name; timestamp geometry and keyboard Reference disclosure at three widths. Does not establish complete accessibility acceptance."
+  },
+  "sourceFiles": [
+    {
+      "path": "scripts/verification-account-workflows.ts",
+      "sha256": "cff3184ac273a00122a0f32d50562c62dfbf2c4085d9cb8aeb89b7101dd19fed"
+    },
+    {
+      "path": "scripts/verification-activity-layout.ts",
+      "sha256": "76b9d8cd0f443fa7c5f634ca31f9aec1aa921caf3a64c04617f08e39a7de5c6b"
+    }
+  ]
+}

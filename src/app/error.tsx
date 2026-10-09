@@ -14,9 +14,7 @@ export default function RootError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Structured client-side error logging lands with observability in week
-    // 2 per 04 §8. Until then this is the one place a production failure is
-    // visible at all, so it goes to the console rather than nowhere.
+    // Remote reporting depends on configured observability; retain local diagnostics.
     // eslint-disable-next-line no-console -- sanctioned exception, see above
     console.error(error);
   }, [error]);
@@ -32,7 +30,7 @@ export default function RootError({
       <h1 className="t-title mt-8 text-[var(--text-primary)]">Something broke on our side.</h1>
 
       <p className="t-body mt-3 text-[var(--text-secondary)]">
-        We have logged it. Your work here was not affected.
+        We couldn’t display this page. Try again, or return to the home page.
       </p>
 
       {error.digest ? (

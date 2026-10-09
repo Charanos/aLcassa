@@ -32,7 +32,7 @@ export default function TenantError({
       </h1>
 
       <p className="t-body mt-2.5" style={{ color: 'var(--text-secondary)' }}>
-        We have logged it. Nothing you have already saved was affected.
+        We couldn’t display this page. Try again, or return to your workspace overview.
       </p>
 
       {error.digest ? (

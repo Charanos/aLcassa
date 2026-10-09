@@ -12,6 +12,9 @@ import hardening from '@/lib/presentation/accountHardeningVerification.json';
 import usage from '@/lib/presentation/serviceUsageVerification.json';
 import budget from '@/lib/presentation/serviceBudgetVerification.json';
 import operational from '@/lib/presentation/operationalGatesVerification.json';
+import followup from '@/lib/presentation/operationalFollowupVerification.json';
+import workflows from '@/lib/presentation/accountWorkflowsVerification.json';
+import evidenceIndex from '@/lib/presentation/phaseOneEvidenceIndex.json';
 import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
@@ -34,7 +37,7 @@ export default function VerificationRecordPage() {
         <IconArrowLeft size={16} aria-hidden /> Project tracker
       </Link>
       <header className="mt-10 border-b border-[var(--border-subtle)] pb-10">
-        <p className="t-eyebrow text-[var(--text-tertiary)]">Phase One · {navigation.date}</p>
+        <p className="t-eyebrow text-[var(--text-tertiary)]">Phase One · {followup.date}</p>
         <h1 className="display display-lg mt-3 tracking-tight">Verification record</h1>
         <p className="t-body mt-5 text-[var(--text-secondary)]">
           Current local verification and the qualified CI reference checkpoint, with the work still
@@ -55,7 +58,7 @@ export default function VerificationRecordPage() {
             Completion plan <IconArrowUpRight size={16} aria-hidden />
           </Link>
           <a
-            href={operational.manifest.path}
+            href={evidenceIndex.manifest.path}
             download
             className="t-compact inline-flex items-center gap-2 text-[var(--text-action)] underline underline-offset-4"
           >
@@ -75,9 +78,9 @@ export default function VerificationRecordPage() {
         </div>
         <dl className="surface-sunken mt-5 grid gap-px overflow-hidden rounded-panel border border-[var(--border-subtle)] sm:grid-cols-2 lg:grid-cols-4">
           <Metric
-            value={`${operational.applicationCases}`}
+            value={`${followup.applicationCases}`}
             label="Current local cases passed"
-            detail={`${operational.applicationFiles} files · no failures or skips`}
+            detail={`${followup.applicationFiles} files · no failures or skips`}
           />
           <Metric
             value={`${usage.databaseCases}`}
@@ -169,6 +172,96 @@ export default function VerificationRecordPage() {
             <Digest value={record.service.results.sha256} />
           </Release>
         </div>
+      </section>
+
+      <section
+        id="colleague-workflows-checkpoint"
+        aria-labelledby="colleague-workflows-title"
+        className="mt-12 border-t border-[var(--border-subtle)] pt-8"
+      >
+        <h2 id="colleague-workflows-title" className="t-heading">
+          Password and colleague workflows
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">{workflows.scope}</p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-5 sm:grid-cols-2">
+          <Metric
+            value={`${workflows.workflowChecks}`}
+            label="Complete browser workflows"
+            detail="Actual provider, membership, session and seat readback"
+            plain
+          />
+          <Metric
+            value={`${workflows.layoutWidths.length}`}
+            label="Activity widths verified"
+            detail="Clear timestamps · Reference disclosure works by keyboard"
+            plain
+          />
+        </dl>
+        <p className="t-compact mt-5 text-[var(--text-secondary)]">{workflows.limits}</p>
+        <div className="mt-5 flex flex-wrap gap-5">
+          <EvidenceDownload
+            href={workflows.results.path}
+            label="Account and Activity layout results"
+          />
+          <EvidenceDownload
+            href={workflows.manifest.path}
+            label="Account workflow evidence index"
+          />
+        </div>
+        <Digest value={workflows.results.sha256} />
+      </section>
+
+      <section
+        id="monitoring-checkpoint"
+        aria-labelledby="monitoring-title"
+        className="mt-12 border-t border-[var(--border-subtle)] pt-8"
+      >
+        <h2 id="monitoring-title" className="t-heading">
+          Monitoring and browser coverage
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">{followup.scope}</p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-5 sm:grid-cols-3">
+          <Metric
+            value={`${followup.monitorDeliveredEvents}`}
+            label="Notifications delivered"
+            detail="Correlated outages and recoveries · failed delivery retried"
+            plain
+          />
+          <Metric
+            value={`${followup.surfaceCount}`}
+            label="Application surfaces"
+            detail="Platform, workspace details and tenant settings"
+            plain
+          />
+          <Metric
+            value={`${followup.surfaceVisits}`}
+            label="Browser visits passed"
+            detail="1440, 390 and 320px · no document overflow"
+            plain
+          />
+        </dl>
+        <p className="t-body mt-5 text-[var(--text-secondary)]">
+          Real database failures were refused safely by both runtimes. Three failed probes opened
+          each incident; two healthy probes recovered it. The notification queue survived a failed
+          delivery and emptied without duplicate accepted events. The monitor is ready for a
+          configured scheduler and destination; continuous external monitoring is not yet claimed.
+        </p>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          The browser review found and corrected the missing-plan Activity error. It also verified
+          retained versus expired events, workspace separation, and an actual company save with
+          reload, database and audit readback. Initial failed checks remain in the downloadable
+          record. Complete CRUD and accessibility acceptance remain separate.
+        </p>
+        <p className="t-compact mt-4 text-[var(--text-secondary)]">{followup.limits}</p>
+        <div className="mt-5 flex flex-wrap gap-5">
+          <EvidenceDownload href={followup.results.path} label="Monitoring and browser results" />
+          <EvidenceDownload
+            href={followup.qualifiedRelease.path}
+            label="Qualified preceding release · both repositories"
+          />
+          <EvidenceDownload href={followup.manifest.path} label="Follow-up evidence index" />
+        </div>
+        <Digest value={followup.results.sha256} />
       </section>
 
       <section

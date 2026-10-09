@@ -83,7 +83,7 @@ export default function GlobalError({
               lineHeight: 1.5,
             }}
           >
-            We have logged it. Nobody caused this. Reloading usually fixes this.
+            We couldn’t load this page. Try reloading to continue.
           </p>
           <button
             type="button"

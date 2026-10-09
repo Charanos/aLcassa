@@ -11,6 +11,9 @@ import hardening from '@/lib/presentation/accountHardeningVerification.json';
 import usage from '@/lib/presentation/serviceUsageVerification.json';
 import budget from '@/lib/presentation/serviceBudgetVerification.json';
 import operational from '@/lib/presentation/operationalGatesVerification.json';
+import followup from '@/lib/presentation/operationalFollowupVerification.json';
+import workflows from '@/lib/presentation/accountWorkflowsVerification.json';
+import evidenceIndex from '@/lib/presentation/phaseOneEvidenceIndex.json';
 import {
   projectTestEvidence,
   projectCredentialEvidence,
@@ -103,10 +106,16 @@ describe('Public verification evidence boundary', () => {
       operational.results,
       operational.qualifiedRelease,
       operational.manifest,
+      followup.results,
+      followup.qualifiedRelease,
+      followup.manifest,
+      workflows.results,
+      workflows.manifest,
+      evidenceIndex.manifest,
     ];
     for (const file of files) {
       expect(file.path).toMatch(
-        /^\/verification\/2026-10-(?:08|09)\/[a-z0-9-]+\.(?:json|jpg|png)$/,
+        /^\/verification\/2026-10-(?:08|09|10)\/[a-z0-9-]+\.(?:json|jpg|png)$/,
       );
       const bytes = readFileSync(`public${file.path}`);
       expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);
@@ -181,6 +190,52 @@ describe('Public verification evidence boundary', () => {
     expect(operationalResults.application).toMatchObject({ passed: 639, failed: 0, skipped: 0 });
     expect(operationalResults.load.passed).toBe(false);
     expect(operationalResults.baseline.passed).toBe(false);
+    expect(JSON.parse(readFileSync(`public${followup.manifest.path}`, 'utf8'))).toEqual(
+      Object.fromEntries(Object.entries(followup).filter(([key]) => key !== 'manifest')),
+    );
+    expect(followup).toMatchObject({
+      applicationCases: 645,
+      applicationFiles: 58,
+      monitorDeliveredEvents: 4,
+      surfaceCount: 32,
+      surfaceVisits: 96,
+      surfacePassed: true,
+    });
+    const current = JSON.parse(readFileSync(`public${followup.results.path}`, 'utf8')) as {
+      monitoring: { passed: boolean; pendingAfterRecovery: number };
+      surfaces: {
+        passed: boolean;
+        activityWindowAndTenantIsolation: boolean;
+        companySaveAndReadback: boolean;
+        results: unknown[];
+      };
+    };
+    expect(current.monitoring).toMatchObject({ passed: true, pendingAfterRecovery: 0 });
+    expect(current.surfaces).toMatchObject({
+      passed: true,
+      activityWindowAndTenantIsolation: true,
+      companySaveAndReadback: true,
+    });
+    expect(current.surfaces.results).toHaveLength(96);
+    expect(JSON.parse(readFileSync(`public${workflows.manifest.path}`, 'utf8'))).toEqual(
+      Object.fromEntries(Object.entries(workflows).filter(([key]) => key !== 'manifest')),
+    );
+    expect(workflows).toMatchObject({ workflowChecks: 7, layoutWidths: [320, 390, 1440] });
+    const index = JSON.parse(readFileSync(`public${evidenceIndex.manifest.path}`, 'utf8')) as {
+      checkpoints: { checkpoint: string; path: string; sha256: string }[];
+    };
+    expect(index.checkpoints).toHaveLength(evidenceIndex.checkpointCount);
+    expect(new Set(index.checkpoints.map((entry) => entry.checkpoint)).size).toBe(
+      evidenceIndex.checkpointCount,
+    );
+    for (const entry of index.checkpoints) {
+      expect(entry.path).toMatch(/^\/verification\/2026-10-(?:08|09|10)\/[a-z0-9-]+\.json$/);
+      expect(
+        createHash('sha256')
+          .update(readFileSync(`public${entry.path}`))
+          .digest('hex'),
+      ).toBe(entry.sha256);
+    }
     expect(JSON.parse(readFileSync(`public${usage.manifest.path}`, 'utf8'))).toEqual(
       Object.fromEntries(Object.entries(usage).filter(([key]) => key !== 'manifest')),
     );

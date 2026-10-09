@@ -327,6 +327,10 @@ powershell -NoProfile -File scripts/verification-local.ps1 BuildLive
 powershell -NoProfile -File scripts/verification-service.ps1 Test
 powershell -NoProfile -File scripts/verification-service.ps1 HttpBudgets
 powershell -NoProfile -File scripts/verification-service.ps1 Recovery
+powershell -NoProfile -File scripts/verification-service.ps1 Monitoring
+powershell -NoProfile -File scripts/verification-service.ps1 Surfaces
+powershell -NoProfile -File scripts/verification-service.ps1 ActivityLayout
+powershell -NoProfile -File scripts/verification-service.ps1 Accounts
 powershell -NoProfile -File scripts/verification-service.ps1 Load
 ```
 
@@ -348,6 +352,31 @@ scheduled reconciliation endpoint also reports only; it never repairs.
 
 See `project-docs/25-phase-one-completion-plan.md` for gates and
 `project-docs/26-phase-one-verification-ledger.md` for results and limits.
+
+### Dependency monitoring
+
+`pnpm monitor:dependencies` runs one probe cycle using the explicit `MONITOR_*`
+environment settings in `.env.example`. Provide application `/api/health`,
+service `/service/v1/ready`, and an optional identity-provider health URL.
+Use a durable state file and an authenticated HTTPS notification webhook.
+Schedule the command once per minute in the chosen operational environment;
+the command does not create a hosted scheduler or paging account.
+
+Three consecutive unavailable or slow probes open an incident; two consecutive
+healthy probes recover it. Each probe times out after five seconds; a response
+above two seconds is slow. These operational thresholds are separate from the
+400 ms product latency acceptance target. The webhook receives only target,
+status, event/incident IDs, timestamp and request ID. Outage and recovery share
+an incident ID. Failed delivery stays queued and retries with the same
+`Idempotency-Key`; the receiver must deduplicate it. No response body, URL,
+database address or authorization value enters the notification payload.
+
+An exclusive lock prevents overlapping cycles from losing state. If a process
+is forcibly terminated, first verify that it has stopped, then remove only its
+state-file `.lock` before resuming. Preserve the state JSON and pending events.
+Nonzero exit, a growing pending queue or missing scheduler runs require operator
+attention. Configuration alone does not prove delivery: run the local `Monitoring`
+rehearsal and separately qualify the actual operational sink before launch.
 
 ## When the specification is wrong
 

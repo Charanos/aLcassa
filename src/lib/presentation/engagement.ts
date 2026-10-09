@@ -114,9 +114,9 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
-  date: '9 October 2026',
-  applicationTests: 639,
-  applicationFiles: 57,
+  date: '10 October 2026',
+  applicationTests: 645,
+  applicationFiles: 58,
   serviceTests: 34,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -155,8 +155,8 @@ export const MILESTONES = [
     gate: 'Demo: full account lifecycle',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 94,
-    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Recovery recipients resolve to real Auth and application records; unknown and profile-only addresses receive no link and create no identity. Ownership preserves existing sessions and has native refusal and transfer evidence. Native sign-in, wrong-password retry and sign-out retain the requested page and query in a production build; fresh access is refused after sign-out, with session readback and fixture cleanup. Native individual and bulk device reviews preserve this browser, update immediately and agree with atomic audit readback. Actual provider sign-out preserves another device. Complete password-change acceptance, colleague invitations and OAuth remain open; external email delivery is a separate launch qualification.',
+    progress: 97,
+    note: 'Owner activation, password recovery, session revocation, ownership and protected navigation have actual provider and browser evidence. The complete password-change journey now refuses an incorrect current password, verifies the new provider password, preserves this device and denies the other device. New and existing colleagues join through actual browser forms; wrong-account acceptance, reused links, renewal and withdrawal are verified with membership and seat readback. All owned fixtures are removed. Confirmation-required colleague signup, configured OAuth or truthful unavailable-provider behavior, and external email delivery qualification remain open.',
   },
   {
     id: 'M3',
@@ -178,8 +178,8 @@ export const MILESTONES = [
     gate: 'Demo: console operations',
     tranche: 3,
     status: 'active' as MilestoneStatus,
-    progress: 85,
-    note: 'The deployed console loads after the schema repair. Shared surfaces, settings and workspace details have been refined; subscription and allowance changes have browser and database evidence. Health canvas charts, navigation loading and the default workspace grid are published, with desktop and phone checks for both directory views and customer Activity. Remaining action states, monitoring and complete accessibility verification still need acceptance.',
+    progress: 88,
+    note: 'The console has actual rendered-browser coverage at desktop, phone and 320px widths, including all six workspace detail tabs. Shared settings, health charts, directory views and loading states are implemented. The operational release passed every application and service CI job. Actual database failures now produce bounded outage and recovery notifications with durable retries. Complete action-state, keyboard and accessibility acceptance remain open.',
   },
   {
     id: 'M5',
@@ -190,8 +190,8 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 86,
-    note: 'Company changes and customer Activity are verified. Credentials pass 16 database cases and native lifecycle checks; both test keys ended revoked. Team management passes 31 database cases and five confirmed-action cases. Ownership has native review, refusal, transfer and fresh-role evidence. Durable credential last-use now passes actual service/database and cross-runtime checks, including conditional reads, refusal, failure and concurrency boundaries. Complete colleague invitation journeys, clipboard/error journeys, request rollup and the final secrets review remain open.',
+    progress: 94,
+    note: 'Company saves have UI, reload, database and audit readback. Customer Activity verifies plan availability, retention and workspace separation; timestamps remain clear at three widths and Reference works by keyboard. New and existing colleague invitations, wrong identity, renewal and withdrawal pass actual browser/provider checks, reconciling to three seats. Credentials, team changes, ownership and durable last-use have database and native evidence. Confirmation-required signup, remaining clipboard/error journeys and final secrets/accessibility review stay open. Phase One retained counters are reconciled; request billing belongs to later scope.',
   },
   {
     id: 'M4a',
@@ -214,8 +214,8 @@ export const MILESTONES = [
     gate: 'Sign-off',
     tranche: 4,
     status: 'active' as MilestoneStatus,
-    progress: 52,
-    note: 'The full 639-case regression and production build pass. A separate-target database recovery reconciles 61 tables, 52 policies and 17 context functions, followed by actual application and restricted service requests. The 50-session load baseline preserves integrity but fails latency acceptance; original and repeat results remain evidence. Monitoring, independent Auth/object recovery, security warnings, complete accessibility, timed clean setup and final handover remain open. No accepted completion or production recovery objective is claimed.',
+    progress: 64,
+    note: 'All 645 application cases pass. Separate-target recovery reconciles 61 tables, 52 policies and 17 context functions. Monitoring delivers four correlated outage/recovery notifications with durable retry. Isolated Chrome covers 32 surfaces at three widths, seven complete account/invitation workflows and focused Activity keyboard/layout checks. The dependency gate passes with no unresolved findings. The 50-session load baseline preserves integrity but fails latency acceptance. Independent Auth/object recovery, two database advisor warnings, complete accessibility, timed clean setup and final handover remain open.',
   },
 ] as const;
 
@@ -225,7 +225,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
   { previous: number; evidence: string[]; remaining: string[] }
 > = {
   M2: {
-    previous: 93,
+    previous: 94,
     evidence: [
       'Actual Auth and application records agree for the recovery recipient',
       'Unknown and profile-only addresses receive no reset link or new identity',
@@ -233,11 +233,13 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Production-build sign-in, wrong-password retry and sign-out resume the intended page and query',
       'Native individual and bulk device ending with immediate readback, current-device preservation and matching atomic audits',
       'Actual provider sign-out ends this refresh session while another device remains usable',
+      'Browser password change with incorrect-password refusal, real old/new provider checks and other-device denial',
+      'Actual new/existing colleague acceptance, wrong identity, single-use replay, renewal and withdrawal with reconciled seats',
       'Built Edge and route origin checks on both local addresses; fresh denial and session readback after sign-out',
     ],
     remaining: [
-      'Complete browser account lifecycle and colleague invitations',
-      'Configured OAuth acceptance and complete password-change journey',
+      'Confirmation-required colleague signup and remaining provider failure states',
+      'Configured OAuth acceptance or truthful unavailable-provider behavior',
       'External sending-domain and redirect qualification before launch',
     ],
   },
@@ -255,9 +257,13 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M5: {
-    previous: 85,
+    previous: 86,
     evidence: [
       'Company saves, conflicts and recorded Activity',
+      'Actual company-name/contact save, reload, database value and single audit readback',
+      'Browser Activity plan availability, retention expiry and workspace isolation at 320px',
+      'Actual new/existing colleague journeys and renewal/withdrawal with provider, membership and seat readback',
+      'Activity timestamps separated at three widths and keyboard Reference disclosure',
       '16 database credential cases, including concurrent limits and audit rollback',
       'Native creation, one-time reveal, download, replacement, revocation and focus',
       '31 database team cases and five confirmed-action/readback cases',
@@ -267,7 +273,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Durable service last-use with successful/conditional reads, concurrency, failure and restricted database write checks',
     ],
     remaining: [
-      'Complete provider invitation journeys and wider ownership failure-state acceptance',
+      'Confirmation-required signup and wider ownership failure-state acceptance',
       'Clipboard, phone and failure-state acceptance',
       'Final credential failure-state acceptance and secrets review',
     ],
@@ -285,8 +291,17 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Unsaved navigation, wider failure cases and load qualification',
     ],
   },
+  M4: {
+    previous: 85,
+    evidence: [
+      'Actual UI sign-in and 18 console routes, including six workspace tabs, at three viewport widths',
+      'Qualified operational release: six application and two service CI jobs, plus successful deployment',
+      'Real database outage/recovery probes and durable notification retry across both runtimes',
+    ],
+    remaining: ['Complete CRUD refusal/retry states, keyboard and accessibility acceptance'],
+  },
   M6: {
-    previous: 42,
+    previous: 52,
     evidence: [
       'Disposable provider, upgrade verification and repeatable builds',
       'Exact application/service CI, dependency audits and database-outage checks',
@@ -295,10 +310,13 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Separate-target restore with complete row fingerprints, normalized grants, ownership, RLS and definer comparison',
       'Restored application sign-in/settings and service read, missing-scope and revoked-credential outcomes',
       '50 real authenticated sessions across five owned workspaces; measured latency failures retained',
+      'Four correlated outage/recovery notifications, actual failed-delivery retry and empty pending queue',
+      '96 rendered browser visits across 32 surfaces at desktop, phone and narrow phone widths',
+      'Seven complete account/invitation browser workflows and three focused Activity keyboard/layout checks',
     ],
     remaining: [
       'Two extension-placement warnings, 50-session load and complete accessibility review',
-      'Monitoring, independent Auth/object recovery and launch delivery qualification',
+      'External monitoring destination, independent Auth/object recovery and launch delivery qualification',
       'Timed clean setup, walkthrough and handover sign-off',
     ],
   },
@@ -412,6 +430,20 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-10',
+    title: 'Password change and colleague invitations pass actual browser journeys',
+    body: 'Seven combined workflows pass: incorrect-password refusal, provider password update and other-device denial; wrong invitation identity; new and existing colleague acceptance; single-use replay; renewal and withdrawal. Membership and reserved-seat readback reconcile to three occupied seats. Activity timestamps and keyboard Reference disclosure pass at three widths. Auth advances to 97%, Tenant Settings to 94%, Handover to 64%; Console remains 88%. Confirmation-required signup, OAuth availability, performance, broader CRUD/accessibility, independent recovery and handover remain open. All fixtures were removed; downloadable receipts exclude private links and identities.',
+    milestone: 'M2, M5, M6',
+    kind: 'delivery' as const,
+  },
+  {
+    date: '2026-10-10',
+    title: 'Monitoring delivery and 32 browser surfaces verified',
+    body: 'Four actual outage/recovery notifications across application and service pass threshold, correlation and durable retry checks. All 645 application cases pass. Isolated Chrome covers 32 surfaces at 1440, 390 and 320px; a missing Activity entitlement now produces a clear plan message. Retained/expired Activity, workspace isolation and company saves have browser and independent database readback. Platform Console advances to 88%, Tenant Settings to 89%, Handover to 60%. Performance, remaining provider/CRUD/accessibility journeys, independent recovery and handover remain open. Downloadable evidence preserves failed baselines and exact prior-release CI qualification.',
+    milestone: 'M4, M5, M6',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-09',
     title: 'Request limits, reconciliation and separate-target recovery verified',
