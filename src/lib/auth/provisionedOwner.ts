@@ -1,11 +1,12 @@
 import 'server-only';
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { tenantMembers, tenants, userProfiles } from '@/db/schema';
 import { withActorContext, withTenantContext } from '@/lib/db';
 import { createResolvedContext } from '@/lib/db/context';
 import { AUDIT_ACTIONS, writeAudit } from '@/lib/audit';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { createSupabaseServerClient } from './supabase/server';
+import { incrementUsage } from '@/modules/entitlements';
 
 /** Resolve only the confirmed account's stored owner invitation; no caller-supplied workspace. */
 export async function activateProvisionedOwner(requestId: string, ipAddress: string | null) {
@@ -47,6 +48,9 @@ export async function activateProvisionedOwner(requestId: string, ipAddress: str
     ipAddress,
   });
   return withTenantContext(ctx, async (tx) => {
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtextextended(${`membership:${owner.tenantId}`},0))`,
+    );
     const [workspace] = await tx
       .select({ status: tenants.status })
       .from(tenants)
@@ -71,6 +75,7 @@ export async function activateProvisionedOwner(requestId: string, ipAddress: str
         .update(tenantMembers)
         .set({ status: 'active', joinedAt: new Date(), updatedAt: new Date() })
         .where(eq(tenantMembers.id, member.id));
+      await incrementUsage(tx, owner.tenantId, 'seats', 1);
       await writeAudit(tx, ctx, {
         action: AUDIT_ACTIONS.MEMBER_JOINED,
         entityType: 'tenant_member',

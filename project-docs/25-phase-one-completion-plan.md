@@ -797,3 +797,47 @@ The credential last-use subset of G05 passes 29 service cases, five cross-runtim
 Eight real Redis scenarios and the complete 632-case application / 34-case service regression pass. Tenant admission shares one atomic script and key across both runtimes; public limiter increment/expiry is atomic. Eight function search-path warnings are resolved and two extension-placement warnings remain. M3 is 92%, M4a 78%, M6 42%; M2 and M5 remain 94% and 86%.
 
 G06 still needs native Node session-to-HTTP contention to complement authenticated Python HTTP and independent Node admission workers. Keep hosted qualification separate under the user's local-hosting scope. Next batch: qualify the exact pushed revisions, complete that Node HTTP path, then implement and verify durable request rollup (G07) without conflating throttle slots, credential last-use and billable counters. Preserve G01/G04 native acceptance and the load, monitoring, backup/restore and accessibility gates. See verification ledger section 39 for measured scope, failed harness attempts and remaining findings.
+
+### 18.17 Operational batch — 9 October 2026
+
+This checkpoint supersedes the open Node HTTP and resource reconciliation items
+in 18.16. G06 passes eight scenarios through actual provider-backed application
+HTTP and Python HTTP, including six admissions and four refusals across two
+application workers and two credentials. G07 passes independent source counts,
+injected drift, locked repair with actor/reason/audit, preserved peaks and repeated
+report-only scheduler runs. Owner signup and activation now record their seat
+within the membership transaction. All 639 application cases in 57 files pass.
+
+Phase One resource counters are retained counts: active members plus reserved
+pending invitations; active credential slots; published rule versions. Expired
+invitations remain reserved until withdrawn. Credential predecessors in replacement
+grace do not consume a second slot. Archived/draft rule versions do not count.
+These are not monthly counters and require no calendar reset. Successful service
+reads persist last-use; refused reads do not. Redis admissions and last-use are
+not billable request totals. The signed Phase One subscription scope has no
+payment automation or request-billing ledger; references to implementing a billable
+request rollup in earlier execution notes were overbroad. Conversation metering
+belongs to the later inbox implementation; no such metric is represented as measured.
+
+M3 reaches 100% technical readiness in the agreed local service-hosting scope,
+pending demonstration and final acceptance. M4a advances 78→82%, M6 42→52%.
+M2/M4/M5 remain 94/85/86%. These estimates do not close the outstanding gate register.
+
+G16 has a passing separate-target snapshot/dump/restore: 61 tables, 52 policies,
+17 context functions, matching data/grants/owners and actual restored application
+and service reads/refusals. Snapshot and restore measured 7,815 ms. Separate Auth
+process, stored object bytes, clean upgrade/rollback and recovery runbook rehearsal
+remain open; this is not a hosted recovery objective or PITR claim.
+
+G15 remains open. Both production-build 50-session measurements are retained.
+The repeat has zero server errors, refusals or source/counter drift, but dashboard
+and settings p95 is 13.2–14.4 seconds against 400 ms. A diagnostic direct-provider
+batch also degrades under concurrency; single-batch diagnostics are not acceptance
+load results. Do not relax authentication or redefine the benchmark to close it.
+
+Next closure batches: diagnose dependency/request fan-out; implement controlled
+failure/alert/recovery delivery (G14); complete clean setup, upgrade and recovery
+boundaries (G16/G18); finish provider and native surface/accessibility acceptance
+(G01–G05/G09–G13); qualify exact pushed revisions and complete handover (G17/G19).
+The [operational checkpoint](/project-tracker/verification#operational-gates-checkpoint)
+links immutable results, failed load samples and the preceding qualified release.

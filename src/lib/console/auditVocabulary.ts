@@ -139,6 +139,7 @@ const VOCABULARY: Record<string, AuditDescription> = {
 
   /* ── Money ───────────────────────────────────────────────────────────── */
   'subscription.plan_assigned': { label: 'Plan changed', icon: IconCreditCard, tone: 'info' },
+  'usage.reconciled': { label: 'Usage reconciled', icon: IconCreditCard, tone: 'warning' },
   'subscription.status_changed': {
     label: 'Subscription status changed',
     icon: IconCreditCard,

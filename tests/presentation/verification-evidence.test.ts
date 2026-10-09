@@ -10,6 +10,7 @@ import devices from '@/lib/presentation/deviceSessionsVerification.json';
 import hardening from '@/lib/presentation/accountHardeningVerification.json';
 import usage from '@/lib/presentation/serviceUsageVerification.json';
 import budget from '@/lib/presentation/serviceBudgetVerification.json';
+import operational from '@/lib/presentation/operationalGatesVerification.json';
 import {
   projectTestEvidence,
   projectCredentialEvidence,
@@ -99,6 +100,9 @@ describe('Public verification evidence boundary', () => {
       budget.results,
       budget.priorRelease,
       budget.manifest,
+      operational.results,
+      operational.qualifiedRelease,
+      operational.manifest,
     ];
     for (const file of files) {
       expect(file.path).toMatch(
@@ -158,6 +162,25 @@ describe('Public verification evidence boundary', () => {
     expect(JSON.parse(readFileSync(`public${budget.manifest.path}`, 'utf8'))).toEqual(
       Object.fromEntries(Object.entries(budget).filter(([key]) => key !== 'manifest')),
     );
+    expect(JSON.parse(readFileSync(`public${operational.manifest.path}`, 'utf8'))).toEqual(
+      Object.fromEntries(Object.entries(operational).filter(([key]) => key !== 'manifest')),
+    );
+    expect(operational).toMatchObject({
+      applicationCases: 639,
+      applicationFiles: 57,
+      verifiedGates: ['G06', 'G07'],
+      loadPassed: false,
+    });
+    const operationalResults = JSON.parse(
+      readFileSync(`public${operational.results.path}`, 'utf8'),
+    ) as {
+      application: ReturnType<typeof projectTestEvidence>;
+      load: { passed: boolean };
+      baseline: { passed: boolean };
+    };
+    expect(operationalResults.application).toMatchObject({ passed: 639, failed: 0, skipped: 0 });
+    expect(operationalResults.load.passed).toBe(false);
+    expect(operationalResults.baseline.passed).toBe(false);
     expect(JSON.parse(readFileSync(`public${usage.manifest.path}`, 'utf8'))).toEqual(
       Object.fromEntries(Object.entries(usage).filter(([key]) => key !== 'manifest')),
     );

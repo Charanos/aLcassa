@@ -11,6 +11,7 @@ import devices from '@/lib/presentation/deviceSessionsVerification.json';
 import hardening from '@/lib/presentation/accountHardeningVerification.json';
 import usage from '@/lib/presentation/serviceUsageVerification.json';
 import budget from '@/lib/presentation/serviceBudgetVerification.json';
+import operational from '@/lib/presentation/operationalGatesVerification.json';
 import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
@@ -54,7 +55,7 @@ export default function VerificationRecordPage() {
             Completion plan <IconArrowUpRight size={16} aria-hidden />
           </Link>
           <a
-            href={budget.manifest.path}
+            href={operational.manifest.path}
             download
             className="t-compact inline-flex items-center gap-2 text-[var(--text-action)] underline underline-offset-4"
           >
@@ -74,9 +75,9 @@ export default function VerificationRecordPage() {
         </div>
         <dl className="surface-sunken mt-5 grid gap-px overflow-hidden rounded-panel border border-[var(--border-subtle)] sm:grid-cols-2 lg:grid-cols-4">
           <Metric
-            value={`${budget.applicationCases}`}
+            value={`${operational.applicationCases}`}
             label="Current local cases passed"
-            detail={`${budget.applicationFiles} files · no failures or skips`}
+            detail={`${operational.applicationFiles} files · no failures or skips`}
           />
           <Metric
             value={`${usage.databaseCases}`}
@@ -156,8 +157,8 @@ export default function VerificationRecordPage() {
             </p>
             <p className="mt-3">
               Runtime audit: {record.service.audit.dependencies} dependencies,{' '}
-              {record.service.audit.vulnerableDependencies} vulnerable dependencies. Hosted topology
-              remains an open gate.
+              {record.service.audit.vulnerableDependencies} vulnerable dependencies. Service hosting
+              is verified locally under the agreed sandbox scope.
             </p>
             <div className="mt-4">
               <EvidenceDownload
@@ -168,6 +169,62 @@ export default function VerificationRecordPage() {
             <Digest value={record.service.results.sha256} />
           </Release>
         </div>
+      </section>
+
+      <section
+        id="operational-gates-checkpoint"
+        aria-labelledby="operational-gates-title"
+        className="mt-12 border-t border-[var(--border-subtle)] pt-8"
+      >
+        <h2 id="operational-gates-title" className="t-heading">
+          Operational verification
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">{operational.scope}</p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-5 sm:grid-cols-3">
+          <Metric
+            value="2"
+            label="Technical gates verified"
+            detail="G06 request limits · G07 resource reconciliation"
+            plain
+          />
+          <Metric
+            value={`${operational.restoredTables}`}
+            label="Tables restored"
+            detail="Data, policies, grants and ownership matched"
+            plain
+          />
+          <Metric
+            value="50"
+            label="Authenticated load sessions"
+            detail="Latency target remains open"
+            plain
+          />
+        </dl>
+        <p className="t-body mt-5 text-[var(--text-secondary)]">
+          Subscriptions has reached 100% technical readiness in the agreed local hosting scope;
+          demonstration and final acceptance remain separate. All 639 application cases pass.
+          Recovery restored 61 tables, 52 policies and 17 context functions into a separate target,
+          followed by actual application and service checks.
+        </p>
+        <p className="t-compact mt-4 text-[var(--text-secondary)]">
+          Performance has not passed. The repeat recorded dashboard and settings p95 between 13.2
+          and 14.4 seconds against the 400 ms target, with no server errors or counter drift. Both
+          the original sample and the repeat are retained for review. Independent Auth-process and
+          stored-object recovery remain additional checks.
+        </p>
+        <p className="t-compact mt-4 text-[var(--text-secondary)]">{operational.limits}</p>
+        <div className="mt-5 flex flex-wrap gap-5">
+          <EvidenceDownload
+            href={operational.results.path}
+            label="Operational results and load samples"
+          />
+          <EvidenceDownload href={operational.manifest.path} label="Operational evidence index" />
+          <EvidenceDownload
+            href={operational.qualifiedRelease.path}
+            label="Preceding release qualification"
+          />
+        </div>
+        <Digest value={operational.results.sha256} />
       </section>
 
       <section

@@ -36,11 +36,13 @@ beforeEach(async () => {
   await adminQuery`update tenant_members set role='owner',status='invited',joined_at=null,deleted_at=null where id=${memberId}`;
   await adminQuery`update tenants set status='trial',deleted_at=null where id=${tenantId}`;
   await cleanup`delete from audit_log where tenant_id=${tenantId}`;
+  await cleanup`delete from usage_counters where tenant_id=${tenantId}`;
 });
 afterAll(async () => {
   if (!prepared) return;
   await cleanup`delete from audit_log where tenant_id=${tenantId}`;
   await cleanup`delete from tenant_members where tenant_id=${tenantId}`;
+  await cleanup`delete from usage_counters where tenant_id=${tenantId}`;
   await cleanup`delete from tenants where id=${tenantId}`;
   await cleanup`delete from user_profiles where id in (${ownerId},${strangerId})`;
   await closeHarness();
@@ -65,6 +67,9 @@ describe('Owner activation with actual tenant policies and commit locking', () =
       }>
     >`select entity_id,actor_user_id,ip_address,before,after from audit_log where tenant_id=${tenantId}`;
     expect(audit).toHaveLength(1);
+    expect(
+      await adminQuery`select current_value,peak_value from usage_counters where tenant_id=${tenantId} and key='seats'`,
+    ).toEqual([{ current_value: 1, peak_value: 1 }]);
     expect(audit[0]).toMatchObject({
       entity_id: memberId,
       actor_user_id: ownerId,

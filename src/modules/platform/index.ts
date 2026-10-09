@@ -18,6 +18,8 @@ import { installPlatformAuditWriter } from './internal/audit';
  */
 installPlatformAuditWriter();
 
+export { reportScheduledUsage } from './internal/reconciliation';
+
 export { provisionTenant } from './internal/provisioning';
 
 /**

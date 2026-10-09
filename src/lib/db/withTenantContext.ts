@@ -38,11 +38,12 @@ export async function withTenantContext<T>(
   return db.transaction(async (tx) => {
     // Set once, on this connection, for the life of this transaction only.
     //                                                                 ↓ local
-    await tx.execute(sql`select set_config('app.tenant_id', ${ctx.tenantId}, true)`);
-    await tx.execute(sql`select set_config('app.role', ${ctx.role}, true)`);
-    await tx.execute(sql`select set_config('app.support_mode', ${String(ctx.supportMode)}, true)`);
-    await tx.execute(sql`select set_config('app.actor_id', ${ctx.actorId}, true)`);
-    await tx.execute(sql`select set_config('app.request_id', ${ctx.requestId}, true)`);
+    await tx.execute(sql`select
+      set_config('app.tenant_id', ${ctx.tenantId}, true),
+      set_config('app.role', ${ctx.role}, true),
+      set_config('app.support_mode', ${String(ctx.supportMode)}, true),
+      set_config('app.actor_id', ${ctx.actorId}, true),
+      set_config('app.request_id', ${ctx.requestId}, true)`);
 
     return fn(tx);
   }, options);
@@ -111,11 +112,10 @@ export async function withActorContext<T>(
 ): Promise<T> {
   return db.transaction(async (tx) => {
     // No tenant. Deliberately. See the note above.
-    await tx.execute(sql`select set_config('app.tenant_id', '', true)`);
-    await tx.execute(sql`select set_config('app.role', 'none', true)`);
-    await tx.execute(sql`select set_config('app.support_mode', 'false', true)`);
-    await tx.execute(sql`select set_config('app.actor_id', ${actorId}, true)`);
-    await tx.execute(sql`select set_config('app.request_id', ${requestId}, true)`);
+    await tx.execute(sql`select
+      set_config('app.tenant_id', '', true), set_config('app.role', 'none', true),
+      set_config('app.support_mode', 'false', true), set_config('app.actor_id', ${actorId}, true),
+      set_config('app.request_id', ${requestId}, true)`);
 
     return fn(tx);
   });
@@ -126,11 +126,10 @@ export async function withoutTenantContext<T>(
   fn: (tx: Transaction) => Promise<T>,
 ): Promise<T> {
   return db.transaction(async (tx) => {
-    await tx.execute(sql`select set_config('app.tenant_id', '', true)`);
-    await tx.execute(sql`select set_config('app.role', 'none', true)`);
-    await tx.execute(sql`select set_config('app.support_mode', 'false', true)`);
-    await tx.execute(sql`select set_config('app.actor_id', '', true)`);
-    await tx.execute(sql`select set_config('app.request_id', ${requestId}, true)`);
+    await tx.execute(sql`select
+      set_config('app.tenant_id', '', true), set_config('app.role', 'none', true),
+      set_config('app.support_mode', 'false', true), set_config('app.actor_id', '', true),
+      set_config('app.request_id', ${requestId}, true)`);
 
     return fn(tx);
   });

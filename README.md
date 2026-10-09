@@ -34,21 +34,21 @@ file, not in the reader. Raise it.
 
 ### 1 · Prerequisites
 
-| Tool         | Version        | Check                           |
-| ------------ | -------------- | ------------------------------- |
-| Node         | 20.11 or later | `node -v`                       |
-| pnpm         | 9 or later     | `pnpm -v`, or `corepack enable` |
-| Docker       | any current    | `docker -v`                     |
-| Supabase CLI | any current    | `supabase -v`                   |
+| Tool         | Version                        | Check              |
+| ------------ | ------------------------------ | ------------------ |
+| Node         | 22.12+ on Node 22, or 24+      | `node -v`          |
+| pnpm         | 9.15.4, pinned in package.json | `corepack pnpm -v` |
+| Docker       | any current                    | `docker -v`        |
+| Supabase CLI | any current                    | `supabase -v`      |
 
-`npm` works if you prefer it; the scripts are package-manager agnostic.
+Use the pinned pnpm version and committed lockfile for reproducible verification.
 
 ### 2 · Install
 
 ```bash
 git clone https://github.com/Charanos/aLcassa.git
 cd aLcassa
-pnpm install
+corepack pnpm install --frozen-lockfile
 ```
 
 ### 3 · Start Postgres
@@ -70,24 +70,29 @@ will do, including a Supabase branch.
 cp .env.example .env.local
 ```
 
-Fill in `DATABASE_URL` and `DATABASE_URL_ADMIN` from the previous step. Every
-other variable has a documented default or is optional; **the cache credentials
-are genuinely optional**, because with Redis switched off every correctness
-property still holds and only speed changes.
+Set `DATABASE_URL_ADMIN` to the maintenance connection, and `DATABASE_URL` to
+the restricted application role. Set the Supabase URL and publishable key for
+authentication and storage. Never run application requests through the maintenance
+connection. See `.env.example` for the complete configuration.
+
+Redis is optional for local correctness checks: durable authorization and plan
+allowances still apply without it. Shared request throttling requires Redis;
+cache-disabled mode does not claim equivalent abuse protection.
 
 ### 5 · Migrate and seed
 
 ```bash
 pnpm db:migrate
+pnpm db:app-role
 pnpm db:seed
 ```
 
-`db:migrate` runs two things as one command: `drizzle-kit migrate` for the
+`db:migrate` ensures required extensions, runs `drizzle-kit migrate` for the
 tables, then `scripts/apply-policies.ts` for the policy catalogue in
 `src/db/policies/`. **That pairing is deliberate and should not be split.**
-Drizzle emits table DDL only — it knows nothing about the policy files — so
-running it alone creates twenty-three tables with row level security on none
-of them. `05 §12` requires schema and policy to arrive together; running them
+Drizzle emits table DDL only; it does not apply the policy catalogue.
+Running migrations without policies leaves the tenant boundary incomplete.
+`05 §12` requires schema and policy to arrive together; running them
 as one command is how that is enforced in practice, and `check:policies` in
 the next step is what verifies it.
 
@@ -96,11 +101,10 @@ because Postgres has no `create policy if not exists`. The files are the
 declared state, so reconciling to them is correct; it is transactional, so
 there is no instant at which a committed database has tables without policies.
 
-The seed creates four plans and **three tenants, deliberately different**: one on
-the free tier at its seat limit, one on growth mid-usage, and one suspended. That
-third one is not decoration. An isolation suite needs at least two tenants with
-overlapping-looking data to prove anything, and a suspended one to prove the
-status predicate in the modify policies actually fires.
+The seed installs the plan catalogue and varied workspaces from the shared
+portfolio, including different usage and subscription states. Isolation tests
+create their own identities and tenants, verify cross-workspace refusals and
+remove only their owned records.
 
 ### 6 · Verify the guarantee before you write anything
 
@@ -306,6 +310,44 @@ necessary the first time a tenant operates somewhere with data erasure rights,
 and it is cheaper to build on a finished foundation than alongside one.
 
 ---
+
+## Disposable Phase One verification
+
+On Windows, the isolated environment uses Supabase CLI 2.119.0, API port 55421
+and database port 55422. Its generated `.env.verification.local` is ignored.
+Keep the service checkout beside this repository as `aLcassa-service`; use its
+locked Python environment (`uv sync --locked`). The scripts refuse a different
+database/provider and clear unrelated hosted credentials.
+
+```powershell
+powershell -NoProfile -File scripts/verification-local.ps1 Start
+powershell -NoProfile -File scripts/verification-local.ps1 Prepare
+powershell -NoProfile -File scripts/verification-local.ps1 Test
+powershell -NoProfile -File scripts/verification-local.ps1 BuildLive
+powershell -NoProfile -File scripts/verification-service.ps1 Test
+powershell -NoProfile -File scripts/verification-service.ps1 HttpBudgets
+powershell -NoProfile -File scripts/verification-service.ps1 Recovery
+powershell -NoProfile -File scripts/verification-service.ps1 Load
+```
+
+`Prepare` migrates and seeds the disposable dataset; use it for initial setup,
+not to erase an established browser fixture between tests. `HttpBudgets` starts
+owned application/service workers and a labelled pinned Redis container.
+`Recovery` restores into a separately named database in the owned local container,
+compares data/access controls and removes only its own target and dump. `Load`
+records failed targets and exits nonzero; a written receipt alone is not a pass.
+`Diagnostics` separates direct-provider, database and application batch timings.
+Private worker logs remain under ignored `.test-report` and are not public evidence.
+
+`pnpm reconcile:usage` reports source/counter drift without changing records.
+Repair is a maintenance operation requiring an active platform administrator:
+`pnpm reconcile:usage --repair --actor <admin-uuid> --reason "Reviewed counter drift" --tenant <tenant-uuid>`.
+It locks writer namespaces, recounts, preserves peaks and records actor/reason
+in the audit log. It cannot be used to silently make CI pass. The authenticated
+scheduled reconciliation endpoint also reports only; it never repairs.
+
+See `project-docs/25-phase-one-completion-plan.md` for gates and
+`project-docs/26-phase-one-verification-ledger.md` for results and limits.
 
 ## When the specification is wrong
 

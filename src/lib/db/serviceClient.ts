@@ -2,6 +2,7 @@ import 'server-only';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '@/db/schema';
+import { inspectUsage } from '@/lib/usage/reconciliation';
 
 /**
  * ⚠ THE ONE THING IN THIS SYSTEM THAT GENUINELY BYPASSES ROW LEVEL SECURITY.
@@ -49,6 +50,11 @@ const sql = postgres(connectionString, {
   max: 3, // deliberately small. This should be a rare path.
   idle_timeout: 20,
 });
+
+/** Scheduler-only aggregate maintenance report. No tenant content or arbitrary query is exposed. */
+export async function readUsageReconciliation() {
+  return inspectUsage(sql);
+}
 
 /**
  * Not exported directly. Reach it through `asService()` so the audit write

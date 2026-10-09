@@ -115,8 +115,8 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
   date: '9 October 2026',
-  applicationTests: 632,
-  applicationFiles: 55,
+  applicationTests: 639,
+  applicationFiles: 57,
   serviceTests: 34,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -167,8 +167,8 @@ export const MILESTONES = [
     gate: 'Demo: limit enforcement',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 92,
-    note: 'Subscription changes and shared allowances are live, audited and protected against stale impact reviews. Credential limits, concurrent creation and overrides pass real database checks. FastAPI refuses missing permissions and inactive access before protected reads. Eight real Redis scenarios prove shared tenant admission, expiry, restart, configuration and outage boundaries across Node processes and authenticated Python workers. Native Node HTTP contention, hosted service and remaining two-door acceptance checks stay open.',
+    progress: 100,
+    note: 'Subscription engineering checks are complete in the agreed local service-hosting scope. Reviewed plan changes, overrides, concurrent limits and refusal paths pass. Real provider-backed session HTTP and service workers share the same Redis budget. Scheduled and command-line reconciliation now agree on all Phase One counters; repairs recount under writer locks and record actor, reason and peaks. Owner activation and signup record their seat atomically. Demonstration and final release acceptance remain separate from technical readiness.',
   },
   {
     id: 'M4',
@@ -202,8 +202,8 @@ export const MILESTONES = [
     gate: 'Demo: a rules edit live through the API in 5 seconds',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 78,
-    note: `Workspace publication and restoration use immutable history, retention and transactional audit records. Platform safeguards and stale-edit checks pass real database cases. FastAPI passes ${PHASE_ONE_VERIFICATION.serviceTests} local cases; ${PHASE_ONE_VERIFICATION.bridgeChecks} Node-to-HTTP checks pass integration CI. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore samples reached the local service within five seconds. Native publication, comparison, restoration, stale-draft and desktop/phone checks pass. Real Redis tenant budgets now pass eight scenarios across both runtimes. Native Node HTTP contention, broader browser failure states, hosted service and complete merged API conformance remain open acceptance gates.`,
+    progress: 82,
+    note: `Workspace publication and restoration use immutable history, retention and transactional audit records. Platform safeguards and stale-edit checks pass real database cases. FastAPI passes ${PHASE_ONE_VERIFICATION.serviceTests} local cases; ${PHASE_ONE_VERIFICATION.bridgeChecks} Node-to-HTTP checks pass integration CI. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore samples reached the local service within five seconds. Native publication, comparison, restoration, stale-draft and desktop/phone checks pass. Real Redis tenant budgets now pass eight scenarios across both runtimes. Provider-backed Node HTTP contention now passes. Broader browser failure states, load and complete merged API conformance remain open in the agreed local service-hosting scope.`,
   },
   {
     id: 'M6',
@@ -214,8 +214,8 @@ export const MILESTONES = [
     gate: 'Sign-off',
     tranche: 4,
     status: 'active' as MilestoneStatus,
-    progress: 42,
-    note: 'The disposable verification environment, release schema check, upgrade drill and complete local suite are available. Eight mutable function search paths are pinned and the security scan confirms their warnings are resolved; two extension-placement warnings remain. Load, monitoring, backup recovery, provider delivery, timed clean setup and the final walkthrough remain open. Phase One is not yet accepted for handover.',
+    progress: 52,
+    note: 'The full 639-case regression and production build pass. A separate-target database recovery reconciles 61 tables, 52 policies and 17 context functions, followed by actual application and restricted service requests. The 50-session load baseline preserves integrity but fails latency acceptance; original and repeat results remain evidence. Monitoring, independent Auth/object recovery, security warnings, complete accessibility, timed clean setup and final handover remain open. No accepted completion or production recovery objective is claimed.',
   },
 ] as const;
 
@@ -242,14 +242,16 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M3: {
-    previous: 90,
+    previous: 92,
     evidence: [
       'Real Redis contention admits six and refuses four requests across both runtimes',
       'Worker restart, tenant separation, expiry, configuration changes and outage checks',
+      'Actual provider-backed sign-in and session HTTP across two production application workers',
+      'One aggregate definition for all three Phase One resource counters, with detected drift and audited locked repair',
+      'Initial owner seats are committed atomically and concurrent activation counts once',
     ],
     remaining: [
-      'Native Node session-to-HTTP contention',
-      'Hosted topology and complete two-door acceptance',
+      'Milestone demonstration and final release acceptance; technical checks complete in local hosting scope',
     ],
   },
   M5: {
@@ -267,11 +269,11 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     remaining: [
       'Complete provider invitation journeys and wider ownership failure-state acceptance',
       'Clipboard, phone and failure-state acceptance',
-      'Durable request rollup and final secrets review',
+      'Final credential failure-state acceptance and secrets review',
     ],
   },
   M4a: {
-    previous: 75,
+    previous: 78,
     evidence: [
       '12 database rule lifecycle cases and six session-route cases',
       'Native publication, comparison, restore, stale-draft and responsive checks',
@@ -279,22 +281,24 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Eight real Redis scenarios across independent Node processes and authenticated Python workers',
     ],
     remaining: [
-      'Native Node HTTP budget contention and durable request rollup',
-      'Hosted service topology and full merged API contracts',
+      'Complete merged API contracts within the agreed local service-hosting scope',
       'Unsaved navigation, wider failure cases and load qualification',
     ],
   },
   M6: {
-    previous: 40,
+    previous: 42,
     evidence: [
       'Disposable provider, upgrade verification and repeatable builds',
       'Exact application/service CI, dependency audits and database-outage checks',
       'Published test catalogue, measured service samples and reviewed browser evidence',
       'Eight mutable function search paths fixed; scan reduced from ten to two warnings',
+      'Separate-target restore with complete row fingerprints, normalized grants, ownership, RLS and definer comparison',
+      'Restored application sign-in/settings and service read, missing-scope and revoked-credential outcomes',
+      '50 real authenticated sessions across five owned workspaces; measured latency failures retained',
     ],
     remaining: [
       'Two extension-placement warnings, 50-session load and complete accessibility review',
-      'Monitoring, backup restoration and provider delivery',
+      'Monitoring, independent Auth/object recovery and launch delivery qualification',
       'Timed clean setup, walkthrough and handover sign-off',
     ],
   },
@@ -408,6 +412,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-09',
+    title: 'Request limits, reconciliation and separate-target recovery verified',
+    body: 'G06 and G07 pass in the agreed local scope: actual signed-in application and service HTTP share one request budget, and all three resource counters use locked, audited reconciliation. Initial owner seats now count atomically. All 639 application cases pass. Subscriptions reaches 100% technical readiness, AI rules and seams 82%, Handover 52%. Recovery restored 61 tables with matching data and access controls. The 50-session load run remains below the required performance standard; both failed samples are downloadable. Demonstration and final acceptance remain pending.',
+    milestone: 'M3, M4a, M6',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-09',
     title: 'Shared request budgets and database safeguards verified',

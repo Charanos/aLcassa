@@ -1,7 +1,7 @@
 /** Real Redis contention; only owned fixtures in the disposable local database. */
 import assert from 'node:assert/strict';
 import { execFile, spawn, type ChildProcess } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, randomBytes } from 'node:crypto';
 import { createServer } from 'node:http';
 import { createConnection } from 'node:net';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
@@ -16,6 +16,7 @@ import { cacheIncrement, RATE_LIMIT_INCREMENT_SCRIPT } from '@/lib/cache';
 const execute = promisify(execFile);
 const container = 'alcassa-verification-redis';
 const serviceRoot = resolve(process.env.VERIFICATION_SERVICE_REPOSITORY ?? '../aLcassa-service');
+const httpMode = process.argv.includes('--http');
 
 function context(tenant: string) {
   return createResolvedContext({
@@ -164,6 +165,9 @@ async function main() {
     other = randomUUID(),
     plan = randomUUID();
   const publicKey = `rl:public-verification:${tenant}`;
+  const userId = randomUUID();
+  const cookieJars = new Map<number, string>();
+  let applicationRequest = 0;
   const workers: ChildProcess[] = [];
   const checks: { name: string; passed: boolean; admitted?: number; refused?: number }[] = [];
   const budgetEnv = {
@@ -180,6 +184,18 @@ async function main() {
   };
   const mark = (name: string) => checks.push({ name, passed: true });
   async function node(tenantId = tenant, overrides: Record<string, string> = {}) {
+    if (httpMode && tenantId === tenant && Object.keys(overrides).length === 0) {
+      const port = 3111 + (applicationRequest++ % 2);
+      const response = await fetch(`http://127.0.0.1:${port}/api/v1/me`, {
+        headers: { cookie: cookieJars.get(port)!, 'X-Tenant-Id': other },
+      });
+      if (response.status === 200)
+        assert.equal(
+          ((await response.json()) as { data: { tenant: { id: string } } }).data.tenant.id,
+          tenant,
+        );
+      return { status: response.status, retry: response.headers.get('retry-after') ?? undefined };
+    }
     const result = await execute(
       process.execPath,
       [
@@ -194,6 +210,54 @@ async function main() {
     );
     const line = result.stdout.trim().split('\n').at(-1)!;
     return JSON.parse(line) as { status: number; retry?: string };
+  }
+  async function startApplication(port: number, email: string, password: string) {
+    const worker = spawn(
+      process.execPath,
+      [
+        'node_modules/next/dist/bin/next',
+        'start',
+        '--hostname',
+        '127.0.0.1',
+        '--port',
+        String(port),
+      ],
+      {
+        env: {
+          ...budgetEnv,
+          DATABASE_URL_ADMIN: process.env.DATABASE_URL_ADMIN!,
+          NEXT_DIST_DIR: '.next-live-verify',
+          NEXT_PUBLIC_APP_URL: `http://127.0.0.1:${port}`,
+          ALLOW_DEMO_ACCESS: '',
+          CRON_SECRET: token,
+        },
+        stdio: ['ignore', 'ignore', 'pipe'],
+        windowsHide: true,
+      },
+    );
+    workers.push(worker);
+    worker.stderr?.resume();
+    for (let attempt = 0; attempt < 120; attempt++) {
+      if (worker.exitCode !== null) throw new Error('Application worker exited');
+      if ((await fetch(`http://127.0.0.1:${port}/sign-in`).catch(() => null))?.ok) break;
+      await new Promise((done) => setTimeout(done, 250));
+    }
+    const response = await fetch(`http://127.0.0.1:${port}/api/v1/auth/sign-in`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ email, password }),
+      redirect: 'manual',
+    });
+    assert.equal(response.status, 200, 'Actual provider-backed application sign-in must succeed');
+    const body = (await response.json()) as { data: { tenant: { id: string } } };
+    assert.equal(body.data.tenant.id, tenant);
+    const cookies = response.headers
+      .getSetCookie()
+      .map((cookie) => cookie.split(';')[0]!)
+      .join('; ');
+    assert(cookies.includes('session='), 'Sign-in must issue the application session cookie');
+    assert(cookies.includes('sb-'), 'Sign-in must issue provider cookies');
+    cookieJars.set(port, cookies);
   }
   async function startWorker(port: number, overrides: Record<string, string> = {}) {
     const python = resolve(
@@ -238,6 +302,38 @@ async function main() {
     await adminQuery`insert into plan_entitlements (plan_id,key,kind,limit_value,display_name) values (${plan},'api_keys','limit',4,'Credentials')`;
     for (const id of [tenant, other]) {
       await adminQuery`insert into subscriptions (tenant_id,plan_id,status,current_period_start,current_period_end) values (${id},${plan},'active',now(),now()+interval '30 days')`;
+    }
+    if (httpMode) {
+      const { upsertAuthAccount } = await import('@/db/seed/authAccounts');
+      const { default: postgres } = await import('postgres');
+      const email = `budget-${userId}@example.invalid`;
+      const password = `${randomBytes(24).toString('hex')}!aA9`;
+      const seedConnection = postgres(process.env.DATABASE_URL_ADMIN!, { prepare: false, max: 1 });
+      try {
+        await upsertAuthAccount(seedConnection, {
+          id: userId,
+          email,
+          password,
+          fullName: 'Budget acceptance',
+        });
+      } finally {
+        await seedConnection.end();
+      }
+      await adminQuery`insert into user_profiles(id,email,full_name) values(${userId},${email},'Budget acceptance')`;
+      await adminQuery`insert into tenant_members(tenant_id,user_id,role,status)
+        values(${tenant},${userId},'owner','active')`;
+      await startApplication(3111, email, password);
+      await startApplication(3112, email, password);
+      assert.equal(
+        (await fetch('http://127.0.0.1:3111/api/v1/me', { headers: { 'X-Tenant-Id': tenant } }))
+          .status,
+        401,
+      );
+      assert.equal(
+        await redis('GET', contract.prefix + tenant),
+        null,
+        'An unauthenticated request cannot consume or select a tenant budget',
+      );
     }
     const owner = { ...context(tenant), actorId: SEED_USER_A };
     const first = await createCredential(owner, {
@@ -290,7 +386,9 @@ async function main() {
     assert.equal(await redis('GET', contract.prefix + tenant), '6');
     assert(Number(await redis('PTTL', contract.prefix + tenant)) > 0);
     checks.push({
-      name: 'Two runtimes, two Python workers and two credentials share one atomic tenant window',
+      name: httpMode
+        ? 'Two signed-in application workers and two service workers share one atomic tenant window'
+        : 'Two runtimes, two Python workers and two credentials share one atomic tenant window',
       passed: true,
       admitted: 6,
       refused: 4,
@@ -408,6 +506,12 @@ async function main() {
     await new Promise<void>((done) => adapter.close(() => done()));
     await redis('DEL', contract.prefix + tenant, contract.prefix + other, publicKey);
     if (created) {
+      if (httpMode) {
+        await cleanup`delete from sessions where user_id=${userId}`;
+        await cleanup`delete from tenant_members where user_id=${userId}`;
+        await cleanup`delete from user_profiles where id=${userId}`;
+        await cleanup`delete from auth.users where id=${userId}`;
+      }
       for (const id of [tenant, other]) {
         await cleanup`delete from audit_log where tenant_id=${id}`;
         await cleanup`delete from api_credentials where tenant_id=${id}`;
@@ -422,7 +526,7 @@ async function main() {
   }
   await mkdir('.test-report/phase-one', { recursive: true });
   await writeFile(
-    '.test-report/phase-one/shared-budget.json',
+    `.test-report/phase-one/${httpMode ? 'shared-budget-http' : 'shared-budget'}.json`,
     JSON.stringify(
       {
         checkedAt: new Date().toISOString(),
@@ -431,10 +535,12 @@ async function main() {
         fixtureCleanup: true,
         image: image.Image,
         checks,
-        scope:
-          'Production Node admission module in independent processes and actual authenticated FastAPI HTTP; real Redis through a local REST transport adapter.',
-        limits:
-          'Native Node session-to-HTTP contention, hosted topology, load qualification and billable request rollup remain separate.',
+        scope: httpMode
+          ? 'Actual provider-backed sign-in and session HTTP across two production Next workers, plus authenticated FastAPI HTTP across two workers sharing real Redis.'
+          : 'Production Node admission module in independent processes and actual authenticated FastAPI HTTP; real Redis through a local REST transport adapter.',
+        limits: httpMode
+          ? 'Local loopback topology; hosted latency and load qualification remain separate. Request admission is not billable usage.'
+          : 'Native Node session-to-HTTP contention, hosted topology, load qualification and billable request rollup remain separate.',
       },
       null,
       2,

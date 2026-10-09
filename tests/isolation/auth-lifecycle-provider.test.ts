@@ -130,6 +130,7 @@ afterAll(async () => {
     await cleanup`delete from subscriptions where tenant_id=${tenant.id}`;
     await cleanup`delete from tenant_members where tenant_id=${tenant.id}`;
     await cleanup`delete from tenant_settings where tenant_id=${tenant.id}`;
+    await cleanup`delete from usage_counters where tenant_id=${tenant.id}`;
     await cleanup`delete from tenants where id=${tenant.id}`;
   }
   if (ownerId) {
@@ -239,6 +240,9 @@ describe('Real-provider owner acceptance and PKCE password recovery', () => {
       Array<{ status: string; joined: boolean }>
     >`select status,joined_at is not null as joined from tenant_members where tenant_id=${result.tenantId} and user_id=${ownerId}`;
     expect(member).toEqual({ status: 'active', joined: true });
+    expect(
+      await adminQuery`select current_value from usage_counters where tenant_id=${result.tenantId} and key='seats'`,
+    ).toEqual([{ current_value: 1 }]);
     const joined = await adminQuery<
       Array<{ actor_user_id: string; entity_id: string; before: unknown; after: unknown }>
     >`select actor_user_id,entity_id,before,after from audit_log where tenant_id=${result.tenantId} and action='member.joined'`;

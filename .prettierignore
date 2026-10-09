@@ -16,6 +16,8 @@ node_modules/
 # Vendored agent skills. Third-party documentation — reformatting it would make
 # every future update a merge conflict against changes we did not make.
 .agents/
+.claude/skills/
+.aider-desk/
 
 # The Conduit design set, as delivered. These are the specification: 03 §1
 # treats the sheets as the reference the implementation is checked against, so

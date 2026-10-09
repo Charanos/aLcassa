@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService } from '@/lib/db/serviceClient';
 import { createSupabaseAdminClient } from '@/lib/auth/supabase/admin';
-import { tenantMembers, tenantSettings, tenants, userProfiles } from '@/db/schema';
+import { tenantMembers, tenantSettings, tenants, userProfiles, usageCounters } from '@/db/schema';
 import { RESERVED_SLUGS } from '../types';
 
 /**
@@ -227,6 +227,9 @@ export async function selfServeSignUp(
           status: 'active',
           joinedAt: sql`now()`,
         });
+        await tx
+          .insert(usageCounters)
+          .values({ tenantId: tenant.id, key: 'seats', currentValue: 1, peakValue: 1 });
 
         return { tenantId: tenant.id, slug };
       },

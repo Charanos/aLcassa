@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { and, eq, gt, isNull } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import type { NextRequest } from 'next/server';
@@ -50,7 +51,18 @@ function ipOf(request: NextRequest): string | null {
  * are both thin wrappers over the same body below. The ONLY thing that
  * differs is where the caller's IP address is read from.
  */
+const currentRequestSession = cache(async (): Promise<ResolvedContext> => {
+  const headerList = await headers();
+  const requestId = headerList.get('x-request-id') ?? crypto.randomUUID();
+  return resolveSessionCore(
+    headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+    requestId,
+  );
+});
+
 export async function currentSession(requestId?: string): Promise<ResolvedContext> {
+  // React memoizes only within this server render; subsequent requests recheck live authority.
+  if (!requestId) return currentRequestSession();
   const id = requestId ?? crypto.randomUUID();
   const headerList = await headers();
   return resolveSessionCore(headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null, id);

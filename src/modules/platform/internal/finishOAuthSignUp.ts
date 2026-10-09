@@ -3,7 +3,7 @@ import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { AUDIT_ACTIONS } from '@/lib/audit';
 import { asService } from '@/lib/db/serviceClient';
-import { tenantMembers, tenantSettings, tenants, userProfiles } from '@/db/schema';
+import { tenantMembers, tenantSettings, tenants, userProfiles, usageCounters } from '@/db/schema';
 import { RESERVED_SLUGS } from '../types';
 
 export const finishOAuthSignUpSchema = z.object({
@@ -122,6 +122,9 @@ export async function finishOAuthSignUp(
           status: 'active',
           joinedAt: sql`now()`,
         });
+        await tx
+          .insert(usageCounters)
+          .values({ tenantId: tenant.id, key: 'seats', currentValue: 1, peakValue: 1 });
 
         return { tenantId: tenant.id, slug };
       },

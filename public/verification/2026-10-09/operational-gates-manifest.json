@@ -1,0 +1,23 @@
+{
+  "date": "9 October 2026",
+  "applicationCases": 639,
+  "applicationFiles": 57,
+  "verifiedGates": [
+    "G06",
+    "G07"
+  ],
+  "httpScenarios": 8,
+  "restoredTables": 61,
+  "restoreMilliseconds": 7815,
+  "loadPassed": false,
+  "results": {
+    "path": "/verification/2026-10-09/operational-gates-results.json",
+    "sha256": "1102ff5b320a7d70b969384f634f17b845a3d47eebbec1817185fb819460385c"
+  },
+  "qualifiedRelease": {
+    "path": "/verification/2026-10-09/request-budget-qualified-release.json",
+    "sha256": "0e4e170be54f4b6f29c79bac0b1f4c5726fd7f438b194cf960879413fc5197a4"
+  },
+  "scope": "Shared budgets verified through real signed-in application and service HTTP. Phase One resource counters use one source definition and audited, locked reconciliation. Separate-target recovery preserves data and access controls.",
+  "limits": "Local service-hosting scope. Performance acceptance, broader provider and browser workflows, monitoring delivery, object recovery, accessibility, clean setup and handover remain open. Failed load samples remain downloadable. Admission and credential last-use are not billable request counters."
+}

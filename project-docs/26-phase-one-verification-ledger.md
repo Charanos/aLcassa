@@ -1169,3 +1169,64 @@ The public limiter previously separated INCR and EXPIRE, leaving an outage gap; 
 Eight database helpers now pin pg_catalog as their search path. The maintained policy catalogue applies all 49 policies; full regression preserves existing isolation semantics. The actual security advisor reports no errors and two warnings, down from ten: vector and pg_trgm extension placement still require a separate migration review. All 632 application cases in 55 files and 34 service cases (20 database, 14 unit/schema) pass. Fingerprinted budget results, the application catalogue, advisor findings and prior qualified CI are linked from the verification record.
 
 M3 advances 90→92%, M4a 75→78% and M6 40→42%. G06 is an engineering checkpoint, not fully accepted. Native Node HTTP contention, durable request rollup, hosted topology, full surface/accessibility, load, monitoring, backup recovery and final handover remain open. The service CI adds the real Redis replay against the pinned application revision. Exact candidate CI qualification follows publication.
+
+## 40. HTTP limits, reconciliation and database recovery — 9 October 2026
+
+The preceding request-budget release is qualified: application
+`35df9a8caf158d4033d70aa29e005134464f4b30` passes all six jobs in
+[run 37938279891](https://github.com/Charanos/aLcassa/actions/runs/37938279891),
+with the downloaded 632-case/55-file catalogue. Service
+`dad4761b0a2697a25d0c9edbd50c6aa79c499f7f` passes both jobs in
+[run 37938310120](https://github.com/Charanos/alcassa-service/actions/runs/37938310120),
+pinned to that application revision. GitHub reports the application deployment
+successful. This qualification is separate from the newer local candidate below.
+
+**G06 verified locally.** Real provider sign-in produces application sessions;
+two built Next workers perform actual `/api/v1/me` requests while Python service
+workers use two Node-minted credentials. Ten simultaneous requests admit six
+and refuse four. Successful application responses name the authenticated tenant
+despite a caller-supplied tenant header. Unauthenticated requests cannot consume
+its budget. Eight scenarios include expiry, restart, configuration, separation,
+atomic public limiter expiry and outage/disabled authorization safeguards.
+
+**G07 verified for Phase One resource counters.** One repeatable-read source
+report covers reserved seats, active credential slots and published rule versions.
+The scheduler formerly used an actorless RLS connection, which could report zero
+visible workspaces as success. It now uses a narrow privileged report helper;
+invalid/missing cron authentication still refuses. Reports never repair. Privileged
+repair requires a real active platform administrator, actor/reason, writer advisory
+locks and fresh counts after locking. Repairs preserve peaks, record one audit per
+drift and are idempotent. Wrong-role maintenance refuses. Initial owner activation
+and email/OAuth workspace creation now count seats atomically. See plan 18.17 for
+resource definitions and the distinction from request billing or monthly usage.
+
+**G16 database subset passes.** An exported repeatable-read snapshot supplies both
+independent fingerprints and a full local SQL dump. Restore into a separate owned
+database matches 61 tables/1,726 rows, 52 policies, 17 functions, effective grants,
+owners and definer settings. Actual application identity/settings and restricted
+service requests succeed; wrong scope and revoked credentials refuse; source
+credentials stay unchanged. Owned target, dump, workers and fixtures are removed.
+The 7,815 ms measurement covers snapshot/dump/restore, not final launch RTO/RPO.
+The existing Auth process validates the restored application's identity. Independent
+Auth process, stored object bytes and upgrade/rollback acceptance remain open.
+
+**G15 fails its latency target.** Fifty distinct authenticated sessions across five
+owned workspaces run five production-build routes for sixty seconds, after warm-up,
+with 100 ms think time. The baseline has 262 requests; the repeat has 308, with
+zero errors/refusals and matching counters. Dashboard/settings repeat p95 is
+13,157–14,361 ms, exceeding 400 ms. Combining five transaction-local context settings
+into one roundtrip and reusing session resolution within an RSC render reduces
+some repeated work but does not pass acceptance. Each new request still checks real
+provider identity, durable session and live membership. Both failed samples remain
+downloadable; cold/warm phases, loaded propagation and memory/fan-out remain open.
+
+The candidate passes 639 cases in 57 files with cache disabled and a 94-route
+production build. New checks cover owner accounting, report/repair access,
+injected drift, locked recount, peaks, cron authentication and idempotency.
+No new native browser result is claimed: the native automation runtime currently
+fails to initialize its assets. Prior qualified native results are preserved.
+M3 is technically 100% pending demonstration/acceptance; M4a 82%, M6 52%.
+Monitoring delivery, broad provider/browser/accessibility acceptance, independent
+recovery/upgrade, clean setup, security review and final handover remain open.
+The [verification record](/project-tracker/verification#operational-gates-checkpoint)
+publishes bounded results and SHA-256 fingerprints without raw identities or logs.

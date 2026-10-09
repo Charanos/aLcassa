@@ -37,5 +37,13 @@
     "next-env.d.ts",
     ".next-local-verify/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "project-docs", "design-docs", "conduit-appshell-boilerplate"]
+  "exclude": [
+    "node_modules",
+    ".agents",
+    ".claude/skills",
+    ".aider-desk",
+    "project-docs",
+    "design-docs",
+    "conduit-appshell-boilerplate"
+  ]
 }

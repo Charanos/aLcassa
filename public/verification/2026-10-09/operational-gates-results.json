@@ -1,0 +1,3698 @@
+{
+  "application": {
+    "startedAt": "2026-10-09T20:13:32.255Z",
+    "passed": 639,
+    "failed": 0,
+    "skipped": 0,
+    "files": [
+      {
+        "path": "tests/console/activity-details.test.ts",
+        "cases": [
+          {
+            "title": "Customer-safe Activity details shows recorded instruction publication and restoration notes without exposing content",
+            "status": "passed",
+            "durationMs": 4.2420000000000755
+          },
+          {
+            "title": "Customer-safe Activity details shows the before and after subscription and its customer-facing reason",
+            "status": "passed",
+            "durationMs": 30.7582000000001
+          },
+          {
+            "title": "Customer-safe Activity details preserves zero and unlimited without saying a winning override changed",
+            "status": "passed",
+            "durationMs": 0.4719000000000051
+          },
+          {
+            "title": "Customer-safe Activity details drops secrets, nested arbitrary data and unsupported action payloads",
+            "status": "passed",
+            "durationMs": 0.6616999999999962
+          },
+          {
+            "title": "Customer-safe Activity details keeps reasons on recorded support visits",
+            "status": "passed",
+            "durationMs": 0.28530000000000655
+          }
+        ]
+      },
+      {
+        "path": "tests/console/activity.test.ts",
+        "cases": [
+          {
+            "title": "activity cursor and dates preserves database microseconds and the snapshot boundary through pagination",
+            "status": "passed",
+            "durationMs": 22.69269999999983
+          },
+          {
+            "title": "activity cursor and dates rejects malformed, oversized, future and inverted cursors",
+            "status": "passed",
+            "durationMs": 14.48350000000005
+          },
+          {
+            "title": "activity cursor and dates formats a cross-midnight event in the workspace timezone with its year",
+            "status": "passed",
+            "durationMs": 162.56950000000006
+          },
+          {
+            "title": "activity cursor and dates preserves and validates snapshot boundaries within one millisecond",
+            "status": "passed",
+            "durationMs": 4.876899999999978
+          }
+        ]
+      },
+      {
+        "path": "tests/console/allowances.test.ts",
+        "cases": [
+          {
+            "title": "allowance display and portfolio arithmetic keeps denied, unlimited and unavailable allowances distinct",
+            "status": "passed",
+            "durationMs": 54.77019999999993
+          },
+          {
+            "title": "allowance display and portfolio arithmetic reports finite headroom and excess without clamping the business value",
+            "status": "passed",
+            "durationMs": 2.2241000000000213
+          },
+          {
+            "title": "allowance display and portfolio arithmetic never substitutes used seats for an unknown or unlimited portfolio limit",
+            "status": "passed",
+            "durationMs": 0.6429999999999154
+          },
+          {
+            "title": "allowance display and portfolio arithmetic keeps non-proportional values last and denied usage visible in both sorts",
+            "status": "passed",
+            "durationMs": 0.823500000000081
+          }
+        ]
+      },
+      {
+        "path": "tests/console/audit-readers.test.ts",
+        "cases": [
+          {
+            "title": "platform audit log readers finds the readers it is meant to guard",
+            "status": "passed",
+            "durationMs": 3.39530000000002
+          },
+          {
+            "title": "platform audit log readers live.ts · recentPlatformActivity reads with an actor context",
+            "status": "passed",
+            "durationMs": 0.3494000000000028
+          },
+          {
+            "title": "platform audit log readers liveOperators.ts · getLiveProfile reads with an actor context",
+            "status": "passed",
+            "durationMs": 0.20539999999999736
+          },
+          {
+            "title": "platform audit log readers liveRevenue.ts · readContractChanges reads with an actor context",
+            "status": "passed",
+            "durationMs": 0.14260000000001583
+          },
+          {
+            "title": "platform audit log readers liveSettings.ts · getLiveSettings reads with an actor context",
+            "status": "passed",
+            "durationMs": 0.2084000000000401
+          },
+          {
+            "title": "platform audit log readers liveSupport.ts · enderNames reads with an actor context",
+            "status": "passed",
+            "durationMs": 0.13829999999995835
+          },
+          {
+            "title": "platform audit log readers liveWorkspaces.ts · getLiveAuditEntries reads with an actor context",
+            "status": "passed",
+            "durationMs": 0.20730000000003201
+          },
+          {
+            "title": "platform audit log readers liveWorkspaces.ts · getLiveAuditVolume reads with an actor context",
+            "status": "passed",
+            "durationMs": 0.16480000000001382
+          },
+          {
+            "title": "platform audit log readers actions.ts · fetchBreakGlassState reads with an actor context",
+            "status": "passed",
+            "durationMs": 0.16779999999999973
+          },
+          {
+            "title": "platform audit log readers actions.ts · nextSupportReference reads with an actor context",
+            "status": "passed",
+            "durationMs": 0.23630000000002838
+          }
+        ]
+      },
+      {
+        "path": "tests/console/company-input.test.ts",
+        "cases": [
+          {
+            "title": "company settings input normalizes surrounding whitespace without changing the company name",
+            "status": "passed",
+            "durationMs": 64.89159999999993
+          },
+          {
+            "title": "company settings input requires a recognized timezone, supported locale, valid email and integer version",
+            "status": "passed",
+            "durationMs": 7.000599999999963
+          },
+          {
+            "title": "company settings input rejects caller-selected tenant and actor identifiers",
+            "status": "passed",
+            "durationMs": 2.022999999999911
+          }
+        ]
+      },
+      {
+        "path": "tests/console/revenue.test.ts",
+        "cases": [
+          {
+            "title": "subscription value preserves empty portfolios without invented contracts or amounts",
+            "status": "passed",
+            "durationMs": 91.26920000000007
+          },
+          {
+            "title": "subscription value normalizes annual prices and honors negotiated monthly prices including zero",
+            "status": "passed",
+            "durationMs": 1.2981999999999516
+          },
+          {
+            "title": "subscription value keeps trials, suspended contracts and unpriced contracts out of current value",
+            "status": "passed",
+            "durationMs": 5.179300000000012
+          },
+          {
+            "title": "subscription value limits estimated arrears at suspension and reconciles age buckets",
+            "status": "passed",
+            "durationMs": 7.697500000000105
+          },
+          {
+            "title": "calendar renewal boundaries clamps month-end anchors without skipping February or changing the time",
+            "status": "passed",
+            "durationMs": 1.0635999999999513
+          },
+          {
+            "title": "calendar renewal boundaries starts the next period exactly at its boundary and counts due dates once",
+            "status": "passed",
+            "durationMs": 1.2315999999999576
+          }
+        ]
+      },
+      {
+        "path": "tests/auth/email-confirmation.test.ts",
+        "cases": [
+          {
+            "title": "Email confirmation refusals before provider access checks a same-origin proof on 127.0.0.1 before refusing an expired code",
+            "status": "passed",
+            "durationMs": 26.003799999999956
+          },
+          {
+            "title": "Email confirmation refusals before provider access checks a same-origin proof on [::1] before refusing an expired code",
+            "status": "passed",
+            "durationMs": 3.074100000000044
+          },
+          {
+            "title": "Email confirmation refusals before provider access refuses a mismatched local authority localhost:3100 before provider access",
+            "status": "passed",
+            "durationMs": 2.8869000000000824
+          },
+          {
+            "title": "Email confirmation refusals before provider access refuses a mismatched local authority 127.0.0.1:3200 before provider access",
+            "status": "passed",
+            "durationMs": 2.1539999999999964
+          },
+          {
+            "title": "Email confirmation refusals before provider access refuses 'cross-origin submission' without touching Auth",
+            "status": "passed",
+            "durationMs": 2.6083999999999605
+          },
+          {
+            "title": "Email confirmation refusals before provider access refuses 'missing origin' without touching Auth",
+            "status": "passed",
+            "durationMs": 1.7674999999999272
+          },
+          {
+            "title": "Email confirmation refusals before provider access refuses 'opaque origin' without touching Auth",
+            "status": "passed",
+            "durationMs": 1.624400000000037
+          },
+          {
+            "title": "Email confirmation refusals before provider access refuses 'unsupported purpose' without touching Auth",
+            "status": "passed",
+            "durationMs": 3.231899999999996
+          },
+          {
+            "title": "Email confirmation refusals before provider access refuses 'combined proofs' without touching Auth",
+            "status": "passed",
+            "durationMs": 2.7151000000000067
+          },
+          {
+            "title": "Email confirmation refusals before provider access refuses 'missing refresh proof' without touching Auth",
+            "status": "passed",
+            "durationMs": 3.6169000000001006
+          },
+          {
+            "title": "Email confirmation refusals before provider access uses the production domain instead of a retained local-development URL",
+            "status": "passed",
+            "durationMs": 1.6034000000000788
+          },
+          {
+            "title": "Email confirmation refusals before provider access refuses a malformed configured destination",
+            "status": "passed",
+            "durationMs": 2.5993000000000848
+          }
+        ]
+      },
+      {
+        "path": "tests/auth/middleware-origin.test.ts",
+        "cases": [
+          {
+            "title": "Protected navigation origins overwrites a forged return header with the actual protected path and query",
+            "status": "passed",
+            "durationMs": 29.404800000000023
+          },
+          {
+            "title": "Protected navigation origins returns an unauthenticated 127.0.0.1:3100 request to its own sign-in",
+            "status": "passed",
+            "durationMs": 14.811599999999999
+          },
+          {
+            "title": "Protected navigation origins returns an unauthenticated [::1]:3100 request to its own sign-in",
+            "status": "passed",
+            "durationMs": 7.21530000000007
+          },
+          {
+            "title": "Protected navigation origins returns an unauthenticated localhost:3100 request to its own sign-in",
+            "status": "passed",
+            "durationMs": 2.44620000000009
+          }
+        ]
+      },
+      {
+        "path": "tests/auth/request-origin.test.ts",
+        "cases": [
+          {
+            "title": "Authentication request origin preserves 127.0.0.1 framework URLs submitted through localhost",
+            "status": "passed",
+            "durationMs": 4.036100000000033
+          },
+          {
+            "title": "Authentication request origin preserves [::1] framework URLs submitted through 127.0.0.1",
+            "status": "passed",
+            "durationMs": 0.9283999999998969
+          },
+          {
+            "title": "Authentication request origin keeps a loopback form and its redirect on 127.0.0.1:3100",
+            "status": "passed",
+            "durationMs": 6.944999999999936
+          },
+          {
+            "title": "Authentication request origin keeps a loopback form and its redirect on [::1]:3100",
+            "status": "passed",
+            "durationMs": 1.2183999999999742
+          },
+          {
+            "title": "Authentication request origin keeps a loopback form and its redirect on localhost:3100",
+            "status": "passed",
+            "durationMs": 0.7799999999999727
+          },
+          {
+            "title": "Authentication request origin preserves the protected deep link without moving its cookies to another origin",
+            "status": "passed",
+            "durationMs": 1.0517000000000962
+          },
+          {
+            "title": "Authentication request origin refuses an untrusted loopback authority outside.example:3100",
+            "status": "passed",
+            "durationMs": 1.0212000000000216
+          },
+          {
+            "title": "Authentication request origin refuses an untrusted loopback authority 127.0.0.1:3101",
+            "status": "passed",
+            "durationMs": 1.266300000000001
+          },
+          {
+            "title": "Authentication request origin refuses an untrusted loopback authority 127.0.0.1:3100/path",
+            "status": "passed",
+            "durationMs": 0.9435000000000855
+          },
+          {
+            "title": "Authentication request origin refuses an untrusted loopback authority account@127.0.0.1:3100",
+            "status": "passed",
+            "durationMs": 2.6345000000000027
+          },
+          {
+            "title": "Authentication request origin refuses an untrusted loopback authority 127.0.0.1:3100#outside",
+            "status": "passed",
+            "durationMs": 1.9899000000000342
+          },
+          {
+            "title": "Authentication request origin refuses an untrusted loopback authority 127.0.0.1:65536",
+            "status": "passed",
+            "durationMs": 0.92999999999995
+          },
+          {
+            "title": "Authentication request origin does not use client Origin or forwarded headers to choose a destination",
+            "status": "passed",
+            "durationMs": 0.8275999999999613
+          },
+          {
+            "title": "Authentication request origin cannot replace a hosted origin with a forged loopback Host header",
+            "status": "passed",
+            "durationMs": 0.6779999999999973
+          },
+          {
+            "title": "Authentication request origin preserves the public origin when forwarded headers disagree",
+            "status": "passed",
+            "durationMs": 0.6970000000000027
+          }
+        ]
+      },
+      {
+        "path": "tests/auth/return-path.test.ts",
+        "cases": [
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination undefined",
+            "status": "passed",
+            "durationMs": 2.114400000000046
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination null",
+            "status": "passed",
+            "durationMs": 0.20889999999997144
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"\"",
+            "status": "passed",
+            "durationMs": 0.15350000000000819
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"https://outside.example\"",
+            "status": "passed",
+            "durationMs": 0.14569999999991978
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"//outside.example\"",
+            "status": "passed",
+            "durationMs": 0.14340000000004238
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"/\\\\outside.example\"",
+            "status": "passed",
+            "durationMs": 0.18229999999994106
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"/\\t/outside.example\"",
+            "status": "passed",
+            "durationMs": 0.17610000000001946
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"/\\n/outside.example\"",
+            "status": "passed",
+            "durationMs": 0.13979999999992287
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"/\\r/outside.example\"",
+            "status": "passed",
+            "durationMs": 0.15670000000000073
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"javascript:alert(1)\"",
+            "status": "passed",
+            "durationMs": 0.19389999999998508
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"app/settings\"",
+            "status": "passed",
+            "durationMs": 0.17179999999996198
+          },
+          {
+            "title": "Post-authentication return paths refuses an unsafe destination \"/app\\u0000/settings\"",
+            "status": "passed",
+            "durationMs": 0.10319999999990159
+          },
+          {
+            "title": "Post-authentication return paths preserves a local destination /app",
+            "status": "passed",
+            "durationMs": 0.15170000000000528
+          },
+          {
+            "title": "Post-authentication return paths preserves a local destination /app/settings/audit?filter=platform#history",
+            "status": "passed",
+            "durationMs": 0.13819999999998345
+          },
+          {
+            "title": "Post-authentication return paths preserves a local destination /platform/tenants/acme-industrial?tab=billing",
+            "status": "passed",
+            "durationMs": 0.09890000000007149
+          },
+          {
+            "title": "Post-authentication return paths preserves a local destination /app?search=two%20words",
+            "status": "passed",
+            "durationMs": 0.09309999999993579
+          },
+          {
+            "title": "Post-authentication return paths normalizes a local path without allowing a cross-origin redirect",
+            "status": "passed",
+            "durationMs": 0.11620000000004893
+          }
+        ]
+      },
+      {
+        "path": "tests/auth/sign-in-return.test.ts",
+        "cases": [
+          {
+            "title": "Sign-in refusal continuation keeps 'incorrect credentials' on a safe local return path",
+            "status": "passed",
+            "durationMs": 20.05179999999973
+          },
+          {
+            "title": "Sign-in refusal continuation keeps 'invalid email' on a safe local return path",
+            "status": "passed",
+            "durationMs": 2.9965000000001965
+          },
+          {
+            "title": "Sign-in refusal continuation keeps 'external continuation' on a safe local return path",
+            "status": "passed",
+            "durationMs": 1.8717000000001462
+          }
+        ]
+      },
+      {
+        "path": "tests/email/templates.test.ts",
+        "cases": [
+          {
+            "title": "Auth provider email templates preserves the provider proof in invite without external assets",
+            "status": "passed",
+            "durationMs": 11.295100000000048
+          },
+          {
+            "title": "Auth provider email templates preserves the provider proof in recovery without external assets",
+            "status": "passed",
+            "durationMs": 1.2627999999999702
+          },
+          {
+            "title": "invitation email uses the subject and opening line from the copy deck",
+            "status": "passed",
+            "durationMs": 62.46390000000008
+          },
+          {
+            "title": "invitation email carries the accept link in both parts",
+            "status": "passed",
+            "durationMs": 3.7637000000000853
+          },
+          {
+            "title": "invitation email states the expiry, so the reader knows what they are sitting on",
+            "status": "passed",
+            "durationMs": 1.0681999999999334
+          },
+          {
+            "title": "invitation email escapes a workspace name containing markup",
+            "status": "passed",
+            "durationMs": 1.1534999999998945
+          },
+          {
+            "title": "invitation email escapes an inviter name containing markup",
+            "status": "passed",
+            "durationMs": 1.1595000000000937
+          },
+          {
+            "title": "invitation email leaves the subject as plain text",
+            "status": "passed",
+            "durationMs": 1.2489000000000487
+          },
+          {
+            "title": "invitation email escapes a quote in the URL rather than letting it close the attribute",
+            "status": "passed",
+            "durationMs": 1.7506000000000768
+          },
+          {
+            "title": "invitation email renders a preheader so the inbox preview is not the word aLcassa",
+            "status": "passed",
+            "durationMs": 1.258100000000013
+          },
+          {
+            "title": "the two templates that are written ahead of their milestone credential created follows the copy deck",
+            "status": "passed",
+            "durationMs": 0.6317999999999984
+          },
+          {
+            "title": "the two templates that are written ahead of their milestone support session follows the copy deck and names the reason when given",
+            "status": "passed",
+            "durationMs": 0.7223999999999933
+          },
+          {
+            "title": "the two templates that are written ahead of their milestone support session omits the reason line entirely when there is none",
+            "status": "passed",
+            "durationMs": 0.480199999999968
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/account-lifecycle.test.ts",
+        "cases": [
+          {
+            "title": "account lifecycle · invitations an owner can issue one, and only its hash is stored",
+            "status": "passed",
+            "durationMs": 376.06179999999995
+          },
+          {
+            "title": "account lifecycle · invitations is readable by its token with no session, through the function",
+            "status": "passed",
+            "durationMs": 618.4561000000001
+          },
+          {
+            "title": "account lifecycle · invitations leaves the table itself closed to an unauthenticated caller",
+            "status": "passed",
+            "durationMs": 383.5359000000001
+          },
+          {
+            "title": "account lifecycle · invitations returns nothing for a token that does not match",
+            "status": "passed",
+            "durationMs": 149.50059999999985
+          },
+          {
+            "title": "account lifecycle · invitations is invisible to another workspace",
+            "status": "passed",
+            "durationMs": 738.5212999999999
+          },
+          {
+            "title": "account lifecycle · acceptance creates the membership and marks the token used, atomically",
+            "status": "passed",
+            "durationMs": 1770.5533
+          },
+          {
+            "title": "account lifecycle · acceptance writes a member.joined entry the workspace can read",
+            "status": "passed",
+            "durationMs": 1863.9252999999999
+          },
+          {
+            "title": "account lifecycle · acceptance refuses a second use of the same token",
+            "status": "passed",
+            "durationMs": 1156.4642999999996
+          },
+          {
+            "title": "account lifecycle · acceptance refuses an expired token, and creates nothing",
+            "status": "passed",
+            "durationMs": 188.85069999999996
+          },
+          {
+            "title": "account lifecycle · roles and sessions an agent cannot change anyone’s role",
+            "status": "passed",
+            "durationMs": 69.61719999999968
+          },
+          {
+            "title": "account lifecycle · roles and sessions a workspace has exactly one owner",
+            "status": "passed",
+            "durationMs": 90.95520000000033
+          },
+          {
+            "title": "account lifecycle · roles and sessions a revoked session stops resolving immediately",
+            "status": "passed",
+            "durationMs": 358.02940000000126
+          },
+          {
+            "title": "account lifecycle · roles and sessions another user cannot read someone else's session",
+            "status": "passed",
+            "durationMs": 78.57599999999911
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/activity-reader.test.ts",
+        "cases": [
+          {
+            "title": "customer Activity through the real reader and policies returns the recorded plan changes and reason without arbitrary audit secrets",
+            "status": "passed",
+            "durationMs": 357.2583000000004
+          },
+          {
+            "title": "customer Activity through the real reader and policies uses database time when the application clock lags behind a recorded change",
+            "status": "passed",
+            "durationMs": 188.46100000000024
+          },
+          {
+            "title": "customer Activity through the real reader and policies returns every retained event once across 2,101 records, ties and new arrivals",
+            "status": "passed",
+            "durationMs": 7553.2923
+          },
+          {
+            "title": "customer Activity through the real reader and policies keeps retention tied to current time even when a caller edits the snapshot cursor",
+            "status": "passed",
+            "durationMs": 198.03540000000066
+          },
+          {
+            "title": "customer Activity through the real reader and policies refuses agents and missing plan coverage instead of granting unlimited history",
+            "status": "passed",
+            "durationMs": 116.48700000000099
+          },
+          {
+            "title": "customer Activity through the real reader and policies honors explicitly unlimited history and includes older events",
+            "status": "passed",
+            "durationMs": 8408.0796
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/auth-lifecycle-provider.test.ts",
+        "cases": [
+          {
+            "title": "Real-provider owner acceptance and PKCE password recovery activates the invited owner, opens the correct workspace and revokes old sessions after recovery",
+            "status": "passed",
+            "durationMs": 13085.341800000002
+          },
+          {
+            "title": "Real-provider owner acceptance and PKCE password recovery accepts a single-use token hash only for its actual provider purpose",
+            "status": "passed",
+            "durationMs": 2051.9569999999985
+          },
+          {
+            "title": "Real-provider owner acceptance and PKCE password recovery does not send recovery mail or create an identity for an unknown address",
+            "status": "passed",
+            "durationMs": 1578.7478999999985
+          },
+          {
+            "title": "Real-provider owner acceptance and PKCE password recovery does not send recovery mail or create an identity for an application profile without an Auth account",
+            "status": "passed",
+            "durationMs": 1253.6402000000016
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/company-settings.test.ts",
+        "cases": [
+          {
+            "title": "company saves under real policies saves the settings with a correlated audit and preserves platform identity",
+            "status": "passed",
+            "durationMs": 311.12699999999995
+          },
+          {
+            "title": "company saves under real policies refuses an agent without changing settings or adding an audit",
+            "status": "passed",
+            "durationMs": 21.208599999999933
+          },
+          {
+            "title": "company saves under real policies refuses stale versions without changing settings or history",
+            "status": "passed",
+            "durationMs": 37.08779999999979
+          },
+          {
+            "title": "company saves under real policies commits exactly one simultaneous save at the same version",
+            "status": "passed",
+            "durationMs": 85.03830000000016
+          },
+          {
+            "title": "company saves under real policies attributes support changes to the support actor",
+            "status": "passed",
+            "durationMs": 51.79210000000012
+          },
+          {
+            "title": "company saves under real policies cannot update another tenant by its real row ID even through the query layer",
+            "status": "passed",
+            "durationMs": 29.04379999999992
+          },
+          {
+            "title": "company saves under real policies enforces the role on first insert and allows an owner to initialize settings",
+            "status": "passed",
+            "durationMs": 79.48950000000013
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/credentials.test.ts",
+        "cases": [
+          {
+            "title": "owner credential lifecycle under actual policies hashes the real random key and excludes it and its hash from all later reads and audits",
+            "status": "passed",
+            "durationMs": 628.7770999999993
+          },
+          {
+            "title": "owner credential lifecycle under actual policies returns metadata only for a duplicate request and refuses changed payloads",
+            "status": "passed",
+            "durationMs": 1034.0515999999998
+          },
+          {
+            "title": "owner credential lifecycle under actual policies refuses admin creation, metadata access and revocation",
+            "status": "passed",
+            "durationMs": 204.44859999999971
+          },
+          {
+            "title": "owner credential lifecycle under actual policies refuses agent creation, metadata access and revocation",
+            "status": "passed",
+            "durationMs": 89.15760000000046
+          },
+          {
+            "title": "owner credential lifecycle under actual policies refuses support creation, metadata access and revocation",
+            "status": "passed",
+            "durationMs": 122.37890000000061
+          },
+          {
+            "title": "owner credential lifecycle under actual policies refuses an owner context marked as support",
+            "status": "passed",
+            "durationMs": 0.9840000000003783
+          },
+          {
+            "title": "owner credential lifecycle under actual policies reserves only two slots across simultaneous distinct mint attempts",
+            "status": "passed",
+            "durationMs": 1360.2802000000001
+          },
+          {
+            "title": "owner credential lifecycle under actual policies returns one secret and one audit for simultaneous identical requests",
+            "status": "passed",
+            "durationMs": 1055.9066000000003
+          },
+          {
+            "title": "owner credential lifecycle under actual policies rotates at the allowance, keeps a bounded grace window and preserves the slot count",
+            "status": "passed",
+            "durationMs": 4137.7449
+          },
+          {
+            "title": "owner credential lifecycle under actual policies ends the predecessor grace when its successor is revoked",
+            "status": "passed",
+            "durationMs": 2172.332700000001
+          },
+          {
+            "title": "owner credential lifecycle under actual policies revokes idempotently with one event and no cross-workspace disclosure",
+            "status": "passed",
+            "durationMs": 552.5339000000004
+          },
+          {
+            "title": "owner credential lifecycle under actual policies rejects reserved scopes and caller-supplied tenant identity",
+            "status": "passed",
+            "durationMs": 2.988499999999476
+          },
+          {
+            "title": "owner credential lifecycle under actual policies denies browser-facing table grants while preserving the private application connection",
+            "status": "passed",
+            "durationMs": 6.235599999999977
+          },
+          {
+            "title": "owner credential lifecycle under actual policies rolls back creation and its counter when the transactional audit fails",
+            "status": "passed",
+            "durationMs": 437.974000000002
+          },
+          {
+            "title": "owner credential lifecycle under actual policies uses a live override and ignores the expired grant",
+            "status": "passed",
+            "durationMs": 1394.0457999999999
+          },
+          {
+            "title": "owner credential lifecycle under actual policies allows a genuinely unlimited plan and refuses a suspended workspace or paused subscription",
+            "status": "passed",
+            "durationMs": 924.0590999999986
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/device-sessions.test.ts",
+        "cases": [
+          {
+            "title": "ends one owned session immediately and writes one audit",
+            "status": "passed",
+            "durationMs": 173.36219999999958
+          },
+          {
+            "title": "bulk preserves current, foreign, expired and recovery sessions",
+            "status": "passed",
+            "durationMs": 152.44929999999977
+          },
+          {
+            "title": "refuses unavailable and foreign sessions without disclosing their ownership",
+            "status": "passed",
+            "durationMs": 65.38130000000001
+          },
+          {
+            "title": "requires a current session for bulk and produces no audit for a no-op",
+            "status": "passed",
+            "durationMs": 27.054399999999987
+          },
+          {
+            "title": "rolls revocation back when its audit cannot be written",
+            "status": "passed",
+            "durationMs": 39.1242000000002
+          },
+          {
+            "title": "concurrent duplicate revocation has one committed outcome and one audit",
+            "status": "passed",
+            "durationMs": 87.3140000000003
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/email-password-claim.test.ts",
+        "cases": [
+          {
+            "title": "Password write claims under actual session policies keeps session rows private to the application connection",
+            "status": "passed",
+            "durationMs": 296.1265999999996
+          },
+          {
+            "title": "Password write claims under actual session policies admits one concurrent write across two email flows for the same account",
+            "status": "passed",
+            "durationMs": 1208.8246
+          },
+          {
+            "title": "Password write claims under actual session policies refuses another identity without changing the flow",
+            "status": "passed",
+            "durationMs": 752.6238999999996
+          },
+          {
+            "title": "Password write claims under actual session policies refuses expired, revoked and purpose-mismatched proof",
+            "status": "passed",
+            "durationMs": 1456.107399999999
+          },
+          {
+            "title": "Password write claims under actual session policies permits retry after a definite refusal and prevents rewriting a saved password",
+            "status": "passed",
+            "durationMs": 494.4822000000004
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/entitlements.test.ts",
+        "cases": [
+          {
+            "title": "entitlements · the plan is the source tenant A is on Pro with the limits 08 §2 specifies",
+            "status": "passed",
+            "durationMs": 39.98580000000004
+          },
+          {
+            "title": "entitlements · the plan is the source a key with no plan row resolves to nothing rather than to unlimited",
+            "status": "passed",
+            "durationMs": 35.952499999999986
+          },
+          {
+            "title": "entitlements · the plan is the source unlimited is null, never a large number standing in for it",
+            "status": "passed",
+            "durationMs": 27.560100000000034
+          },
+          {
+            "title": "entitlements · overrides take precedence a live override supersedes the plan limit",
+            "status": "passed",
+            "durationMs": 86.04859999999996
+          },
+          {
+            "title": "entitlements · overrides take precedence an expired override stops applying without anything sweeping it",
+            "status": "passed",
+            "durationMs": 44.32659999999987
+          },
+          {
+            "title": "entitlements · overrides take precedence permits exactly one override per tenant and key",
+            "status": "passed",
+            "durationMs": 15.27370000000019
+          },
+          {
+            "title": "entitlements · isolation a tenant cannot read another tenant's override",
+            "status": "passed",
+            "durationMs": 64.35899999999992
+          },
+          {
+            "title": "entitlements · isolation a tenant cannot grant itself an override",
+            "status": "passed",
+            "durationMs": 27.659200000000055
+          },
+          {
+            "title": "entitlements · isolation a tenant cannot move itself onto a different plan",
+            "status": "passed",
+            "durationMs": 44.95880000000011
+          },
+          {
+            "title": "entitlements · isolation a tenant cannot change its own subscription status",
+            "status": "passed",
+            "durationMs": 64.01530000000002
+          },
+          {
+            "title": "entitlements · usage counters a counter is scoped to its tenant",
+            "status": "passed",
+            "durationMs": 230.02109999999993
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/generated.test.ts",
+        "cases": [
+          {
+            "title": "isolation suite covers every tenant-scoped table",
+            "status": "passed",
+            "durationMs": 2.4599000000000615
+          },
+          {
+            "title": "isolation suite table · api_credentials 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 580.6823999999999
+          },
+          {
+            "title": "isolation suite table · api_credentials 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 62.015699999999924
+          },
+          {
+            "title": "isolation suite table · api_credentials 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 62.67060000000015
+          },
+          {
+            "title": "isolation suite table · api_credentials 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 115.59519999999998
+          },
+          {
+            "title": "isolation suite table · api_credentials 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 575.2166
+          },
+          {
+            "title": "isolation suite table · api_credentials 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 158.73520000000008
+          },
+          {
+            "title": "isolation suite table · api_credentials 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 166.6241
+          },
+          {
+            "title": "isolation suite table · api_credentials 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 935.364
+          },
+          {
+            "title": "isolation suite table · api_credentials 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 103.87019999999984
+          },
+          {
+            "title": "isolation suite table · api_credentials 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 213.33180000000038
+          },
+          {
+            "title": "isolation suite table · audit_log 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 967.1322999999993
+          },
+          {
+            "title": "isolation suite table · audit_log 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 408.77930000000015
+          },
+          {
+            "title": "isolation suite table · audit_log 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 748.9261999999999
+          },
+          {
+            "title": "isolation suite table · audit_log 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 441.8035
+          },
+          {
+            "title": "isolation suite table · audit_log 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 226.92209999999977
+          },
+          {
+            "title": "isolation suite table · audit_log 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 408.60570000000007
+          },
+          {
+            "title": "isolation suite table · audit_log 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 764.9533000000001
+          },
+          {
+            "title": "isolation suite table · audit_log 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 475.3869999999997
+          },
+          {
+            "title": "isolation suite table · audit_log 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 261.0002999999997
+          },
+          {
+            "title": "isolation suite table · audit_log 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 355.90639999999985
+          },
+          {
+            "title": "isolation suite table · channel_connections 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 239.58289999999943
+          },
+          {
+            "title": "isolation suite table · channel_connections 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 41.506499999999505
+          },
+          {
+            "title": "isolation suite table · channel_connections 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 15.903000000000247
+          },
+          {
+            "title": "isolation suite table · channel_connections 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 21.26599999999962
+          },
+          {
+            "title": "isolation suite table · channel_connections 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 207.53030000000035
+          },
+          {
+            "title": "isolation suite table · channel_connections 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 45.829499999999825
+          },
+          {
+            "title": "isolation suite table · channel_connections 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 55.42039999999906
+          },
+          {
+            "title": "isolation suite table · channel_connections 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 312.8580000000002
+          },
+          {
+            "title": "isolation suite table · channel_connections 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 76.7544999999991
+          },
+          {
+            "title": "isolation suite table · channel_connections 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 59.23790000000008
+          },
+          {
+            "title": "isolation suite table · customer_records 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 95.73430000000008
+          },
+          {
+            "title": "isolation suite table · customer_records 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 5.3189000000002125
+          },
+          {
+            "title": "isolation suite table · customer_records 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 5.096400000000358
+          },
+          {
+            "title": "isolation suite table · customer_records 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 4.8937000000005355
+          },
+          {
+            "title": "isolation suite table · customer_records 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 39.031300000000556
+          },
+          {
+            "title": "isolation suite table · customer_records 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 7.133800000001429
+          },
+          {
+            "title": "isolation suite table · customer_records 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 7.243899999999485
+          },
+          {
+            "title": "isolation suite table · customer_records 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 44.16560000000027
+          },
+          {
+            "title": "isolation suite table · customer_records 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 5.406999999999243
+          },
+          {
+            "title": "isolation suite table · customer_records 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 4.561799999999494
+          },
+          {
+            "title": "isolation suite table · invitations 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 87.39120000000003
+          },
+          {
+            "title": "isolation suite table · invitations 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 17.251800000000003
+          },
+          {
+            "title": "isolation suite table · invitations 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 6.948800000000119
+          },
+          {
+            "title": "isolation suite table · invitations 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 5.585900000000038
+          },
+          {
+            "title": "isolation suite table · invitations 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 59.09089999999924
+          },
+          {
+            "title": "isolation suite table · invitations 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 5.498099999998885
+          },
+          {
+            "title": "isolation suite table · invitations 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 4.988300000000891
+          },
+          {
+            "title": "isolation suite table · invitations 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 46.546299999999974
+          },
+          {
+            "title": "isolation suite table · invitations 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 5.424399999999878
+          },
+          {
+            "title": "isolation suite table · invitations 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 4.527599999999438
+          },
+          {
+            "title": "isolation suite table · kb_chunks 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 55.60999999999876
+          },
+          {
+            "title": "isolation suite table · kb_chunks 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 19.775800000001254
+          },
+          {
+            "title": "isolation suite table · kb_chunks 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 21.664099999999962
+          },
+          {
+            "title": "isolation suite table · kb_chunks 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 42.92279999999846
+          },
+          {
+            "title": "isolation suite table · kb_chunks 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 124.67619999999988
+          },
+          {
+            "title": "isolation suite table · kb_chunks 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 19.585800000000745
+          },
+          {
+            "title": "isolation suite table · kb_chunks 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 10.598100000001068
+          },
+          {
+            "title": "isolation suite table · kb_chunks 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 122.19980000000032
+          },
+          {
+            "title": "isolation suite table · kb_chunks 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 5.878600000000006
+          },
+          {
+            "title": "isolation suite table · kb_chunks 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 7.695499999999811
+          },
+          {
+            "title": "isolation suite table · kb_documents 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 91.6265000000003
+          },
+          {
+            "title": "isolation suite table · kb_documents 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 20.21140000000014
+          },
+          {
+            "title": "isolation suite table · kb_documents 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 53.10560000000078
+          },
+          {
+            "title": "isolation suite table · kb_documents 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 75.95130000000063
+          },
+          {
+            "title": "isolation suite table · kb_documents 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 74.67239999999947
+          },
+          {
+            "title": "isolation suite table · kb_documents 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 5.265400000000227
+          },
+          {
+            "title": "isolation suite table · kb_documents 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 11.04609999999957
+          },
+          {
+            "title": "isolation suite table · kb_documents 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 129.9303
+          },
+          {
+            "title": "isolation suite table · kb_documents 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 36.374299999999494
+          },
+          {
+            "title": "isolation suite table · kb_documents 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 5.5635999999994965
+          },
+          {
+            "title": "isolation suite table · sessions 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 74.75770000000011
+          },
+          {
+            "title": "isolation suite table · sessions 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 38.078599999998914
+          },
+          {
+            "title": "isolation suite table · sessions 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 72.47339999999895
+          },
+          {
+            "title": "isolation suite table · sessions 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 110.33549999999923
+          },
+          {
+            "title": "isolation suite table · sessions 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 141.73589999999967
+          },
+          {
+            "title": "isolation suite table · sessions 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 120.8125
+          },
+          {
+            "title": "isolation suite table · sessions 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 181.84100000000035
+          },
+          {
+            "title": "isolation suite table · sessions 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 150.77259999999842
+          },
+          {
+            "title": "isolation suite table · sessions 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 32.27690000000075
+          },
+          {
+            "title": "isolation suite table · sessions 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 70.44510000000082
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 39.10009999999966
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 4.908999999999651
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 6.583599999999933
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 7.085699999999633
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 66.13500000000022
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 6.973200000000361
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 10.065800000000309
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 33.859199999998964
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 7.057600000000093
+          },
+          {
+            "title": "isolation suite table · subscription_overrides 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 4.380100000000311
+          },
+          {
+            "title": "isolation suite table · subscriptions 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 31.58469999999943
+          },
+          {
+            "title": "isolation suite table · subscriptions 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 39.360899999999674
+          },
+          {
+            "title": "isolation suite table · subscriptions 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 44.17319999999927
+          },
+          {
+            "title": "isolation suite table · subscriptions 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 46.88550000000032
+          },
+          {
+            "title": "isolation suite table · subscriptions 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 24.762899999999718
+          },
+          {
+            "title": "isolation suite table · subscriptions 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 405.08699999999953
+          },
+          {
+            "title": "isolation suite table · subscriptions 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 260.58150000000023
+          },
+          {
+            "title": "isolation suite table · subscriptions 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 287.35319999999956
+          },
+          {
+            "title": "isolation suite table · subscriptions 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 288.91029999999955
+          },
+          {
+            "title": "isolation suite table · subscriptions 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 278.0188999999991
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 123.94499999999971
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 33.47520000000077
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 23.1903999999995
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 34.94079999999849
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 184.64480000000003
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 8.04410000000098
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 6.414699999999357
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 79.49040000000059
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 16.11490000000049
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rule_versions 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 26.996000000001004
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 119.93529999999919
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 298.60989999999947
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 402.2667999999994
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 419.14650000000074
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 218.67369999999937
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 183.020999999997
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 301.3613000000005
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 439.126400000001
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 273.94790000000285
+          },
+          {
+            "title": "isolation suite table · tenant_ai_rules 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 339.72090000000026
+          },
+          {
+            "title": "isolation suite table · tenant_members 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 246.60410000000047
+          },
+          {
+            "title": "isolation suite table · tenant_members 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 340.7426000000014
+          },
+          {
+            "title": "isolation suite table · tenant_members 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 71.11279999999897
+          },
+          {
+            "title": "isolation suite table · tenant_members 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 86.24919999999838
+          },
+          {
+            "title": "isolation suite table · tenant_members 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 35.04569999999876
+          },
+          {
+            "title": "isolation suite table · tenant_members 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 61.66540000000168
+          },
+          {
+            "title": "isolation suite table · tenant_members 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 35.36839999999938
+          },
+          {
+            "title": "isolation suite table · tenant_members 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 40.76499999999942
+          },
+          {
+            "title": "isolation suite table · tenant_members 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 71.13630000000194
+          },
+          {
+            "title": "isolation suite table · tenant_members 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 35.84100000000035
+          },
+          {
+            "title": "isolation suite table · tenant_settings 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 42.654600000001665
+          },
+          {
+            "title": "isolation suite table · tenant_settings 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 53.828599999997095
+          },
+          {
+            "title": "isolation suite table · tenant_settings 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 182.61049999999886
+          },
+          {
+            "title": "isolation suite table · tenant_settings 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 186.4197000000022
+          },
+          {
+            "title": "isolation suite table · tenant_settings 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 413.72439999999915
+          },
+          {
+            "title": "isolation suite table · tenant_settings 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 154.39910000000236
+          },
+          {
+            "title": "isolation suite table · tenant_settings 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 72.65230000000156
+          },
+          {
+            "title": "isolation suite table · tenant_settings 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 274.5588000000025
+          },
+          {
+            "title": "isolation suite table · tenant_settings 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 292.5630999999994
+          },
+          {
+            "title": "isolation suite table · tenant_settings 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 53.1872000000003
+          },
+          {
+            "title": "isolation suite table · usage_counters 1 · selecting all rows returns only tenant A rows",
+            "status": "passed",
+            "durationMs": 206.62839999999778
+          },
+          {
+            "title": "isolation suite table · usage_counters 2 · selecting tenant B's row by primary key returns zero rows, not an error",
+            "status": "passed",
+            "durationMs": 105.21639999999752
+          },
+          {
+            "title": "isolation suite table · usage_counters 3 · updating tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 34.052999999999884
+          },
+          {
+            "title": "isolation suite table · usage_counters 4 · deleting tenant B's row affects zero rows",
+            "status": "passed",
+            "durationMs": 37.98819999999978
+          },
+          {
+            "title": "isolation suite table · usage_counters 5 · inserting a row carrying tenant B is rejected by the with check clause",
+            "status": "passed",
+            "durationMs": 37.52149999999892
+          },
+          {
+            "title": "isolation suite table · usage_counters 6 · moving one of tenant A's own rows into tenant B is rejected",
+            "status": "passed",
+            "durationMs": 65.77930000000197
+          },
+          {
+            "title": "isolation suite table · usage_counters 7 · an agent cannot modify a table restricted to owner and admin",
+            "status": "passed",
+            "durationMs": 40.329100000002654
+          },
+          {
+            "title": "isolation suite table · usage_counters 8 · with no context set, selects return zero rows and writes are rejected",
+            "status": "passed",
+            "durationMs": 127.20839999999953
+          },
+          {
+            "title": "isolation suite table · usage_counters 9 · a support session can write only where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 187.26729999999952
+          },
+          {
+            "title": "isolation suite table · usage_counters 10 · a join through a foreign key to a tenant B parent returns zero rows",
+            "status": "passed",
+            "durationMs": 176.53509999999733
+          },
+          {
+            "title": "isolation · customer_records under support mode a support session reads nothing at all",
+            "status": "passed",
+            "durationMs": 52.40259999999762
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/master-rule-concurrency.test.ts",
+        "cases": [
+          {
+            "title": "shared-rule publication and restoration concurrency serializes competing publications and refuses the stale editor without a false audit",
+            "status": "passed",
+            "durationMs": 215.91269999999986
+          },
+          {
+            "title": "shared-rule publication and restoration concurrency refuses a stale restoration and preserves the current pointer",
+            "status": "passed",
+            "durationMs": 50.32970000000023
+          },
+          {
+            "title": "shared-rule publication and restoration concurrency restores a reviewed published version without modifying historical content",
+            "status": "passed",
+            "durationMs": 276.3283000000001
+          },
+          {
+            "title": "shared-rule publication and restoration concurrency rejects draft restoration and rolls back its attempted audit",
+            "status": "passed",
+            "durationMs": 90.04970000000048
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/membership.test.ts",
+        "cases": [
+          {
+            "title": "membership mutations under actual policies restores a removed teammate on acceptance without creating another membership or seat",
+            "status": "passed",
+            "durationMs": 762.1006000000007
+          },
+          {
+            "title": "membership mutations under actual policies refuses an existing active member without burning the invitation or changing their role",
+            "status": "passed",
+            "durationMs": 373.08569999999963
+          },
+          {
+            "title": "membership mutations under actual policies does not use an outstanding invitation to reactivate a suspended member",
+            "status": "passed",
+            "durationMs": 450.9952000000003
+          },
+          {
+            "title": "membership mutations under actual policies refuses a legacy owner invitation instead of creating a second owner",
+            "status": "passed",
+            "durationMs": 199.92079999999987
+          },
+          {
+            "title": "membership mutations under actual policies preserves a provisioned owner when another invitation targets the same identity",
+            "status": "passed",
+            "durationMs": 201.60980000000018
+          },
+          {
+            "title": "membership mutations under actual policies returns a typed expired-link refusal without consuming it",
+            "status": "passed",
+            "durationMs": 360.9901
+          },
+          {
+            "title": "membership mutations under actual policies returns a typed withdrawal refusal",
+            "status": "passed",
+            "durationMs": 510.0022000000008
+          },
+          {
+            "title": "membership mutations under actual policies returns a typed single-use refusal after acceptance",
+            "status": "passed",
+            "durationMs": 221.59429999999884
+          },
+          {
+            "title": "membership mutations under actual policies returns a typed unknown-link refusal",
+            "status": "passed",
+            "durationMs": 67.78499999999985
+          },
+          {
+            "title": "membership mutations under actual policies does not accept into a suspended workspace",
+            "status": "passed",
+            "durationMs": 204.8176999999996
+          },
+          {
+            "title": "membership mutations under actual policies returns a conflict for a second normalized pending address without consuming a seat",
+            "status": "passed",
+            "durationMs": 456.57180000000153
+          },
+          {
+            "title": "membership mutations under actual policies reserves the final seat only once across simultaneous invitations",
+            "status": "passed",
+            "durationMs": 979.9332999999988
+          },
+          {
+            "title": "membership mutations under actual policies withdraws an invitation once and returns exactly one seat",
+            "status": "passed",
+            "durationMs": 1797.661
+          },
+          {
+            "title": "membership mutations under actual policies removes a teammate once and returns exactly one seat",
+            "status": "passed",
+            "durationMs": 529.7471000000005
+          },
+          {
+            "title": "membership mutations under actual policies reissues only one new token across simultaneous eligible resends",
+            "status": "passed",
+            "durationMs": 705.1050999999989
+          },
+          {
+            "title": "membership mutations under actual policies refuses stale owner authority after the first ownership transfer",
+            "status": "passed",
+            "durationMs": 554.3521000000001
+          },
+          {
+            "title": "membership mutations under actual policies refuses role changes by an administrator through a direct module call",
+            "status": "passed",
+            "durationMs": 303.5426000000007
+          },
+          {
+            "title": "membership mutations under actual policies consumes a single-use invitation once across simultaneous acceptances",
+            "status": "passed",
+            "durationMs": 907.8168999999998
+          },
+          {
+            "title": "membership mutations under actual policies keeps one owner under simultaneous transfers to different teammates",
+            "status": "passed",
+            "durationMs": 581.5725000000002
+          },
+          {
+            "title": "membership mutations under actual policies preserves owner access when role change and removal are attempted",
+            "status": "passed",
+            "durationMs": 161.8814000000002
+          },
+          {
+            "title": "membership mutations under actual policies refuses an agent invitation and direct owner promotion",
+            "status": "passed",
+            "durationMs": 120.61849999999868
+          },
+          {
+            "title": "membership mutations under actual policies denies new invitations for a paused subscription or suspended workspace",
+            "status": "passed",
+            "durationMs": 182.21089999999822
+          },
+          {
+            "title": "membership mutations under actual policies counts an expired unwithdrawn invitation as a reserved seat",
+            "status": "passed",
+            "durationMs": 656.7196000000004
+          },
+          {
+            "title": "membership mutations under actual policies does not release a seat when removing a suspended member",
+            "status": "passed",
+            "durationMs": 157.6334999999999
+          },
+          {
+            "title": "membership mutations under actual policies initializes a missing counter from source rows and refuses existing drift",
+            "status": "passed",
+            "durationMs": 528.5099999999984
+          },
+          {
+            "title": "membership mutations under actual policies reads current grants and ignores expired overrides",
+            "status": "passed",
+            "durationMs": 607.7734999999993
+          },
+          {
+            "title": "membership mutations under actual policies refuses inviting an existing teammate by normalized email",
+            "status": "passed",
+            "durationMs": 175.62320000000182
+          },
+          {
+            "title": "membership mutations under actual policies returns not found for member and invitation IDs outside this workspace",
+            "status": "passed",
+            "durationMs": 170.1662000000033
+          },
+          {
+            "title": "membership mutations under actual policies rolls back invitation and seat reservation if its audit write fails",
+            "status": "passed",
+            "durationMs": 194.85029999999824
+          },
+          {
+            "title": "membership mutations under actual policies retires the previous invitation link when an invitation is renewed",
+            "status": "passed",
+            "durationMs": 324.59549999999945
+          },
+          {
+            "title": "membership mutations under actual policies makes acceptance and withdrawal mutually exclusive",
+            "status": "passed",
+            "durationMs": 323.4542999999976
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/owner-activation.test.ts",
+        "cases": [
+          {
+            "title": "Owner activation with actual tenant policies and commit locking records one complete joining event under concurrent confirmation",
+            "status": "passed",
+            "durationMs": 416.7632999999996
+          },
+          {
+            "title": "Owner activation with actual tenant policies and commit locking refuses an unconfirmed identity before activating its membership",
+            "status": "passed",
+            "durationMs": 56.60450000000037
+          },
+          {
+            "title": "Owner activation with actual tenant policies and commit locking does not use editable identity metadata to grant the owner role",
+            "status": "passed",
+            "durationMs": 83.72909999999956
+          },
+          {
+            "title": "Owner activation with actual tenant policies and commit locking refuses a suspended or removed owner",
+            "status": "passed",
+            "durationMs": 109.21920000000046
+          },
+          {
+            "title": "Owner activation with actual tenant policies and commit locking cannot activate another account’s invitation",
+            "status": "passed",
+            "durationMs": 59.32219999999961
+          },
+          {
+            "title": "Owner activation with actual tenant policies and commit locking refuses a suspended or closed workspace without recording a join",
+            "status": "passed",
+            "durationMs": 178.2561999999998
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/ownership-provider.test.ts",
+        "cases": [
+          {
+            "title": "Ownership transfer against the actual local identity provider preserves both original provider sessions while ending only password verification and recording one transfer",
+            "status": "passed",
+            "durationMs": 5216.048999999999
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/plan-catalogue.test.ts",
+        "cases": [
+          {
+            "title": "Catalogue limit review and persistence uses recorded usage and preserves an explicit unlimited override",
+            "status": "passed",
+            "durationMs": 758.4773000000005
+          },
+          {
+            "title": "Catalogue limit review and persistence reports missing measurements without asserting zero usage",
+            "status": "passed",
+            "durationMs": 174.3153999999995
+          },
+          {
+            "title": "Catalogue limit review and persistence accepts zero and refuses fractional or negative limits",
+            "status": "passed",
+            "durationMs": 250.54119999999966
+          },
+          {
+            "title": "Catalogue limit review and persistence refuses changed usage without a committed mutation audit",
+            "status": "passed",
+            "durationMs": 486.1421
+          },
+          {
+            "title": "Catalogue limit review and persistence refuses changed overrides and expired reviewed overrides",
+            "status": "passed",
+            "durationMs": 261.64720000000034
+          },
+          {
+            "title": "Catalogue limit review and persistence allows one competing write and correlates both before/after audit trails",
+            "status": "passed",
+            "durationMs": 215.66700000000037
+          },
+          {
+            "title": "Catalogue limit review and persistence refuses a caller without the workspace-management capability",
+            "status": "passed",
+            "durationMs": 67.21370000000024
+          },
+          {
+            "title": "Catalogue limit review and persistence requires a reviewed preview and never edits a feature as a numeric allowance",
+            "status": "passed",
+            "durationMs": 297.45640000000094
+          },
+          {
+            "title": "Catalogue limit review and persistence preserves the effective allowance in customer activity when an override wins",
+            "status": "passed",
+            "durationMs": 389.3708000000006
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/plan-preview.test.ts",
+        "cases": [
+          {
+            "title": "plan preview and assignment consistency warns about usage exceeding the effective target limit",
+            "status": "passed",
+            "durationMs": 1138.8679000000002
+          },
+          {
+            "title": "plan preview and assignment consistency treats a missing target grant as denied rather than unlimited",
+            "status": "passed",
+            "durationMs": 208.94909999999982
+          },
+          {
+            "title": "plan preview and assignment consistency preserves an explicit unlimited override",
+            "status": "passed",
+            "durationMs": 293.442
+          },
+          {
+            "title": "plan preview and assignment consistency uses a zero override as denial and ignores expired overrides",
+            "status": "passed",
+            "durationMs": 717.1909999999998
+          },
+          {
+            "title": "plan preview and assignment consistency includes target-only allowances and feature losses",
+            "status": "passed",
+            "durationMs": 209.1886999999988
+          },
+          {
+            "title": "plan preview and assignment consistency resolves an override-only allowance identically in the preview and tenant guard",
+            "status": "passed",
+            "durationMs": 610.3793000000005
+          },
+          {
+            "title": "plan preview and assignment consistency rejects inactive and missing plans without leaving preview audits",
+            "status": "passed",
+            "durationMs": 231.32140000000072
+          },
+          {
+            "title": "plan preview and assignment consistency requires the workspace-management capability even for a preview",
+            "status": "passed",
+            "durationMs": 229.52659999999923
+          },
+          {
+            "title": "plan preview and assignment consistency refuses changed usage and does not record a successful assignment",
+            "status": "passed",
+            "durationMs": 329.7516999999989
+          },
+          {
+            "title": "plan preview and assignment consistency refuses changed target allowances and active overrides",
+            "status": "passed",
+            "durationMs": 556.8219999999983
+          },
+          {
+            "title": "plan preview and assignment consistency refuses a preview whose override expired after review",
+            "status": "passed",
+            "durationMs": 1916.6844
+          },
+          {
+            "title": "plan preview and assignment consistency allows exactly one concurrent assignment from the same reviewed preview",
+            "status": "passed",
+            "durationMs": 2133.9192000000003
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/platform-capabilities.test.ts",
+        "cases": [
+          {
+            "title": "platform capabilities · an operator holding none cannot suspend a workspace, and the refusal writes nothing",
+            "status": "passed",
+            "durationMs": 160.13940000000048
+          },
+          {
+            "title": "platform capabilities · an operator holding none cannot publish the master AI rules",
+            "status": "passed",
+            "durationMs": 27.428800000000592
+          },
+          {
+            "title": "platform capabilities · an operator holding none cannot open a support session",
+            "status": "passed",
+            "durationMs": 112.4931000000006
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/platform-readers.test.ts",
+        "cases": [
+          {
+            "title": "live platform page readers reads the selected historical master version beyond the recent history cap and its actual locks",
+            "status": "passed",
+            "durationMs": 277.6868999999988
+          },
+          {
+            "title": "live platform page readers does not substitute a draft when no master version is selected",
+            "status": "passed",
+            "durationMs": 48.54650000000038
+          },
+          {
+            "title": "live platform page readers reads the plan catalogue with the operator identity required by its policies",
+            "status": "passed",
+            "durationMs": 82.98060000000078
+          },
+          {
+            "title": "live platform page readers reads the actual workspace and distinguishes unlimited from a zero allowance",
+            "status": "passed",
+            "durationMs": 110.42000000000007
+          },
+          {
+            "title": "live platform page readers returns no workspace for a missing slug instead of substituting an example",
+            "status": "passed",
+            "durationMs": 34.44599999999991
+          },
+          {
+            "title": "live platform page readers preserves unlimited and zero overrides, expiry and absent seat entitlements in the directory",
+            "status": "passed",
+            "durationMs": 669.338099999999
+          },
+          {
+            "title": "live platform page readers filters workspace activity before applying the global reader cap",
+            "status": "passed",
+            "durationMs": 158.02900000000045
+          },
+          {
+            "title": "live platform page readers reconciles overview totals with the live directory and subscription-value reader",
+            "status": "passed",
+            "durationMs": 282.6150000000016
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/platform-settings.test.ts",
+        "cases": [
+          {
+            "title": "platform_settings · reading and writing an operator reads exactly the one row",
+            "status": "passed",
+            "durationMs": 51.477499999999964
+          },
+          {
+            "title": "platform_settings · reading and writing a revoked operator reads nothing",
+            "status": "passed",
+            "durationMs": 16.86050000000023
+          },
+          {
+            "title": "platform_settings · reading and writing a tenant owner reads nothing",
+            "status": "passed",
+            "durationMs": 23.33179999999993
+          },
+          {
+            "title": "platform_settings · reading and writing the application role cannot write it, even as an operator",
+            "status": "passed",
+            "durationMs": 65.10660000000007
+          },
+          {
+            "title": "platform_settings · reading and writing a save records the diff, and only the diff, in the same transaction",
+            "status": "passed",
+            "durationMs": 181.7456000000002
+          },
+          {
+            "title": "platform_settings · reading and writing a save over a version the operator never saw is refused, and writes nothing",
+            "status": "passed",
+            "durationMs": 32.51749999999993
+          },
+          {
+            "title": "platform_settings · reading and writing a save that changes nothing writes nothing",
+            "status": "passed",
+            "durationMs": 26.09790000000021
+          },
+          {
+            "title": "platform_admins · operators see each other an operator sees every current operator, and no revoked one",
+            "status": "passed",
+            "durationMs": 19.114000000000033
+          },
+          {
+            "title": "platform_admins · operators see each other a tenant owner sees no operator at all",
+            "status": "passed",
+            "durationMs": 21.81140000000005
+          },
+          {
+            "title": "platform_admins · operators see each other a revoked operator sees nobody, not even themselves",
+            "status": "passed",
+            "durationMs": 24.937400000000252
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/provisioning-provider.test.ts",
+        "cases": [
+          {
+            "title": "Provisioning against actual local Supabase Auth and SMTP capture creates an invited owner, complete workspace records and a captured invitation",
+            "status": "passed",
+            "durationMs": 3637.6445000000003
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/provisioning.test.ts",
+        "cases": [
+          {
+            "title": "Provisioning validation and compensation with actual database transactions refuses malformed input before reaching Auth or committing audit",
+            "status": "passed",
+            "durationMs": 63.089599999999336
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions refuses a limited actor before sending an invitation",
+            "status": "passed",
+            "durationMs": 202.96289999999954
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions refuses a non-operator actor before sending an invitation",
+            "status": "passed",
+            "durationMs": 70.34940000000006
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions refuses an existing workspace address before sending email",
+            "status": "passed",
+            "durationMs": 82.5011999999997
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions refuses a missing plan before sending email",
+            "status": "passed",
+            "durationMs": 129.89840000000004
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions refuses a inactive plan before sending email",
+            "status": "passed",
+            "durationMs": 251.8137999999999
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions projects provider refusal without exposing its raw diagnostic",
+            "status": "passed",
+            "durationMs": 361.5603000000001
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions handles an unconfirmed Auth request without claiming a clean retry",
+            "status": "passed",
+            "durationMs": 359.02320000000054
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions identifies an already registered owner without recommending an unsupported setup route",
+            "status": "passed",
+            "durationMs": 381.40419999999995
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions commits complete trial workspace records and an accurate creation audit",
+            "status": "passed",
+            "durationMs": 861.4695999999994
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions commits complete active workspace records and an accurate creation audit",
+            "status": "passed",
+            "durationMs": 711.0092000000004
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions rechecks a plan deactivated during Auth and compensates without a creation audit",
+            "status": "passed",
+            "durationMs": 1009.5136999999995
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions rechecks operator permission after Auth and removes the temporary account",
+            "status": "passed",
+            "durationMs": 1535.3378000000012
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions reports account recovery when compensation fails after a slug conflict",
+            "status": "passed",
+            "durationMs": 167.54999999999927
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions reports account recovery when compensation fails after a plan conflict",
+            "status": "passed",
+            "durationMs": 144.58129999999983
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions allows exactly one concurrent provisioning and compensates the losing owner",
+            "status": "passed",
+            "durationMs": 684.8321999999989
+          },
+          {
+            "title": "Provisioning validation and compensation with actual database transactions requires account recovery if the cleanup request itself throws",
+            "status": "passed",
+            "durationMs": 135.04839999999967
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/shared-tables.test.ts",
+        "cases": [
+          {
+            "title": "isolation · tables with no tenant column every policed shared table has a recorded expectation",
+            "status": "passed",
+            "durationMs": 5.3680000000001655
+          },
+          {
+            "title": "isolation · tables with no tenant column finds the shared tables at all",
+            "status": "passed",
+            "durationMs": 0.9571000000000822
+          },
+          {
+            "title": "isolation · tables with no tenant column table · master_ai_rule_versions is not invisible to everyone",
+            "status": "passed",
+            "durationMs": 200.54939999999988
+          },
+          {
+            "title": "isolation · tables with no tenant column table · master_ai_rule_versions returns nothing with no context set",
+            "status": "passed",
+            "durationMs": 124.04050000000007
+          },
+          {
+            "title": "isolation · tables with no tenant column table · master_ai_rules is not invisible to everyone",
+            "status": "passed",
+            "durationMs": 168.28250000000003
+          },
+          {
+            "title": "isolation · tables with no tenant column table · master_ai_rules returns nothing with no context set",
+            "status": "passed",
+            "durationMs": 83.69250000000011
+          },
+          {
+            "title": "isolation · tables with no tenant column table · plan_entitlements is not invisible to everyone",
+            "status": "passed",
+            "durationMs": 105.9831999999999
+          },
+          {
+            "title": "isolation · tables with no tenant column table · plan_entitlements returns nothing with no context set",
+            "status": "passed",
+            "durationMs": 13.283899999999903
+          },
+          {
+            "title": "isolation · tables with no tenant column table · plans is not invisible to everyone",
+            "status": "passed",
+            "durationMs": 24.334499999999935
+          },
+          {
+            "title": "isolation · tables with no tenant column table · plans returns nothing with no context set",
+            "status": "passed",
+            "durationMs": 13.086500000000115
+          },
+          {
+            "title": "isolation · tables with no tenant column table · platform_admins is not invisible to everyone",
+            "status": "passed",
+            "durationMs": 27.11570000000006
+          },
+          {
+            "title": "isolation · tables with no tenant column table · platform_admins returns nothing with no context set",
+            "status": "passed",
+            "durationMs": 13.661599999999908
+          },
+          {
+            "title": "isolation · tables with no tenant column table · platform_audit_log is not invisible to everyone",
+            "status": "passed",
+            "durationMs": 25.348200000000134
+          },
+          {
+            "title": "isolation · tables with no tenant column table · platform_audit_log returns nothing with no context set",
+            "status": "passed",
+            "durationMs": 12.567599999999857
+          },
+          {
+            "title": "isolation · tables with no tenant column table · platform_settings is not invisible to everyone",
+            "status": "passed",
+            "durationMs": 37.39210000000003
+          },
+          {
+            "title": "isolation · tables with no tenant column table · platform_settings returns nothing with no context set",
+            "status": "passed",
+            "durationMs": 13.234099999999899
+          },
+          {
+            "title": "isolation · tables with no tenant column table · tenants is not invisible to everyone",
+            "status": "passed",
+            "durationMs": 30.755899999999883
+          },
+          {
+            "title": "isolation · tables with no tenant column table · tenants returns nothing with no context set",
+            "status": "passed",
+            "durationMs": 34.63390000000004
+          },
+          {
+            "title": "isolation · tables with no tenant column table · user_profiles is not invisible to everyone",
+            "status": "passed",
+            "durationMs": 42.312599999999975
+          },
+          {
+            "title": "isolation · tables with no tenant column table · user_profiles returns nothing with no context set",
+            "status": "passed",
+            "durationMs": 19.427900000000136
+          },
+          {
+            "title": "isolation · a user can read their own profile sees their own row by primary key",
+            "status": "passed",
+            "durationMs": 30.859999999999673
+          },
+          {
+            "title": "isolation · a user can read their own profile cannot read a profile from a tenant they do not share",
+            "status": "passed",
+            "durationMs": 49.04370000000017
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/sign-out-provider.test.ts",
+        "cases": [
+          {
+            "title": "ends the current provider refresh session while another device can still refresh",
+            "status": "passed",
+            "durationMs": 2733.1758000000004
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/signup-usage.test.ts",
+        "cases": [
+          {
+            "title": "initial owner seat accounting creates the email owner and its seat in the same workspace transaction",
+            "status": "passed",
+            "durationMs": 461.91820000000007
+          },
+          {
+            "title": "initial owner seat accounting creates the oauth owner and its seat in the same workspace transaction",
+            "status": "passed",
+            "durationMs": 228.01770000000033
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/storage-policies.test.ts",
+        "cases": [
+          {
+            "title": "Avatar policies on the real provider schema enforces RLS without bypass for the authenticated provider role",
+            "status": "passed",
+            "durationMs": 316.8817999999999
+          },
+          {
+            "title": "Avatar policies on the real provider schema allows an authenticated user to insert only in their own platform folder",
+            "status": "passed",
+            "durationMs": 292.38189999999986
+          },
+          {
+            "title": "Avatar policies on the real provider schema rejects a different path prefix even when the user ID matches",
+            "status": "passed",
+            "durationMs": 60.55249999999978
+          },
+          {
+            "title": "Avatar policies on the real provider schema keeps public avatar reads available to another authenticated identity",
+            "status": "passed",
+            "durationMs": 97.2494999999999
+          },
+          {
+            "title": "Avatar policies on the real provider schema preserves the provider safeguard against direct object deletion",
+            "status": "passed",
+            "durationMs": 126.61770000000024
+          },
+          {
+            "title": "Avatar policies on the real provider schema refuses an overwrite and a foreign deletion while allowing provider-style owner removal",
+            "status": "passed",
+            "durationMs": 260.61879999999974
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/subscription-activity.test.ts",
+        "cases": [
+          {
+            "title": "subscription changes and customer Activity rolls back the subscription and platform audit if customer audit storage fails",
+            "status": "passed",
+            "durationMs": 479.39949999999953
+          },
+          {
+            "title": "subscription changes and customer Activity records a plan assignment with its reason and monthly values in both logs",
+            "status": "passed",
+            "durationMs": 202.9935000000005
+          },
+          {
+            "title": "subscription changes and customer Activity records a negotiated Custom plan price in customer Activity",
+            "status": "passed",
+            "durationMs": 271.65610000000015
+          },
+          {
+            "title": "subscription changes and customer Activity records a change to a negotiated contract price",
+            "status": "passed",
+            "durationMs": 523.0190000000002
+          },
+          {
+            "title": "subscription changes and customer Activity records a lifecycle change with the actual prior status",
+            "status": "passed",
+            "durationMs": 286.9490999999998
+          },
+          {
+            "title": "subscription changes and customer Activity records an allowance override with a real record reference",
+            "status": "passed",
+            "durationMs": 520.2538999999997
+          },
+          {
+            "title": "subscription changes and customer Activity rolls back the attempted platform audit when a plan change is refused",
+            "status": "passed",
+            "durationMs": 67.36499999999978
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/support-mode.test.ts",
+        "cases": [
+          {
+            "title": "support mode · the tenant can see it writes an entry into the tenant’s own audit log, which the tenant can read",
+            "status": "passed",
+            "durationMs": 151.39319999999998
+          },
+          {
+            "title": "support mode · the tenant can see it lets a tenant filter their log to every support visit",
+            "status": "passed",
+            "durationMs": 27.442600000000084
+          },
+          {
+            "title": "support mode · the tenant can see it lets the owner see and revoke a support session in their workspace",
+            "status": "passed",
+            "durationMs": 82.79060000000004
+          },
+          {
+            "title": "support mode · the ceiling cannot see a workspace it was not opened into",
+            "status": "passed",
+            "durationMs": 28.320900000000165
+          },
+          {
+            "title": "support mode · the ceiling reads nothing at all from customer records",
+            "status": "passed",
+            "durationMs": 29.65210000000002
+          },
+          {
+            "title": "support mode · the ceiling cannot extend its own timeout from inside the session",
+            "status": "passed",
+            "durationMs": 36.735299999999825
+          },
+          {
+            "title": "support mode · the ceiling can write where 01 D-13 opened it",
+            "status": "passed",
+            "durationMs": 41.06739999999991
+          },
+          {
+            "title": "support mode · the session row is an ordinary sessions row, which is what makes the ceiling real",
+            "status": "passed",
+            "durationMs": 17.769000000000005
+          },
+          {
+            "title": "support mode · the session row stops resolving the moment it is revoked",
+            "status": "passed",
+            "durationMs": 35.36310000000003
+          },
+          {
+            "title": "support mode · the session row carries the operator and the reason, so the frame can name both",
+            "status": "passed",
+            "durationMs": 18.54430000000002
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/support-sessions.test.ts",
+        "cases": [
+          {
+            "title": "operators read the directory and the register · D1 an operator reads every workspace",
+            "status": "passed",
+            "durationMs": 74.19610000000011
+          },
+          {
+            "title": "operators read the directory and the register · D1 an operator reads no tenant-scoped data table",
+            "status": "passed",
+            "durationMs": 45.94170000000031
+          },
+          {
+            "title": "operators read the directory and the register · D1 an operator reads support sessions, but no customer sign-in session",
+            "status": "passed",
+            "durationMs": 324.0839000000001
+          },
+          {
+            "title": "a visit, start to end · Stage 2 opens with the operator’s name and a line in the customer’s log, and tells the owners",
+            "status": "passed",
+            "durationMs": 157.7494999999999
+          },
+          {
+            "title": "a visit, start to end · Stage 2 a second session on the same workspace closes the first, in both logs",
+            "status": "passed",
+            "durationMs": 597.2449999999999
+          },
+          {
+            "title": "a visit, start to end · Stage 2 extending: refused early, allowed twice in the window, then refused",
+            "status": "passed",
+            "durationMs": 396.4939999999997
+          },
+          {
+            "title": "a visit, start to end · Stage 2 a lapsed visit cannot be extended back to life",
+            "status": "passed",
+            "durationMs": 137.1235999999999
+          },
+          {
+            "title": "a visit, start to end · Stage 2 the timer closes a lapsed visit at its expiry, in both logs",
+            "status": "passed",
+            "durationMs": 187.65729999999985
+          },
+          {
+            "title": "a visit, start to end · Stage 2 a colleague may end a visit; it says so; a second ending writes nothing · D5",
+            "status": "passed",
+            "durationMs": 627.9522000000006
+          },
+          {
+            "title": "a visit, start to end · Stage 2 a refused entry is recorded in the platform log only · S0.8",
+            "status": "passed",
+            "durationMs": 125.13720000000012
+          },
+          {
+            "title": "the customer ends a visit · D6 an agent cannot; an owner can; once",
+            "status": "passed",
+            "durationMs": 1465.8588
+          },
+          {
+            "title": "the customer ends a visit · D6 a workspace cannot end another workspace’s visit",
+            "status": "passed",
+            "durationMs": 197.8762999999999
+          },
+          {
+            "title": "inside a workspace as support · Stage 3 reads the names on that workspace’s team, and no other’s",
+            "status": "passed",
+            "durationMs": 77.56700000000001
+          },
+          {
+            "title": "inside a workspace as support · Stage 3 what a visit did is readable by operators, and by nobody else",
+            "status": "passed",
+            "durationMs": 196.04230000000007
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/tenant-rules.test.ts",
+        "cases": [
+          {
+            "title": "recorded tenant instruction lifecycle under real policies publishes immutable content, a live pointer, allowance usage and attributed audit atomically",
+            "status": "passed",
+            "durationMs": 1343.5337
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies refuses locked-field changes and no-op publication without false versions",
+            "status": "passed",
+            "durationMs": 2191.992399999999
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies serializes competing editors and refuses the stale publication without an audit",
+            "status": "passed",
+            "durationMs": 2011.5452000000005
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies archives beyond the allowance while preserving history and rejecting content mutation in SQL",
+            "status": "passed",
+            "durationMs": 6134.415499999999
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies restores archived content without renumbering or losing later versions and catches an ABA edit",
+            "status": "passed",
+            "durationMs": 1338.2451
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies rejects a stale platform revision before writing workspace content",
+            "status": "passed",
+            "durationMs": 289.1349999999984
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies denies agent and service publication, including direct agent root insertion",
+            "status": "passed",
+            "durationMs": 704.7488000000012
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies does not expose or restore another workspace version",
+            "status": "passed",
+            "durationMs": 1004.8850999999995
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies uses live overrides and archives again after the override expires",
+            "status": "passed",
+            "durationMs": 2680.2345000000023
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies refuses missing/zero allowances and suspended workspaces without writes",
+            "status": "passed",
+            "durationMs": 1395.5779000000002
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies rolls back pointer, version, archival and usage if the audit is refused",
+            "status": "passed",
+            "durationMs": 504.8653000000013
+          },
+          {
+            "title": "recorded tenant instruction lifecycle under real policies returns an explicit unavailable state when the published platform floor is missing",
+            "status": "passed",
+            "durationMs": 55.44919999999911
+          }
+        ]
+      },
+      {
+        "path": "tests/isolation/usage-reconciliation.test.ts",
+        "cases": [
+          {
+            "title": "durable resource reconciliation counts reserved seats and published retained versions, excluding drafts and archives",
+            "status": "passed",
+            "durationMs": 218.46929999999975
+          },
+          {
+            "title": "durable resource reconciliation refuses RLS-filtered maintenance and non-administrator or unexplained repairs",
+            "status": "passed",
+            "durationMs": 123.59900000000016
+          },
+          {
+            "title": "durable resource reconciliation recounts, preserves peaks and audits each repair once; repeated repair writes nothing",
+            "status": "passed",
+            "durationMs": 262.59810000000016
+          },
+          {
+            "title": "durable resource reconciliation scheduled reports require the secret, cover all counters and leave detected drift untouched",
+            "status": "passed",
+            "durationMs": 868.9610000000002
+          },
+          {
+            "title": "durable resource reconciliation waits for an in-flight membership writer and recounts committed source rows",
+            "status": "passed",
+            "durationMs": 219.42259999999987
+          }
+        ]
+      },
+      {
+        "path": "tests/observability/sentry.test.ts",
+        "cases": [
+          {
+            "title": "sentry scrubber · request data redacts a password out of a request body",
+            "status": "passed",
+            "durationMs": 4.922400000000039
+          },
+          {
+            "title": "sentry scrubber · request data redacts a token out of a request body",
+            "status": "passed",
+            "durationMs": 0.45420000000001437
+          },
+          {
+            "title": "sentry scrubber · request data drops every header except the correlation id",
+            "status": "passed",
+            "durationMs": 1.9318999999999278
+          },
+          {
+            "title": "sentry scrubber · request data drops headers entirely when there is no correlation id",
+            "status": "passed",
+            "durationMs": 0.6293000000000575
+          },
+          {
+            "title": "sentry scrubber · request data replaces the query string rather than trying to parse it",
+            "status": "passed",
+            "durationMs": 0.95150000000001
+          },
+          {
+            "title": "sentry scrubber · attached state redacts anything a call site put in extra",
+            "status": "passed",
+            "durationMs": 0.46840000000008786
+          },
+          {
+            "title": "sentry scrubber · attached state redacts contexts",
+            "status": "passed",
+            "durationMs": 0.494199999999978
+          },
+          {
+            "title": "sentry scrubber · attached state reduces the user to an opaque id",
+            "status": "passed",
+            "durationMs": 0.7634000000000469
+          },
+          {
+            "title": "sentry scrubber · shape leaves an event with nothing sensitive alone",
+            "status": "passed",
+            "durationMs": 0.5754000000000588
+          },
+          {
+            "title": "sentry scrubber · shape is off when no DSN is configured, which is the local default",
+            "status": "passed",
+            "durationMs": 0.7272000000000389
+          }
+        ]
+      },
+      {
+        "path": "tests/presentation/document-navigation.test.ts",
+        "cases": [
+          {
+            "title": "Published project document navigation publishes every registered client source and keeps source names unique",
+            "status": "passed",
+            "durationMs": 244.92579999999998
+          },
+          {
+            "title": "Published project document navigation refuses private documents, unregistered files and path traversal",
+            "status": "passed",
+            "durationMs": 0.7133999999996377
+          },
+          {
+            "title": "Published project document navigation keeps previous and next navigation in the published audience",
+            "status": "passed",
+            "durationMs": 1.8670000000001892
+          },
+          {
+            "title": "Published project document navigation resolves maintained Markdown links and their fragment to actual document routes",
+            "status": "passed",
+            "durationMs": 0.9499000000005253
+          },
+          {
+            "title": "Published project document navigation labels unavailable historical artifacts without exposing fake download links",
+            "status": "passed",
+            "durationMs": 144.3158000000003
+          },
+          {
+            "title": "Published project document navigation refuses unsafe protocols and unregistered source links",
+            "status": "passed",
+            "durationMs": 2.513300000000527
+          },
+          {
+            "title": "Published project document navigation gives formatted and repeated headings stable, unique anchor targets",
+            "status": "passed",
+            "durationMs": 32.88510000000042
+          },
+          {
+            "title": "Published project document navigation resolves the complete maintained client document link graph",
+            "status": "passed",
+            "durationMs": 17792.6267
+          }
+        ]
+      },
+      {
+        "path": "tests/presentation/verification-evidence.test.ts",
+        "cases": [
+          {
+            "title": "Public verification evidence boundary excludes private navigation fixture fields and refuses incomplete browser qualification",
+            "status": "passed",
+            "durationMs": 20.778099999999995
+          },
+          {
+            "title": "Public verification evidence boundary keeps published artifacts and their fingerprints consistent with the evidence index",
+            "status": "passed",
+            "durationMs": 100.79129999999998
+          },
+          {
+            "title": "Public verification evidence boundary excludes private paths, logs, errors and unknown secret fields",
+            "status": "passed",
+            "durationMs": 3.5085000000000264
+          },
+          {
+            "title": "Public verification evidence boundary refuses mismatched results and paths outside test sources",
+            "status": "passed",
+            "durationMs": 1.2713999999999714
+          },
+          {
+            "title": "Public verification evidence boundary refuses credentials or email addresses embedded in a case title",
+            "status": "passed",
+            "durationMs": 1.8339000000000851
+          },
+          {
+            "title": "Public verification evidence boundary publishes only lifecycle metrics and refuses unrevoked fixture access",
+            "status": "passed",
+            "durationMs": 3.0733999999998787
+          }
+        ]
+      },
+      {
+        "path": "tests/security/dependency-audit.test.ts",
+        "cases": [
+          {
+            "title": "Dependency security gate retains the raw high advisory and proves the installed remediation",
+            "status": "passed",
+            "durationMs": 95.6579999999999
+          },
+          {
+            "title": "Dependency security gate blocks every unrelated moderate-or-higher advisory",
+            "status": "passed",
+            "durationMs": 14.958499999999958
+          },
+          {
+            "title": "Dependency security gate rejects registry errors, incomplete counts and muted findings",
+            "status": "passed",
+            "durationMs": 13.162499999999909
+          },
+          {
+            "title": "Dependency security gate fails if patch bytes or declaration drift",
+            "status": "passed",
+            "durationMs": 22.915899999999965
+          },
+          {
+            "title": "Dependency security gate refuses an unexpected package version or an unresolved audit path",
+            "status": "passed",
+            "durationMs": 13.309999999999945
+          },
+          {
+            "title": "Dependency security gate does not accept the original stack overflow as a controlled rejection",
+            "status": "passed",
+            "durationMs": 4.099299999999857
+          }
+        ]
+      },
+      {
+        "path": "tests/subscriptions/transitions.test.ts",
+        "cases": [
+          {
+            "title": "subscription lifecycle covers every state in the enum",
+            "status": "passed",
+            "durationMs": 14.403999999999996
+          },
+          {
+            "title": "subscription lifecycle from trialing to trialing",
+            "status": "passed",
+            "durationMs": 1.5534999999999854
+          },
+          {
+            "title": "subscription lifecycle from trialing to active",
+            "status": "passed",
+            "durationMs": 11.76339999999982
+          },
+          {
+            "title": "subscription lifecycle from trialing to past_due",
+            "status": "passed",
+            "durationMs": 1.684400000000096
+          },
+          {
+            "title": "subscription lifecycle from trialing to paused",
+            "status": "passed",
+            "durationMs": 0.9179000000001452
+          },
+          {
+            "title": "subscription lifecycle from trialing to cancelled",
+            "status": "passed",
+            "durationMs": 1.6770000000001346
+          },
+          {
+            "title": "subscription lifecycle from trialing to expired",
+            "status": "passed",
+            "durationMs": 0.8309999999999036
+          },
+          {
+            "title": "subscription lifecycle from active to trialing",
+            "status": "passed",
+            "durationMs": 2.00870000000009
+          },
+          {
+            "title": "subscription lifecycle from active to active",
+            "status": "passed",
+            "durationMs": 1.2683999999999287
+          },
+          {
+            "title": "subscription lifecycle from active to past_due",
+            "status": "passed",
+            "durationMs": 1.7531999999998789
+          },
+          {
+            "title": "subscription lifecycle from active to paused",
+            "status": "passed",
+            "durationMs": 1.316300000000183
+          },
+          {
+            "title": "subscription lifecycle from active to cancelled",
+            "status": "passed",
+            "durationMs": 0.7898999999999887
+          },
+          {
+            "title": "subscription lifecycle from active to expired",
+            "status": "passed",
+            "durationMs": 1.7545999999999822
+          },
+          {
+            "title": "subscription lifecycle from past_due to trialing",
+            "status": "passed",
+            "durationMs": 0.532399999999825
+          },
+          {
+            "title": "subscription lifecycle from past_due to active",
+            "status": "passed",
+            "durationMs": 0.40589999999997417
+          },
+          {
+            "title": "subscription lifecycle from past_due to past_due",
+            "status": "passed",
+            "durationMs": 0.6503999999999905
+          },
+          {
+            "title": "subscription lifecycle from past_due to paused",
+            "status": "passed",
+            "durationMs": 2.365000000000009
+          },
+          {
+            "title": "subscription lifecycle from past_due to cancelled",
+            "status": "passed",
+            "durationMs": 2.0149999999998727
+          },
+          {
+            "title": "subscription lifecycle from past_due to expired",
+            "status": "passed",
+            "durationMs": 1.177199999999857
+          },
+          {
+            "title": "subscription lifecycle from paused to trialing",
+            "status": "passed",
+            "durationMs": 1.0561999999999898
+          },
+          {
+            "title": "subscription lifecycle from paused to active",
+            "status": "passed",
+            "durationMs": 0.9270000000001346
+          },
+          {
+            "title": "subscription lifecycle from paused to past_due",
+            "status": "passed",
+            "durationMs": 1.494799999999941
+          },
+          {
+            "title": "subscription lifecycle from paused to paused",
+            "status": "passed",
+            "durationMs": 0.4053000000001248
+          },
+          {
+            "title": "subscription lifecycle from paused to cancelled",
+            "status": "passed",
+            "durationMs": 0.34189999999989595
+          },
+          {
+            "title": "subscription lifecycle from paused to expired",
+            "status": "passed",
+            "durationMs": 2.326999999999998
+          },
+          {
+            "title": "subscription lifecycle from cancelled to trialing",
+            "status": "passed",
+            "durationMs": 0.7013999999999214
+          },
+          {
+            "title": "subscription lifecycle from cancelled to active",
+            "status": "passed",
+            "durationMs": 0.4660000000001219
+          },
+          {
+            "title": "subscription lifecycle from cancelled to past_due",
+            "status": "passed",
+            "durationMs": 0.3631000000000313
+          },
+          {
+            "title": "subscription lifecycle from cancelled to paused",
+            "status": "passed",
+            "durationMs": 0.559400000000096
+          },
+          {
+            "title": "subscription lifecycle from cancelled to cancelled",
+            "status": "passed",
+            "durationMs": 0.35210000000006403
+          },
+          {
+            "title": "subscription lifecycle from cancelled to expired",
+            "status": "passed",
+            "durationMs": 0.5027999999999793
+          },
+          {
+            "title": "subscription lifecycle from expired to trialing",
+            "status": "passed",
+            "durationMs": 1.231999999999971
+          },
+          {
+            "title": "subscription lifecycle from expired to active",
+            "status": "passed",
+            "durationMs": 0.776299999999992
+          },
+          {
+            "title": "subscription lifecycle from expired to past_due",
+            "status": "passed",
+            "durationMs": 0.4276999999999589
+          },
+          {
+            "title": "subscription lifecycle from expired to paused",
+            "status": "passed",
+            "durationMs": 0.34169999999994616
+          },
+          {
+            "title": "subscription lifecycle from expired to cancelled",
+            "status": "passed",
+            "durationMs": 0.3158000000000811
+          },
+          {
+            "title": "subscription lifecycle from expired to expired",
+            "status": "passed",
+            "durationMs": 0.4338000000000193
+          },
+          {
+            "title": "subscription lifecycle never reactivates a cancelled subscription",
+            "status": "passed",
+            "durationMs": 0.9889000000000578
+          },
+          {
+            "title": "subscription lifecycle explains a refusal in a sentence a person can act on",
+            "status": "passed",
+            "durationMs": 3.4959000000001197
+          },
+          {
+            "title": "subscription lifecycle names the legal moves when refusing one that is not",
+            "status": "passed",
+            "durationMs": 0.7958999999998468
+          },
+          {
+            "title": "write permission by status permits writes only while trialing or active",
+            "status": "passed",
+            "durationMs": 1.1914999999999054
+          },
+          {
+            "title": "status labels gives every status a phrase that reads inside a sentence",
+            "status": "passed",
+            "durationMs": 2.2519999999999527
+          },
+          {
+            "title": "status labels reads past_due as past due rather than as an identifier",
+            "status": "passed",
+            "durationMs": 0.5489999999999782
+          }
+        ]
+      },
+      {
+        "path": "tests/tenant/credential-download.test.ts",
+        "cases": [
+          {
+            "title": "keeps multiline metadata from injecting environment settings into the key download",
+            "status": "passed",
+            "durationMs": 2.849700000000041
+          }
+        ]
+      },
+      {
+        "path": "tests/tenant/ownership-transfer.test.ts",
+        "cases": [
+          {
+            "title": "Ownership review request outcomes confirms only a receipt for the reviewed successor with the former owner demoted",
+            "status": "passed",
+            "durationMs": 84.43029999999999
+          },
+          {
+            "title": "Ownership review request outcomes does not confirm a successful HTTP response with a different successor",
+            "status": "passed",
+            "durationMs": 2.739699999999857
+          },
+          {
+            "title": "Ownership review request outcomes does not confirm an unchanged owner or an unexpected role",
+            "status": "passed",
+            "durationMs": 2.9347000000000207
+          },
+          {
+            "title": "Ownership review request outcomes identifies an incorrect password as a confirmed refusal that can be corrected",
+            "status": "passed",
+            "durationMs": 1.6597999999999047
+          },
+          {
+            "title": "Ownership review request outcomes requires refreshed permissions for expired sessions and denied authority",
+            "status": "passed",
+            "durationMs": 2.9518000000000484
+          },
+          {
+            "title": "Ownership review request outcomes does not offer a blind retry after a provider/server failure",
+            "status": "passed",
+            "durationMs": 1.938899999999876
+          },
+          {
+            "title": "Ownership review request outcomes handles a lost response without retrying or retaining the password in its result",
+            "status": "passed",
+            "durationMs": 2.383000000000038
+          },
+          {
+            "title": "Ownership review request outcomes treats redirected or unreadable responses as unconfirmed",
+            "status": "passed",
+            "durationMs": 3.12519999999995
+          }
+        ]
+      },
+      {
+        "path": "tests/tenant/rule-actions.test.ts",
+        "cases": [
+          {
+            "title": "confirmed instruction action results returns the fresh recorded model after publication and restoration instead of relying on route cache refresh",
+            "status": "passed",
+            "durationMs": 18.200800000000072
+          },
+          {
+            "title": "confirmed instruction action results reports a committed write whose readback failed without claiming it was not saved or encouraging duplicate publication",
+            "status": "passed",
+            "durationMs": 17.86889999999994
+          },
+          {
+            "title": "confirmed instruction action results returns a stale refusal without a success model or confirmation read",
+            "status": "passed",
+            "durationMs": 4.254699999999957
+          }
+        ]
+      },
+      {
+        "path": "tests/tenant/rule-diff.test.ts",
+        "cases": [
+          {
+            "title": "instruction line comparison keeps unchanged context and marks only replaced lines",
+            "status": "passed",
+            "durationMs": 2.913699999999949
+          },
+          {
+            "title": "instruction line comparison represents an empty instruction as an actual addition or removal",
+            "status": "passed",
+            "durationMs": 0.3952000000000453
+          },
+          {
+            "title": "instruction line comparison preserves blank lines, duplicate instructions and both source documents",
+            "status": "passed",
+            "durationMs": 0.694400000000087
+          },
+          {
+            "title": "instruction line comparison returns no changes for identical instructions including empty content",
+            "status": "passed",
+            "durationMs": 0.33550000000002456
+          },
+          {
+            "title": "instruction line comparison bounds memory for large unrelated multiline instructions without dropping content",
+            "status": "passed",
+            "durationMs": 2.046899999999937
+          }
+        ]
+      },
+      {
+        "path": "tests/tenant/session-actions.test.ts",
+        "cases": [
+          {
+            "title": "bulk calls the shared bulk contract and returns confirmed devices",
+            "status": "passed",
+            "durationMs": 8.328600000000051
+          },
+          {
+            "title": "refuses ending the current browser through the device-list action",
+            "status": "passed",
+            "durationMs": 2.304099999999835
+          },
+          {
+            "title": "returns a refused mutation without a follow-up read",
+            "status": "passed",
+            "durationMs": 1.3433999999999742
+          },
+          {
+            "title": "does not report a committed session change as failed when readback is unavailable",
+            "status": "passed",
+            "durationMs": 10.346299999999928
+          },
+          {
+            "title": "does not report a committed session change as failed when revalidation fails",
+            "status": "passed",
+            "durationMs": 3.759399999999914
+          }
+        ]
+      },
+      {
+        "path": "tests/tenant/team-actions.test.ts",
+        "cases": [
+          {
+            "title": "confirmed team action outcomes returns fresh team and capacity data for role, remove, withdraw and renewal",
+            "status": "passed",
+            "durationMs": 6.936800000000176
+          },
+          {
+            "title": "confirmed team action outcomes retains a committed outcome if the subsequent data read fails",
+            "status": "passed",
+            "durationMs": 9.815600000000131
+          },
+          {
+            "title": "confirmed team action outcomes retains a committed outcome if cache revalidation fails",
+            "status": "passed",
+            "durationMs": 3.6304999999999836
+          },
+          {
+            "title": "confirmed team action outcomes keeps delivery failure distinct from invitation creation failure",
+            "status": "passed",
+            "durationMs": 1.7812000000001262
+          },
+          {
+            "title": "confirmed team action outcomes returns a refused write without a success model or follow-up read",
+            "status": "passed",
+            "durationMs": 1.8902999999997974
+          }
+        ]
+      },
+      {
+        "path": "tests/http/invitation-identity.test.ts",
+        "cases": [
+          {
+            "title": "refuses failed provider identity reads without creating account or membership",
+            "status": "passed",
+            "durationMs": 26.902700000000095
+          },
+          {
+            "title": "refuses unconfirmed signed-in identities",
+            "status": "passed",
+            "durationMs": 2.8443999999999505
+          },
+          {
+            "title": "refuses an invitation addressed to a different signed-in identity",
+            "status": "passed",
+            "durationMs": 2.574999999999818
+          },
+          {
+            "title": "keeps an invitation unconsumed when signup needs email confirmation",
+            "status": "passed",
+            "durationMs": 15.984300000000076
+          },
+          {
+            "title": "accepts a confirmed matching identity and opens only the accepted workspace",
+            "status": "passed",
+            "durationMs": 21.447599999999966
+          },
+          {
+            "title": "lets a confirmed account without a workspace return to its own pending invitation without app authority",
+            "status": "passed",
+            "durationMs": 8.673600000000079
+          },
+          {
+            "title": "refuses another recipients invitation as a no-workspace sign-in continuation",
+            "status": "passed",
+            "durationMs": 4.487599999999929
+          },
+          {
+            "title": "does not grant a session for unrelated or external no-workspace continuations",
+            "status": "passed",
+            "durationMs": 5.608299999999872
+          }
+        ]
+      },
+      {
+        "path": "tests/http/ownership-route.test.ts",
+        "cases": [
+          {
+            "title": "Ownership reauthentication boundary ends only the temporary provider session before transferring ownership",
+            "status": "passed",
+            "durationMs": 92.9739999999997
+          },
+          {
+            "title": "Ownership reauthentication boundary refuses a provider identity different from the resolved owner",
+            "status": "passed",
+            "durationMs": 34.95069999999987
+          },
+          {
+            "title": "Ownership reauthentication boundary refuses a failed current-identity read",
+            "status": "passed",
+            "durationMs": 10.858099999999922
+          },
+          {
+            "title": "Ownership reauthentication boundary refuses an incorrect password before ownership changes",
+            "status": "passed",
+            "durationMs": 14.824599999999919
+          },
+          {
+            "title": "Ownership reauthentication boundary does not transfer if temporary session cleanup fails",
+            "status": "passed",
+            "durationMs": 11.283599999999751
+          },
+          {
+            "title": "Ownership reauthentication boundary refuses a password proof for a different provider identity and cleans up that session",
+            "status": "passed",
+            "durationMs": 10.127800000000207
+          },
+          {
+            "title": "Ownership reauthentication boundary refuses a missing password-proof identity rather than accepting an empty provider result",
+            "status": "passed",
+            "durationMs": 9.814100000000053
+          },
+          {
+            "title": "Ownership reauthentication boundary distinguishes an unavailable password provider from a rejected password",
+            "status": "passed",
+            "durationMs": 4.929499999999734
+          },
+          {
+            "title": "Ownership reauthentication boundary retains the provider lockout outcome instead of calling it an incorrect password",
+            "status": "passed",
+            "durationMs": 9.891899999999623
+          },
+          {
+            "title": "Ownership reauthentication boundary refuses administrators before password verification",
+            "status": "passed",
+            "durationMs": 4.4547999999999774
+          },
+          {
+            "title": "Ownership reauthentication boundary refuses support visits before password verification",
+            "status": "passed",
+            "durationMs": 3.960199999999986
+          },
+          {
+            "title": "Ownership reauthentication boundary refuses invalid target identifiers before contacting the provider",
+            "status": "passed",
+            "durationMs": 7.296400000000176
+          }
+        ]
+      },
+      {
+        "path": "tests/http/rateLimit.test.ts",
+        "cases": [
+          {
+            "title": "rate limiter · enforcement admits requests up to the limit and refuses the one after",
+            "status": "passed",
+            "durationMs": 131.9148
+          },
+          {
+            "title": "rate limiter · enforcement refuses with a code the envelope turns into a 429 and a Retry-After",
+            "status": "passed",
+            "durationMs": 3.9084000000000287
+          },
+          {
+            "title": "rate limiter · enforcement gives each address its own budget",
+            "status": "passed",
+            "durationMs": 1.4792999999999665
+          },
+          {
+            "title": "rate limiter · enforcement gives each identifier its own budget within one address",
+            "status": "passed",
+            "durationMs": 3.046500000000151
+          },
+          {
+            "title": "rate limiter · enforcement treats an identifier case-insensitively, so casing cannot buy a fresh budget",
+            "status": "passed",
+            "durationMs": 2.3601000000001022
+          },
+          {
+            "title": "rate limiter · enforcement gives each bucket its own budget",
+            "status": "passed",
+            "durationMs": 5.475100000000111
+          },
+          {
+            "title": "rate limiter · enforcement keys on the first x-forwarded-for entry, not the whole proxy chain",
+            "status": "passed",
+            "durationMs": 3.612799999999879
+          },
+          {
+            "title": "rate limiter · failing open allows every request when there is no cache",
+            "status": "passed",
+            "durationMs": 8.57770000000005
+          },
+          {
+            "title": "rate limiter · the configured rules is tightest on the endpoints that send email or create accounts",
+            "status": "passed",
+            "durationMs": 2.7536999999999807
+          },
+          {
+            "title": "rate limiter · the configured rules gives every rule a distinct bucket",
+            "status": "passed",
+            "durationMs": 1.698799999999892
+          }
+        ]
+      },
+      {
+        "path": "tests/http/serviceBudget.test.ts",
+        "cases": [
+          {
+            "title": "shared tenant request budget uses the resolved tenant and shared Lua contract",
+            "status": "passed",
+            "durationMs": 24.71029999999996
+          },
+          {
+            "title": "shared tenant request budget returns 429 and the server TTL as Retry-After",
+            "status": "passed",
+            "durationMs": 12.79970000000003
+          },
+          {
+            "title": "shared tenant request budget leaves platform and support requests outside tenant budgets",
+            "status": "passed",
+            "durationMs": 5.316700000000083
+          },
+          {
+            "title": "shared tenant request budget skips Redis in the supported cache-disabled mode",
+            "status": "passed",
+            "durationMs": 3.3660999999999603
+          },
+          {
+            "title": "shared tenant request budget fails open on transport and malformed Redis replies",
+            "status": "passed",
+            "durationMs": 12.998900000000049
+          },
+          {
+            "title": "shared tenant request budget refuses invalid operator configuration instead of silently disabling the budget",
+            "status": "passed",
+            "durationMs": 2.8006000000000313
+          }
+        ]
+      },
+      {
+        "path": "tests/http/tenant-rules-routes.test.ts",
+        "cases": [
+          {
+            "title": "tenant instruction HTTP boundary current reads omit historical versions, authors and publication notes even for an agent",
+            "status": "passed",
+            "durationMs": 22.376800000000003
+          },
+          {
+            "title": "tenant instruction HTTP boundary blocks agents before publication or version-history reads",
+            "status": "passed",
+            "durationMs": 10.605299999999716
+          },
+          {
+            "title": "tenant instruction HTTP boundary refuses cross-origin publishing before the domain mutation",
+            "status": "passed",
+            "durationMs": 3.764299999999821
+          },
+          {
+            "title": "tenant instruction HTTP boundary returns typed validation for malformed JSON and invalid version identifiers",
+            "status": "passed",
+            "durationMs": 7.596600000000308
+          },
+          {
+            "title": "tenant instruction HTTP boundary preserves not-found semantics for an identifier absent from the scoped domain result",
+            "status": "passed",
+            "durationMs": 2.835900000000038
+          },
+          {
+            "title": "tenant instruction HTTP boundary refuses unauthenticated reads with correlated errors before reading settings",
+            "status": "passed",
+            "durationMs": 2.231800000000021
+          }
+        ]
+      }
+    ]
+  },
+  "http": {
+    "checkedAt": "2026-10-09T20:20:47.291Z",
+    "passed": true,
+    "fixtureCleanup": true,
+    "checks": [
+      {
+        "name": "Two signed-in application workers and two service workers share one atomic tenant window",
+        "passed": true,
+        "admitted": 6,
+        "refused": 4
+      },
+      {
+        "name": "Unrelated tenant receives an independent budget; caller tenant header is ignored",
+        "passed": true
+      },
+      {
+        "name": "Configuration changes retain count and the existing window",
+        "passed": true
+      },
+      {
+        "name": "A fresh service process cannot reset the tenant budget",
+        "passed": true
+      },
+      {
+        "name": "Rate and scope refusals preserve durable last-use",
+        "passed": true
+      },
+      {
+        "name": "Server expiry resets the anchored window without refused requests extending it",
+        "passed": true
+      },
+      {
+        "name": "Public limiter increments and expiry are atomic; legacy missing TTL is repaired without resetting count",
+        "passed": true
+      },
+      {
+        "name": "Redis outage and cache-disabled mode preserve stored scope, suspension and revocation checks",
+        "passed": true
+      }
+    ],
+    "scope": "Actual provider-backed sign-in and session HTTP across two production Next workers, plus authenticated FastAPI HTTP across two workers sharing real Redis.",
+    "limits": "Local loopback topology; hosted latency and load qualification remain separate. Request admission is not billable usage.",
+    "localOnly": true
+  },
+  "recovery": {
+    "checkedAt": "2026-10-09T20:09:08.544Z",
+    "passed": true,
+    "fixtureCleanup": true,
+    "localOnly": true,
+    "tables": 61,
+    "rows": 1726,
+    "policies": 52,
+    "contextFunctions": 17,
+    "restoreMilliseconds": 7815,
+    "dataDifferences": 0,
+    "ownershipAndGrantsMatch": true,
+    "definerSettingsMatch": true,
+    "defaultDenyPassed": true,
+    "applicationIdentityPassed": true,
+    "settingsPagePassed": true,
+    "serviceReadPassed": true,
+    "missingScopeRefused": true,
+    "restoredRevocationRefused": true,
+    "sourceUnchanged": true,
+    "boundary": "Same-cluster PostgreSQL restore, with actual provider-backed sign-in to the restored application database and restricted service HTTP. Provider validation uses the existing local Auth process. Separate Auth process, object bytes and clean upgrade remain additional checks. No hosted PITR or production RTO/RPO claim."
+  },
+  "load": {
+    "checkedAt": "2026-10-09T20:22:10.861Z",
+    "localOnly": true,
+    "productionBuild": true,
+    "sessions": 50,
+    "workspaces": 5,
+    "durationMs": 69161,
+    "cache": "disabled",
+    "peakDatabaseConnections": 34,
+    "routes": [
+      {
+        "route": "/app",
+        "requests": 62,
+        "p50Ms": 10112,
+        "p95Ms": 14270,
+        "p99Ms": 14642,
+        "requestsPerSecond": 0.9,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/app/settings/company",
+        "requests": 62,
+        "p50Ms": 10044,
+        "p95Ms": 13157,
+        "p99Ms": 14895,
+        "requestsPerSecond": 0.9,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/app/settings/ai-rules",
+        "requests": 61,
+        "p50Ms": 10455,
+        "p95Ms": 14361,
+        "p99Ms": 14580,
+        "requestsPerSecond": 0.88,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/api/v1/me",
+        "requests": 62,
+        "p50Ms": 10596,
+        "p95Ms": 13612,
+        "p99Ms": 15071,
+        "requestsPerSecond": 0.9,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": null
+      },
+      {
+        "route": "/api/v1/ai-rules",
+        "requests": 61,
+        "p50Ms": 10139,
+        "p95Ms": 12370,
+        "p99Ms": 13279,
+        "requestsPerSecond": 0.88,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": null
+      }
+    ],
+    "integrityPassed": true,
+    "fixtureCleanup": true,
+    "passed": false,
+    "boundary": "Local Windows/Docker loopback server-request timings, including response body. Five routes rotate across 50 concurrent sessions, with 100ms think time for 60 seconds after one warm-up per route. Cold/warm cache phases, loaded propagation, server query fan-out and memory targets remain additional qualification."
+  },
+  "baseline": {
+    "checkedAt": "2026-10-09T20:10:40.106Z",
+    "localOnly": true,
+    "productionBuild": true,
+    "sessions": 50,
+    "workspaces": 5,
+    "durationMs": 67331,
+    "cache": "disabled",
+    "peakDatabaseConnections": 40,
+    "routes": [
+      {
+        "route": "/app",
+        "requests": 52,
+        "p50Ms": 12303,
+        "p95Ms": 15948,
+        "p99Ms": 17068,
+        "requestsPerSecond": 0.77,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/app/settings/company",
+        "requests": 53,
+        "p50Ms": 12250,
+        "p95Ms": 17272,
+        "p99Ms": 17344,
+        "requestsPerSecond": 0.79,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/app/settings/ai-rules",
+        "requests": 52,
+        "p50Ms": 12645,
+        "p95Ms": 16459,
+        "p99Ms": 17285,
+        "requestsPerSecond": 0.77,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/api/v1/me",
+        "requests": 52,
+        "p50Ms": 12238,
+        "p95Ms": 16646,
+        "p99Ms": 17345,
+        "requestsPerSecond": 0.77,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": null
+      },
+      {
+        "route": "/api/v1/ai-rules",
+        "requests": 53,
+        "p50Ms": 11829,
+        "p95Ms": 15917,
+        "p99Ms": 16031,
+        "requestsPerSecond": 0.79,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": null
+      }
+    ],
+    "integrityPassed": true,
+    "fixtureCleanup": true,
+    "passed": false,
+    "boundary": "Local Windows/Docker loopback server-request timings, including response body. Five routes rotate across 50 concurrent sessions, with 100ms think time for 60 seconds after one warm-up per route. Cold/warm cache phases, loaded propagation, server query fan-out and memory targets remain additional qualification."
+  }
+}
