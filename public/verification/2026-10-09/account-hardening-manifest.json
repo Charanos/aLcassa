@@ -1,0 +1,12 @@
+{
+  "date": "9 October 2026",
+  "environment": "Disposable local verification; cache disabled",
+  "passed": 626,
+  "files": 54,
+  "results": {
+    "path": "/verification/2026-10-09/account-hardening-regression.json",
+    "sha256": "3eca0f89c95bd7e41dcdb4f1f8917e7047ce4f060782294d4d249605dc598956"
+  },
+  "scope": "Invitation identity guards, safe credential export metadata and device-session regression.",
+  "limits": "Invitation routes use controlled provider responses. Native invitation acceptance, clipboard and download feedback, complete password change, external OAuth and durable service usage remain open. Separate device-session evidence records real provider and native browser checks."
+}

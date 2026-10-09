@@ -1,0 +1,44 @@
+{
+  "date": "9 October 2026",
+  "baseCommit": "9236b1a3063ebe177343cc2023298f48a7598503",
+  "environment": "Disposable local provider and restricted PostgreSQL role, with native development-browser review",
+  "passed": 617,
+  "files": 52,
+  "scope": "G03 individual and bulk device sessions, atomic audit and local provider sign-out",
+  "results": {
+    "path": "/verification/2026-10-09/device-sessions-regression.json",
+    "sha256": "72d9347ea0b878d360f260b91df3a96a7ddb6a58f8c8d109803305034ff3ca00"
+  },
+  "native": {
+    "path": "/verification/2026-10-09/device-sessions-browser.json",
+    "sha256": "cedff106d71f56ab350306df1f34fd1a9ffc79d014bf07bd427a312c7d32ae63"
+  },
+  "images": [
+    {
+      "path": "/verification/2026-10-09/device-sessions-desktop.jpg",
+      "sha256": "a770cab17017ec3432acfc0b1a679d7e79d41644b81da0ededbbee4160786fba",
+      "label": "Confirmed individual session ending",
+      "width": 1149,
+      "height": 709
+    },
+    {
+      "path": "/verification/2026-10-09/device-sessions-phone-review.jpg",
+      "sha256": "fe6c2faf9fdff2b189002ba79436e12f22fcbf82358abb6ed8cc1beb4ca62d3f",
+      "label": "Phone bulk review with Cancel focus and blur",
+      "width": 390,
+      "height": 843
+    },
+    {
+      "path": "/verification/2026-10-09/device-sessions-phone-final.jpg",
+      "sha256": "c62e6dfe040ce38472d0729f574c0e579bb0beadc9cadd0bb43a856eec4e7173",
+      "label": "Current browser preserved after bulk ending",
+      "width": 390,
+      "height": 843
+    }
+  ],
+  "limits": "This qualifies the local device-session subset. Complete password-change, colleague invitation and configured OAuth acceptance remain open, alongside service and operational gates. Build and exact release qualification are recorded separately in the ledger.",
+  "manifest": {
+    "path": "/verification/2026-10-09/device-sessions-manifest.json",
+    "sha256": "57ea26f1d2be5f4574126603fc773b10311952b5015c01ed8bd376a66a04c507"
+  }
+}

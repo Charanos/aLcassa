@@ -772,3 +772,18 @@ Maintained built acceptance: after `BuildLive` and `Serve`, run
 `pnpm exec tsx scripts/check-auth-navigation.ts`, then repeat with
 `AUTH_NAVIGATION_BASE_URL=http://localhost:3100`. The same two-address check is part
 of the build job in CI. Keep the strict CSP and existing browser workspace intact.
+
+### 18.13 Qualified local device-session subset — 9 October 2026
+
+The G03 device subset passes 617 cases in 52 files, actual-provider local sign-out,
+atomic database revocation/audit and native individual/bulk reviews. Current-browser
+access, immediate readback, Cancel/return focus, 390px fit, blur and fixture cleanup
+agree with independent database reads. See the [device checkpoint](/project-tracker/verification#device-sessions-checkpoint)
+and [ledger](26-phase-one-verification-ledger.md#34-device-session-checkpoint--9-october-2026).
+Auth is 94%; acceptance still requires complete password change, confirmed-identity
+colleague joining and configured OAuth or an explicit product scope decision.
+The exact prior navigation release is qualified in ledger section 33.
+
+### 18.14 Combined account safeguards
+
+626 cache-disabled local cases in 54 files now pass. Invitation identity and continuation guards and credential metadata export are verified automatically; device session native evidence remains separately linked. Keep M2 at 94% until the remaining complete password change, native invitation and OAuth acceptance gates pass. Next service batch must persist successful credential last-use through the restricted role and prove refused requests remain unchanged. Native credential feedback still needs acceptance before closing its gate.

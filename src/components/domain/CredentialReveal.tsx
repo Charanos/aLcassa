@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { IconAlertTriangle, IconCheck, IconCopy, IconDownload } from '@tabler/icons-react';
 import { Button } from '@/components/primitives/Button';
+import { credentialDownload } from '@/lib/credentials/download';
 
 /** Holds the creation response in memory until the owner acknowledges saving it. */
 export function CredentialReveal({
@@ -19,28 +20,43 @@ export function CredentialReveal({
   const [copied, setCopied] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [copyError, setCopyError] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
+  const [copying, setCopying] = useState(false);
+  const copyInProgress = useRef(false);
 
   async function copy() {
+    if (copyInProgress.current) return;
+    copyInProgress.current = true;
+    setCopying(true);
+    setCopied(false);
+    setCopyError(false);
     try {
       await navigator.clipboard.writeText(secret);
       setCopied(true);
       setCopyError(false);
-      setAcknowledged(true);
     } catch {
       setCopyError(true);
+    } finally {
+      copyInProgress.current = false;
+      setCopying(false);
     }
   }
 
   function download() {
-    const contents = `# ${name}\n# Scopes: ${scopes.join(', ')}\n# This key is shown once. Store it somewhere your team can find it.\nAPI_KEY=${secret}\n`;
-    const blob = new Blob([contents], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = '.env';
-    a.click();
-    URL.revokeObjectURL(url);
-    setAcknowledged(true);
+    setDownloadError(false);
+    let url: string | undefined;
+    try {
+      const blob = new Blob([credentialDownload(name, scopes, secret)], { type: 'text/plain' });
+      url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '.env';
+      a.click();
+    } catch {
+      setDownloadError(true);
+    } finally {
+      if (url) URL.revokeObjectURL(url);
+    }
   }
 
   return (
@@ -66,6 +82,8 @@ export function CredentialReveal({
           <Button
             variant="secondary"
             size="sm"
+            loading={copying}
+            disabled={copying}
             onClick={() => {
               void copy();
             }}
@@ -77,6 +95,11 @@ export function CredentialReveal({
             Download .env
           </Button>
         </div>
+        {copied ? (
+          <p role="status" className="t-caption mt-2">
+            Key copied. Store it securely before leaving this page.
+          </p>
+        ) : null}
 
         <p
           role="alert"
@@ -96,6 +119,11 @@ export function CredentialReveal({
             Copy was unavailable. Select the key manually or download it, then store it securely.
           </p>
         ) : null}
+        {downloadError ? (
+          <p role="alert" className="t-caption mt-3">
+            Download was unavailable. Copy or select the key, then store it securely.
+          </p>
+        ) : null}
         <label className="t-compact mt-4 flex items-center gap-2">
           <input
             type="checkbox"
@@ -110,7 +138,7 @@ export function CredentialReveal({
         className="flex items-center justify-end border-t px-5 py-3.5"
         style={{ borderColor: 'var(--border-subtle)' }}
       >
-        <Button variant="primary" disabled={!acknowledged} onClick={onConfirm}>
+        <Button variant="primary" disabled={!acknowledged || copying} onClick={onConfirm}>
           I have saved this
         </Button>
       </div>

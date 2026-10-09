@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache';
 import { currentSession } from '@/lib/auth/resolve';
-import { revokeSession as revokeSessionService } from '@/lib/auth/session';
 import { isAppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import {
@@ -12,15 +11,19 @@ import {
   resendInvitation as resendInvitationService,
   changeMemberRole as changeMemberRoleService,
 } from '@/modules/membership';
-import { endSupportVisit as endSupportVisitService, updateOwnProfile } from '@/modules/identity';
+import {
+  endSupportVisit as endSupportVisitService,
+  endOwnSessions,
+  updateOwnProfile,
+} from '@/modules/identity';
 import { saveCompanySettings } from '@/modules/settings';
 import {
   createCredential as createCredentialService,
   revokeCredential as revokeCredentialService,
 } from '@/modules/credentials';
 import { publishTenantRules, restoreTenantRules } from '@/modules/aiRules';
-import { getLiveTenantAiRules, getLiveTeam } from '@/lib/tenant/live';
-import type { TenantRulesModel, TeamModel } from '@/lib/tenant/data';
+import { getLiveTenantAiRules, getLiveTeam, getLiveAccountSessions } from '@/lib/tenant/live';
+import type { TenantRulesModel, TeamModel, AccountSession } from '@/lib/tenant/data';
 import type { ResolvedContext } from '@/lib/db/context';
 
 /** Resolve and validate tenant context on every action; unavailable operations return an explicit refusal. */
@@ -31,6 +34,7 @@ type ActionResult =
       /** A committed invitation may still require the owner to share its link when email delivery fails. */
       notice?: string;
       team?: TeamModel;
+      sessions?: AccountSession[];
       refreshRequired?: boolean;
     }
   | { ok: false; error: string };
@@ -242,16 +246,36 @@ export async function updateProfile(input: { name: string }): Promise<ActionResu
 }
 
 export async function revokeSession(id: string): Promise<ActionResult> {
-  if (!id) return { ok: false, error: 'Select a session to revoke.' };
-
-  return attempt(async () => {
-    const ctx = await currentSession();
-    // Through the service rather than by id alone: it scopes the update to
-    // this actor, so a crafted id belonging to someone else updates nothing
-    // instead of ending their session.
-    await revokeSessionService(id, ctx.actorId, ctx.requestId, 'revoked by the account holder');
+  let ctx: ResolvedContext;
+  let count: number;
+  try {
+    ctx = await currentSession();
+    // The current browser is ended through sign-out, not this device-list action.
+    if (id === ctx.sessionId)
+      return { ok: false, error: 'Use Sign out to end this device’s session.' };
+    ({ count } = await endOwnSessions(ctx, id));
+  } catch (error) {
+    return actionFailure(error);
+  }
+  const notice = count
+    ? `${count} ${count === 1 ? 'session ended' : 'sessions ended'}.`
+    : 'No other active sessions remain.';
+  try {
+    const model = await getLiveAccountSessions(ctx);
+    if (!model) throw Error('Session readback unavailable');
     revalidatePath('/app/account/sessions');
-  });
+    return { ok: true, notice, sessions: model.sessions };
+  } catch (error) {
+    logger.error('session change committed; readback unavailable', {
+      error,
+      requestId: ctx.requestId,
+    });
+    return {
+      ok: true,
+      notice: `${notice} Refresh to confirm the device list.`,
+      refreshRequired: true,
+    };
+  }
 }
 
 /** Owners and administrators can end a support visit; the service records the revocation. */

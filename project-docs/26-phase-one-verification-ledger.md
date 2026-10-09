@@ -1085,3 +1085,59 @@ clean setup and handover remain required. Local service hosting is the agreed
 verification scope; external sending-domain readiness and actual-launch cutover are
 separate. Exact CI/deployment qualification is recorded after this package is pushed;
 section 31 remains the qualified application release reference until then.
+
+## 33. Auth navigation release qualification — 9 October 2026
+
+Commit `9236b1a3063ebe177343cc2023298f48a7598503` qualifies section 32 on origin/main.
+All six jobs in [CI run 37871761557](https://github.com/Charanos/aLcassa/actions/runs/37871761557)
+passed, including the built two-address redirect checks. The downloaded cache-disabled
+artifact independently confirms 605 passed cases in 49 files, no failures or skips.
+The exact [Vercel deployment](https://vercel.com/dennis-munges-projects/a-lcassa/DVMVESoduGRYKpjpSaKVm5btBQWr)
+is successful. Deployed read-only acceptance passes 28 documentation routes,
+64 section anchors and 26 evidence assets; internal documents return 404.
+Deployed authentication checks preserve protected return paths and strict form-action.
+Native download of the authentication evidence index matches its published SHA-256.
+This replaces section 31 as the qualified application release reference; it does
+not close the remaining account, service or operational gates.
+
+## 34. Device-session checkpoint — 9 October 2026
+
+The device list sent `all` to the single-session handler, ignored zero-row results,
+and had no audit. Its API recorded revocation separately from audit, and provider
+sign-out used the global default. The shared identity operation now scopes owned
+active sessions, preserves the current session for bulk ending, refuses unavailable
+IDs uniformly and commits changes with their audit. Duplicate concurrent ending
+produces one event; an audit outage rolls the session change back. Recovery and
+expired sessions remain untouched. A missing current context refuses bulk ending.
+The account action returns fresh devices after commit and distinguishes subsequent
+read/revalidation failure from a failed mutation. The current browser uses Sign out.
+
+Actual local-provider verification reproduces global sign-out invalidating a second
+device, then passes with local scope: the current refresh token is refused while the
+other device still refreshes. Six real-database cases and five action-result cases
+join that provider case. The complete cache-disabled suite passes **617 cases in
+52 files**, with no failures or skips; policy coverage remains 15/15.
+
+Native development-browser acceptance uses owned disposable identities. Cancel
+starts focused and returns focus to the device heading. Individual ending removes
+one row; bulk ending removes three more, without a manual reload. Independent
+readback confirms four ended sessions, one remaining browser and two matching audits.
+A fresh browser reload retains access. Phone review fits 390px with a 380px document
+and 8px blur. Owned Auth identities, profiles, sessions and workspace data are removed;
+established owners remain unchanged. The verification record indexes the bounded
+outcomes, redacted catalogue and reviewed desktop/phone images with SHA-256 fingerprints.
+Earlier navigation evidence remains immutable. Audit outage and uncertain outcomes
+are automated cases, not native fault injection; other-device refusal is exercised
+through the actual database session resolver. Exact build/release qualification
+follows publication. Auth advances **93→94%**; milestone acceptance remains open.
+
+Next: full native password change and confirmed-identity invitation joining, then
+configured OAuth or a recorded product scope decision. Shared service enforcement,
+credential clipboard/last-use, full surface/accessibility and operational/handover
+gates remain required.
+
+## 35. Combined account safeguards — 9 October 2026
+
+The cache-disabled disposable regression passed **626 cases across 54 files**, with no failures or skips. Eight invitation route cases verify confirmed identity, matching email, provider failure refusal and safe invitation continuation without prematurely minting workspace authority. One export case verifies that credential comment metadata cannot inject environment settings. Copying or downloading a key no longer automatically asserts secure storage; acknowledgement remains explicit.
+
+The public verification record links the immutable account-hardening catalogue and SHA-256 manifest. The earlier 617-case device checkpoint remains unchanged, including its native screenshots and independent database readback. M2 remains at 94%: controlled provider responses do not qualify native invitation acceptance. Complete password change, external OAuth, native clipboard/download feedback and durable service usage remain open. The service currently uses a read-only transaction and does not persist credential last-use; this finding requires a separate restricted-role implementation and verification.

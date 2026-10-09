@@ -7,6 +7,8 @@ import membership from '@/lib/presentation/membershipVerification.json';
 import account from '@/lib/presentation/accountVerification.json';
 import ownership from '@/lib/presentation/ownershipVerification.json';
 import navigation from '@/lib/presentation/authNavigationVerification.json';
+import devices from '@/lib/presentation/deviceSessionsVerification.json';
+import hardening from '@/lib/presentation/accountHardeningVerification.json';
 import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
@@ -50,7 +52,7 @@ export default function VerificationRecordPage() {
             Completion plan <IconArrowUpRight size={16} aria-hidden />
           </Link>
           <a
-            href={navigation.manifest.path}
+            href={hardening.manifest.path}
             download
             className="t-compact inline-flex items-center gap-2 text-[var(--text-action)] underline underline-offset-4"
           >
@@ -70,9 +72,9 @@ export default function VerificationRecordPage() {
         </div>
         <dl className="surface-sunken mt-5 grid gap-px overflow-hidden rounded-panel border border-[var(--border-subtle)] sm:grid-cols-2 lg:grid-cols-4">
           <Metric
-            value={`${navigation.passed}`}
+            value={`${hardening.passed}`}
             label="Current local cases passed"
-            detail={`${navigation.files} files · no failures or skips`}
+            detail={`${hardening.files} files · no failures or skips`}
           />
           <Metric
             value={`${record.service.databaseCases}`}
@@ -163,6 +165,105 @@ export default function VerificationRecordPage() {
             </div>
             <Digest value={record.service.results.sha256} />
           </Release>
+        </div>
+      </section>
+
+      <section
+        id="account-hardening-checkpoint"
+        aria-labelledby="account-hardening-title"
+        className="surface-sunken mt-10 rounded-panel border border-[var(--border-subtle)] p-5 md:p-7"
+      >
+        <h2 id="account-hardening-title" className="t-heading">
+          Account identity and credential safeguards
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          {hardening.scope} All {hardening.passed} cases in {hardening.files} files passed in the
+          disposable local environment.
+        </p>
+        <p className="t-compact mt-3 text-[var(--text-secondary)]">{hardening.limits}</p>
+        <div className="mt-5 flex flex-wrap gap-5">
+          <EvidenceDownload href={hardening.results.path} label="626-case local catalogue" />
+          <EvidenceDownload
+            href={hardening.manifest.path}
+            label="Account safeguards evidence index"
+          />
+        </div>
+        <Digest value={hardening.results.sha256} />
+      </section>
+
+      <section
+        id="device-sessions-checkpoint"
+        aria-labelledby="device-sessions-title"
+        className="mt-14 border-t border-[var(--border-subtle)] pt-10"
+      >
+        <h2 id="device-sessions-title" className="t-heading">
+          Review and end device sessions
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          {devices.environment}. All {devices.passed} cases in {devices.files} files pass. Verified
+          against baseline <code>{devices.baseCommit.slice(0, 7)}</code>.
+        </p>
+        <div className="surface-sunken mt-6 rounded-panel border border-[var(--border-subtle)] p-5 md:p-7">
+          <h3 className="t-heading">Confirmed changes preserve this browser</h3>
+          <p className="t-compact mt-3 text-[var(--text-secondary)]">
+            Individual and bulk reviews begin on Cancel, use the shared background blur and return
+            focus to the device heading. One session ends individually, then three others end
+            together; the server updates the list without a reload. Independent database readback
+            confirms four ended sessions, one remaining browser session and two matching audits. A
+            fresh reload keeps this browser signed in. The 390px page fits without horizontal
+            overflow. Owned identities and workspace data are removed afterwards.
+          </p>
+          <p className="t-compact mt-3 text-[var(--text-secondary)]">
+            Actual provider verification first reproduces the global sign-out defect, then proves
+            that local sign-out ends the current refresh session while another device can still
+            refresh. Database cases cover foreign-session refusal, current-device preservation,
+            recovery and expiry exclusions, concurrent duplicate ending, and rollback on audit
+            failure. Action cases retain a committed outcome if the subsequent read or cache refresh
+            fails.
+          </p>
+          <p className="t-compact mt-3 text-[var(--text-secondary)]">{devices.limits}</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            <div>
+              <EvidenceDownload href={devices.results.path} label="617-case local catalogue" />
+              <Digest value={devices.results.sha256} />
+            </div>
+            <div>
+              <EvidenceDownload href={devices.native.path} label="Bounded device outcomes" />
+              <Digest value={devices.native.sha256} />
+            </div>
+            <div>
+              <EvidenceDownload
+                href={devices.manifest.path}
+                label="Device session evidence index"
+              />
+              <Digest value={devices.manifest.sha256} />
+            </div>
+          </div>
+        </div>
+        <div className="mt-6 grid items-start gap-6 md:grid-cols-3">
+          {devices.images.map((item) => (
+            <figure key={item.path} className="min-w-0">
+              <a
+                href={item.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Open ${item.label}`}
+              >
+                <Image
+                  src={item.path}
+                  alt={item.label}
+                  width={item.width}
+                  height={item.height}
+                  unoptimized
+                  className="h-auto w-full rounded-panel border border-[var(--border-subtle)]"
+                />
+              </a>
+              <figcaption className="t-caption mt-2 text-[var(--text-secondary)]">
+                {item.label}
+              </figcaption>
+              <Digest value={item.sha256} />
+            </figure>
+          ))}
         </div>
       </section>
 

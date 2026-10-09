@@ -12,6 +12,7 @@ import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 import { safeReturnPath } from '@/lib/auth/returnPath';
+import { readInvitationByToken } from '@/modules/membership';
 
 /** Public sign-in cannot use the session-required route pipeline; handle form redirects and JSON responses explicitly. */
 
@@ -130,6 +131,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 02 §11. A real state with a real screen. Signing them in and letting the
     // shell fail to render would be worse than saying so.
     if (active.length === 0) {
+      // A confirmed account may review its own invitation before joining a workspace.
+      const destination = safeReturnPath(next, '/app');
+      const invitationPath = /^\/invite\/([^/?#]+)$/.exec(destination);
+      if (invitationPath) {
+        const invitation = await readInvitationByToken(invitationPath[1]!, requestId);
+        if (
+          invitation?.state === 'pending' &&
+          invitation.invitedEmail.toLowerCase() === data.user.email?.toLowerCase()
+        ) {
+          return asJson
+            ? jsonOk({ userId, door: 'invitation', destination }, { requestId })
+            : NextResponse.redirect(new URL(destination, authRequestOrigin(request)), 303);
+        }
+      }
       log.warn('sign-in with no active membership', { userId });
       throw new AppError(ERROR_CODES.AUTH_NO_MEMBERSHIP);
     }

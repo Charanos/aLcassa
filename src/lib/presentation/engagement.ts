@@ -115,8 +115,8 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
   date: '9 October 2026',
-  applicationTests: 605,
-  applicationFiles: 49,
+  applicationTests: 626,
+  applicationFiles: 54,
   serviceTests: 21,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -155,8 +155,8 @@ export const MILESTONES = [
     gate: 'Demo: full account lifecycle',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 93,
-    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Recovery recipients resolve to real Auth and application records; unknown and profile-only addresses receive no link and create no identity. Ownership preserves existing sessions and has native refusal and transfer evidence. Native sign-in, wrong-password retry and sign-out retain the requested page and query in a production build; fresh access is refused after sign-out, with session readback and fixture cleanup. Complete account acceptance, colleague invitations, OAuth and device-session review remain open; external email delivery is a separate launch qualification.',
+    progress: 94,
+    note: 'Owner activation and password recovery pass against the disposable identity provider, including one-use confirmation, expiry, session revocation and concurrent submission checks. Recovery recipients resolve to real Auth and application records; unknown and profile-only addresses receive no link and create no identity. Ownership preserves existing sessions and has native refusal and transfer evidence. Native sign-in, wrong-password retry and sign-out retain the requested page and query in a production build; fresh access is refused after sign-out, with session readback and fixture cleanup. Native individual and bulk device reviews preserve this browser, update immediately and agree with atomic audit readback. Actual provider sign-out preserves another device. Complete password-change acceptance, colleague invitations and OAuth remain open; external email delivery is a separate launch qualification.',
   },
   {
     id: 'M3',
@@ -225,17 +225,19 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
   { previous: number; evidence: string[]; remaining: string[] }
 > = {
   M2: {
-    previous: 92,
+    previous: 93,
     evidence: [
       'Actual Auth and application records agree for the recovery recipient',
       'Unknown and profile-only addresses receive no reset link or new identity',
       'Native ownership refusal, transfer, fresh permissions and existing sign-in',
       'Production-build sign-in, wrong-password retry and sign-out resume the intended page and query',
+      'Native individual and bulk device ending with immediate readback, current-device preservation and matching atomic audits',
+      'Actual provider sign-out ends this refresh session while another device remains usable',
       'Built Edge and route origin checks on both local addresses; fresh denial and session readback after sign-out',
     ],
     remaining: [
       'Complete browser account lifecycle and colleague invitations',
-      'Configured OAuth acceptance and device-session review',
+      'Configured OAuth acceptance and complete password-change journey',
       'External sending-domain and redirect qualification before launch',
     ],
   },
@@ -392,6 +394,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-09',
+    title: 'Device sessions and local sign-out verified',
+    body: 'Individual and bulk device ending now share an atomic mutation and audit. Native reviews confirm immediate list updates, current-browser access, Cancel focus, blur and phone fit. Real-provider verification proves sign-out preserves another device. All 617 local cases in 52 files pass. Auth advances from 93% to 94%; complete password change, invitations, OAuth and operational gates remain open. The verification record includes a separate immutable device-session evidence index.',
+    milestone: 'M2',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-09',
     title: 'Auth navigation and sign-in retries verified',

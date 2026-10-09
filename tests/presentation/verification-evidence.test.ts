@@ -6,6 +6,8 @@ import membership from '@/lib/presentation/membershipVerification.json';
 import account from '@/lib/presentation/accountVerification.json';
 import ownership from '@/lib/presentation/ownershipVerification.json';
 import navigation from '@/lib/presentation/authNavigationVerification.json';
+import devices from '@/lib/presentation/deviceSessionsVerification.json';
+import hardening from '@/lib/presentation/accountHardeningVerification.json';
 import {
   projectTestEvidence,
   projectCredentialEvidence,
@@ -84,6 +86,12 @@ describe('Public verification evidence boundary', () => {
       navigation.native,
       navigation.manifest,
       ...navigation.images,
+      devices.results,
+      devices.native,
+      devices.manifest,
+      ...devices.images,
+      hardening.results,
+      hardening.manifest,
     ];
     for (const file of files) {
       expect(file.path).toMatch(
@@ -111,6 +119,19 @@ describe('Public verification evidence boundary', () => {
       readFileSync(`public${navigation.manifest.path}`, 'utf8'),
     ) as Omit<typeof navigation, 'manifest'>;
     expect({ ...navigationCheckpoint, manifest: navigation.manifest }).toEqual(navigation);
+    const deviceCheckpoint = JSON.parse(
+      readFileSync(`public${devices.manifest.path}`, 'utf8'),
+    ) as Omit<typeof devices, 'manifest'>;
+    expect({ ...deviceCheckpoint, manifest: devices.manifest }).toEqual(devices);
+    const deviceCatalogue = JSON.parse(readFileSync(`public${devices.results.path}`, 'utf8'));
+    expect(deviceCatalogue).toMatchObject({ passed: 617, failed: 0, skipped: 0 });
+    expect(deviceCatalogue.files).toHaveLength(52);
+    const combinedCatalogue = JSON.parse(readFileSync(`public${hardening.results.path}`, 'utf8'));
+    expect(combinedCatalogue).toMatchObject({ passed: 626, failed: 0, skipped: 0 });
+    expect(combinedCatalogue.files).toHaveLength(54);
+    expect(JSON.parse(readFileSync(`public${hardening.manifest.path}`, 'utf8'))).toEqual(
+      Object.fromEntries(Object.entries(hardening).filter(([key]) => key !== 'manifest')),
+    );
     expect(
       projectAuthNavigationEvidence(
         JSON.parse(readFileSync(`public${navigation.native.path}`, 'utf8')),

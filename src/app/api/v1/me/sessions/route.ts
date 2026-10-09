@@ -1,7 +1,6 @@
 import { resolveSessionDoor } from '@/lib/auth/resolve';
-import { listActiveSessions, revokeAllSessions } from '@/lib/auth/session';
-import { AUDIT_ACTIONS, writeAudit } from '@/lib/audit';
-import { withTenantContext } from '@/lib/db';
+import { listActiveSessions } from '@/lib/auth/session';
+import { endOwnSessions } from '@/modules/identity';
 import { defineRoute } from '@/lib/http/pipeline';
 import { jsonOk } from '@/lib/http/response';
 
@@ -36,24 +35,7 @@ export const DELETE = defineRoute({
   door: 'session',
   resolve: resolveSessionDoor,
   handle: async ({ ctx, requestId }) => {
-    const revoked = await revokeAllSessions(
-      ctx.actorId,
-      requestId,
-      'revoked by the account holder',
-      ctx.sessionId ?? undefined,
-    );
-
-    // 05 §9. Revocation is a security event and belongs in the tenant's own
-    // trail: it is one of the things an owner reviewing an incident looks for.
-    await withTenantContext(ctx, async (tx) => {
-      await writeAudit(tx, ctx, {
-        action: AUDIT_ACTIONS.SESSION_REVOKED,
-        entityType: 'session',
-        entityId: null,
-        after: { revokedCount: revoked, scope: 'all-except-current' },
-      });
-    });
-
-    return jsonOk({ revoked }, { requestId });
+    const { count } = await endOwnSessions(ctx, 'all');
+    return jsonOk({ revoked: count }, { requestId });
   },
 });

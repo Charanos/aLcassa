@@ -18,9 +18,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const wantsJson = (request.headers.get('content-type') ?? '').includes('application/json');
 
-  // Which door is this? Whichever cookie the request is carrying. A request
-  // carrying both — one browser, both apps open — ends both, because "sign
-  // out" from either surface should not leave the other one live.
+  // End both application doors in this browser, preserving other devices.
   const kinds: SessionKind[] = ['tenant', 'platform'];
   const present: Array<{ kind: SessionKind; sessionId: string }> = [];
 
@@ -33,28 +31,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { data } = await supabase.auth.getUser();
   const userId = data.user?.id ?? null;
 
-  // ─ 1 · the rows, while we still know their ids ────────────────────────────
   if (userId) {
     for (const { sessionId } of present) {
       try {
         await revokeSession(sessionId, userId, requestId, 'signed out');
       } catch (error) {
-        // Logged, never surfaced. See the note above.
         log.error('could not revoke session row on sign-out', { sessionId, error });
       }
     }
   }
 
-  // ─ 2 · Supabase's own cookies ─────────────────────────────────────────────
   try {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) log.error('supabase signOut failed', { error });
   } catch (error) {
     log.error('supabase signOut failed', { error });
   }
 
   log.info('signed out', { userId, sessions: present.length });
 
-  // ─ 3 · ours ───────────────────────────────────────────────────────────────
   const response = wantsJson
     ? jsonOk({ signedOut: true }, { requestId })
     : NextResponse.redirect(new URL('/sign-in', authRequestOrigin(request)), 303);

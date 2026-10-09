@@ -69,6 +69,12 @@ export default async function InvitePage({
   const supabase = await createSupabaseServerClient();
   const identity = await supabase.auth.getUser();
   const signedIn = !identity.error && Boolean(identity.data.user?.email_confirmed_at);
+  const wrongAccount =
+    signedIn && identity.data.user?.email?.toLowerCase() !== invitation.invitedEmail.toLowerCase();
+  const needsConfirmation = Boolean(identity.data.user && !identity.data.user.email_confirmed_at);
+  const identityUnavailable = Boolean(
+    identity.error && identity.error.name !== 'AuthSessionMissingError',
+  );
 
   return (
     <AuthShell
@@ -98,11 +104,14 @@ export default async function InvitePage({
       <form className="grid gap-4" method="post" action={`/api/v1/invitations/accept/${token}`}>
         {error ? (
           <p role="alert" className="text-sm text-[var(--danger-fg)]">
-            The invitation could not be accepted. Sign in with the invited email address, or ask the
-            administrator for a new invitation.
+            {needsConfirmation || error === 'auth.email_unverified'
+              ? 'Confirm your email using the latest email link, then sign in and reopen this invitation. Your invitation has not been used.'
+              : identityUnavailable
+                ? 'Your sign-in could not be checked. Refresh this page before trying again.'
+                : 'The invitation could not be accepted. Sign in with the invited email address, or ask the administrator for a new invitation.'}
           </p>
         ) : null}
-        {!signedIn ? (
+        {!signedIn && !needsConfirmation && !identityUnavailable ? (
           <>
             <Field
               label="Your full name"
@@ -120,14 +129,30 @@ export default async function InvitePage({
               Already have an account? Sign in
             </Link>
           </>
-        ) : (
+        ) : identity.data.user?.email ? (
           <p className="text-sm text-[var(--text-secondary)]">
             You are signed in as {identity.data.user?.email}.
           </p>
-        )}
+        ) : null}
+        {wrongAccount || needsConfirmation || identityUnavailable ? (
+          <p role="alert" className="text-sm text-[var(--text-secondary)]">
+            {wrongAccount
+              ? `This invitation is for ${invitation.invitedEmail}. Sign in with that address to continue.`
+              : needsConfirmation
+                ? 'Confirm your email before joining this workspace.'
+                : 'Identity verification is temporarily unavailable.'}{' '}
+            <Link
+              className="text-[var(--text-action)] underline underline-offset-4"
+              href={`/sign-in?next=${encodeURIComponent(`/invite/${token}`)}`}
+            >
+              Return to sign in
+            </Link>
+          </p>
+        ) : null}
 
         <Button
           type="submit"
+          disabled={wrongAccount || needsConfirmation || identityUnavailable}
           variant="accent"
           size="lg"
           className="mt-2 w-full cursor-pointer font-medium shadow-sm hover:shadow-md"

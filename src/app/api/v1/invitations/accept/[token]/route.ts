@@ -86,11 +86,28 @@ export async function POST(
     const { token } = await segment.params;
 
     const supabase = await createSupabaseServerClient();
-    const { data } = await supabase.auth.getUser();
+    const { data, error: identityError } = await supabase.auth.getUser();
+    if (identityError && identityError.name !== 'AuthSessionMissingError') {
+      throw new AppError(ERROR_CODES.UPSTREAM_UNAVAILABLE);
+    }
+    if (data.user && (!data.user.email_confirmed_at || !data.user.email)) {
+      throw new AppError(ERROR_CODES.AUTH_EMAIL_UNVERIFIED);
+    }
 
     let userId = data.user?.id ?? null;
     let fullName = (data.user?.user_metadata?.full_name as string | undefined) ?? '';
     let email = data.user?.email ?? '';
+
+    if (userId) {
+      const invitation = await readInvitationByToken(token, requestId);
+      if (!invitation) throw new AppError(ERROR_CODES.NOT_FOUND);
+      refuseIfNotPending(invitation.state);
+      if (invitation.invitedEmail.toLowerCase() !== email.toLowerCase()) {
+        throw new AppError(ERROR_CODES.ROLE_NOT_PERMITTED, {
+          message: 'Sign in with the email address this invitation was sent to.',
+        });
+      }
+    }
 
     if (!userId) {
       // ─ The create branch. Read the invitation FIRST: the address to
@@ -123,9 +140,13 @@ export async function POST(
       if (created.error || !created.data.user) {
         throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
           message:
-            created.error?.message ??
             'That account could not be created. If you already have one, sign in first and open this link again.',
         });
+      }
+
+      // Email-confirmation deployments must not consume the invitation before identity verification.
+      if (!created.data.session || !created.data.user.email_confirmed_at) {
+        throw new AppError(ERROR_CODES.AUTH_EMAIL_UNVERIFIED);
       }
 
       userId = created.data.user.id;

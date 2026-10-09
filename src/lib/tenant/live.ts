@@ -622,8 +622,10 @@ export async function getLiveAccount(): Promise<AccountModel | null> {
  * knows they are signed in on this device, so its absence from the list
  * reads as a bug rather than as tact.
  */
-export async function getLiveAccountSessions(): Promise<AccountSessionsModel | null> {
-  const ctx = await currentSessionOrNull();
+export async function getLiveAccountSessions(
+  context?: ResolvedContext,
+): Promise<AccountSessionsModel | null> {
+  const ctx = context ?? (await currentSessionOrNull());
   if (!ctx) return null;
 
   const rows = await listActiveSessions(ctx.actorId, ctx.requestId);
