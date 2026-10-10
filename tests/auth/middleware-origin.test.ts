@@ -7,6 +7,23 @@ vi.mock('@/lib/auth/supabase/middleware', () => ({ refreshSupabaseSession: refre
 beforeEach(() => vi.clearAllMocks());
 
 describe('Protected navigation origins', () => {
+  it.each(['/sign-in', '/sign-up', '/sign-up/finish'])(
+    'scopes OAuth form destinations on %s',
+    async (path) => {
+      const response = await middleware(new NextRequest(`http://127.0.0.1:3100${path}`));
+      const directive = response.headers
+        .get('content-security-policy')!
+        .split('; ')
+        .find((entry) => entry.startsWith('form-action'));
+      const provider = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (path === '/sign-up/finish' || !provider) expect(directive).toBe("form-action 'self'");
+      else
+        expect(directive).toBe(
+          `form-action 'self' ${new URL(provider).origin} https://accounts.google.com`,
+        );
+      expect(directive).not.toContain('*');
+    },
+  );
   it('overwrites a forged return header with the actual protected path and query', async () => {
     const response = await middleware(
       new NextRequest('http://127.0.0.1:3100/app/settings/team?filter=active', {

@@ -1,6 +1,7 @@
 import { authRequestOrigin } from '@/lib/auth/requestOrigin';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
+import { isPlatformAdmin } from '@/lib/auth/resolve';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
@@ -16,6 +17,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const log = logger.child({ requestId, route: '/api/v1/auth/sign-up/finish' });
 
   try {
+    if (request.headers.get('origin') !== authRequestOrigin(request))
+      throw new AppError(ERROR_CODES.AUTH_INVALID_CREDENTIALS);
     await enforceRateLimit(request, RATE_LIMITS.signUp);
 
     const supabase = await createSupabaseServerClient();
@@ -27,6 +30,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (authError || !user) {
       throw new AppError(ERROR_CODES.AUTH_SESSION_EXPIRED);
     }
+    if (!user.email || !user.email_confirmed_at) {
+      throw new AppError(ERROR_CODES.AUTH_EMAIL_UNVERIFIED);
+    }
+    if (await isPlatformAdmin(user.id, requestId))
+      throw new AppError(ERROR_CODES.ROLE_NOT_PERMITTED);
 
     const parsed = finishOAuthSignUpSchema.safeParse(await readRequestBody(request));
 
@@ -40,7 +48,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    const email = user.email!;
+    const email = user.email;
     const fullName = String(user.user_metadata?.full_name ?? user.user_metadata?.name ?? email);
 
     const result = await finishOAuthSignUp(parsed.data, {
@@ -52,6 +60,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     if (!result.ok) {
+      if (result.code === 'membership_unavailable')
+        throw new AppError(ERROR_CODES.AUTH_NO_MEMBERSHIP);
       if (result.code === 'validation_failed') {
         throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
           message: result.message,
@@ -70,6 +80,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       userId: user.id,
       kind: 'tenant',
       tenantId: result.tenantId,
+      effectiveRole: result.role,
       requestId,
     });
 
@@ -98,7 +109,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
 
     if (!asJson) {
-      response.cookies.set(FLASH_COOKIE, 'workspace_created', FLASH_COOKIE_OPTIONS);
+      response.cookies.set(
+        FLASH_COOKIE,
+        result.created ? 'workspace_created' : 'signed_in',
+        FLASH_COOKIE_OPTIONS,
+      );
     }
 
     return response;
@@ -107,7 +122,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const code = error instanceof AppError ? error.code : ERROR_CODES.INTERNAL;
     log.warn('finish oauth sign-up failed', { code });
-    const url = new URL('/sign-up/finish', authRequestOrigin(request));
+    const url = new URL(
+      code === ERROR_CODES.AUTH_SESSION_EXPIRED ||
+        code === ERROR_CODES.AUTH_EMAIL_UNVERIFIED ||
+        code === ERROR_CODES.AUTH_NO_MEMBERSHIP ||
+        code === ERROR_CODES.ROLE_NOT_PERMITTED
+        ? '/sign-in'
+        : '/sign-up/finish',
+      authRequestOrigin(request),
+    );
     url.searchParams.set('error', code);
     return NextResponse.redirect(url, 303);
   }

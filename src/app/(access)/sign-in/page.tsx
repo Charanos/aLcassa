@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { IconAlertCircle, IconInfoCircle } from '@tabler/icons-react';
-import { GoogleLogo } from '@/components/access/GoogleLogo';
+import { GoogleAccess } from '@/components/access/GoogleAccess';
 import { DemoDoors } from '@/components/access/DemoDoors';
 import { demoAccessEnabled } from '@/lib/auth/demoAccess';
 import { ERROR_CODES, ERROR_MESSAGES, hueTokens, type ErrorCode } from '@/lib/errors';
 import { AuthShell } from '@/components/access/AuthShell';
-import { IconTile } from '@/components/primitives/IconTile';
-import { SubmitButton, CustomSubmitButton } from '@/components/primitives/SubmitButton';
+import { SubmitButton } from '@/components/primitives/SubmitButton';
 import { Field, PasswordField } from '@/components/primitives/Field';
 
 export const metadata: Metadata = {
@@ -59,25 +58,7 @@ export default async function SignInPage({
         </div>
       }
     >
-      <form method="post" action="/api/v1/auth/google" className="mb-6">
-        {next ? <input type="hidden" name="next" value={next} /> : null}
-        <CustomSubmitButton className="group relative flex w-full items-center justify-center gap-3 rounded-overlay px-4 py-3.5 text-base font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-sunken)] hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] active:scale-[0.985]">
-          <IconTile
-            icon={GoogleLogo}
-            size="sm"
-            className="transition-transform group-hover:scale-105"
-          />
-          Continue with Google
-        </CustomSubmitButton>
-      </form>
-
-      <div className="relative mb-6 flex items-center">
-        <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
-        <span className="shrink-0 px-4 text-2xs font-semibold tracking-widest text-[var(--text-tertiary)] uppercase">
-          or sign in with email
-        </span>
-        <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
-      </div>
+      <GoogleAccess next={next} purpose="sign-in" />
 
       <form className="grid gap-4" method="post" action="/api/v1/auth/sign-in">
         {next ? <input type="hidden" name="next" value={next} /> : null}

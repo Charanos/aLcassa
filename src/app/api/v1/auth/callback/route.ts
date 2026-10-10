@@ -7,15 +7,16 @@ import { AppError, ERROR_CODES } from '@/lib/errors';
 import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
 import { logger } from '@/lib/logger';
 import { safeReturnPath } from '@/lib/auth/returnPath';
+import { readInvitationByToken } from '@/modules/membership';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
   const log = logger.child({ requestId, route: '/api/v1/auth/callback' });
+  const next = safeReturnPath(request.nextUrl.searchParams.get('next'), '/app');
 
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
-    const next = safeReturnPath(url.searchParams.get('next'), '/app');
 
     if (!code) {
       log.warn('No code provided in OAuth callback');
@@ -38,7 +39,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (platform) {
       const session = await createSession({ userId, kind: 'platform', requestId });
-      const response = NextResponse.redirect(new URL('/platform', authRequestOrigin(request)), 303);
+      const nextPath = new URL(next, authRequestOrigin(request)).pathname;
+      const destination =
+        nextPath === '/platform' || nextPath.startsWith('/platform/') ? next : '/platform';
+      const response = NextResponse.redirect(new URL(destination, authRequestOrigin(request)), 303);
       response.cookies.set(
         cookieNameFor('platform'),
         session.id,
@@ -51,6 +55,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // 2. Do they have active memberships?
     const memberships = await membershipsFor(userId, requestId);
     const active = memberships.filter((m) => m.status === 'active');
+
+    // Review a matching colleague invitation without creating a separate workspace.
+    if (active.length === 0) {
+      const invitationPath = /^\/invite\/([^/?#]+)$/.exec(next);
+      if (invitationPath) {
+        const invitation = await readInvitationByToken(invitationPath[1]!, requestId);
+        if (
+          invitation?.state !== 'pending' ||
+          invitation.invitedEmail.toLowerCase() !== data.user.email?.toLowerCase()
+        )
+          throw new AppError(ERROR_CODES.AUTH_NO_MEMBERSHIP);
+        return NextResponse.redirect(new URL(next, authRequestOrigin(request)), 303);
+      }
+    }
 
     // Invited owners finish their existing account instead of creating another workspace.
     if (
@@ -77,6 +95,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // 3. New user from Google Auth without a workspace yet.
     if (active.length === 0) {
+      if (memberships.length) throw new AppError(ERROR_CODES.AUTH_NO_MEMBERSHIP);
       log.info('OAuth user has no memberships, redirecting to finish sign-up', { userId });
       // We don't issue a custom aLcassa session yet because they don't have a workspace.
       // But they *are* authenticated with Supabase. The finish-signup route will create
@@ -110,6 +129,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     log.warn('OAuth callback failed', { code });
     const url = new URL('/sign-in', authRequestOrigin(request));
     url.searchParams.set('error', code);
+    url.searchParams.set('next', next);
     return NextResponse.redirect(url, 303);
   }
 }

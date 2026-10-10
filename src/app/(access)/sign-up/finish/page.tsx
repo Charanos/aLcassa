@@ -5,6 +5,9 @@ import { AuthShell } from '@/components/access/AuthShell';
 import { SubmitButton } from '@/components/primitives/SubmitButton';
 import { WorkspaceJourney } from '@/components/access/WorkspaceJourney';
 import { WorkspaceSlugPreview } from '@/components/access/WorkspaceSlugPreview';
+import { redirect } from 'next/navigation';
+import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
+import { isPlatformAdmin, membershipsFor } from '@/lib/auth/resolve';
 
 export const metadata: Metadata = {
   title: 'Finish creating your workspace',
@@ -17,6 +20,17 @@ export default async function FinishOAuthSignUpPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) redirect(`/sign-in?error=${ERROR_CODES.AUTH_SESSION_EXPIRED}`);
+  if (!user.email || !user.email_confirmed_at)
+    redirect(`/sign-in?error=${ERROR_CODES.AUTH_EMAIL_UNVERIFIED}`);
+  const requestId = crypto.randomUUID();
+  if (await isPlatformAdmin(user.id, requestId)) redirect('/sign-in?next=%2Fplatform');
+  if ((await membershipsFor(user.id, requestId)).length) redirect('/sign-in?next=%2Fapp');
 
   const knownCode = error && error in ERROR_MESSAGES ? (error as ErrorCode) : null;
   const errorMessage = error
@@ -28,7 +42,8 @@ export default async function FinishOAuthSignUpPage({
 
   return (
     <AuthShell
-      lede="You are authenticated with Google. Just name your workspace to finish setup."
+      title="Create your workspace"
+      lede="Your email is verified. Name your workspace to complete setup."
       cardMaxWidth="max-w-[540px]"
       aside={<WorkspaceJourney current="create" />}
     >
@@ -49,12 +64,10 @@ export default async function FinishOAuthSignUpPage({
           </div>
         ) : null}
 
-        {/* Row 1: Workspace slug */}
         <div className="mb-5">
           <WorkspaceSlugPreview />
         </div>
 
-        {/* Trust signals */}
         <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-1.5">
           {['Starts on a free trial', 'No card required', 'You are the workspace owner'].map(
             (line) => (
@@ -75,7 +88,6 @@ export default async function FinishOAuthSignUpPage({
           )}
         </div>
 
-        {/* CTA */}
         <SubmitButton
           variant="accent"
           size="lg"

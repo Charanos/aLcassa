@@ -1358,3 +1358,62 @@ but failed during password-change browser acceptance. It is not a qualified
 service release; the earlier qualified receipts remain historical. More precise
 workflow substeps now identify provider password, device, audit and session failures
 without publishing private credentials or invitation links.
+
+
+## 43. Google onboarding and supporting tracker pages — 10 October 2026
+
+Application reference `6f086a8` passed all six CI jobs and its Vercel deployment.
+Service `8163e03`, pinned to that application reference, passed both CI jobs,
+including actual account/colleague acceptance, outage/recovery notifications,
+surface checks and tracker/document navigation. This successful replay supersedes
+the failed service qualification in §42; it does not establish the cause of that
+earlier failure. [Application CI](https://github.com/Charanos/aLcassa/actions/runs/38013994579)
+and [service CI](https://github.com/Charanos/alcassa-service/actions/runs/38014104785)
+retain the exact reference runs. Subsequent changes require their own CI checks.
+
+Google is a required delivery capability. The shared sign-in/sign-up control reads
+actual public provider availability and retains email access during provider
+failure or disabled configuration. Initiation validates same-origin submission
+and preserves only safe internal destinations. The callback requires a confirmed
+identity, resumes existing roles and returns a matching pending colleague to their
+invitation without creating a workspace. Missing, expired, already accepted and
+wrong-account invitations do not issue an application session.
+
+Workspace completion revalidates the identity and confirmed email. Its naming page
+refuses anonymous access. Setup serializes requests by authenticated identity,
+checks only that account's memberships under Row Level Security, and creates the
+trial workspace, owner and initial seat in an audited transaction. Concurrent
+completion reuses the workspace rather than promoting roles or duplicating data.
+The focused real-database replay confirms one workspace, one seat and one creation
+audit across three simultaneous submissions. Suspended membership cannot become a
+second workspace. The full cache-disabled suite passed **694 cases in 61 files**;
+the final four setup/database cases were rerun after tightening the actor-scoped
+lookup and creation audit behavior.
+
+The access-page form policy permits the configured identity-service origin and
+Google's account origin, while other pages retain self-only form submission. The
+Chrome probe verifies an allowed local provider redirect and refuses an unlisted
+redirect. It does not contact Google or represent a Google consent exchange.
+
+Supporting tracker pages now share the main tracker’s reading width, project
+navigation and compact typography. Verification leads with milestone acceptance;
+technical checkpoints and historical releases use native keyboard disclosures.
+Client documents have a collapsible index and compact adjacent-document links.
+The dependency review separates its summary from the maintained technical source.
+Read-only browser checks cover all 27 supporting pages at 1440, 390 and 320px
+(**81 layouts**), keyboard disclosure behavior, anonymous setup refusal and disabled
+provider fallback. Document checks retain all 28 project routes and the private
+source's 404 boundary. Layout work does not increase milestone percentages.
+
+[Download the redacted Google onboarding and tracker results](/verification/2026-10-10/google-onboarding-tracker-results.json).
+Raw logs, identities, passwords, tokens and provider secrets remain private.
+
+**Still required:** actual configured Google Cloud consent, new workspace creation,
+returning-Gmail access and verified email-account continuity. Contract tests and
+local provider checks do not close that acceptance gate. `.env.example` now lists
+private Google client ID/secret provisioning inputs. Setup, the two distinct
+callbacks and acceptance steps are maintained in `verification/google-auth/README.md`.
+Hosted Supabase requires provider configuration in its dashboard; setting only
+Next.js variables does not enable it. Confirmation-required signup, complete
+CRUD/failure/accessibility coverage, the load latency target, independent identity
+and stored-object restoration, clean setup/rollback and final handover remain open.

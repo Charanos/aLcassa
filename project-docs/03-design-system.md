@@ -1115,3 +1115,19 @@ has no invented countdown or overdue state. Payments show actual confirmed
 receipts, the remaining balance and each tranche's acceptance condition. An
 accepted milestone does not imply payment. The project lead confirmed only the
 deposit as paid; its payment date is not recorded.
+
+
+### Tracker supporting pages
+
+Verification, dependency review and the client document set share the tracker’s
+1080px reading surface, semantic tokens and compact project navigation. The
+verification page leads with acceptance by milestone. Native disclosures keep
+lengthy technical checkpoints and historical release records available without
+forcing clients through them. Published checkpoint IDs and evidence downloads
+remain stable; Enter and Space operate disclosure summaries, with visible focus.
+
+Documents use the available reading width with a collapsible index, contained
+keyboard-scrollable tables and compact previous/next links. The dependency review
+has one page title and a brief explanation of its scope, maintained patch and
+acceptance boundary before the detailed source. None of these layouts imply that
+an implementation estimate or dependency audit is final project acceptance.

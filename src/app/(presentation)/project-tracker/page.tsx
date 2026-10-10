@@ -45,7 +45,7 @@ const WORKING_TODAY = [
     icon: IconUsers,
     tone: 'info' as const,
     title: 'Accounts and teams',
-    body: 'Owner setup, password recovery, password changes and device revocation have actual provider and browser evidence. New and existing colleagues join through verified invitation journeys. Confirmation-required signup, OAuth availability and launch email qualification remain open.',
+    body: 'Owner setup, password recovery, password changes and device revocation have actual provider and browser evidence. New and existing colleagues join through verified invitation journeys. Confirmation-required signup, configured Google sign-in acceptance and launch email qualification remain open.',
   },
   {
     icon: IconCreditCard,

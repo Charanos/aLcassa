@@ -65,4 +65,58 @@ describe('initial owner seat accounting', () => {
       }
     },
   );
+  it('serializes concurrent OAuth completion and reuses one workspace and owner seat', async () => {
+    assertDisposableDatabase();
+    const userId = randomUUID();
+    identities.push(userId);
+    const ids = [randomUUID(), randomUUID(), randomUUID()];
+    requests.push(...ids);
+    const results = await Promise.all(
+      ids.map((requestId) =>
+        finishOAuthSignUp(
+          { companyName: `OAuth retry ${userId}` },
+          {
+            userId,
+            email: `retry-${userId}@example.invalid`,
+            fullName: 'OAuth verifier',
+            requestId,
+          },
+        ),
+      ),
+    );
+    const successful = results.filter((result) => result.ok);
+    // Register every possible created fixture before asserting so failures still clean up.
+    tenants.push(...new Set(successful.map((result) => result.tenantId)));
+    expect(successful).toHaveLength(3);
+    expect(new Set(successful.map((result) => result.tenantId)).size).toBe(1);
+    expect(successful.filter((result) => result.created)).toHaveLength(1);
+    expect(
+      await adminQuery`select count(*)::int as count from platform_audit_log where request_id=any(${ids}::text[]) and action='tenant.self_registered'`,
+    ).toEqual([{ count: 1 }]);
+
+    expect(
+      await adminQuery`select role,status from tenant_members where user_id=${userId}`,
+    ).toEqual([{ role: 'owner', status: 'active' }]);
+    expect(
+      await adminQuery`select current_value,peak_value from usage_counters where tenant_id=${successful[0]!.tenantId} and key='seats'`,
+    ).toEqual([{ current_value: 1, peak_value: 1 }]);
+  });
+  it('does not let suspended membership turn into another workspace or elevated role', async () => {
+    const userId = identities[1]!;
+    const tenantId = tenants[1]!;
+    await adminQuery`update tenant_members set status='suspended' where user_id=${userId} and tenant_id=${tenantId}`;
+    const requestId = randomUUID();
+    requests.push(requestId);
+    const result = await finishOAuthSignUp(
+      { companyName: 'Unwanted duplicate' },
+      { userId, email: `signup-${userId}@example.invalid`, fullName: 'Seat verifier', requestId },
+    );
+    expect(result).toMatchObject({ ok: false, code: 'membership_unavailable' });
+    expect(
+      await adminQuery`select count(*)::int as count from tenant_members where user_id=${userId}`,
+    ).toEqual([{ count: 1 }]);
+    expect(
+      await adminQuery`select role,status from tenant_members where user_id=${userId}`,
+    ).toEqual([{ role: 'owner', status: 'suspended' }]);
+  });
 });

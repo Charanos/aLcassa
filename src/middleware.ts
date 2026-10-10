@@ -14,7 +14,7 @@ const SUPABASE_ORIGIN = (() => {
   }
 })();
 
-const CSP_DIRECTIVES = (nonce: string) =>
+const CSP_DIRECTIVES = (nonce: string, googleForm: boolean) =>
   [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''}`,
@@ -26,7 +26,8 @@ const CSP_DIRECTIVES = (nonce: string) =>
     "font-src 'self' data:",
     `connect-src 'self'${isDev ? ' ws: wss:' : ''}`,
     "frame-ancestors 'none'",
-    "form-action 'self'",
+    // Chrome also checks the OAuth form's redirect chain against this directive.
+    `form-action 'self'${googleForm && SUPABASE_ORIGIN ? ` ${SUPABASE_ORIGIN} https://accounts.google.com` : ''}`,
     "base-uri 'self'",
     "object-src 'none'",
     ...(isDev ? [] : ['upgrade-insecure-requests']),
@@ -42,7 +43,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const nonce = crypto.randomUUID().replace(/-/g, '');
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
 
-  const csp = CSP_DIRECTIVES(nonce);
+  const csp = CSP_DIRECTIVES(nonce, pathname === '/sign-in' || pathname === '/sign-up');
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-nonce', nonce);

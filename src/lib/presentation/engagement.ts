@@ -115,8 +115,8 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
   date: '10 October 2026',
-  applicationTests: 645,
-  applicationFiles: 58,
+  applicationTests: 694,
+  applicationFiles: 61,
   serviceTests: 34,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -156,7 +156,7 @@ export const MILESTONES = [
     tranche: null,
     status: 'active' as MilestoneStatus,
     progress: 97,
-    note: 'Owner activation, password recovery, session revocation, ownership and protected navigation have actual provider and browser evidence. The complete password-change journey now refuses an incorrect current password, verifies the new provider password, preserves this device and denies the other device. New and existing colleagues join through actual browser forms; wrong-account acceptance, reused links, renewal and withdrawal are verified with membership and seat readback. All owned fixtures are removed. Confirmation-required colleague signup, configured OAuth or truthful unavailable-provider behavior, and external email delivery qualification remain open.',
+    note: 'Owner activation, password recovery, session revocation, ownership and protected navigation have actual provider and browser evidence. Google onboarding now validates verified identity, preserves existing roles and prevents duplicate workspace creation under concurrent completion; actual configured Google consent and returning-account acceptance remain open. The complete password-change journey now refuses an incorrect current password, verifies the new provider password, preserves this device and denies the other device. New and existing colleagues join through actual browser forms; wrong-account acceptance, reused links, renewal and withdrawal are verified with membership and seat readback. All owned fixtures are removed. Confirmation-required colleague signup, required Google signup and returning sign-in acceptance, and external email delivery qualification remain open.',
   },
   {
     id: 'M3',
@@ -215,7 +215,7 @@ export const MILESTONES = [
     tranche: 4,
     status: 'active' as MilestoneStatus,
     progress: 64,
-    note: 'All 645 application cases pass. Separate-target recovery reconciles 61 tables, 52 policies and 17 context functions. Monitoring delivers four correlated outage/recovery notifications with durable retry. Isolated Chrome covers 32 surfaces at three widths, seven complete account/invitation workflows and focused Activity keyboard/layout checks. The dependency gate passes with no unresolved findings. The 50-session load baseline preserves integrity but fails latency acceptance. Independent Auth/object recovery, two database advisor warnings, complete accessibility, timed clean setup and final handover remain open.',
+    note: 'All 694 application cases pass. Separate-target recovery reconciles 61 tables, 52 policies and 17 context functions. Monitoring delivers four correlated outage/recovery notifications with durable retry. Isolated Chrome covers 32 surfaces at three widths, seven complete account/invitation workflows and focused Activity keyboard/layout checks. The dependency gate passes with no unresolved findings. The 50-session load baseline preserves integrity but fails latency acceptance. Independent Auth/object recovery, two database advisor warnings, complete accessibility, timed clean setup and final handover remain open.',
   },
 ] as const;
 
@@ -228,6 +228,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     previous: 94,
     evidence: [
       'Actual Auth and application records agree for the recovery recipient',
+      'Verified Google callback routing, role preservation and invitation continuation have application contract tests; concurrent setup creates one workspace, one owner seat and one creation audit',
       'Unknown and profile-only addresses receive no reset link or new identity',
       'Native ownership refusal, transfer, fresh permissions and existing sign-in',
       'Production-build sign-in, wrong-password retry and sign-out resume the intended page and query',
@@ -239,7 +240,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
     remaining: [
       'Confirmation-required colleague signup and remaining provider failure states',
-      'Configured OAuth acceptance or truthful unavailable-provider behavior',
+      'Configured Google signup and returning sign-in, including invitation continuation',
       'External sending-domain and redirect qualification before launch',
     ],
   },
