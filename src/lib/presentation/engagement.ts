@@ -785,33 +785,57 @@ export const CLIENT_INPUTS = [
   },
 ] as const;
 
-/** Section 09. Agreed directly between Ian and Brian.
- *  NOT rendered on the client presentation surface: see the note in
- *  src/app/(presentation)/page.tsx about what belongs on a shared link. */
+/** Agreed project terms for the delivery tracker; independent of tenant billing. */
 export const COMMERCIAL = {
+  currency: 'KES',
+  totalFeeAmount: 65000,
   totalFee: 'KES 65,000',
   tranches: [
-    { n: 1, trigger: 'On signature, before kick-off', share: '30%', amount: 'KES 19,500' },
+    {
+      n: 1,
+      trigger: 'On signature, before kick-off',
+      share: '30%',
+      amount: 'KES 19,500',
+      amountValue: 19500,
+    },
     {
       n: 2,
       trigger: 'M1 gate: isolation suite green, tenant A provably unable to read tenant B',
       share: '25%',
       amount: 'KES 16,250',
+      amountValue: 16250,
     },
     {
       n: 3,
       trigger: 'M4 gate: platform console, organization switcher, support sessions',
       share: '25%',
       amount: 'KES 16,250',
+      amountValue: 16250,
     },
     {
       n: 4,
       trigger: 'M6 sign-off: full definition of done met',
       share: '20%',
       amount: 'KES 13,000',
+      amountValue: 13000,
     },
   ],
 } as const;
+
+/** Manual project receipt confirmed by the project lead; payment date was not supplied. */
+export const PROJECT_PAYMENTS: readonly {
+  tranche: number;
+  amount: number;
+  paidOn: string | null;
+}[] = [{ tranche: 1, amount: 19500, paidOn: null }];
+
+/** Calendar dates require confirmation; the brief date is not a kickoff date. */
+export const PROJECT_TIMING: {
+  kickoffDate: string | null;
+  targetDate: string | null;
+  plannedWeeks: number;
+  supportDays: number;
+} = { kickoffDate: '2026-08-07', targetDate: null, plannedWeeks: 9, supportDays: 30 };
 
 /** Section 02, explicit exclusions. Deliberate rather than oversights. */
 export const OUT_OF_SCOPE = [

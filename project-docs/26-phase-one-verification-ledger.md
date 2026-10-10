@@ -1331,3 +1331,30 @@ Tenant Settings 89→94%, Handover 60→64%; Console remains 88%. Configured OAu
 truthful unavailable-provider behavior, remaining action/failure/accessibility
 states, latency, independent recovery and final handover remain open. A complete
 download index links twelve historical/current checkpoints and retained failures.
+
+## 42. Delivery tracker records — 10 October 2026
+
+The tracker now compares all eight milestones in a compact native table with
+engineering estimates, separate acceptance states, planned week ranges and
+completion gates. Evidence links retain the corresponding verification sections;
+full reviews remain available through a keyboard-operable disclosure. The 100%
+engineering estimate for Subscriptions continues to show its pending demonstration.
+
+The project lead confirmed kickoff as **7 August 2026** and **only the deposit
+paid**. The commercial schedule records KES 19,500 received against KES 65,000,
+leaving KES 45,500. The M1 tranche remains awaiting payment despite its accepted
+gate. No payment date was supplied. Calendar elapsed time updates in Nairobi time;
+the nine-working-week estimate and 30-day post-handover support window remain
+distinct from an unconfirmed handover deadline. No overdue state is inferred.
+
+Read-only rendered verification is maintained in `scripts/check-tracker-delivery.ts`;
+it checks all eight rows, deposit-only receipts, the unpaid accepted gate, calendar
+counts, disclosure keyboard behavior and viewport fit at 1440, 390 and 320px.
+This tracker refinement does not itself advance delivery milestone percentages.
+
+The prior application release `19cc88a` passed all six CI jobs and deployment.
+The service release `3f259fd` passed its real outage/recovery notification rehearsal
+but failed during password-change browser acceptance. It is not a qualified
+service release; the earlier qualified receipts remain historical. More precise
+workflow substeps now identify provider password, device, audit and session failures
+without publishing private credentials or invitation links.

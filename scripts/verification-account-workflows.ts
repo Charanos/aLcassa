@@ -105,29 +105,50 @@ async function main() {
     await dialog.getByLabel('Current password', { exact: true }).fill(operator.password);
     await dialog.getByRole('button', { name: 'Change password', exact: true }).click();
     await page.getByText('Password changed', { exact: true }).waitFor();
-    assert(
-      (await auth().auth.signInWithPassword({ email: operator.email, password: operator.password }))
-        .error,
+    step = 'password update: old provider password refusal';
+    const oldAttempt = await auth().auth.signInWithPassword({
+      email: operator.email,
+      password: operator.password,
+    });
+    const providerCode = (value: string | undefined) =>
+      value && /^[a-z_]{1,64}$/.test(value) ? value : 'none';
+    step = `password update: old provider password refusal (provider code: ${providerCode(oldAttempt.error?.code)})`;
+    assert.equal(
+      oldAttempt.error?.code,
+      'invalid_credentials',
+      'The old provider password must be refused for invalid credentials, not an outage or rate limit.',
     );
+    step = 'password update: new provider password acceptance';
     const changed = auth();
+    const newAttempt = await changed.auth.signInWithPassword({
+      email: operator.email,
+      password: newPassword,
+    });
+    step = `password update: new provider password acceptance (provider code: ${providerCode(newAttempt.error?.code)})`;
     assert(
-      !(await changed.auth.signInWithPassword({ email: operator.email, password: newPassword }))
-        .error,
+      !newAttempt.error,
+      'The new provider password must be accepted after a successful password update.',
     );
     await changed.auth.signOut({ scope: 'local' });
+    step = 'password update: current device remains authenticated';
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.getByRole('heading', { level: 1 }).waitFor();
-    assert(!new URL(page.url()).pathname.startsWith('/sign-in'));
+    assert(
+      !new URL(page.url()).pathname.startsWith('/sign-in'),
+      'Current device must remain authenticated.',
+    );
+    step = 'password update: other device denied';
     await other.reload({ waitUntil: 'domcontentloaded' });
     await other.waitForURL('**/sign-in?**');
+    step = 'password update: durable audit and active session readback';
     const [passwordAudit] = await owned.admin<
       { n: number }[]
     >`select count(*)::int as n from platform_audit_log where actor_user_id=${operator.userId} and action='password.changed'`;
-    assert.equal(passwordAudit?.n, 1);
+    assert.equal(passwordAudit?.n, 1, 'Exactly one password-change audit must be recorded.');
     const [sessions] = await owned.admin<
       { n: number }[]
     >`select count(*)::int as n from sessions where user_id=${operator.userId} and revoked_at is null`;
-    assert.equal(sessions?.n, 1);
+    assert.equal(sessions?.n, 1, 'Exactly one application session must remain active.');
     checks.push(
       'Password changed; old password refused, new password verified, one audit, current device preserved and other device denied',
     );

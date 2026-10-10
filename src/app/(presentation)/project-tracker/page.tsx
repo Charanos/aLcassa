@@ -11,6 +11,9 @@ import {
 } from '@tabler/icons-react';
 import { IconTile } from '@/components/primitives/IconTile';
 import { MilestoneBoard } from '@/components/presentation/MilestoneBoard';
+import { MilestoneTable } from '@/components/presentation/MilestoneTable';
+import { ProjectPayments } from '@/components/presentation/ProjectPayments';
+import { ProjectSchedule } from '@/components/presentation/ProjectSchedule';
 import { PROJECT_DOCS } from '@/lib/presentation/documents';
 import {
   COMMERCIAL,
@@ -26,6 +29,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+export const dynamic = 'force-dynamic';
+
 /** Present milestone progress and blockers in client language, with supporting technical detail linked separately. */
 
 /** What somebody can open and use today. Written as capabilities, not modules. */
@@ -40,31 +45,31 @@ const WORKING_TODAY = [
     icon: IconUsers,
     tone: 'info' as const,
     title: 'Accounts and teams',
-    body: 'Owner setup and password recovery pass with the local identity provider. Email confirmation, expiry and earlier-session revocation have coverage. Browser account acceptance and colleague invitations remain open; production email needs verified delivery and redirect configuration.',
+    body: 'Owner setup, password recovery, password changes and device revocation have actual provider and browser evidence. New and existing colleagues join through verified invitation journeys. Confirmation-required signup, OAuth availability and launch email qualification remain open.',
   },
   {
     icon: IconCreditCard,
     tone: 'info' as const,
     title: 'Plans and limits',
-    body: 'Plans and subscription changes use recorded data. Concurrent credential limits and overrides pass database checks. Shared rate budgets and hosted service acceptance remain open.',
+    body: 'Plans and subscription changes use recorded data. Concurrent limits, overrides and shared Redis budgets pass actual database and cross-runtime checks. All three Phase One resource counters reconcile with their source records. Demonstration and final acceptance remain separate.',
   },
   {
     icon: IconBuildingSkyscraper,
     tone: 'info' as const,
     title: 'The admin console',
-    body: 'Workspaces, subscription value, plans, Activity, support sessions and Profile use recorded data. Health canvas charts, the default workspace grid and navigation loading feedback are published. Service monitoring and final surface acceptance remain open.',
+    body: 'Workspaces, plans, Activity, support sessions and Profile use recorded data. Eighteen console surfaces have rendered-browser coverage at three widths. Health charts and local outage/recovery notifications work. Complete CRUD failure states and accessibility acceptance remain open.',
   },
   {
     icon: IconRobot,
     tone: 'warning' as const,
     title: 'Assistant rules',
-    body: `Workspace and platform instructions can be published and restored with conflict checks, safeguards and recorded history. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore operations reached FastAPI within five seconds locally. Hosted service and full API acceptance remain open.`,
+    body: `Workspace and platform instructions can be published and restored with conflict checks, safeguards and recorded history. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore operations reached FastAPI within five seconds locally. Complete API conformance and load qualification remain open in the agreed local hosting scope.`,
   },
   {
     icon: IconLock,
     tone: 'neutral' as const,
     title: 'Customer settings',
-    body: 'Company saves and customer Activity use recorded data. The disposable owner browser verified credential creation, one-time display, downloaded replacement, grace and revocation. Clipboard, phone/error journeys and usage persistence remain open.',
+    body: 'Company saves have browser, reload, database and audit readback. Activity verifies retention and workspace separation. Credential creation, one-time display, replacement and revocation have evidence; colleague joins reconcile to recorded seats. Remaining clipboard, error and accessibility journeys stay open.',
   },
 ];
 
@@ -104,8 +109,9 @@ export default function ProjectTrackerPage() {
           {PHASE_ONE_VERIFICATION.applicationTests} local tests; the service passed{' '}
           {PHASE_ONE_VERIFICATION.serviceTests} local tests, {PHASE_ONE_VERIFICATION.bridgeChecks}{' '}
           cross-runtime checks and {PHASE_ONE_VERIFICATION.propagationChecks} measured
-          publish/restore checks. Phase One remains in verification; email delivery, hosted service
-          and operational qualification have open gates.{' '}
+          publish/restore checks. Phase One remains in verification within the agreed local
+          service-hosting scope. Load, accessibility, recovery and final acceptance have open gates;
+          external email delivery needs qualification before launch.{' '}
           <Link
             href="/project-tracker/verification"
             className="text-[var(--text-action)] underline underline-offset-4"
@@ -134,7 +140,23 @@ export default function ProjectTrackerPage() {
         title="Where we are"
         standfirst="Every milestone ends in something you can watch working. Nothing here is marked complete on the strength of a document."
       >
-        <MilestoneBoard />
+        <MilestoneTable />
+        <details className="mt-5 rounded-overlay border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-4 py-4 sm:px-6">
+          <summary className="t-compact cursor-pointer font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--border-focus)]">
+            Detailed milestone reviews
+          </summary>
+          <div className="mt-5">
+            <MilestoneBoard />
+          </div>
+        </details>
+      </Section>
+
+      <Section
+        id="schedule"
+        title="Delivery schedule"
+        standfirst="The agreed timeline, confirmed dates and calendar time remaining. Milestone weeks follow the sequence in the table above."
+      >
+        <ProjectSchedule />
       </Section>
 
       <Section
@@ -173,65 +195,10 @@ export default function ProjectTrackerPage() {
 
       <Section
         id="commercial"
-        title="Payment schedule"
-        standfirst={`${COMMERCIAL.totalFee} total, released against milestones rather than against time spent.`}
+        title="Payments"
+        standfirst={`${COMMERCIAL.totalFee} agreed fee. The deposit is paid; the remaining three payments follow the agreed milestone gates.`}
       >
-        <div
-          className="overflow-hidden rounded-overlay"
-          style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-subtle)' }}
-        >
-          {COMMERCIAL.tranches.map((t, i) => {
-            const milestone = MILESTONES.find((m) => m.tranche === t.n);
-            const released = milestone?.status === 'complete';
-            return (
-              <div
-                key={t.n}
-                className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-4"
-                style={{
-                  borderTop: i === 0 ? undefined : '1px solid var(--border-subtle)',
-                }}
-              >
-                <span
-                  className="numeric shrink-0"
-                  style={{
-                    font: '500 var(--type-compact)/1 var(--font-mono)',
-                    color: 'var(--text-primary)',
-                  }}
-                >
-                  {t.amount}
-                </span>
-                <span
-                  className="shrink-0"
-                  style={{
-                    font: '400 var(--type-compact)/1 var(--font-mono)',
-                    color: 'var(--text-tertiary)',
-                  }}
-                >
-                  {t.share}
-                </span>
-                <span
-                  className="t-compact min-w-0 flex-1"
-                  style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}
-                >
-                  {t.trigger}
-                </span>
-                {/* Only the tranches tied to a completed milestone are marked —
-                    tranche 1 is on signature and has no milestone to read. */}
-                {released ? (
-                  <span
-                    className="shrink-0"
-                    style={{
-                      font: '500 var(--type-chip)/1 var(--font-mono)',
-                      color: 'var(--success-fg)',
-                    }}
-                  >
-                    EARNED
-                  </span>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
+        <ProjectPayments />
       </Section>
 
       <Section

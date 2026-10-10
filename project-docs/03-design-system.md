@@ -1091,3 +1091,27 @@ The user's further direction favors sleek elements throughout the console: no ne
 - Preserve the established typefaces and 400/500 weight ceiling. Use sentence case and ordinary user language. Technical references belong in expandable details or the audit context where they help an operator.
 - Unknown, unmeasured, unavailable, empty, and zero are distinct states. A signed-in page must not fill absent measurements with example incidents, invoices, customer records, or counts.
 - Acceptance requires desktop and phone evidence, readable text contrast, keyboard/focus review, loading/error/empty/pending states, and verification that the visual change preserves real actions. Implementation alone does not close a surface.
+
+### Tracker milestone table
+
+The tracker presents the eight Phase One milestones in a native table, using the
+maintained milestone records for names, scheduled weeks, estimates, acceptance and
+completion gates. Hairline separators, compact numeric progress and quiet sunken
+header/footer surfaces keep the comparison readable without eight large cards.
+Accepted milestones use the success token; active estimates use the action token.
+A 100% engineering estimate with an open gate reads “Demo pending”.
+
+On phones, acceptance and completion gates move beneath each milestone name;
+progress and evidence links remain visible without horizontal page scrolling.
+The table retains a caption, column and row headers, labelled progress bars and
+visible keyboard focus. Evidence links open the corresponding verification
+section; an explicit disclosure retains the full milestone reviews. All colors,
+type and radii use existing design tokens, and reduced motion disables row
+transitions.
+
+The schedule separates the confirmed kickoff from the agreed duration and the
+handover deadline. Daily calendar counts use Nairobi time; an unconfirmed deadline
+has no invented countdown or overdue state. Payments show actual confirmed
+receipts, the remaining balance and each tranche's acceptance condition. An
+accepted milestone does not imply payment. The project lead confirmed only the
+deposit as paid; its payment date is not recorded.
