@@ -59,20 +59,38 @@ describe('Configured Google availability', () => {
       expect(fetcher.mock.calls[0]?.[1]).toMatchObject({ cache: 'no-store' });
     },
   );
-  it.each([false, null])(
-    'offers email instead of an unsupported Google action (%j)',
-    async (enabled) => {
-      settings({ external: { google: enabled } });
-      const html = renderToStaticMarkup(
-        createElement('main', null, await GoogleAccess({ purpose: 'sign-in' })),
-      );
-      expect(html).toContain('Google sign-in is currently unavailable.');
-      expect(html).not.toContain('/api/v1/auth/google');
-      expect(html).toContain('Continue with Google');
-      expect(html).toContain('disabled=""');
-      expect(html).toContain('aria-describedby="google-sign-in-fallback"');
-    },
-  );
+  it.each([false])('offers email instead of an unsupported Google action (%j)', async (enabled) => {
+    settings({ external: { google: enabled } });
+    const html = renderToStaticMarkup(
+      createElement('main', null, await GoogleAccess({ purpose: 'sign-in' })),
+    );
+    expect(html).toContain('Google sign-in is currently unavailable.');
+    expect(html).not.toContain('/api/v1/auth/google');
+    expect(html).toContain('Continue with Google');
+    expect(html).toContain('disabled=""');
+    expect(html).toContain('aria-describedby="google-sign-in-fallback"');
+  });
+  it('recovers when a transient settings timeout is followed by an enabled provider', async () => {
+    const fetcher = settings({ external: { google: true } });
+    fetcher.mockRejectedValueOnce(new DOMException('Timed out', 'TimeoutError'));
+    expect(await googleAvailability(true)).toBe('enabled');
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+  it('does not retry explicit disablement', async () => {
+    const fetcher = settings({ external: { google: false } });
+    expect(await googleAvailability(true)).toBe('disabled');
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it('offers a fresh page retry after an outage while preserving the return path', async () => {
+    settings({}, 503);
+    const html = renderToStaticMarkup(
+      await GoogleAccess({ purpose: 'sign-in', next: '/app/settings/team' }),
+    );
+    expect(html).toContain('We couldn’t check Google’s connection.');
+    expect(html).toContain('href="/sign-in?next=%2Fapp%2Fsettings%2Fteam"');
+    expect(html).toContain('disabled=""');
+    expect(html).not.toContain('action="/api/v1/auth/google"');
+  });
   it('falls back safely when Supabase environment settings are missing', async () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', '');

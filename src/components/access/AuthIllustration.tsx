@@ -1,116 +1,117 @@
-import React from 'react';
+import React, { useId } from 'react';
 import {
-  IconArrowUpRight,
   IconBrandWhatsappFilled,
   IconBrandInstagram,
   IconBrandMessengerFilled,
   IconMessageCircle,
-  IconInbox,
-  IconSearch,
-  IconSparkles,
-  IconArrowUp,
+  IconLock,
+  IconAdjustmentsHorizontal,
+  IconKey,
 } from '@tabler/icons-react';
+import { Mark } from '@/components/brand/Mark';
+import { IconTile } from '@/components/primitives/IconTile';
 
-/** Decorative inbox preview; sample conversations are not live customer data. */
+const CHANNELS = [
+  { name: 'WhatsApp', icon: IconBrandWhatsappFilled, color: '#25D366', y: 110 },
+  { name: 'Instagram', icon: IconBrandInstagram, color: '#E1306C', y: 235 },
+  { name: 'Messenger', icon: IconBrandMessengerFilled, color: '#0084FF', y: 365 },
+  { name: 'Web chat', icon: IconMessageCircle, color: 'var(--amber-500)', y: 490 },
+] as const;
+
+/** Decorative channel flow. Reduced motion keeps connections and hides moving signals. */
 export function AuthIllustration() {
+  const id = useId();
+  const paths = [
+    ...CHANNELS.map(({ y, color }) => ({ d: `M 270 ${y} C 305 ${y}, 305 300, 340 300`, color })),
+    { d: 'M 660 300 C 705 300, 705 210, 750 210', color: 'var(--blue-500)' },
+    { d: 'M 660 300 C 705 300, 705 390, 750 390', color: 'var(--blue-500)' },
+  ];
   return (
-    <div aria-hidden="true" className="pointer-events-none w-full px-8 py-10 select-none xl:px-14">
-      <div className="mb-5 flex items-center justify-between text-xs font-medium tracking-wide text-[var(--text-secondary)]">
-        <span>One workspace. Every conversation.</span>
-        <IconArrowUpRight size={16} />
-      </div>
-      <div className="overflow-hidden rounded-[22px] border border-[var(--border-strong)] bg-white shadow-[0_24px_70px_-28px_rgba(12,22,52,0.3)]">
-        <div className="flex items-center justify-between gap-4 bg-[var(--ink-950)] px-5 py-4 text-white">
-          <div className="flex items-center gap-2.5">
-            <IconInbox size={18} stroke={1.6} className="text-white/70" />
-            <span className="text-sm font-medium">Workspace inbox</span>
+    <div aria-hidden className="pointer-events-none relative w-full select-none" data-auth-artwork>
+      <div className="relative isolate aspect-[5/3] w-full">
+        <div className="absolute inset-x-1/4 inset-y-1/4 rounded-full bg-[var(--blue-500)]/10 blur-3xl" />
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1000 600" fill="none">
+          <defs>
+            {paths.map(({ color }, index) => (
+              <linearGradient key={index} id={`${id}-flow-${index}`}>
+                <stop stopColor={color} stopOpacity="0.55" />
+                <stop offset="1" stopColor="var(--blue-500)" stopOpacity="0.18" />
+              </linearGradient>
+            ))}
+          </defs>
+          {paths.map(({ d }, index) => (
+            <path key={d} d={d} stroke={`url(#${id}-flow-${index})`} strokeWidth="1.5" />
+          ))}
+          <g className="motion-reduce:hidden" data-auth-signals>
+            {paths.map(({ d, color }, index) => (
+              <circle key={d} r="3.5" fill={color}>
+                <animateMotion
+                  dur="5s"
+                  begin={`${index * -0.8}s`}
+                  repeatCount="indefinite"
+                  path={d}
+                />
+              </circle>
+            ))}
+          </g>
+        </svg>
+        {CHANNELS.map(({ name, icon: Icon, color, y }) => (
+          <div
+            key={name}
+            data-auth-node
+            className="absolute left-[5%] flex w-[22%] -translate-y-1/2 items-center gap-2 rounded-card border border-[var(--border-subtle)] bg-white/85 px-2 py-3 shadow-sm backdrop-blur-sm xl:px-3"
+            style={{ top: `${(y / 600) * 100}%` }}
+          >
+            <Icon size={18} stroke={1.6} className="shrink-0" style={{ color }} />
+            <span className="text-2xs font-medium text-[var(--text-primary)] xl:text-xs">
+              {name}
+            </span>
           </div>
-          <IconSearch size={16} stroke={1.6} className="text-white/50" />
-        </div>
-        <div className="grid min-h-[310px] grid-cols-[minmax(120px,0.8fr)_minmax(0,1.2fr)]">
-          <div className="border-r border-[var(--border-subtle)] bg-[var(--surface-sunken)]/50 p-3">
-            <div className="mb-3 px-2 py-1 text-xs font-medium text-[var(--text-secondary)]">
-              Conversations
+        ))}
+        <div
+          data-auth-node
+          className="absolute top-1/2 left-1/2 w-[32%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-panel border border-white/10 p-4 text-white shadow-xl xl:p-6"
+          style={{ background: 'var(--chrome-bg)' }}
+        >
+          <div
+            className="absolute inset-0 opacity-40"
+            style={{
+              backgroundImage: 'radial-gradient(rgba(255,255,255,0.35) 1px, transparent 1px)',
+              backgroundSize: '18px 18px',
+            }}
+          />
+          <div className="relative">
+            <div className="mb-5 flex items-center justify-between">
+              <Mark size={24} tone="inverse" />
+              <IconLock size={14} stroke={1.5} className="text-white/45" />
             </div>
-            <div className="space-y-1.5">
-              <div className="rounded-xl border border-[var(--border-subtle)] bg-white p-3 shadow-sm">
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--blue-50)] text-xs font-medium text-[var(--blue-700)]">
-                    AM
-                  </span>
-                  <span className="text-xs font-medium text-[var(--text-primary)]">Alex M.</span>
-                </div>
-                <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-                  A quick question about my order.
-                </p>
-                <IconBrandWhatsappFilled size={13} className="mt-2 text-[var(--text-tertiary)]" />
-              </div>
-              <div className="px-3 py-3">
-                <p className="text-xs font-medium text-[var(--text-primary)]">Sam K.</p>
-                <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
-                  Thank you for your help.
-                </p>
-                <IconBrandInstagram size={13} className="mt-2 text-[var(--text-tertiary)]" />
-              </div>
-              <div className="border-t border-[var(--border-subtle)] px-3 py-3">
-                <p className="text-xs font-medium text-[var(--text-primary)]">Jordan N.</p>
-                <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
-                  Can we arrange a delivery?
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex min-w-0 flex-col">
-            <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-3">
-              <span className="text-xs font-medium text-[var(--text-primary)]">Alex M.</span>
-              <span className="text-3xs text-[var(--text-secondary)]">WhatsApp</span>
-            </div>
-            <div className="flex flex-1 flex-col justify-center gap-4 p-4">
-              <p className="self-start rounded-2xl rounded-bl-sm bg-[var(--surface-sunken)] px-3.5 py-3 text-xs leading-relaxed text-[var(--text-primary)]">
-                Hello! Could you help me check my delivery?
-              </p>
-              <p className="self-end rounded-2xl rounded-br-sm bg-[var(--ink-950)] px-3.5 py-3 text-xs leading-relaxed text-white">
-                Of course. Let me check that for you.
-              </p>
-              <div className="flex items-center gap-2 text-3xs text-[var(--text-secondary)]">
-                <IconSparkles size={13} stroke={1.5} className="shrink-0" />
-                <span>Context stays with the conversation</span>
-              </div>
-            </div>
-            <div className="m-3 mt-0 flex items-center justify-between gap-2 rounded-full border border-[var(--border-strong)] px-3 py-2.5">
-              <span className="text-2xs text-[var(--text-tertiary)]">Write a reply...</span>
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--blue-600)] text-white">
-                <IconArrowUp size={13} />
-              </span>
-            </div>
+            <p className="text-sm font-medium tracking-tight xl:text-base">Your workspace</p>
           </div>
         </div>
-      </div>
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-xs text-[var(--text-secondary)]">
-        <span className="inline-flex items-center gap-1.5">
-          <IconBrandWhatsappFilled size={15} />
-          WhatsApp
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <IconBrandInstagram size={15} />
-          Instagram
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <IconBrandMessengerFilled size={15} />
-          Messenger
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <IconMessageCircle size={15} />
-          Web chat
-        </span>
-      </div>
-      <div className="mt-10 border-t border-[var(--border-strong)] pt-7">
-        <p className="font-serif text-[clamp(1.75rem,2.5vw,2.5rem)] leading-tight tracking-tight text-[var(--text-primary)]">
-          A little clarity. A better conversation.
-        </p>
-        <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
-          Bring your channels, team and customer context together in one considered space.
-        </p>
+        {[
+          {
+            title: 'Assistant rules',
+            detail: 'Your guidance',
+            icon: IconAdjustmentsHorizontal,
+            top: '35%',
+          },
+          { title: 'API credentials', detail: 'Scoped access', icon: IconKey, top: '65%' },
+        ].map(({ title, detail, icon: Icon, top }) => (
+          <div
+            key={title}
+            data-auth-node
+            className="absolute left-[75%] flex w-[24%] -translate-y-1/2 items-center gap-2 rounded-card border border-[var(--border-subtle)] bg-white/90 p-2 shadow-sm backdrop-blur-sm xl:gap-3 xl:p-4"
+            style={{ top }}
+          >
+            <IconTile icon={Icon} size="md" tone="info" />
+            <div className="min-w-0">
+              <p className="text-2xs leading-snug font-medium text-[var(--text-primary)] xl:text-xs">
+                {title}
+              </p>
+              <p className="mt-1 text-2xs leading-snug text-[var(--text-tertiary)]">{detail}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

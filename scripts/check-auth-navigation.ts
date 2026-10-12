@@ -23,7 +23,22 @@ async function main() {
     signal: AbortSignal.timeout(30_000),
   });
   assert.equal(entry.status, 200);
-  assert.match(entry.headers.get('content-security-policy') ?? '', /form-action 'self'(?:;|$)/);
+  const formSources = (entry.headers.get('content-security-policy') ?? '')
+    .split(';')
+    .map((directive) => directive.trim())
+    .find((directive) => directive.startsWith('form-action '));
+  const expectedSources = ["'self'"];
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL)
+    expectedSources.push(
+      new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin,
+      'https://accounts.google.com',
+    );
+  assert.equal(formSources, `form-action ${expectedSources.join(' ')}`);
+  const publicPage = await fetch(new URL('/project-tracker', origin));
+  assert.match(
+    publicPage.headers.get('content-security-policy') ?? '',
+    /form-action 'self'(?:;|$)/,
+  );
   const refused = await fetch(new URL('/api/v1/auth/sign-in', origin), {
     method: 'POST',
     redirect: 'manual',
@@ -59,12 +74,15 @@ async function main() {
     assert.ok((await stale.text()).includes(`NEXT_REDIRECT;replace;${expected};307;`));
   }
   console.log(
-    'Built Auth navigation passes: missing and stale sessions preserve the protected return path; forged headers are overwritten; strict form action remains.',
+    'Built Auth navigation passes: missing and stale sessions preserve the protected return path; forged headers are overwritten; OAuth form origins are scoped to access pages.',
   );
 }
-main().catch(() => {
+main().catch((error: unknown) => {
   console.error(
     'Built Auth navigation failed: inspect redirect authorities, continuation and CSP.',
+  );
+  console.error(
+    error instanceof Error ? error.message.slice(0, 600) : 'Unknown navigation failure',
   );
   process.exitCode = 1;
 });

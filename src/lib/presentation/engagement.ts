@@ -155,8 +155,8 @@ export const MILESTONES = [
     gate: 'Demo: full account lifecycle',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 97,
-    note: 'Owner activation, password recovery, session revocation, ownership and protected navigation have actual provider and browser evidence. Google onboarding now validates verified identity, preserves existing roles and prevents duplicate workspace creation under concurrent completion; actual configured Google consent and returning-account acceptance remain open. The complete password-change journey now refuses an incorrect current password, verifies the new provider password, preserves this device and denies the other device. New and existing colleagues join through actual browser forms; wrong-account acceptance, reused links, renewal and withdrawal are verified with membership and seat readback. All owned fixtures are removed. Confirmation-required colleague signup, required Google signup and returning sign-in acceptance, and external email delivery qualification remain open.',
+    progress: 98,
+    note: 'Actual Google consent, first-time workspace creation and returning sign-in now pass in the hosted sandbox. Database readback confirms one trial workspace, one owner, one seat and one creation audit. Recovery, ownership, sessions, password change and colleague invitations retain their separate browser evidence. Google identity continuity for an existing email account, invitation continuation, confirmation-required colleague signup and external email delivery qualification remain open. The Google acceptance workspace is retained for the remaining identity checks; other workflow fixtures were removed.',
   },
   {
     id: 'M3',
@@ -227,6 +227,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
   M2: {
     previous: 94,
     evidence: [
+      'Hosted Google consent, first-time workspace creation and returning access pass; one owner, one seat and one creation audit reconcile in the database',
       'Actual Auth and application records agree for the recovery recipient',
       'Verified Google callback routing, role preservation and invitation continuation have application contract tests; concurrent setup creates one workspace, one owner seat and one creation audit',
       'Unknown and profile-only addresses receive no reset link or new identity',
@@ -240,7 +241,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
     remaining: [
       'Confirmation-required colleague signup and remaining provider failure states',
-      'Configured Google signup and returning sign-in, including invitation continuation',
+      'Google identity continuity for existing email accounts and invitation continuation',
       'External sending-domain and redirect qualification before launch',
     ],
   },
@@ -431,6 +432,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-12',
+    title: 'Google workspace creation and returning access verified',
+    body: 'The configured sandbox completes actual Google consent and creates one trial workspace with one owner and one seat. Returning Google sign-in resumes the requested company page without duplicate creation. Auth advances to 98% as an engineering estimate; existing-email identity continuity, Google invitation continuation, confirmation-required signup and external email delivery remain open.',
+    milestone: 'M2',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-10',
     title: 'Password change and colleague invitations pass actual browser journeys',

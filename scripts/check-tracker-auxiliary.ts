@@ -77,9 +77,42 @@ async function main() {
         );
         assert(overflow <= 1, `${route} overflows at ${width}px`);
         authLayouts.push({ route, width, overflow });
+        if (route === '/sign-in' && width >= 1024) {
+          const bounds = await page.locator('[data-auth-node]').evaluateAll((nodes) =>
+            nodes.map((node) => {
+              const { x, y, width, height } = node.getBoundingClientRect();
+              return { x, y, width, height, overflow: node.scrollWidth - node.clientWidth };
+            }),
+          );
+          assert.equal(bounds.length, 7);
+          assert(
+            bounds.every((node) => node.overflow <= 1),
+            `Auth card content clips at ${width}px`,
+          );
+          for (let i = 0; i < bounds.length; i++)
+            for (let j = i + 1; j < bounds.length; j++) {
+              const a = bounds[i]!,
+                b = bounds[j]!;
+              assert(
+                a.x + a.width <= b.x ||
+                  b.x + b.width <= a.x ||
+                  a.y + a.height <= b.y ||
+                  b.y + b.height <= a.y,
+                `Auth diagram nodes overlap at ${width}px`,
+              );
+            }
+          await page.emulateMedia({ reducedMotion: 'reduce' });
+          assert.equal(await page.locator('[data-auth-signals]').isVisible(), false);
+          await page.emulateMedia({ reducedMotion: 'no-preference' });
+          assert.equal(await page.locator('[data-auth-signals]').isVisible(), true);
+        }
         await page.screenshot({
           path: `.screenshots/phase-one-tracker-auxiliary/${route.slice(1)}-${width}.png`,
         });
+        if (route === '/sign-in' && width === 1440)
+          await page.locator('[data-auth-artwork]').screenshot({
+            path: '.screenshots/phase-one-tracker-auxiliary/auth-artwork-1440.png',
+          });
       }
     }
     await page.goto(`${origin}/sign-up/finish`);
@@ -149,6 +182,13 @@ async function main() {
         results,
         keyboardDisclosures: true,
         authLayouts,
+        authDiagram: {
+          nodes: 7,
+          widths: [1440, 1024],
+          noOverlap: true,
+          noCardContentOverflow: true,
+          reducedMotionHidesSignals: true,
+        },
         anonymousSetupRefused: true,
         disabledProviderEmailFallback: true,
         syntheticLocalProviderRedirectPassed: true,

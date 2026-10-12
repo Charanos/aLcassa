@@ -11,7 +11,7 @@ import { readRequestBody, wantsJson } from '@/lib/http/body';
 import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
-import { safeReturnPath } from '@/lib/auth/returnPath';
+import { platformReturnPath, safeReturnPath } from '@/lib/auth/returnPath';
 import { readInvitationByToken } from '@/modules/membership';
 
 /** Public sign-in cannot use the session-required route pipeline; handle form redirects and JSON responses explicitly. */
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (platform) {
       const session = await createSession({ userId, kind: 'platform', requestId });
-      const destination = safeReturnPath(next, '/platform');
+      const destination = platformReturnPath(next);
       return respond({
         asJson,
         request,

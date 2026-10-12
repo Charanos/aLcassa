@@ -6,7 +6,7 @@ import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/s
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { FLASH_COOKIE, FLASH_COOKIE_OPTIONS } from '@/lib/flash';
 import { logger } from '@/lib/logger';
-import { safeReturnPath } from '@/lib/auth/returnPath';
+import { platformReturnPath, safeReturnPath } from '@/lib/auth/returnPath';
 import { readInvitationByToken } from '@/modules/membership';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -39,9 +39,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (platform) {
       const session = await createSession({ userId, kind: 'platform', requestId });
-      const nextPath = new URL(next, authRequestOrigin(request)).pathname;
-      const destination =
-        nextPath === '/platform' || nextPath.startsWith('/platform/') ? next : '/platform';
+      const destination = platformReturnPath(next);
       const response = NextResponse.redirect(new URL(destination, authRequestOrigin(request)), 303);
       response.cookies.set(
         cookieNameFor('platform'),

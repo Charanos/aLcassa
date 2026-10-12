@@ -66,11 +66,11 @@ export default function VerificationRecordPage() {
             Download evidence index <IconFileDownload size={16} aria-hidden />
           </a>
           <a
-            href="/verification/2026-10-10/google-onboarding-tracker-results.json"
+            href="/verification/2026-10-12/google-admin-access-results.json"
             download
             className="t-compact inline-flex items-center gap-2 text-[var(--text-action)] underline underline-offset-4"
           >
-            Google onboarding and tracker checks <IconFileDownload size={16} aria-hidden />
+            Google acceptance and admin entry <IconFileDownload size={16} aria-hidden />
           </a>
         </div>
         <aside

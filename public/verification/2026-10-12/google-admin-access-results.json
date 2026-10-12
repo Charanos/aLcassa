@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-12",
+  "scope": "Sandbox acceptance; not final Phase One acceptance",
+  "google": {
+    "environment": "Hosted sandbox with Google External / Testing",
+    "actualConsentCompleted": true,
+    "newWorkspaceCreated": true,
+    "returningSignInResumesCompanyPage": true,
+    "databaseReadback": {
+      "checkedAt": "2026-10-12T20:50:44.164Z",
+      "environment": "hosted sandbox",
+      "status": "trial",
+      "workspaces": 1,
+      "owners": 1,
+      "members": 1,
+      "seats": 1,
+      "creation_audits": 1,
+      "verified_google_owners": 1
+    },
+    "acceptanceWorkspaceRetained": true,
+    "remaining": [
+      "Existing email account identity continuity",
+      "Google invitation continuation"
+    ]
+  },
+  "authRegression": {
+    "passed": 107,
+    "files": 8,
+    "environment": "Local mocked-contract regression; overlaps earlier runs",
+    "checkedAt": "2026-10-12T20:59:40.280Z"
+  },
+  "adminNativeEntry": {
+    "checkedAt": "2026-10-12T21:10:15.099Z",
+    "passed": true,
+    "environment": "Disposable local production build",
+    "checks": [
+      "Admin workspace return path resolves to console",
+      "Admin console return path and query preserved",
+      "Tenant owner is refused platform console access",
+      "Copied platform session is refused for a different provider identity",
+      "Tenant has no platform session in database"
+    ],
+    "ownedFixturesRemoved": true
+  },
+  "remainingPhaseOneGates": "See the current milestone review and completion plan; this receipt does not claim all gates complete.",
+  "providerDiscovery": {
+    "transientTransportAnd5xxRetry": true,
+    "attemptLimit": 2,
+    "maximumTimeoutBudgetMs": 5000,
+    "explicitDisablementNotRetried": true,
+    "unresolvedCheckOffersPageRetry": true,
+    "missingConfigurationKeepsEmailFallback": true
+  },
+  "localRelease": {
+    "checkedAt": "2026-10-12T21:17:08.046Z",
+    "productionBuildPassed": true,
+    "auxiliaryLayouts": 81,
+    "authLayouts": 8,
+    "mainTrackerLayouts": 3,
+    "authDiagram": {
+      "nodes": 7,
+      "widths": [
+        1440,
+        1024
+      ],
+      "noOverlap": true,
+      "noCardContentOverflow": true,
+      "reducedMotionHidesSignals": true
+    },
+    "documentRoutes": 28,
+    "documentAnchors": 79,
+    "evidenceAssets": 50,
+    "privateDocumentRefused": true,
+    "ciQualification": "Requires the new commit CI run; prior releases are separate checkpoints."
+  }
+}

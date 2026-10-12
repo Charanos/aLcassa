@@ -55,8 +55,12 @@ starting a flow.
 The hosted provider is enabled, nonce checking remains on, and an email address
 is required. Site URL and allowed application callbacks match the deployed
 sandbox. Google Cloud is External / Testing with one approved test user. The
-deployed sign-up action reaches Google's name/profile/email consent screen;
-completion and returning access still require actual acceptance.
+deployed sign-up action completes Google's name/profile/email consent screen.
+Workspace setup creates one trial workspace, one owner membership, one occupied
+seat and one creation audit, confirmed by scoped database readback. After sign-out,
+returning Google sign-in resumes the requested company page in the same workspace.
+The owned acceptance workspace remains available for existing-email identity
+continuity and invitation checks; those journeys are not yet qualified.
 
 The OAuth application name is **aLcassa**. Google shows the Supabase hostname
 until brand verification permits the name/logo to be displayed. Prepare the

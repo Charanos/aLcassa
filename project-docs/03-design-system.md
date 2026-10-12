@@ -1138,9 +1138,16 @@ Sign-in and sign-up share a compact pill button with an unframed, four-color
 Google mark, visible keyboard focus and native POST submission. Provider absence
 retains a disabled button with an associated explanation and the email form.
 Every page visit checks current provider availability; no cached presentation
-state delays activation after configuration.
+state delays activation after configuration. Transient transport and upstream
+failures receive one bounded retry. An unresolved settings check presents a
+page-retry action preserving the return path, distinct from disabled or absent
+provider configuration; email access remains available.
 
-The decorative inbox preview uses a single responsive window, restrained channel
-marks and legible sample conversations. It has no interactive controls or moving
-particles, is excluded from assistive navigation, and hides on smaller screens
-so the form receives the full available width.
+The decorative auth diagram connects official channel marks to a dark workspace
+card and two slim capability cards. Only diagram labels remain; marketing copy
+belongs on the landing page. The workspace card carries a spaced dot texture.
+Assistant rules and API credentials use the shared console glyph tiles in compact
+icon-and-label rows.
+Moving signals follow the connections, with reduced motion hiding the signals.
+The artwork has no controls, is excluded from assistive navigation, and hides on
+smaller screens so the form receives the full available width.

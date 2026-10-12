@@ -1450,3 +1450,45 @@ because a test accessed an optional callback argument without narrowing it; that
 type error is corrected. The next commit requires its own CI and deployment
 qualification. These presentation and configuration changes do not, by
 themselves, increase milestone acceptance percentages.
+
+
+## 45. Actual Google acceptance and admin entry correction — 12 October 2026
+
+The hosted sandbox completes actual Google consent, verified account setup and
+returning access. Scoped database readback confirms one trial workspace, one owner
+membership, one occupied seat and one creation audit. After native sign-out,
+Google sign-in resumes the requested company page in the same workspace. The owned
+acceptance workspace is retained for the remaining identity checks. Existing-email
+identity continuity and Google invitation continuation are not yet qualified.
+
+Auth advances 97→98% as an engineering estimate, without final acceptance.
+Confirmation-required colleague signup and external delivery also remain open.
+[Download this checkpoint](/verification/2026-10-12/google-admin-access-results.json).
+The preceding 10 October receipt remains unchanged as historical evidence.
+
+Password sign-in previously allowed a platform session to follow a workspace
+return path. The tenant guard correctly refused that session, producing a sign-in
+loop. Password and Google platform entry now share the same normalized console
+return-path rule; valid console paths retain their query. No role or session
+checks are relaxed. The focused auth regression passes 107 cases across eight
+files; native entry and isolation checks are recorded in the downloadable receipt.
+
+The auth artwork restores animated channel connections, removes repeated
+marketing text and reserves the inbox preview for the landing page. Shared console
+glyph tiles belong on the Assistant rules and API credentials cards; the
+spaced dot texture belongs on the dark workspace card. Reduced motion hides
+moving signals while retaining the diagram.
+
+Application `3554252` passed CI static, dependency, isolation and both test jobs,
+but its build job failed an outdated self-only form-action assertion. Access
+pages intentionally permit the configured provider and Google; public tracker
+pages remain self-only. The assertion now checks those exact scoped origins.
+This correction and the current UI/auth changes require their own build and CI
+qualification; prior release success is not attributed to this candidate.
+
+A fresh deployed probe confirmed Google remained enabled after an intermittent
+unavailable notice. Provider discovery retries transient network/5xx failures once
+within a five-second maximum request budget. Explicit disablement is not retried.
+An unresolved check offers a page retry with the return path preserved, while
+missing configuration retains the disabled fallback. OAuth initiation continues
+to require confirmed provider availability; no authentication check is bypassed.

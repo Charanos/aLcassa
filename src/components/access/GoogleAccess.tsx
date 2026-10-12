@@ -13,6 +13,7 @@ export async function GoogleAccess({
 }) {
   const available = await googleAvailability(true);
   const enabled = available === 'enabled';
+  const retryHref = `/${purpose}${next ? `?${new URLSearchParams({ next })}` : ''}`;
   const fallbackId = `google-${purpose}-fallback`;
   const buttonClass =
     'relative flex min-h-11 w-full items-center justify-center rounded-full border border-[var(--border-strong)] bg-white px-5 py-2.5 text-sm font-medium text-[var(--text-primary)] shadow-sm transition-colors hover:bg-[var(--surface-sunken)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)] disabled:cursor-not-allowed disabled:shadow-none motion-reduce:transition-none';
@@ -37,7 +38,17 @@ export async function GoogleAccess({
               id={fallbackId}
               className="t-caption mt-2.5 text-center text-[var(--text-secondary)]"
             >
-              Google sign-in is currently unavailable. Continue with email below.
+              {available === 'unavailable' ? (
+                <>
+                  We couldn’t check Google’s connection.{' '}
+                  <a href={retryHref} className="underline underline-offset-4">
+                    Try again
+                  </a>{' '}
+                  or continue with email below.
+                </>
+              ) : (
+                'Google sign-in is currently unavailable. Continue with email below.'
+              )}
             </p>
           </>
         )}

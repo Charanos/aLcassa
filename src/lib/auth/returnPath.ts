@@ -13,3 +13,10 @@ export function safeReturnPath(next: string | null | undefined, fallback: string
     return fallback;
   }
 }
+
+/** A platform session can resume console pages only, regardless of a previous workspace URL. */
+export function platformReturnPath(next: string | null | undefined): string {
+  const destination = safeReturnPath(next, '/platform');
+  const pathname = new URL(destination, 'https://return-path.invalid').pathname;
+  return pathname === '/platform' || pathname.startsWith('/platform/') ? destination : '/platform';
+}
