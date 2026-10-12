@@ -1131,3 +1131,16 @@ keyboard-scrollable tables and compact previous/next links. The dependency revie
 has one page title and a brief explanation of its scope, maintained patch and
 acceptance boundary before the detailed source. None of these layouts imply that
 an implementation estimate or dependency audit is final project acceptance.
+
+### Google access and sign-in artwork
+
+Sign-in and sign-up share a compact pill button with an unframed, four-color
+Google mark, visible keyboard focus and native POST submission. Provider absence
+retains a disabled button with an associated explanation and the email form.
+Every page visit checks current provider availability; no cached presentation
+state delays activation after configuration.
+
+The decorative inbox preview uses a single responsive window, restrained channel
+marks and legible sample conversations. It has no interactive controls or moving
+particles, is excluded from assistive navigation, and hides on smaller screens
+so the form receives the full available width.

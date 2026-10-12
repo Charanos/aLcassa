@@ -43,6 +43,30 @@ secret in a browser variable, tracked config or verification artifact. The norma
 disposable CI stack intentionally leaves Google disabled; it needs no external
 Google credentials.
 
+The sign-in and sign-up pages check the provider configuration on every visit,
+without a presentation cache. Once the provider is enabled, reload either page
+to activate its Google button; no application rebuild is required. Blank settings,
+a disabled provider or a settings outage leave a disabled, labelled Google option
+and the normal email form. Direct OAuth submissions recheck availability before
+starting a flow.
+
+## Hosted sandbox checkpoint — 12 October 2026
+
+The hosted provider is enabled, nonce checking remains on, and an email address
+is required. Site URL and allowed application callbacks match the deployed
+sandbox. Google Cloud is External / Testing with one approved test user. The
+deployed sign-up action reaches Google's name/profile/email consent screen;
+completion and returning access still require actual acceptance.
+
+The OAuth application name is **aLcassa**. Google shows the Supabase hostname
+until brand verification permits the name/logo to be displayed. Prepare the
+application homepage, privacy notice and terms links in Google Branding, and
+verify domain ownership as requested by Google. A Supabase custom auth domain is
+a separate paid option, not a required Next.js environment variable.
+
+References: [Google OAuth branding](https://support.google.com/cloud/answer/15549049)
+and [Supabase consent branding](https://supabase.com/docs/guides/auth/social-login/auth-google#setup-consent-screen-branding).
+
 ## Acceptance to record after configuration
 
 | Journey                                      | Required result                                                                                                               |

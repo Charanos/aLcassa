@@ -154,6 +154,7 @@ describe('OAuth availability and safe navigation contracts', () => {
     const response = await begin(next);
     expect(response.status).toBe(303);
     const options = mocks.begin.mock.calls[0]?.[0].options;
+    if (!options) throw new Error('Google initiation did not supply callback options.');
     const redirect = new URL(options.redirectTo);
     expect(redirect.origin).toBe(origin);
     expect(redirect.pathname).toBe('/api/v1/auth/callback');

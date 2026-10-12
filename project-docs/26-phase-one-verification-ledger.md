@@ -1417,3 +1417,36 @@ Hosted Supabase requires provider configuration in its dashboard; setting only
 Next.js variables does not enable it. Confirmation-required signup, complete
 CRUD/failure/accessibility coverage, the load latency target, independent identity
 and stored-object restoration, clean setup/rollback and final handover remain open.
+
+## 44. Hosted Google readiness and access presentation — 12 October 2026
+
+The hosted sandbox now has Google enabled in Supabase, with nonce validation and
+required email preserved. Its public settings endpoint returns enabled. The Site
+URL matches the deployed application, and the allow-list contains only that
+application's OAuth callback and email-confirmation routes. Google Cloud remains
+External / Testing with one explicitly approved sandbox test account. Client
+credentials remain private in Supabase; this integration requires no additional
+Google variables in Vercel.
+
+The deployed sign-up action reaches Google's consent screen requesting name,
+profile picture and email. This proves initiation, not a completed code exchange.
+Google currently displays the Supabase hostname. Its branding rules require brand
+verification before the configured application name/logo is displayed. Consent,
+new-workspace completion, returning access and email-account continuity remain
+unaccepted until their actual outcomes are recorded.
+
+Both access pages now use a compact Google control with its unframed brand mark.
+Each visit reads fresh provider availability. Missing settings, disabled Google
+or a provider outage preserve the email form and a clearly explained disabled
+Google option; native submissions recheck availability. The sign-in illustration
+uses one responsive inbox composition, consistent borders and unrestricted copy.
+
+The local non-database suite passed 293 cases in 32 files; the focused auth run
+passed 53 cases in four files. These overlapping runs are not additive. Local
+production-build checks covered 81 supporting-page layouts, eight access-page
+layouts and three main-tracker layouts. The previous 694-case database-backed run
+in §43 remains a separately dated checkpoint. Application `05ce375` failed CI
+because a test accessed an optional callback argument without narrowing it; that
+type error is corrected. The next commit requires its own CI and deployment
+qualification. These presentation and configuration changes do not, by
+themselves, increase milestone acceptance percentages.

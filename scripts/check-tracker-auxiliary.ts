@@ -8,6 +8,7 @@ async function main() {
   const origin = 'http://127.0.0.1:3100';
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   const results: { route: string; width: number; overflow: number }[] = [];
+  const authLayouts: { route: string; width: number; overflow: number }[] = [];
   try {
     const page = await browser.newPage();
     const routes = [
@@ -19,7 +20,8 @@ async function main() {
     for (const width of [1440, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });
       for (const route of routes) {
-        const response = await page.goto(`${origin}${route}`, { waitUntil: 'domcontentloaded' });
+        const response = await page.goto(`${origin}${route}`, { waitUntil: 'load' });
+        await page.evaluate(() => document.fonts.ready);
         assert.equal(response?.status(), 200, route);
         assert.equal(await page.locator('h1').count(), 1, `${route}: one document title`);
         assert.equal(await page.getByRole('navigation', { name: 'Project navigation' }).count(), 1);
@@ -52,17 +54,33 @@ async function main() {
         path: `.screenshots/phase-one-tracker-auxiliary/document-${width}.png`,
       });
     }
-    // These pages use the real, disabled local provider and must still offer email access.
-    for (const route of ['/sign-in', '/sign-up']) {
-      await page.goto(`${origin}${route}`);
-      assert.equal(await page.locator('form[action="/api/v1/auth/google"]').count(), 0);
-      assert.equal(
-        await page
-          .getByText('Google sign-in is currently unavailable. Continue with email below.')
-          .count(),
-        1,
-      );
-      assert.equal(await page.locator('input[name="email"]').count(), 1);
+    // The real disabled local provider leaves a labelled fallback and working email forms.
+    for (const width of [1440, 1024, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const route of ['/sign-in', '/sign-up']) {
+        await page.goto(`${origin}${route}`);
+        await page.evaluate(() => document.fonts.ready);
+        assert.equal(await page.locator('form[action="/api/v1/auth/google"]').count(), 0);
+        assert.equal(
+          await page
+            .getByText('Google sign-in is currently unavailable. Continue with email below.')
+            .count(),
+          1,
+        );
+        assert.equal(await page.locator('input[name="email"]').count(), 1);
+        assert.equal(
+          await page.getByRole('button', { name: 'Continue with Google' }).isDisabled(),
+          true,
+        );
+        const overflow = await page.evaluate(
+          () => document.documentElement.scrollWidth - innerWidth,
+        );
+        assert(overflow <= 1, `${route} overflows at ${width}px`);
+        authLayouts.push({ route, width, overflow });
+        await page.screenshot({
+          path: `.screenshots/phase-one-tracker-auxiliary/${route.slice(1)}-${width}.png`,
+        });
+      }
     }
     await page.goto(`${origin}/sign-up/finish`);
     assert.equal(
@@ -130,11 +148,12 @@ async function main() {
         passed: true,
         results,
         keyboardDisclosures: true,
+        authLayouts,
         anonymousSetupRefused: true,
         disabledProviderEmailFallback: true,
         syntheticLocalProviderRedirectPassed: true,
         unlistedFormRedirectRefused: true,
-        googleCloudAcceptance: 'Pending configured provider and actual consent',
+        googleCloudAcceptance: 'Actual Google consent is outside this local disabled-provider run',
       },
       null,
       2,

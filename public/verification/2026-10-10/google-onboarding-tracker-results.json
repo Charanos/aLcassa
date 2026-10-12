@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T20:24:56.546061+00:00",
+  "scope": "Historical 10 October onboarding contracts and 12 October local access/tracker acceptance; hosted configuration is separate from consent completion.",
+  "sourceBase": "05ce375c7cdd4467cf3b7fb8fbe282ed91df5dc7",
+  "releaseQualification": "Source changes require the next commit CI and deployment checks. The base commit failed typecheck; its optional callback argument access is corrected in this batch.",
+  "historicalDatabaseSuite": {
+    "date": "2026-10-10",
+    "passed": 694,
+    "failed": 0,
+    "skipped": 0,
+    "files": 61,
+    "receiptSha256": "79a6c53ead33ec98f2fd6048e4072b4a755c3aac37ef0e6ea7b5b865cec3cece"
+  },
+  "historicalFinalOnboardingDatabaseReplay": {
+    "date": "2026-10-10",
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "files": 1,
+    "receiptSha256": "e792b6063a8df06f3f8cfe5101c0b6cb8b0e13faffc3147eb9b01dccab505c24",
+    "concurrentSubmissions": 3,
+    "createdWorkspaces": 1,
+    "ownerSeats": 1,
+    "creationAudits": 1
+  },
+  "localNonDatabaseSuite": {
+    "date": "2026-10-12",
+    "passed": 293,
+    "failed": 0,
+    "skipped": 0,
+    "files": 32,
+    "receiptSha256": "9eeb711e2b0a16112ec67cf8a551acae7f4a40fee819c19fa3a324b6ad2f200f"
+  },
+  "localFocusedAuthSuite": {
+    "date": "2026-10-12",
+    "passed": 53,
+    "failed": 0,
+    "skipped": 0,
+    "files": 4,
+    "receiptSha256": "3daf06b00e036a8dae19cb9ae644f624b6fb0e73bfe02f88ccd7d54a5dd1d75c"
+  },
+  "countingNote": "These overlapping suites are separate receipts; their case counts are not additive.",
+  "localProductionBuild": {
+    "passed": true,
+    "generatedRoutes": 93,
+    "externalGoogleProviderEnabled": false
+  },
+  "supportingLayouts": {
+    "passed": true,
+    "routes": 27,
+    "widths": [
+      1440,
+      390,
+      320
+    ],
+    "visits": 81
+  },
+  "accessLayouts": {
+    "passed": true,
+    "routes": [
+      "/sign-in",
+      "/sign-up"
+    ],
+    "widths": [
+      1440,
+      1024,
+      390,
+      320
+    ],
+    "visits": 8
+  },
+  "trackerLayouts": {
+    "passed": true,
+    "widths": [
+      1440,
+      390,
+      320
+    ],
+    "visits": 3,
+    "milestones": 8,
+    "depositOnlyPaid": true,
+    "acceptedGateDoesNotImplyPayment": true,
+    "unconfirmedDeadlineNotInvented": true
+  },
+  "localBrowserContracts": {
+    "keyboardDisclosures": true,
+    "anonymousSetupRefused": true,
+    "disabledProviderEmailFallback": true,
+    "syntheticLocalProviderRedirectPassed": true,
+    "unlistedFormRedirectRefused": true
+  },
+  "hostedGoogleConfiguration": {
+    "checkedAt": "2026-10-12",
+    "providerEnabled": true,
+    "publicSettingsStatus": 200,
+    "nonceValidationEnabled": true,
+    "emailRequired": true,
+    "siteUrlMatchesDeployedOrigin": true,
+    "applicationRedirectRoutesRestricted": true,
+    "audience": "External / Testing",
+    "approvedTestUsers": 1,
+    "configuredAppName": "aLcassa",
+    "homepagePrivacyAndTermsSaved": true,
+    "deployedSignupReachesGoogleConsent": true,
+    "requestedData": [
+      "name",
+      "profile picture",
+      "email"
+    ],
+    "consentExchangeAccepted": false,
+    "brandingDisplay": "Google currently displays the Supabase hostname; brand verification remains required for name/logo display.",
+    "additionalVercelGoogleVariablesRequired": false
+  },
+  "remainingGoogleAcceptance": [
+    "Actual Google consent and code exchange",
+    "New workspace completion",
+    "Returning access",
+    "Verified email-account continuity",
+    "Actual colleague invitation acceptance through Google"
+  ],
+  "remainingPhaseOneGates": [
+    "Confirmation-required signup",
+    "Complete action, failure and manual accessibility coverage",
+    "Load latency target",
+    "Independent identity and stored-object recovery",
+    "Clean setup and rollback",
+    "Final handover"
+  ],
+  "qualifiedReferenceReleases": {
+    "application": {
+      "sha": "6f086a8ac77eee110479bb0017f5c50868484748",
+      "ci": "https://github.com/Charanos/aLcassa/actions/runs/38013994579"
+    },
+    "service": {
+      "sha": "8163e03f110eda7bb11c161002611615de0950e4",
+      "ci": "https://github.com/Charanos/alcassa-service/actions/runs/38014104785"
+    }
+  },
+  "redaction": "Aggregate outcomes only. Raw logs, identity details, credentials, authorization codes and tokens remain private."
+}

@@ -8,7 +8,6 @@ vi.mock('@/components/primitives/SubmitButton', () => ({
   CustomSubmitButton: ({ children, ...props }: { children: React.ReactNode }) =>
     createElement('button', props, children),
 }));
-vi.mock('@/components/primitives/IconTile', () => ({ IconTile: () => null }));
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -18,7 +17,9 @@ afterEach(() => {
 function settings(body: unknown, status = 200) {
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'http://127.0.0.1:55421');
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'public-test-key');
-  const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify(body), { status }));
+  const fetcher = vi
+    .fn<typeof fetch>()
+    .mockResolvedValue(new Response(JSON.stringify(body), { status }));
   vi.stubGlobal('fetch', fetcher);
   return fetcher;
 }
@@ -48,13 +49,14 @@ describe('Configured Google availability', () => {
   it.each(['sign-in', 'sign-up'] as const)(
     'renders a working provider option for %s',
     async (purpose) => {
-      settings({ external: { google: true } });
+      const fetcher = settings({ external: { google: true } });
       const html = renderToStaticMarkup(
         await GoogleAccess({ purpose, next: '/app/settings/team' }),
       );
       expect(html).toContain('action="/api/v1/auth/google"');
       expect(html).toContain('value="/app/settings/team"');
       expect(html).toContain('Continue with Google');
+      expect(fetcher.mock.calls[0]?.[1]).toMatchObject({ cache: 'no-store' });
     },
   );
   it.each([false, null])(
@@ -66,7 +68,31 @@ describe('Configured Google availability', () => {
       );
       expect(html).toContain('Google sign-in is currently unavailable.');
       expect(html).not.toContain('/api/v1/auth/google');
-      expect(html).not.toContain('Continue with Google');
+      expect(html).toContain('Continue with Google');
+      expect(html).toContain('disabled=""');
+      expect(html).toContain('aria-describedby="google-sign-in-fallback"');
     },
   );
+  it('falls back safely when Supabase environment settings are missing', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', '');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', '');
+    const fetcher = vi.fn();
+    vi.stubGlobal('fetch', fetcher);
+    const html = renderToStaticMarkup(await GoogleAccess({ purpose: 'sign-up' }));
+    expect(html).toContain('disabled=""');
+    expect(html).toContain('Continue with email below.');
+    expect(html).not.toContain('/api/v1/auth/google');
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('enables access on the next render after the provider is configured', async () => {
+    const fetcher = settings({ external: { google: false } });
+    const fallback = renderToStaticMarkup(await GoogleAccess({ purpose: 'sign-in' }));
+    expect(fallback).not.toContain('/api/v1/auth/google');
+    fetcher.mockResolvedValue(new Response(JSON.stringify({ external: { google: true } })));
+    const enabled = renderToStaticMarkup(await GoogleAccess({ purpose: 'sign-in' }));
+    expect(enabled).toContain('action="/api/v1/auth/google"');
+    expect(enabled).not.toContain('disabled=""');
+    expect(fetcher.mock.calls.every((call) => call[1]?.cache === 'no-store')).toBe(true);
+  });
 });

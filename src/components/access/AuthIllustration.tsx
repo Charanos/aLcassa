@@ -1,272 +1,116 @@
-'use client';
-
+import React from 'react';
 import {
+  IconArrowUpRight,
   IconBrandWhatsappFilled,
   IconBrandInstagram,
   IconBrandMessengerFilled,
   IconMessageCircle,
-  IconLock,
-  IconActivity,
-  IconKey,
-  IconServerCog,
+  IconInbox,
+  IconSearch,
+  IconSparkles,
+  IconArrowUp,
 } from '@tabler/icons-react';
-import type { Icon as TablerIcon } from '@tabler/icons-react';
-import React from 'react';
-import { IconTile } from '@/components/primitives/IconTile';
 
-/** Decorative product illustration, excluded from assistive navigation. */
+/** Decorative inbox preview; sample conversations are not live customer data. */
 export function AuthIllustration() {
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none relative mx-16 aspect-[5/3] w-full max-w-[900px] select-none"
-    >
-      <div className="pointer-events-none absolute top-[50%] left-[50%] h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--blue-500)]/5 blur-[120px]" />
-
-      <svg
-        className="absolute inset-0 h-full w-full"
-        viewBox="0 0 1000 600"
-        preserveAspectRatio="xMidYMid meet"
-        style={{ zIndex: 0 }}
-      >
-        <defs>
-          <linearGradient id="flow-wa" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#25D366" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
-          </linearGradient>
-          <linearGradient id="flow-ig" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#E1306C" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
-          </linearGradient>
-          <linearGradient id="flow-ms" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#00B2FF" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
-          </linearGradient>
-          <linearGradient id="flow-web" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
-          </linearGradient>
-          <linearGradient id="flow-out" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#94A3B8" stopOpacity="0.1" />
-          </linearGradient>
-
-          <filter id="orb-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        <g strokeWidth="1" fill="none" opacity="0.2">
-          <path id="path-wa" d="M 200 120 C 280 120, 290 300, 370 300" stroke="#94A3B8" />
-          <path id="path-ig" d="M 200 240 C 280 240, 290 300, 370 300" stroke="#94A3B8" />
-          <path id="path-ms" d="M 200 360 C 280 360, 290 300, 370 300" stroke="#94A3B8" />
-          <path id="path-web" d="M 200 480 C 280 480, 290 300, 370 300" stroke="#94A3B8" />
-
-          <path id="path-out-1" d="M 630 300 C 710 300, 690 210, 770 210" stroke="#94A3B8" />
-          <path id="path-out-2" d="M 630 300 C 710 300, 690 390, 770 390" stroke="#94A3B8" />
-        </g>
-
-        <g strokeWidth="1.5" fill="none" opacity="0.6">
-          <path d="M 200 120 C 280 120, 290 300, 370 300" stroke="url(#flow-wa)" />
-          <path d="M 200 240 C 280 240, 290 300, 370 300" stroke="url(#flow-ig)" />
-          <path d="M 200 360 C 280 360, 290 300, 370 300" stroke="url(#flow-ms)" />
-          <path d="M 200 480 C 280 480, 290 300, 370 300" stroke="url(#flow-web)" />
-          <path d="M 630 300 C 710 300, 690 210, 770 210" stroke="url(#flow-out)" />
-          <path d="M 630 300 C 710 300, 690 390, 770 390" stroke="url(#flow-out)" />
-        </g>
-
-        <g filter="url(#orb-glow)">
-          <circle r="3" fill="#25D366">
-            <animateMotion
-              dur="4s"
-              repeatCount="indefinite"
-              path="M 200 120 C 280 120, 290 300, 370 300"
-            />
-          </circle>
-          <circle r="3" fill="#E1306C">
-            <animateMotion
-              dur="4s"
-              begin="1s"
-              repeatCount="indefinite"
-              path="M 200 240 C 280 240, 290 300, 370 300"
-            />
-          </circle>
-          <circle r="3" fill="#00B2FF">
-            <animateMotion
-              dur="4s"
-              begin="2s"
-              repeatCount="indefinite"
-              path="M 200 360 C 280 360, 290 300, 370 300"
-            />
-          </circle>
-          <circle r="3" fill="#F59E0B">
-            <animateMotion
-              dur="4s"
-              begin="3s"
-              repeatCount="indefinite"
-              path="M 200 480 C 280 480, 290 300, 370 300"
-            />
-          </circle>
-
-          <circle r="3.5" fill="#3B82F6">
-            <animateMotion
-              dur="3s"
-              begin="0.5s"
-              repeatCount="indefinite"
-              path="M 630 300 C 710 300, 690 210, 770 210"
-            />
-          </circle>
-          <circle r="3.5" fill="#3B82F6">
-            <animateMotion
-              dur="3s"
-              begin="2s"
-              repeatCount="indefinite"
-              path="M 630 300 C 710 300, 690 390, 770 390"
-            />
-          </circle>
-        </g>
-      </svg>
-
-      <div className="absolute inset-0 h-full w-full" style={{ zIndex: 10 }}>
-        <div className="absolute top-[20%] left-[5%] w-[150px] -translate-y-1/2">
-          <ChannelCard title="WhatsApp" icon={IconBrandWhatsappFilled} brand="#25D366" />
+    <div aria-hidden="true" className="pointer-events-none w-full px-8 py-10 select-none xl:px-14">
+      <div className="mb-5 flex items-center justify-between text-xs font-medium tracking-wide text-[var(--text-secondary)]">
+        <span>One workspace. Every conversation.</span>
+        <IconArrowUpRight size={16} />
+      </div>
+      <div className="overflow-hidden rounded-[22px] border border-[var(--border-strong)] bg-white shadow-[0_24px_70px_-28px_rgba(12,22,52,0.3)]">
+        <div className="flex items-center justify-between gap-4 bg-[var(--ink-950)] px-5 py-4 text-white">
+          <div className="flex items-center gap-2.5">
+            <IconInbox size={18} stroke={1.6} className="text-white/70" />
+            <span className="text-sm font-medium">Workspace inbox</span>
+          </div>
+          <IconSearch size={16} stroke={1.6} className="text-white/50" />
         </div>
-        <div className="absolute top-[40%] left-[5%] w-[150px] -translate-y-1/2">
-          <ChannelCard title="Instagram" icon={IconBrandInstagram} brand="#E1306C" />
-        </div>
-        <div className="absolute top-[60%] left-[5%] w-[150px] -translate-y-1/2">
-          <ChannelCard title="Messenger" icon={IconBrandMessengerFilled} brand="#00B2FF" />
-        </div>
-        <div className="absolute top-[80%] left-[5%] w-[150px] -translate-y-1/2">
-          <ChannelCard title="Web Chat" icon={IconMessageCircle} brand="var(--amber-500)" />
-        </div>
-
-        <div className="absolute top-[50%] left-[50%] w-[240px] -translate-x-1/2 -translate-y-1/2">
-          <div className="relative rounded-overlay bg-[#0A0F1A] p-3.5 text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] ring-1 ring-white/10 backdrop-blur-3xl transition-transform duration-700 hover:scale-[1.02]">
-            <div className="pointer-events-none absolute inset-0 rounded-overlay bg-gradient-to-b from-white/[0.04] to-transparent" />
-
-            <div className="relative mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-overlay bg-[linear-gradient(135deg,#3B82F6_0%,#1D4ED8_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-[#0A0F1A]">
-                  <IconLock size={16} stroke={2} className="text-white drop-shadow-sm" />
-                </div>
-                <div>
-                  <span className="mb-1 block font-sans text-sm leading-none font-medium tracking-tight whitespace-nowrap text-white">
-                    Your Workspace
-                  </span>
-                  <span className="block font-sans text-xs leading-none font-medium tracking-tight whitespace-nowrap text-[var(--blue-200)]/50">
-                    Enterprise Console
-                  </span>
-                </div>
-              </div>
-              <IconServerCog size={16} stroke={1.5} className="shrink-0 text-white/20" />
+        <div className="grid min-h-[310px] grid-cols-[minmax(120px,0.8fr)_minmax(0,1.2fr)]">
+          <div className="border-r border-[var(--border-subtle)] bg-[var(--surface-sunken)]/50 p-3">
+            <div className="mb-3 px-2 py-1 text-xs font-medium text-[var(--text-secondary)]">
+              Conversations
             </div>
-
-            <div className="relative mb-3 h-[1px] w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-            <div className="relative">
-              <div className="flex items-center justify-center gap-2">
-                <span className="font-mono text-3xs font-medium tracking-[0.15em] whitespace-nowrap text-white/50 uppercase">
-                  Workspace boundary
-                </span>
+            <div className="space-y-1.5">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-white p-3 shadow-sm">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--blue-50)] text-xs font-medium text-[var(--blue-700)]">
+                    AM
+                  </span>
+                  <span className="text-xs font-medium text-[var(--text-primary)]">Alex M.</span>
+                </div>
+                <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
+                  A quick question about my order.
+                </p>
+                <IconBrandWhatsappFilled size={13} className="mt-2 text-[var(--text-tertiary)]" />
+              </div>
+              <div className="px-3 py-3">
+                <p className="text-xs font-medium text-[var(--text-primary)]">Sam K.</p>
+                <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+                  Thank you for your help.
+                </p>
+                <IconBrandInstagram size={13} className="mt-2 text-[var(--text-tertiary)]" />
+              </div>
+              <div className="border-t border-[var(--border-subtle)] px-3 py-3">
+                <p className="text-xs font-medium text-[var(--text-primary)]">Jordan N.</p>
+                <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+                  Can we arrange a delivery?
+                </p>
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="absolute top-[35%] right-[5%] w-[180px] -translate-y-1/2">
-          <FeatureCard
-            title="Assistant Rules"
-            subtitle="Workspace guidance"
-            icon={IconActivity}
-            tone="danger"
-          />
-        </div>
-
-        <div className="absolute top-[65%] right-[5%] w-[180px] -translate-y-1/2">
-          <FeatureCard
-            title="API Credentials"
-            subtitle="Coming next"
-            icon={IconKey}
-            tone="warning"
-          />
+          <div className="flex min-w-0 flex-col">
+            <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-3">
+              <span className="text-xs font-medium text-[var(--text-primary)]">Alex M.</span>
+              <span className="text-3xs text-[var(--text-secondary)]">WhatsApp</span>
+            </div>
+            <div className="flex flex-1 flex-col justify-center gap-4 p-4">
+              <p className="self-start rounded-2xl rounded-bl-sm bg-[var(--surface-sunken)] px-3.5 py-3 text-xs leading-relaxed text-[var(--text-primary)]">
+                Hello! Could you help me check my delivery?
+              </p>
+              <p className="self-end rounded-2xl rounded-br-sm bg-[var(--ink-950)] px-3.5 py-3 text-xs leading-relaxed text-white">
+                Of course. Let me check that for you.
+              </p>
+              <div className="flex items-center gap-2 text-3xs text-[var(--text-secondary)]">
+                <IconSparkles size={13} stroke={1.5} className="shrink-0" />
+                <span>Context stays with the conversation</span>
+              </div>
+            </div>
+            <div className="m-3 mt-0 flex items-center justify-between gap-2 rounded-full border border-[var(--border-strong)] px-3 py-2.5">
+              <span className="text-2xs text-[var(--text-tertiary)]">Write a reply...</span>
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--blue-600)] text-white">
+                <IconArrowUp size={13} />
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ChannelCard({
-  title,
-  icon,
-  brand,
-}: {
-  title: string;
-  icon: TablerIcon;
-
-  brand: string;
-}) {
-  return (
-    <div
-      className="group flex w-full items-center gap-3.5 rounded-card p-2.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-      style={{
-        background: 'color-mix(in oklab, var(--surface-raised) 80%, transparent)',
-        boxShadow: 'var(--shadow-sm), inset 0 0 0 1px var(--border-subtle)',
-      }}
-    >
-      <IconTile
-        icon={icon}
-        glyphColor={brand}
-        size="lg"
-        className="transition-transform duration-300 group-hover:scale-105 group-hover:rotate-2 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-hover:rotate-0"
-      />
-      <div
-        className="text-sm tracking-tight"
-        style={{ color: 'var(--text-primary)', fontWeight: 500 }}
-      >
-        {title}
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-xs text-[var(--text-secondary)]">
+        <span className="inline-flex items-center gap-1.5">
+          <IconBrandWhatsappFilled size={15} />
+          WhatsApp
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <IconBrandInstagram size={15} />
+          Instagram
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <IconBrandMessengerFilled size={15} />
+          Messenger
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <IconMessageCircle size={15} />
+          Web chat
+        </span>
       </div>
-    </div>
-  );
-}
-
-function FeatureCard({
-  title,
-  subtitle,
-  icon,
-  tone,
-}: {
-  title: string;
-  subtitle: string;
-  icon: TablerIcon;
-  tone: 'danger' | 'warning';
-}) {
-  return (
-    <div
-      className="flex w-full items-start gap-3 rounded-card p-3.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-      style={{
-        background: 'color-mix(in oklab, var(--surface-raised) 80%, transparent)',
-        boxShadow: 'var(--shadow-sm), inset 0 0 0 1px var(--border-subtle)',
-      }}
-    >
-      <IconTile icon={icon} tone={tone} size="lg" className="mt-0.5" />
-      <div>
-        <div
-          className="mb-1 font-mono text-3xs leading-tight tracking-[0.1em] uppercase"
-          style={{ color: 'var(--text-tertiary)', fontWeight: 500 }}
-        >
-          {title}
-        </div>
-        <div
-          className="text-sm leading-snug"
-          style={{ color: 'var(--text-secondary)', fontWeight: 500 }}
-        >
-          {subtitle}
-        </div>
+      <div className="mt-10 border-t border-[var(--border-strong)] pt-7">
+        <p className="font-serif text-[clamp(1.75rem,2.5vw,2.5rem)] leading-tight tracking-tight text-[var(--text-primary)]">
+          A little clarity. A better conversation.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
+          Bring your channels, team and customer context together in one considered space.
+        </p>
       </div>
     </div>
   );
