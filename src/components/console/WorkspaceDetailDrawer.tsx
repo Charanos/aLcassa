@@ -145,6 +145,7 @@ export function WorkspaceDetailDrawer({
   /* Sub-dialog state */
   const [sessionOpen, setSessionOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [statusReviewOpen, setStatusReviewOpen] = useState(false);
   /* Fetch details via Server Action */
   useEffect(() => {
     let live = true;
@@ -223,7 +224,7 @@ export function WorkspaceDetailDrawer({
     <Dialog.Root
       open
       onOpenChange={(next) => {
-        if (!next) handleClose();
+        if (!next && !sessionOpen && !profileOpen && !statusReviewOpen) handleClose();
       }}
     >
       <Dialog.Portal>
@@ -458,6 +459,7 @@ export function WorkspaceDetailDrawer({
                   workspace={row}
                   status={row.status}
                   onChanged={handleClose}
+                  onReviewOpenChange={setStatusReviewOpen}
                 />
               </div>
             </div>

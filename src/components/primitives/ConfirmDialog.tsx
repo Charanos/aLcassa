@@ -62,6 +62,10 @@ export function ConfirmDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <Dialog.Content
+          onEscapeKeyDown={(event) => {
+            event.preventDefault();
+            if (!loading) onOpenChange(false);
+          }}
           onCloseAutoFocus={(event) => {
             if (returnFocusRef?.current) {
               event.preventDefault();
@@ -184,6 +188,10 @@ export function DestructiveConfirm({
       <Dialog.Portal>
         <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <Dialog.Content
+          onEscapeKeyDown={(event) => {
+            event.preventDefault();
+            if (!loading) onOpenChange(false);
+          }}
           onCloseAutoFocus={(event) => {
             if (returnFocusRef?.current?.isConnected) {
               event.preventDefault();

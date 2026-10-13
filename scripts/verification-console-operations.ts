@@ -378,6 +378,21 @@ async function main() {
     );
     assert.deepEqual(nativeErrors, []);
   } catch (error) {
+    if (page)
+      console.log(
+        'Dialog diagnostics: ' +
+          JSON.stringify(
+            await page.locator('[role="dialog"]').evaluateAll((elements) =>
+              elements.map((element) => ({
+                state: element.getAttribute('data-state'),
+                ariaHidden: element.getAttribute('aria-hidden'),
+                hiddenAncestor: !!element.parentElement?.closest('[aria-hidden="true"]'),
+                hasFocus: element.contains(document.activeElement),
+                rendered: element.getBoundingClientRect().width > 0,
+              })),
+            ),
+          ),
+      );
     const dialogText = page
       ? await page
           .locator('[role="dialog"]')

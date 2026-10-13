@@ -16,10 +16,12 @@ export function WorkspaceStatusControl({
   workspace,
   status,
   onChanged,
+  onReviewOpenChange,
 }: {
   workspace: { id: string; name: string; slug: string };
   status: WorkspaceStatus;
   onChanged?: () => void;
+  onReviewOpenChange?: (open: boolean) => void;
 }) {
   const pushToast = useToast();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -39,6 +41,7 @@ export function WorkspaceStatusControl({
     setImpact(null);
     setPreview('loading');
     setOpen(true);
+    onReviewOpenChange?.(true);
     void fetchSuspensionImpact(workspace.id)
       .then((result) => {
         if (result.ok) {
@@ -63,6 +66,7 @@ export function WorkspaceStatusControl({
         });
         if (!result.ok) return setError(result.error);
         setOpen(false);
+        onReviewOpenChange?.(false);
         pushToast({
           tone: 'success',
           title: `${workspace.name} is ${reactivate ? 'active' : 'suspended'}`,
@@ -102,7 +106,10 @@ export function WorkspaceStatusControl({
       <DestructiveConfirm
         open={open}
         onOpenChange={(next) => {
-          if (!pending) setOpen(next);
+          if (!pending) {
+            setOpen(next);
+            onReviewOpenChange?.(next);
+          }
         }}
         returnFocusRef={trigger}
         title={`${verb} ${workspace.name}`}
