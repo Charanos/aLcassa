@@ -197,8 +197,19 @@ async function main() {
     await drawer.getByRole('button', { name: 'Suspend', exact: true }).click();
     const nested = page.getByRole('dialog', { name: `Suspend ${name}`, exact: true });
     await nested.waitFor();
+    await page.waitForFunction(
+      (element) => element?.contains(document.activeElement),
+      await nested.elementHandle(),
+    );
     await page.keyboard.press('Escape');
     await nested.waitFor({ state: 'hidden' });
+    // Radix restores the parent's accessibility and focus after the nested layer unmounts.
+    await drawer.waitFor({ state: 'visible' });
+    const suspendTrigger = drawer.getByRole('button', { name: 'Suspend', exact: true });
+    await page.waitForFunction(
+      (element) => element === document.activeElement,
+      await suspendTrigger.elementHandle(),
+    );
     assert.equal(await drawer.isVisible(), true);
     assert.equal(
       await drawer
