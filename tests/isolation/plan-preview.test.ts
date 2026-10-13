@@ -78,14 +78,23 @@ describe('plan preview and assignment consistency', () => {
       planCode: targetCode,
       status: 'trialing',
     });
-    const stored =
-      await adminQuery`select plan_id,status,trial_ends_at,current_period_start,current_period_end,version from subscriptions where tenant_id=${tenantId}`;
+    const stored = await adminQuery<
+      {
+        plan_id: string;
+        status: string;
+        trial_ends_at: Date | null;
+        current_period_start: Date;
+        current_period_end: Date;
+        version: number;
+      }[]
+    >`select plan_id,status,trial_ends_at,current_period_start,current_period_end,version from subscriptions where tenant_id=${tenantId}`;
     expect(stored).toHaveLength(1);
     expect(stored[0]).toMatchObject({ plan_id: targetId, status: 'trialing', version: 1 });
-    expect(
-      new Date(stored[0]!.trial_ends_at).getTime() -
-        new Date(stored[0]!.current_period_start).getTime(),
-    ).toBe(14 * 86_400_000);
+    const assigned = stored[0]!;
+    if (!assigned.trial_ends_at) throw new Error('An assigned trial must have an end date.');
+    expect(assigned.trial_ends_at.getTime() - assigned.current_period_start.getTime()).toBe(
+      14 * 86_400_000,
+    );
     expect(
       await adminQuery`select id from audit_log where request_id=${requestId} and tenant_id=${tenantId}`,
     ).toHaveLength(1);
@@ -118,11 +127,16 @@ describe('plan preview and assignment consistency', () => {
     try {
       const reviewed = await preview();
       await expect(assign(reviewed.fingerprint)).resolves.toMatchObject({ status: 'active' });
-      const [stored] =
-        await adminQuery`select trial_ends_at,current_period_start,current_period_end from subscriptions where tenant_id=${tenantId}`;
+      const [stored] = await adminQuery<
+        {
+          trial_ends_at: Date | null;
+          current_period_start: Date;
+          current_period_end: Date;
+        }[]
+      >`select trial_ends_at,current_period_start,current_period_end from subscriptions where tenant_id=${tenantId}`;
       expect(stored!.trial_ends_at).toBeNull();
-      expect(new Date(stored!.current_period_end).getUTCFullYear()).toBe(
-        new Date(stored!.current_period_start).getUTCFullYear() + 1,
+      expect(stored!.current_period_end.getUTCFullYear()).toBe(
+        stored!.current_period_start.getUTCFullYear() + 1,
       );
     } finally {
       await adminQuery`update plans set interval_unit='month',interval_count=1 where id=${targetId}`;

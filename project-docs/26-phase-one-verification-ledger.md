@@ -1564,3 +1564,10 @@ External sending-domain/delivery qualification and client-owned Google credentia
 belong to launch readiness. Wider console/settings CRUD/accessibility, service and
 load acceptance, independent Auth/object recovery, setup/rollback rehearsals and
 handover remain Phase One work. No additional payments or client sign-off are inferred.
+
+The initial release `1196b41` deployed successfully, but standalone CI typechecking
+refused untyped timestamp fields in the new subscription tests. The correction
+uses explicit PostgreSQL `Date` readback types, preserves nullable trial end dates
+and guards their presence before checking the duration. Standalone typechecking
+and the focused subscription suite pass; the corrected revision still requires
+its own complete CI qualification.
