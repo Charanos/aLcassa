@@ -13,6 +13,7 @@ import { Avatar } from '@/components/primitives/Avatar';
 import { Button } from '@/components/primitives/Button';
 import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
 
+import { runConsoleMutation } from '@/lib/console/mutation';
 import { useToast } from '@/components/primitives/Toast';
 import { AuditLine, AuditNote } from '@/components/console/profile/shared';
 import { AVATAR_ACCEPT, readableBytes } from '@/lib/storage/avatarRules';
@@ -22,35 +23,7 @@ import {
   updateConsoleAvatar,
 } from '@/app/(platform)/platform/(console)/profile-actions';
 
-/**
- * The profile photograph: choose, replace, remove.
- *
- * ⚠ WHY THIS EXISTS AT ALL, WHEN THE COPY BESIDE IT USED TO SAY IT NEVER WOULD.
- *
- * The old card carried a sentence — "the console shows no photographs, so an
- * avatar can never leak a face into a screenshot" — which read as a security
- * decision and was actually a description of an unbuilt feature. The schema has
- * carried `user_profiles.avatar_path` from the first migration, the API route
- * `/v1/me` has always accepted it, and the shell was rendering a stock
- * photograph of a stranger in three places because there was nothing real to
- * put there. A product that stores a field, exposes it over its own API, and
- * tells the operator the feature does not exist is not being careful.
- *
- * ⚠ THE UPLOAD IS NOT PART OF THE FORM'S DIRTY STATE, AND THAT IS DELIBERATE.
- *
- * The name field is a draft: typed, reversible, saved when the operator says
- * so. An image is not — the moment they pick a file there is nothing to keep
- * editing, and holding it in limbo behind a Save button means an upload that
- * can be lost by navigating away. Picking commits; removing confirms first.
- * Two different kinds of change, two different contracts, stated here because
- * they sit two inches apart on the same card.
- *
- * ⚠ THE THREE OUTCOMES, as everywhere else on this surface: pending in the
- * control (an overlay on the avatar itself, which is what the operator is
- * looking at), failure inline beneath it, success in a toast — because the
- * revalidation redraws the sidebar, the top bar and the account menu, and the
- * toast is what explains why the whole screen just changed.
- */
+/** Prepares images in the browser, commits uploads immediately and confirms removal. Failed uploads restore the stored photo. */
 export function AvatarField({
   initials,
   src,
@@ -140,7 +113,10 @@ export function AvatarField({
         form.append('avatar', prepared.file);
 
         startTransition(async () => {
-          const result = await updateConsoleAvatar(form);
+          const result = await runConsoleMutation(
+            () => updateConsoleAvatar(form),
+            'Your photo update',
+          );
           if (result.ok) {
             toast({
               tone: 'success',
@@ -154,7 +130,7 @@ export function AvatarField({
               return null;
             });
           }
-          router.refresh();
+          if (result.ok) router.refresh();
         });
       })();
     },
@@ -164,7 +140,7 @@ export function AvatarField({
   function remove() {
     setError(null);
     startTransition(async () => {
-      const result = await removeConsoleAvatar();
+      const result = await runConsoleMutation(() => removeConsoleAvatar(), 'Photo removal');
       if (result.ok) {
         setConfirmRemove(false);
         setPreview((current) => {

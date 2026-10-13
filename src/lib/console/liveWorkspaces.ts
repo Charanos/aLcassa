@@ -590,6 +590,7 @@ export async function getLiveAuditVolume(): Promise<AuditVolumePoint[] | null> {
     l.action in (${readActions})
     or (l.action = ${LEGACY_READS.watchlist.action} and l.entity_type = ${LEGACY_READS.watchlist.entityType})
     or (l.action = ${LEGACY_READS.preview.action} and l.reason = ${LEGACY_READS.preview.reason})
+    or (l.action = ${LEGACY_READS.suspension.action} and l.reason = ${LEGACY_READS.suspension.reason})
   )`;
 
   return withActorContext(ctx.actorId, ctx.requestId, async (tx) => {

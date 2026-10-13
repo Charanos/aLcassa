@@ -2,35 +2,13 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { IconClock, IconHistory, IconPlayerPlay, IconShieldLock } from '@tabler/icons-react';
+import { runConsoleMutation } from '@/lib/console/mutation';
 import { nextSupportReference } from '@/app/(platform)/platform/(console)/actions';
 import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
 import { REFERENCE_SEPARATOR } from '@/lib/console/references';
 import type { ConsoleWorkspace } from './types';
 
-/**
- * Enter a customer's workspace.
- *
- * ⚠ THIS DIALOG SET THE HOUSE STYLE AND NOW USES IT. Its eyebrow, its fact
- * list, its sunken footer — that vocabulary is `ConsoleDialog` now, extracted
- * so the four modals written after it stop being four approximations of this
- * one. Nothing here is lost; the padding, the borders and the footer are the
- * same rhythm, defined once.
- *
- * Two things this file gains by the move:
- *
- *   · The entrance animation no longer replays on every keystroke. It was on an
- *     inline callback ref, which React re-invokes whenever the function's
- *     identity changes — every render, for an inline arrow.
- *   · The title stops being `display display-md`. "Enter Kilimanjaro Logistics
- *     Group Ltd" at 38px wrapped to three lines and pushed the reason field
- *     below the fold on a laptop.
- *
- * ⚠ THE REFERENCE IS GENERATED, NOT INVENTED, AND NOT EDITABLE. It is numbered
- * from the platform log by `nextSupportReference` and rendered as fixed text
- * inside the reason field. It shares its grammar with the invoice numbers on
- * the billing tab — `TKT-260915-013` beside `INV-2609-2468` — because both
- * come from `lib/console/references.ts`.
- */
+/** Confirms a scoped visit with a generated reference and a required customer-visible reason. */
 export function StartSessionDialog({
   workspace,
   onCancel,
@@ -71,13 +49,20 @@ export function StartSessionDialog({
    */
   useEffect(() => {
     let live = true;
-    void nextSupportReference().then((ref) => {
-      if (!live) return;
-      setReference(ref);
-      /* Focus once the reference has landed, so the field the operator starts
+    void nextSupportReference()
+      .then((ref) => {
+        if (!live) return;
+        setReference(ref);
+        /* Focus once the reference has landed, so the field the operator starts
          typing into is the finished one. */
-      requestAnimationFrame(() => inputRef.current?.focus());
-    });
+        requestAnimationFrame(() => inputRef.current?.focus());
+      })
+      .catch(() => {
+        if (live)
+          setError(
+            'The session reference is unavailable. Close this review and reopen it to try again.',
+          );
+      });
     return () => {
       live = false;
     };
@@ -86,7 +71,7 @@ export function StartSessionDialog({
   /* The reference is not a reason, and it can no longer masquerade as one:
      `reason` holds nothing but what was typed. Eight characters, which is the
      same floor the server enforces. */
-  const ready = reason.trim().length >= 8;
+  const ready = reference !== null && reason.trim().length >= 8;
 
   /** What the customer will read, assembled exactly as the field displays it. */
   const sentence = reference ? `${reference}${REFERENCE_SEPARATOR}${reason.trim()}` : reason.trim();
@@ -95,7 +80,7 @@ export function StartSessionDialog({
     if (!ready || pending) return;
     setError(null);
     startTransition(async () => {
-      const result = await onConfirm(sentence);
+      const result = await runConsoleMutation(() => onConfirm(sentence), 'The support visit');
       if (!result.ok) setError(result.error);
     });
   }
@@ -111,7 +96,7 @@ export function StartSessionDialog({
       title={`Enter ${workspace.name}`}
       width="md"
       operation="support_session.start"
-      description="You will see this workspace under the same Row Level Security rules its own staff work under. Not a master key."
+      description="Open a time-limited visit to review this workspace and make permitted changes. The customer can end it at any time."
       facts={
         <>
           <DialogFact icon={IconClock}>
@@ -120,7 +105,8 @@ export function StartSessionDialog({
           </DialogFact>
           <DialogFact icon={IconHistory}>
             Written to <em>the customer&rsquo;s own activity log</em>, with your name and this
-            reason, and emailed to the owner. Their owners and admins can end it themselves.
+            reason. Owner notification is attempted after opening. Their owners and admins can end
+            it themselves.
           </DialogFact>
           <DialogFact icon={IconShieldLock}>
             Numbered <em>{reference ?? 'from the platform log'}</em> — the day&rsquo;s queue

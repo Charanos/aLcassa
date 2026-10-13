@@ -1571,3 +1571,66 @@ uses explicit PostgreSQL `Date` readback types, preserves nullable trial end dat
 and guards their presence before checking the duration. Standalone typechecking
 and the focused subscription suite pass; the corrected revision still requires
 its own complete CI qualification.
+
+## 47. Console status operations and independent Auth recovery — 13 October 2026
+
+The prior auth release is qualified at `1a04995f4c98e2981419b980d57af35ce28e9df6`: all six application CI jobs and its Vercel deployment passed. M2 remains 100% sandbox engineering completion; demonstration and client launch configuration remain separate.
+
+### Engineering corrections
+
+Both workspace entry points now share a confirmed status control. The drawer previously labelled its button “Reactivate” while submitting a suspension; the full detail page offered no reactivation. Status changes now invalidate both directory and detail routes, and the drawer resolves its selected record from refreshed directory data. Suspension language reflects the enforced policy: authenticated reads remain available while writes are paused.
+
+Competing status writes lock the workspace row without conflicting with foreign-key references. Two real database scenarios verify impact-only audit classification and one committed transition per competing pair, with matching customer/platform records. Impact previews now have their own read action; historical previews retain their original rows and are classified consistently in the stream and volume chart.
+
+The drawer uses the shared dialog library for focus trapping, nested dismissal and return focus. Status reviews scroll within narrow viewports, clear their typed confirmation after closing, and preserve input when a network result cannot be confirmed. Clipboard success feedback follows a successful copy.
+
+### Qualified recovery
+
+An owned restore target reconciled **61 tables, 52 policies and 17 context functions**, including row fingerprints, ownership, grants, default denial and definer settings. A separate local Auth container, using the pinned installed image, authenticated the restored identity against the restored Auth schema. Its provider session existed in the restored database and remained absent from the source. The restored application served account/company reads; the restricted service admitted the permitted read and refused missing scope and a revoked credential. Source credential state remained unchanged. Temporary workers, Auth container, environment file, dump, target database and owned fixtures were removed.
+
+This closes the independent Auth-process portion of recovery. It does not claim object-byte restoration, a separate PostgreSQL cluster, hosted disaster recovery or production RTO/RPO.
+
+### Verification status
+
+The cache-disabled application regression passed **720/720 cases in 63 files**, without skips. The final two focused database cases also pass after the audit vocabulary correction. The production application build passed all 93 routes. Native console acceptance is being qualified as one 16-scenario run, covering both status entry points, refusal, customer read/write policy, paired audit records, keyboard/focus, narrow layouts, conflicting settings editors and offline retry. Publish that receipt only after the entire run and fixture cleanup pass; earlier failed attempts remain private diagnostics until the bounded public outcome is generated.
+
+The first development attempts exceeded cold-compilation navigation deadlines. Subsequent harness corrections used real browser cookies for Secure local sessions, supplied the credential probe's required idempotency key, selected the actual grid trigger and waited for the submitted nested dialog rather than its accessibility-hidden parent. A later run exposed stale directory-row state, which is corrected. Settings recovery and network retry remain subject to final native qualification.
+
+M6 advances from 64% to 68% for independent Auth recovery. M4 remains at its prior assessment until the complete console receipt passes. Neither milestone is presented as complete.
+
+**Native acceptance completed:** the complete production-build console run subsequently passed all **16 scenarios**, including settings conflict reload, restoration through the reviewed action, offline preview/save refusal and successful retry. The run removed all owned fixtures and restored platform settings. M4 advances from 90% to 94%; remaining support, profile, rule failures and complete accessibility acceptance remain explicit. Public receipts are `/verification/2026-10-13/console-operations-results.json` and `/verification/2026-10-13/independent-auth-recovery-results.json`; the evidence index now carries 17 SHA-256 fingerprints. The verification page links both under `#console-recovery-checkpoint`.
+
+The interrupted host session required Docker to restart before the final run. Disk space was 13.45 GB free and Windows had 2.45 GB available RAM; the user agreed to close BlueStacks. The successful acceptance run was serialized after Docker became available. This is environmental context, not a latency qualification or an attributed application defect. Earlier settings harness attempts are not counted as successful acceptance; the final run uses Discard for its invalid-field probe, unique reviewed values and waits for the refreshed field value.
+
+
+## 48. Support, profile and rules acceptance - 13 October 2026
+
+The additional production-build run passes **14 native scenarios**, four modal keyboard/axe checks and owned-fixture cleanup. Together with section 47, these are 30 scenario checks across two acceptance runs, rather than 30 independent end-to-end suites. The regression passes **724/724 cases in 65 files**, without skips.
+
+### Corrected behavior
+
+- Removing support capability previously blocked new visits while an existing visit remained readable. Context resolution now requires the live capability, and every support data transaction rechecks grant, actor, workspace, expiry, revocation and operator record. A database regression refuses a previously resolved context after capability removal, expiry, revocation, workspace mismatch or operator deletion. Company-support acceptance now uses a real grant.
+- Lost Server Action responses preserve drafts and report an unconfirmed outcome. Native provisioning, support, invitation, name, photo and rule cases verify recovery. Existing capability, version, cooldown and audit guards remain authoritative.
+- Actual Storage requests verify ownership, allowed MIME types and the 2 MB ceiling. One identity cannot upload into or delete another identity's folder. The owner can upload and remove its own image. Browser preparation stores WebP; replacement removes the old object and confirmed removal clears both the profile row and object. Offline failures preserve the stored image.
+- Shared guidance can be created from an empty active set. Publication appends once, a competing stale editor is refused, and reviewed restoration moves the pointer without deleting history. Capability removal after opening the editor is enforced on submission. Unknown outcomes retain drafts.
+- Notification, profile-name, trial and support-scope copy matches actual behavior. Owner notification is attempted after the support grant commits; changing a profile name preserves the separately granted operator label used for audit attribution. Touched component comments were shortened to their rationale.
+
+### Accessibility and scope
+
+The console passes **126 WCAG 2.1 A/AA-tagged axe visits** across 18 surfaces at 1440, 1280, 1024, 768, 390, 320 and 720px, without reported violations or page overflow. Corrections cover small-text contrast, overview definition lists, chart segment names and keyboard-accessible horizontal scrolling. Four action modals trap focus during repeated Tab navigation. The native Chrome interface reported 200% zoom; the profile reflowed to a 518 by 375 CSS viewport without page overflow. This observation is separate from viewport emulation and screen-reader output.
+
+Incomplete contrast findings require review and actual screen-reader samples remain required. Automatic approval review rejected preparing and running the portable NVDA runtime. A safer download-only step prepared an NV Access-signed package without executing it; the user has been asked to make NVDA available. M4 advances to **98%**, with manual accessibility acceptance open. No formal WCAG or complete milestone acceptance is claimed.
+
+The first resend fixture correctly hit its cooldown; the harness now asserts that refusal before explicitly aging the owned fixture. Expiry denied access immediately, while the register reconciled its terminal audit. An empty active master-rule pointer required native first publication before later comparisons. Active support and published-rule states exposed additional contrast findings, which were corrected. An independent Storage probe originally used global provider sign-out and invalidated the browser fixture; it now ends only its own provider session. Earlier failed attempts are not counted as the qualified complete run.
+
+The public receipt is `/verification/2026-10-13/platform-console-acceptance-results.json`, linked under `#platform-closure-checkpoint`. The evidence index contains 18 SHA-256 fingerprints. DOM captures, fixture identities, credentials and worker logs remain private. New CI steps repeat console operations, native acceptance and the accessibility matrix; their first exact-revision qualification awaits the release push. The hosted sandbox bucket declares the same upload limits while preserving existing objects and visibility. Functional Storage acceptance remains explicitly local.
+
+**Final support follow-up:** all eight production-browser scenarios pass after live banner authority and in-flight expiry handling were tightened. The follow-up preserves the original 14-scenario receipt and records its own fixture cleanup. A focused database case also confirms the support banner no longer describes a visit whose operator permission was removed. The rendered-background contrast review identified month labels at approximately 3.76:1; labels and tooltip metadata now use the shared readable chrome token. The review harness also masks SVG text using its actual fill color, preserving this failed baseline rather than claiming it passed.
+
+### M4 engineering closure — 13 October 2026
+
+All five rendered-background contrast surfaces pass after correcting the overview month labels and tooltip metadata. Actual NVDA Speech Viewer output was reviewed for protected/required sign-in fields and completion feedback, profile labels/help and discard status, navigation landmarks/current-page semantics, and provisioning dialog/field names and help. This is a bounded actual screen-reader sample, not an accessibility-tree substitute or formal certification. The review exposed lost opener focus on provisioning dismissal. The dialog now remembers the connected opener, and a dedicated production-browser scenario verifies modal keyboard containment, offline draft recovery, no created workspace and returned opener focus; cleanup passes.
+
+M4 reaches **100% engineering completion in the agreed sandbox scope**, pending client demonstration. The 14-scenario baseline, 16 console-operation scenarios, eight final support follow-ups, one final provisioning-focus scenario, 126 accessibility visits, five contrast surfaces and 724-case regression retain separate receipts. Existing 200% native Chrome zoom evidence is preserved with its original timestamp. M5, M4a and M6 remain at their own recorded gates; M4 closure does not represent complete Phase One or external production readiness. Exact-revision CI and deployment qualification follow the release push.
+
+**Verification catalogue cleanup:** one older owned Operational acceptance plan and its two owned test workspaces were removed from the disposable local provider after exact fixture identity checks. No such plans exist in the hosted sandbox. Final local fixture-plan count is zero. Temporary active-run fixtures are test data and are not product plans.

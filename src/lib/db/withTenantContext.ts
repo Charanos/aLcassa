@@ -2,6 +2,7 @@ import 'server-only';
 import { sql } from 'drizzle-orm';
 import { db, type Transaction } from './client';
 import type { ResolvedContext } from './context';
+import { AppError, ERROR_CODES } from '@/lib/errors';
 
 /**
  * 06 §3. THE SINGLE MOST IMPORTANT FUNCTION IN THIS CODEBASE.
@@ -44,6 +45,20 @@ export async function withTenantContext<T>(
       set_config('app.support_mode', ${String(ctx.supportMode)}, true),
       set_config('app.actor_id', ${ctx.actorId}, true),
       set_config('app.request_id', ${ctx.requestId}, true)`);
+
+    // Recheck the grant at the data operation, including contexts resolved before revocation.
+    if (ctx.supportMode) {
+      if (!ctx.sessionId) throw new AppError(ERROR_CODES.SUPPORT_SESSION_EXPIRED);
+      const live = await tx.execute<{ id: string }>(sql`
+        select s.id from public.sessions s
+        join public.platform_admins p on p.user_id=s.user_id
+        where s.id=${ctx.sessionId}::uuid and s.user_id=${ctx.actorId}::uuid
+          and s.tenant_id=${ctx.tenantId}::uuid and s.kind='support'
+          and s.revoked_at is null and s.expires_at>clock_timestamp()
+          and p.deleted_at is null and p.can_enter_support_mode=true
+        limit 1`);
+      if (live.length === 0) throw new AppError(ERROR_CODES.SUPPORT_SESSION_EXPIRED);
+    }
 
     return fn(tx);
   }, options);

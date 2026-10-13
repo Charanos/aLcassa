@@ -20,6 +20,8 @@ import operational from '@/lib/presentation/operationalGatesVerification.json';
 import followup from '@/lib/presentation/operationalFollowupVerification.json';
 import workflows from '@/lib/presentation/accountWorkflowsVerification.json';
 import evidenceIndex from '@/lib/presentation/phaseOneEvidenceIndex.json';
+import consoleAcceptance from '@/lib/presentation/consoleOperationsVerification.json';
+import platformReview from '@/lib/presentation/platformConsoleVerification.json';
 import { TrackerNavigation } from '@/components/presentation/TrackerNavigation';
 import {
   MILESTONES,
@@ -104,6 +106,129 @@ export default function VerificationRecordPage() {
           </div>
         </aside>
       </header>
+
+      <section
+        id="platform-closure-checkpoint"
+        aria-labelledby="platform-closure-title"
+        className="mt-12 scroll-mt-8 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 md:p-8"
+      >
+        <p className="t-eyebrow text-[var(--text-tertiary)]">
+          13 October · Platform console verification
+        </p>
+        <h2 id="platform-closure-title" className="t-heading mt-3">
+          Support and account controls, verified
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          The latest browser run verifies support entry, extensions, expiry, colleague termination,
+          emergency locking and invitation changes. Profile names and photos recover from failed
+          connections, while shared rules refuse stale editors and support reviewed restoration.
+          Removing an operator’s support capability now closes customer access at both the request
+          and data boundaries.
+        </p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-6 sm:grid-cols-3">
+          <Metric
+            plain
+            value={String(platformReview.nativeChecks)}
+            label="Additional native scenarios"
+            detail="All pass · owned fixtures removed"
+          />
+          <Metric
+            plain
+            value={String(platformReview.visits)}
+            label="Accessibility visits"
+            detail={`${platformReview.surfaces} console surfaces · seven widths`}
+          />
+          <Metric
+            plain
+            value={`${platformReview.zoomPercent}%`}
+            label="Actual Chrome zoom"
+            detail="Profile reflows without page overflow"
+          />
+        </dl>
+        <p className="t-compact mt-5 text-[var(--text-secondary)]">
+          No automated accessibility violations or page overflow were reported. Storage also refuses
+          another account’s uploads and deletions, unsupported file types and files over 2 MB. The
+          cache-disabled application regression passes {platformReview.regression.passed} cases in{' '}
+          {platformReview.regression.files} files.
+        </p>
+        <aside className="mt-5 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-inset)] p-4">
+          <p className="t-compact font-medium">Console accessibility review completed</p>
+          <p className="t-caption mt-2 text-[var(--text-secondary)]">
+            Actual NVDA announcements cover sign-in, profile edits, navigation and provisioning.
+            Rendered contrast passes on five representative surfaces; a dedicated regression
+            verifies provisioning returns focus to its opener. This completes the console
+            engineering review in the agreed sandbox scope. Client demonstration and formal WCAG
+            certification are separate.
+          </p>
+        </aside>
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
+          <EvidenceDownload
+            href={platformReview.results.path}
+            label="Platform console acceptance results"
+          />
+          <a
+            href="https://github.com/Charanos/aLcassa/actions/workflows/ci.yml?query=branch%3Amain"
+            className="t-compact inline-flex items-center gap-2 text-[var(--text-action)] underline underline-offset-4"
+          >
+            Latest main release checks <IconArrowUpRight size={16} aria-hidden />
+          </a>
+        </div>
+      </section>
+
+      <section
+        id="console-recovery-checkpoint"
+        aria-labelledby="console-recovery-title"
+        className="mt-12 scroll-mt-8 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 md:p-8"
+      >
+        <p className="t-eyebrow text-[var(--text-tertiary)]">
+          13 October · Console and recovery acceptance
+        </p>
+        <h2 id="console-recovery-title" className="t-heading mt-3">
+          Workspace changes, verified
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          Suspension and reactivation now work from both workspace views. Browser checks verify
+          permissions, customer read-only access, matching activity records, keyboard focus,
+          narrow-screen reviews, conflicting settings edits and retry after a lost connection.
+          Opening an impact review is recorded separately from changing a workspace.
+        </p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-6 sm:grid-cols-3">
+          <Metric
+            plain
+            value={String(consoleAcceptance.nativeChecks)}
+            label="Native action scenarios"
+            detail="Production build · owned fixtures removed"
+          />
+          <Metric
+            plain
+            value={String(consoleAcceptance.tables)}
+            label="Restored tables reconciled"
+            detail="Rows, ownership and grants match"
+          />
+          <Metric
+            plain
+            value={String(consoleAcceptance.policies)}
+            label="Restored access policies"
+            detail={`${consoleAcceptance.contextFunctions} context functions also verified`}
+          />
+        </dl>
+        <p className="t-compact mt-5 text-[var(--text-secondary)]">
+          An independent local Auth process signs in against the restored database and creates its
+          provider session only there. Restored application reads, service scopes and credential
+          revocation pass. Object-byte recovery, load acceptance and the remaining surface reviews
+          continue as separate gates; this is not a hosted disaster-recovery claim.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
+          <EvidenceDownload
+            href={consoleAcceptance.operations.path}
+            label="Console action results"
+          />
+          <EvidenceDownload
+            href={consoleAcceptance.recovery.path}
+            label="Independent Auth recovery results"
+          />
+        </div>
+      </section>
 
       <section
         id="confirmed-onboarding-checkpoint"

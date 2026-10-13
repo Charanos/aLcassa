@@ -1,0 +1,1750 @@
+{
+  "checkedAt": "2026-10-13T10:24:33.189Z",
+  "localOnly": true,
+  "productionBuild": true,
+  "fixtureCleanup": true,
+  "consoleActionAcceptancePassed": true,
+  "checks": [
+    "Provisioning traps keyboard focus, names its fields, preserves a failed offline draft and returns to an actionable state without creating a workspace.",
+    "Support entry requires a generated immutable reference and valid reason; offline failure retains the reason, creates no grant, and retries once.",
+    "Inside support reads resolve the customer context; invitation resend preserves state offline, rotates the actual token online and records one support-mode customer event.",
+    "A second operator ends the visit; the already-open invitation review is refused without a write, and the next customer read resolves no support context.",
+    "Two native extensions succeed only in the controlled last-five-minute window; no third extension is offered, and explicit leave closes the grant.",
+    "Controlled expiry closes the visit; removing the operator’s live support capability removes customer context on the next read.",
+    "Emergency lock closes the existing owned visit, refuses a stale prepared entry without another grant, and native release restores availability.",
+    "A fresh authorized visit revokes the invitation and releases its reserved seat; the refused stale attempt did neither.",
+    "Invalid names cannot save; Escape discards, Ctrl+Enter recovers an offline draft, canonical whitespace persists, and the separately granted roster label is preserved.",
+    "The user-scoped Storage API refuses foreign-folder upload and deletion, unsupported MIME types and files over 2MB; the object owner can upload and remove their own image.",
+    "Malformed images are refused; real browser crop/re-encoding stores WebP, offline replacement/removal preserve the stored image, replacement deletes the old object, and removal clears the profile and object.",
+    "An empty shared-rule set accepts its first native publication and exposes the real published version.",
+    "Shared rules require changed fields and a note; offline publish/restore keep drafts and the pointer unchanged, publication appends once, a stale second editor cannot overwrite it, and restoration retains history.",
+    "Removing shared-rule capability after the editor opens is enforced on submission; no version is appended and no successful publication is recorded."
+  ],
+  "modalChecks": [
+    {
+      "name": "provision",
+      "violations": []
+    },
+    {
+      "name": "inside-resend",
+      "violations": []
+    },
+    {
+      "name": "profile-photo",
+      "violations": []
+    },
+    {
+      "name": "master-rules",
+      "violations": []
+    }
+  ],
+  "supportFollowUp": {
+    "checkedAt": "2026-10-13T14:46:10.822Z",
+    "checks": [
+      "Provisioning traps keyboard focus, names its fields, preserves a failed offline draft and returns to an actionable state without creating a workspace.",
+      "Support entry requires a generated immutable reference and valid reason; offline failure retains the reason, creates no grant, and retries once.",
+      "Inside support reads resolve the customer context; invitation resend preserves state offline, rotates the actual token online and records one support-mode customer event.",
+      "A second operator ends the visit; the already-open invitation review is refused without a write, and the next customer read resolves no support context.",
+      "Two native extensions succeed only in the controlled last-five-minute window; no third extension is offered, and explicit leave closes the grant.",
+      "Controlled expiry closes the visit; removing the operator’s live support capability removes customer context on the next read.",
+      "Emergency lock closes the existing owned visit, refuses a stale prepared entry without another grant, and native release restores availability.",
+      "A fresh authorized visit revokes the invitation and releases its reserved seat; the refused stale attempt did neither."
+    ],
+    "passed": true,
+    "fixtureCleanup": true,
+    "boundary": "Owned local fixtures. Expiry and extension windows use explicit controlled database clock setup. Browser and database acceptance is separate from client demonstration and actual screen-reader output."
+  },
+  "renderedContrast": {
+    "checkedAt": "2026-10-13T15:01:14.956Z",
+    "passed": true,
+    "fixtureCleanup": true,
+    "localOnly": true,
+    "productionBuild": true,
+    "rows": [
+      {
+        "surface": "overview",
+        "measured": 55,
+        "decorative": 2,
+        "failed": 0,
+        "minimumRatio": 4.674226266375104
+      },
+      {
+        "surface": "plans",
+        "measured": 33,
+        "decorative": 2,
+        "failed": 0,
+        "minimumRatio": 7.2386813922610385
+      },
+      {
+        "surface": "health",
+        "measured": 52,
+        "decorative": 2,
+        "failed": 0,
+        "minimumRatio": 7.2386813922610385
+      },
+      {
+        "surface": "profile",
+        "measured": 27,
+        "decorative": 2,
+        "failed": 0,
+        "minimumRatio": 7.2386813922610385
+      },
+      {
+        "surface": "provision",
+        "measured": 0,
+        "decorative": 57,
+        "failed": 0,
+        "minimumRatio": 21
+      }
+    ],
+    "boundary": "Pixel backgrounds beneath rendered text rectangles, with foreground alpha and font-size thresholds, on five representative shared chrome/hero/KPI surfaces. Decorative aria-hidden text is excluded. This complements axe incomplete findings; it is not a screen-reader or formal compliance certification."
+  },
+  "verificationDataCleanup": {
+    "checkedAt": "2026-10-13T15:15:26.801Z",
+    "localOnly": true,
+    "removedPlans": 1,
+    "removedOwnedWorkspaces": 2,
+    "remainingFixturePlans": 0
+  },
+  "screenReader": {
+    "checkedAt": "2026-10-13T15:10:14.5488081Z",
+    "passed": true,
+    "localOnly": true,
+    "screenReader": "NVDA 2026.2",
+    "browser": "Chrome on Windows",
+    "observedThrough": "Actual NVDA Speech Viewer, visually reviewed through the desktop tool",
+    "samples": [
+      "Provider-backed fixture sign-in: email is announced as required, password as protected and required, pending sign-in as unavailable, followed by Opening platform console and Signed in / Welcome back feedback.",
+      "Profile: Full name is announced as an edit field with its display/audit-label help. Discard restores the stored name and announces No changes.",
+      "Console navigation: Workspaces is announced within the Platform navigation landmark, with link and current-page semantics after navigation.",
+      "Provisioning: Provision a workspace is announced as a dialog with its purpose; Close is named, and keyboard navigation announces Legal name, Workspace identifier and Owner email with invitation help."
+    ],
+    "failedBaseline": "Provision dismissal initially returned to the document rather than the opener. A dedicated production-browser follow-up must pass before this review is published.",
+    "boundary": "Bounded actual screen-reader sample of critical console entry, editing, navigation and provisioning controls. Functional mutations and modal focus traps have separate native acceptance. This is not formal WCAG certification or a claim about every browser and assistive technology."
+  },
+  "provisionFocusFollowUp": {
+    "checkedAt": "2026-10-13T15:13:05.287Z",
+    "checks": [
+      "Provisioning traps keyboard focus, names its fields, preserves a failed offline draft and returns focus to its opener on dismissal without creating a workspace."
+    ],
+    "passed": true,
+    "fixtureCleanup": true
+  },
+  "accessibility": {
+    "checkedAt": "2026-10-13T10:26:11.715Z",
+    "surfaces": 18,
+    "visits": 126,
+    "widths": [
+      1440,
+      1280,
+      1024,
+      768,
+      390,
+      320,
+      720
+    ],
+    "violations": 0,
+    "pageOverflow": 0,
+    "checks": [
+      {
+        "surface": "overview",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 57
+          }
+        ]
+      },
+      {
+        "surface": "workspaces",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 43
+          }
+        ]
+      },
+      {
+        "surface": "provision",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-hidden-focus",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 57
+          }
+        ]
+      },
+      {
+        "surface": "plans",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 36
+          }
+        ]
+      },
+      {
+        "surface": "value",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 42
+          }
+        ]
+      },
+      {
+        "surface": "rules",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 29
+          }
+        ]
+      },
+      {
+        "surface": "health",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 54
+          }
+        ]
+      },
+      {
+        "surface": "audit",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 42
+          }
+        ]
+      },
+      {
+        "surface": "admins",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 46
+          }
+        ]
+      },
+      {
+        "surface": "support",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 42
+          }
+        ]
+      },
+      {
+        "surface": "settings",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 41
+          }
+        ]
+      },
+      {
+        "surface": "profile",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 29
+          }
+        ]
+      },
+      {
+        "surface": "workspace.overview",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "workspace.billing",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "workspace.staff",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 29
+          }
+        ]
+      },
+      {
+        "surface": "workspace.channels",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 29
+          }
+        ]
+      },
+      {
+        "surface": "workspace.rules",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "workspace.audit",
+        "width": 1440,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 38
+          }
+        ]
+      },
+      {
+        "surface": "overview",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 58
+          }
+        ]
+      },
+      {
+        "surface": "workspaces",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 46
+          }
+        ]
+      },
+      {
+        "surface": "provision",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-hidden-focus",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 67
+          }
+        ]
+      },
+      {
+        "surface": "plans",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 36
+          }
+        ]
+      },
+      {
+        "surface": "value",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 42
+          }
+        ]
+      },
+      {
+        "surface": "rules",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 30
+          }
+        ]
+      },
+      {
+        "surface": "health",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 51
+          }
+        ]
+      },
+      {
+        "surface": "audit",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 46
+          }
+        ]
+      },
+      {
+        "surface": "admins",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 44
+          }
+        ]
+      },
+      {
+        "surface": "support",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "settings",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 41
+          }
+        ]
+      },
+      {
+        "surface": "profile",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 29
+          }
+        ]
+      },
+      {
+        "surface": "workspace.overview",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 39
+          }
+        ]
+      },
+      {
+        "surface": "workspace.billing",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "workspace.staff",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "workspace.channels",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "workspace.rules",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "workspace.audit",
+        "width": 1280,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 37
+          }
+        ]
+      },
+      {
+        "surface": "overview",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 55
+          }
+        ]
+      },
+      {
+        "surface": "workspaces",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 41
+          }
+        ]
+      },
+      {
+        "surface": "provision",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-hidden-focus",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 67
+          }
+        ]
+      },
+      {
+        "surface": "plans",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 31
+          }
+        ]
+      },
+      {
+        "surface": "value",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 41
+          }
+        ]
+      },
+      {
+        "surface": "rules",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 29
+          }
+        ]
+      },
+      {
+        "surface": "health",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 42
+          }
+        ]
+      },
+      {
+        "surface": "audit",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 43
+          }
+        ]
+      },
+      {
+        "surface": "admins",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 42
+          }
+        ]
+      },
+      {
+        "surface": "support",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "settings",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 41
+          }
+        ]
+      },
+      {
+        "surface": "profile",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 29
+          }
+        ]
+      },
+      {
+        "surface": "workspace.overview",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 39
+          }
+        ]
+      },
+      {
+        "surface": "workspace.billing",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "workspace.staff",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "workspace.channels",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "workspace.rules",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "workspace.audit",
+        "width": 1024,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 37
+          }
+        ]
+      },
+      {
+        "surface": "overview",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 39
+          }
+        ]
+      },
+      {
+        "surface": "workspaces",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "provision",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-hidden-focus",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 54
+          }
+        ]
+      },
+      {
+        "surface": "plans",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "value",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "rules",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "health",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 39
+          }
+        ]
+      },
+      {
+        "surface": "audit",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "admins",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 42
+          }
+        ]
+      },
+      {
+        "surface": "support",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 39
+          }
+        ]
+      },
+      {
+        "surface": "settings",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "profile",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 28
+          }
+        ]
+      },
+      {
+        "surface": "workspace.overview",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 39
+          }
+        ]
+      },
+      {
+        "surface": "workspace.billing",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 40
+          }
+        ]
+      },
+      {
+        "surface": "workspace.staff",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 27
+          }
+        ]
+      },
+      {
+        "surface": "workspace.channels",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 27
+          }
+        ]
+      },
+      {
+        "surface": "workspace.rules",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 27
+          }
+        ]
+      },
+      {
+        "surface": "workspace.audit",
+        "width": 768,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 37
+          }
+        ]
+      },
+      {
+        "surface": "overview",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 11
+          }
+        ]
+      },
+      {
+        "surface": "workspaces",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 14
+          }
+        ]
+      },
+      {
+        "surface": "provision",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-hidden-focus",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "plans",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "value",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "rules",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 3
+          }
+        ]
+      },
+      {
+        "surface": "health",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 9
+          }
+        ]
+      },
+      {
+        "surface": "audit",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "admins",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "support",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-prohibited-attr",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "settings",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "profile",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "workspace.overview",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 12
+          }
+        ]
+      },
+      {
+        "surface": "workspace.billing",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "workspace.staff",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "workspace.channels",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "workspace.rules",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "workspace.audit",
+        "width": 390,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 10
+          }
+        ]
+      },
+      {
+        "surface": "overview",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 11
+          }
+        ]
+      },
+      {
+        "surface": "workspaces",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 12
+          }
+        ]
+      },
+      {
+        "surface": "provision",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-hidden-focus",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "plans",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "value",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "rules",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 3
+          }
+        ]
+      },
+      {
+        "surface": "health",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 7
+          }
+        ]
+      },
+      {
+        "surface": "audit",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 12
+          }
+        ]
+      },
+      {
+        "surface": "admins",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 10
+          }
+        ]
+      },
+      {
+        "surface": "support",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 11
+          }
+        ]
+      },
+      {
+        "surface": "settings",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 12
+          }
+        ]
+      },
+      {
+        "surface": "profile",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "workspace.overview",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 7
+          }
+        ]
+      },
+      {
+        "surface": "workspace.billing",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 7
+          }
+        ]
+      },
+      {
+        "surface": "workspace.staff",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "workspace.channels",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "workspace.rules",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "surface": "workspace.audit",
+        "width": 320,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 7
+          }
+        ]
+      },
+      {
+        "surface": "overview",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 23
+          }
+        ]
+      },
+      {
+        "surface": "workspaces",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 15
+          }
+        ]
+      },
+      {
+        "surface": "provision",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "aria-hidden-focus",
+            "nodes": 4
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 24
+          }
+        ]
+      },
+      {
+        "surface": "plans",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 4
+          }
+        ]
+      },
+      {
+        "surface": "value",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 14
+          }
+        ]
+      },
+      {
+        "surface": "rules",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 4
+          }
+        ]
+      },
+      {
+        "surface": "health",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "audit",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 15
+          }
+        ]
+      },
+      {
+        "surface": "admins",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 14
+          }
+        ]
+      },
+      {
+        "surface": "support",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "settings",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 14
+          }
+        ]
+      },
+      {
+        "surface": "profile",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 2
+          }
+        ]
+      },
+      {
+        "surface": "workspace.overview",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "surface": "workspace.billing",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 14
+          }
+        ]
+      },
+      {
+        "surface": "workspace.staff",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 2
+          }
+        ]
+      },
+      {
+        "surface": "workspace.channels",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 2
+          }
+        ]
+      },
+      {
+        "surface": "workspace.rules",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 2
+          }
+        ]
+      },
+      {
+        "surface": "workspace.audit",
+        "width": 720,
+        "overflow": 0,
+        "violations": [],
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 11
+          }
+        ]
+      }
+    ],
+    "boundary": "WCAG 2.1 A/AA tagged axe scans of 18 console surfaces at 1440, 1280, 1024, 768, 390, 320 and 720px. Incomplete findings require review; native browser zoom, keyboard/modal and action workflows are separate acceptance. This is not a claim of actual NVDA/VoiceOver output or formal WCAG certification."
+  },
+  "nativeBrowserZoom": {
+    "percentObserved": 200,
+    "surface": "Platform profile",
+    "metrics": {
+      "width": 518,
+      "height": 375,
+      "devicePixelRatio": 2.5,
+      "overflow": 0,
+      "title": "Your profile · Platform · aLcassa"
+    },
+    "boundary": "The native Chrome interface reported 200%; the owned profile page reflowed without page overflow. This is one actual zoom sample, separate from viewport emulation and screen-reader output."
+  },
+  "avatarConfiguration": {
+    "hostedSandboxConfigured": true,
+    "maximumBytes": 2097152,
+    "allowedMimeTypes": [
+      "image/png",
+      "image/jpeg",
+      "image/webp"
+    ],
+    "visibilityPreserved": true,
+    "existingObjectsPreserved": true,
+    "functionalAcceptanceEnvironment": "Disposable local provider"
+  },
+  "regression": {
+    "passed": 724,
+    "files": 65,
+    "failed": 0,
+    "skipped": 0
+  },
+  "correctedDefects": [
+    "An existing support visit remained readable after its operator capability was removed; context resolution and data transactions now recheck live authority.",
+    "Lost mutation responses could strand drafts or pending controls; outcomes now remain explicitly unconfirmed and recoverable.",
+    "Avatar limits existed in the form but not at the Storage API; bucket configuration now enforces MIME and size limits.",
+    "Small-text contrast, overview definition-list semantics, chart segment labels and scroll-region keyboard access were incomplete.",
+    "Profile, support notification and trial labels overstated behavior; copy now matches the actual data and delivery outcomes."
+  ],
+  "failedAttempts": [
+    "The first resend fixture was still inside its cooldown; that refusal is now asserted before an explicit aged-fixture retry.",
+    "Expiry denied customer access immediately, while terminal audit closure occurred when the support register reconciled lapsed visits.",
+    "An empty master-rule pointer required exercising native first publication before publication and restoration comparisons.",
+    "Native active-visit and published-rule states exposed contrast issues absent from the empty-page scan; both were corrected.",
+    "The independent Storage probe originally used global provider sign-out and invalidated the browser fixture; it now ends only its own provider session."
+  ],
+  "remaining": [],
+  "boundary": "M4 engineering acceptance passed in the agreed disposable sandbox scope, including native actions, rendered contrast, keyboard/focus checks and an actual NVDA sample. Client demonstration, complete Phase One acceptance and other milestone gates remain separate. This receipt does not claim formal WCAG certification or every assistive-technology/browser combination."
+}

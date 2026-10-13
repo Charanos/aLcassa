@@ -85,6 +85,11 @@ const VOCABULARY: Record<string, AuditDescription> = {
     tone: 'success',
   },
   'tenant.suspended': { label: 'Workspace suspended', icon: IconPlayerPause, tone: 'danger' },
+  'tenant.suspension_previewed': {
+    label: 'Suspension impact reviewed',
+    icon: IconEye,
+    tone: 'neutral',
+  },
   'tenant.reactivated': { label: 'Workspace reactivated', icon: IconPlayerPlay, tone: 'success' },
   'tenant.settings_updated': {
     label: 'Workspace settings changed',
@@ -198,6 +203,7 @@ const VOCABULARY: Record<string, AuditDescription> = {
 export type AuditNature = 'change' | 'read';
 
 export const READ_ACTIONS: readonly string[] = [
+  'tenant.suspension_previewed',
   'support.session_read',
   'watchlist.read',
   'tenant.provisioning_checked',
@@ -205,22 +211,11 @@ export const READ_ACTIONS: readonly string[] = [
   'customer_record.read',
 ];
 
-/**
- * Rows written under a CHANGE verb that were in fact reads.
- *
- * ⚠ RECOGNISED, NEVER REWRITTEN. The table is append-only by policy — no update
- * and no delete, for anyone — and a correction that edited history would be
- * the one thing this log must never do. These two shapes are exact: nothing
- * else was ever written with `entity_type = 'watchlist'`, and the preview's
- * reason string was fixed text. Everything written from 30 Sep 2026 uses the
- * read verbs above, and these patterns stop growing.
- *
- * Exported for the volume query, which must classify the same rows the same
- * way in SQL — see `getLiveAuditVolume`.
- */
+/** Preserve original history while classifying known legacy reads consistently in rows and charts. */
 export const LEGACY_READS = {
   watchlist: { action: 'subscription.status_changed', entityType: 'watchlist' },
   preview: { action: 'subscription.plan_assigned', reason: 'preview only, no change written' },
+  suspension: { action: 'tenant.suspended', reason: 'suspension preview, no change written' },
 } as const;
 
 type EntryShape = { action: string; entityType?: string | null; reason?: string | null };
@@ -233,6 +228,11 @@ function legacyReadOf(row: EntryShape): string | null {
     return 'watchlist.read';
   if (row.action === LEGACY_READS.preview.action && row.reason === LEGACY_READS.preview.reason)
     return 'subscription.plan_change_previewed';
+  if (
+    row.action === LEGACY_READS.suspension.action &&
+    row.reason === LEGACY_READS.suspension.reason
+  )
+    return 'tenant.suspension_previewed';
   return null;
 }
 
@@ -255,7 +255,9 @@ export function describeEntry(row: EntryShape): AuditDescription & {
   return {
     ...describeAction(effective),
     nature: natureOf(row),
-    relabelled: legacy ? `Recorded as ${row.action} before 30 Sep 2026` : null,
+    relabelled: legacy
+      ? `Recorded as ${row.action}; identified by its original read metadata`
+      : null,
   };
 }
 

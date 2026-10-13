@@ -115,8 +115,8 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
   date: '13 October 2026',
-  applicationTests: 718,
-  applicationFiles: 62,
+  applicationTests: 724,
+  applicationFiles: 65,
   serviceTests: 34,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -178,8 +178,8 @@ export const MILESTONES = [
     gate: 'Demo: console operations',
     tranche: 3,
     status: 'active' as MilestoneStatus,
-    progress: 90,
-    note: 'Created workspaces appear alongside demo records in the live directory, overview and shell counts. The default grid shows newest records first using database timestamps. Actual signup, discovery in both views, first plan assignment and all six detail tabs pass native browser checks. First assignments serialize safely and record matching customer/platform audits. Earlier responsive, settings, health and outage/recovery evidence remains qualified separately. Complete action-state, keyboard and accessibility acceptance remain open.',
+    progress: 100,
+    note: 'Platform console engineering is complete in the agreed sandbox scope. Thirty native scenario checks cover status, settings, support, invitations, profile/photos and shared rules; final support and provisioning-focus follow-ups pass. Live support authority and Storage ownership/type/size limits are enforced. All 126 accessibility visits pass across 18 surfaces and seven widths. Rendered contrast, actual 200% Chrome zoom and an actual NVDA sample complete the console review. Client demonstration and final Phase One release acceptance remain separate.',
   },
   {
     id: 'M5',
@@ -214,8 +214,8 @@ export const MILESTONES = [
     gate: 'Sign-off',
     tranche: 4,
     status: 'active' as MilestoneStatus,
-    progress: 64,
-    note: 'All 718 application cases pass across 62 files without skips. Confirmation-required onboarding and live console operations have additional native coverage. Separate-target recovery reconciles 61 tables, 52 policies and 17 context functions. Monitoring delivers four correlated outage/recovery notifications with durable retry. Earlier Chrome coverage spans 32 surfaces at three widths, seven account/invitation workflows and focused Activity checks. The 50-session load baseline preserves integrity but fails latency acceptance. Independent Auth/object recovery, two database advisor warnings, complete accessibility, timed clean setup and final handover remain open.',
+    progress: 68,
+    note: 'All 724 application cases pass across 65 files without skips. Separate-target recovery reconciles 61 tables, 52 policies and 17 context functions. An independent Auth container now signs in against the restored Auth schema and creates its provider session only in the restored database; application settings and service scope/revocation checks pass. Monitoring delivers four correlated outage/recovery notifications with durable retry. Earlier Chrome coverage spans 32 surfaces at three widths and seven account/invitation workflows. The 50-session baseline preserves integrity but fails latency acceptance. Object-byte recovery, two database advisor warnings, complete accessibility, timed clean setup and final handover remain open.',
   },
 ] as const;
 
@@ -297,17 +297,21 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M4: {
-    previous: 88,
+    previous: 94,
     evidence: [
       'New public workspace visible in the default grid and list, live directory/overview/shell totals, first plan assignment and all six detail tabs',
+      '16 native console action scenarios: status lifecycle from both views, permission/read-only refusals, keyboard/phone checks, settings conflicts and offline retry',
+      '14 additional native scenarios: provisioning failure recovery, support lifecycle and revocation, invitation writes, profile/photo recovery, Storage API boundaries and competing shared-rule editors',
+      '126 passing accessibility scans across 18 console surfaces and seven widths; actual native Chrome 200% zoom without profile page overflow',
+      'Actual NVDA announcements for sign-in, profile edits, console navigation and provisioning; five rendered-contrast surfaces pass, with a dedicated opener-focus regression',
       'Actual UI sign-in and 18 console routes, including six workspace tabs, at three viewport widths',
       'Qualified operational release: six application and two service CI jobs, plus successful deployment',
       'Real database outage/recovery probes and durable notification retry across both runtimes',
     ],
-    remaining: ['Complete CRUD refusal/retry states, keyboard and accessibility acceptance'],
+    remaining: [],
   },
   M6: {
-    previous: 52,
+    previous: 64,
     evidence: [
       'Disposable provider, upgrade verification and repeatable builds',
       'Exact application/service CI, dependency audits and database-outage checks',
@@ -315,6 +319,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Eight mutable function search paths fixed; scan reduced from ten to two warnings',
       'Separate-target restore with complete row fingerprints, normalized grants, ownership, RLS and definer comparison',
       'Restored application sign-in/settings and service read, missing-scope and revoked-credential outcomes',
+      'Independent Auth process signs in against the restored database; provider sessions remain unchanged in the source',
       '50 real authenticated sessions across five owned workspaces; measured latency failures retained',
       'Four correlated outage/recovery notifications, actual failed-delivery retry and empty pending queue',
       '96 rendered browser visits across 32 surfaces at desktop, phone and narrow phone widths',
@@ -322,7 +327,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
     remaining: [
       'Two extension-placement warnings, 50-session load and complete accessibility review',
-      'External monitoring destination, independent Auth/object recovery and launch delivery qualification',
+      'External monitoring destination, object-byte recovery and launch delivery qualification',
       'Timed clean setup, walkthrough and handover sign-off',
     ],
   },
@@ -420,9 +425,9 @@ export const COMPLIANCE = [
     obligation: 'WCAG 2.1 AA across every surface, checked at every milestone gate.',
     state: 'partial' as ComplianceState,
     evidence:
-      'Focus rings never removed, 44px targets, every status carrying a glyph and a word as well as a hue, contrast measured across the one remaining mode and both chrome tiers, reduced motion honoured in CSS and in the GSAP wrapper alike.',
+      'The console passes 126 WCAG-tagged axe visits across 18 surfaces and seven widths. Native reviews exercise four modal focus traps, narrow reviews, keyboard shortcuts and actual 200% Chrome zoom. Shared focus treatments, labelled status and reduced-motion controls are implemented.',
     outstanding:
-      'An axe pass per route in CI, and a manual keyboard pass per milestone \u2014 neither exists, and the CI workflow described both until 28 Aug 2026, when it was corrected to list only the jobs it actually runs. Sheet 13 proposes raising the target to 2.2 AA, which is not currently a contractual item.',
+      'Rendered contrast review and an actual NVDA sample complete the console review. The broader tenant accessibility sweep remains open. Console browser and axe runs are now configured in CI; latest release checks provide qualification. WCAG 2.2 AA is not currently a contractual item.',
     reference: '03 §17 · sheet 13',
   },
 ] as const;
@@ -436,6 +441,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-13',
+    title: 'Console action and accessibility verification advances',
+    body: 'Thirty native scenario checks now cover workspace status, settings, support visits, invitations, profile/photos and shared rules. Live support capability removal and Storage upload boundaries are enforced. All 126 console accessibility visits pass; actual 200% Chrome zoom reflows. Rendered contrast and actual NVDA review complete the console engineering gate at 100%, pending client demonstration. Independent restored Auth verification advances Handover to 68%. Evidence downloads identify the tested scope and preserve the remaining gates.',
+    milestone: 'M4, M6',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-13',
     title: 'Confirmed signup and live workspace operations verified',

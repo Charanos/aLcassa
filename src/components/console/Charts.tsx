@@ -260,7 +260,11 @@ export function PlanMixChart({ data }: { data: Array<{ name: string; value: numb
             stroke="none"
           >
             {data.map((d, i) => (
-              <Cell key={d.name} fill={ramp[i % ramp.length]} />
+              <Cell
+                key={d.name}
+                fill={ramp[i % ramp.length]}
+                aria-label={`${d.name}: ${d.value.toLocaleString('en-GB')}`}
+              />
             ))}
           </Pie>
           <Tooltip
@@ -601,7 +605,11 @@ export function StatusMixChart({
             cornerRadius={6}
           >
             {data.map((d) => (
-              <Cell key={d.status} fill={hue[d.status] ?? t.ink300} />
+              <Cell
+                key={d.status}
+                fill={hue[d.status] ?? t.ink300}
+                aria-label={`${d.label}: ${d.count} workspaces`}
+              />
             ))}
           </Pie>
           <Tooltip

@@ -75,6 +75,21 @@
       "checkpoint": "authCompletion",
       "path": "/verification/2026-10-13/auth-completion-results.json",
       "sha256": "d55f443a1945e507afa18bde50fa621a38b86bb8af9313e1c21eeb2fa0d38d45"
+    },
+    {
+      "checkpoint": "consoleOperations",
+      "path": "/verification/2026-10-13/console-operations-results.json",
+      "sha256": "63b6d80eea0c8ef481833de8dafce8e55a0cf9082da1a19770f012d28dd63759"
+    },
+    {
+      "checkpoint": "independentAuthRecovery",
+      "path": "/verification/2026-10-13/independent-auth-recovery-results.json",
+      "sha256": "2ec3e01ba52e8a9319e715211e8c4e4377d38f0195c195702dd2c9824764f939"
+    },
+    {
+      "checkpoint": "platformConsoleAcceptance",
+      "path": "/verification/2026-10-13/platform-console-acceptance-results.json",
+      "sha256": "92a8c1c602f40ec39a17e6723994697631a381f546025dd30b0693f0d6919953"
     }
   ],
   "boundary": "Immutable historical and current local checkpoints. Each checkpoint states its scope, failed samples and release qualification. This index does not claim all milestones or the newest source revision have passed CI."

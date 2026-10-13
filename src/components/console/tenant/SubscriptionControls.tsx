@@ -1,5 +1,7 @@
 'use client';
 
+import { runConsoleMutation } from '@/lib/console/mutation';
+
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconAlertTriangle, IconArrowsExchange, IconPlayerPause } from '@tabler/icons-react';
@@ -87,7 +89,10 @@ function PlanChange({
 
     /* Load the consequence preview when the operator selects a plan. */
     startTransition(async () => {
-      const result = await previewWorkspacePlanChange({ tenantId, planCode: code });
+      const result = await runConsoleMutation(
+        () => previewWorkspacePlanChange({ tenantId, planCode: code }),
+        'Plan review',
+      );
       if (result.ok) setPreview(result.data);
       else setError(result.error);
     });
@@ -97,13 +102,17 @@ function PlanChange({
     if (!planCode || !preview || !validAmount || pending || reason.trim().length < 4) return;
     setError(null);
     startTransition(async () => {
-      const result = await assignWorkspacePlan({
-        tenantId,
-        planCode,
-        reason: reason.trim(),
-        contractAmount: requiresContract ? parsedAmount : null,
-        expectedPreview: preview.fingerprint,
-      });
+      const result = await runConsoleMutation(
+        () =>
+          assignWorkspacePlan({
+            tenantId,
+            planCode,
+            reason: reason.trim(),
+            contractAmount: requiresContract ? parsedAmount : null,
+            expectedPreview: preview.fingerprint,
+          }),
+        'Plan assignment',
+      );
       if (result.ok) {
         setOpen(false);
         setPlanCode('');
@@ -295,11 +304,15 @@ function StatusChange({
     if (!to || pending || reason.trim().length < 4) return;
     setError(null);
     startTransition(async () => {
-      const result = await changeWorkspaceSubscriptionStatus({
-        tenantId,
-        to: to as (typeof DESTINATIONS)[number],
-        reason: reason.trim(),
-      });
+      const result = await runConsoleMutation(
+        () =>
+          changeWorkspaceSubscriptionStatus({
+            tenantId,
+            to: to as (typeof DESTINATIONS)[number],
+            reason: reason.trim(),
+          }),
+        'Subscription update',
+      );
       if (result.ok) {
         setOpen(false);
         setTo('');

@@ -37,6 +37,7 @@ export const AUDIT_ACTIONS = {
    */
   TENANT_SELF_REGISTERED: 'tenant.self_registered',
   TENANT_SUSPENDED: 'tenant.suspended',
+  TENANT_SUSPENSION_PREVIEWED: 'tenant.suspension_previewed',
   TENANT_REACTIVATED: 'tenant.reactivated',
   TENANT_SETTINGS_UPDATED: 'tenant.settings_updated',
   TENANT_LOGO_UPLOADED: 'tenant.logo_uploaded',

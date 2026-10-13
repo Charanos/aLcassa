@@ -2,42 +2,14 @@
 
 import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { runConsoleMutation } from '@/lib/console/mutation';
 import { useToast } from '@/components/primitives/Toast';
 import { IdentityCard } from '@/components/console/profile/IdentityCard';
 import { UnsavedBar } from '@/components/console/UnsavedBar';
 import { checkName } from '@/lib/console/profileName';
 import { updateConsoleProfileName } from '@/app/(platform)/platform/(console)/profile-actions';
 
-/**
- * The page's one piece of shared state — the name draft — and the floating bar
- * that commits it.
- *
- * ⚠ THIS COMPONENT IS A CLIENT COMPONENT THAT RENDERS SERVER CHILDREN, which
- * is the whole reason the profile can have a page-level unsaved-changes bar
- * without going back to being one giant `'use client'` screen.
- *
- * The bar has to be `sticky` at the END of the page: sticky positioning only
- * works inside the element's own container, so a bar rendered inside the
- * identity card would stop following the reader the moment they scrolled past
- * that card — which is exactly when they most need it. That means the draft
- * state has to live above every card, and the naive conclusion is that every
- * card must therefore be client code.
- *
- * It does not. `main` and `rail` are ReactNodes constructed on the SERVER and
- * passed through as props: the security checklist, the device list, the access
- * rail and the limits card are all rendered to HTML on the server and handed to
- * this component as opaque already-rendered trees. This file never looks inside
- * them and they never hydrate. Same inversion `PagedList` uses to page server
- * children, applied to state instead of to windowing.
- *
- * ⚠ SAVING IS A TOAST NOW, AND IT WAS INLINE BEFORE. The earlier version put
- * success in the card's own footer on the argument that the reader was still
- * looking at the field. With the floating bar they may be anywhere on the page,
- * and the save revalidates the sidebar and the top bar as well — so the outcome
- * genuinely lands somewhere other than where the reader is looking, which is
- * the condition 03 §20 reserves toasts for. The inline status line stays as the
- * `aria-live` announcement, so nothing is only in a toast.
- */
+/** Keeps the name draft above server-rendered profile sections and saves canonical values without replacing the operator record. */
 export function ProfileForm({
   name: serverName,
   email,
@@ -109,7 +81,10 @@ export function ProfileForm({
     if (!live || !dirty || !check.ok || pending) return;
     setOutcome(null);
     startTransition(async () => {
-      const result = await updateConsoleProfileName(draft);
+      const result = await runConsoleMutation(
+        () => updateConsoleProfileName(draft),
+        'Your name update',
+      );
       if (result.ok) {
         /* The canonical name, not the draft: the server trims and collapses
            whitespace, and a field still showing "Brian   Masira" after saving
@@ -120,7 +95,7 @@ export function ProfileForm({
         toast({
           tone: 'success',
           title: 'Name updated',
-          description: `You appear as ${result.name} in the console and in every audit entry from now on.`,
+          description: `Your console profile now displays ${result.name}. Your operator record and existing activity remain unchanged.`,
         });
         router.refresh();
       } else {

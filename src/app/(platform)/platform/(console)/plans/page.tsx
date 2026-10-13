@@ -91,7 +91,12 @@ export default async function PlansPage() {
           }}
         >
           {/* The one horizontal scroller in the console. See the header note. */}
-          <div className="overflow-x-auto">
+          <div
+            className="overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)]"
+            role="region"
+            aria-label="Plan comparison table"
+            tabIndex={0}
+          >
             <table
               className="w-full border-collapse"
               style={{ tableLayout: 'fixed', minWidth: 640 }}

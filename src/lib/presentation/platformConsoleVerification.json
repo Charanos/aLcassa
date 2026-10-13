@@ -1,0 +1,18 @@
+{
+  "date": "13 October 2026",
+  "nativeChecks": 14,
+  "surfaces": 18,
+  "visits": 126,
+  "zoomPercent": 200,
+  "regression": {
+    "passed": 724,
+    "files": 65,
+    "failed": 0,
+    "skipped": 0
+  },
+  "results": {
+    "path": "/verification/2026-10-13/platform-console-acceptance-results.json",
+    "sha256": "92a8c1c602f40ec39a17e6723994697631a381f546025dd30b0693f0d6919953"
+  },
+  "remaining": []
+}

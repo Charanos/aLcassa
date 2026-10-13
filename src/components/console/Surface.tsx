@@ -128,7 +128,7 @@ export function ConsoleHeader({
         {eyebrow && (
           <p
             className="mb-2 font-mono text-2xs font-medium tracking-[0.2em] uppercase"
-            style={{ color: 'var(--text-secondary)', opacity: 0.8 }}
+            style={{ color: 'var(--text-secondary)' }}
           >
             {eyebrow}
           </p>

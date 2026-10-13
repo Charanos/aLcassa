@@ -13,6 +13,7 @@ import { InvitationActions } from '@/components/console/inside/InvitationActions
 import { StatusBadge } from '@/components/primitives/StatusBadge';
 import { resolveSupportContext } from '@/lib/auth/resolve';
 import { resolveSupportSessionId } from '@/lib/console/session';
+import { ERROR_CODES, isAppError } from '@/lib/errors';
 import {
   getLiveCompany,
   getLiveSubscription,
@@ -27,38 +28,43 @@ export default async function InsidePage() {
   const sessionId = await resolveSupportSessionId();
   const ctx = sessionId ? await resolveSupportContext(sessionId) : null;
 
-  if (!ctx) {
-    return (
-      <ConsolePage>
-        <ConsoleHeader
-          breadcrumbs={[
-            { label: 'Platform Console', href: '/platform' },
-            { label: 'Support sessions', href: '/platform/support-sessions' },
-            { label: 'Inside' },
-          ]}
-          title="Not inside a workspace"
-        />
-        <p className="t-body mt-4" style={{ color: 'var(--text-secondary)' }}>
-          There is no open support visit for you. It may have reached its time limit, been ended by
-          the customer, or been closed by a colleague — the register says which.
-        </p>
-        <Link
-          href="/platform/support-sessions"
-          className="t-compact mt-5 inline-flex h-9 items-center rounded-panel px-4"
-          style={{ background: 'var(--blue-500)', color: 'var(--text-inverse)', fontWeight: 500 }}
-        >
-          Open Support sessions
-        </Link>
-      </ConsolePage>
-    );
-  }
+  const endedVisit = (
+    <ConsolePage>
+      <ConsoleHeader
+        breadcrumbs={[
+          { label: 'Platform Console', href: '/platform' },
+          { label: 'Support sessions', href: '/platform/support-sessions' },
+          { label: 'Inside' },
+        ]}
+        title="Not inside a workspace"
+      />
+      <p className="t-body mt-4" style={{ color: 'var(--text-secondary)' }}>
+        No support visit is available to this account. It may have ended, reached its time limit, or
+        your support permission may have changed. Review the register for its recorded status.
+      </p>
+      <Link
+        href="/platform/support-sessions"
+        className="t-compact mt-5 inline-flex h-9 items-center rounded-panel px-4"
+        style={{ background: 'var(--blue-500)', color: 'var(--text-inverse)', fontWeight: 500 }}
+      >
+        Open Support sessions
+      </Link>
+    </ConsolePage>
+  );
+  if (!ctx) return endedVisit;
 
-  const [company, subscription, team, audit] = await Promise.all([
+  const result = await Promise.all([
     getLiveCompany(ctx),
     getLiveSubscription(ctx),
     getLiveTeam(ctx),
     getLiveTenantAudit(ctx),
-  ]);
+  ]).catch((error: unknown) => {
+    if (isAppError(error) && error.code === ERROR_CODES.SUPPORT_SESSION_EXPIRED) return null;
+    throw error;
+  });
+  // Do not emit customer data if the visit ended while its readers were running.
+  if (!result || !(await resolveSupportContext(sessionId!))) return endedVisit;
+  const [company, subscription, team, audit] = result;
 
   const seats = subscription?.entitlements.find((e) => e.key === 'seats');
 
@@ -70,7 +76,7 @@ export default async function InsidePage() {
           { label: 'Support sessions', href: '/platform/support-sessions' },
           { label: ctx.tenantName },
         ]}
-        eyebrow="Inside · role support"
+        eyebrow="Support visit"
         title={ctx.tenantName}
       />
 
@@ -309,16 +315,15 @@ export default async function InsidePage() {
       <section aria-labelledby="inside-not-built" className="pb-4">
         <SectionHeading
           id="inside-not-built"
-          title="Not in the workspace yet"
-          note="Features that are not yet available during a support visit."
+          title="Scope of this visit"
+          note="Customer access stays limited to the supported operations."
           align={subscription ? 'left' : 'right'}
         />
         <Panel variant="elevated">
           <p className="t-compact" style={{ color: 'var(--text-secondary)', textWrap: 'pretty' }}>
-            AI rules, the knowledge base and channel connections are not yet saved in the
-            customer&rsquo;s own workspace &mdash; their pages there show designed content and do
-            not persist &mdash; so there is nothing real to read or correct here. They will appear
-            on this page, under the same rules, when they are stored for the customer.
+            This view provides company details, subscription usage, members, invitations and recent
+            activity. You can resend or revoke an invitation. Account credentials and ownership
+            changes remain outside this support view.
           </p>
         </Panel>
       </section>

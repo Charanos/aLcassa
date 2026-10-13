@@ -11,6 +11,8 @@ import { saveCompanySettings } from '@/modules/settings';
 const tenantA = randomUUID();
 const tenantB = randomUUID();
 const settingsB = randomUUID();
+const supportActor = randomUUID();
+const supportSession = randomUUID();
 let created = false;
 const values = {
   name: 'Updated company',
@@ -22,11 +24,12 @@ function context(role: TenantRole = 'owner', supportMode = false, tenantId = ten
   return createResolvedContext({
     tenantId,
     role,
-    actorId: SEED_USER_A,
+    actorId: supportMode ? supportActor : SEED_USER_A,
     actorLabel: 'Verification actor',
     actorType: supportMode ? 'platform_admin' : 'user',
     supportMode,
     requestId: randomUUID(),
+    sessionId: supportMode ? supportSession : undefined,
   });
 }
 async function current() {
@@ -52,12 +55,18 @@ beforeAll(async () => {
   created = true;
   await adminQuery`insert into tenant_settings (tenant_id, display_name) values (${tenantA}, 'Original company')`;
   await adminQuery`insert into tenant_settings (id, tenant_id, display_name) values (${settingsB}, ${tenantB}, 'Other company')`;
+  await adminQuery`insert into user_profiles(id,email,full_name) values(${supportActor},${`company-support-${supportActor}@example.invalid`},'Company support verifier')`;
+  await adminQuery`insert into platform_admins(user_id,display_name) values(${supportActor},'Company support verifier')`;
+  await adminQuery`insert into sessions(id,user_id,kind,tenant_id,effective_role,last_activity_at,expires_at) values(${supportSession},${supportActor},'support',${tenantA},'support',now(),now()+interval '30 minutes')`;
 });
 afterAll(async () => {
   if (created) {
+    await cleanup`delete from sessions where id=${supportSession}`;
     await cleanup`delete from audit_log where tenant_id in (${tenantA}, ${tenantB})`;
     await cleanup`delete from tenant_settings where tenant_id in (${tenantA}, ${tenantB})`;
     await cleanup`delete from tenants where id in (${tenantA}, ${tenantB})`;
+    await cleanup`delete from platform_admins where user_id=${supportActor}`;
+    await cleanup`delete from user_profiles where id=${supportActor}`;
   }
   await closeHarness();
 });

@@ -1,5 +1,7 @@
 'use client';
 
+import { runConsoleMutation } from '@/lib/console/mutation';
+
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconLock, IconLockOpen } from '@tabler/icons-react';
@@ -42,7 +44,10 @@ export function BreakGlassPanel({
   function submit() {
     setError(null);
     startTransition(async () => {
-      const result = await toggleBreakGlass({ lock: !active, reason });
+      const result = await runConsoleMutation(
+        () => toggleBreakGlass({ lock: !active, reason }),
+        'Support access update',
+      );
       if (result.ok) {
         setActive(result.locked);
         /* The strip at the top of the page, and who/when/why under the

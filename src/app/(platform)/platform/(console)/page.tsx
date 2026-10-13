@@ -196,8 +196,7 @@ export default async function ConsoleOverviewPage() {
               <p
                 className="mb-4 font-mono tracking-[0.15em] uppercase"
                 style={{
-                  color: 'var(--invert-card-fg)',
-                  opacity: 0.5,
+                  color: 'var(--chrome-fg-muted)',
                   fontSize: 'var(--type-micro)',
                   fontWeight: 500,
                 }}
@@ -303,7 +302,7 @@ export default async function ConsoleOverviewPage() {
                     <div className="flex items-center gap-2.5">
                       <span
                         className="font-mono text-2xs font-medium tracking-[0.15em] uppercase"
-                        style={{ color: 'var(--invert-card-fg)', opacity: 0.55 }}
+                        style={{ color: 'var(--chrome-fg-muted)' }}
                       >
                         {s.label}
                       </span>

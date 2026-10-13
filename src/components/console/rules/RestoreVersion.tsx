@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { rollbackMasterRulesAction } from '@/app/(platform)/platform/(console)/rules-actions';
 import { IconArrowBackUp, IconStack2 } from '@tabler/icons-react';
 import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
+import { runConsoleMutation } from '@/lib/console/mutation';
 import { useToast } from '@/components/primitives/Toast';
 
 /** Restore a reviewed published version by moving the pointer; retain the version history. */
@@ -27,11 +28,15 @@ export function RestoreVersion({
   function submit() {
     setError(null);
     startTransition(async () => {
-      const result = await rollbackMasterRulesAction({
-        versionId,
-        reason,
-        expectedVersionNumber: currentVersionNumber,
-      });
+      const result = await runConsoleMutation(
+        () =>
+          rollbackMasterRulesAction({
+            versionId,
+            reason,
+            expectedVersionNumber: currentVersionNumber,
+          }),
+        'Rule restoration',
+      );
       if (result.ok) {
         setOpen(false);
         setReason('');
@@ -71,12 +76,12 @@ export function RestoreVersion({
         title={`Restore v${versionNumber}`}
         width="md"
         operation="rules.rolled_back"
-        description="The rules every workspace inherits change on their next generated reply. Replies already sent are unaffected."
+        description="Restores the shared platform guidance. Existing replies are unchanged."
         facts={
           <>
             <DialogFact icon={IconArrowBackUp}>
-              v{versionNumber} becomes live; <em>v{currentVersionNumber}</em> stops being the floor
-              for all {workspaceCount} workspaces.
+              v{versionNumber} becomes live; <em>v{currentVersionNumber}</em> stops being the shared
+              guidance for all {workspaceCount} workspaces.
             </DialogFact>
             <DialogFact icon={IconStack2}>
               {/* The reassurance that is actually true, because the table is

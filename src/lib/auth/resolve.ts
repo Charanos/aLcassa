@@ -429,6 +429,14 @@ export async function resolveSupportContext(
       })
       .from(sessions)
       .innerJoin(tenants, eq(tenants.id, sessions.tenantId))
+      .innerJoin(
+        platformAdmins,
+        and(
+          eq(platformAdmins.userId, sessions.userId),
+          eq(platformAdmins.canEnterSupportMode, true),
+          isNull(platformAdmins.deletedAt),
+        ),
+      )
       .where(
         and(
           eq(sessions.id, sessionId),

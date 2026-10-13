@@ -1,5 +1,7 @@
 'use client';
 
+import { runConsoleMutation } from '@/lib/console/mutation';
+
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconLogout } from '@tabler/icons-react';
@@ -60,7 +62,10 @@ export function EndSessionButton({
   function confirm() {
     setError(null);
     startTransition(async () => {
-      const result = await revokeConsoleSession(sessionId);
+      const result = await runConsoleMutation(
+        () => revokeConsoleSession(sessionId),
+        'Session revocation',
+      );
       if (result.ok) {
         setOpen(false);
         toast({
@@ -156,7 +161,10 @@ export function RevokeOthersButton({ others, live }: { others: number; live: boo
   function confirm() {
     setError(null);
     startTransition(async () => {
-      const result = await revokeOtherConsoleSessions();
+      const result = await runConsoleMutation(
+        () => revokeOtherConsoleSessions(),
+        'Session revocation',
+      );
       if (result.ok) {
         setOpen(false);
         toast({

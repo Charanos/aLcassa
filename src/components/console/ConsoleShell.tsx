@@ -233,8 +233,8 @@ export function ConsoleShell({
    * dot and the first chip the operator sees after opening it agree.
    */
   const noticeAccent = useMemo(() => {
-    if (notices.some((n) => n.kind === 'danger')) return 'var(--danger-fg)';
-    if (notices.some((n) => n.kind === 'warning')) return 'var(--warning-fg)';
+    if (notices.some((n) => n.kind === 'danger')) return 'var(--chrome-danger)';
+    if (notices.some((n) => n.kind === 'warning')) return 'var(--chrome-warning)';
     /* Nothing needs acting on, but something is unread. The accent mark is
        the system's "look here" that carries no severity of its own. */
     return 'var(--accent-mark)';
@@ -918,7 +918,7 @@ export function ConsoleShell({
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 1px 1px rgba(0,0,0,0.2)',
               }}
             >
-              <span style={{ opacity: 0.5, fontSize: 'var(--type-micro)' }}>⌘</span>K
+              <span style={{ fontSize: 'var(--type-micro)' }}>⌘</span>K
             </kbd>
           </button>
         </div>
@@ -1544,7 +1544,7 @@ export function ConsoleShell({
                   <span
                     className="absolute animate-ping rounded-full"
                     style={{
-                      background: 'var(--success-fg)',
+                      background: 'var(--chrome-success)',
                       opacity: 0.35,
                       width: collapsed ? '12px' : '9px',
                       height: collapsed ? '12px' : '9px',
@@ -1555,10 +1555,10 @@ export function ConsoleShell({
                   <span
                     className="relative rounded-full"
                     style={{
-                      background: 'var(--success-fg)',
+                      background: 'var(--chrome-success)',
                       boxShadow: collapsed
-                        ? '0 0 10px var(--success-fg)'
-                        : '0 0 7px var(--success-fg)',
+                        ? '0 0 10px var(--chrome-success)'
+                        : '0 0 7px var(--chrome-success)',
                       width: collapsed ? '8px' : '7px',
                       height: collapsed ? '8px' : '7px',
                       transition:
@@ -1570,14 +1570,14 @@ export function ConsoleShell({
                 <span
                   className="rounded-full"
                   style={{
-                    background: preview ? 'var(--chrome-fg-muted)' : 'var(--warning-fg)',
+                    background: preview ? 'var(--chrome-fg-muted)' : 'var(--chrome-warning)',
                     boxShadow: collapsed
                       ? preview
                         ? 'none'
-                        : '0 0 10px var(--warning-fg)'
+                        : '0 0 10px var(--chrome-warning)'
                       : preview
                         ? 'none'
-                        : '0 0 7px var(--warning-fg)',
+                        : '0 0 7px var(--chrome-warning)',
                     width: collapsed ? '8px' : '7px',
                     height: collapsed ? '8px' : '7px',
                     transition:
@@ -1603,8 +1603,8 @@ export function ConsoleShell({
                   color: preview
                     ? 'var(--chrome-fg-muted)'
                     : isolationOk
-                      ? 'var(--success-fg)'
-                      : 'var(--warning-fg)',
+                      ? 'var(--chrome-success)'
+                      : 'var(--chrome-warning)',
                   fontSize: 'var(--type-chip)',
                 }}
               >
@@ -1787,7 +1787,7 @@ export function ConsoleShell({
                   transition: 'opacity 160ms ease, transform 200ms cubic-bezier(0.2,0,0,1)',
                 }}
               >
-                <span style={{ opacity: 0.5, fontSize: 'var(--type-badge)' }}>⌘</span>B
+                <span style={{ fontSize: 'var(--type-badge)' }}>⌘</span>B
               </kbd>
             </button>
           </div>
@@ -2122,7 +2122,7 @@ export function ConsoleShell({
               pushToast({
                 title: `Support session started in ${pendingWorkspace.name}`,
                 description:
-                  'Thirty minutes, in their activity log, and the owner is emailed. Open it from Support sessions.',
+                  'Thirty minutes, recorded in their activity log. Owner notification is attempted after opening. Open it from Support sessions.',
                 tone: 'success',
               });
             }

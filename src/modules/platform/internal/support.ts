@@ -3,6 +3,7 @@ import { and, eq, gt, isNull } from 'drizzle-orm';
 import {
   auditLog,
   platformAuditLog,
+  platformAdmins,
   sessions,
   tenantMembers,
   tenants,
@@ -387,7 +388,14 @@ export async function readSupportSession(
   sessionId: string,
   actor: PlatformActor,
 ): Promise<SupportSessionRecord | null> {
-  const row = await withActorContext(actor.userId, actor.requestId, (tx) => readRow(tx, sessionId));
+  const row = await withActorContext(actor.userId, actor.requestId, async (tx) => {
+    const [operator] = await tx
+      .select({ allowed: platformAdmins.canEnterSupportMode })
+      .from(platformAdmins)
+      .where(and(eq(platformAdmins.userId, actor.userId), isNull(platformAdmins.deletedAt)))
+      .limit(1);
+    return operator?.allowed ? readRow(tx, sessionId) : null;
+  });
   if (!row?.tenantId || !isLive(row) || row.userId !== actor.userId) return null;
   return toRecord(row, actor.label);
 }

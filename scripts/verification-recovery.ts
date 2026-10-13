@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFile, spawn, type ChildProcess } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, unlink } from 'node:fs/promises';
+import { createServer, request as proxyRequest, type Server } from 'node:http';
 import postgres, { type TransactionSql } from 'postgres';
 import { assertDisposableDatabase } from '../tests/isolation/disposable';
 import { httpFixtures, applicationWorker, signIn } from './verification-http-fixture';
@@ -28,6 +29,10 @@ async function main() {
   targetUrl.pathname = `/${target}`;
   let restored: ReturnType<typeof postgres> | undefined;
   let created = false;
+  let authCreated = false;
+  let authProxy: Server | undefined;
+  const authContainer = `${target}_auth`;
+  const authEnvironmentFile = `.test-report/phase-one/${target}-auth.env`;
   const owned = await httpFixtures(1);
   const fixture = owned.fixtures[0]!;
   const workers: ChildProcess[] = [];
@@ -126,12 +131,108 @@ async function main() {
     } finally {
       await restricted.end();
     }
+
+    // Reuse the pinned local image and configuration, but run against the restored Auth schema.
+    const inspectedAuth = JSON.parse(
+      (await execute('docker', ['inspect', 'supabase_auth_alcassa-phase-one-verification'])).stdout,
+    ) as {
+      Image: string;
+      Config: { Env: string[] };
+      NetworkSettings: { Networks: Record<string, unknown> };
+    }[];
+    const sourceAuth = inspectedAuth[0];
+    assert(sourceAuth && /^sha256:[a-f0-9]{64}$/.test(sourceAuth.Image));
+    const authEnvironment = new Map(
+      sourceAuth.Config.Env.map((entry) => {
+        const separator = entry.indexOf('=');
+        return [entry.slice(0, separator), entry.slice(separator + 1)];
+      }),
+    );
+    const authDatabase = new URL(authEnvironment.get('GOTRUE_DB_DATABASE_URL')!);
+    assert.equal(authDatabase.hostname, container);
+    authDatabase.pathname = `/${target}`;
+    authEnvironment.set('GOTRUE_DB_DATABASE_URL', authDatabase.toString());
+    authEnvironment.set('API_EXTERNAL_URL', 'http://127.0.0.1:55426');
+    const networks = Object.keys(sourceAuth.NetworkSettings.Networks);
+    assert.equal(networks.length, 1);
+    await mkdir('.test-report/phase-one', { recursive: true });
+    await writeFile(
+      authEnvironmentFile,
+      [...authEnvironment]
+        .map(([key, value]) => {
+          assert(!/[\r\n]/.test(value), 'Container environment must remain one value per line.');
+          return `${key}=${value}`;
+        })
+        .join('\n') + '\n',
+      { mode: 0o600 },
+    );
+    authCreated = true;
+    await execute('docker', [
+      'run',
+      '--detach',
+      '--name',
+      authContainer,
+      '--network',
+      networks[0]!,
+      '--publish',
+      '127.0.0.1:55425:9999',
+      '--env-file',
+      authEnvironmentFile,
+      sourceAuth.Image,
+    ]);
+    for (let index = 0; index < 120; index++) {
+      if ((await fetch('http://127.0.0.1:55425/health').catch(() => null))?.ok) break;
+      await new Promise((done) => setTimeout(done, 250));
+    }
+    assert((await fetch('http://127.0.0.1:55425/health')).ok, 'Restored Auth must become healthy.');
+    // Supabase SDKs use the gateway prefix; this loopback proxy targets only the owned Auth worker.
+    authProxy = createServer((incoming, outgoing) => {
+      if (!incoming.url?.startsWith('/auth/v1/')) {
+        outgoing.writeHead(404).end();
+        return;
+      }
+      const upstream = proxyRequest(
+        {
+          hostname: '127.0.0.1',
+          port: 55425,
+          method: incoming.method,
+          path: incoming.url.slice('/auth/v1'.length),
+          headers: incoming.headers,
+        },
+        (response) => {
+          outgoing.writeHead(response.statusCode ?? 502, response.headers);
+          response.pipe(outgoing);
+        },
+      );
+      upstream.on('error', () => outgoing.writeHead(502).end());
+      incoming.pipe(upstream);
+    });
+    await new Promise<void>((done, reject) => {
+      authProxy!.once('error', reject);
+      authProxy!.listen(55426, '127.0.0.1', done);
+    });
     const restoredApplication = await applicationWorker(3123, {
       DATABASE_URL: restrictedUrl.toString(),
       DATABASE_URL_ADMIN: targetUrl.toString(),
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:55426',
     });
     workers.push(restoredApplication);
     const cookies = await signIn(3123, fixture);
+    const [restoredAuthSessions] = await restored<
+      { n: number }[]
+    >`select count(*)::int as n from auth.sessions where user_id=${fixture.userId}`;
+    const [sourceAuthSessions] = await source<
+      { n: number }[]
+    >`select count(*)::int as n from auth.sessions where user_id=${fixture.userId}`;
+    assert(
+      (restoredAuthSessions?.n ?? 0) > 0,
+      'Password sign-in must create its provider session in the restored database.',
+    );
+    assert.equal(
+      sourceAuthSessions?.n,
+      0,
+      'Independent Auth must not create a session in the source.',
+    );
     const me = await fetch('http://127.0.0.1:3123/api/v1/me', { headers: { cookie: cookies } });
     assert.equal(me.status, 200);
     const page = await fetch('http://127.0.0.1:3123/app/settings/company', {
@@ -210,13 +311,16 @@ async function main() {
       definerSettingsMatch: true,
       defaultDenyPassed: true,
       applicationIdentityPassed: true,
+      independentAuthProcessPassed: true,
+      restoredProviderSessionCreated: true,
+      sourceProviderSessionUnchanged: true,
       settingsPagePassed: true,
       serviceReadPassed: true,
       missingScopeRefused: true,
       restoredRevocationRefused: true,
       sourceUnchanged: true,
       boundary:
-        'Same-cluster PostgreSQL restore, with actual provider-backed sign-in to the restored application database and restricted service HTTP. Provider validation uses the existing local Auth process. Separate Auth process, object bytes and clean upgrade remain additional checks. No hosted PITR or production RTO/RPO claim.',
+        'Same-cluster PostgreSQL restore, with actual password sign-in through an independent Auth container using the restored Auth schema, the restored application database and restricted service HTTP. Object bytes and clean upgrade remain additional checks. No hosted PITR or production RTO/RPO claim.',
       fixtureCleanup: true,
     };
     console.log(
@@ -231,6 +335,20 @@ async function main() {
           : new Promise<void>((done) => worker.once('exit', () => done())),
       ),
     );
+    if (authProxy?.listening)
+      await new Promise<void>((done, reject) =>
+        authProxy!.close((error) => (error ? reject(error) : done())),
+      );
+    if (authCreated) {
+      assert(/^alcassa_recovery_[a-f0-9]{32}_auth$/.test(authContainer));
+      await execute('docker', ['rm', '--force', authContainer]).catch((error) => {
+        if (!String((error as { stderr?: string }).stderr).includes('No such container'))
+          throw error;
+      });
+    }
+    await unlink(authEnvironmentFile).catch((error) => {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    });
     if (restored) await restored.end();
     if (created) {
       assert(/^alcassa_recovery_[a-f0-9]{32}$/.test(target));

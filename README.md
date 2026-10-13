@@ -331,14 +331,35 @@ powershell -NoProfile -File scripts/verification-service.ps1 Monitoring
 powershell -NoProfile -File scripts/verification-service.ps1 Surfaces
 powershell -NoProfile -File scripts/verification-service.ps1 ActivityLayout
 powershell -NoProfile -File scripts/verification-service.ps1 Accounts
+powershell -NoProfile -File scripts/verification-service.ps1 ConsoleOperations
 powershell -NoProfile -File scripts/verification-service.ps1 Load
 ```
+
+The console closure runners also load `.env.verification.local` directly and refuse
+an external provider. Run them against the production build created by `BuildLive`:
+
+```powershell
+node --conditions=react-server --import tsx scripts/verification-platform-acceptance.ts
+node --conditions=react-server --import tsx scripts/verification-platform-accessibility.ts
+```
+
+The first verifies owned support, invitation, profile, Storage and shared-rule
+workflows. The second scans 18 console surfaces at seven widths. Both remove their
+fixtures and write private local results; only a qualified, projected receipt may
+be published. `verification-platform-manual.ts` opens a separate owned browser for
+actual browser zoom and assistive-technology review. Browser trees and automated
+scans do not establish actual screen-reader output.
 
 `Prepare` migrates and seeds the disposable dataset; use it for initial setup,
 not to erase an established browser fixture between tests. `HttpBudgets` starts
 owned application/service workers and a labelled pinned Redis container.
 `Recovery` restores into a separately named database in the owned local container,
-compares data/access controls and removes only its own target and dump. `Load`
+compares data/access controls and starts an independent Auth container against the
+restored Auth schema. Provider sessions must appear only in the restore. It removes
+its owned workers, Auth container, environment file, target and dump. Object bytes
+and a separate PostgreSQL cluster remain outside this drill. `ConsoleOperations`
+verifies reviewed workspace status changes, refusals, activity, focus, phone layouts,
+settings conflicts and offline retry using disposable browser identities. `Load`
 records failed targets and exits nonzero; a written receipt alone is not a pass.
 `Diagnostics` separates direct-provider, database and application batch timings.
 Private worker logs remain under ignored `.test-report` and are not public evidence.

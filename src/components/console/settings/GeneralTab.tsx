@@ -1,5 +1,7 @@
 'use client';
 
+import { runConsoleMutation } from '@/lib/console/mutation';
+
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -111,11 +113,15 @@ export function GeneralTab({
     if (!store) return;
     setError(null);
     startTransition(async () => {
-      const result = await savePlatformSettings({
-        platformName: values.platformName,
-        supportEmail: values.supportEmail,
-        expectedUpdatedAt: store.updatedAt,
-      });
+      const result = await runConsoleMutation(
+        () =>
+          savePlatformSettings({
+            platformName: values.platformName,
+            supportEmail: values.supportEmail,
+            expectedUpdatedAt: store.updatedAt,
+          }),
+        'Settings update',
+      );
       if (result.ok) {
         setConfirmOpen(false);
         onDirtyChange(false);
@@ -133,7 +139,7 @@ export function GeneralTab({
         router.refresh();
       } else {
         setError(result.error);
-        setConflict(Boolean(result.conflict));
+        setConflict('conflict' in result && Boolean(result.conflict));
       }
     });
   }

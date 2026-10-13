@@ -327,6 +327,7 @@ export async function suspendWorkspace(input: {
     );
 
     revalidatePath('/platform/tenants');
+    revalidatePath('/platform/tenants/[id]', 'page');
     revalidatePath('/platform');
     return { ok: true };
   } catch (error) {

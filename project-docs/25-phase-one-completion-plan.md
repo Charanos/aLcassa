@@ -918,3 +918,26 @@ CRUD and failure/accessibility states; (2) service/API and latency acceptance;
 release qualification and handover. Keep evidence attached to each result and
 payment tracking unchanged: only the deposit is paid. The dated verification
 ledger and evidence index distinguish historical checkpoints from this candidate.
+
+### 18.20 Console operations and independent Auth recovery — 13 October 2026
+
+The next execution batch implements shared suspend/reactivate controls, atomic competing status writes, truthful preview audit classification and drawer keyboard/focus behavior. Qualify its full native scenario run before closing these action states or changing the Platform milestone assessment. Keep remaining support, profile, rule failure states and complete accessibility acceptance explicit.
+
+Independent Auth-process recovery now passes against a separate restored database target. Its provider session is created only in the restore, and application/service reads, scope refusal and credential revocation remain verified. M6 advances to 68%; object bytes, measured load acceptance, advisor findings, clean setup and handover remain open. Current regression: 720 cases, 63 files, no skips. See ledger section 47 and the evidence-index checkpoint added with this release.
+
+The complete native console run now passes all 16 scenarios with fixture cleanup. M4 advances to 94%. Console and independent Auth recovery receipts are linked in `#console-recovery-checkpoint`; the index contains 17 fingerprinted checkpoints. Next closure batch: remaining support/profile/rule failure states and tenant credential/ownership failures, then object-byte recovery, advisor findings and measured load acceptance. Demonstrations, payment and client acceptance remain separate.
+
+
+### 18.21 Console action closure and accessibility acceptance
+
+The additional production-browser run passes all **14 scenarios**, including provisioning failure recovery, support revocation/expiry/extension/lock controls, invitation writes, profile and photo recovery, direct Storage API boundaries, first shared-rule publication, competing editors and restoration. Four modal keyboard checks pass. The cache-disabled regression passes **724 cases in 65 files**, without skips.
+
+All **126 axe visits across 18 console surfaces and seven widths** pass without reported violations or page overflow. Actual native Chrome 200% zoom also reflows the profile page. These results close the declared support/profile/rule action failures. **Manual accessibility acceptance remains open**: review incomplete contrast findings and complete actual screen-reader samples before closing M4. Its engineering assessment advances to 98%, not 100%.
+
+The [console acceptance checkpoint](/project-tracker/verification#platform-closure-checkpoint) links the bounded results. The index contains **18 fingerprinted checkpoints**. CI is configured to repeat both native console runners and the accessibility matrix against its disposable provider; qualify the exact pushed revision before claiming these new CI steps have passed. Hosted sandbox avatar limits were reconciled without changing existing objects or bucket visibility.
+
+Automatic approval review blocked running the portable NVDA runtime. A signed download is prepared and the user has been asked to make NVDA available. Continue the independent tenant credential, service/performance, object-byte recovery, advisor and clean-setup gates meanwhile. Demonstration, payment and client acceptance remain separate.
+
+### 18.22 Console engineering gate closed
+
+M4 is 100% engineering-complete pending demonstration. Actual NVDA review and five rendered-contrast surfaces close the console accessibility review. The final provisioning opener-focus defect has its own passing production-browser regression. The verification download includes the original 14 action scenarios, final eight-scenario support follow-up, focused dismissal regression, 126 route/viewport visits, rendered contrast and actual screen-reader observations. Broader tenant accessibility and the remaining M5/M4a/M6 operational gates remain separate and retain their existing scope.

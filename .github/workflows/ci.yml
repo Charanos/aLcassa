@@ -201,11 +201,30 @@ jobs:
       - run: pnpm db:app-role
       - run: pnpm db:seed
       - run: pnpm run test --reporter=default --reporter=json --outputFile=.test-report/phase-one/cache-disabled.json
+      - name: Prepare isolated console browser verification
+        run: |
+          node --import tsx scripts/verification-browser-ci-env.ts
+          pnpm exec playwright install --with-deps chrome
+      - name: Build the disposable console for browser acceptance
+        env:
+          NEXT_DIST_DIR: .next-live-verify
+          SESSION_COOKIE_PLATFORM: alcassa_verify_platform
+          SESSION_COOKIE_TENANT: alcassa_verify_tenant
+        run: pnpm build
+      - name: Verify console action and accessibility gates
+        run: |
+          node --conditions=react-server --import tsx scripts/verification-console-operations.ts
+          node --conditions=react-server --import tsx scripts/verification-platform-acceptance.ts
+          node --conditions=react-server --import tsx scripts/verification-platform-accessibility.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cache-disabled-evidence
-          path: .test-report/phase-one/
+          path: |
+            .test-report/phase-one/cache-disabled.json
+            .test-report/phase-one/console-operations.json
+            .test-report/phase-one/m4-platform-acceptance.json
+            .test-report/phase-one/m4-accessibility.json
 
   # 04 §7. A known-vulnerable dependency is a security finding, and finding it
   # at handover is finding it late. `--audit-level moderate` rather than `low`:

@@ -1,5 +1,7 @@
 'use client';
 
+import { runConsoleMutation } from '@/lib/console/mutation';
+
 import { useState, useTransition } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { IconAlertTriangle } from '@tabler/icons-react';
@@ -35,12 +37,16 @@ export function BlastRadiusDialog({ change }: { change: PlansModel['pendingChang
   function submit(when: 'now' | 'next_period') {
     setError(null);
     startTransition(async () => {
-      const result = await applyPlanChange({
-        plan: change.plan,
-        field: change.field,
-        to: change.to,
-        when,
-      });
+      const result = await runConsoleMutation(
+        () =>
+          applyPlanChange({
+            plan: change.plan,
+            field: change.field,
+            to: change.to,
+            when,
+          }),
+        'Plan update',
+      );
       if (result.ok) {
         setOpen(false);
       } else {

@@ -1,5 +1,7 @@
 'use client';
 
+import { runConsoleMutation } from '@/lib/console/mutation';
+
 import { useTransition } from 'react';
 import Link from '@/components/structure/NavigationLink';
 import { usePathname, useRouter } from 'next/navigation';
@@ -71,7 +73,10 @@ export function SupportSessionBanner({
 
   function extend() {
     startExtend(async () => {
-      const result = await extendCurrentSupportSession();
+      const result = await runConsoleMutation(
+        () => extendCurrentSupportSession(),
+        'Visit extension',
+      );
       if (result.ok) {
         pushToast({
           tone: 'attention',
@@ -125,7 +130,7 @@ export function SupportSessionBanner({
 
       <span
         className="t-compact hidden min-w-0 flex-1 truncate md:block"
-        style={{ color: 'rgba(255,255,255,0.86)' }}
+        style={{ color: 'var(--chrome-fg)' }}
         title={session.reason}
       >
         {session.reason}
@@ -136,7 +141,7 @@ export function SupportSessionBanner({
           <span className="t-compact">Session expired</span>
         ) : (
           <>
-            <span className="t-caption hidden sm:inline" style={{ color: 'rgba(255,255,255,0.8)' }}>
+            <span className="t-caption hidden sm:inline" style={{ color: 'var(--chrome-fg)' }}>
               Ends in
             </span>
             <span

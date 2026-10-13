@@ -2,26 +2,7 @@ import { Panel } from '../Surface';
 import { RestoreVersion } from './RestoreVersion';
 import type { MasterRuleVersion } from '@/lib/console/data';
 
-/**
- * THE VERSION RAIL. 17 §7.
- *
- * ⚠ THE HISTORY IS THE FEATURE, NOT A CHANGELOG.
- *
- * Version rows are append-only and publishing moves a pointer, so a rollback
- * is a pointer move rather than a data restore and every historical set stays
- * readable. A screen that can change a floor every workspace inherits, and
- * cannot show what the floor used to be, is missing the half that makes the
- * change safe.
- *
- * ⚠ THE CURRENT VERSION IS NOT NECESSARILY THE NEWEST ROW, and the rail has to
- * survive that. A draft sitting above the published set is the normal state
- * part-way through an edit; marking the top row as live would be wrong exactly
- * when somebody is about to rely on it. The reader marks `current` from the
- * pointer, and this renders what it is told.
- *
- * A 2px rail rather than a dot: a version is a position in a sequence, and a
- * rail reads as one.
- */
+/** Lists retained versions and permits restoration only for inactive published guidance. */
 export function VersionRail({
   versions,
   workspaceCount,

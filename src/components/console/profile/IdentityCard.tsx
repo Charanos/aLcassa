@@ -130,7 +130,8 @@ export function IdentityCard({
             }}
           />
           <Hint id={hintId}>
-            Appears beside every action you take, in customer audit logs.
+            Used for your profile and console display. Your operator-record label identifies audited
+            actions.
             {/* ⚠ THE INITIALS FOLLOW THE FIELD, and this sentence is why that
                 matters: it claims initials are generated from the name, and the
                 avatar above demonstrates it live as the reader types. */}

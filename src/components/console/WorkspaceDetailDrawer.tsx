@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useTransition } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   IconX,
   IconExternalLink,
-  IconCircleX,
   IconAlertTriangle,
   IconUsersGroup,
   IconCpu,
@@ -18,20 +17,15 @@ import {
   IconReceipt,
   IconActivity,
   IconBuilding,
-  IconRefresh,
   IconFileText,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import {
-  fetchSuspensionImpact,
-  fetchWorkspaceDetail,
-  suspendWorkspace,
-  type SuspensionImpact,
-} from '@/app/(platform)/platform/(console)/actions';
+import { fetchWorkspaceDetail } from '@/app/(platform)/platform/(console)/actions';
+import { WorkspaceStatusControl } from './WorkspaceStatusControl';
+import * as Dialog from '@radix-ui/react-dialog';
 import type { Meter, WorkspaceDetail, WorkspaceRow, WorkspaceStatus } from '@/lib/console/data';
 import Link from '@/components/structure/NavigationLink';
 import { gsapSafe } from '@/lib/motion';
-import { DestructiveConfirm } from '@/components/primitives/ConfirmDialog';
 import { describeAllowance } from '@/lib/console/allowances';
 import { StartSessionDialog } from './StartSessionDialog';
 import { ProfileCardDialog } from './ProfileCardDialog';
@@ -139,6 +133,9 @@ export function WorkspaceDetailDrawer({
   const pushToast = useToast();
   const overlayRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const returnFocus = useRef(
+    typeof document === 'undefined' ? null : (document.activeElement as HTMLElement | null),
+  );
 
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [detail, setDetail] = useState<WorkspaceDetailData | null>(null);
@@ -148,36 +145,6 @@ export function WorkspaceDetailDrawer({
   /* Sub-dialog state */
   const [sessionOpen, setSessionOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [suspendOpen, setSuspendOpen] = useState(false);
-  const [suspendError, setSuspendError] = useState<string | null>(null);
-  const [suspendReason, setSuspendReason] = useState('');
-  const [suspendPending, startSuspendTransition] = useTransition();
-  /**
-   * The live impact read, fetched when the dialog opens rather than travelling
-   * down with `detail`. See `WorkspaceActions` for why — the short version is
-   * that a drawer can sit open for a long time, and the count of support
-   * sessions currently INSIDE the workspace cannot come from a prop at all.
-   */
-  const [suspendLive, setSuspendLive] = useState<SuspensionImpact | null>(null);
-  const [suspendPreview, setSuspendPreview] = useState<'idle' | 'loading' | 'done' | 'failed'>(
-    'idle',
-  );
-
-  function openSuspend() {
-    setSuspendError(null);
-    setSuspendOpen(true);
-    setSuspendLive(null);
-    setSuspendPreview('loading');
-    void fetchSuspensionImpact(row.id).then((r) => {
-      if (r.ok) {
-        setSuspendLive(r.impact);
-        setSuspendPreview('done');
-      } else {
-        setSuspendPreview('failed');
-      }
-    });
-  }
-
   /* Fetch details via Server Action */
   useEffect(() => {
     let live = true;
@@ -195,7 +162,7 @@ export function WorkspaceDetailDrawer({
     return () => {
       live = false;
     };
-  }, [row.slug]);
+  }, [row.slug, row.status]);
 
   /* Entrance animations */
   useEffect(() => {
@@ -215,25 +182,6 @@ export function WorkspaceDetailDrawer({
     }
   }, []);
 
-  /* Escape listener */
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (sessionOpen) {
-          setSessionOpen(false);
-          return;
-        }
-        if (suspendOpen) {
-          setSuspendOpen(false);
-          return;
-        }
-        handleClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  });
-
   function handleClose() {
     if (dialogRef.current && overlayRef.current) {
       gsapSafe.to(dialogRef.current, { x: '100%', duration: 0.3, ease: 'power3.in' });
@@ -249,42 +197,19 @@ export function WorkspaceDetailDrawer({
   }
 
   function handleCopy(text: string, key: string) {
-    void navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
-  }
-
-  function submitSuspend(typed: string) {
-    setSuspendError(null);
-    startSuspendTransition(async () => {
-      const result = await suspendWorkspace({
-        tenantId: row.id,
-        slug: row.slug,
-        confirmSlug: typed,
-        reason: suspendReason,
-      });
-      if (result.ok) {
-        setSuspendOpen(false);
-        setSuspendReason('');
-        /*
-          ⚠ THIS DRAWER USED TO SUSPEND A CUSTOMER IN SILENCE.
-
-          The dialog closed and nothing else happened — no toast, and the status
-          chip behind it does not move until the route revalidates, so the only
-          evidence of the most destructive action in the console was its own
-          absence. The header path (`WorkspaceActions`) confirmed properly; this
-          one, reachable from the same table one click further in, did not. Same
-          action, same words.
-        */
+    void navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopiedKey(key);
+        setTimeout(() => setCopiedKey(null), 2000);
+      })
+      .catch(() => {
         pushToast({
-          tone: 'success',
-          title: `${row.name} is suspended`,
-          description: 'Their team keeps read access and can still fix the cause.',
+          tone: 'failure',
+          title: 'Copy unavailable',
+          description: 'Select the identifier and copy it manually.',
         });
-      } else {
-        setSuspendError(result.error);
-      }
-    });
+      });
   }
 
   const st = STATUS_CONFIG[row.status];
@@ -295,96 +220,108 @@ export function WorkspaceDetailDrawer({
     .join('');
 
   return (
-    <>
-      {/* ── Backdrop Overlay ───────────────────────────────────────────── */}
-      <div
-        ref={overlayRef}
-        onClick={handleClose}
-        className="console-modal-backdrop fixed inset-0"
-        style={{
-          zIndex: 90,
-        }}
-        aria-hidden="true"
-      />
-
-      {/* ── Unified Drawer Dialog ─────────────────────────────────────── */}
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="workspace-detail-title"
-        className="surface-glass-strong fixed inset-y-0 right-0 z-[91] flex w-[820px] max-w-full flex-col overflow-hidden"
-        style={{
-          background: 'var(--surface-raised)',
-          borderLeft: '1px solid var(--border-strong)',
-          boxShadow: 'var(--shadow-lg)',
-        }}
-      >
-        {/* ── 1 · Header Surface ─────────────────────────────────────── */}
-        <div
-          className="relative px-3 py-6 pb-5 sm:p-7"
+    <Dialog.Root
+      open
+      onOpenChange={(next) => {
+        if (!next) handleClose();
+      }}
+    >
+      <Dialog.Portal>
+        {/* ── Backdrop Overlay ───────────────────────────────────────────── */}
+        <Dialog.Overlay
+          ref={overlayRef}
+          className="console-modal-backdrop fixed inset-0"
           style={{
-            borderBottom: '1px solid var(--border-subtle)',
-            background: 'linear-gradient(to bottom, var(--surface-raised), var(--surface-base))',
+            zIndex: 90,
+          }}
+          aria-hidden="true"
+        />
+
+        {/* ── Unified Drawer Dialog ─────────────────────────────────────── */}
+        <Dialog.Content
+          ref={dialogRef}
+          aria-describedby={undefined}
+          onCloseAutoFocus={(event) => {
+            if (returnFocus.current?.isConnected) {
+              event.preventDefault();
+              returnFocus.current.focus();
+            }
+          }}
+          className="surface-glass-strong fixed inset-y-0 right-0 z-[91] flex w-[820px] max-w-full flex-col overflow-hidden"
+          style={{
+            background: 'var(--surface-raised)',
+            borderLeft: '1px solid var(--border-strong)',
+            boxShadow: 'var(--shadow-lg)',
           }}
         >
-          {/* Close Button */}
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Close workspace details"
-            className="absolute top-4 right-5 grid size-8 place-items-center rounded-overlay transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
-            style={{ color: 'var(--text-tertiary)' }}
+          {/* ── 1 · Header Surface ─────────────────────────────────────── */}
+          <div
+            className="relative px-3 py-6 pb-5 sm:p-7"
+            style={{
+              borderBottom: '1px solid var(--border-subtle)',
+              background: 'linear-gradient(to bottom, var(--surface-raised), var(--surface-base))',
+            }}
           >
-            <IconX size={18} stroke={1.5} />
-          </button>
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="Close workspace details"
+              className="absolute top-4 right-5 grid size-8 place-items-center rounded-overlay transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              <IconX size={18} stroke={1.5} />
+            </button>
 
-          {/* Top Identity Row */}
-          <div className="flex flex-col justify-between gap-4 pr-4 sm:flex-row sm:items-center">
-            <div className="flex items-start gap-4">
-              {/* 48px Avatar with Live Beacon */}
-              <InitialsTile
-                name={row.name}
-                size="lg"
-                dot={st.dot}
-                className="transition-transform duration-300 hover:scale-105"
-              />
+            {/* Top Identity Row */}
+            <div className="flex flex-col justify-between gap-4 pr-4 sm:flex-row sm:items-center">
+              <div className="flex items-start gap-4">
+                {/* 48px Avatar with Live Beacon */}
+                <InitialsTile
+                  name={row.name}
+                  size="lg"
+                  dot={st.dot}
+                  className="transition-transform duration-300 hover:scale-105"
+                />
 
-              {/* Workspace Name & Identifiers */}
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <h2
-                    id="workspace-detail-title"
-                    className="display display-sm leading-snug tracking-tight"
-                    style={{ color: 'var(--text-primary)', fontSize: 'var(--type-panel)' }}
-                  >
-                    {row.name}
-                  </h2>
-                </div>
+                {/* Workspace Name & Identifiers */}
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <Dialog.Title
+                      className="display display-sm leading-snug tracking-tight"
+                      style={{ color: 'var(--text-primary)', fontSize: 'var(--type-panel)' }}
+                    >
+                      {row.name}
+                    </Dialog.Title>
+                  </div>
 
-                {/* Copyable slug & ID */}
-                <div className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-xs">
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(row.slug, 'slug')}
-                    title="Click to copy slug"
-                    className="inline-flex items-center gap-1 rounded-panel px-1.5 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
-                    style={{
-                      color: 'var(--text-secondary)',
-                      border: '1px solid var(--border-subtle)',
-                    }}
-                  >
-                    <span>{row.slug}</span>
-                    {copiedKey === 'slug' ? (
-                      <IconCheck size={12} stroke={2} style={{ color: 'var(--success-fg)' }} />
-                    ) : (
-                      <IconCopy size={11} stroke={1.5} style={{ color: 'var(--text-tertiary)' }} />
-                    )}
-                  </button>
+                  {/* Copyable slug & ID */}
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-xs">
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(row.slug, 'slug')}
+                      title="Click to copy slug"
+                      className="inline-flex items-center gap-1 rounded-panel px-1.5 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
+                      style={{
+                        color: 'var(--text-secondary)',
+                        border: '1px solid var(--border-subtle)',
+                      }}
+                    >
+                      <span>{row.slug}</span>
+                      {copiedKey === 'slug' ? (
+                        <IconCheck size={12} stroke={2} style={{ color: 'var(--success-fg)' }} />
+                      ) : (
+                        <IconCopy
+                          size={11}
+                          stroke={1.5}
+                          style={{ color: 'var(--text-tertiary)' }}
+                        />
+                      )}
+                    </button>
 
-                  <span style={{ color: 'var(--border-strong)' }}>·</span>
+                    <span style={{ color: 'var(--border-strong)' }}>·</span>
 
-                  {/*
+                    {/*
                     ⚠ THE UUID IS ABBREVIATED, AND THE WHOLE THING IS STILL WHAT
                       GETS COPIED.
 
@@ -403,72 +340,72 @@ export function WorkspaceDetailDrawer({
                     clipboard, and the title carries it for anyone who wants to
                     read it without copying.
                   */}
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(row.id, 'id')}
-                    title={`Workspace id · click to copy\n${row.id}`}
-                    className="inline-flex items-center gap-1 rounded-panel px-1.5 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(row.id, 'id')}
+                      title={`Workspace id · click to copy\n${row.id}`}
+                      className="inline-flex items-center gap-1 rounded-panel px-1.5 py-0.5 transition-colors hover:bg-[var(--surface-inset)]"
+                      style={{
+                        color: 'var(--text-tertiary)',
+                        border: '1px solid var(--border-subtle)',
+                      }}
+                    >
+                      <span style={{ opacity: 0.6 }}>id</span>
+                      <span>{row.id.slice(0, 8)}</span>
+                      {copiedKey === 'id' ? (
+                        <IconCheck size={12} stroke={2} style={{ color: 'var(--success-fg)' }} />
+                      ) : (
+                        <IconCopy size={11} stroke={1.5} />
+                      )}
+                    </button>
+
+                    <span style={{ color: 'var(--border-strong)' }}>·</span>
+                    {/* "Created 0 months ago" is not a sentence anybody writes.
+                      See `relativeAge`. */}
+                    <span style={{ color: 'var(--text-tertiary)' }}>{row.created}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status & Plan Badges */}
+              <div className="mt-1 flex items-center gap-2 sm:mt-0 sm:self-start">
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
+                  style={{
+                    background: st.bg,
+                    border: `1px solid ${st.dot}`,
+                    color: st.text,
+                  }}
+                >
+                  <span className="size-1.5 rounded-full" style={{ background: st.dot }} />
+                  <span
                     style={{
-                      color: 'var(--text-tertiary)',
-                      border: '1px solid var(--border-subtle)',
+                      font: '500 var(--type-chip)/1 var(--font-ui)',
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
                     }}
                   >
-                    <span style={{ opacity: 0.6 }}>id</span>
-                    <span>{row.id.slice(0, 8)}</span>
-                    {copiedKey === 'id' ? (
-                      <IconCheck size={12} stroke={2} style={{ color: 'var(--success-fg)' }} />
-                    ) : (
-                      <IconCopy size={11} stroke={1.5} />
-                    )}
-                  </button>
+                    {st.label}
+                  </span>
+                </span>
 
-                  <span style={{ color: 'var(--border-strong)' }}>·</span>
-                  {/* "Created 0 months ago" is not a sentence anybody writes.
-                      See `relativeAge`. */}
-                  <span style={{ color: 'var(--text-tertiary)' }}>{row.created}</span>
-                </div>
+                {row.plan && row.plan !== '—' && (
+                  <span
+                    className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-xs font-medium uppercase"
+                    style={{
+                      background: 'var(--surface-inset)',
+                      border: '1px solid var(--border-subtle)',
+                      color: 'var(--text-secondary)',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {row.plan}
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Status & Plan Badges */}
-            <div className="mt-1 flex items-center gap-2 sm:mt-0 sm:self-start">
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
-                style={{
-                  background: st.bg,
-                  border: `1px solid ${st.dot}`,
-                  color: st.text,
-                }}
-              >
-                <span className="size-1.5 rounded-full" style={{ background: st.dot }} />
-                <span
-                  style={{
-                    font: '500 var(--type-chip)/1 var(--font-ui)',
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {st.label}
-                </span>
-              </span>
-
-              {row.plan && row.plan !== '—' && (
-                <span
-                  className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-xs font-medium uppercase"
-                  style={{
-                    background: 'var(--surface-inset)',
-                    border: '1px solid var(--border-subtle)',
-                    color: 'var(--text-secondary)',
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  {row.plan}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/*
+            {/*
               ⚠ HEADER ACTION STRIP · SUSPEND IS DELIBERATELY FURTHEST FROM
               SUPPORT SESSION.
 
@@ -483,207 +420,192 @@ export function WorkspaceDetailDrawer({
               clicking the likely one. Suspend now sits at the opposite edge,
               past the activity read-out.
             */}
-          <div
-            className="mt-5 flex items-center justify-between gap-3 border-t pt-4"
-            style={{ borderColor: 'var(--border-subtle)' }}
-          >
-            <button
-              type="button"
-              onClick={() => setSessionOpen(true)}
-              className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-3.5 transition-all duration-150 hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] active:scale-95"
-              style={{
-                border: '1px solid var(--border-strong)',
-                background: 'var(--surface-raised)',
-                color: 'var(--text-primary)',
-                font: '500 var(--type-compact) var(--font-ui)',
-              }}
+            <div
+              className="mt-5 flex items-center justify-between gap-3 border-t pt-4"
+              style={{ borderColor: 'var(--border-subtle)' }}
             >
-              <IconExternalLink size={14} stroke={1.5} aria-hidden />
-              Support session
-            </button>
-
-            <div className="flex items-center gap-4">
-              <div
-                className="flex items-center gap-2 font-mono text-xs"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
-                <span
-                  className="size-1.5 rounded-full"
-                  style={{
-                    background: 'var(--success-fg)',
-                    animation: 'pulse-dot 2s ease-in-out infinite',
-                  }}
-                />
-                <span>{row.activity}</span>
-              </div>
-
               <button
                 type="button"
-                onClick={openSuspend}
-                className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-3 transition-all duration-150 active:scale-95"
+                onClick={() => setSessionOpen(true)}
+                className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-3.5 transition-all duration-150 hover:bg-[var(--surface-inset)] hover:text-[var(--text-action)] active:scale-95"
                 style={{
-                  border: '1px solid var(--border-subtle)',
+                  border: '1px solid var(--border-strong)',
                   background: 'var(--surface-raised)',
-                  color: row.status === 'suspended' ? 'var(--success-fg)' : 'var(--danger-fg)',
+                  color: 'var(--text-primary)',
                   font: '500 var(--type-compact) var(--font-ui)',
                 }}
               >
-                {row.status === 'suspended' ? (
-                  <>
-                    <IconRefresh size={14} stroke={1.5} aria-hidden />
-                    Reactivate
-                  </>
-                ) : (
-                  <>
-                    <IconCircleX size={14} stroke={1.5} aria-hidden />
-                    Suspend
-                  </>
-                )}
+                <IconExternalLink size={14} stroke={1.5} aria-hidden />
+                Support session
               </button>
-            </div>
-          </div>
 
-          {/* Compact section controls share the console's underline rail. */}
-          <div className="console-tab-rail mt-6" role="group" aria-label="Workspace sections">
-            {[
-              { key: 'overview', label: 'Overview', icon: IconBuilding },
-              { key: 'telemetry', label: 'Usage', icon: IconActivity },
-              { key: 'billing', label: 'Billing', icon: IconReceipt },
-              { key: 'access', label: 'Team', icon: IconShieldLock },
-            ].map(({ key, label, icon: Icon }) => {
-              const isActive = activeTab === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setActiveTab(key as TabKey)}
-                  className="console-tab"
-                  aria-pressed={isActive}
-                >
-                  <Icon
-                    size={14}
-                    stroke={1.5}
-                    style={{ opacity: isActive ? 1 : 0.7 }}
-                    aria-hidden
-                  />
-                  <span>{label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── 2 · Tab Content Area (Scrollable) ──────────────────────── */}
-        <div className="flex-1 overflow-y-auto p-6 pt-5 sm:p-7" style={{ scrollbarWidth: 'thin' }}>
-          {loading ? (
-            <div className="flex h-56 flex-col items-center justify-center gap-2">
-              <span
-                className="size-5 animate-spin rounded-full border-2"
-                style={{ borderColor: 'var(--blue-500)', borderTopColor: 'transparent' }}
-              />
-              <span
-                className="t-compact font-mono text-xs"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
-                Loading workspace details…
-              </span>
-            </div>
-          ) : detail ? (
-            <div className="flex flex-col gap-6">
-              {/* Optional Alert Banner */}
-              {detail.alert && (
+              <div className="flex items-center gap-4">
                 <div
-                  className="flex gap-3.5 rounded-overlay p-4"
-                  style={{
-                    background:
-                      row.status === 'past due'
-                        ? 'var(--badge-danger-bg)'
-                        : 'var(--badge-warning-bg)',
-                    border: `1px solid ${row.status === 'past due' ? 'var(--badge-danger-edge)' : 'var(--badge-warning-edge)'}`,
-                  }}
+                  className="flex items-center gap-2 font-mono text-xs"
+                  style={{ color: 'var(--text-tertiary)' }}
                 >
-                  <IconAlertTriangle
-                    size={18}
-                    stroke={1.5}
-                    className="mt-0.5 shrink-0"
+                  <span
+                    className="size-1.5 rounded-full"
                     style={{
-                      color: row.status === 'past due' ? 'var(--danger-fg)' : 'var(--warning-fg)',
+                      background: 'var(--success-fg)',
+                      animation: 'pulse-dot 2s ease-in-out infinite',
                     }}
-                    aria-hidden
                   />
-                  <div>
-                    <p className="t-label" style={{ color: 'var(--text-primary)' }}>
-                      {detail.alert.title}
-                    </p>
-                    <p
-                      className="t-compact mt-0.5 text-xs"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      {detail.alert.body}
-                    </p>
-                  </div>
+                  <span>{row.activity}</span>
                 </div>
-              )}
 
-              {/* ── TAB 1 · OVERVIEW ────────────────────────────────────── */}
-              {activeTab === 'overview' && (
-                <div className="flex flex-col gap-6">
-                  <FactStrip label="Workspace summary">
-                    <FactCell
-                      icon={IconUsersGroup}
-                      label="Seats in use"
-                      value={`${row.seatsUsed} / ${describeAllowance(row.seatsUsed, row.seatsLimit).label}`}
-                      note={describeAllowance(row.seatsUsed, row.seatsLimit).note}
-                    />
-                    <FactCell
-                      icon={IconReceipt}
-                      label="Monthly subscription value"
-                      value={detail.monthlyValue.split(' /')[0]}
-                      note={detail.plan || 'No recorded plan'}
-                    />
-                  </FactStrip>
-                  <dl className="grid grid-cols-2 gap-4">
-                    <div className="min-w-0">
-                      <dt className="t-caption" style={{ color: 'var(--text-secondary)' }}>
-                        Event reporting
-                      </dt>
-                      <dd className="t-compact mt-1" style={{ color: 'var(--text-primary)' }}>
-                        Not measured
-                      </dd>
-                    </div>
-                    <div className="min-w-0">
-                      <dt className="t-caption" style={{ color: 'var(--text-secondary)' }}>
-                        Workspace status
-                      </dt>
-                      <dd className="t-compact mt-1" style={{ color: 'var(--text-primary)' }}>
-                        {STATUS_CONFIG[row.status].label}
-                      </dd>
-                    </div>
-                  </dl>
+                <WorkspaceStatusControl
+                  workspace={row}
+                  status={row.status}
+                  onChanged={handleClose}
+                />
+              </div>
+            </div>
 
+            {/* Compact section controls share the console's underline rail. */}
+            <div className="console-tab-rail mt-6" role="group" aria-label="Workspace sections">
+              {[
+                { key: 'overview', label: 'Overview', icon: IconBuilding },
+                { key: 'telemetry', label: 'Usage', icon: IconActivity },
+                { key: 'billing', label: 'Billing', icon: IconReceipt },
+                { key: 'access', label: 'Team', icon: IconShieldLock },
+              ].map(({ key, label, icon: Icon }) => {
+                const isActive = activeTab === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setActiveTab(key as TabKey)}
+                    className="console-tab"
+                    aria-pressed={isActive}
+                  >
+                    <Icon
+                      size={14}
+                      stroke={1.5}
+                      style={{ opacity: isActive ? 1 : 0.7 }}
+                      aria-hidden
+                    />
+                    <span>{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── 2 · Tab Content Area (Scrollable) ──────────────────────── */}
+          <div
+            className="flex-1 overflow-y-auto p-6 pt-5 sm:p-7"
+            style={{ scrollbarWidth: 'thin' }}
+          >
+            {loading ? (
+              <div className="flex h-56 flex-col items-center justify-center gap-2">
+                <span
+                  className="size-5 animate-spin rounded-full border-2"
+                  style={{ borderColor: 'var(--blue-500)', borderTopColor: 'transparent' }}
+                />
+                <span
+                  className="t-compact font-mono text-xs"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  Loading workspace details…
+                </span>
+              </div>
+            ) : detail ? (
+              <div className="flex flex-col gap-6">
+                {/* Optional Alert Banner */}
+                {detail.alert && (
                   <div
-                    className="overflow-hidden rounded-overlay"
+                    className="flex gap-3.5 rounded-overlay p-4"
                     style={{
-                      background: 'var(--surface-raised)',
-                      border: '1px solid var(--border-subtle)',
-                      boxShadow: 'var(--glass-highlight)',
+                      background:
+                        row.status === 'past due'
+                          ? 'var(--badge-danger-bg)'
+                          : 'var(--badge-warning-bg)',
+                      border: `1px solid ${row.status === 'past due' ? 'var(--badge-danger-edge)' : 'var(--badge-warning-edge)'}`,
                     }}
                   >
-                    <div
-                      className="px-5 py-4"
+                    <IconAlertTriangle
+                      size={18}
+                      stroke={1.5}
+                      className="mt-0.5 shrink-0"
                       style={{
-                        background: 'var(--surface-sunken)',
-                        boxShadow: 'var(--neu-inset)',
+                        color: row.status === 'past due' ? 'var(--danger-fg)' : 'var(--warning-fg)',
+                      }}
+                      aria-hidden
+                    />
+                    <div>
+                      <p className="t-label" style={{ color: 'var(--text-primary)' }}>
+                        {detail.alert.title}
+                      </p>
+                      <p
+                        className="t-compact mt-0.5 text-xs"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
+                        {detail.alert.body}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── TAB 1 · OVERVIEW ────────────────────────────────────── */}
+                {activeTab === 'overview' && (
+                  <div className="flex flex-col gap-6">
+                    <FactStrip label="Workspace summary">
+                      <FactCell
+                        icon={IconUsersGroup}
+                        label="Seats in use"
+                        value={`${row.seatsUsed} / ${describeAllowance(row.seatsUsed, row.seatsLimit).label}`}
+                        note={describeAllowance(row.seatsUsed, row.seatsLimit).note}
+                      />
+                      <FactCell
+                        icon={IconReceipt}
+                        label="Monthly subscription value"
+                        value={detail.monthlyValue.split(' /')[0]}
+                        note={detail.plan || 'No recorded plan'}
+                      />
+                    </FactStrip>
+                    <dl className="grid grid-cols-2 gap-4">
+                      <div className="min-w-0">
+                        <dt className="t-caption" style={{ color: 'var(--text-secondary)' }}>
+                          Event reporting
+                        </dt>
+                        <dd className="t-compact mt-1" style={{ color: 'var(--text-primary)' }}>
+                          Not measured
+                        </dd>
+                      </div>
+                      <div className="min-w-0">
+                        <dt className="t-caption" style={{ color: 'var(--text-secondary)' }}>
+                          Workspace status
+                        </dt>
+                        <dd className="t-compact mt-1" style={{ color: 'var(--text-primary)' }}>
+                          {STATUS_CONFIG[row.status].label}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    <div
+                      className="overflow-hidden rounded-overlay"
+                      style={{
+                        background: 'var(--surface-raised)',
+                        border: '1px solid var(--border-subtle)',
+                        boxShadow: 'var(--glass-highlight)',
                       }}
                     >
-                      <span
-                        className="text-2xs font-medium tracking-[0.1em] uppercase"
-                        style={{ color: 'var(--text-tertiary)' }}
+                      <div
+                        className="px-5 py-4"
+                        style={{
+                          background: 'var(--surface-sunken)',
+                          boxShadow: 'var(--neu-inset)',
+                        }}
                       >
-                        Workspace Specifications
-                      </span>
-                    </div>
-                    {/*
+                        <span
+                          className="text-2xs font-medium tracking-[0.1em] uppercase"
+                          style={{ color: 'var(--text-tertiary)' }}
+                        >
+                          Workspace Specifications
+                        </span>
+                      </div>
+                      {/*
                       ⚠ THE SPLIT WAS HARDCODED AT THREE, AND THE COLUMNS ONLY
                       BALANCED BY COINCIDENCE.
 
@@ -698,491 +620,507 @@ export function WorkspaceDetailDrawer({
                       when the count is odd — which is the direction a reader
                       scanning top-left expects.
                     */}
-                    <div className="relative grid grid-cols-1 sm:grid-cols-2">
-                      {/* Very subtle center divider on desktop */}
-                      <div className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
+                      <div className="relative grid grid-cols-1 sm:grid-cols-2">
+                        {/* Very subtle center divider on desktop */}
+                        <div className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
 
-                      <div>
-                        {detail.facts.slice(0, Math.ceil(detail.facts.length / 2)).map((f) => (
-                          <div
-                            key={f.label}
-                            className="flex items-center justify-between px-5 py-4"
-                            style={{
-                              borderTop:
-                                '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                              boxShadow: 'var(--glass-highlight)',
-                            }}
-                          >
-                            <span
-                              className="text-xs tracking-wide"
-                              style={{ color: 'var(--text-tertiary)' }}
-                            >
-                              {f.label}
-                            </span>
-                            <span
-                              className="font-mono text-xs font-medium"
+                        <div>
+                          {detail.facts.slice(0, Math.ceil(detail.facts.length / 2)).map((f) => (
+                            <div
+                              key={f.label}
+                              className="flex items-center justify-between px-5 py-4"
                               style={{
-                                color:
-                                  f.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
+                                borderTop:
+                                  '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                                boxShadow: 'var(--glass-highlight)',
                               }}
                             >
-                              {f.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      <div>
-                        {detail.facts.slice(Math.ceil(detail.facts.length / 2)).map((f) => (
-                          <div
-                            key={f.label}
-                            className="flex items-center justify-between px-5 py-4"
-                            style={{
-                              borderTop:
-                                '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
-                              boxShadow: 'var(--glass-highlight)',
-                            }}
-                          >
-                            <span
-                              className="text-xs tracking-wide"
-                              style={{ color: 'var(--text-tertiary)' }}
-                            >
-                              {f.label}
-                            </span>
-                            <span
-                              className="font-mono text-xs font-medium"
+                              <span
+                                className="text-xs tracking-wide"
+                                style={{ color: 'var(--text-tertiary)' }}
+                              >
+                                {f.label}
+                              </span>
+                              <span
+                                className="font-mono text-xs font-medium"
+                                style={{
+                                  color:
+                                    f.tone === 'danger'
+                                      ? 'var(--danger-fg)'
+                                      : 'var(--text-primary)',
+                                }}
+                              >
+                                {f.value}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        <div>
+                          {detail.facts.slice(Math.ceil(detail.facts.length / 2)).map((f) => (
+                            <div
+                              key={f.label}
+                              className="flex items-center justify-between px-5 py-4"
                               style={{
-                                color:
-                                  f.tone === 'danger' ? 'var(--danger-fg)' : 'var(--text-primary)',
+                                borderTop:
+                                  '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)',
+                                boxShadow: 'var(--glass-highlight)',
                               }}
                             >
-                              {f.value}
-                            </span>
-                          </div>
-                        ))}
+                              <span
+                                className="text-xs tracking-wide"
+                                style={{ color: 'var(--text-tertiary)' }}
+                              >
+                                {f.label}
+                              </span>
+                              <span
+                                className="font-mono text-xs font-medium"
+                                style={{
+                                  color:
+                                    f.tone === 'danger'
+                                      ? 'var(--danger-fg)'
+                                      : 'var(--text-primary)',
+                                }}
+                              >
+                                {f.value}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Primary Contact Row */}
-                  <button
-                    type="button"
-                    onClick={() => setProfileOpen(true)}
-                    className="flex w-full items-center justify-between gap-3 rounded-overlay p-4 text-left transition-colors duration-150 hover:shadow-sm active:scale-[0.99]"
-                    style={{
-                      background: 'var(--surface-raised)',
-                      border: '1px solid var(--border-subtle)',
-                      boxShadow: 'var(--glass-highlight)',
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-medium"
-                        style={{
-                          background: 'var(--surface-raised)',
-                          boxShadow: 'inset 0 0 0 1px var(--border-subtle), var(--shadow-sm)',
-                          color: 'var(--text-primary)',
-                        }}
-                      >
-                        {detail.owner.initials}
-                      </div>
-                      <div>
-                        <p
-                          className="text-sm font-medium tracking-tight"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {detail.owner.name}
-                        </p>
-                        <p className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                          {detail.owner.email}
-                        </p>
-                      </div>
-                    </div>
-                    <span
-                      className="rounded-full px-2.5 py-1 text-3xs font-medium tracking-[0.1em] uppercase"
+                    {/* Primary Contact Row */}
+                    <button
+                      type="button"
+                      onClick={() => setProfileOpen(true)}
+                      className="flex w-full items-center justify-between gap-3 rounded-overlay p-4 text-left transition-colors duration-150 hover:shadow-sm active:scale-[0.99]"
                       style={{
-                        background: 'var(--surface-inset)',
-                        color: 'var(--text-tertiary)',
+                        background: 'var(--surface-raised)',
+                        border: '1px solid var(--border-subtle)',
                         boxShadow: 'var(--glass-highlight)',
                       }}
                     >
-                      Primary Administrator
-                    </span>
-                  </button>
-                </div>
-              )}
-
-              {/* ── TAB 2 · TELEMETRY & METERS ─────────────────────────── */}
-              {activeTab === 'telemetry' && (
-                <div className="flex flex-col gap-6">
-                  <div className="flex flex-col gap-4">
-                    {detail.meters.map((m) => {
-                      const Icon = METER_ICONS[m.icon] ?? IconCpu;
-                      /**
-                       * ⚠ AN UNLIMITED METER HAS NO PERCENTAGE, AND ASKING FOR
-                       *   ONE PRODUCED `Infinity%` OVER A BAR OF INFINITE WIDTH.
-                       *
-                       * `used / limit` with a null ceiling is not a smaller
-                       * number — it is not a number. A Custom workspace's
-                       * credential allowance has no ceiling by contract, so
-                       * there is nothing to be a proportion OF, and the honest
-                       * rendering is the count with no track rather than a
-                       * track filled to an imaginary edge.
-                       */
-                      /* Bound to a local so the null check narrows — reading
-                         `m.limit` through a separate boolean does not. */
-                      const limit = m.limit;
-                      const ratio = describeAllowance(m.used, limit).ratio;
-                      const pct = ratio ?? 0;
-                      const color = meterColor(pct);
-                      const usedStr = m.unit ? `${m.used}${m.unit}` : fmtNum(m.used);
-                      const limitStr =
-                        limit === null ? 'no limit' : m.unit ? `${limit}${m.unit}` : fmtNum(limit);
-
-                      return (
+                      <div className="flex items-center gap-3">
                         <div
-                          key={m.label}
-                          className="rounded-panel p-4 transition-colors duration-150"
+                          className="flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-medium"
+                          style={{
+                            background: 'var(--surface-raised)',
+                            boxShadow: 'inset 0 0 0 1px var(--border-subtle), var(--shadow-sm)',
+                            color: 'var(--text-primary)',
+                          }}
+                        >
+                          {detail.owner.initials}
+                        </div>
+                        <div>
+                          <p
+                            className="text-sm font-medium tracking-tight"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {detail.owner.name}
+                          </p>
+                          <p
+                            className="font-mono text-xs"
+                            style={{ color: 'var(--text-tertiary)' }}
+                          >
+                            {detail.owner.email}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className="rounded-full px-2.5 py-1 text-3xs font-medium tracking-[0.1em] uppercase"
+                        style={{
+                          background: 'var(--surface-inset)',
+                          color: 'var(--text-tertiary)',
+                          boxShadow: 'var(--glass-highlight)',
+                        }}
+                      >
+                        Primary Administrator
+                      </span>
+                    </button>
+                  </div>
+                )}
+
+                {/* ── TAB 2 · TELEMETRY & METERS ─────────────────────────── */}
+                {activeTab === 'telemetry' && (
+                  <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-4">
+                      {detail.meters.map((m) => {
+                        const Icon = METER_ICONS[m.icon] ?? IconCpu;
+                        /**
+                         * ⚠ AN UNLIMITED METER HAS NO PERCENTAGE, AND ASKING FOR
+                         *   ONE PRODUCED `Infinity%` OVER A BAR OF INFINITE WIDTH.
+                         *
+                         * `used / limit` with a null ceiling is not a smaller
+                         * number — it is not a number. A Custom workspace's
+                         * credential allowance has no ceiling by contract, so
+                         * there is nothing to be a proportion OF, and the honest
+                         * rendering is the count with no track rather than a
+                         * track filled to an imaginary edge.
+                         */
+                        /* Bound to a local so the null check narrows — reading
+                         `m.limit` through a separate boolean does not. */
+                        const limit = m.limit;
+                        const ratio = describeAllowance(m.used, limit).ratio;
+                        const pct = ratio ?? 0;
+                        const color = meterColor(pct);
+                        const usedStr = m.unit ? `${m.used}${m.unit}` : fmtNum(m.used);
+                        const limitStr =
+                          limit === null
+                            ? 'no limit'
+                            : m.unit
+                              ? `${limit}${m.unit}`
+                              : fmtNum(limit);
+
+                        return (
+                          <div
+                            key={m.label}
+                            className="rounded-panel p-4 transition-colors duration-150"
+                            style={{
+                              background: 'var(--surface-raised)',
+                              border: '1px solid var(--border-subtle)',
+                              boxShadow: 'var(--glass-highlight)',
+                            }}
+                          >
+                            <div className="mb-4 flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                {/* The raised tile, not a glyph sunk into an
+                                  inset well — a meter's mark sits ON the card
+                                  the way every other leading mark in the
+                                  console now does. */}
+                                <IconTile icon={Icon} size="sm" />
+                                <span
+                                  className="text-sm font-medium tracking-tight"
+                                  style={{ color: 'var(--text-primary)' }}
+                                >
+                                  {m.label}
+                                </span>
+                              </div>
+                              <div className="flex items-baseline gap-2">
+                                <span
+                                  className="font-mono text-sm font-medium"
+                                  style={{ color: 'var(--text-primary)' }}
+                                >
+                                  {usedStr}
+                                </span>
+                                <span
+                                  className="font-mono text-xs"
+                                  style={{ color: 'var(--text-tertiary)' }}
+                                >
+                                  {limit === null ? limitStr : `/ ${limitStr}`}
+                                </span>
+                                {ratio === null ? null : (
+                                  <span
+                                    className="rounded-panel px-1.5 py-0.5 font-mono text-2xs font-medium tracking-wide"
+                                    style={{
+                                      background:
+                                        pct >= NEAR_LIMIT
+                                          ? 'var(--warning-bg)'
+                                          : 'var(--surface-inset)',
+                                      color: pct >= NEAR_LIMIT ? color : 'var(--text-secondary)',
+                                      boxShadow: 'var(--glass-highlight)',
+                                    }}
+                                  >
+                                    {Math.round(pct * 100)}%
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* A track is a proportion. With no ceiling there is
+                              nothing to be a proportion of, so the row carries
+                              its count and stops — rather than drawing a bar
+                              that is either always full or always empty and
+                              means neither. */}
+                            {ratio === null ? null : (
+                              <div
+                                className="h-2.5 w-full overflow-hidden rounded-full"
+                                style={{
+                                  background: 'var(--surface-sunken)',
+                                  boxShadow: 'var(--neu-inset)',
+                                }}
+                              >
+                                <div
+                                  className="h-full rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${Math.min(100, pct * 100)}%`,
+                                    background: color,
+                                    boxShadow: `0 1px 3px ${color}40`,
+                                  }}
+                                />
+                              </div>
+                            )}
+
+                            {/* Operational context stays readable without table names. */}
+                            <p
+                              className="mt-2.5 font-mono text-2xs"
+                              style={{ color: 'var(--text-tertiary)' }}
+                            >
+                              {describeAllowance(m.used, m.limit).note}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <p
+                      className="font-mono text-xs leading-relaxed"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
+                      Active allowance overrides take precedence over the plan. Usage at 90% or more
+                      of a finite allowance is highlighted for review.
+                    </p>
+                  </div>
+                )}
+
+                {/* ── TAB 3 · BILLING & INVOICES ─────────────────────────── */}
+                {activeTab === 'billing' && (
+                  <div className="flex flex-col gap-6">
+                    {detail.billingStats.length > 0 ? (
+                      <FactStrip label="Billing summary" maxColumns={2}>
+                        {detail.billingStats.map((s) => (
+                          <FactCell
+                            key={s.label}
+                            icon={IconReceipt}
+                            tone={s.tone === 'danger' ? 'danger' : 'neutral'}
+                            label={s.label}
+                            value={s.value}
+                            note={s.note}
+                          />
+                        ))}
+                      </FactStrip>
+                    ) : null}
+
+                    {/* Invoice History List */}
+                    <div>
+                      <div className="mb-3 flex items-center justify-between">
+                        <h3 className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
+                          Recent Invoices
+                        </h3>
+                        <span
+                          className="font-mono text-xs"
+                          style={{ color: 'var(--text-tertiary)' }}
+                        >
+                          Currency: KES
+                        </span>
+                      </div>
+
+                      {detail.invoices.length > 0 ? (
+                        <div
+                          className="overflow-hidden rounded-overlay"
                           style={{
                             background: 'var(--surface-raised)',
                             border: '1px solid var(--border-subtle)',
                             boxShadow: 'var(--glass-highlight)',
                           }}
                         >
-                          <div className="mb-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              {/* The raised tile, not a glyph sunk into an
-                                  inset well — a meter's mark sits ON the card
-                                  the way every other leading mark in the
-                                  console now does. */}
-                              <IconTile icon={Icon} size="sm" />
-                              <span
-                                className="text-sm font-medium tracking-tight"
-                                style={{ color: 'var(--text-primary)' }}
-                              >
-                                {m.label}
-                              </span>
-                            </div>
-                            <div className="flex items-baseline gap-2">
-                              <span
-                                className="font-mono text-sm font-medium"
-                                style={{ color: 'var(--text-primary)' }}
-                              >
-                                {usedStr}
-                              </span>
-                              <span
-                                className="font-mono text-xs"
-                                style={{ color: 'var(--text-tertiary)' }}
-                              >
-                                {limit === null ? limitStr : `/ ${limitStr}`}
-                              </span>
-                              {ratio === null ? null : (
-                                <span
-                                  className="rounded-panel px-1.5 py-0.5 font-mono text-2xs font-medium tracking-wide"
-                                  style={{
-                                    background:
-                                      pct >= NEAR_LIMIT
-                                        ? 'var(--warning-bg)'
-                                        : 'var(--surface-inset)',
-                                    color: pct >= NEAR_LIMIT ? color : 'var(--text-secondary)',
-                                    boxShadow: 'var(--glass-highlight)',
-                                  }}
-                                >
-                                  {Math.round(pct * 100)}%
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* A track is a proportion. With no ceiling there is
-                              nothing to be a proportion of, so the row carries
-                              its count and stops — rather than drawing a bar
-                              that is either always full or always empty and
-                              means neither. */}
-                          {ratio === null ? null : (
+                          {detail.invoices.map((inv, index) => (
                             <div
-                              className="h-2.5 w-full overflow-hidden rounded-full"
+                              key={inv.id}
+                              className="flex items-center justify-between gap-4 p-4"
                               style={{
-                                background: 'var(--surface-sunken)',
-                                boxShadow: 'var(--neu-inset)',
+                                background:
+                                  inv.status === 'failed'
+                                    ? 'var(--badge-danger-bg)'
+                                    : 'transparent',
+                                borderTop:
+                                  index > 0
+                                    ? '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)'
+                                    : 'none',
+                                boxShadow: index > 0 ? 'var(--glass-highlight)' : 'none',
                               }}
                             >
-                              <div
-                                className="h-full rounded-full transition-all duration-500"
-                                style={{
-                                  width: `${Math.min(100, pct * 100)}%`,
-                                  background: color,
-                                  boxShadow: `0 1px 3px ${color}40`,
-                                }}
-                              />
-                            </div>
-                          )}
-
-                          {/* Operational context stays readable without table names. */}
-                          <p
-                            className="mt-2.5 font-mono text-2xs"
-                            style={{ color: 'var(--text-tertiary)' }}
-                          >
-                            {describeAllowance(m.used, m.limit).note}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <p
-                    className="font-mono text-xs leading-relaxed"
-                    style={{ color: 'var(--text-tertiary)' }}
-                  >
-                    Active allowance overrides take precedence over the plan. Usage at 90% or more
-                    of a finite allowance is highlighted for review.
-                  </p>
-                </div>
-              )}
-
-              {/* ── TAB 3 · BILLING & INVOICES ─────────────────────────── */}
-              {activeTab === 'billing' && (
-                <div className="flex flex-col gap-6">
-                  {detail.billingStats.length > 0 ? (
-                    <FactStrip label="Billing summary" maxColumns={2}>
-                      {detail.billingStats.map((s) => (
-                        <FactCell
-                          key={s.label}
-                          icon={IconReceipt}
-                          tone={s.tone === 'danger' ? 'danger' : 'neutral'}
-                          label={s.label}
-                          value={s.value}
-                          note={s.note}
-                        />
-                      ))}
-                    </FactStrip>
-                  ) : null}
-
-                  {/* Invoice History List */}
-                  <div>
-                    <div className="mb-3 flex items-center justify-between">
-                      <h3 className="t-eyebrow" style={{ color: 'var(--text-tertiary)' }}>
-                        Recent Invoices
-                      </h3>
-                      <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                        Currency: KES
-                      </span>
-                    </div>
-
-                    {detail.invoices.length > 0 ? (
-                      <div
-                        className="overflow-hidden rounded-overlay"
-                        style={{
-                          background: 'var(--surface-raised)',
-                          border: '1px solid var(--border-subtle)',
-                          boxShadow: 'var(--glass-highlight)',
-                        }}
-                      >
-                        {detail.invoices.map((inv, index) => (
-                          <div
-                            key={inv.id}
-                            className="flex items-center justify-between gap-4 p-4"
-                            style={{
-                              background:
-                                inv.status === 'failed' ? 'var(--badge-danger-bg)' : 'transparent',
-                              borderTop:
-                                index > 0
-                                  ? '1px solid color-mix(in srgb, var(--border-subtle) 30%, transparent)'
-                                  : 'none',
-                              boxShadow: index > 0 ? 'var(--glass-highlight)' : 'none',
-                            }}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div
-                                className="rounded-overlay p-2"
-                                style={{
-                                  background: 'var(--surface-sunken)',
-                                  boxShadow: 'var(--neu-inset)',
-                                }}
-                              >
-                                <IconFileText
-                                  size={16}
-                                  stroke={1.5}
-                                  style={{ color: 'var(--text-secondary)' }}
-                                  aria-hidden
-                                />
+                              <div className="flex items-center gap-4">
+                                <div
+                                  className="rounded-overlay p-2"
+                                  style={{
+                                    background: 'var(--surface-sunken)',
+                                    boxShadow: 'var(--neu-inset)',
+                                  }}
+                                >
+                                  <IconFileText
+                                    size={16}
+                                    stroke={1.5}
+                                    style={{ color: 'var(--text-secondary)' }}
+                                    aria-hidden
+                                  />
+                                </div>
+                                <div>
+                                  <p
+                                    className="font-mono text-sm font-medium"
+                                    style={{ color: 'var(--text-primary)' }}
+                                  >
+                                    {inv.id}
+                                  </p>
+                                  <p
+                                    className="mt-0.5 font-mono text-xs"
+                                    style={{ color: 'var(--text-tertiary)' }}
+                                  >
+                                    {inv.period} · Issued {inv.issued}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p
+
+                              <div className="flex items-center gap-4">
+                                <span
                                   className="font-mono text-sm font-medium"
                                   style={{ color: 'var(--text-primary)' }}
                                 >
-                                  {inv.id}
-                                </p>
-                                <p
-                                  className="mt-0.5 font-mono text-xs"
-                                  style={{ color: 'var(--text-tertiary)' }}
+                                  KES {inv.amount}
+                                </span>
+                                <span
+                                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-2xs font-medium tracking-wide uppercase"
+                                  style={{
+                                    background:
+                                      inv.status === 'paid'
+                                        ? 'var(--badge-success-bg)'
+                                        : 'var(--badge-danger-bg)',
+                                    color:
+                                      inv.status === 'paid'
+                                        ? 'var(--success-fg)'
+                                        : 'var(--danger-fg)',
+                                    border: `1px solid ${inv.status === 'paid' ? 'var(--badge-success-edge)' : 'var(--badge-danger-edge)'}`,
+                                    boxShadow: 'var(--glass-highlight)',
+                                  }}
                                 >
-                                  {inv.period} · Issued {inv.issued}
-                                </p>
+                                  {inv.status === 'paid' ? (
+                                    <IconCheck size={12} stroke={2.5} />
+                                  ) : (
+                                    <IconAlertTriangle size={12} stroke={2} />
+                                  )}
+                                  {inv.status}
+                                </span>
                               </div>
                             </div>
-
-                            <div className="flex items-center gap-4">
-                              <span
-                                className="font-mono text-sm font-medium"
-                                style={{ color: 'var(--text-primary)' }}
-                              >
-                                KES {inv.amount}
-                              </span>
-                              <span
-                                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-2xs font-medium tracking-wide uppercase"
-                                style={{
-                                  background:
-                                    inv.status === 'paid'
-                                      ? 'var(--badge-success-bg)'
-                                      : 'var(--badge-danger-bg)',
-                                  color:
-                                    inv.status === 'paid'
-                                      ? 'var(--success-fg)'
-                                      : 'var(--danger-fg)',
-                                  border: `1px solid ${inv.status === 'paid' ? 'var(--badge-success-edge)' : 'var(--badge-danger-edge)'}`,
-                                  boxShadow: 'var(--glass-highlight)',
-                                }}
-                              >
-                                {inv.status === 'paid' ? (
-                                  <IconCheck size={12} stroke={2.5} />
-                                ) : (
-                                  <IconAlertTriangle size={12} stroke={2} />
-                                )}
-                                {inv.status}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div
-                        className="rounded-overlay p-6 text-center font-mono text-xs"
-                        style={{
-                          background: 'var(--surface-base)',
-                          color: 'var(--text-tertiary)',
-                          border: '1px solid var(--border-subtle)',
-                        }}
-                      >
-                        No invoice records found under this evaluation tier.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* ── TAB 4 · TEAM & GOVERNANCE ─────────────────────────── */}
-              {activeTab === 'access' && (
-                <div className="flex flex-col gap-6">
-                  {/* Team Allocations */}
-                  <div
-                    className="flex flex-col gap-6 rounded-overlay p-6"
-                    style={{
-                      background: 'var(--surface-raised)',
-                      border: '1px solid var(--border-subtle)',
-                      boxShadow: 'var(--glass-highlight)',
-                    }}
-                  >
-                    <h3
-                      className="text-2xs font-medium tracking-[0.1em] uppercase"
-                      style={{ color: 'var(--text-tertiary)' }}
-                    >
-                      Access Topology
-                    </h3>
-                    <div className="relative grid grid-cols-1 sm:grid-cols-3">
-                      <div className="px-2 pb-4 sm:pb-0">
-                        <span
-                          className="text-xs font-medium tracking-wide"
-                          style={{ color: 'var(--text-tertiary)' }}
-                        >
-                          Staff Seats
-                        </span>
-                        <p
-                          className="mt-2 font-mono text-lg font-medium"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {detail.team.staff}
-                        </p>
-                      </div>
-                      <div className="relative px-2 py-4 sm:px-6 sm:py-0">
-                        {/* Desktop vertical engraved separator */}
-                        <div className="absolute inset-y-0 left-0 hidden w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
-                        <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-y-0 left-px hidden w-px sm:block" />
-                        {/* Mobile horizontal engraved separator */}
-                        <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:hidden" />
-                        <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-x-0 top-px h-px sm:hidden" />
-
-                        <span
-                          className="text-xs font-medium tracking-wide"
-                          style={{ color: 'var(--text-tertiary)' }}
-                        >
-                          Privileged Admins
-                        </span>
-                        <p
-                          className="mt-2 font-mono text-lg font-medium"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {detail.team.admins} members
-                        </p>
-                      </div>
-                      <div className="relative px-2 pt-4 sm:px-6 sm:pt-0">
-                        {/* Desktop vertical engraved separator */}
-                        <div className="absolute inset-y-0 left-0 hidden w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
-                        <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-y-0 left-px hidden w-px sm:block" />
-                        {/* Mobile horizontal engraved separator */}
-                        <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:hidden" />
-                        <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-x-0 top-px h-px sm:hidden" />
-
-                        <span
-                          className="text-xs font-medium tracking-wide"
-                          style={{ color: 'var(--text-tertiary)' }}
-                        >
-                          Active Channels
-                        </span>
-                        <p
-                          className="mt-2 font-mono text-lg font-medium"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {detail.team.channels}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Data Residency & Encryption Box */}
-                  <div
-                    className="flex flex-col gap-4 rounded-panel p-4 sm:flex-row sm:items-start"
-                    style={{
-                      background: 'var(--surface-raised)',
-                      border: '1px solid var(--border-subtle)',
-                      boxShadow: 'var(--glass-highlight)',
-                    }}
-                  >
-                    <IconTile icon={IconShieldLock} size="sm" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        {/* ⚠ "& Encryption" NAMED A FEATURE THAT DOES NOT
-                            EXIST — the fourth place a security claim outran the
-                            product. Residency is real and is the subject here. */}
-                        <p
-                          className="text-sm font-medium tracking-tight"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          Support access
-                        </p>
-                        <span
-                          className="rounded-full px-2.5 py-1 font-mono text-3xs font-medium tracking-wide uppercase"
+                          ))}
+                        </div>
+                      ) : (
+                        <div
+                          className="rounded-overlay p-6 text-center font-mono text-xs"
                           style={{
-                            background: 'var(--success-bg)',
-                            color: 'var(--success-fg)',
-                            border: '1px solid var(--success-fg)',
-                            boxShadow: 'var(--glass-highlight)',
+                            background: 'var(--surface-base)',
+                            color: 'var(--text-tertiary)',
+                            border: '1px solid var(--border-subtle)',
                           }}
                         >
-                          Scoped access
-                        </span>
+                          No invoice records found under this evaluation tier.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── TAB 4 · TEAM & GOVERNANCE ─────────────────────────── */}
+                {activeTab === 'access' && (
+                  <div className="flex flex-col gap-6">
+                    {/* Team Allocations */}
+                    <div
+                      className="flex flex-col gap-6 rounded-overlay p-6"
+                      style={{
+                        background: 'var(--surface-raised)',
+                        border: '1px solid var(--border-subtle)',
+                        boxShadow: 'var(--glass-highlight)',
+                      }}
+                    >
+                      <h3
+                        className="text-2xs font-medium tracking-[0.1em] uppercase"
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
+                        Access Topology
+                      </h3>
+                      <div className="relative grid grid-cols-1 sm:grid-cols-3">
+                        <div className="px-2 pb-4 sm:pb-0">
+                          <span
+                            className="text-xs font-medium tracking-wide"
+                            style={{ color: 'var(--text-tertiary)' }}
+                          >
+                            Staff Seats
+                          </span>
+                          <p
+                            className="mt-2 font-mono text-lg font-medium"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {detail.team.staff}
+                          </p>
+                        </div>
+                        <div className="relative px-2 py-4 sm:px-6 sm:py-0">
+                          {/* Desktop vertical engraved separator */}
+                          <div className="absolute inset-y-0 left-0 hidden w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
+                          <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-y-0 left-px hidden w-px sm:block" />
+                          {/* Mobile horizontal engraved separator */}
+                          <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:hidden" />
+                          <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-x-0 top-px h-px sm:hidden" />
+
+                          <span
+                            className="text-xs font-medium tracking-wide"
+                            style={{ color: 'var(--text-tertiary)' }}
+                          >
+                            Privileged Admins
+                          </span>
+                          <p
+                            className="mt-2 font-mono text-lg font-medium"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {detail.team.admins} members
+                          </p>
+                        </div>
+                        <div className="relative px-2 pt-4 sm:px-6 sm:pt-0">
+                          {/* Desktop vertical engraved separator */}
+                          <div className="absolute inset-y-0 left-0 hidden w-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:block" />
+                          <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-y-0 left-px hidden w-px sm:block" />
+                          {/* Mobile horizontal engraved separator */}
+                          <div className="absolute inset-x-0 top-0 h-px bg-[color-mix(in_srgb,var(--border-subtle)_30%,transparent)] sm:hidden" />
+                          <div className="bg-[color-mix(in oklab, var(--ink-0) 70%, transparent)] absolute inset-x-0 top-px h-px sm:hidden" />
+
+                          <span
+                            className="text-xs font-medium tracking-wide"
+                            style={{ color: 'var(--text-tertiary)' }}
+                          >
+                            Active Channels
+                          </span>
+                          <p
+                            className="mt-2 font-mono text-lg font-medium"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {detail.team.channels}
+                          </p>
+                        </div>
                       </div>
-                      {/*
+                    </div>
+
+                    {/* Data Residency & Encryption Box */}
+                    <div
+                      className="flex flex-col gap-4 rounded-panel p-4 sm:flex-row sm:items-start"
+                      style={{
+                        background: 'var(--surface-raised)',
+                        border: '1px solid var(--border-subtle)',
+                        boxShadow: 'var(--glass-highlight)',
+                      }}
+                    >
+                      <IconTile icon={IconShieldLock} size="sm" />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          {/* ⚠ "& Encryption" NAMED A FEATURE THAT DOES NOT
+                            EXIST — the fourth place a security claim outran the
+                            product. Residency is real and is the subject here. */}
+                          <p
+                            className="text-sm font-medium tracking-tight"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            Support access
+                          </p>
+                          <span
+                            className="rounded-full px-2.5 py-1 font-mono text-3xs font-medium tracking-wide uppercase"
+                            style={{
+                              background: 'var(--success-bg)',
+                              color: 'var(--success-fg)',
+                              border: '1px solid var(--success-fg)',
+                              boxShadow: 'var(--glass-highlight)',
+                            }}
+                          >
+                            Scoped access
+                          </span>
+                        </div>
+                        {/*
                         ⚠ TWO SENTENCES, BOTH WRONG, IN OPPOSITE DIRECTIONS.
 
                         "Physically segmented with Row-Level Security policies"
@@ -1200,236 +1138,107 @@ export function WorkspaceDetailDrawer({
                         claiming weaker protection than the product actually
                         gives, on the panel that exists to describe it.
                       */}
-                      <p
-                        className="mt-2 text-sm leading-relaxed"
-                        style={{ color: 'var(--text-tertiary)' }}
-                      >
-                        Support visits follow the workspace&rsquo;s permissions, require a reason,
-                        expire automatically and appear in customer Activity. Customer conversation
-                        bodies are unavailable to operators.
-                      </p>
+                        <p
+                          className="mt-2 text-sm leading-relaxed"
+                          style={{ color: 'var(--text-tertiary)' }}
+                        >
+                          Support visits follow the workspace&rsquo;s permissions, require a reason,
+                          expire automatically and appear in customer Activity. Customer
+                          conversation bodies are unavailable to operators.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ) : null}
-        </div>
-
-        {/* ── 3 · Footer Actions ─────────────────────────────────────── */}
-        <div
-          className="flex items-center justify-between border-t px-6 py-3.5"
-          style={{
-            borderColor: 'var(--border-subtle)',
-            background: 'var(--surface-sunken)',
-          }}
-        >
-          <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
-            Workspace · {row.slug}
-          </span>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="h-8.5 rounded-overlay px-3.5 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
-              style={{
-                border: '1px solid var(--border-subtle)',
-                background: 'var(--surface-raised)',
-                color: 'var(--text-secondary)',
-              }}
-            >
-              Close
-            </button>
-
-            <Link
-              href={`/platform/tenants/${row.slug}`}
-              className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-4 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
-              style={{
-                border: '1px solid var(--border-strong)',
-                background: 'var(--surface-base)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              Open workspace
-            </Link>
-
-            <button
-              type="button"
-              onClick={() => setSessionOpen(true)}
-              className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-4 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
-              style={{
-                background: 'var(--blue-500)',
-                boxShadow: '0 2px 8px color-mix(in oklab, var(--blue-500) 25%, transparent)',
-              }}
-            >
-              <IconPlayerPlay size={13} stroke={1.5} aria-hidden />
-              Start support session
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Sub-Dialog: Start Support Session ──────────────────────────── */}
-      {sessionOpen && (
-        <StartSessionDialog
-          workspace={{ id: row.id, name: row.name, slug: row.slug, plan: row.plan, initials }}
-          onCancel={() => setSessionOpen(false)}
-          onConfirm={async (reason) => {
-            const result = await onStartSession({
-              tenantId: row.id,
-              tenantName: row.name,
-              reason,
-            });
-            if (result.ok) {
-              setSessionOpen(false);
-              pushToast({
-                title: `Support session started in ${row.name}`,
-                description:
-                  'Thirty minutes, in their activity log, and the owner is emailed. Open it from Support sessions.',
-                tone: 'success',
-              });
-            }
-            return result;
-          }}
-        />
-      )}
-
-      {/* ── Sub-Dialog: Suspend Workspace ──────────────────────────────── */}
-      {detail ? (
-        <DestructiveConfirm
-          open={suspendOpen}
-          onOpenChange={(next) => {
-            if (!suspendPending) setSuspendOpen(next);
-          }}
-          title={`Suspend ${row.name}`}
-          consequence="Suspension pauses workspace access. Data is retained, and reactivation restores access."
-          irreversible={false}
-          details={
-            <>
-              {/* The warning that is not a consequence. See `WorkspaceActions`. */}
-              {(suspendLive?.openSupportSessions ?? 0) > 0 ? (
-                <div
-                  className="mt-4 flex items-start gap-3 rounded-panel px-3.5 py-3"
-                  style={{
-                    background: 'var(--badge-warning-bg)',
-                    border: '1px solid var(--badge-warning-edge)',
-                  }}
-                >
-                  <IconAlertTriangle
-                    size={16}
-                    stroke={1.5}
-                    style={{ color: 'var(--warning-fg)', marginTop: '1px', flexShrink: 0 }}
-                    aria-hidden
-                  />
-                  <p className="t-compact" style={{ color: 'var(--text-primary)' }}>
-                    {suspendLive?.openSupportSessions === 1
-                      ? 'A support session is open inside this workspace right now.'
-                      : `${suspendLive?.openSupportSessions} support sessions are open inside this workspace right now.`}{' '}
-                    <span style={{ color: 'var(--text-secondary)' }}>
-                      Whoever is in there loses their session the moment this lands, mid-task and
-                      without being told why. Ending it first costs a minute.
-                    </span>
-                  </p>
-                </div>
-              ) : null}
-
-              <ul
-                className="grid list-none gap-2.5 border-t p-0 pt-4"
-                style={{ borderColor: 'var(--border-subtle)' }}
-              >
-                {[
-                  [
-                    suspendLive?.activeMembers ?? detail.impact.staff,
-                    'staff lose access at their next request. Sessions are not waited out.',
-                  ],
-                  [
-                    detail.impact.conversations,
-                    'open conversations stop receiving replies. Inbound messages queue but nothing sends.',
-                  ],
-                  [
-                    detail.impact.channels,
-                    'connected channels go quiet, including the WhatsApp number their customers reply to.',
-                  ],
-                ].map(([n, text]) => (
-                  <li
-                    key={String(text)}
-                    className="t-compact flex items-start gap-3"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    <span
-                      className="shrink-0 text-right font-mono font-medium"
-                      style={{ color: 'var(--danger-fg)', minWidth: '4ch' }}
-                    >
-                      {Number(n).toLocaleString('en-GB')}
-                    </span>
-                    <span>{text}</span>
-                  </li>
-                ))}
-                <li className="t-compact mt-1.5" style={{ color: 'var(--text-secondary)' }}>
-                  Data is retained. Reactivation restores access immediately and is a single action.
-                </li>
-                {/* A confirmation built on counts has to say where they came from. */}
-                <li
-                  className="t-caption mt-0.5"
-                  style={{ color: 'var(--text-tertiary)', textWrap: 'pretty' }}
-                >
-                  {suspendPreview === 'loading'
-                    ? 'Checking these against the database…'
-                    : suspendPreview === 'failed'
-                      ? 'These are the figures from when this drawer opened — the live check did not come back. Reload before relying on them.'
-                      : 'Read from the database just now.'}
-                </li>
-              </ul>
-
-              <div
-                className="grid gap-1.5 border-t pt-4"
-                style={{ borderColor: 'var(--border-subtle)' }}
-              >
-                {/*
-                ⚠ REQUIRED, AND THE CUSTOMER READS IT. 09 §7 puts suspension in the
-                tenant's own activity log; a customer whose writes start failing with
-                no explanation cannot tell a billing decision from an outage. The
-                server requires it too, so a direct call cannot skip it.
-              */}
-                <label
-                  htmlFor="drawer-suspend-reason"
-                  className="t-label"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  Reason · the customer sees this
-                </label>
-                <textarea
-                  id="drawer-suspend-reason"
-                  value={suspendReason}
-                  onChange={(e) => setSuspendReason(e.target.value)}
-                  rows={2}
-                  placeholder="Payment overdue since 12 August; invoices sent 1 and 8 August."
-                  className="rounded-panel border px-3 py-2"
-                  style={{
-                    borderColor: 'var(--border-subtle)',
-                    background: 'var(--surface-raised)',
-                    color: 'var(--text-primary)',
-                    font: '400 var(--type-compact)/1.5 var(--font-ui)',
-                  }}
-                />
+                )}
               </div>
-            </>
-          }
-          confirmValue={row.slug}
-          confirmFieldLabel={`Type "${row.slug}" to confirm`}
-          confirmLabel="Suspend workspace"
-          loading={suspendPending}
-          error={suspendError}
-          onConfirm={submitSuspend}
-        />
-      ) : null}
+            ) : null}
+          </div>
 
-      <ProfileCardDialog
-        isOpen={profileOpen}
-        onClose={() => setProfileOpen(false)}
-        owner={detail?.owner ?? { initials: '', name: '', email: '' }}
-      />
-    </>
+          {/* ── 3 · Footer Actions ─────────────────────────────────────── */}
+          <div
+            className="flex items-center justify-between border-t px-6 py-3.5"
+            style={{
+              borderColor: 'var(--border-subtle)',
+              background: 'var(--surface-sunken)',
+            }}
+          >
+            <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+              Workspace · {row.slug}
+            </span>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="h-8.5 rounded-overlay px-3.5 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
+                style={{
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--surface-raised)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                Close
+              </button>
+
+              <Link
+                href={`/platform/tenants/${row.slug}`}
+                className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-4 text-xs font-medium transition-colors hover:bg-[var(--surface-inset)] active:scale-95"
+                style={{
+                  border: '1px solid var(--border-strong)',
+                  background: 'var(--surface-base)',
+                  color: 'var(--text-primary)',
+                }}
+              >
+                Open workspace
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setSessionOpen(true)}
+                className="inline-flex h-8.5 items-center gap-1.5 rounded-overlay px-4 text-xs font-medium text-[var(--text-inverse)] transition-all active:scale-95"
+                style={{
+                  background: 'var(--blue-500)',
+                  boxShadow: '0 2px 8px color-mix(in oklab, var(--blue-500) 25%, transparent)',
+                }}
+              >
+                <IconPlayerPlay size={13} stroke={1.5} aria-hidden />
+                Start support session
+              </button>
+            </div>
+          </div>
+        </Dialog.Content>
+
+        {/* ── Sub-Dialog: Start Support Session ──────────────────────────── */}
+        {sessionOpen && (
+          <StartSessionDialog
+            workspace={{ id: row.id, name: row.name, slug: row.slug, plan: row.plan, initials }}
+            onCancel={() => setSessionOpen(false)}
+            onConfirm={async (reason) => {
+              const result = await onStartSession({
+                tenantId: row.id,
+                tenantName: row.name,
+                reason,
+              });
+              if (result.ok) {
+                setSessionOpen(false);
+                pushToast({
+                  title: `Support session started in ${row.name}`,
+                  description:
+                    'The visit is recorded in customer Activity. Open it from Support sessions.',
+                  tone: 'success',
+                });
+              }
+              return result;
+            }}
+          />
+        )}
+
+        <ProfileCardDialog
+          isOpen={profileOpen}
+          onClose={() => setProfileOpen(false)}
+          owner={detail?.owner ?? { initials: '', name: '', email: '' }}
+        />
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

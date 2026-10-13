@@ -80,6 +80,9 @@ create policy avatars_delete on storage.objects
 -- ─── the bucket itself ──────────────────────────────────────────────────────
 -- Idempotent: the catalogue is applied on every migration, and a second run
 -- must be a no-op rather than an error.
-insert into storage.buckets (id, name, public)
-values ('avatars', 'avatars', true)
-on conflict (id) do nothing;
+-- Enforce the same limits at Storage's API, including callers that bypass the profile form.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 2097152, array['image/png', 'image/jpeg', 'image/webp'])
+on conflict (id) do update set
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;

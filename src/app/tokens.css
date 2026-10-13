@@ -51,7 +51,7 @@
   --ink-100: #e4e4e7;
   --ink-200: #d4d4d8;
   --ink-300: #a1a1aa;
-  --ink-400: #71717a; /* muted tertiary text */
+  --ink-400: #60606a; /* muted tertiary text */
   --ink-500: #52525b; /* secondary body text */
   --ink-600: #3f3f46;
   --ink-700: #27272a;
@@ -83,7 +83,7 @@
   --orange-200: #ffc1ad;
   --orange-300: #ff936f; /* accent for DARK mode */
   --orange-400: #fa5505; /* brand. Fills, meters, marks. NO text on it */
-  --orange-500: #ce4300; /* the text-safe orange: 4.62 on cream */
+  --orange-500: #b83c00; /* text orange with contrast headroom on light surfaces */
   --orange-600: #a73500;
   --orange-700: #822700;
   --orange-800: #5f1a00;
@@ -94,10 +94,10 @@
   --red-500: #c4243a;
   --red-400: #e05668;
   --red-100: #fce8eb;
-  --amber-500: #b7791f;
+  --amber-500: #946018;
   --amber-400: #d19a34;
   --amber-100: #fcf3e3;
-  --green-500: #3f7d53;
+  --green-500: #357247;
   --green-400: #5a9a6d;
   --green-100: #e8f3eb;
 
@@ -274,7 +274,7 @@
   /* High-contrast neutral typography: crisp obsidian black on architectural off-white. */
   --text-primary: #09090b; /* rich obsidian black */
   --text-secondary: #52525b; /* neutral slate */
-  --text-tertiary: #71717a; /* balanced graphite */
+  --text-tertiary: #60606a; /* readable on inset surfaces */
   --text-inverse: #ffffff;
   --text-disabled: #a1a1aa;
   --text-action: var(--blue-500); /* links and interactive text */
@@ -382,7 +382,7 @@
   --chrome-bg-raised: #0b1021;
   --chrome-fg: #ffffff;
   --chrome-fg-muted: #d4d4d8; /* Significantly brightened for legibility */
-  --chrome-fg-faint: #a1a1aa; /* Lightened from #71717a to ensure mono fonts pop */
+  --chrome-fg-faint: #a1a1aa; /* Lightened from #686872 to ensure mono fonts pop */
   --chrome-rule: rgba(255, 255, 255, 0.05);
   --chrome-rule-strong: rgba(255, 255, 255, 0.1);
   --chrome-action: #ffffff;
@@ -399,7 +399,7 @@
    * `--chrome-action` already solves one line above.
    *
    * The semantic status scale is deliberately muted for ink-on-cream:
-   * `--green-500` is #3f7d53, which reads as authority on a light page and as
+   * `--green-500` is #357247, which reads as authority on a light page and as
    * mud on obsidian. These are the lightened steps of the same five meanings,
    * chosen to clear 4.5:1 against `--chrome-bg-base`. They are NOT a second
    * palette — a badge that means "healthy" means it in both tiers, and only
@@ -514,7 +514,7 @@
   --accent-200: #ffc1ad;
   --accent-300: #ff936f;
   --accent-400: #fa5505;
-  --accent-500: #ce4300;
+  --accent-500: #b83c00;
   --accent-600: #a73500;
   --accent-700: #822700;
   --accent-800: #5f1a00;

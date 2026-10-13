@@ -1,0 +1,21 @@
+{
+  "date": "13 October 2026",
+  "nativeChecks": 16,
+  "operations": {
+    "path": "/verification/2026-10-13/console-operations-results.json",
+    "sha256": "63b6d80eea0c8ef481833de8dafce8e55a0cf9082da1a19770f012d28dd63759"
+  },
+  "recovery": {
+    "path": "/verification/2026-10-13/independent-auth-recovery-results.json",
+    "sha256": "2ec3e01ba52e8a9319e715211e8c4e4377d38f0195c195702dd2c9824764f939"
+  },
+  "tables": 61,
+  "policies": 52,
+  "contextFunctions": 17,
+  "regression": {
+    "passed": 720,
+    "files": 63,
+    "failed": 0,
+    "skipped": 0
+  }
+}

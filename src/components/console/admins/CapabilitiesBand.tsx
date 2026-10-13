@@ -72,7 +72,12 @@ export function CapabilitiesBand({ admins }: { admins: Admin[] }) {
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
         <Panel title="Who can do what" variant="elevated" flush>
-          <div className="overflow-x-auto px-1">
+          <div
+            className="overflow-x-auto px-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue-500)]"
+            role="region"
+            aria-label="Operator capabilities table"
+            tabIndex={0}
+          >
             <div role="table" aria-label="Operator capabilities" className="min-w-fit">
               <div
                 role="row"

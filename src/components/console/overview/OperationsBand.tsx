@@ -108,7 +108,7 @@ export function OperationsBand({
                   </p>
                 ) : null}
                 <p
-                  className="relative z-10 mt-2.5 text-sm font-medium opacity-70"
+                  className="relative z-10 mt-2.5 text-sm font-medium"
                   style={{ color: 'var(--text-tertiary)' }}
                 >
                   {operations.refusals.count24h.toLocaleString('en-KE')} refusals in 24h ·{' '}
@@ -280,39 +280,44 @@ export function OperationsBand({
                       column direction, so a screen reader hears "sessions this
                       week, four" rather than "four, sessions this week".
                     */}
-                    <div className="flex flex-col-reverse gap-1.5">
-                      <dt
-                        className="text-sm font-medium tracking-wide uppercase"
-                        style={{ color: 'var(--text-secondary)' }}
-                      >
-                        {stat.label}
-                      </dt>
-                      <dd
-                        className="flex items-center gap-3 font-mono text-2xl leading-none font-medium tracking-tight"
-                        style={{
-                          color: stat.tone === 'accent' ? 'var(--blue-500)' : 'var(--text-primary)',
-                        }}
-                      >
-                        {stat.tone === 'accent' ? (
-                          <span className="relative flex size-3.5 shrink-0 items-center justify-center">
-                            <span
-                              className="absolute inset-0 animate-ping rounded-full bg-[var(--blue-400)] opacity-40"
-                              style={{ animationDuration: '3s' }}
-                            />
-                            <span className="relative size-2.5 rounded-full bg-[var(--blue-500)] shadow-[0_0_8px_var(--blue-400)]" />
-                          </span>
-                        ) : null}
-                        {stat.value}
-                      </dd>
-                    </div>
-                    {stat.note ? (
-                      <p
-                        className="mt-2 text-sm font-medium opacity-60"
-                        style={{ color: 'var(--text-tertiary)' }}
-                      >
-                        {stat.note}
-                      </p>
-                    ) : null}
+                    <dt className="sr-only">{stat.label}</dt>
+                    <dd className="m-0">
+                      <div className="flex flex-col-reverse gap-1.5">
+                        <span
+                          className="text-sm font-medium tracking-wide uppercase"
+                          aria-hidden
+                          style={{ color: 'var(--text-secondary)' }}
+                        >
+                          {stat.label}
+                        </span>
+                        <span
+                          className="flex items-center gap-3 font-mono text-2xl leading-none font-medium tracking-tight"
+                          style={{
+                            color:
+                              stat.tone === 'accent' ? 'var(--blue-500)' : 'var(--text-primary)',
+                          }}
+                        >
+                          {stat.tone === 'accent' ? (
+                            <span className="relative flex size-3.5 shrink-0 items-center justify-center">
+                              <span
+                                className="absolute inset-0 animate-ping rounded-full bg-[var(--blue-400)] opacity-40"
+                                style={{ animationDuration: '3s' }}
+                              />
+                              <span className="relative size-2.5 rounded-full bg-[var(--blue-500)] shadow-[0_0_8px_var(--blue-400)]" />
+                            </span>
+                          ) : null}
+                          {stat.value}
+                        </span>
+                      </div>
+                      {stat.note ? (
+                        <p
+                          className="mt-2 text-sm font-medium"
+                          style={{ color: 'var(--text-tertiary)' }}
+                        >
+                          {stat.note}
+                        </p>
+                      ) : null}
+                    </dd>
                   </div>
                 ))}
               </dl>

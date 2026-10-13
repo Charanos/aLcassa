@@ -164,7 +164,8 @@ export function OpenSessionControl({
               pushToast({
                 tone: 'success',
                 title: `You are inside ${chosen.name}`,
-                description: 'Thirty minutes, in their activity log, and the owner is emailed.',
+                description:
+                  'Thirty minutes, recorded in their activity log. Owner notification is attempted after opening.',
               });
               router.push('/platform/inside');
             }

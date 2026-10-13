@@ -91,7 +91,7 @@ export default async function WorkspaceDetailPage({
               plan: w.plan,
               initials: w.owner.initials,
             }}
-            impact={w.impact}
+            status={w.status}
             onStartSession={startSupportSession}
           />
         }

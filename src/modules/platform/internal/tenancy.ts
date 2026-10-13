@@ -78,7 +78,8 @@ export async function setTenantStatus(
         .select({ id: tenants.id, slug: tenants.slug, status: tenants.status })
         .from(tenants)
         .where(and(eq(tenants.id, input.tenantId), isNull(tenants.deletedAt)))
-        .limit(1);
+        .limit(1)
+        .for('no key update');
 
       if (!tenant) {
         throw new AppError(ERROR_CODES.TENANT_NOT_FOUND, {
@@ -173,7 +174,7 @@ export async function previewSuspension(
     {
       actorUserId: actor.userId,
       actorLabel: actor.label,
-      action: AUDIT_ACTIONS.TENANT_SUSPENDED,
+      action: AUDIT_ACTIONS.TENANT_SUSPENSION_PREVIEWED,
       targetTenantId: tenantId,
       entityType: 'tenant',
       reason: 'suspension preview, no change written',

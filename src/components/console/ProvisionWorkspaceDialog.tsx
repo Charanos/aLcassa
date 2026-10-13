@@ -13,6 +13,7 @@ import {
   provisionWorkspace,
 } from '@/app/(platform)/platform/(console)/actions';
 import type { ProvisionModel } from '@/lib/console/data';
+import { runConsoleMutation } from '@/lib/console/mutation';
 
 /** The shared provisioning dialog is deep-linked through the console and uses live catalogue and slug checks. */
 export function ProvisionWorkspaceDialog({
@@ -27,6 +28,7 @@ export function ProvisionWorkspaceDialog({
 
   /** Animate through a stable ref and an effect keyed to opening so typing does not replay the entrance. */
   const panelRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!open || !panelRef.current) return;
@@ -105,6 +107,8 @@ export function ProvisionWorkspaceDialog({
        catalogue that is about to arrive. */
     setTrial(true);
     setPhase('idle');
+    setSubmitError(null);
+    setFieldError(null);
   }, [open]);
 
   const taken = useMemo(() => new Set(existingSlugs), [existingSlugs]);
@@ -141,22 +145,26 @@ export function ProvisionWorkspaceDialog({
     setSubmitError(null);
     setFieldError(null);
 
-    const result = await provisionWorkspace({
-      name: name.trim(),
-      slug,
-      ownerEmail: email.trim(),
-      trial,
-      /* Send the selected plan code to the provisioning service. */
-      planCode: plan,
-    });
+    const result = await runConsoleMutation(
+      () =>
+        provisionWorkspace({
+          name: name.trim(),
+          slug,
+          ownerEmail: email.trim(),
+          trial,
+          /* Send the selected plan code to the provisioning service. */
+          planCode: plan,
+        }),
+      'Workspace creation',
+    );
 
     if (!result.ok) {
       /* Keep entered values after a refused submission and attach any field-specific error. */
       setPhase('idle');
       setSubmitError(result.error);
-      setFieldError(result.field ?? null);
+      setFieldError('field' in result ? (result.field ?? null) : null);
       pushToast({
-        title: 'Workspace not created',
+        title: 'Workspace creation needs attention',
         description: result.error,
         tone: 'failure',
       });
@@ -196,6 +204,17 @@ export function ProvisionWorkspaceDialog({
         <div className="pointer-events-none fixed inset-0 z-[150] grid place-items-center p-4">
           <Dialog.Content
             ref={panelRef}
+            onOpenAutoFocus={() => {
+              const active = document.activeElement;
+              if (active instanceof HTMLElement && !panelRef.current?.contains(active))
+                openerRef.current = active;
+            }}
+            onCloseAutoFocus={(event) => {
+              if (openerRef.current?.isConnected) {
+                event.preventDefault();
+                openerRef.current.focus();
+              }
+            }}
             className="surface-glass-strong pointer-events-auto flex max-h-[88vh] w-full max-w-[920px] flex-col overflow-hidden rounded-hero"
           >
             {/* ── Header ─────────────────────────────────────────────── */}
@@ -282,6 +301,10 @@ export function ProvisionWorkspaceDialog({
                           <input
                             type="text"
                             value={name}
+                            aria-invalid={fieldError === 'name' || undefined}
+                            aria-describedby={
+                              fieldError === 'name' ? 'provision-workspace-error' : undefined
+                            }
                             onChange={(e) => onNameChange(e.target.value)}
                             placeholder="Tamarind Bay Resorts Ltd"
                             disabled={working || done}
@@ -297,7 +320,7 @@ export function ProvisionWorkspaceDialog({
                               className="text-sm font-medium"
                               style={{ color: 'var(--text-primary)' }}
                             >
-                              Slug
+                              Workspace identifier
                             </span>
                             {slug ? (
                               <span
@@ -328,11 +351,15 @@ export function ProvisionWorkspaceDialog({
                                 color: 'var(--text-tertiary)',
                               }}
                             >
-                              alcassa.app /
+                              workspace /
                             </span>
                             <input
                               type="text"
                               value={slug}
+                              aria-invalid={fieldError === 'slug' || undefined}
+                              aria-describedby={
+                                fieldError === 'slug' ? 'provision-workspace-error' : undefined
+                              }
                               onChange={(e) => {
                                 setSlug(slugify(e.target.value));
                                 setSlugTouched(true);
@@ -359,6 +386,10 @@ export function ProvisionWorkspaceDialog({
                           <input
                             type="email"
                             value={email}
+                            aria-invalid={fieldError === 'ownerEmail' || undefined}
+                            aria-describedby={
+                              fieldError === 'ownerEmail' ? 'provision-workspace-error' : undefined
+                            }
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="owner@tamarindbay.co.ke"
                             disabled={working || done}
@@ -436,7 +467,7 @@ export function ProvisionWorkspaceDialog({
                           <Switch.Root
                             checked={trial}
                             disabled={working || done}
-                            aria-label="Start with a 14-day trial"
+                            aria-label="Start with a trial"
                             onCheckedChange={() => setTrial((t) => !t)}
                             className="relative mt-0.5 h-[22px] w-[40px] shrink-0 rounded-full transition-colors"
                             style={{
@@ -549,6 +580,7 @@ export function ProvisionWorkspaceDialog({
                     {/* Keep submission errors beside the form and announce them through an alert. */}
                     {submitError ? (
                       <div
+                        id="provision-workspace-error"
                         role="alert"
                         className="mb-3 rounded-overlay border px-3.5 py-2.5"
                         style={{

@@ -1,5 +1,7 @@
 'use client';
 
+import { runConsoleMutation } from '@/lib/console/mutation';
+
 import { useState, useTransition } from 'react';
 import Link from '@/components/structure/NavigationLink';
 import { useRouter } from 'next/navigation';
@@ -26,19 +28,7 @@ const BLOCK_MS = 30 * 60 * 1000;
 const WINDOW_MS = 5 * 60 * 1000;
 const MAX_EXTENSIONS = 2;
 
-/**
- * Every open visit — not only mine. Doc 24 · Stage 5.
- *
- * ⚠ THE OLD CARD SHOWED ONLY THE READER'S OWN SESSION. A colleague inside a
- * customer's workspace was invisible here — the one place an operator comes
- * to ask "is anybody in there right now?" Each open visit is a card, with the
- * person, the workspace, the reason the customer is reading, how long is
- * left, and what has been changed so far.
- *
- * ⚠ ENDING A COLLEAGUE'S VISIT IS ALLOWED AND IS NEVER SILENT (D5). It asks
- * first, and both logs name both people. Leaving your own is one click, with
- * no confirmation: an exit that can be hesitated over is an exit that traps.
- */
+/** Shows all open support visits; the server enforces exit authority, extension windows and limits. */
 export function OpenSessionsBand({ open }: { open: SupportVisit[] }) {
   return (
     <div className="grid gap-4">
@@ -67,7 +57,7 @@ function OpenCard({ visit: v }: { visit: SupportVisit }) {
   function end() {
     setError(null);
     startTransition(async () => {
-      const result = await endSupportSessionById(v.id);
+      const result = await runConsoleMutation(() => endSupportSessionById(v.id), 'Visit ending');
       if (!result.ok) {
         setError(result.error);
         return;
@@ -90,7 +80,10 @@ function OpenCard({ visit: v }: { visit: SupportVisit }) {
 
   function extend() {
     startTransition(async () => {
-      const result = await extendCurrentSupportSession();
+      const result = await runConsoleMutation(
+        () => extendCurrentSupportSession(),
+        'Visit extension',
+      );
       pushToast(
         result.ok
           ? {

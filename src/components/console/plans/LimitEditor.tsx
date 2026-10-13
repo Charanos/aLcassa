@@ -1,5 +1,7 @@
 'use client';
 
+import { runConsoleMutation } from '@/lib/console/mutation';
+
 import { useRef, useState, useTransition } from 'react';
 import { IconAlertTriangle, IconSettings, IconUsers } from '@tabler/icons-react';
 import {
@@ -76,12 +78,16 @@ export function LimitEditor({
     if (!ready || !impact) return;
     setError(null);
     startTransition(async () => {
-      const result = await changePlanLimit({
-        entitlementId,
-        to: unlimited ? null : parsed,
-        reason,
-        expectedPreview: impact.fingerprint,
-      });
+      const result = await runConsoleMutation(
+        () =>
+          changePlanLimit({
+            entitlementId,
+            to: unlimited ? null : parsed,
+            reason,
+            expectedPreview: impact.fingerprint,
+          }),
+        'Plan limit update',
+      );
       if (result.ok) {
         setOpen(false);
         setReason('');

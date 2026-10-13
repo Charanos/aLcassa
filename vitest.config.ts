@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 loadEnv({ path: process.env.VERIFICATION_ENV_FILE ?? '.env.local', quiet: true });
 
 export default defineConfig({
+  esbuild: { jsx: 'automatic' },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

@@ -4,44 +4,7 @@ import { useEffect } from 'react';
 import { IconAlertTriangle, IconRotate } from '@tabler/icons-react';
 import { Button } from '@/components/primitives/Button';
 
-/**
- * THE BAR THAT FOLLOWS YOU DOWN THE PAGE WHILE SOMETHING IS UNSAVED.
- *
- * ⚠ IT REPLACES A SAVE BUTTON THAT COULD BE SCROLLED OUT OF EXISTENCE.
- *
- * The identity card's Save sat in the card's own footer. The profile is four
- * cards tall, so an operator who edits their name, scrolls down to check a
- * device, and comes back has been out of sight of the only control that commits
- * the change — and the only indication anything was pending was a line of grey
- * text in the same footer. On a settings screen the commit control must be
- * reachable from wherever the reader currently is.
- *
- * ⚠ IT IS `sticky` AT THE BOTTOM OF THE PAGE, NOT `fixed`.
- *
- * `fixed` takes the bar out of flow and pins it to the viewport, where it
- * overlays the last card's content and needs page padding invented to
- * compensate. `sticky bottom-4` keeps it in flow at the end of the form: it
- * floats while there is page beneath it and comes to rest above the footer when
- * the reader reaches the end. Nothing is ever hidden behind it.
- *
- * ⚠ AND IT GUARDS THE TAB. `beforeunload` is the only hook a browser gives for
- * "you typed something and are about to lose it", and it is deliberately
- * limited — the browser shows its own wording, and only if the operator has
- * interacted with the page. That is enough for the case that actually happens:
- * a rename typed, a tab closed, a change silently lost with no error anywhere
- * because nothing failed.
- *
- * It is NOT a router guard. Next's App Router has no supported interception for
- * client navigation, and the workarounds — patching history, wrapping every
- * `<Link>` — break the back button in ways that are worse than the problem.
- * What in-app navigation does instead is unmount this component with the draft
- * still in memory, which is a real limitation and is recorded in 19 §6 rather
- * than papered over.
- *
- * ⚠ SHARED SINCE ITS SECOND USE. It lived in `console/profile` until Settings
- * needed the same bar; Settings had grown its own, which is how `Figure` came
- * to exist in four drifted copies (doc 22). One bar, one place.
- */
+/** Keeps draft feedback and commit controls visible; beforeunload guards browser closure, while in-app navigation remains separate. */
 export function UnsavedBar({
   dirty,
   pending,

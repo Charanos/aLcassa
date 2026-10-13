@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, type RefObject } from 'react';
+import { useEffect, useId, useState, type RefObject } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Button } from './Button';
@@ -58,7 +58,7 @@ export function ConfirmDialog({
   returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root open={open} onOpenChange={(next) => !loading && onOpenChange(next)}>
       <Dialog.Portal>
         <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <Dialog.Content
@@ -68,7 +68,7 @@ export function ConfirmDialog({
               returnFocusRef.current.focus();
             }
           }}
-          className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
+          className="fixed top-1/2 left-1/2 z-[150] max-h-[90dvh] w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-overlay border p-6"
           style={{
             background: 'var(--surface-raised)',
             borderColor: 'var(--border-subtle)',
@@ -147,6 +147,7 @@ export function DestructiveConfirm({
    *  Sheet 12: failure is inline, next to the control, never a toast. This
    *  reuses `Field`'s own reserved error line rather than a second banner. */
   error = null,
+  returnFocusRef,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -163,8 +164,12 @@ export function DestructiveConfirm({
   onConfirm: (typed: string) => void;
   loading?: boolean;
   error?: string | null;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   const [typed, setTyped] = useState('');
+  useEffect(() => {
+    if (!open) setTyped('');
+  }, [open]);
   const fieldId = useId();
   const matches = typed === confirmValue;
 
@@ -179,7 +184,13 @@ export function DestructiveConfirm({
       <Dialog.Portal>
         <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <Dialog.Content
-          className="fixed top-1/2 left-1/2 z-[150] w-[92vw] max-w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-overlay border p-6"
+          onCloseAutoFocus={(event) => {
+            if (returnFocusRef?.current?.isConnected) {
+              event.preventDefault();
+              returnFocusRef.current.focus();
+            }
+          }}
+          className="fixed top-1/2 left-1/2 z-[150] max-h-[90dvh] w-[92vw] max-w-[480px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-overlay border p-6"
           style={{
             background: 'var(--surface-raised)',
             borderColor: 'color-mix(in oklab, var(--red-500) 38%, var(--surface-base))',
@@ -210,12 +221,14 @@ export function DestructiveConfirm({
 
           <div className="mt-4 flex justify-end gap-2.5">
             <Dialog.Close asChild>
-              <Button variant="secondary">Cancel</Button>
+              <Button variant="secondary" disabled={loading}>
+                Cancel
+              </Button>
             </Dialog.Close>
             <Button
               variant="destructive"
               loading={loading}
-              disabled={!matches}
+              disabled={!matches || loading}
               onClick={() => onConfirm(typed)}
             >
               {confirmLabel}

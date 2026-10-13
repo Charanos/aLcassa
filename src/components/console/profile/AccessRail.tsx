@@ -3,28 +3,7 @@ import type { AdminRole, ProfileCapability } from '@/lib/console/data';
 import { Panel } from '@/components/console/Surface';
 import { RailEyebrow } from '@/components/console/profile/shared';
 
-/**
- * What you are allowed to do, and what you have done.
- *
- * ⚠ THE CAPABILITY LIST IS NEW, AND ITS DATA WAS ALREADY BEING READ AND THROWN
- * AWAY.
- *
- * `getLiveProfile` has always selected `can_suspend_tenants`,
- * `can_edit_master_rules` and `can_enter_support_mode` — and used all three
- * only to collapse into a single role label. So the rail on the one screen
- * whose stated purpose is "the person with the most access on the platform is
- * shown their own ceiling" was showing a pill DERIVED from the grants instead
- * of the grants themselves.
- *
- * 05 §4 chose three booleans over a role enum precisely so this could be stated
- * exactly rather than approximated by a name. The rail now states it.
- *
- * ⚠ AND A WITHHELD GRANT IS SHOWN, NOT OMITTED. A capability that disappears
- * when it is not granted is indistinguishable from one the product does not
- * have — so a support-scoped admin would read a two-item list and conclude
- * those were the only two powers that exist. All three always render; two of
- * them just say no.
- */
+/** Shows live capabilities and the separately maintained operator access record. */
 export function AccessRail({
   role,
   capabilities,

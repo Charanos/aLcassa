@@ -2697,7 +2697,7 @@ export const PLATFORM_CAPABILITIES: ReadonlyArray<Omit<ProfileCapability, 'grant
   {
     key: 'suspend',
     label: 'Suspend a workspace',
-    detail: 'Stop a customer sending or receiving, and lift it again.',
+    detail: 'Pause workspace writes while retaining read access, and restore them when resolved.',
   },
   {
     key: 'rules',

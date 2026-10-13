@@ -1031,7 +1031,7 @@ export function WorkspaceTable({
               pushToast({
                 title: `Support session started in ${pending.name}`,
                 description:
-                  'Thirty minutes, in their activity log, and the owner is emailed. Open it from Support sessions.',
+                  'Thirty minutes, recorded in their activity log. Owner notification is attempted after opening. Open it from Support sessions.',
                 tone: 'success',
               });
             }
@@ -1042,7 +1042,7 @@ export function WorkspaceTable({
 
       {drawerRow ? (
         <WorkspaceDetailDrawer
-          row={drawerRow}
+          row={rows.find((row) => row.id === drawerRow.id) ?? drawerRow}
           onClose={() => setDrawerRow(null)}
           onStartSession={onStartSession}
         />

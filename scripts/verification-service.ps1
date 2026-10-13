@@ -1,4 +1,4 @@
-param([ValidateSet('Test', 'Serve', 'Bridge', 'Propagation', 'Budgets', 'HttpBudgets', 'Load', 'Recovery', 'Diagnostics', 'Monitoring', 'Surfaces', 'ActivityLayout', 'Accounts')][string]$Mode = 'Test')
+param([ValidateSet('Test', 'Serve', 'Bridge', 'Propagation', 'Budgets', 'HttpBudgets', 'Load', 'Recovery', 'Diagnostics', 'Monitoring', 'Surfaces', 'ActivityLayout', 'Accounts', 'ConsoleOperations')][string]$Mode = 'Test')
 $ErrorActionPreference = 'Stop'
 $verificationRoot = Split-Path -Parent $PSScriptRoot
 $serviceRoot = Join-Path (Split-Path -Parent $verificationRoot) 'aLcassa-service'
@@ -29,7 +29,7 @@ $env:DATABASE_URL_TEST = $env:DATABASE_URL
 $env:SERVICE_DATABASE_URL = $env:DATABASE_URL
 $env:SERVICE_DATABASE_URL_ADMIN = ''
 $env:VERIFICATION_SERVICE_URL = 'http://127.0.0.1:8100'
-if ($Mode -in @('Bridge','Propagation','Budgets','HttpBudgets','Load','Recovery','Diagnostics','Monitoring','Surfaces','ActivityLayout','Accounts')) {
+if ($Mode -in @('Bridge','Propagation','Budgets','HttpBudgets','Load','Recovery','Diagnostics','Monitoring','Surfaces','ActivityLayout','Accounts','ConsoleOperations')) {
   $verificationScript = switch ($Mode) {
     'Bridge' { 'scripts/verification-service-contract.ts' }
     'Propagation' { 'scripts/verification-rules-propagation.ts' }
@@ -42,6 +42,7 @@ if ($Mode -in @('Bridge','Propagation','Budgets','HttpBudgets','Load','Recovery'
     'Surfaces' { 'scripts/verification-surface-review.ts' }
     'ActivityLayout' { 'scripts/verification-activity-layout.ts' }
     'Accounts' { 'scripts/verification-account-workflows.ts' }
+    'ConsoleOperations' { 'scripts/verification-console-operations.ts' }
   }
   if ($Mode -eq 'HttpBudgets') { & node --conditions=react-server --import tsx $verificationScript --http }
   else { & node --conditions=react-server --import tsx $verificationScript }

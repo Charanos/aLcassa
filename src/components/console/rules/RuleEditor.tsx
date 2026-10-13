@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from 'react';
 import { IconBroadcast, IconPencil, IconStack2, IconUpload } from '@tabler/icons-react';
 import { publishMasterRulesAction } from '@/app/(platform)/platform/(console)/rules-actions';
 import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
+import { runConsoleMutation } from '@/lib/console/mutation';
 import { useToast } from '@/components/primitives/Toast';
 import type { MasterRuleField } from '@/lib/console/data';
 
@@ -52,22 +53,26 @@ export function RuleEditor({
     setError(null);
 
     startTransition(async () => {
-      const result = await publishMasterRulesAction({
-        fields: {
-          tone: draft.tone ?? '',
-          responseGuidelines: draft.responseGuidelines ?? '',
-          businessInformation: draft.businessInformation ?? '',
-          escalationInstructions: draft.escalationInstructions ?? '',
-          prohibitedTopics: draft.prohibitedTopics ?? '',
-          customInstructions: draft.customInstructions ?? '',
-        },
-        changeNote: note,
-        expectedVersionNumber: versionNumber,
-        /* The lock set travels with the version rather than being inferred on
+      const result = await runConsoleMutation(
+        () =>
+          publishMasterRulesAction({
+            fields: {
+              tone: draft.tone ?? '',
+              responseGuidelines: draft.responseGuidelines ?? '',
+              businessInformation: draft.businessInformation ?? '',
+              escalationInstructions: draft.escalationInstructions ?? '',
+              prohibitedTopics: draft.prohibitedTopics ?? '',
+              customInstructions: draft.customInstructions ?? '',
+            },
+            changeNote: note,
+            expectedVersionNumber: versionNumber,
+            /* The lock set travels with the version rather than being inferred on
            read. `01 D-08`: a field is master-authoritative unless explicitly
            opened, and these two are the floor. */
-        lockedFields: fields.filter((f) => f.locked).map((f) => f.key),
-      });
+            lockedFields: fields.filter((f) => f.locked).map((f) => f.key),
+          }),
+        'Rule publication',
+      );
 
       if (result.ok) {
         setOpen(false);
@@ -162,7 +167,7 @@ export function RuleEditor({
                       color: isChanged ? 'var(--accent-mark-text)' : 'var(--text-tertiary)',
                     }}
                   >
-                    {isChanged ? 'changed' : f.locked ? 'floor' : 'default'}
+                    {isChanged ? 'changed' : f.locked ? 'required' : 'default'}
                   </span>
                 </span>
                 <textarea

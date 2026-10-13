@@ -5,18 +5,13 @@ import { useRouter } from 'next/navigation';
 import { IconHistory, IconMailForward, IconX } from '@tabler/icons-react';
 import { ConsoleDialog, DialogActions, DialogFact } from '@/components/primitives/ConsoleDialog';
 import { useToast } from '@/components/primitives/Toast';
+import { runConsoleMutation } from '@/lib/console/mutation';
 import {
   resendInvitationInside,
   revokeInvitationInside,
 } from '@/app/(platform)/platform/(console)/inside-actions';
 
-/**
- * Resend or revoke one invitation, from inside a customer's workspace.
- *
- * Both confirm first and say where the change is recorded: this is a write
- * into somebody else's data, and the dialog is the last place to notice the
- * wrong row.
- */
+/** Confirms invitation changes under the current support grant and attributes them to the customer activity log. */
 export function InvitationActions({
   id,
   email,
@@ -36,8 +31,10 @@ export function InvitationActions({
     if (!intent) return;
     setError(null);
     startTransition(async () => {
-      const result =
-        intent === 'resend' ? await resendInvitationInside(id) : await revokeInvitationInside(id);
+      const result = await runConsoleMutation(
+        () => (intent === 'resend' ? resendInvitationInside(id) : revokeInvitationInside(id)),
+        'Invitation update',
+      );
       if (!result.ok) {
         setError(result.error);
         return;
@@ -88,7 +85,7 @@ export function InvitationActions({
         operation={intent === 'resend' ? 'invitation.resent' : 'invitation.revoked'}
         description={
           intent === 'resend'
-            ? 'A new link is emailed and the old one stops working.'
+            ? 'Creates a new link and attempts email delivery. The previous link stops working.'
             : 'The link stops working. They can be invited again later.'
         }
         facts={
