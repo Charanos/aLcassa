@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { authRequestOrigin } from '@/lib/auth/requestOrigin';
+import { signupConfirmationUrl } from '@/lib/auth/signupConfirmation';
 import { z } from 'zod';
 import { createSupabaseServerClient } from '@/lib/auth/supabase/server';
 import { cookieNameFor, createSession, sessionCookieOptions } from '@/lib/auth/session';
@@ -134,7 +135,10 @@ export async function POST(
       const created = await supabase.auth.signUp({
         email: invitation.invitedEmail,
         password: body.data.password,
-        options: { data: { full_name: body.data.fullName } },
+        options: {
+          data: { full_name: body.data.fullName },
+          emailRedirectTo: signupConfirmationUrl(request, `/invite/${token}`),
+        },
       });
 
       if (created.error || !created.data.user) {

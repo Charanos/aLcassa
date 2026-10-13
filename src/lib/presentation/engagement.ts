@@ -114,9 +114,9 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
-  date: '10 October 2026',
-  applicationTests: 694,
-  applicationFiles: 61,
+  date: '13 October 2026',
+  applicationTests: 718,
+  applicationFiles: 62,
   serviceTests: 34,
   bridgeChecks: 5,
   propagationChecks: 12,
@@ -155,8 +155,8 @@ export const MILESTONES = [
     gate: 'Demo: full account lifecycle',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 98,
-    note: 'Actual Google consent, first-time workspace creation and returning sign-in now pass in the hosted sandbox. Database readback confirms one trial workspace, one owner, one seat and one creation audit. Recovery, ownership, sessions, password change and colleague invitations retain their separate browser evidence. Google identity continuity for an existing email account, invitation continuation, confirmation-required colleague signup and external email delivery qualification remain open. The Google acceptance workspace is retained for the remaining identity checks; other workflow fixtures were removed.',
+    progress: 100,
+    note: 'Auth engineering is complete in the agreed sandbox scope. Confirmation-required signup and colleague acceptance use actual captured provider emails. Hosted Google creates and resumes a workspace, links a prepared verified email-only identity without changing its user ID or owner role, and completes a separate workspace invitation. Roles, seats, sessions and audits reconcile; incorrect passwords, expired/withdrawn/reused invitations and provider refusals are covered. Temporary identity and invitation fixtures were removed or restored. Client demonstration, external email delivery and launch configuration remain separate from technical completion.',
   },
   {
     id: 'M3',
@@ -178,8 +178,8 @@ export const MILESTONES = [
     gate: 'Demo: console operations',
     tranche: 3,
     status: 'active' as MilestoneStatus,
-    progress: 88,
-    note: 'The console has actual rendered-browser coverage at desktop, phone and 320px widths, including all six workspace detail tabs. Shared settings, health charts, directory views and loading states are implemented. The operational release passed every application and service CI job. Actual database failures now produce bounded outage and recovery notifications with durable retries. Complete action-state, keyboard and accessibility acceptance remain open.',
+    progress: 90,
+    note: 'Created workspaces appear alongside demo records in the live directory, overview and shell counts. The default grid shows newest records first using database timestamps. Actual signup, discovery in both views, first plan assignment and all six detail tabs pass native browser checks. First assignments serialize safely and record matching customer/platform audits. Earlier responsive, settings, health and outage/recovery evidence remains qualified separately. Complete action-state, keyboard and accessibility acceptance remain open.',
   },
   {
     id: 'M5',
@@ -190,8 +190,8 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 94,
-    note: 'Company saves have UI, reload, database and audit readback. Customer Activity verifies plan availability, retention and workspace separation; timestamps remain clear at three widths and Reference works by keyboard. New and existing colleague invitations, wrong identity, renewal and withdrawal pass actual browser/provider checks, reconciling to three seats. Credentials, team changes, ownership and durable last-use have database and native evidence. Confirmation-required signup, remaining clipboard/error journeys and final secrets/accessibility review stay open. Phase One retained counters are reconciled; request billing belongs to later scope.',
+    progress: 96,
+    note: 'Confirmation-required colleague signup now preserves the invitation without granting membership. Actual email verification returns for explicit acceptance; the invited role, two members and two occupied seats reconcile, and replay is refused. The confirmation page fits desktop, phone and 320px widths. Company, Activity, credentials, ownership and team operations retain their separate database/browser evidence. Remaining clipboard/error journeys and final secrets/accessibility review stay open. Phase One retained counters are reconciled; request billing belongs to later scope.',
   },
   {
     id: 'M4a',
@@ -215,7 +215,7 @@ export const MILESTONES = [
     tranche: 4,
     status: 'active' as MilestoneStatus,
     progress: 64,
-    note: 'All 694 application cases pass. Separate-target recovery reconciles 61 tables, 52 policies and 17 context functions. Monitoring delivers four correlated outage/recovery notifications with durable retry. Isolated Chrome covers 32 surfaces at three widths, seven complete account/invitation workflows and focused Activity keyboard/layout checks. The dependency gate passes with no unresolved findings. The 50-session load baseline preserves integrity but fails latency acceptance. Independent Auth/object recovery, two database advisor warnings, complete accessibility, timed clean setup and final handover remain open.',
+    note: 'All 718 application cases pass across 62 files without skips. Confirmation-required onboarding and live console operations have additional native coverage. Separate-target recovery reconciles 61 tables, 52 policies and 17 context functions. Monitoring delivers four correlated outage/recovery notifications with durable retry. Earlier Chrome coverage spans 32 surfaces at three widths, seven account/invitation workflows and focused Activity checks. The 50-session load baseline preserves integrity but fails latency acceptance. Independent Auth/object recovery, two database advisor warnings, complete accessibility, timed clean setup and final handover remain open.',
   },
 ] as const;
 
@@ -225,8 +225,11 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
   { previous: number; evidence: string[]; remaining: string[] }
 > = {
   M2: {
-    previous: 94,
+    previous: 98,
     evidence: [
+      'Production-build public signup and colleague acceptance with actual captured confirmation emails; protected-page refusal, invitation continuation, exact roles and seats',
+      'Actual hosted Google links a seeded verified email-only identity while preserving user ID, workspace and owner role; native invitation acceptance records one administrator, two seats and one join audit, then refuses replay',
+      'Provider failure contracts cover disabled/unavailable settings, explicit errors, invalid exchanges, origins and redirects; native hosted denial-callback replay refuses protected access',
       'Hosted Google consent, first-time workspace creation and returning access pass; one owner, one seat and one creation audit reconcile in the database',
       'Actual Auth and application records agree for the recovery recipient',
       'Verified Google callback routing, role preservation and invitation continuation have application contract tests; concurrent setup creates one workspace, one owner seat and one creation audit',
@@ -240,14 +243,13 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Built Edge and route origin checks on both local addresses; fresh denial and session readback after sign-out',
     ],
     remaining: [
-      'Confirmation-required colleague signup and remaining provider failure states',
-      'Google identity continuity for existing email accounts and invitation continuation',
-      'External sending-domain and redirect qualification before launch',
+      'Client demonstration and final acceptance; external sending-domain delivery and client-owned provider configuration remain launch-readiness gates',
     ],
   },
   M3: {
     previous: 92,
     evidence: [
+      'Reviewed first subscription assignment for an unassigned workspace, concurrent single creation, audit parity and trial/annual period checks',
       'Real Redis contention admits six and refuses four requests across both runtimes',
       'Worker restart, tenant separation, expiry, configuration changes and outage checks',
       'Actual provider-backed sign-in and session HTTP across two production application workers',
@@ -259,8 +261,9 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M5: {
-    previous: 86,
+    previous: 94,
     evidence: [
+      'Actual confirmation-required colleague acceptance with no premature membership, exact invited role, seat readback and three-width confirmation layout',
       'Company saves, conflicts and recorded Activity',
       'Actual company-name/contact save, reload, database value and single audit readback',
       'Browser Activity plan availability, retention expiry and workspace isolation at 320px',
@@ -275,7 +278,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Durable service last-use with successful/conditional reads, concurrency, failure and restricted database write checks',
     ],
     remaining: [
-      'Confirmation-required signup and wider ownership failure-state acceptance',
+      'Wider ownership failure-state acceptance',
       'Clipboard, phone and failure-state acceptance',
       'Final credential failure-state acceptance and secrets review',
     ],
@@ -294,8 +297,9 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M4: {
-    previous: 85,
+    previous: 88,
     evidence: [
+      'New public workspace visible in the default grid and list, live directory/overview/shell totals, first plan assignment and all six detail tabs',
       'Actual UI sign-in and 18 console routes, including six workspace tabs, at three viewport widths',
       'Qualified operational release: six application and two service CI jobs, plus successful deployment',
       'Real database outage/recovery probes and durable notification retry across both runtimes',
@@ -432,6 +436,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-13',
+    title: 'Confirmed signup and live workspace operations verified',
+    body: 'Auth engineering reaches 100% in the agreed sandbox scope: actual captured confirmation emails, hosted Google identity continuity and Google invitation acceptance complete the remaining account journeys. Unverified entry and invitation replay are refused; roles, seats and audits reconcile. New workspaces appear alongside demo records, newest first, and receive their first plan through a reviewed, audited operation. Console advances to 90% and Tenant Settings to 96%. Client acceptance, external delivery, wider action/accessibility checks and operational gates remain separate.',
+    milestone: 'M2, M3, M4, M5',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-12',
     title: 'Google workspace creation and returning access verified',

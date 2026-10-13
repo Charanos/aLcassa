@@ -32,7 +32,11 @@ beforeEach(async () => {
   await cleanup`delete from subscription_overrides where tenant_id=${tenantId}`;
   await cleanup`delete from usage_counters where tenant_id=${tenantId}`;
   await cleanup`delete from plan_entitlements where plan_id in (${sourceId},${targetId})`;
-  await adminQuery`update subscriptions set plan_id=${sourceId},status='active',contract_amount=null,version=1 where tenant_id=${tenantId}`;
+  await adminQuery`update tenants set status='active' where id=${tenantId}`;
+  await adminQuery`update plans set trial_days=14 where id=${targetId}`;
+  await adminQuery`insert into subscriptions(tenant_id,plan_id,status,current_period_start,current_period_end)
+    values(${tenantId},${sourceId},'active',now(),now()+interval '30 days')
+    on conflict(tenant_id) do update set plan_id=${sourceId},status='active',contract_amount=null,version=1`;
   await adminQuery`insert into plan_entitlements(plan_id,key,kind,limit_value,display_name) values(${sourceId},'seats','limit',10,'Seats'),(${targetId},'seats','limit',1,'Seats')`;
   await adminQuery`insert into usage_counters(tenant_id,key,current_value) values(${tenantId},'seats',6)`;
 });
@@ -61,6 +65,76 @@ async function assign(expectedPreview: string, requestId = randomUUID()) {
 }
 
 describe('plan preview and assignment consistency', () => {
+  it('reviews and creates the first subscription for an unassigned trial', async () => {
+    await cleanup`delete from subscriptions where tenant_id=${tenantId}`;
+    await adminQuery`update tenants set status='trial' where id=${tenantId}`;
+    const reviewed = await preview();
+    expect(reviewed.fromPlan).toBe('unassigned');
+    expect(reviewed.rows).toContainEqual(
+      expect.objectContaining({ key: 'seats', from: 0, to: 1, current: 6 }),
+    );
+    const requestId = randomUUID();
+    await expect(assign(reviewed.fingerprint, requestId)).resolves.toEqual({
+      planCode: targetCode,
+      status: 'trialing',
+    });
+    const stored =
+      await adminQuery`select plan_id,status,trial_ends_at,current_period_start,current_period_end,version from subscriptions where tenant_id=${tenantId}`;
+    expect(stored).toHaveLength(1);
+    expect(stored[0]).toMatchObject({ plan_id: targetId, status: 'trialing', version: 1 });
+    expect(
+      new Date(stored[0]!.trial_ends_at).getTime() -
+        new Date(stored[0]!.current_period_start).getTime(),
+    ).toBe(14 * 86_400_000);
+    expect(
+      await adminQuery`select id from audit_log where request_id=${requestId} and tenant_id=${tenantId}`,
+    ).toHaveLength(1);
+    expect(
+      await adminQuery`select id from platform_audit_log where request_id=${requestId}`,
+    ).toHaveLength(1);
+  });
+  it('allows only one first assignment from the same reviewed absence', async () => {
+    await cleanup`delete from subscriptions where tenant_id=${tenantId}`;
+    const reviewed = await preview(),
+      requests = [randomUUID(), randomUUID()];
+    const results = await Promise.allSettled(
+      requests.map((id) => assign(reviewed.fingerprint, id)),
+    );
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+    const index = results.findIndex((result) => result.status === 'rejected');
+    expect(results[index]).toMatchObject({
+      status: 'rejected',
+      reason: { code: ERROR_CODES.SUBSCRIPTION_CHANGED },
+    });
+    await noMutationAudit(requests[index]!);
+    expect(await adminQuery`select id from subscriptions where tenant_id=${tenantId}`).toHaveLength(
+      1,
+    );
+  });
+  it('does not start a trial when the selected plan offers no trial days', async () => {
+    await cleanup`delete from subscriptions where tenant_id=${tenantId}`;
+    await adminQuery`update tenants set status='trial' where id=${tenantId}`;
+    await adminQuery`update plans set trial_days=0,interval_unit='year',interval_count=1 where id=${targetId}`;
+    try {
+      const reviewed = await preview();
+      await expect(assign(reviewed.fingerprint)).resolves.toMatchObject({ status: 'active' });
+      const [stored] =
+        await adminQuery`select trial_ends_at,current_period_start,current_period_end from subscriptions where tenant_id=${tenantId}`;
+      expect(stored!.trial_ends_at).toBeNull();
+      expect(new Date(stored!.current_period_end).getUTCFullYear()).toBe(
+        new Date(stored!.current_period_start).getUTCFullYear() + 1,
+      );
+    } finally {
+      await adminQuery`update plans set interval_unit='month',interval_count=1 where id=${targetId}`;
+    }
+  });
+  it('refuses an absent workspace instead of previewing an orphan subscription', async () => {
+    const requestId = randomUUID();
+    await expect(
+      previewPlanChange({ tenantId: randomUUID(), planCode: targetCode }, actor(requestId)),
+    ).rejects.toMatchObject({ code: ERROR_CODES.NOT_FOUND });
+    await noMutationAudit(requestId);
+  });
   it('warns about usage exceeding the effective target limit', async () => {
     expect((await preview()).rows).toContainEqual(
       expect.objectContaining({ key: 'seats', from: 10, to: 1, current: 6, strands: true }),

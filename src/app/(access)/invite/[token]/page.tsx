@@ -18,10 +18,10 @@ export default async function InvitePage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; confirmation?: string }>;
 }) {
   const { token } = await params;
-  const { error } = await searchParams;
+  const { error, confirmation } = await searchParams;
 
   // Invitation state comes only from the stored token hash.
   const invitation = await readInvitationByToken(token, crypto.randomUUID());
@@ -72,14 +72,20 @@ export default async function InvitePage({
   const wrongAccount =
     signedIn && identity.data.user?.email?.toLowerCase() !== invitation.invitedEmail.toLowerCase();
   const needsConfirmation = Boolean(identity.data.user && !identity.data.user.email_confirmed_at);
+  const awaitingConfirmation =
+    needsConfirmation || error === 'auth.email_unverified' || confirmation === 'sent';
   const identityUnavailable = Boolean(
     identity.error && identity.error.name !== 'AuthSessionMissingError',
   );
 
   return (
     <AuthShell
-      title={`Join ${company}`}
-      lede="Review your invitation and confirm to join this workspace."
+      title={awaitingConfirmation ? 'Confirm your email to join' : `Join ${company}`}
+      lede={
+        awaitingConfirmation
+          ? 'Your invitation is reserved while you verify your email.'
+          : 'Review your invitation and confirm to join this workspace.'
+      }
       cardMaxWidth="max-w-[620px]"
     >
       <div className="mb-5 flex items-start gap-3 rounded-card border border-[var(--ink-200)]/90 bg-[var(--ink-50)]/60 p-4 shadow-2xs">
@@ -101,65 +107,86 @@ export default async function InvitePage({
         </div>
       </div>
 
-      <form className="grid gap-4" method="post" action={`/api/v1/invitations/accept/${token}`}>
-        {error ? (
-          <p role="alert" className="text-sm text-[var(--danger-fg)]">
-            {needsConfirmation || error === 'auth.email_unverified'
-              ? 'Confirm your email using the latest email link, then sign in and reopen this invitation. Your invitation has not been used.'
-              : identityUnavailable
-                ? 'Your sign-in could not be checked. Refresh this page before trying again.'
-                : 'The invitation could not be accepted. Sign in with the invited email address, or ask the administrator for a new invitation.'}
+      {awaitingConfirmation ? (
+        <div className="space-y-5">
+          <p role="status" className="text-sm leading-relaxed text-[var(--text-secondary)]">
+            Open the latest confirmation email in this browser. You’ll return here to review and
+            accept your invitation.
           </p>
-        ) : null}
-        {!signedIn && !needsConfirmation && !identityUnavailable ? (
-          <>
-            <Field
-              label="Your full name"
-              name="fullName"
-              autoComplete="name"
-              required
-              placeholder="e.g. Amina Wanjiku"
-            />
+          <form method="post" action="/api/v1/auth/verify-email/resend">
+            <input type="hidden" name="invitationToken" value={token} />
+            <Button type="submit" variant="secondary" className="w-full">
+              Resend confirmation email
+            </Button>
+          </form>
+          <Link
+            href={`/sign-in?next=${encodeURIComponent(`/invite/${token}`)}`}
+            className="block text-sm text-[var(--text-action)] underline underline-offset-4"
+          >
+            Already confirmed? Sign in to continue
+          </Link>
+        </div>
+      ) : (
+        <form className="grid gap-4" method="post" action={`/api/v1/invitations/accept/${token}`}>
+          {error ? (
+            <p role="alert" className="text-sm text-[var(--danger-fg)]">
+              {needsConfirmation || error === 'auth.email_unverified'
+                ? 'Confirm your email using the latest email link, then sign in and reopen this invitation. Your invitation has not been used.'
+                : identityUnavailable
+                  ? 'Your sign-in could not be checked. Refresh this page before trying again.'
+                  : 'The invitation could not be accepted. Sign in with the invited email address, or ask the administrator for a new invitation.'}
+            </p>
+          ) : null}
+          {!signedIn && !needsConfirmation && !identityUnavailable ? (
+            <>
+              <Field
+                label="Your full name"
+                name="fullName"
+                autoComplete="name"
+                required
+                placeholder="e.g. Amina Wanjiku"
+              />
 
-            <NewPasswordFields label="Create your account password" showConfirm={false} />
-            <Link
-              href={`/sign-in?next=${encodeURIComponent(`/invite/${token}`)}`}
-              className="text-sm text-[var(--blue-600)] underline underline-offset-4"
-            >
-              Already have an account? Sign in
-            </Link>
-          </>
-        ) : identity.data.user?.email ? (
-          <p className="text-sm text-[var(--text-secondary)]">
-            You are signed in as {identity.data.user?.email}.
-          </p>
-        ) : null}
-        {wrongAccount || needsConfirmation || identityUnavailable ? (
-          <p role="alert" className="text-sm text-[var(--text-secondary)]">
-            {wrongAccount
-              ? `This invitation is for ${invitation.invitedEmail}. Sign in with that address to continue.`
-              : needsConfirmation
-                ? 'Confirm your email before joining this workspace.'
-                : 'Identity verification is temporarily unavailable.'}{' '}
-            <Link
-              className="text-[var(--text-action)] underline underline-offset-4"
-              href={`/sign-in?next=${encodeURIComponent(`/invite/${token}`)}`}
-            >
-              Return to sign in
-            </Link>
-          </p>
-        ) : null}
+              <NewPasswordFields label="Create your account password" showConfirm={false} />
+              <Link
+                href={`/sign-in?next=${encodeURIComponent(`/invite/${token}`)}`}
+                className="text-sm text-[var(--blue-600)] underline underline-offset-4"
+              >
+                Already have an account? Sign in
+              </Link>
+            </>
+          ) : identity.data.user?.email ? (
+            <p className="text-sm text-[var(--text-secondary)]">
+              You are signed in as {identity.data.user?.email}.
+            </p>
+          ) : null}
+          {wrongAccount || needsConfirmation || identityUnavailable ? (
+            <p role="alert" className="text-sm text-[var(--text-secondary)]">
+              {wrongAccount
+                ? `This invitation is for ${invitation.invitedEmail}. Sign in with that address to continue.`
+                : needsConfirmation
+                  ? 'Confirm your email before joining this workspace.'
+                  : 'Identity verification is temporarily unavailable.'}{' '}
+              <Link
+                className="text-[var(--text-action)] underline underline-offset-4"
+                href={`/sign-in?next=${encodeURIComponent(`/invite/${token}`)}`}
+              >
+                Return to sign in
+              </Link>
+            </p>
+          ) : null}
 
-        <Button
-          type="submit"
-          disabled={wrongAccount || needsConfirmation || identityUnavailable}
-          variant="accent"
-          size="lg"
-          className="mt-2 w-full cursor-pointer font-medium shadow-sm hover:shadow-md"
-        >
-          Accept invitation & join workspace
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            disabled={wrongAccount || needsConfirmation || identityUnavailable}
+            variant="accent"
+            size="lg"
+            className="mt-2 w-full cursor-pointer font-medium shadow-sm hover:shadow-md"
+          >
+            Accept invitation & join workspace
+          </Button>
+        </form>
+      )}
     </AuthShell>
   );
 }

@@ -657,6 +657,7 @@ export type WorkspaceRow = {
   eventsLimit: number;
   activity: string;
   created: string;
+  createdAt?: number;
 };
 
 /**

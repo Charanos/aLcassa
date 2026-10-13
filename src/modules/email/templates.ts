@@ -87,22 +87,41 @@ function escapeAttr(value: string): string {
 }
 
 /** Auth supplies the verification URL. Do not substitute customer metadata into its markup. */
-export function authProviderEmail(purpose: 'invite' | 'recovery'): RenderedTemplate {
+export function authProviderEmail(
+  purpose: 'invite' | 'recovery' | 'confirmation',
+): RenderedTemplate {
   const invited = purpose === 'invite';
-  const subject = invited ? 'Your aLcassa workspace invitation' : 'Reset your aLcassa password';
-  const opening = invited
-    ? 'Your workspace is ready for you. Open your invitation to verify your email and choose a password.'
-    : 'A password reset was requested for your aLcassa account. Open this link to verify your email before choosing a new password.';
-  const label = invited ? 'Open your invitation' : 'Reset your password';
-  const guidance = invited
-    ? 'If you were not expecting this invitation, you can ignore this email. No action is needed.'
-    : 'If you did not request a reset, ignore this email. Your password has not changed.';
+  const confirmation = purpose === 'confirmation';
+  const subject = confirmation
+    ? 'Confirm your aLcassa email'
+    : invited
+      ? 'Your aLcassa workspace invitation'
+      : 'Reset your aLcassa password';
+  const opening = confirmation
+    ? 'Confirm your email to continue to aLcassa. Open this link in the browser where you started signing up.'
+    : invited
+      ? 'Your workspace is ready for you. Open your invitation to verify your email and choose a password.'
+      : 'A password reset was requested for your aLcassa account. Open this link to verify your email before choosing a new password.';
+  const label = confirmation
+    ? 'Confirm your email'
+    : invited
+      ? 'Open your invitation'
+      : 'Reset your password';
+  const guidance = confirmation
+    ? 'If you did not create an account or accept an invitation, ignore this email.'
+    : invited
+      ? 'If you were not expecting this invitation, you can ignore this email. No action is needed.'
+      : 'If you did not request a reset, ignore this email. Your password has not changed.';
   const url = '{{ .ConfirmationURL }}';
   return {
     subject,
     html: layout({
       preheader: opening,
-      heading: invited ? 'A place to begin.' : 'A clear path back in.',
+      heading: confirmation
+        ? 'Confirm your email.'
+        : invited
+          ? 'A place to begin.'
+          : 'A clear path back in.',
       body: `<p style="margin:0 0 16px;">${escapeHtml(opening)}</p>
 ${action(url, label)}
 <p style="margin:24px 0 0;padding-top:20px;border-top:1px solid ${BRAND.rule};font:400 13px/1.65 ${FONT_STACK};color:${BRAND.muted};">${escapeHtml(guidance)} Open the latest email; an expired or used link cannot be reused.</p>`,

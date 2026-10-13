@@ -23,6 +23,7 @@ export type ErrorHue = 'ochre' | 'oxide' | 'slate';
 
 const HUE: Record<ErrorCode, ErrorHue> = {
   [ERROR_CODES.AUTH_INVALID_CREDENTIALS]: 'ochre',
+  [ERROR_CODES.AUTH_SIGN_IN_INCOMPLETE]: 'ochre',
   [ERROR_CODES.AUTH_ACCOUNT_LOCKED]: 'ochre',
   [ERROR_CODES.AUTH_SESSION_EXPIRED]: 'ochre',
   [ERROR_CODES.AUTH_FLOW_IN_PROGRESS]: 'ochre',

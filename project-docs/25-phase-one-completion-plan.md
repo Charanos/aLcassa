@@ -893,3 +893,28 @@ Confirmation-required colleague signup is still distinct from this local
 auto-confirmed configuration, and external email delivery is not claimed. See the
 [account workflow checkpoint](/project-tracker/verification#colleague-workflows-checkpoint).
 The evidence index now includes all twelve historical/current checkpoints.
+
+### 18.19 Auth closure and live workspace operations — 13 October 2026
+
+M2 engineering reaches **100% in the agreed sandbox scope** after actual hosted
+Google continuity from a seeded verified email-only identity and explicit Google
+invitation acceptance. Provider IDs, original owner access, target Administrator
+role, two seats and one join audit reconcile. Temporary test state is removed or
+restored. Actual captured email confirmation completes public signup and colleague
+acceptance; seven password/invitation workflows also pass with confirmation required.
+Client demonstration, email-domain delivery and client-owned launch configuration
+remain separate. [Read the current acceptance checkpoint](/project-tracker/verification#confirmed-onboarding-checkpoint).
+
+M4 moves 88→90%: created workspaces appear alongside demo records, newest first in
+both views; unassigned trials have accurate status; reviewed first plan assignment
+creates one subscription with matching audits and concurrent/stale refusal.
+M5 moves 94→96% with confirmed colleague continuation, role/seat truth and responsive
+confirmation states. These values do not close broader console/settings action
+states or keyboard/accessibility acceptance.
+
+Execute the next closure batches by shared risk: (1) remaining console/settings
+CRUD and failure/accessibility states; (2) service/API and latency acceptance;
+(3) independent Auth/object recovery and clean setup/upgrade/rollback; (4) exact
+release qualification and handover. Keep evidence attached to each result and
+payment tracking unchanged: only the deposit is paid. The dated verification
+ledger and evidence index distinguish historical checkpoints from this candidate.

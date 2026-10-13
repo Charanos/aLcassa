@@ -37,6 +37,26 @@ BuildLive and Serve share `.next-live-verify`, use the disposable provider
 credentials and refuse non-local database/provider URLs. Stop Serve before
 rebuilding. These commands qualify a local runtime; they do not deploy the app.
 
+Email confirmation is required in the disposable provider. Invite, recovery and
+signup confirmation templates are generated from `src/modules/email/templates.ts`;
+`pnpm check:email-templates` checks all three. Confirmation links are captured in
+local Mailpit, never published as evidence. Installing a template locally does
+not configure hosted Auth or qualify external email delivery.
+
+With Serve stopped and BuildLive complete, run the combined confirmation and
+live-console acceptance batch:
+
+```powershell
+node --import tsx scripts/verification-confirmed-onboarding.ts
+./scripts/verification-service.ps1 Accounts
+```
+
+Run these sequentially, without database tests or other workers on port 3100.
+The automated batches consistently use `127.0.0.1` for entry and continuation.
+They create owned accounts and workspaces, follow actual captured confirmation
+emails, and remove their database/Auth fixtures. Mail remains private in local
+capture. Receipts exclude passwords, email links, cookies and provider tokens.
+
 Start saves local keys and generated disposable account credentials in the ignored
 `.env.verification.local`. Prepare applies migrations/policies, creates the
 restricted app role and seeds disposable data, including two tenant login accounts

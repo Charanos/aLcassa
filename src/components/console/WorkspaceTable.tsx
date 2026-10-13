@@ -151,38 +151,7 @@ export function WorkspaceTable({
 }) {
   const pushToast = useToast();
 
-  /*
-   * ⚠ THE ATTENTION FILTER STARTS APPLIED WHEN THERE IS SOMETHING TO SEE.
-   *
-   * Sheet 05: "Attention is pre-filtered. The one applied filter is the one
-   * the standfirst just mentioned, so the grid below is already the shortlist
-   * rather than a thing to construct." The page's own opening sentence says
-   * "N need attention"; landing on all 47 rows and asking the operator to
-   * build that shortlist by hand contradicts the sentence they just read.
-   *
-   * It starts OFF when nothing needs attention, because a filter that is
-   * applied and empty reads as a broken list rather than a quiet morning.
-   * The chip renders pressed, the count line reads "3 of 47", and Reset is
-   * beside it — the state is legible and one click from cleared.
-   */
-  /**
-   * ⚠ THE FILTER CAN BE ARRIVED AT, NOT ONLY BUILT.
-   *
-   * `?status=past+due` and `?attention=1` seed these on first render, which is
-   * what lets another screen SEND somebody here. Revenue's ageing band says
-   * "four workspaces are behind"; without this, the link under it drops the
-   * operator on all twelve rows to find those four by hand, and the band has
-   * handed them a fact rather than a handle on it.
-   *
-   * This is the URL seeding the CLIENT filter, not server-side filtering. The
-   * note at the top of `tenants/page.tsx` still stands: past roughly a thousand
-   * rows the filtering itself moves into the query. Until then the array filter
-   * is faster, and reading an initial value off the URL costs nothing.
-   *
-   * Read once, deliberately. These are the starting point of a filter the
-   * operator then owns — re-syncing to the URL on every change would fight
-   * them the moment they cleared a chip the link had set.
-   */
+  // Seed explicit URL filters once; subsequent changes belong to the operator.
   const params = useSearchParams();
   const seeded = useRef(false);
   const seed = seeded.current
@@ -203,7 +172,7 @@ export function WorkspaceTable({
   const [statuses, setStatuses] = useState<WorkspaceStatus[]>(seed?.statuses ?? []);
   const [attention, setAttention] = useState(seed?.attention ?? false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
-  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortField, setSortField] = useState<SortField>('created');
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -295,7 +264,7 @@ export function WorkspaceTable({
             sortDir,
           ) || a.name.localeCompare(b.name)
         );
-      } else if (sortField === 'created') cmp = a.created.localeCompare(b.created);
+      } else if (sortField === 'created') cmp = (a.createdAt ?? 0) - (b.createdAt ?? 0);
       else cmp = a.activity.localeCompare(b.activity);
       return sortDir === 'asc' ? cmp : -cmp;
     });

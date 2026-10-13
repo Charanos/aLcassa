@@ -7,12 +7,20 @@ import { readRequestBody, wantsJson } from '@/lib/http/body';
 import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
+import { signupConfirmationUrl } from '@/lib/auth/signupConfirmation';
+import { readInvitationByToken } from '@/modules/membership';
 
 /** Verification resend responses do not disclose account existence or confirmation status. */
 
-const resendSchema = z.object({
-  email: z.string().trim().toLowerCase().email('Enter a valid email address.'),
-});
+const resendSchema = z
+  .object({
+    email: z.string().trim().toLowerCase().email('Enter a valid email address.').optional(),
+    invitationToken: z
+      .string()
+      .regex(/^[A-Za-z0-9_-]{20,256}$/)
+      .optional(),
+  })
+  .refine((input) => input.email || input.invitationToken);
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID();
@@ -20,6 +28,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const log = logger.child({ requestId, route: '/api/v1/auth/verify-email/resend' });
 
   try {
+    if (request.headers.get('origin') !== authRequestOrigin(request))
+      throw new AppError(ERROR_CODES.AUTH_INVALID_CREDENTIALS);
     /* This route makes US send mail on an anonymous caller's say-so, which is
        the same shape of abuse the forgot-password limiter exists to stop. */
     await enforceRateLimit(request, RATE_LIMITS.verifyEmailResend);
@@ -27,15 +37,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const parsed = resendSchema.safeParse(await readRequestBody(request));
     if (!parsed.success) throw new AppError(ERROR_CODES.VALIDATION_FAILED);
 
-    const { email } = parsed.data;
+    const { invitationToken } = parsed.data;
+    const invitation = invitationToken
+      ? await readInvitationByToken(invitationToken, requestId)
+      : null;
+    if (invitationToken && invitation?.state !== 'pending')
+      throw new AppError(ERROR_CODES.NOT_FOUND);
+    const email = invitation?.invitedEmail ?? parsed.data.email!;
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.resend({ type: 'signup', email });
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: signupConfirmationUrl(
+          request,
+          invitationToken ? `/invite/${invitationToken}` : '/app',
+        ),
+      },
+    });
 
     /* Logged, never returned. Whoever is on call needs to know the provider
        is refusing; the caller must not learn anything about the address. */
     if (error) log.warn('confirmation resend was refused by the provider');
 
-    const destination = `/sign-up/verify?email=${encodeURIComponent(email)}&resent=1`;
+    const destination = invitationToken
+      ? `/invite/${invitationToken}?confirmation=sent`
+      : `/sign-up/verify?email=${encodeURIComponent(email)}&resent=1`;
 
     return asJson
       ? jsonOk({ sent: true }, { requestId })

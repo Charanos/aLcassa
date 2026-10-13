@@ -35,7 +35,7 @@ const STAGES: { key: JourneyStage; title: string; blurb: string }[] = [
   {
     key: 'confirm',
     title: 'Confirm your email',
-    blurb: 'So we can reach you about the workspace. You can do this later.',
+    blurb: 'Verify your email before entering your workspace.',
   },
   {
     key: 'rules',

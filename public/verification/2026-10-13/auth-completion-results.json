@@ -1,0 +1,109 @@
+{
+  "date": "13 October 2026",
+  "engineeringScope": "M2 sandbox authentication and account lifecycle",
+  "technicalCompletionPercent": 100,
+  "regression": {
+    "passed": 718,
+    "failed": 0,
+    "skipped": 0,
+    "files": 62
+  },
+  "accounts": {
+    "checkedAt": "2026-10-13T03:08:30.356Z",
+    "localOnly": true,
+    "productionBuild": true,
+    "checks": [
+      "Incorrect current password refused; provider password and audit unchanged",
+      "Password changed; old password refused, new password verified, one audit, current device preserved and other device denied",
+      "Wrong signed-in identity cannot accept invitation",
+      "New colleague creates provider identity and active administrator membership; used link refuses replay",
+      "Existing confirmed colleague joins correct workspace without creating a duplicate identity",
+      "Expired invitation renewed in UI; old token invalidated and new private link retained",
+      "Withdrawn link refused; reserved seat released; two accepted colleagues and owner reconcile to three seats"
+    ],
+    "passed": true,
+    "fixtureCleanup": true,
+    "boundary": "Actual browser journeys against disposable Auth with signup email confirmation required and captured locally. Application invitation email is deliberately unavailable and its private-link fallback is verified. External sending domains and configured OAuth remain separate."
+  },
+  "productionAuthAndTrackerUI": {
+    "checkedAt": "2026-10-13T03:38:15.466Z",
+    "productionBuild": true,
+    "localOnly": true,
+    "providerErrorRefusedBeforeExchange": true,
+    "approvedRetryCopy": true,
+    "protectedEntryRefused": true,
+    "widths": [
+      1440,
+      390,
+      320
+    ],
+    "evidenceDownloads": 2,
+    "overflow": false
+  },
+  "emailConfirmation": {
+    "productionBuild": true,
+    "required": true,
+    "capturedProviderEmails": true,
+    "ownedFixturesRemoved": true
+  },
+  "hostedGoogle": {
+    "continuity": {
+      "checkedAt": "2026-10-13T03:12:39.498Z",
+      "actualHostedGoogle": true,
+      "seededVerifiedEmailOnlyBaseline": true,
+      "sameProviderUserId": true,
+      "providers": [
+        "email",
+        "google"
+      ],
+      "sameWorkspace": true,
+      "originalOwnerRole": true,
+      "memberships": 1,
+      "duplicateWorkspaceCreated": false,
+      "requestedCompanyPageReached": true
+    },
+    "invitation": {
+      "checkedAt": "2026-10-13T03:17:06.146Z",
+      "actualHostedGoogle": true,
+      "explicitNativeAcceptance": true,
+      "invitationContinuationPreserved": true,
+      "members": 2,
+      "invited_administrators": 1,
+      "original_owners": 1,
+      "seats": 2,
+      "accepted_invitations": 1,
+      "joined_audits": 1,
+      "provider_users": 1
+    },
+    "cleanup": {
+      "checkedAt": "2026-10-13T03:21:11.117Z",
+      "invitationReplayRefusedInBrowser": true,
+      "targetCompanyPageVerified": true,
+      "nativeProviderDenialCallbackReplay": true,
+      "protectedPageRefusedAfterFailure": true,
+      "ownedInvitationFixturesRemoved": true,
+      "retainedGoogleFixtureRestored": true,
+      "memberships": 1,
+      "owners": 1,
+      "seats": 1,
+      "google_identities": 1,
+      "email_identities": 0,
+      "temporary_password_removed": true,
+      "target_workspaces": 0,
+      "active_application_sessions": 0,
+      "provider_sessions": 0,
+      "sessionCleanupCheckedAt": "2026-10-13T03:41:05.508Z"
+    },
+    "baselinePreparation": "A verified email-only identity was seeded on the retained owned sandbox fixture and password sign-in verified it before actual Google authentication. This is not a claim of a new email signup journey.",
+    "failureAttempt": "One invitation sign-in submission stalled; reloading and retrying completed the journey. No root cause is attributed to that attempt."
+  },
+  "focusedAuthAndEmail": {
+    "passed": 129,
+    "failed": 0,
+    "skipped": 0,
+    "files": 10
+  },
+  "providerFailureCoverage": "Contract tests cover disabled/unavailable providers, foreign origins, unsafe return paths, missing/refused/unverified exchanges and explicit provider errors. Native hosted denial-callback replay refused protected entry; this does not simulate a Google outage or new consent denial.",
+  "launchReadiness": "External sending-domain and delivery qualification, client-owned OAuth credentials and final handover remain separate gates. No production launch or final client acceptance is claimed.",
+  "privacy": "No email addresses, invitation links, passwords, tokens, cookies or provider secrets are included. Temporary email/password fixture state was removed; the original Google owner workspace remains."
+}

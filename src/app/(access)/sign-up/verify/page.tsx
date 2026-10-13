@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** Signup has already created the workspace and session; this page confirms the outcome and offers entry. */
+/** Workspace creation succeeded; verified provider identity is required before entry. */
 export default async function VerifyPage({
   searchParams,
 }: {
@@ -35,7 +35,7 @@ export default async function VerifyPage({
       title="Confirm your email"
       cardMaxWidth="max-w-[560px] lg:max-w-[940px] xl:max-w-[1000px]"
       aside={<WorkspaceJourney current="confirm" />}
-      lede="We have dispatched a secure link to activate your workspace enclave."
+      lede="Open the latest confirmation email to finish signing in to your workspace."
       footer={
         <p className="text-center text-sm text-[var(--text-secondary)]">
           Incorrect email address?{' '}
@@ -57,14 +57,14 @@ export default async function VerifyPage({
             <span className="block font-mono text-xs tracking-wider text-[var(--text-tertiary)] uppercase">
               Recipient Address
             </span>
-            <span className="block truncate font-mono text-sm font-medium text-[var(--text-primary)]">
+            <span className="block text-sm font-medium break-all text-[var(--text-primary)]">
               {email ?? 'your workspace email'}
             </span>
           </div>
         </div>
         <p className="mt-3.5 border-t border-[var(--ink-200)]/70 pt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
-          Click the link in the message to activate your workspace and complete setup. Links remain
-          valid for 24 hours.
+          Open the link in the same browser to confirm your email. If you request another message,
+          use its latest link.
         </p>
       </div>
 
@@ -78,8 +78,7 @@ export default async function VerifyPage({
             borderColor: 'var(--success-fg)',
           }}
         >
-          Sent again. If it still does not arrive, check your spam folder — or continue into your
-          workspace and confirm later.
+          Check your inbox and spam folder for the latest confirmation email.
         </div>
       ) : null}
 
@@ -113,12 +112,11 @@ export default async function VerifyPage({
       */}
       <p className="mt-3 text-center text-sm text-[var(--text-secondary)]">
         <Link
-          href="/app"
+          href="/sign-in"
           className="font-medium text-[var(--blue-600)] underline underline-offset-4 transition-colors hover:text-[var(--blue-700)]"
         >
-          Continue to your workspace
+          Already confirmed? Sign in
         </Link>{' '}
-        — you can confirm your email any time.
       </p>
     </AuthShell>
   );

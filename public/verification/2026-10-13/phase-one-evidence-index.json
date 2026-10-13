@@ -1,0 +1,81 @@
+{
+  "date": "13 October 2026",
+  "checkpoints": [
+    {
+      "checkpoint": "verificationRecord",
+      "path": "/verification/2026-10-08/manifest.json",
+      "sha256": "da08ebdaa64144c86e8059bfd3eef02de9e83b16ca1abff642408e573a3eeaca"
+    },
+    {
+      "checkpoint": "membershipVerification",
+      "path": "/verification/2026-10-08/membership-manifest.json",
+      "sha256": "b0c15eab873c99ef6b9ad0df58498af36d9c6656b74284b7a988941a026f0e51"
+    },
+    {
+      "checkpoint": "accountVerification",
+      "path": "/verification/2026-10-08/account-gates-manifest.json",
+      "sha256": "2670fef2e6cce5b63eb257146ee8f80f9ab0cb7f12a15cf3f77919bc17d11c0a"
+    },
+    {
+      "checkpoint": "ownershipVerification",
+      "path": "/verification/2026-10-08/ownership-recovery-manifest.json",
+      "sha256": "475fdc21e0d2e1841fb59aaa958ef15ec01e7c4397f02a7e60077ee353cd5dc9"
+    },
+    {
+      "checkpoint": "authNavigationVerification",
+      "path": "/verification/2026-10-09/auth-navigation-manifest.json",
+      "sha256": "b7736d7db8f9b1ec2fd27784a142f88c41824c2e19c3880eff589b56d02df334"
+    },
+    {
+      "checkpoint": "deviceSessionsVerification",
+      "path": "/verification/2026-10-09/device-sessions-manifest.json",
+      "sha256": "57ea26f1d2be5f4574126603fc773b10311952b5015c01ed8bd376a66a04c507"
+    },
+    {
+      "checkpoint": "accountHardeningVerification",
+      "path": "/verification/2026-10-09/account-hardening-manifest.json",
+      "sha256": "9cf14cd5cb3bc2a135c96faf24c57a25867074bb204464640c792ecda7f8cfae"
+    },
+    {
+      "checkpoint": "serviceUsageVerification",
+      "path": "/verification/2026-10-09/service-usage-manifest.json",
+      "sha256": "8fe18123e3dbb9eccafa9650e9ee881a356fbd519d6998ada357e32bbecb665f"
+    },
+    {
+      "checkpoint": "serviceBudgetVerification",
+      "path": "/verification/2026-10-09/service-budget-manifest.json",
+      "sha256": "093184b40481a040c9fcf5f2f67f0a61b2effcc4ab5602572837708a26c63253"
+    },
+    {
+      "checkpoint": "operationalGatesVerification",
+      "path": "/verification/2026-10-09/operational-gates-manifest.json",
+      "sha256": "0ad88b91ddf583ad728b02a1f081884601ccce0043e4d5b11d31aaac69f962e8"
+    },
+    {
+      "checkpoint": "operationalFollowupVerification",
+      "path": "/verification/2026-10-10/operational-followup-manifest.json",
+      "sha256": "360830194ba273f07b32ab27c9f952e6deb563e08030daeee94217a26cccdbbf"
+    },
+    {
+      "checkpoint": "accountWorkflowsVerification",
+      "path": "/verification/2026-10-10/account-workflows-manifest.json",
+      "sha256": "721af85ed9ed855f6f0a5aa0c576b9cbbd7eea568d7694bc596403aa0abec967"
+    },
+    {
+      "checkpoint": "googleAdminAccess",
+      "path": "/verification/2026-10-12/google-admin-access-results.json",
+      "sha256": "e19cfc58c1b58443b81b9f48e26d8eae569537ba20e6b3c784ba868bf270dbbe"
+    },
+    {
+      "checkpoint": "confirmedOnboardingConsole",
+      "path": "/verification/2026-10-13/confirmed-onboarding-console-results.json",
+      "sha256": "63c8ab72faae7261a1f86be4fd4da238c875ea0480d835f08b88a1e9b795bc6e"
+    },
+    {
+      "checkpoint": "authCompletion",
+      "path": "/verification/2026-10-13/auth-completion-results.json",
+      "sha256": "d55f443a1945e507afa18bde50fa621a38b86bb8af9313e1c21eeb2fa0d38d45"
+    }
+  ],
+  "boundary": "Immutable historical and current local checkpoints. Each checkpoint states its scope, failed samples and release qualification. This index does not claim all milestones or the newest source revision have passed CI."
+}

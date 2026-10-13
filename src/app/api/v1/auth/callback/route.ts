@@ -18,9 +18,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
 
-    if (!code) {
-      log.warn('No code provided in OAuth callback');
-      throw new AppError(ERROR_CODES.INTERNAL);
+    if (url.searchParams.has('error') || !code) {
+      log.warn('Provider sign-in was not completed');
+      throw new AppError(ERROR_CODES.AUTH_SIGN_IN_INCOMPLETE);
     }
 
     const supabase = await createSupabaseServerClient();
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (error || !data.user) {
       log.error('Failed to exchange code for session', { code: error?.code ?? 'provider_failure' });
-      throw new AppError(ERROR_CODES.AUTH_INVALID_CREDENTIALS);
+      throw new AppError(ERROR_CODES.AUTH_SIGN_IN_INCOMPLETE);
     }
 
     const userId = data.user.id;

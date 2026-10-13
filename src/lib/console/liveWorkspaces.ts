@@ -64,7 +64,8 @@ function toWorkspaceStatus(
   // A suspended TENANT outranks whatever its subscription says: suspension is
   // the platform's decision about the workspace, not about the billing.
   if (tenantStatus === 'suspended') return 'suspended';
-  if (tenantStatus !== 'active') return 'pending';
+  if (tenantStatus === 'trial' && subscriptionStatus === null) return 'trial';
+  if (tenantStatus !== 'active' && tenantStatus !== 'trial') return 'pending';
 
   if (subscriptionStatus === 'trialing') return 'trial';
   if (subscriptionStatus === 'past_due') return 'past due';
@@ -200,6 +201,7 @@ export async function getLiveWorkspaces(): Promise<WorkspaceRow[] | null> {
       eventsLimit: 0,
       activity: relative(lastByTenant.get(row.id) ?? null),
       created: formatDate(row.createdAt),
+      createdAt: row.createdAt.getTime(),
     }));
   });
 }

@@ -10,7 +10,8 @@ import {
 } from '@/lib/console/liveWorkspaces';
 import { getLiveOverviewInsights } from '@/lib/console/liveOverview';
 import { getLiveRevenue } from '@/lib/console/liveRevenue';
-import { getLivePlans, getLiveMasterRules } from '@/lib/console/live';
+import { getLivePlans, getLiveMasterRules, getLiveOverview } from '@/lib/console/live';
+import { getLiveConsoleChrome } from '@/lib/console/liveChrome';
 
 vi.mock('@/lib/auth/resolve', () => ({
   currentPlatformSessionOrNull: vi.fn(() =>
@@ -35,7 +36,7 @@ beforeAll(async () => {
   assertDisposableDatabase();
   await adminQuery`insert into tenants (id, slug, name, status) values
     (${tenantId}, ${slug}, 'Reader workspace', 'active'),
-    (${otherId}, ${`reader-${otherId}`}, 'Unrelated workspace', 'active')`;
+    (${otherId}, ${`reader-${otherId}`}, 'New trial workspace', 'trial')`;
   created = true;
   const [ruleRoot] = await adminQuery<
     { current_version_id: string | null }[]
@@ -77,6 +78,37 @@ afterAll(async () => {
 });
 
 describe('live platform page readers', () => {
+  it('includes a newly created trial without a subscription in the directory and detail', async () => {
+    const rows = await getLiveWorkspaces();
+    const created = rows?.find((row) => row.id === otherId);
+    expect(created).toMatchObject({
+      name: 'New trial workspace',
+      status: 'trial',
+      plan: 'No plan',
+    });
+    expect(created?.createdAt).toBeGreaterThan(0);
+    expect(await getLiveWorkspaceDetail(`reader-${otherId}`)).toMatchObject({
+      id: otherId,
+      name: 'New trial workspace',
+      status: 'trial',
+      plan: 'No plan',
+    });
+  });
+  it('reconciles live directory, overview and shell counts without filtering to the seed portfolio', async () => {
+    const rows = await getLiveWorkspaces();
+    const chrome = await getLiveConsoleChrome();
+    const overview = await getLiveOverview();
+    const insights = await getLiveOverviewInsights();
+    expect(chrome?.workspaceCount).toBe(rows!.length);
+    expect(chrome?.workspaces.some((workspace) => workspace.id === otherId)).toBe(true);
+    expect(overview?.signals.find((signal) => signal.id === 'workspaces')?.value).toBe(
+      String(rows!.length),
+    );
+    expect(insights?.source).toBe('live');
+    expect(insights?.portfolio.statusMix.find((slice) => slice.status === 'trial')?.count).toBe(
+      rows!.filter((row) => row.status === 'trial').length,
+    );
+  });
   it('reads the selected historical master version beyond the recent history cap and its actual locks', async () => {
     const doc = await getLiveMasterRules();
     expect(doc?.fields.find((field) => field.key === 'tone')).toMatchObject({

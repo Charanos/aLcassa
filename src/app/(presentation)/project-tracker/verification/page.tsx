@@ -21,7 +21,11 @@ import followup from '@/lib/presentation/operationalFollowupVerification.json';
 import workflows from '@/lib/presentation/accountWorkflowsVerification.json';
 import evidenceIndex from '@/lib/presentation/phaseOneEvidenceIndex.json';
 import { TrackerNavigation } from '@/components/presentation/TrackerNavigation';
-import { MILESTONES, MILESTONE_PROGRESS_REVIEW } from '@/lib/presentation/engagement';
+import {
+  MILESTONES,
+  MILESTONE_PROGRESS_REVIEW,
+  PHASE_ONE_VERIFICATION,
+} from '@/lib/presentation/engagement';
 
 export const metadata: Metadata = {
   title: 'Verification record',
@@ -38,7 +42,7 @@ export default function VerificationRecordPage() {
     >
       <TrackerNavigation current="verification" />
       <header className="mt-10 border-b border-[var(--border-subtle)] pb-10">
-        <p className="t-eyebrow text-[var(--text-tertiary)]">Phase One · {followup.date}</p>
+        <p className="t-eyebrow text-[var(--text-tertiary)]">Phase One · {evidenceIndex.date}</p>
         <h1 className="display display-lg mt-3 tracking-tight">Verification record</h1>
         <p className="t-body mt-5 text-[var(--text-secondary)]">
           Current local verification and the qualified CI reference checkpoint, with the work still
@@ -100,6 +104,65 @@ export default function VerificationRecordPage() {
           </div>
         </aside>
       </header>
+
+      <section
+        id="confirmed-onboarding-checkpoint"
+        aria-labelledby="confirmed-onboarding-title"
+        className="mt-12 scroll-mt-8 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 md:p-8"
+      >
+        <p className="t-eyebrow text-[var(--text-tertiary)]">
+          13 October · Account and workspace acceptance
+        </p>
+        <h2 id="confirmed-onboarding-title" className="t-heading mt-3">
+          From confirmation to the console
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          Public signup and colleague acceptance complete with actual confirmation emails captured
+          locally. Unverified access and reused invitations are refused. Newly created workspaces
+          appear alongside the demonstration records in both console views and can receive their
+          first plan through a reviewed, audited operation.
+        </p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-6 sm:grid-cols-3">
+          <Metric
+            plain
+            value="9"
+            label="Combined browser checks"
+            detail="Signup, confirmation, console and first plan"
+          />
+          <Metric
+            plain
+            value="7"
+            label="Account workflows"
+            detail="Password, devices and invitation lifecycle"
+          />
+          <Metric
+            plain
+            value={String(PHASE_ONE_VERIFICATION.applicationTests)}
+            label="Regression cases passed"
+            detail={`${PHASE_ONE_VERIFICATION.applicationFiles} files · no failures or skipped cases`}
+          />
+        </dl>
+        <p className="t-compact mt-5 text-[var(--text-secondary)]">
+          Hosted Google also preserves a prepared verified email identity and its original owner
+          role, then completes an invitation to a separate workspace with exact membership, seat and
+          audit readback. The email-only baseline was a seeded fixture; the Google authentication
+          and invitation acceptance were actual browser journeys.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
+          <EvidenceDownload
+            href="/verification/2026-10-13/confirmed-onboarding-console-results.json"
+            label="Confirmation and live console results"
+          />
+          <EvidenceDownload
+            href="/verification/2026-10-13/auth-completion-results.json"
+            label="Auth completion results"
+          />
+        </div>
+        <p className="t-caption mt-5 text-[var(--text-tertiary)]">
+          Sandbox engineering acceptance is separate from external email delivery, final client
+          acceptance and launch. Raw emails, links, credentials and browser sessions stay private.
+        </p>
+      </section>
 
       <section
         aria-labelledby="progress-title"
@@ -984,11 +1047,11 @@ export default function VerificationRecordPage() {
 
       <footer className="mt-14 border-t border-[var(--border-subtle)] pt-7">
         <p className="t-body text-[var(--text-secondary)]">
-          Phase One remains in verification. Open work includes configured Google onboarding,
-          confirmation-required signup, complete action and accessibility checks, the load latency
-          target, independent identity and stored-file restoration, setup and rollback rehearsals,
-          and final handover. Hosting verification remains local; external email delivery must be
-          qualified before launch.
+          Phase One remains in verification. Sandbox Auth engineering is complete. Open work
+          includes complete console action and accessibility checks, the load latency target,
+          independent identity and stored-file restoration, setup and rollback rehearsals, and final
+          handover. Hosting verification remains local; external email delivery must be qualified
+          before launch.
         </p>
         <p className="t-compact mt-4 text-[var(--text-tertiary)]">
           Downloads contain selected test metadata and measured outcomes. Raw logs, account

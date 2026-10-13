@@ -7,7 +7,7 @@ import {
 } from '../../src/modules/email/templates';
 
 describe('Auth provider email templates', () => {
-  it.each(['invite', 'recovery'] as const)(
+  it.each(['invite', 'recovery', 'confirmation'] as const)(
     'preserves the provider proof in %s without external assets',
     (purpose) => {
       const rendered = authProviderEmail(purpose);

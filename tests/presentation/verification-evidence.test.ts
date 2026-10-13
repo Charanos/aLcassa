@@ -115,7 +115,7 @@ describe('Public verification evidence boundary', () => {
     ];
     for (const file of files) {
       expect(file.path).toMatch(
-        /^\/verification\/2026-10-(?:08|09|10)\/[a-z0-9-]+\.(?:json|jpg|png)$/,
+        /^\/verification\/2026-10-(?:08|09|10|12|13)\/[a-z0-9-]+\.(?:json|jpg|png)$/,
       );
       const bytes = readFileSync(`public${file.path}`);
       expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);
@@ -229,7 +229,7 @@ describe('Public verification evidence boundary', () => {
       evidenceIndex.checkpointCount,
     );
     for (const entry of index.checkpoints) {
-      expect(entry.path).toMatch(/^\/verification\/2026-10-(?:08|09|10)\/[a-z0-9-]+\.json$/);
+      expect(entry.path).toMatch(/^\/verification\/2026-10-(?:08|09|10|12|13)\/[a-z0-9-]+\.json$/);
       expect(
         createHash('sha256')
           .update(readFileSync(`public${entry.path}`))

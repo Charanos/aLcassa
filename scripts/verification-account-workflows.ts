@@ -6,6 +6,7 @@ import type { ChildProcess } from 'node:child_process';
 import { chromium, type BrowserContext, type Page, type Browser } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
 import { applicationWorker, httpFixtures } from './verification-http-fixture';
+import { capturedConfirmation } from './verification-confirmation-mail';
 
 async function main() {
   const owned = await httpFixtures(3);
@@ -15,7 +16,7 @@ async function main() {
   const withdrawnEmail = `withdrawn-${randomUUID()}@example.invalid`;
   const newPassword = `${randomBytes(24).toString('hex')}!aA9`;
   const colleaguePassword = `${randomBytes(24).toString('hex')}!aA9`;
-  const origin = 'http://127.0.0.1:3135';
+  const origin = 'http://127.0.0.1:3100';
   let worker: ChildProcess | undefined;
   let browser: Browser | undefined;
   let step = 'prepare';
@@ -39,6 +40,7 @@ async function main() {
     await page.goto(`${origin}/sign-in?next=${encodeURIComponent(destination)}`, {
       waitUntil: 'domcontentloaded',
     });
+    await page.waitForLoadState('networkidle');
     await page.getByLabel('Email address').fill(fixture.email);
     await page.getByLabel('Password', { exact: true }).fill(fixture.password);
     await Promise.all([
@@ -51,6 +53,7 @@ async function main() {
   }
   async function privateInvite(page: Page, email: string): Promise<string> {
     await page.goto(`${origin}/app/settings/team/invite`, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
     await page.getByLabel('Email address').fill(email);
     await page.getByRole('radio', { name: /Administrator/ }).check();
     await page.getByRole('button', { name: 'Send invitation', exact: true }).click();
@@ -69,7 +72,7 @@ async function main() {
     assert(subscription);
     await owned.admin`insert into plan_entitlements(plan_id,key,kind,limit_value,display_name)
       values(${subscription.plan_id},'seats','limit',8,'Team seats'),(${subscription.plan_id},'audit_retention_days','limit',30,'Activity history')`;
-    worker = await applicationWorker(3135);
+    worker = await applicationWorker(3100);
     browser = await chromium.launch({ channel: 'chrome', headless: true });
     const primary = await browser.newContext();
     const secondary = await browser.newContext();
@@ -170,8 +173,13 @@ async function main() {
     const join = await newcomer.newPage();
     join.setDefaultTimeout(60000);
     await join.goto(`${origin}/invite/${newToken}`, { waitUntil: 'domcontentloaded' });
+    await join.waitForLoadState('networkidle');
     await join.getByLabel('Your full name').fill('New colleague reviewer');
     await join.getByLabel('Create your account password', { exact: true }).fill(colleaguePassword);
+    await join.getByRole('button', { name: 'Accept invitation & join workspace' }).click();
+    await join.getByRole('heading', { name: 'Confirm your email to join', exact: true }).waitFor();
+    await join.goto(await capturedConfirmation(newEmail), { waitUntil: 'domcontentloaded' });
+    await join.waitForURL((url) => url.pathname === `/invite/${newToken}`);
     await Promise.all([
       join.waitForURL('**/app', { waitUntil: 'domcontentloaded' }),
       join.getByRole('button', { name: 'Accept invitation & join workspace' }).click(),
@@ -283,7 +291,7 @@ async function main() {
     passed: checks.length === 7,
     fixtureCleanup: true,
     boundary:
-      'Actual browser journeys against disposable Auth with signup email confirmation disabled by local configuration. Application email is deliberately unavailable and its private-link fallback is verified. External sending domains, confirmation-required colleague signup and configured OAuth remain separate.',
+      'Actual browser journeys against disposable Auth with signup email confirmation required and captured locally. Application invitation email is deliberately unavailable and its private-link fallback is verified. External sending domains and configured OAuth remain separate.',
   };
   await writeFile(
     '.test-report/phase-one/account-workflows.json',

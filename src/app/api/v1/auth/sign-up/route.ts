@@ -9,6 +9,7 @@ import { RATE_LIMITS, enforceRateLimit } from '@/lib/http/rateLimit';
 import { jsonError, jsonOk } from '@/lib/http/response';
 import { logger } from '@/lib/logger';
 import { selfServeSignUp, selfServeSignUpSchema } from '@/modules/platform';
+import { signupConfirmationUrl } from '@/lib/auth/signupConfirmation';
 
 /** Signup supports plain form posts and catalogue-based error redirects. */
 
@@ -75,7 +76,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     /* Resend by email so plaintext passwords are not retained to generate a link. */
     const supabase = await createSupabaseServerClient();
     const sent = await supabase.auth
-      .resend({ type: 'signup', email: result.email })
+      .resend({
+        type: 'signup',
+        email: result.email,
+        options: { emailRedirectTo: signupConfirmationUrl(request) },
+      })
       .catch((error: unknown) => ({ error }) as const);
 
     if (sent && 'error' in sent && sent.error) {

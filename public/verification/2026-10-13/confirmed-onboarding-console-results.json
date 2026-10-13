@@ -1,0 +1,64 @@
+{
+  "date": "13 October 2026",
+  "checkedAt": "2026-10-13T02:55:41.303Z",
+  "environment": "Disposable local Supabase Auth, PostgreSQL and captured email; production application build",
+  "productionBuild": true,
+  "emailConfirmationRequired": true,
+  "checks": [
+    "Unconfirmed signup cannot enter protected workspace pages",
+    "Latest captured owner confirmation resumes the created workspace",
+    "Created trial without a plan appears first in the default grid, search, live counts and detail",
+    "Admin assigns a first plan to the newly created workspace through the reviewed dialog",
+    "Confirmation-required colleague signup reserves the invitation without granting membership",
+    "Actual confirmation email returns to the same invitation for explicit acceptance",
+    "Confirmed colleague receives exactly the invited role; two memberships reconcile to two seats",
+    "Reused invitation is refused; all six live workspace detail tabs load",
+    "Console export includes the actual created workspace"
+  ],
+  "responsiveConfirmationWidths": [
+    1440,
+    390,
+    320
+  ],
+  "regression": {
+    "passed": 718,
+    "failed": 0,
+    "skipped": 0,
+    "files": 62
+  },
+  "focusedDatabaseChecks": 33,
+  "ownedDatabaseAndAuthFixturesRemoved": true,
+  "failedAttempts": [
+    {
+      "stage": "Evidence index release check",
+      "finding": "The historical path allowlist excluded the new October 12 and 13 checkpoints.",
+      "correction": "Add the recorded checkpoint dates while retaining exact file fingerprints and private-data exclusions."
+    },
+    {
+      "stage": "Development form submission",
+      "finding": "Cold development form submission failed validation.",
+      "correction": "Wait for interactive forms and qualify the production build."
+    },
+    {
+      "stage": "Immediate confirmation resend",
+      "finding": "The test submitted again inside the local provider one-second resend window.",
+      "correction": "Respect the configured provider cooldown before verifying a new message."
+    },
+    {
+      "stage": "New workspace discovery",
+      "finding": "Reverse alphabetical pagination hid the new workspace from the initial page.",
+      "correction": "Newest-first ordering uses the actual creation timestamp; default grid, search and both views are verified."
+    },
+    {
+      "stage": "Initial subscription assignment",
+      "finding": "Preview and assignment required a subscription that self-serve signup had not created.",
+      "correction": "Reviewed first assignment now creates one subscription with matching customer and platform audits; concurrent and stale assignments are refused."
+    }
+  ],
+  "remaining": [
+    "External email domain and delivery qualification",
+    "Wider console/settings action-state and accessibility acceptance",
+    "Service contract/load, independent identity/object recovery and handover rehearsals"
+  ],
+  "boundary": "These local outcomes do not qualify hosted email delivery or final Phase One acceptance. CI and deployment apply to their exact source revision separately. Captured messages remain private in local Mailpit; links, credentials, cookies and tokens are excluded."
+}

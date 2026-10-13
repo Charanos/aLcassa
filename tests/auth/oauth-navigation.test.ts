@@ -78,6 +78,23 @@ function callback(next: string, code = 'test-code') {
 }
 
 describe('OAuth availability and safe navigation contracts', () => {
+  it.each(['access_denied', '<script>private provider detail</script>'])(
+    'refuses provider error %s before exchange and returns only approved recovery copy',
+    async (error) => {
+      const url = new URL('/api/v1/auth/callback', origin);
+      url.searchParams.set('error', error);
+      url.searchParams.set('code', 'must-not-be-exchanged');
+      url.searchParams.set('next', '/app/settings/company');
+      const response = await GET(new NextRequest(url));
+      const destination = new URL(response.headers.get('location')!);
+      expect(destination.searchParams.get('error')).toBe('auth.sign_in_incomplete');
+      expect(destination.searchParams.get('next')).toBe('/app/settings/company');
+      expect(destination.href).not.toContain('private');
+      expect(mocks.client).not.toHaveBeenCalled();
+      expect(mocks.session).not.toHaveBeenCalled();
+      expect(response.headers.get('set-cookie')).toBeNull();
+    },
+  );
   it('returns a verified colleague to their matching pending invitation without a workspace session', async () => {
     mocks.memberships.mockResolvedValue([]);
     mocks.invitation.mockResolvedValue({ state: 'pending', invitedEmail: 'OWNED@example.invalid' });

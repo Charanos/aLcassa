@@ -7,6 +7,7 @@ import {
   plans,
   subscriptionOverrides,
   subscriptions,
+  tenants,
   usageCounters,
 } from '@/db/schema';
 import { AUDIT_ACTIONS } from '@/lib/audit';
@@ -164,6 +165,13 @@ export async function assignPlan(
     async (tx) => {
       // Doc 23: the capability column is enforced here, before anything is written.
       await requireCapability(tx, actor.userId, 'manage_workspaces');
+      // A workspace lock also serializes first assignments, before a subscription exists.
+      const [workspace] = await tx
+        .select({ id: tenants.id, status: tenants.status })
+        .from(tenants)
+        .where(and(eq(tenants.id, input.tenantId), isNull(tenants.deletedAt)))
+        .for('no key update');
+      if (!workspace) throw new AppError(ERROR_CODES.NOT_FOUND);
       // Serialize subscription mutations; the preview is rechecked under the same lock.
       await tx
         .select({ id: subscriptions.id })
@@ -185,6 +193,8 @@ export async function assignPlan(
           code: plans.code,
           trialDays: plans.trialDays,
           priceAmount: plans.priceAmount,
+          intervalUnit: plans.intervalUnit,
+          intervalCount: plans.intervalCount,
         })
         .from(plans)
         .where(and(eq(plans.code, input.planCode), eq(plans.isActive, true)))
@@ -215,10 +225,49 @@ export async function assignPlan(
         .limit(1);
 
       if (!existing) {
-        throw new AppError(ERROR_CODES.NOT_FOUND, {
-          message: 'That workspace has no subscription record.',
-          internal: { tenantId: input.tenantId },
-        });
+        if (current) throw new AppError(ERROR_CODES.SUBSCRIPTION_CHANGED);
+        const now = new Date();
+        const months = plan.intervalCount * (plan.intervalUnit === 'year' ? 12 : 1);
+        const periodEnd = new Date(now);
+        periodEnd.setUTCDate(1);
+        periodEnd.setUTCMonth(periodEnd.getUTCMonth() + months);
+        periodEnd.setUTCDate(
+          Math.min(
+            now.getUTCDate(),
+            new Date(
+              Date.UTC(periodEnd.getUTCFullYear(), periodEnd.getUTCMonth() + 1, 0),
+            ).getUTCDate(),
+          ),
+        );
+        const trialEndsAt =
+          workspace.status === 'trial' && plan.trialDays > 0
+            ? new Date(now.getTime() + plan.trialDays * 86_400_000)
+            : null;
+        const status: SubscriptionStatus = trialEndsAt ? 'trialing' : 'active';
+        const [created] = await tx
+          .insert(subscriptions)
+          .values({
+            tenantId: input.tenantId,
+            planId: plan.id,
+            status,
+            contractAmount,
+            currentPeriodStart: now,
+            currentPeriodEnd: trialEndsAt ?? periodEnd,
+            trialEndsAt,
+          })
+          .returning({ id: subscriptions.id });
+        await writeSubscriptionActivity(
+          tx,
+          actor,
+          input.tenantId,
+          AUDIT_ACTIONS.SUBSCRIPTION_PLAN_ASSIGNED,
+          'subscription',
+          created!.id,
+          input.reason,
+          null,
+          { plan: plan.code, monthly: afterMonthly, status },
+        );
+        return { planCode: plan.code, status };
       }
 
       if (
@@ -740,6 +789,13 @@ async function buildPlanChangePreview(
   tx: ServiceTransaction,
   input: { tenantId: string; planCode: string },
 ): Promise<PlanChangePreview> {
+  const [workspace] = await tx
+    .select({ id: tenants.id, status: tenants.status, updatedAt: tenants.updatedAt })
+    .from(tenants)
+    .where(and(eq(tenants.id, input.tenantId), isNull(tenants.deletedAt)))
+    .limit(1)
+    .for('share');
+  if (!workspace) throw new AppError(ERROR_CODES.NOT_FOUND);
   const [current] = await tx
     .select()
     .from(subscriptions)
@@ -752,22 +808,23 @@ async function buildPlanChangePreview(
     .where(and(eq(plans.code, input.planCode), eq(plans.isActive, true)))
     .limit(1)
     .for('share');
-  if (!current || !target)
+  if (!target)
     throw new AppError(ERROR_CODES.NOT_FOUND, {
       message: 'That workspace or active plan could not be found.',
     });
-  const [source] = await tx
-    .select()
-    .from(plans)
-    .where(eq(plans.id, current.planId))
-    .limit(1)
-    .for('share');
-  if (!source)
+  const [source] = current
+    ? await tx.select().from(plans).where(eq(plans.id, current.planId)).limit(1).for('share')
+    : [];
+  if (current && !source)
     throw new AppError(ERROR_CODES.NOT_FOUND, { message: 'The current plan could not be found.' });
   const grants = await tx
     .select()
     .from(planEntitlements)
-    .where(or(eq(planEntitlements.planId, current.planId), eq(planEntitlements.planId, target.id)))
+    .where(
+      current
+        ? or(eq(planEntitlements.planId, current.planId), eq(planEntitlements.planId, target.id))
+        : eq(planEntitlements.planId, target.id),
+    )
     .orderBy(planEntitlements.key, planEntitlements.planId)
     .for('share');
   const overrides = await tx
@@ -783,7 +840,7 @@ async function buildPlanChangePreview(
     .orderBy(usageCounters.key)
     .for('share');
   const fromByKey = new Map(
-    grants.filter((row) => row.planId === current.planId).map((row) => [row.key, row]),
+    grants.filter((row) => row.planId === current?.planId).map((row) => [row.key, row]),
   );
   const toByKey = new Map(
     grants.filter((row) => row.planId === target.id).map((row) => [row.key, row]),
@@ -833,9 +890,9 @@ async function buildPlanChangePreview(
   });
   // Includes inactive override expiry and content, plan prices and subscription versions.
   const fingerprint = createHash('sha256')
-    .update(JSON.stringify({ current, source, target, grants, overrides, usage, rows }))
+    .update(JSON.stringify({ workspace, current, source, target, grants, overrides, usage, rows }))
     .digest('hex');
-  return { fromPlan: source.code, toPlan: target.code, fingerprint, rows };
+  return { fromPlan: source?.code ?? 'unassigned', toPlan: target.code, fingerprint, rows };
 }
 
 export async function previewPlanChange(

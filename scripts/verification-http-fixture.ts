@@ -70,14 +70,15 @@ export async function httpFixtures(count: number) {
 export async function applicationWorker(
   port: number,
   environment: Record<string, string> = {},
+  mode: 'start' | 'dev' = 'start',
 ): Promise<ChildProcess> {
   const worker = spawn(
     process.execPath,
-    ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', String(port)],
+    ['node_modules/next/dist/bin/next', mode, '--hostname', '127.0.0.1', '--port', String(port)],
     {
       env: {
         ...process.env,
-        NEXT_DIST_DIR: '.next-live-verify',
+        NEXT_DIST_DIR: mode === 'dev' ? '.next-local-verify' : '.next-live-verify',
         NEXT_PUBLIC_APP_URL: `http://127.0.0.1:${port}`,
         ALLOW_DEMO_ACCESS: '',
         ...environment,

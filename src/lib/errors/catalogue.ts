@@ -12,6 +12,7 @@
 export const ERROR_CODES = {
   // ─ Authentication and identity ─
   AUTH_INVALID_CREDENTIALS: 'auth.invalid_credentials',
+  AUTH_SIGN_IN_INCOMPLETE: 'auth.sign_in_incomplete',
   AUTH_ACCOUNT_LOCKED: 'auth.account_locked',
   AUTH_SESSION_EXPIRED: 'auth.session_expired',
   AUTH_FLOW_IN_PROGRESS: 'auth.flow_in_progress',
@@ -102,6 +103,7 @@ export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
  */
 export const ERROR_STATUS: Record<ErrorCode, number> = {
   [ERROR_CODES.AUTH_INVALID_CREDENTIALS]: 401,
+  [ERROR_CODES.AUTH_SIGN_IN_INCOMPLETE]: 401,
   [ERROR_CODES.AUTH_ACCOUNT_LOCKED]: 423,
   [ERROR_CODES.AUTH_SESSION_EXPIRED]: 401,
   [ERROR_CODES.AUTH_FLOW_IN_PROGRESS]: 409,
@@ -157,6 +159,8 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
  */
 export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.AUTH_INVALID_CREDENTIALS]: 'That email and password do not match.',
+  [ERROR_CODES.AUTH_SIGN_IN_INCOMPLETE]:
+    'Sign-in was not completed. Try again with Google or your email.',
   [ERROR_CODES.AUTH_ACCOUNT_LOCKED]: 'Too many sign-in attempts. Try again shortly.',
   [ERROR_CODES.AUTH_SESSION_EXPIRED]:
     'You have been signed out. Sign in again and we will bring you back here.',

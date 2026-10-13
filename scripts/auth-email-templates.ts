@@ -7,7 +7,7 @@ const root = resolve('verification/local/supabase/templates');
 const check = process.argv.includes('--check');
 async function main() {
   await mkdir(root, { recursive: true });
-  for (const purpose of ['invite', 'recovery'] as const) {
+  for (const purpose of ['invite', 'recovery', 'confirmation'] as const) {
     const path = resolve(root, `${purpose}.html`);
     const rendered = await format(authProviderEmail(purpose).html, {
       ...(await resolveConfig(path)),

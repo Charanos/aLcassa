@@ -93,6 +93,13 @@ it('keeps an invitation unconsumed when signup needs email confirmation', async 
     error: null,
   });
   expect((await invitationRequest()).status).toBe(403);
+  expect(mock.signUp).toHaveBeenCalledOnce();
+  expect(mock.signUp.mock.calls[0]?.[0]).toMatchObject({
+    email: user.email,
+    options: {
+      emailRedirectTo: 'http://localhost:3100/api/v1/auth/callback?next=%2Finvite%2Fowned-token',
+    },
+  });
   noAuthority();
 });
 it('accepts a confirmed matching identity and opens only the accepted workspace', async () => {

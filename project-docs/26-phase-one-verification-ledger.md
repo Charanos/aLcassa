@@ -1492,3 +1492,75 @@ within a five-second maximum request budget. Explicit disablement is not retried
 An unresolved check offers a page retry with the return path preserved, while
 missing configuration retains the disabled fallback. OAuth initiation continues
 to require confirmed provider availability; no authentication check is bypassed.
+
+## 46. Confirmed onboarding, live console and Auth engineering closure — 13 October 2026
+
+M2 reaches **100% engineering completion in the agreed sandbox scope**. This is
+separate from client demonstration, payment, launch configuration and final Phase
+One acceptance. M4 advances 88→90% and M5 94→96%; their wider action/accessibility
+checks remain open. Service hosting verification remains local as requested.
+
+The production application build passes nine combined native browser checks:
+public workspace signup; actual captured initial/resend confirmation emails;
+protected-page denial before confirmation; callback to the correct workspace;
+colleague confirmation returning to the same invitation before explicit acceptance;
+exact role/member/seat readback; single-use refusal; console discovery in default
+newest-first grid and list; first plan assignment; six detail tabs; native CSV
+export; and confirmation layout at 1440, 390 and 320px. These checks share steps,
+so the nine checks are not nine independent end-to-end suites. Owned database and
+Auth fixtures were removed. Private captured messages stay in local Mailpit.
+
+Seven additional password/invitation workflows pass with email confirmation
+required: incorrect-current-password refusal; actual old/new provider password
+checks; current-device preservation and other-device denial; new/existing
+colleague acceptance; wrong account/replay refusal; renewal; withdrawal; exact
+session, seat and audit readback. A test initially filled a client form before
+it became interactive; waiting for form readiness resolved the disabled-submit
+failure. That failed run is retained privately and is not counted as a pass.
+
+Actual hosted Google browser authentication now links a **seeded verified
+email-only fixture** to the same provider user ID, original workspace and owner
+role. Provider password sign-in verified the prepared baseline first. This is
+fixture preparation, not a claim that a new email signup was exercised in that
+hosted journey. Public email signup has its separate actual local confirmation
+coverage above. Google then resumes an invitation to a second owned workspace;
+explicit native acceptance records one Administrator, two members, two seats and
+one join audit. The original owner membership remains intact; reuse is refused.
+One submission stalled and succeeded after reload/retry; no root cause is
+attributed without evidence. The temporary workspace, plan, invitation and owner
+profile were removed; temporary email/password identity state was removed and the
+original single Google identity, owner workspace and one seat restored.
+
+A native hosted provider-denial callback replay retains the safe return path
+and leaves protected workspace access denied. It is not a simulated Google outage
+or a new consent denial. Contract tests cover missing/refused/unverified exchange,
+explicit provider errors, disabled/unavailable configuration, foreign origins and
+unsafe redirects. Incomplete provider sign-in now receives approved recovery copy
+rather than an internal-error or incorrect-password message; provider error text
+is never reflected and explicit errors are refused before exchanging any code.
+
+New public/Google trial workspaces have no subscription until an administrator
+assigns one. Live console readers already include them; the directory now
+classifies an unassigned trial correctly and sorts by its numeric creation time,
+newest first. Existing subscription state still takes precedence. First plan
+preview and assignment now support that unassigned state, serialize concurrent
+creation, refuse stale review and create one subscription with matching customer
+and platform audits. Focused database verification passes 33 checks, including
+trial duration, annual periods, concurrency and missing-workspace refusal.
+A read-only hosted query through the restricted application connection confirmed
+21 visible workspaces, 11 trials and five trials without subscriptions at its
+recorded timestamp; this is a snapshot, not a permanent portfolio count.
+
+[Confirmation and live console results](/verification/2026-10-13/confirmed-onboarding-console-results.json),
+[Auth completion results](/verification/2026-10-13/auth-completion-results.json) and
+[the current evidence index](/verification/2026-10-13/phase-one-evidence-index.json)
+contain bounded outcomes and distinguish local, hosted, seeded and actual journeys.
+The final release needs its exact-source build, CI and deployment qualification.
+The previous application `20815f1` passed all six CI jobs and Vercel deployment;
+[that CI run](https://github.com/Charanos/aLcassa/actions/runs/38309965018) remains
+a separate historical checkpoint.
+
+External sending-domain/delivery qualification and client-owned Google credentials
+belong to launch readiness. Wider console/settings CRUD/accessibility, service and
+load acceptance, independent Auth/object recovery, setup/rollback rehearsals and
+handover remain Phase One work. No additional payments or client sign-off are inferred.
