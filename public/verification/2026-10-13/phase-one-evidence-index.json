@@ -90,6 +90,11 @@
       "checkpoint": "platformConsoleAcceptance",
       "path": "/verification/2026-10-13/platform-console-acceptance-results.json",
       "sha256": "92a8c1c602f40ec39a17e6723994697631a381f546025dd30b0693f0d6919953"
+    },
+    {
+      "checkpoint": "credentialWorkflowsVerification",
+      "path": "/verification/2026-10-13/credential-ownership-manifest.json",
+      "sha256": "3c2c6e994c0e5932a0951ed288c4949a9f525b6230719a7eff3689f84d860536"
     }
   ],
   "boundary": "Immutable historical and current local checkpoints. Each checkpoint states its scope, failed samples and release qualification. This index does not claim all milestones or the newest source revision have passed CI."

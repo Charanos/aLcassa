@@ -1,4 +1,4 @@
-param([ValidateSet('Start', 'Prepare', 'Test', 'Unit', 'Upgrade', 'Dev', 'Preview', 'Build', 'BuildLive', 'Serve', 'Stop')][string]$Mode = 'Start')
+param([ValidateSet('Start', 'Prepare', 'Test', 'CredentialSecurity', 'Unit', 'Upgrade', 'Dev', 'Preview', 'Build', 'BuildLive', 'Serve', 'Stop')][string]$Mode = 'Start')
 $ErrorActionPreference = 'Stop'
 $verificationRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $verificationRoot
@@ -136,6 +136,9 @@ switch ($Mode) {
   'Test' {
     Invoke-Checked pnpm @('run', 'check:policies')
     Invoke-Checked pnpm @('run', 'test:cache-disabled', '--reporter=default', '--reporter=json', '--outputFile=.test-report/phase-one/cache-disabled.json')
+  }
+  'CredentialSecurity' {
+    Invoke-Checked node @('node_modules/vitest/vitest.mjs', 'run', 'tests/isolation/credentials.test.ts', 'tests/isolation/membership.test.ts', 'tests/isolation/ownership-provider.test.ts', 'tests/http/ownership-route.test.ts', 'tests/tenant/ownership-transfer.test.ts', 'tests/tenant/credential-download.test.ts', '--reporter=default', '--reporter=json', '--outputFile=.test-report/phase-one/credential-security.json')
   }
   'Upgrade' { Invoke-Checked node @('--import', 'tsx', 'scripts/verification-upgrade.ts') }
   'Dev' {

@@ -65,12 +65,18 @@ function CredentialRow({ credential }: { credential: Credential }) {
   function submit() {
     setError(null);
     startTransition(async () => {
-      const result = await revokeCredential(credential.id);
-      if (!result.ok) setError(result.error);
-      else {
-        restoreAfterMutation.current = true;
-        setConfirm(false);
-        router.refresh();
+      try {
+        const result = await revokeCredential(credential.id);
+        if (!result.ok) setError(result.error);
+        else {
+          restoreAfterMutation.current = true;
+          setConfirm(false);
+          router.refresh();
+        }
+      } catch {
+        setError(
+          'Revocation could not be confirmed. Reload to check this credential before trying again.',
+        );
       }
     });
   }

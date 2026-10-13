@@ -40,6 +40,7 @@ export function CreateCredentialForm({
   const [error, setError] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [replayed, setReplayed] = useState(false);
+  const [unconfirmed, setUnconfirmed] = useState(false);
   const [pending, startTransition] = useTransition();
   const done = () => {
     const created = secret !== null || replayed;
@@ -64,12 +65,15 @@ export function CreateCredentialForm({
           requestKey: requestKey.current!,
           ...(replacement ? { rotateFromId: replacement.id } : {}),
         });
-        if (!result.ok) setError(result.error);
-        else if (result.secret) setSecret(result.secret);
+        if (!result.ok) {
+          setUnconfirmed(false);
+          setError(result.error);
+        } else if (result.secret) setSecret(result.secret);
         else setReplayed(true);
       } catch {
+        setUnconfirmed(true);
         setError(
-          'The outcome could not be confirmed. Retry this request to check whether it was created.',
+          'Creation could not be confirmed. Check this request before changing its details. If it was created, its key cannot be shown again.',
         );
       } finally {
         submitting.current = false;
@@ -117,11 +121,11 @@ export function CreateCredentialForm({
         onChange={(event) => setName(event.target.value)}
         placeholder="Production assistant"
         maxLength={100}
-        disabled={pending}
+        disabled={pending || unconfirmed}
         required
         autoFocus
       />
-      <fieldset disabled={pending || !!replacement} className="grid gap-2">
+      <fieldset disabled={pending || unconfirmed || !!replacement} className="grid gap-2">
         <legend className="t-label mb-2 text-[var(--text-secondary)]">Permissions</legend>
         {permissions.map((permission) => (
           <label
@@ -155,7 +159,7 @@ export function CreateCredentialForm({
           className="rounded-chip border border-[var(--border-subtle)] bg-[var(--surface-base)] px-3 py-2"
           value={environment}
           onChange={(event) => setEnvironment(event.target.value as 'live' | 'test')}
-          disabled={pending || !!replacement}
+          disabled={pending || unconfirmed || !!replacement}
         >
           <option value="live">Live</option>
           <option value="test">Test</option>
@@ -180,7 +184,11 @@ export function CreateCredentialForm({
           loading={pending}
           disabled={!name.trim() || !scopes.length || pending}
         >
-          {replacement ? 'Create replacement' : 'Create credential'}
+          {unconfirmed
+            ? 'Check creation'
+            : replacement
+              ? 'Create replacement'
+              : 'Create credential'}
         </Button>
         <Button variant="quiet" onClick={done} disabled={pending}>
           Cancel

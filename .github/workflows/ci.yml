@@ -32,6 +32,8 @@ jobs:
       # Vercel build failed. Ten seconds here beats a broken deploy.
       - run: pnpm check:deps
       - run: pnpm check:email-templates
+      - name: API and Server Action inventory drift
+        run: node --import tsx scripts/verification-contract-inventory.ts --check
 
   # 11 §6 rule 19: a type error is a failed build, never a warning. That is only
   # true if the build runs, and it did not. A broken build could reach `main`

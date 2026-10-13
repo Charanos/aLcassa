@@ -46,11 +46,13 @@ export function CredentialReveal({
     setDownloadError(false);
     let url: string | undefined;
     try {
-      const blob = new Blob([credentialDownload(name, scopes, secret)], { type: 'text/plain' });
+      const blob = new Blob([credentialDownload(name, scopes, secret)], {
+        type: 'application/octet-stream',
+      });
       url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = '.env';
+      a.download = 'alcassa.env';
       a.click();
     } catch {
       setDownloadError(true);

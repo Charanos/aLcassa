@@ -941,3 +941,134 @@ Automatic approval review blocked running the portable NVDA runtime. A signed do
 ### 18.22 Console engineering gate closed
 
 M4 is 100% engineering-complete pending demonstration. Actual NVDA review and five rendered-contrast surfaces close the console accessibility review. The final provisioning opener-focus defect has its own passing production-browser regression. The verification download includes the original 14 action scenarios, final eight-scenario support follow-up, focused dismissal regression, 126 route/viewport visits, rendered contrast and actual screen-reader observations. Broader tenant accessibility and the remaining M5/M4a/M6 operational gates remain separate and retain their existing scope.
+
+### 18.23 Joint M4a and M5 closure plan — 13 October 2026
+
+This is the current execution order for the remaining settings/rules gates. It
+supersedes the older instruction to restart G01–G03. The inspected baseline is
+application `cd6fd44` and service `8163e03`; both working trees were clean before
+this planning update. M4 engineering is 100%, M5 is 96%, M4a is 82% and M6 is 68%.
+Planning does not increase those values or assert new passing results.
+
+The current service integration workflow pins application `6f086a8`, an older
+revision. Batch A must qualify the joint candidate against the current contract;
+Batch C pins the final accepted application SHA. Retain historical passing pairs
+as history rather than presenting them as current cross-repository qualification.
+
+The shared dependency is the actual path from a tenant-created credential to
+authorized effective-rule reads through FastAPI. Permissions, revocation, version
+freshness, failures and customer Activity must agree across that path. Use three
+execution batches, with scenario rows assigned to each milestone and existing
+qualified evidence reused where behavior has not changed.
+
+| Batch | Shared scope | Exit evidence | Milestone effect |
+| --- | --- | --- | --- |
+| A · Credentials, ownership and service contracts | G02/G04/G05/G08: finish credential and ownership failure states; inventory session routes, Server Actions and machine routes; reconcile authorization, schemas, errors and conditional reads. | Actual browser and HTTP outcomes, independent database/session/seat/audit readbacks, generated service schema plus merged route/action manifest, redaction and cleanup receipts. | Closes the remaining M5 security/lifecycle work and M4a contract gaps. |
+| B · Tenant rules and settings journeys | G08/G11/G12/G13: unsaved navigation, failed publication/restoration, stale editors, master changes, Activity and shared accessible interaction states. | Native owner/restricted-role journeys, immutable version/audit readbacks, responsive and keyboard checks, rendered-contrast review and a short actual NVDA sample of affected tenant controls. | M5 can reach 100% when its A/B rows are closed. M4a retains its performance/freshness qualification. |
+| C · Loaded freshness, latency and release | G15 and affected G08/G13/G19: optimize measured bottlenecks, verify both doors under load and qualify the paired application/service revisions. | Required p95 acceptance, every specified publish/restore sample within five seconds under load, no isolation/integrity failures, pinned cross-repository CI, successful build/deployment and published receipts. | Closes remaining M4a engineering rows and supplies evidence to M6. M6 retains its separate recovery/setup/handover work. |
+
+#### Batch A: finish the credential-to-service path
+
+- Use real credentials created by the tenant UI. Check successful, refused and
+  unavailable clipboard outcomes; approved download filename/content; refresh,
+  back navigation and second-tab behavior; duplicate submission and stale limits.
+  Simulate a response lost after commit as well as a request refused before commit.
+  A retry must reuse the request reference and resolve the original result.
+- Verify replacement cancel/grace/expiry and revocation through both runtimes,
+  including a warmed conditional read, concurrent requests and service restart.
+  Revoked or unauthorized access must be refused before serving cached content or
+  a 304. Reconcile legitimate last-use and applicable counters independently.
+- Preserve the explicit plaintext exceptions: the successful one-time creation
+  response/reveal and the user's requested credential download. Subsequent
+  responses, history, Activity, logs, exports and public evidence expose metadata
+  only. Check browser persistence, cleared reveal state and refused copy feedback.
+  End all owned test keys revoked.
+- Finish ownership cases already beyond the qualified successful transfer and
+  wrong-password checks: stale owner authority, expired/mismatched provider proof,
+  duplicate submission, uncertain outcomes and temporary verification-session
+  cleanup failure. Require one owner, one transfer event and correct permissions
+  through both parties' existing sessions after reload.
+- Build an implementation-backed route/action manifest for the session and
+  machine doors. Keep Server Action contracts distinct from HTTP endpoints.
+  Validate methods, scopes, role/origin checks, request/response schemas, statuses,
+  safe error fields, correlation IDs, ETags and retry headers. Document intentional
+  differences while enforcing shared policy outcomes with canonical fixtures.
+  Verify knowledge-base/customer seams at the promised migration/isolation boundary.
+
+#### Batch B: finish the shared editing and settings experience
+
+- Exercise tenant rules through direct links, browser back/forward, workspace
+  switching and fresh tabs. Cover dirty-form stay/discard, clean cancellation,
+  offline publication/restoration, lost responses, denied writes and recovery.
+  Preserve drafts until the outcome is known and refresh the canonical version
+  before permitting a retry that could create a duplicate version.
+- Cover competing editors, changed master requirements/locks, empty or missing
+  published guidance, retention and restoration. Verify the effective compiled
+  values, immutable history and changed/stable ETags through the actual service.
+  Each successful domain change has its expected customer Activity record; refused
+  or rolled-back work has no success record.
+- Sweep company, team/ownership, credentials, tenant rules and Activity as one
+  affected surface family. Check owner/restricted-role behavior, loading, useful
+  empty/error states, long content, phone/320px layouts, keyboard and modal focus,
+  actual zoom and a short tenant-specific NVDA sample. Reuse the established NVDA
+  setup and the qualified shared console components.
+- Inventory every visible action and close missing pages/dialogs or interaction
+  states where implementation evidence requires them. Review concise user copy,
+  consistent typography and refined layout while exercising functionality.
+  Recheck M4 callers when a shared component changes.
+
+#### Batch C: resolve the measured performance gate
+
+Start diagnosis during Batch A, then run acceptance after the functional candidate
+is stable. The preserved 50-session baseline failed latency acceptance; it is not
+closed by the passing integrity or twelve unloaded propagation samples.
+
+1. Separate Auth-provider verification, application/session resolution, database
+   and connection-pool time, query fan-out, compilation and response transfer.
+   Reuse `verification-latency-diagnostics.ts` and record a current baseline before
+   optimization. Optimize measured bottlenecks while retaining live revocation,
+   tenant isolation and durable entitlement decisions.
+2. Freeze the candidate and run the maintained 50-session workload against the
+   required dashboard/settings routes, plus the relevant rules/service workload.
+   Keep the documented p95 below 400ms requirement and the applicable console
+   budgets. Record topology, hardware/resources, data volume, request mix,
+   duration, errors, refusals, p50/p95/p99 and throughput.
+3. Measure publication and restoration during load, including master changes,
+   concurrent readers, cold/warm cache, cache-disabled mode, cache failure and
+   service restart. Every required operation-to-effective-read sample must meet
+   the five-second gate; averages cannot hide failures.
+4. Reconcile counters, versions, memberships, credential state and audit records
+   after the run. Publish failed baselines alongside the final result. Retain the
+   agreed local service-hosting scope and record environment limits explicitly.
+
+#### Execution controls that reduce repeated work
+
+- Create one acceptance scenario register mapping each open row to A/B/C, M5,
+  M4a and any M6 dependency. Label prior evidence as qualified, implementation
+  gaps as open and new outcomes as verified only after their assertions pass.
+- Reuse one disposable provider setup and one built candidate per code revision.
+  Give fixtures explicit ownership and run identity. Use isolated browser contexts
+  for owner, colleague and restricted accounts; keep mutation fixtures separate
+  from the client-facing demo. Confirm no temporary plans/workspaces remain after
+  each acceptance batch, including error cleanup.
+- Serialize tests that replace shared settings or the master-rule pointer.
+  Batch independent static, schema and read-only checks where safe. Keep expensive
+  load runs separate from browser/accessibility acceptance so they do not distort
+  timing or produce resource-driven false failures.
+- Keep targeted tests in the implementation loop. Run the broad regression,
+  complete affected browser matrix and production build once the batch is stable;
+  repeat them when a subsequent correction invalidates their result.
+- Give native action, tenant lifecycle, contract and accessibility runners separate
+  named CI steps and bounded receipts. Preserve assertions for actual ready state,
+  nested dismissal and returned focus; avoid arbitrary sleeps. Independent suites
+  may continue after a failure only when fixture cleanup and prerequisites hold.
+- Qualify the intended application SHA with all application CI jobs and deployment;
+  pin the service integration workflow to that application SHA and qualify both
+  service jobs. Publish sanitized per-batch evidence and fingerprints through the
+  existing verification record, then update the assigned milestone rows.
+
+M5 reaches 100% when every remaining M5 row in A/B is verified, including secrets
+and accessibility. M4a reaches 100% when its A/B/C rows, complete contracts and
+loaded freshness requirements pass. Demonstration and payment remain separately
+recorded. The wider tenant-dashboard redesign and M6's object recovery, advisor,
+clean setup and handover gates retain their existing scope.

@@ -3,3 +3,4 @@ patches/*.patch text eol=lf -whitespace
 # Published evidence fingerprints cover exact exported bytes.
 public/verification/**/*.json text eol=lf
 src/lib/presentation/verificationRecord.json text eol=lf
+project-docs/api-surface-manifest.json text eol=lf

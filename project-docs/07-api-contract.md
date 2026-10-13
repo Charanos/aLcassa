@@ -373,6 +373,8 @@ Reviewed and signed at M0, before the schema locks. Getting this wrong is the ri
 
 The required final gate is a contract test for every endpoint against one merged OpenAPI specification, generated from Next.js Zod and FastAPI Pydantic models. This gate is not complete. FastAPI has typed local contract coverage and trusted-main database integration CI; the new session rule routes have focused boundary checks. Those results do not constitute complete merged conformance.
 
+The 13 October source inventory records 42 Next.js HTTP operations, 46 private Server Actions and four FastAPI read operations. `project-docs/api-surface-manifest.json` identifies each route/action source and the guards declared through the shared pipeline. Route-specific authorization is explicitly marked for separate review. CI runs `node --import tsx scripts/verification-contract-inventory.ts --check` to detect additions or removals; regenerate without `--check` when a reviewed contract changes. This inventory does not generate response schemas or replace endpoint conformance tests. Knowledge-base documents/chunks and customer records remain isolated schema seams without advertised public CRUD routes.
+
 Three tests carry more weight than the rest and are named individually in the definition of done:
 
 1. **No secret in any response.** Recursive key scan across every route's response, one documented exception.

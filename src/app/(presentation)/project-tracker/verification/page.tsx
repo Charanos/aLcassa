@@ -22,6 +22,7 @@ import workflows from '@/lib/presentation/accountWorkflowsVerification.json';
 import evidenceIndex from '@/lib/presentation/phaseOneEvidenceIndex.json';
 import consoleAcceptance from '@/lib/presentation/consoleOperationsVerification.json';
 import platformReview from '@/lib/presentation/platformConsoleVerification.json';
+import credentialReview from '@/lib/presentation/credentialWorkflowsVerification.json';
 import { TrackerNavigation } from '@/components/presentation/TrackerNavigation';
 import {
   MILESTONES,
@@ -106,6 +107,64 @@ export default function VerificationRecordPage() {
           </div>
         </aside>
       </header>
+
+      <section
+        id="credential-ownership-checkpoint"
+        aria-labelledby="credential-ownership-title"
+        className="mt-12 scroll-mt-8 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 md:p-8"
+      >
+        <p className="t-eyebrow text-[var(--text-tertiary)]">
+          13 October · Credentials and ownership
+        </p>
+        <h2 id="credential-ownership-title" className="t-heading mt-3">
+          Interrupted changes, safely resolved
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          Browser checks distinguish a request that never reached the server from a response lost
+          after a change was saved. Credential retries create one key, replacement preserves its
+          grace period, and revocation refuses further service access. Ownership changes retain one
+          owner and one recorded transfer, with updated permissions on existing sessions.
+        </p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-6 sm:grid-cols-3">
+          <Metric
+            plain
+            value={String(credentialReview.nativeChecks)}
+            label="Browser scenarios"
+            detail="Production build · all pass"
+          />
+          <Metric
+            plain
+            value={String(credentialReview.regression.passed)}
+            label="Security cases"
+            detail="Six focused test files · no skips"
+          />
+          <Metric
+            plain
+            value="42"
+            label="HTTP operations inventoried"
+            detail="46 private actions listed separately"
+          />
+        </dl>
+        <p className="t-compact mt-5 text-[var(--text-secondary)]">
+          Actual clipboard and file-download checks pass, and later metadata, Activity and browser
+          storage exclude API keys. All owned fixtures were removed. Complete response-schema
+          conformance, the final tenant interaction review and loaded performance remain open.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
+          <EvidenceDownload
+            href={credentialReview.results.path}
+            label="Browser acceptance results"
+          />
+          <EvidenceDownload
+            href={credentialReview.tests.path}
+            label="Security regression results"
+          />
+          <EvidenceDownload
+            href={credentialReview.contracts.path}
+            label="API and action inventory"
+          />
+        </div>
+      </section>
 
       <section
         id="platform-closure-checkpoint"

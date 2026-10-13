@@ -190,8 +190,8 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 96,
-    note: 'Confirmation-required colleague signup now preserves the invitation without granting membership. Actual email verification returns for explicit acceptance; the invited role, two members and two occupied seats reconcile, and replay is refused. The confirmation page fits desktop, phone and 320px widths. Company, Activity, credentials, ownership and team operations retain their separate database/browser evidence. Remaining clipboard/error journeys and final secrets/accessibility review stay open. Phase One retained counters are reconciled; request billing belongs to later scope.',
+    progress: 98,
+    note: 'Thirteen production-browser credential and ownership scenarios pass alongside 69 focused security cases. Clipboard and download recovery, interrupted creation/replacement/revocation, stale allowances, one-time disclosure and fresh owner permissions are verified against actual Auth, database and FastAPI. Company, colleague acceptance, Activity and seat reconciliation retain their separate evidence. The final combined tenant settings accessibility and interaction review remains open before engineering closure.',
   },
   {
     id: 'M4a',
@@ -202,7 +202,7 @@ export const MILESTONES = [
     gate: 'Demo: a rules edit live through the API in 5 seconds',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 82,
+    progress: 84,
     note: `Workspace publication and restoration use immutable history, retention and transactional audit records. Platform safeguards and stale-edit checks pass real database cases. FastAPI passes ${PHASE_ONE_VERIFICATION.serviceTests} local cases; ${PHASE_ONE_VERIFICATION.bridgeChecks} Node-to-HTTP checks pass integration CI. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore samples reached the local service within five seconds. Native publication, comparison, restoration, stale-draft and desktop/phone checks pass. Real Redis tenant budgets now pass eight scenarios across both runtimes. Provider-backed Node HTTP contention now passes. Broader browser failure states, load and complete merged API conformance remain open in the agreed local service-hosting scope.`,
   },
   {
@@ -261,7 +261,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M5: {
-    previous: 94,
+    previous: 96,
     evidence: [
       'Actual confirmation-required colleague acceptance with no premature membership, exact invited role, seat readback and three-width confirmation layout',
       'Company saves, conflicts and recorded Activity',
@@ -276,24 +276,25 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Native owner review, password refusal, single audited transfer and fresh roles; phone fit and keyboard focus',
       'Native role reduction, suspended removal and seat release without a reload; phone review and focus',
       'Durable service last-use with successful/conditional reads, concurrency, failure and restricted database write checks',
+      '13 production-browser credential/ownership failure scenarios and 69 focused security cases; exact alcassa.env download, uncertain writes, stale allowances, secret-free later reads and existing-session role changes',
     ],
     remaining: [
-      'Wider ownership failure-state acceptance',
-      'Clipboard, phone and failure-state acceptance',
-      'Final credential failure-state acceptance and secrets review',
+      'Joint tenant settings/rules review: keyboard, phone, focus, actual screen-reader sample and final secrets/Activity checks',
     ],
   },
   M4a: {
-    previous: 78,
+    previous: 82,
     evidence: [
       '12 database rule lifecycle cases and six session-route cases',
       'Native publication, comparison, restore, stale-draft and responsive checks',
       '29 service cases, five bridge checks and 12 propagation operations in qualified pinned CI; 34 current local cases',
       'Eight real Redis scenarios across independent Node processes and authenticated Python workers',
+      'Actual UI-created credentials reach FastAPI; authenticated conditional reads, grace/expiry and revocation pass; source inventory distinguishes 42 HTTP operations, 46 actions and four service reads',
     ],
     remaining: [
-      'Complete merged API contracts within the agreed local service-hosting scope',
-      'Unsaved navigation, wider failure cases and load qualification',
+      'Complete merged response-schema and endpoint conformance beyond the generated route/action inventory and qualified service reads',
+      'Tenant rules recovery: unsaved navigation, offline and uncertain outcomes, stale editors, master changes and correlated customer Activity',
+      'Loaded publication/restoration within five seconds and shared latency qualification in the agreed local service-hosting scope',
     ],
   },
   M4: {
@@ -441,6 +442,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-13',
+    title: 'Interrupted credentials and ownership changes verified',
+    body: 'Thirteen production-browser scenarios and 69 security cases pass. Clipboard/download recovery, interrupted creation and replacement, stale allowances, revocation and owner permissions are verified against the local provider, database and FastAPI. Tenant Settings advances to 98%; AI rules and seams advances to 84%. The new operation inventory separates HTTP routes from private actions and detects source drift in CI. Final tenant interaction review, complete schema conformance and loaded performance remain open.',
+    milestone: 'M5, M4a',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-13',
     title: 'Console action and accessibility verification advances',
