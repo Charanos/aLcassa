@@ -11,7 +11,9 @@ const mocks = vi.hoisted(() => ({
   team: vi.fn(),
   audit: vi.fn(),
 }));
-vi.mock('@/lib/console/session', () => ({ resolveSupportSessionId: async () => 'owned-visit' }));
+vi.mock('@/lib/console/session', () => ({
+  resolveSupportSessionId: () => Promise.resolve('owned-visit'),
+}));
 vi.mock('@/lib/auth/resolve', () => ({ resolveSupportContext: mocks.resolve }));
 vi.mock('@/lib/tenant/live', () => ({
   getLiveCompany: mocks.company,
