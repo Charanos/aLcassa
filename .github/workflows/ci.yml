@@ -15,7 +15,7 @@ jobs:
     name: Typecheck, lint and format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -51,7 +51,7 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/placeholder
       DATABASE_URL_ADMIN: postgresql://postgres:postgres@localhost:5432/placeholder
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -93,7 +93,7 @@ jobs:
       DATABASE_URL_ADMIN: postgresql://postgres:postgres@127.0.0.1:55422/postgres
       VERIFICATION_DISPOSABLE: 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -147,7 +147,7 @@ jobs:
       DATABASE_URL_ADMIN: postgresql://postgres:postgres@127.0.0.1:55422/postgres
       VERIFICATION_DISPOSABLE: 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -189,7 +189,7 @@ jobs:
       VERIFICATION_DISPOSABLE: 'true'
       CACHE_DISABLED: 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -240,7 +240,7 @@ jobs:
     name: Dependency audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
