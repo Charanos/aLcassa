@@ -89,11 +89,12 @@ export async function applicationWorker(
   );
   if (environment.VERIFICATION_WORKER_LOG) {
     const log = createWriteStream(environment.VERIFICATION_WORKER_LOG, { flags: 'w' });
-    worker.stdout?.pipe(log);
+    worker.stdout?.pipe(log, { end: false });
+    worker.stderr?.pipe(log, { end: false });
     worker.once('exit', () => log.end());
   }
   worker.stderr?.resume();
-  for (let index = 0; index < 120; index++) {
+  for (let index = 0; index < 240; index++) {
     if (worker.exitCode !== null) throw new Error('Application worker exited before readiness.');
     if ((await fetch(`http://127.0.0.1:${port}/sign-in`).catch(() => null))?.ok) return worker;
     await new Promise((done) => setTimeout(done, 250));

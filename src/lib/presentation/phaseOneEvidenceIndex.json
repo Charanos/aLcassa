@@ -1,8 +1,8 @@
 {
-  "date": "13 October 2026",
-  "checkpointCount": 19,
+  "date": "15 October 2026",
+  "checkpointCount": 20,
   "manifest": {
-    "path": "/verification/2026-10-13/phase-one-evidence-index.json",
-    "sha256": "13537aab38bdbd7de5b34736a7ffe40ad3f497e1a47dedc90affa8e1ef115db9"
+    "path": "/verification/2026-10-15/phase-one-evidence-index.json",
+    "sha256": "8801a6115dce0efda3d3f22e0cb7d040f1830a898d0537a430179d393e05173f"
   }
 }

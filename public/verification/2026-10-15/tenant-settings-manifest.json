@@ -1,0 +1,32 @@
+{
+  "date": "15 October 2026",
+  "nativeChecks": 10,
+  "roleLayoutVisits": 45,
+  "consoleChecks": 16,
+  "regression": {
+    "passed": 726,
+    "files": 65
+  },
+  "results": {
+    "path": "/verification/2026-10-15/tenant-functional-review.json",
+    "sha256": "5df0bc1c40c8a6ce4c8286d53a9cd72a8f61fbe1163fc8efe6f1c71a11a87913"
+  },
+  "tests": {
+    "path": "/verification/2026-10-15/tenant-settings-regression.json",
+    "sha256": "9a1aaf7eb53ea1ddbd253c756e6c23bcdb73d5f5391cebcb125ec1382a6fd3d8"
+  },
+  "contracts": {
+    "path": "/verification/2026-10-15/api-surface-inventory.json",
+    "sha256": "528859632ea950fa287786c8753d8dd42e00389e1e5f95e02208658fcf2f691e"
+  },
+  "consoleResults": {
+    "path": "/verification/2026-10-15/console-dialog-regression.json",
+    "sha256": "9f8a4a2da1c98ba7859f7870d4656d393398a6e52850e4961fb7f66f3f9ae976"
+  },
+  "defaults": {
+    "path": "/verification/2026-10-15/default-conversation-guidance.json",
+    "sha256": "4c61f0c999a3e5cf24c9d80d5c5e3b356373a39859b77d08ef1ad0d7619a9701"
+  },
+  "scopeDecision": "Existing screen-reader proof accepted as sufficient by the project owner on 15 October 2026; repeat screen-reader testing removed from the itinerary. Prior console evidence is retained. No new accessibility certification is claimed.",
+  "boundary": "M4 and M5 engineering closure in the agreed sandbox scope, pending presentation and client demonstration. M4a response-schema conformance and loaded latency/freshness, plus M6 operational handover, remain separate. Exact-revision CI and deployment are qualified after push."
+}

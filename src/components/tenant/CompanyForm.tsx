@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Field } from '@/components/primitives/Field';
 import { Button } from '@/components/primitives/Button';
+import { useUnsavedChanges } from '@/components/structure/UnsavedChangesBoundary';
 import { updateCompany } from '@/app/(tenant)/app/actions';
 import type { CompanyModel } from '@/lib/tenant/data';
 
@@ -31,6 +32,7 @@ export function CompanyForm({ model }: { model: CompanyModel }) {
     contactEmail !== baseline.contactEmail ||
     timezone !== baseline.timezone ||
     locale !== baseline.locale;
+  const form = useUnsavedChanges(dirty, pending);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,18 +46,24 @@ export function CompanyForm({ model }: { model: CompanyModel }) {
         locale,
         version: baseline.version,
       };
-      const result = await updateCompany(values);
-      if (result.ok) {
-        setName(values.name);
-        setContactEmail(values.contactEmail);
-        setBaseline({ ...baseline, ...values, version: result.version });
-        setSaved(true);
-      } else setError(result.error);
+      try {
+        const result = await updateCompany(values);
+        if (result.ok) {
+          setName(values.name);
+          setContactEmail(values.contactEmail);
+          setBaseline({ ...baseline, ...values, version: result.version });
+          setSaved(true);
+        } else setError(result.error);
+      } catch {
+        setError(
+          'The save could not be confirmed. Your draft is still here. Reload and check the company details before saving again.',
+        );
+      }
     });
   }
 
   return (
-    <form onSubmit={submit} className="grid max-w-xl gap-5">
+    <form ref={form} onSubmit={submit} className="grid max-w-xl gap-5">
       <fieldset disabled={pending} className="grid min-w-0 gap-5">
         <Field
           label="Company name"

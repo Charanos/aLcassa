@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-10-15T12:06:07.303Z",
+  "localOnly": true,
+  "productionBuild": true,
+  "checks": [
+    "Operator password sign-in opens the requested live workspace.",
+    "Wrong typed workspace cannot submit and produces no status audit.",
+    "Missing reason is refused by the actual server with no committed change.",
+    "Detail-page suspension commits once and immediately offers reactivation.",
+    "Suspended owner retains authenticated reads; credential writes are refused with no new key.",
+    "Detail-page reactivation restores active state; both status changes correlate to customer Activity.",
+    "Workspace drawer traps keyboard focus across repeated Tab navigation.",
+    "Escape closes only the nested review and returns focus to its trigger.",
+    "Drawer suspension and reactivation both persist their advertised status once.",
+    "390px and 320px status reviews fit the viewport; Cancel returns focus without a write.",
+    "Operator without workspace-management capability cannot mutate or leave a success audit.",
+    "Invalid platform address cannot submit; reviewed settings persist after reload.",
+    "Stale settings editor is refused; reload recovers the committed version.",
+    "Platform name is restored through the actual reviewed settings action.",
+    "Offline preview and save preserve the review, explain uncertainty and create no mutation.",
+    "Retry after network recovery commits once; reactivation restores the owned workspace."
+  ],
+  "passed": true,
+  "fixtureCleanup": true,
+  "boundary": "Native console status lifecycle, capability refusal, customer read/write policy, settings conflict recovery and targeted keyboard/phone acceptance. This is not a complete WCAG audit or full remaining console/support matrix."
+}

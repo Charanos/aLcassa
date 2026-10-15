@@ -6,11 +6,16 @@ import { LimitBar } from '@/components/domain/LimitBar';
 import { CredentialsList } from '@/components/tenant/CredentialsList';
 import { getCredentials } from '@/lib/tenant/data';
 import { getLiveCredentials } from '@/lib/tenant/live';
+import { currentSessionOrNull } from '@/lib/auth/resolve';
+import { SettingsAccessNotice } from '@/components/tenant/SettingsAccessNotice';
 
 export const metadata: Metadata = { title: 'API credentials' };
 
 /** 02 §4. Masked, scopes, last used, rotate, revoke. Owner only. */
 export default async function CredentialsSettingsPage() {
+  const context = await currentSessionOrNull();
+  if (context && (context.role !== 'owner' || context.supportMode))
+    return <SettingsAccessNotice ownerOnly />;
   const model = (await getLiveCredentials()) ?? (await getCredentials());
 
   return (

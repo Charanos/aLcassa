@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { FlashToasts } from '@/components/primitives/FlashToasts';
 import { ToastProvider } from '@/components/primitives/Toast';
 import { GsapProvider } from '@/components/structure/GsapProvider';
+import { UnsavedChangesBoundary } from '@/components/structure/UnsavedChangesBoundary';
 import './globals.css';
 
 /**
@@ -48,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {/* Announces anything a redirect left behind — see lib/flash.ts
                 for why sign-in and sign-out could not toast without it. */}
             <FlashToasts />
-            {children}
+            <UnsavedChangesBoundary>{children}</UnsavedChangesBoundary>
           </ToastProvider>
         </GsapProvider>
       </body>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Field } from '@/components/primitives/Field';
 import { Button } from '@/components/primitives/Button';
+import { useUnsavedChanges } from '@/components/structure/UnsavedChangesBoundary';
 import { updateProfile } from '@/app/(tenant)/app/actions';
 import type { AccountProfile } from '@/lib/tenant/data';
 
@@ -15,20 +16,30 @@ import type { AccountProfile } from '@/lib/tenant/data';
  *  password is ever typed into a form that isn't the dedicated one. */
 export function ProfileForm({ profile }: { profile: AccountProfile }) {
   const [name, setName] = useState(profile.name);
+  const [baselineName, setBaselineName] = useState(profile.name);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  const dirty = name !== profile.name;
+  const dirty = name !== baselineName;
+  const form = useUnsavedChanges(dirty, pending);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSaved(false);
     startTransition(async () => {
-      const result = await updateProfile({ name });
-      if (result.ok) setSaved(true);
-      else setError(result.error);
+      try {
+        const result = await updateProfile({ name });
+        if (result.ok) {
+          setBaselineName(name);
+          setSaved(true);
+        } else setError(result.error);
+      } catch {
+        setError(
+          'The profile update could not be confirmed. Your draft is still here. Check your profile before saving again.',
+        );
+      }
     });
   }
 
@@ -53,7 +64,7 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
         </div>
       </section>
 
-      <form onSubmit={submit} className="grid gap-5">
+      <form ref={form} onSubmit={submit} className="grid gap-5">
         <Field label="Name" value={name} onChange={(e) => setName(e.target.value)} />
         <Field
           label="Email"
@@ -81,7 +92,7 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
             Save changes
           </Button>
           {saved ? (
-            <span className="t-compact" style={{ color: 'var(--green-500)' }}>
+            <span role="status" className="t-compact" style={{ color: 'var(--green-500)' }}>
               Saved
             </span>
           ) : null}

@@ -1,0 +1,292 @@
+{
+  "checkedAt": "2026-10-15T12:04:15.436Z",
+  "localOnly": true,
+  "passed": true,
+  "productionBuild": true,
+  "fixtureCleanup": true,
+  "checks": [
+    "Link and browser Back cancellation preserve the draft; explicit discard changes the route without publishing.",
+    "Browser Forward and a cancelled reload preserve draft content without truncating navigation history.",
+    "An offline publication preserves its fields, blocks another write until live review and then publishes one version.",
+    "A response dropped after publication is reconciled from immutable history with no duplicate version.",
+    "A stale editor cannot overwrite a newer publication and explicitly loads the latest version before another write.",
+    "Offline and lost-response restoration preserve review, reconcile the actual live pointer and never create a duplicate restore.",
+    "Only the two committed publications and one restoration produce customer Activity records; refused work adds none.",
+    "Changed platform safeguards refuse the old editor; live review shows the locked field and actual FastAPI content/ETags follow the new master version.",
+    "Missing published platform guidance pauses editing and returns service unavailability; restoring the pointer recovers real instructions without a false success audit.",
+    "Owner, administrator and agent settings show correct access guidance; 45 role/layout visits pass across desktop, phone and 320px."
+  ],
+  "visits": [
+    {
+      "role": "owner",
+      "surface": "company",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "company",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "company",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "team",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "team",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "team",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "credentials",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "credentials",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "credentials",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "ai-rules",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "ai-rules",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "ai-rules",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "audit",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "audit",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "owner",
+      "surface": "audit",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "company",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "company",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "company",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "team",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "team",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "team",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "credentials",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "credentials",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "credentials",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "ai-rules",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "ai-rules",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "ai-rules",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "audit",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "audit",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "admin",
+      "surface": "audit",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "company",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "company",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "company",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "team",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "team",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "team",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "credentials",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "credentials",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "credentials",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "ai-rules",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "ai-rules",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "ai-rules",
+      "width": 320,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "audit",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "audit",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "role": "agent",
+      "surface": "audit",
+      "width": 320,
+      "overflow": 0
+    }
+  ],
+  "boundary": "Owned Chrome/Auth/database/FastAPI journeys. Offline and response loss are browser fault injections. Role and layout checks cover three widths. Existing screen-reader proof accepted as sufficient; repeat screen-reader testing removed from the itinerary at the project owner's direction on 15 October."
+}

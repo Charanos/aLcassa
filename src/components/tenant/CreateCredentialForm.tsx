@@ -6,6 +6,7 @@ import { IconKey, IconLock } from '@tabler/icons-react';
 import { Field } from '@/components/primitives/Field';
 import { Button } from '@/components/primitives/Button';
 import { CredentialReveal } from '@/components/domain/CredentialReveal';
+import { useUnsavedChanges } from '@/components/structure/UnsavedChangesBoundary';
 import { createCredential } from '@/app/(tenant)/app/actions';
 import type { Credential } from '@/lib/tenant/data';
 
@@ -42,6 +43,14 @@ export function CreateCredentialForm({
   const [replayed, setReplayed] = useState(false);
   const [unconfirmed, setUnconfirmed] = useState(false);
   const [pending, startTransition] = useTransition();
+  const form = useUnsavedChanges(
+    !!secret ||
+      unconfirmed ||
+      name !== (replacement?.name ?? '') ||
+      JSON.stringify(scopes) !== JSON.stringify(replacement?.scopes ?? []) ||
+      environment !== (replacement?.environment ?? 'live'),
+    pending,
+  );
   const done = () => {
     const created = secret !== null || replayed;
     setSecret(null);
@@ -96,6 +105,7 @@ export function CreateCredentialForm({
 
   return (
     <form
+      ref={form}
       onSubmit={submit}
       className="grid gap-6 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 sm:p-6"
     >

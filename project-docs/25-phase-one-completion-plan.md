@@ -1072,3 +1072,34 @@ and accessibility. M4a reaches 100% when its A/B/C rows, complete contracts and
 loaded freshness requirements pass. Demonstration and payment remain separately
 recorded. The wider tenant-dashboard redesign and M6's object recovery, advisor,
 clean setup and handover gates retain their existing scope.
+
+### 18.24 Tenant settings engineering closure — 15 October 2026
+
+M4 and M5 are **100% engineering-complete in the agreed sandbox scope, pending
+presentation and client demonstration**. The final production-build run passed ten
+tenant scenarios and 45 role/layout visits across five settings surfaces, three
+roles and three widths. All sixteen console regressions passed, including nested
+Escape dismissal, and all 726 cache-disabled application tests passed in 65 files.
+
+Unsaved changes survive cancelled links, Back, Forward and reload. Offline and
+lost-response rule changes reconcile against the live version before retry;
+restoration, stale editors, changed master safeguards and temporarily missing
+guidance agree with independent database audits and actual FastAPI reads. Direct
+restricted Activity access now explains permissions rather than showing a generic
+error. Credential shortcuts follow the same owner-only policy as the server.
+
+The project owner accepted the existing screen-reader evidence as sufficient and
+removed repeat screen-reader testing from the itinerary. This is recorded as
+completed prior proof, not a deferred milestone gate or a new compliance claim.
+
+Default conversation guidance is published and independently read back in both
+the local and hosted sandboxes. It covers tone, factual responses, workspace
+information, escalation, prohibited topics and privacy instructions. Escalation,
+prohibited topics and privacy safeguards are platform-locked. Publication uses the
+existing audited, immutable-version operation; rerunning does not replace an
+already matching version. Phase Two still owns actual conversation generation.
+
+The verification record links the bounded receipts and full regression catalogue.
+M4a retains its separate complete-contract and loaded latency/freshness rows; M6
+retains recovery, performance and handover. Exact new-revision CI and deployment
+are qualified after the release push. Client acceptance and payment are unchanged.

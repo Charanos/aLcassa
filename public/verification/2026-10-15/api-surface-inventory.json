@@ -1,0 +1,657 @@
+{
+  "format": 1,
+  "boundary": "Source-derived operation inventory, not a response-schema or end-to-end conformance claim. Route-specific guards and service implementations require their respective contract tests.",
+  "application": {
+    "runtime": "Next.js",
+    "http": [
+      {
+        "path": "/api/console/prefs",
+        "method": "POST",
+        "source": "src/app/api/console/prefs/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/cron/reconcile",
+        "method": "GET",
+        "source": "src/app/api/cron/reconcile/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/demo",
+        "method": "GET",
+        "source": "src/app/api/demo/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/health",
+        "method": "GET",
+        "source": "src/app/api/health/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/platform/export/{resource}",
+        "method": "GET",
+        "source": "src/app/api/platform/export/[resource]/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/ai-rules",
+        "method": "GET",
+        "source": "src/app/api/v1/ai-rules/route.ts",
+        "boundary": "session",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/ai-rules/publish",
+        "method": "POST",
+        "source": "src/app/api/v1/ai-rules/publish/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner",
+          "admin",
+          "support"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/ai-rules/rollback/{versionId}",
+        "method": "POST",
+        "source": "src/app/api/v1/ai-rules/rollback/[versionId]/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner",
+          "admin",
+          "support"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/ai-rules/versions",
+        "method": "GET",
+        "source": "src/app/api/v1/ai-rules/versions/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner",
+          "admin",
+          "support"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/ai-rules/versions/{id}",
+        "method": "GET",
+        "source": "src/app/api/v1/ai-rules/versions/[id]/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner",
+          "admin",
+          "support"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/callback",
+        "method": "GET",
+        "source": "src/app/api/v1/auth/callback/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/email/confirm",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/email/confirm/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/google",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/google/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/password/forgot",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/password/forgot/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/password/reset",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/password/reset/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/sign-in",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/sign-in/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/sign-out",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/sign-out/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/sign-up",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/sign-up/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/sign-up/finish",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/sign-up/finish/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/verify-email/resend",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/verify-email/resend/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/auth/workspace/activate",
+        "method": "POST",
+        "source": "src/app/api/v1/auth/workspace/activate/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/credentials",
+        "method": "GET",
+        "source": "src/app/api/v1/credentials/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/credentials",
+        "method": "POST",
+        "source": "src/app/api/v1/credentials/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/credentials/{id}",
+        "method": "DELETE",
+        "source": "src/app/api/v1/credentials/[id]/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/invitations",
+        "method": "GET",
+        "source": "src/app/api/v1/invitations/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner",
+          "admin"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/invitations",
+        "method": "POST",
+        "source": "src/app/api/v1/invitations/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner",
+          "admin"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/invitations/{id}",
+        "method": "DELETE",
+        "source": "src/app/api/v1/invitations/[id]/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner",
+          "admin"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/invitations/{id}/resend",
+        "method": "POST",
+        "source": "src/app/api/v1/invitations/[id]/resend/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner",
+          "admin"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/invitations/accept/{token}",
+        "method": "GET",
+        "source": "src/app/api/v1/invitations/accept/[token]/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/invitations/accept/{token}",
+        "method": "POST",
+        "source": "src/app/api/v1/invitations/accept/[token]/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/me",
+        "method": "GET",
+        "source": "src/app/api/v1/me/route.ts",
+        "boundary": "session",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/me",
+        "method": "PATCH",
+        "source": "src/app/api/v1/me/route.ts",
+        "boundary": "session",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/me/onboarding/dismiss",
+        "method": "GET",
+        "source": "src/app/api/v1/me/onboarding/dismiss/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/me/sessions",
+        "method": "DELETE",
+        "source": "src/app/api/v1/me/sessions/route.ts",
+        "boundary": "session",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/me/sessions",
+        "method": "GET",
+        "source": "src/app/api/v1/me/sessions/route.ts",
+        "boundary": "session",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/me/sessions/{id}",
+        "method": "DELETE",
+        "source": "src/app/api/v1/me/sessions/[id]/route.ts",
+        "boundary": "session",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/members",
+        "method": "GET",
+        "source": "src/app/api/v1/members/route.ts",
+        "boundary": "session",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/members/{id}",
+        "method": "DELETE",
+        "source": "src/app/api/v1/members/[id]/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner",
+          "admin"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/members/{id}/role",
+        "method": "PATCH",
+        "source": "src/app/api/v1/members/[id]/role/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/v1/tenant/transfer-ownership",
+        "method": "POST",
+        "source": "src/app/api/v1/tenant/transfer-ownership/route.ts",
+        "boundary": "session",
+        "roles": [
+          "owner"
+        ],
+        "scope": null
+      },
+      {
+        "path": "/api/webhooks/{channel}",
+        "method": "GET",
+        "source": "src/app/api/webhooks/[channel]/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      },
+      {
+        "path": "/api/webhooks/{channel}",
+        "method": "POST",
+        "source": "src/app/api/webhooks/[channel]/route.ts",
+        "boundary": "route-specific",
+        "roles": [],
+        "scope": null
+      }
+    ],
+    "actions": [
+      {
+        "name": "applyPlanChange",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "endSupportSession",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "endSupportSessionById",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "extendCurrentSupportSession",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "fetchBreakGlassState",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "fetchProvisionOptions",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "fetchSuspensionImpact",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "fetchWorkspaceDetail",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "nextSupportReference",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "provisionWorkspace",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "startSupportSession",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "suspendWorkspace",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "toggleBreakGlass",
+        "source": "src/app/(platform)/platform/(console)/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "resendInvitationInside",
+        "source": "src/app/(platform)/platform/(console)/inside-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "revokeInvitationInside",
+        "source": "src/app/(platform)/platform/(console)/inside-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "changePlanLimit",
+        "source": "src/app/(platform)/platform/(console)/plan-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "previewPlanLimit",
+        "source": "src/app/(platform)/platform/(console)/plan-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "changeConsolePassword",
+        "source": "src/app/(platform)/platform/(console)/profile-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "removeConsoleAvatar",
+        "source": "src/app/(platform)/platform/(console)/profile-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "revokeConsoleSession",
+        "source": "src/app/(platform)/platform/(console)/profile-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "revokeOtherConsoleSessions",
+        "source": "src/app/(platform)/platform/(console)/profile-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "updateConsoleAvatar",
+        "source": "src/app/(platform)/platform/(console)/profile-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "updateConsoleProfileName",
+        "source": "src/app/(platform)/platform/(console)/profile-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "previewQueueWorkspacePlan",
+        "source": "src/app/(platform)/platform/(console)/queue-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "raiseWorkspacePlanFromQueue",
+        "source": "src/app/(platform)/platform/(console)/queue-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "publishMasterRulesAction",
+        "source": "src/app/(platform)/platform/(console)/rules-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "rollbackMasterRulesAction",
+        "source": "src/app/(platform)/platform/(console)/rules-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "savePlatformSettings",
+        "source": "src/app/(platform)/platform/(console)/settings-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "assignWorkspacePlan",
+        "source": "src/app/(platform)/platform/(console)/subscription-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "changeWorkspaceSubscriptionStatus",
+        "source": "src/app/(platform)/platform/(console)/subscription-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "grantWorkspaceOverride",
+        "source": "src/app/(platform)/platform/(console)/subscription-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "previewWorkspacePlanChange",
+        "source": "src/app/(platform)/platform/(console)/subscription-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "fetchSupportVisit",
+        "source": "src/app/(platform)/platform/(console)/support-actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "createCredential",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "endSupportVisit",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "publishAiRules",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "refreshAiRules",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "removeMember",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "resendTeamInvitation",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "restoreAiRules",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "revokeCredential",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "revokeInvitation",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "revokeSession",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "sendInvitation",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "updateCompany",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "updateMemberRole",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
+        "name": "updateProfile",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      }
+    ]
+  },
+  "service": {
+    "runtime": "FastAPI",
+    "schema": "/service/openapi.json",
+    "http": [
+      {
+        "method": "GET",
+        "path": "/service/v1/health",
+        "scope": null
+      },
+      {
+        "method": "GET",
+        "path": "/service/v1/ready",
+        "scope": null
+      },
+      {
+        "method": "GET",
+        "path": "/service/v1/tenant",
+        "scope": "tenant:read"
+      },
+      {
+        "method": "GET",
+        "path": "/service/v1/ai-rules",
+        "scope": "ai_rules:read"
+      }
+    ]
+  },
+  "seams": {
+    "tables": [
+      "kb_documents",
+      "kb_chunks",
+      "customer_records"
+    ],
+    "phaseOne": "Schema and tenant isolation; no public CRUD endpoint is advertised."
+  }
+}

@@ -2,14 +2,14 @@ import type { Metadata } from 'next';
 import { PageHeader } from '@/components/structure/PageHeader';
 import { CreateCredentialForm } from '@/components/tenant/CreateCredentialForm';
 import { currentSession } from '@/lib/auth/resolve';
-import { AppError, ERROR_CODES } from '@/lib/errors';
+import { SettingsAccessNotice } from '@/components/tenant/SettingsAccessNotice';
 
 export const metadata: Metadata = { title: 'Create a credential' };
 
 /** The owner creates a scoped key and saves its single displayed value. */
 export default async function CreateCredentialPage() {
   const ctx = await currentSession();
-  if (ctx.supportMode || ctx.role !== 'owner') throw new AppError(ERROR_CODES.ROLE_NOT_PERMITTED);
+  if (ctx.supportMode || ctx.role !== 'owner') return <SettingsAccessNotice ownerOnly />;
   return (
     <div>
       <PageHeader

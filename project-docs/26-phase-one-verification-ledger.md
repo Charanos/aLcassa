@@ -1650,3 +1650,43 @@ Actual browser execution found two product defects: bare `.env` was downloaded b
 The source-derived operation manifest lists **42 application HTTP operations, 46 private Server Actions and four FastAPI reads**, with an independent CI drift check. It explicitly preserves `kb_documents`, `kb_chunks` and `customer_records` as Phase One schema/isolation seams. Full merged response-schema conformance remains open; this inventory does not close that gate. Public results, the focused regression and the inventory are fingerprinted under `#credential-ownership-checkpoint`; the index now contains **19 checkpoints**. Logs, API keys, downloaded secrets and fixture identities are excluded.
 
 The refreshed disposable diagnostic measured provider-user p95 **2,363 ms**, database round-trip **13 ms** and application `/api/v1/me` **11,149 ms** at a single 50-request batch. These are diagnostic samples rather than sustained-load acceptance, and the required latency gate still fails. No authentication check was weakened. M5 advances to **98%**, retaining the final tenant interaction/accessibility review; M4a advances to **84%**, retaining complete schema conformance, rules recovery and loaded latency/freshness. M4 remains 100%; M6 remains 68%. The production build and local acceptance passed; exact pushed-revision CI is qualified separately.
+
+## 15 October 2026 · Tenant settings engineering closure
+
+M4 remains **100%** and M5 reaches **100% engineering completion**, pending
+presentation and client demonstration. All **726 cache-disabled tests in 65 files**
+pass with no skips. The production-build tenant review passes **10 functional
+scenarios and 45 role/layout visits** across company, team, credentials, rules and
+Activity as owner, administrator and agent, at 1440, 390 and 320px. All **16 console
+operation regressions** pass, including nested Escape dismissal and returned focus.
+
+The shared draft boundary protects links, Back, Forward, reload and unrelated form
+submissions. Offline and lost-response publication/restoration preserve the draft
+and require canonical readback before another write. Competing editors, changed
+master locks and temporarily absent published instructions produce no false
+success. Immutable versions, effective FastAPI documents, stable/changed ETags and
+the three committed customer Activity events reconcile independently. Agent access
+to Activity now shows an access explanation instead of a page error; credential
+navigation and quick actions match the server's owner-only policy.
+
+The project owner accepted the existing screen-reader proof as sufficient and
+removed repeat screen-reader testing from the itinerary. No deferred screen-reader
+gate or new formal conformance claim is introduced. The known low-contrast shared
+tenant navigation labels remain an observation for the upcoming shell design pass;
+they do not represent a newly passing contrast test.
+
+The hosted sandbox had no published master guidance. The existing audited
+publication operation now establishes six conversation-guidance fields locally
+and on the hosted sandbox, with escalation, prohibited topics and privacy
+instructions locked at platform level. Independent database readback confirms the
+published pointer and one audit event. A second hosted check confirms the defaults
+already match, without another publication. No tenant rules or credentials were
+replaced. Phase Two owns conversation generation and delivery.
+
+Sanitized functional, regression, console and default-guidance receipts are linked
+under `#tenant-settings-checkpoint`; the SHA-256 evidence index has **20 checkpoints**.
+The current source inventory records 42 HTTP operations, 47 private actions and
+four service reads. M4a rules recovery is verified; full merged response-schema
+conformance and loaded latency/freshness remain open. M6 remains 68%. New-revision
+CI and deployment qualification follow the release push and are not implied by
+the local results. Acceptance and confirmed payments remain unchanged.

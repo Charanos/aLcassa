@@ -5,7 +5,9 @@ import { IconAlertTriangle, IconLock } from '@tabler/icons-react';
 import { Badge } from '@/components/primitives/Badge';
 import { Button } from '@/components/primitives/Button';
 import { ConfirmDialog } from '@/components/primitives/ConfirmDialog';
-import { publishAiRules, restoreAiRules } from '@/app/(tenant)/app/actions';
+import { Field } from '@/components/primitives/Field';
+import { publishAiRules, restoreAiRules, refreshAiRules } from '@/app/(tenant)/app/actions';
+import { useUnsavedChanges } from '@/components/structure/UnsavedChangesBoundary';
 import type { RulesFields, RulesRevision } from '@/modules/aiRules';
 import type { RuleField, RulesVersion } from '@/lib/tenant/data';
 import { compareRuleLines } from '@/lib/tenant/ruleDiff';
@@ -50,6 +52,10 @@ export function AiRulesEditor(initial: EditorModel) {
   const [restoreError, setRestoreError] = useState<string | null>(null);
   const [compare, setCompare] = useState<string>('');
   const [visibleVersions, setVisibleVersions] = useState(5);
+  const [unconfirmed, setUnconfirmed] = useState(false);
+  const [loadReview, setLoadReview] = useState(false);
+  const [loadComplete, setLoadComplete] = useState(false);
+  const loadTrigger = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (error && !pending) publicationError.current?.focus();
   }, [error, pending]);
@@ -70,6 +76,30 @@ export function AiRulesEditor(initial: EditorModel) {
     setChangeNote('');
   }
   const dirty = baseline.fields.some((f) => !f.lockedByMaster && values[f.key] !== f.tenantValue);
+  const form = useUnsavedChanges(dirty || !!changeNote || unconfirmed, pending);
+  async function reviewLatest(discard: boolean) {
+    try {
+      const result = await refreshAiRules();
+      if (!result.ok) {
+        setError(result.error);
+        setRestoreError(result.error);
+        return;
+      }
+      if (discard) {
+        acknowledge(result.model);
+        setLoadComplete(true);
+        setLoadReview(false);
+      } else setConfirmed(result.model);
+      setUnconfirmed(false);
+      setRestore(null);
+      setError(null);
+      setRestoreError(null);
+    } catch {
+      setError(
+        'The latest instructions could not be loaded. Your draft is still here. Try reviewing again when the connection returns.',
+      );
+    }
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -86,8 +116,12 @@ export function AiRulesEditor(initial: EditorModel) {
           setPublished(true);
           acknowledge(result.model);
           heading.current?.focus();
-        } else setError(result.error);
+        } else {
+          setError(result.error);
+          if (result.requiresReload) setUnconfirmed(true);
+        }
       } catch {
+        setUnconfirmed(true);
         setError(
           'The outcome could not be confirmed. Reload the version history before trying again.',
         );
@@ -98,6 +132,9 @@ export function AiRulesEditor(initial: EditorModel) {
   return (
     <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
       <form
+        ref={form}
+        data-slot="rules-editor"
+        aria-busy={pending}
         onSubmit={submit}
         className="grid gap-6 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 sm:p-6"
       >
@@ -115,11 +152,36 @@ export function AiRulesEditor(initial: EditorModel) {
             instruction allowance.
           </p>
         ) : null}
-        {stale && !pending ? (
-          <p role="status" className="t-compact text-[var(--text-secondary)]">
-            The live instructions changed while you were editing. Your draft is still here. Reload
-            to review the latest version before publishing.
-          </p>
+        {(stale || unconfirmed) && !pending ? (
+          <div className="surface-sunken grid gap-3 rounded-panel border border-[var(--border-subtle)] p-4">
+            <p role="status" className="t-compact text-[var(--text-secondary)]">
+              {unconfirmed
+                ? 'Check the live version before another change. Your draft is still here; the previous request may already have completed.'
+                : 'The live instructions changed while you were editing. Your draft is still here. Review history or load the latest instructions before publishing.'}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => startTransition(() => reviewLatest(false))}
+              >
+                Review latest instructions
+              </Button>
+              {stale ? (
+                <Button
+                  ref={loadTrigger}
+                  type="button"
+                  variant="quiet"
+                  onClick={() => {
+                    setLoadComplete(false);
+                    setLoadReview(true);
+                  }}
+                >
+                  Load latest instructions
+                </Button>
+              ) : null}
+            </div>
+          </div>
         ) : null}
         <div className="grid gap-6">
           {fields.map((field) => (
@@ -136,9 +198,9 @@ export function AiRulesEditor(initial: EditorModel) {
           ))}
         </div>
 
-        <label className="grid gap-1.5 border-t pt-5" style={{ borderColor: 'var(--ink-100)' }}>
-          <span className="t-label text-[var(--text-secondary)]">Change note</span>
-          <input
+        <div className="border-t border-[var(--border-subtle)] pt-5">
+          <Field
+            label="Change note"
             value={changeNote}
             required
             minLength={8}
@@ -146,13 +208,9 @@ export function AiRulesEditor(initial: EditorModel) {
             disabled={pending || !canWrite}
             onChange={(e) => setChangeNote(e.target.value)}
             placeholder="Describe what changed and why."
-            className="field-sunken t-body h-10 rounded-chip border px-3 text-[var(--text-primary)]"
-            style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-sunken)' }}
+            helper="Add 8–500 characters. This note is saved in version history and Activity."
           />
-          <span className="t-caption min-h-[18px] text-[var(--text-tertiary)]">
-            Add 8–500 characters. This note is saved in version history and Activity.
-          </span>
-        </label>
+        </div>
 
         {error ? (
           <p
@@ -172,7 +230,15 @@ export function AiRulesEditor(initial: EditorModel) {
             type="submit"
             variant="primary"
             loading={pending}
-            disabled={!dirty || pending || !canWrite || !revision || changeNote.trim().length < 8}
+            disabled={
+              !dirty ||
+              pending ||
+              stale ||
+              unconfirmed ||
+              !canWrite ||
+              !revision ||
+              changeNote.trim().length < 8
+            }
           >
             Publish instructions
           </Button>
@@ -318,24 +384,35 @@ export function AiRulesEditor(initial: EditorModel) {
         consequence="Your assistant will use this workspace version with the current platform safeguards. Later versions remain in history."
         confirmLabel="Restore instructions"
         loading={pending}
-        disabled={restoreNote.trim().length < 8}
+        disabled={restoreNote.trim().length < 8 || stale || unconfirmed}
         error={restoreError}
         details={
-          <label className="grid gap-2">
-            <span className="t-label">Reason for restoring</span>
-            <input
-              aria-label="Reason for restoring"
-              className="field-sunken t-body w-full rounded-chip border border-[var(--border-subtle)] p-3"
-              value={restoreNote}
-              minLength={8}
-              maxLength={500}
-              disabled={pending}
-              onChange={(event) => setRestoreNote(event.target.value)}
-            />
-            <span className="t-caption text-[var(--text-secondary)]">
-              Add 8–500 characters. Your reason is recorded in Activity.
-            </span>
-          </label>
+          <div className="grid gap-3">
+            <label className="grid gap-2">
+              <span className="t-label">Reason for restoring</span>
+              <input
+                aria-label="Reason for restoring"
+                className="field-sunken t-body w-full rounded-chip border border-[var(--border-subtle)] p-3"
+                value={restoreNote}
+                minLength={8}
+                maxLength={500}
+                disabled={pending}
+                onChange={(event) => setRestoreNote(event.target.value)}
+              />
+              <span className="t-caption text-[var(--text-secondary)]">
+                Add 8–500 characters. Your reason is recorded in Activity.
+              </span>
+            </label>
+            {unconfirmed ? (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => startTransition(() => reviewLatest(false))}
+              >
+                Review latest instructions
+              </Button>
+            ) : null}
+          </div>
         }
         onConfirm={() =>
           startTransition(async () => {
@@ -351,14 +428,29 @@ export function AiRulesEditor(initial: EditorModel) {
                 setRestore(null);
                 acknowledge(result.model);
                 setPublished(true);
-              } else setRestoreError(result.error);
+              } else {
+                setRestoreError(result.error);
+                if (result.requiresReload) setUnconfirmed(true);
+              }
             } catch {
+              setUnconfirmed(true);
               setRestoreError(
                 'The outcome could not be confirmed. Reload the version history before trying again.',
               );
             }
           })
         }
+      />
+      <ConfirmDialog
+        open={loadReview}
+        onOpenChange={setLoadReview}
+        returnFocusRef={loadComplete ? heading : loadTrigger}
+        title="Replace your draft with the live instructions?"
+        consequence="Your unsaved draft and change note will be discarded. Published versions remain in history."
+        confirmLabel="Load latest instructions"
+        cancelLabel="Keep draft"
+        loading={pending}
+        onConfirm={() => startTransition(() => reviewLatest(true))}
       />
     </div>
   );

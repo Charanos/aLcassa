@@ -15,6 +15,8 @@ import { getLiveTenantAudit } from '@/lib/tenant/live';
 import type { TenantAuditKind } from '@/lib/tenant/data';
 import { DataSource } from '@/components/console/Surface';
 import { isAppError, ERROR_CODES } from '@/lib/errors';
+import { currentSessionOrNull } from '@/lib/auth/resolve';
+import { SettingsAccessNotice } from '@/components/tenant/SettingsAccessNotice';
 
 export const metadata: Metadata = { title: 'Activity' };
 
@@ -36,8 +38,11 @@ export default async function AuditSettingsPage({
 }: {
   searchParams: Promise<{ cursor?: string }>;
 }) {
+  const ctx = await currentSessionOrNull();
+  if (ctx && !['owner', 'admin', 'support'].includes(ctx.role))
+    return <SettingsAccessNotice section="Activity" />;
   const { cursor } = await searchParams;
-  const live = await getLiveTenantAudit(undefined, { cursor }).catch((error: unknown) => {
+  const live = await getLiveTenantAudit(ctx ?? undefined, { cursor }).catch((error: unknown) => {
     if (isAppError(error) && error.code === ERROR_CODES.ENTITLEMENT_FEATURE_UNAVAILABLE)
       return 'not-in-plan' as const;
     throw error;

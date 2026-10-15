@@ -23,6 +23,7 @@ import evidenceIndex from '@/lib/presentation/phaseOneEvidenceIndex.json';
 import consoleAcceptance from '@/lib/presentation/consoleOperationsVerification.json';
 import platformReview from '@/lib/presentation/platformConsoleVerification.json';
 import credentialReview from '@/lib/presentation/credentialWorkflowsVerification.json';
+import tenantReview from '@/lib/presentation/tenantSettingsVerification.json';
 import { TrackerNavigation } from '@/components/presentation/TrackerNavigation';
 import {
   MILESTONES,
@@ -107,6 +108,62 @@ export default function VerificationRecordPage() {
           </div>
         </aside>
       </header>
+
+      <section
+        id="tenant-settings-checkpoint"
+        aria-labelledby="tenant-settings-title"
+        className="mt-12 scroll-mt-8 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 md:p-8"
+      >
+        <p className="t-eyebrow text-[var(--text-tertiary)]">15 October · M4 and M5</p>
+        <h2 id="tenant-settings-title" className="t-heading mt-3">
+          Engineering complete. Demo pending.
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          Settings preserve unsaved work, resolve interrupted changes against live records and
+          explain restricted access. Rule publication and restoration agree with FastAPI and
+          customer Activity. Default conversation guidance is now published in the local and hosted
+          sandboxes, with recorded versions and privacy safeguards.
+        </p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-6 sm:grid-cols-3">
+          <Metric
+            plain
+            value={String(tenantReview.nativeChecks)}
+            label="Final tenant scenarios"
+            detail="Production build · all pass"
+          />
+          <Metric
+            plain
+            value={String(tenantReview.roleLayoutVisits)}
+            label="Role and layout checks"
+            detail="Three roles · three widths · five settings pages"
+          />
+          <Metric
+            plain
+            value={String(tenantReview.regression.passed)}
+            label="Regression cases"
+            detail="65 files · no failures or skips"
+          />
+        </dl>
+        <p className="t-compact mt-5 text-[var(--text-secondary)]">
+          All {tenantReview.consoleChecks} shared console regressions also pass. Existing
+          screen-reader proof is retained as sufficient; repeat screen-reader testing is off the
+          itinerary. Presentation and client demonstration remain pending. M4a contract and
+          loaded-performance qualification, and M6 handover, remain separately tracked.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
+          <EvidenceDownload href={tenantReview.results.path} label="Tenant functional results" />
+          <EvidenceDownload href={tenantReview.tests.path} label="Full regression results" />
+          <EvidenceDownload
+            href={tenantReview.consoleResults.path}
+            label="Console regression results"
+          />
+          <EvidenceDownload href={tenantReview.defaults.path} label="Published default guidance" />
+          <EvidenceDownload
+            href={tenantReview.contracts.path}
+            label="Current API and action inventory"
+          />
+        </div>
+      </section>
 
       <section
         id="credential-ownership-checkpoint"

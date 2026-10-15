@@ -1,0 +1,48 @@
+[
+  {
+    "checkedAt": "2026-10-15T12:07:05.246Z",
+    "passed": true,
+    "target": "local",
+    "versionNumber": 2,
+    "outcome": "published",
+    "fields": [
+      "tone",
+      "responseGuidelines",
+      "businessInformation",
+      "escalationInstructions",
+      "prohibitedTopics",
+      "customInstructions"
+    ],
+    "lockedFields": [
+      "escalationInstructions",
+      "prohibitedTopics",
+      "customInstructions"
+    ],
+    "independentDatabaseReadback": true,
+    "auditedPublication": true,
+    "boundary": "Published instructions are consumed by the tenant and service rule compilation path. Phase Two owns conversation generation and channel delivery."
+  },
+  {
+    "checkedAt": "2026-10-15T12:04:40.051Z",
+    "passed": true,
+    "target": "hosted-sandbox",
+    "versionNumber": 1,
+    "outcome": "published",
+    "fields": [
+      "tone",
+      "responseGuidelines",
+      "businessInformation",
+      "escalationInstructions",
+      "prohibitedTopics",
+      "customInstructions"
+    ],
+    "lockedFields": [
+      "escalationInstructions",
+      "prohibitedTopics",
+      "customInstructions"
+    ],
+    "independentDatabaseReadback": true,
+    "auditedPublication": true,
+    "boundary": "Published instructions are consumed by the tenant and service rule compilation path. Phase Two owns conversation generation and channel delivery."
+  }
+]

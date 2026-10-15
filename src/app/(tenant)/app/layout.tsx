@@ -65,7 +65,7 @@ const navigation: NavGroup[] = [
         href: '/app/settings/credentials',
         label: 'Credentials',
         icon: <IconKey size={16} stroke={1.5} />,
-        roles: ['owner', 'support'],
+        roles: ['owner'],
       },
       {
         href: '/app/settings/ai-rules',
@@ -109,7 +109,7 @@ const NEW_ACTIONS: (NewAction & { roles?: string[] })[] = [
     label: 'Create a credential',
     href: '/app/settings/credentials/new',
     icon: <IconKey size={16} stroke={1.5} />,
-    roles: ['owner', 'support'],
+    roles: ['owner'],
   },
 ];
 

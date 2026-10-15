@@ -62,6 +62,12 @@ export function ConfirmDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <Dialog.Content
+          onKeyDown={(event) => {
+            if (event.key !== 'Escape') return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (!loading) onOpenChange(false);
+          }}
           onEscapeKeyDown={(event) => {
             event.preventDefault();
             if (!loading) onOpenChange(false);
@@ -188,6 +194,12 @@ export function DestructiveConfirm({
       <Dialog.Portal>
         <Dialog.Overlay className="console-modal-backdrop fixed inset-0 z-[150]" />
         <Dialog.Content
+          onKeyDown={(event) => {
+            if (event.key !== 'Escape') return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (!loading) onOpenChange(false);
+          }}
           onEscapeKeyDown={(event) => {
             event.preventDefault();
             if (!loading) onOpenChange(false);

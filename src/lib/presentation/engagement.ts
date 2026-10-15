@@ -114,8 +114,8 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
-  date: '13 October 2026',
-  applicationTests: 724,
+  date: '15 October 2026',
+  applicationTests: 726,
   applicationFiles: 65,
   serviceTests: 34,
   bridgeChecks: 5,
@@ -190,8 +190,8 @@ export const MILESTONES = [
     gate: 'Demo: secrets auditing',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 98,
-    note: 'Thirteen production-browser credential and ownership scenarios pass alongside 69 focused security cases. Clipboard and download recovery, interrupted creation/replacement/revocation, stale allowances, one-time disclosure and fresh owner permissions are verified against actual Auth, database and FastAPI. Company, colleague acceptance, Activity and seat reconciliation retain their separate evidence. The final combined tenant settings accessibility and interaction review remains open before engineering closure.',
+    progress: 100,
+    note: 'Tenant settings engineering is complete in the agreed sandbox scope, pending demonstration. Thirteen credential/ownership scenarios and ten final tenant scenarios pass against actual Auth, database and FastAPI. Forty-five owner/admin/agent settings visits cover desktop, phone and 320px. Draft protection, interrupted saves, stale editors, safe restricted-access pages and customer Activity reconcile. All 726 regression cases pass. Existing screen-reader proof is retained as sufficient; repeat screen-reader testing is removed from the itinerary.',
   },
   {
     id: 'M4a',
@@ -215,7 +215,7 @@ export const MILESTONES = [
     tranche: 4,
     status: 'active' as MilestoneStatus,
     progress: 68,
-    note: 'All 724 application cases pass across 65 files without skips. Separate-target recovery reconciles 61 tables, 52 policies and 17 context functions. An independent Auth container now signs in against the restored Auth schema and creates its provider session only in the restored database; application settings and service scope/revocation checks pass. Monitoring delivers four correlated outage/recovery notifications with durable retry. Earlier Chrome coverage spans 32 surfaces at three widths and seven account/invitation workflows. The 50-session baseline preserves integrity but fails latency acceptance. Object-byte recovery, two database advisor warnings, complete accessibility, timed clean setup and final handover remain open.',
+    note: 'All 726 application cases pass across 65 files without skips. Separate-target recovery reconciles 61 tables, 52 policies and 17 context functions. An independent Auth container signs in against the restored Auth schema and creates its provider session only in the restored database; application settings and service scope/revocation checks pass. Monitoring delivers four correlated outage/recovery notifications with durable retry. The 50-session baseline preserves integrity but fails latency acceptance. Object-byte recovery, two database advisor warnings, timed clean setup and final handover remain open. Existing screen-reader evidence is retained; repeat screen-reader testing is off the itinerary.',
   },
 ] as const;
 
@@ -261,7 +261,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M5: {
-    previous: 96,
+    previous: 98,
     evidence: [
       'Actual confirmation-required colleague acceptance with no premature membership, exact invited role, seat readback and three-width confirmation layout',
       'Company saves, conflicts and recorded Activity',
@@ -277,9 +277,12 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Native role reduction, suspended removal and seat release without a reload; phone review and focus',
       'Durable service last-use with successful/conditional reads, concurrency, failure and restricted database write checks',
       '13 production-browser credential/ownership failure scenarios and 69 focused security cases; exact alcassa.env download, uncertain writes, stale allowances, secret-free later reads and existing-session role changes',
+      '10 final production-browser scenarios: unsaved navigation, offline and lost replies, stale drafts, restoration, changed platform safeguards, unavailable guidance and exact committed Activity',
+      '45 settings role/layout visits across owner, administrator and agent at 1440, 390 and 320px; direct restricted Activity access explains permissions instead of crashing',
+      '726 regression cases and 16 current console regressions pass; existing screen-reader proof is accepted as sufficient and repeat testing is removed from the itinerary',
     ],
     remaining: [
-      'Joint tenant settings/rules review: keyboard, phone, focus, actual screen-reader sample and final secrets/Activity checks',
+      'Presentation, client demonstration and final acceptance; engineering checks complete in the agreed sandbox scope',
     ],
   },
   M4a: {
@@ -289,11 +292,12 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Native publication, comparison, restore, stale-draft and responsive checks',
       '29 service cases, five bridge checks and 12 propagation operations in qualified pinned CI; 34 current local cases',
       'Eight real Redis scenarios across independent Node processes and authenticated Python workers',
-      'Actual UI-created credentials reach FastAPI; authenticated conditional reads, grace/expiry and revocation pass; source inventory distinguishes 42 HTTP operations, 46 actions and four service reads',
+      'Actual UI-created credentials reach FastAPI; authenticated conditional reads, grace/expiry and revocation pass; source inventory distinguishes 42 HTTP operations, 47 actions and four service reads',
+      'Final native rules recovery passes offline/lost replies, stale editors, changed master locks, missing guidance, stable/changed FastAPI ETags and exact customer Activity',
+      'Published default conversation guidance in local and hosted sandbox databases: six fields, three platform safeguards, immutable version and audited publication',
     ],
     remaining: [
       'Complete merged response-schema and endpoint conformance beyond the generated route/action inventory and qualified service reads',
-      'Tenant rules recovery: unsaved navigation, offline and uncertain outcomes, stale editors, master changes and correlated customer Activity',
       'Loaded publication/restoration within five seconds and shared latency qualification in the agreed local service-hosting scope',
     ],
   },
@@ -428,7 +432,7 @@ export const COMPLIANCE = [
     evidence:
       'The console passes 126 WCAG-tagged axe visits across 18 surfaces and seven widths. Native reviews exercise four modal focus traps, narrow reviews, keyboard shortcuts and actual 200% Chrome zoom. Shared focus treatments, labelled status and reduced-motion controls are implemented.',
     outstanding:
-      'Rendered contrast review and an actual NVDA sample complete the console review. The broader tenant accessibility sweep remains open. Console browser and axe runs are now configured in CI; latest release checks provide qualification. WCAG 2.2 AA is not currently a contractual item.',
+      'Rendered contrast and an actual NVDA sample complete the console review. The project owner accepted the existing screen-reader proof as sufficient on 15 October; repeat screen-reader testing is removed from the itinerary. Broader formal conformance is not claimed. WCAG 2.2 AA is not currently a contractual item.',
     reference: '03 §17 · sheet 13',
   },
 ] as const;
@@ -442,6 +446,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-15',
+    title: 'Tenant settings complete; default conversation guidance published',
+    body: 'M4 and M5 are 100% engineering-complete, pending presentation and client demonstration. Ten final tenant scenarios, 45 owner/admin/agent settings visits, 16 console regressions and all 726 application tests pass. Interrupted changes retain drafts and reconcile live records; restricted Activity links show useful guidance. Local and hosted sandboxes now have audited default conversation instructions. Existing screen-reader proof is sufficient; repeat testing is off the itinerary. M4a contract/load qualification and M6 operational handover remain separate.',
+    milestone: 'M4, M5, M4a',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-13',
     title: 'Interrupted credentials and ownership changes verified',

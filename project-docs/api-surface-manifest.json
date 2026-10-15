@@ -564,6 +564,11 @@
         "transport": "server-action"
       },
       {
+        "name": "refreshAiRules",
+        "source": "src/app/(tenant)/app/actions.ts",
+        "transport": "server-action"
+      },
+      {
         "name": "removeMember",
         "source": "src/app/(tenant)/app/actions.ts",
         "transport": "server-action"

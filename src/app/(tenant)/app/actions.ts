@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { currentSession } from '@/lib/auth/resolve';
-import { isAppError } from '@/lib/errors';
+import { ERROR_CODES, isAppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import {
   inviteMember,
@@ -198,7 +198,18 @@ export async function revokeCredential(id: string): Promise<ActionResult> {
   });
 }
 
-type RulesActionResult = { ok: true; model: TenantRulesModel } | { ok: false; error: string };
+type RulesActionResult =
+  { ok: true; model: TenantRulesModel } | { ok: false; error: string; requiresReload?: true };
+
+export async function refreshAiRules(): Promise<RulesActionResult> {
+  try {
+    const model = await getLiveTenantAiRules(await currentSession());
+    if (!model || model.unavailable) throw new Error('Published instructions unavailable');
+    return { ok: true, model };
+  } catch (error) {
+    return actionFailure(error);
+  }
+}
 
 async function changeInstructions(
   operation: (ctx: ResolvedContext) => Promise<unknown>,
@@ -219,10 +230,13 @@ async function changeInstructions(
       logger.error('instruction confirmation read failed', { error });
       return {
         ok: false,
+        requiresReload: true,
         error:
           'The change was saved, but the live instructions could not be reloaded. Reload the version history before making another change.',
       };
     }
+    if (isAppError(error) && error.code === ERROR_CODES.RULES_VERSION_CONFLICT)
+      return { ...actionFailure(error), requiresReload: true };
     return actionFailure(error);
   }
 }

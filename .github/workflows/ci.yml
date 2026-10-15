@@ -208,16 +208,21 @@ jobs:
           node --import tsx scripts/verification-browser-ci-env.ts
           pnpm exec playwright install --with-deps chrome
       - name: Build the disposable console for browser acceptance
+        id: console_build
         env:
           NEXT_DIST_DIR: .next-live-verify
           SESSION_COOKIE_PLATFORM: alcassa_verify_platform
           SESSION_COOKIE_TENANT: alcassa_verify_tenant
         run: pnpm build
-      - name: Verify console action and accessibility gates
-        run: |
-          node --conditions=react-server --import tsx scripts/verification-console-operations.ts
-          node --conditions=react-server --import tsx scripts/verification-platform-acceptance.ts
-          node --conditions=react-server --import tsx scripts/verification-platform-accessibility.ts
+      - name: Console action acceptance
+        if: ${{ !cancelled() && steps.console_build.outcome == 'success' }}
+        run: node --conditions=react-server --import tsx scripts/verification-console-operations.ts
+      - name: Platform failure and recovery acceptance
+        if: ${{ !cancelled() && steps.console_build.outcome == 'success' }}
+        run: node --conditions=react-server --import tsx scripts/verification-platform-acceptance.ts
+      - name: Platform accessibility matrix
+        if: ${{ !cancelled() && steps.console_build.outcome == 'success' }}
+        run: node --conditions=react-server --import tsx scripts/verification-platform-accessibility.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
