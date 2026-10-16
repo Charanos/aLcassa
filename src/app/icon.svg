@@ -1,7 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none">
-  <!-- The aLcassa mark, from components/brand/Mark.tsx, in --blue-500 (#043AE1).
-       A browser asks for /favicon.ico on every page that names no icon; with
-       none, every console page load logged a 404. -->
+  <title>aLcassa</title>
   <circle cx="6.6" cy="6.4" r="4.05" fill="#043AE1"/>
   <circle cx="17.4" cy="6.4" r="4.05" fill="#043AE1"/>
   <path d="M17.9 7.4a7.9 7.9 0 1 0 0 9.2" stroke="#043AE1" stroke-width="4.6" stroke-linecap="round" fill="none"/>

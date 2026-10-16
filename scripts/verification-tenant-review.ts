@@ -1,5 +1,6 @@
 /** Owned tenant editing, role boundaries, navigation and accessibility acceptance. */
 import assert from 'node:assert/strict';
+import { browserFailure } from './verification-browser-failure';
 import { randomUUID } from 'node:crypto';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { parse } from 'dotenv';
@@ -516,6 +517,13 @@ async function main() {
     );
     assert.equal(nativeErrors.length, 0, 'Handled failures must not crash tenant pages.');
   } catch (error) {
+    await browserFailure(
+      step,
+      error,
+      diagnosticPage,
+      owned.fixtures.map((fixture) => fixture.password),
+      { ruleVersions: (await state()).versions },
+    );
     await writeFile('.test-report/phase-one/tenant-review-private.log', String(error));
     if (diagnosticPage && !diagnosticPage.isClosed())
       await writeFile(

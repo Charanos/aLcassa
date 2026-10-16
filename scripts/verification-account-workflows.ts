@@ -7,6 +7,7 @@ import { chromium, type BrowserContext, type Page, type Browser } from 'playwrig
 import { createClient } from '@supabase/supabase-js';
 import { applicationWorker, httpFixtures } from './verification-http-fixture';
 import { capturedConfirmation } from './verification-confirmation-mail';
+import { browserFailure } from './verification-browser-failure';
 
 async function main() {
   const owned = await httpFixtures(3);
@@ -20,6 +21,7 @@ async function main() {
   let worker: ChildProcess | undefined;
   let browser: Browser | undefined;
   let step = 'prepare';
+  let diagnosticPage: Page | undefined;
   const progress = setInterval(() => process.stdout.write(`Account workflow: ${step}\n`), 15000);
   progress.unref();
   const checks: string[] = [];
@@ -80,6 +82,7 @@ async function main() {
     const secondary = await browser.newContext();
     step = 'password sign-ins';
     const page = await signIn(primary, operator, '/platform/profile');
+    diagnosticPage = page;
     const other = await signIn(secondary, operator, '/platform/profile');
     step = 'incorrect current password';
     await page.getByRole('button', { name: 'Change password', exact: true }).click();
@@ -262,6 +265,16 @@ async function main() {
       'Withdrawn link refused; reserved seat released; two accepted colleagues and owner reconcile to three seats',
     );
   } catch (error) {
+    const [readback] = await owned.admin<{ audit: number; sessions: number }[]>`select
+      (select count(*)::int from platform_audit_log where actor_user_id=${operator.userId} and action='password.changed') as audit,
+      (select count(*)::int from sessions where user_id=${operator.userId} and revoked_at is null) as sessions`;
+    await browserFailure(
+      step,
+      error,
+      diagnosticPage,
+      [newPassword, colleaguePassword, ...owned.fixtures.map((fixture) => fixture.password)],
+      { passwordChangeAudit: readback?.audit, activeSessions: readback?.sessions },
+    );
     await writeFile('.test-report/phase-one/account-workflows-private.log', String(error));
     throw new Error(`Owned account workflow failed at: ${step}. Inspect the private diagnostic.`);
   } finally {
