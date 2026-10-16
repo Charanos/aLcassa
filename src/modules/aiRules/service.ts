@@ -1,6 +1,6 @@
 import 'server-only';
 import { and, desc, eq, inArray, ne, sql } from 'drizzle-orm';
-import { z } from 'zod';
+import type { z } from 'zod';
 import {
   masterAiRules,
   masterAiRuleVersions,
@@ -18,31 +18,9 @@ import { withTenantContext, type ResolvedContext, type Transaction } from '@/lib
 import { AUDIT_ACTIONS, writeAudit } from '@/lib/audit';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { invalidateEntitlements } from '@/modules/entitlements';
+import { publication, restoration } from './contracts';
+import type { fields, revision } from './contracts';
 
-const fields = z
-  .object({
-    tone: z.string().max(1000),
-    responseGuidelines: z.string().max(10000),
-    businessInformation: z.string().max(10000),
-    escalationInstructions: z.string().max(10000),
-    prohibitedTopics: z.string().max(10000),
-    customInstructions: z.string().max(10000),
-  })
-  .strict();
-const revision = z
-  .object({
-    currentVersionId: z.string().uuid().nullable(),
-    updatedAt: z.string().datetime().nullable(),
-    masterVersionId: z.string().uuid(),
-    masterUpdatedAt: z.string().datetime(),
-  })
-  .strict();
-const publication = z
-  .object({ fields, revision, changeNote: z.string().trim().min(8).max(500) })
-  .strict();
-const restoration = z
-  .object({ versionId: z.string().uuid(), revision, changeNote: z.string().trim().min(8).max(500) })
-  .strict();
 export type RulesFields = z.infer<typeof fields>;
 export type RulesRevision = z.infer<typeof revision>;
 export type TenantRulesState = Awaited<ReturnType<typeof readTenantRules>>;

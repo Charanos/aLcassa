@@ -1,0 +1,38 @@
+{
+  "date": "16 October 2026",
+  "samples": 24,
+  "concurrentReaders": 8,
+  "restarts": 2,
+  "maximumMs": 4237,
+  "responseChecks": 23,
+  "operations": 7,
+  "regression": {
+    "passed": 727,
+    "files": 66
+  },
+  "results": {
+    "path": "/verification/2026-10-16/rules-loaded-freshness.json",
+    "sha256": "7d54372afaefe0fb4421f04270b6c758704022fedf9f78b6ceead431bbd01992"
+  },
+  "responses": {
+    "path": "/verification/2026-10-16/rules-response-conformance.json",
+    "sha256": "05ce88384556012f3aba859e9c2bc91c374c7fb8b7172196a2aa3b168da169aa"
+  },
+  "tests": {
+    "path": "/verification/2026-10-16/rules-regression.json",
+    "sha256": "dcf4af978165543e02002e0aac390e080d85fd4fa5a1e3d53acd0ce0abe62ae7"
+  },
+  "schema": {
+    "path": "/verification/2026-10-16/rules-merged-openapi.json",
+    "sha256": "e50c092bc192febf8ae0d106c674507ae5dfe3e6431aa523b31b926ca723c010"
+  },
+  "m6Latency": {
+    "path": "/verification/2026-10-16/m6-retained-latency-failures.json",
+    "sha256": "b0b31dc4753dde348ff3088062acbb5744f464b79f8b30a87a857c884b545a91"
+  },
+  "boundary": "M4a engineering verification in the agreed local service-hosting scope; client demonstration remains pending. Architecture section 10 assigns the separate 400ms p95 dashboard/settings gate at 50 sessions to M6. Its failed measurements remain open; no latency threshold or authorization check has been relaxed. Exact-revision CI and deployment are checked after push.",
+  "manifest": {
+    "path": "/verification/2026-10-16/rules-closure-manifest.json",
+    "sha256": "698d15b279f4d65d2dc338e6eecd5fb7916552717db832f03e0fea72d246fcd0"
+  }
+}

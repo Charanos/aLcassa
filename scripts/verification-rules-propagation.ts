@@ -1,7 +1,7 @@
 /** Actual publication/restoration to effective HTTP reads; disposable fixtures only. */
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { adminQuery, cleanup, closeHarness } from '../tests/isolation/harness';
 import { assertDisposableDatabase } from '../tests/isolation/disposable';
 import { SEED_PLATFORM_ADMIN, SEED_USER_A } from '@/db/seed/constants';
@@ -32,6 +32,81 @@ async function main() {
   }[] = [];
   let original: { id: string; current_version_id: string | null; updated_at: Date } | undefined;
   let arranged = false;
+  const concurrentReaders = Number(process.env.VERIFICATION_RULES_READERS ?? '0');
+  assert(Number.isInteger(concurrentReaders) && concurrentReaders >= 0 && concurrentReaders <= 50);
+  let running = false;
+  let readers: Promise<void>[] = [];
+  const background: { status: number; elapsedMs: number }[] = [];
+  const backgroundErrors: string[] = [];
+  let restartMs: number | null = null;
+  const receiptPath = `.test-report/phase-one/rules-propagation${concurrentReaders ? '-loaded' : ''}.json`;
+  async function stopReaders() {
+    running = false;
+    await Promise.all(readers);
+    readers = [];
+  }
+  async function startReaders(secret: string) {
+    if (!concurrentReaders) return;
+    running = true;
+    const firstReads: Promise<void>[] = [];
+    readers = Array.from({ length: concurrentReaders }, () => {
+      let notify!: () => void;
+      firstReads.push(
+        new Promise<void>((done) => {
+          notify = done;
+        }),
+      );
+      return (async () => {
+        let lastTag: string | null = null;
+        try {
+          while (running) {
+            const start = performance.now();
+            const response: Response = await fetch('http://127.0.0.1:8100/service/v1/ai-rules', {
+              headers: {
+                Authorization: `Bearer ${secret}`,
+                ...(lastTag ? { 'If-None-Match': lastTag } : {}),
+              },
+              signal: AbortSignal.timeout(15000),
+            });
+            assert(
+              [200, 304].includes(response.status),
+              `Background service status ${response.status}`,
+            );
+            if (response.status === 304) assert.equal(await response.text(), '');
+            else {
+              const body = (await response.json()) as {
+                data: { tenantId: string; masterVersion: number; tenantVersion: number };
+              };
+              assert.equal(body.data.tenantId, tenant);
+              assert.equal(
+                response.headers.get('x-rules-master-version'),
+                String(body.data.masterVersion),
+              );
+              assert.equal(
+                response.headers.get('x-rules-tenant-version'),
+                String(body.data.tenantVersion),
+              );
+            }
+            lastTag = response.headers.get('etag');
+            assert(lastTag);
+            background.push({
+              status: response.status,
+              elapsedMs: Math.round(performance.now() - start),
+            });
+            notify();
+            await new Promise((done) => setTimeout(done, 25));
+          }
+        } catch (error) {
+          backgroundErrors.push(error instanceof Error ? error.name : 'ReadFailure');
+          running = false;
+        } finally {
+          notify();
+        }
+      })();
+    });
+    await Promise.all(firstReads);
+    assert.equal(backgroundErrors.length, 0);
+  }
   const ctx = () =>
     createResolvedContext({
       tenantId: tenant,
@@ -139,6 +214,7 @@ async function main() {
       changeNote: 'Publish baseline workspace information',
     });
     let liveMaster = initial;
+    await startReaders(key.secret);
     for (let i = 1; i <= 3; i++) {
       const before = await readTenantRules(ctx());
       let started = performance.now();
@@ -212,10 +288,44 @@ async function main() {
         'Propagation baseline',
       );
       liveMaster = { versionId: initial.versionId, versionNumber: platformRestored.versionNumber };
+      if (i === 1 && concurrentReaders && process.send) {
+        await stopReaders();
+        const restarting = performance.now();
+        await new Promise<void>((done, reject) => {
+          const timer = setTimeout(() => {
+            process.off('message', receive);
+            reject(new Error('Owned service restart exceeded five seconds'));
+          }, 5000);
+          function receive(message: unknown) {
+            if (
+              message &&
+              typeof message === 'object' &&
+              'type' in message &&
+              message.type === 'service-restarted'
+            ) {
+              clearTimeout(timer);
+              process.off('message', receive);
+              done();
+            }
+          }
+          process.on('message', receive);
+          process.send!({ type: 'restart-service' });
+        });
+        restartMs = Math.round(performance.now() - restarting);
+        const stable: Response = await fetch('http://127.0.0.1:8100/service/v1/ai-rules', {
+          headers: { Authorization: `Bearer ${key.secret}`, 'If-None-Match': etag! },
+        });
+        assert.equal(stable.status, 304);
+        assert.equal(stable.headers.get('etag'), etag);
+        assert.equal(await stable.text(), '');
+        await startReaders(key.secret);
+      }
     }
+    await stopReaders();
+    assert.equal(backgroundErrors.length, 0);
     await mkdir('.test-report/phase-one', { recursive: true });
     await writeFile(
-      '.test-report/phase-one/rules-propagation.json',
+      receiptPath,
       JSON.stringify(
         {
           checkedAt: new Date().toISOString(),
@@ -225,6 +335,12 @@ async function main() {
             'Upper bound from operation invocation through effective HTTP response; includes commit and request processing.',
           samples,
           maximumMs: Math.max(...samples.map((sample) => sample.operationStartToReadMs)),
+          concurrentReaders,
+          backgroundReads: background.length,
+          conditionalReads: background.filter((row) => row.status === 304).length,
+          backgroundErrors: backgroundErrors.length,
+          restartMs,
+          restartPreservedConditionalRead: restartMs !== null,
           releaseQualified: false,
         },
         null,
@@ -235,6 +351,7 @@ async function main() {
       `Rules propagation passed: ${samples.length} actual publish/restore samples; maximum ${Math.max(...samples.map((sample) => sample.operationStartToReadMs))}ms.`,
     );
   } finally {
+    await stopReaders();
     if (original)
       await cleanup`update master_ai_rules set current_version_id=${original.current_version_id},updated_at=${original.updated_at} where id=${original.id}`;
     if (requests.length)
@@ -254,8 +371,18 @@ async function main() {
     }
     await closeHarness();
   }
+  const saved = JSON.parse(await readFile(receiptPath, 'utf8')) as Record<string, unknown>;
+  await writeFile(receiptPath, JSON.stringify({ ...saved, fixtureCleanup: true }, null, 2) + '\n');
 }
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : 'Rules propagation failed.');
-  process.exitCode = 1;
-});
+void main()
+  .catch((error: unknown) => {
+    console.error(error instanceof Error ? error.message : 'Rules propagation failed.');
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    if (process.connected) {
+      // Owned fork: all assertions, database cleanup and receipt writes have settled.
+      process.disconnect();
+    }
+    if (process.env.VERIFICATION_RULES_FORK === 'true') process.exit(process.exitCode ?? 0);
+  });

@@ -1,12 +1,6 @@
 import 'server-only';
-import { eq, isNull, or, gt } from 'drizzle-orm';
-import {
-  planEntitlements,
-  plans,
-  subscriptionOverrides,
-  subscriptions,
-  usageCounters,
-} from '@/db/schema';
+import { sql } from 'drizzle-orm';
+import { usageCounters } from '@/db/schema';
 import { withTenantContext } from '@/lib/db';
 import type { ResolvedContext } from '@/lib/db/context';
 import { cacheDelete, cacheGet, cacheSet, CACHE_TTL, CACHE_USES } from '@/lib/cache';
@@ -101,15 +95,43 @@ export async function getEntitlementSnapshot(ctx: ResolvedContext): Promise<Enti
  */
 async function loadSnapshot(ctx: ResolvedContext): Promise<EntitlementSnapshot> {
   return withTenantContext(ctx, async (tx) => {
-    const [subscription] = await tx
-      .select({
-        status: subscriptions.status,
-        planId: subscriptions.planId,
-        planCode: plans.code,
-      })
-      .from(subscriptions)
-      .innerJoin(plans, eq(plans.id, subscriptions.planId))
-      .limit(1);
+    type PlanRow = {
+      key: string;
+      kind: 'limit' | 'feature';
+      displayName: string;
+      limitValue: number | null;
+      featureEnabled: boolean | null;
+    };
+    type OverrideRow = {
+      key: string;
+      limitValue: number | null;
+      featureEnabled: boolean | null;
+      reason: string;
+      expiresAt: string | null;
+    };
+    const [data] = await tx.execute<{
+      subscription: {
+        status: EntitlementSnapshot['subscriptionStatus'];
+        planId: string;
+        planCode: string;
+      } | null;
+      planRows: PlanRow[];
+      overrideRows: OverrideRow[];
+      usageRows: { key: string; currentValue: number }[];
+    }>(sql`with current_subscription as (
+      select s.status,s.plan_id,p.code from public.subscriptions s join public.plans p on p.id=s.plan_id limit 1
+    ) select
+      (select jsonb_build_object('status',status,'planId',plan_id,'planCode',code) from current_subscription) as subscription,
+      coalesce((select jsonb_agg(jsonb_build_object('key',key,'kind',kind,'displayName',display_name,
+        'limitValue',limit_value,'featureEnabled',feature_enabled)) from public.plan_entitlements
+        where plan_id=(select plan_id from current_subscription)),'[]'::jsonb) as "planRows",
+      coalesce((select jsonb_agg(jsonb_build_object('key',key,'limitValue',limit_value,
+        'featureEnabled',feature_enabled,'reason',reason,'expiresAt',expires_at)) from public.subscription_overrides
+        where expires_at is null or expires_at>now()),'[]'::jsonb) as "overrideRows",
+      coalesce((select jsonb_agg(jsonb_build_object('key',key,'currentValue',current_value))
+        from public.usage_counters),'[]'::jsonb) as "usageRows"`);
+    if (!data) throw new Error('Workspace allowances could not be read.');
+    const { subscription, planRows, overrideRows, usageRows } = data;
 
     if (!subscription) {
       // A tenant without a subscription has no entitlements rather than
@@ -122,23 +144,6 @@ async function loadSnapshot(ctx: ResolvedContext): Promise<EntitlementSnapshot> 
         compiledAt: new Date().toISOString(),
       };
     }
-
-    const planRows = await tx
-      .select()
-      .from(planEntitlements)
-      .where(eq(planEntitlements.planId, subscription.planId));
-
-    const overrideRows = await tx
-      .select()
-      .from(subscriptionOverrides)
-      .where(
-        or(
-          isNull(subscriptionOverrides.expiresAt),
-          gt(subscriptionOverrides.expiresAt, new Date()),
-        ),
-      );
-
-    const usageRows = await tx.select().from(usageCounters);
 
     const usageByKey = new Map(usageRows.map((row) => [row.key, row.currentValue]));
     const overrideByKey = new Map(overrideRows.map((row) => [row.key, row]));
@@ -174,7 +179,7 @@ async function loadSnapshot(ctx: ResolvedContext): Promise<EntitlementSnapshot> 
         override: override
           ? {
               reason: override.reason,
-              expiresAt: override.expiresAt?.toISOString() ?? null,
+              expiresAt: override.expiresAt ? new Date(override.expiresAt).toISOString() : null,
             }
           : null,
       };

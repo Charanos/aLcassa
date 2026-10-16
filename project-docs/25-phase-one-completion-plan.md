@@ -1017,7 +1017,15 @@ qualified evidence reused where behavior has not changed.
   consistent typography and refined layout while exercising functionality.
   Recheck M4 callers when a shared component changes.
 
-#### Batch C: resolve the measured performance gate
+#### Batch C: loaded rules freshness and the separate M6 performance gate
+
+**16 October scope correction:** architecture section 10 explicitly assigns the
+400ms p95 dashboard/settings qualification at 50 sessions to **M6**. M4a's
+contractual gate is a rules edit reaching the service within five seconds.
+The earlier joint plan coupled these separate acceptance gates too broadly.
+Keep the latency failure open under M6; M4a requires complete rules/service
+contracts and loaded publish/restore freshness, including cache failure and
+restart continuity. This correction neither waives nor changes the 400ms target.
 
 Start diagnosis during Batch A, then run acceptance after the functional candidate
 is stable. The preserved 50-session baseline failed latency acceptance; it is not
@@ -1068,8 +1076,9 @@ closed by the passing integrity or twelve unloaded propagation samples.
   existing verification record, then update the assigned milestone rows.
 
 M5 reaches 100% when every remaining M5 row in A/B is verified, including secrets
-and accessibility. M4a reaches 100% when its A/B/C rows, complete contracts and
-loaded freshness requirements pass. Demonstration and payment remain separately
+and accessibility. M4a reaches 100% when its A/B rows, complete rules/service
+contracts and Batch C loaded freshness requirements pass. The separate 50-session
+latency qualification remains M6 work. Demonstration and payment remain separately
 recorded. The wider tenant-dashboard redesign and M6's object recovery, advisor,
 clean setup and handover gates retain their existing scope.
 
@@ -1103,3 +1112,18 @@ The verification record links the bounded receipts and full regression catalogue
 M4a retains its separate complete-contract and loaded latency/freshness rows; M6
 retains recovery, performance and handover. Exact new-revision CI and deployment
 are qualified after the release push. Client acceptance and payment are unchanged.
+
+### 18.25 M4a engineering closure — 16 October 2026
+
+Complete: strict shared rules schemas and actual response conformance across
+seven HTTP operations; 24 loaded master/workspace changes within five seconds;
+cache-disabled/unreachable-cache runs and two service restarts; cleanup; retained
+native failure/recovery and isolated knowledge/customer seams. The public
+verification record contains downloadable evidence and the merged API contract.
+M4a is 100% engineering-complete, pending client demonstration.
+
+The 400ms p95 dashboard/settings requirement at 50 sessions remains an open M6
+gate, following architecture section 10. Preserve both current failed local
+measurements. No screen-reader repeat, acceptance claim, new payment or hosted
+FastAPI requirement is added. Qualify the paired repository revisions in CI and
+the frontend deployment after push.

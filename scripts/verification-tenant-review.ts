@@ -21,7 +21,13 @@ async function main() {
     'ALLOW_DEMO_ACCESS',
   ])
     process.env[key] = '';
-  Object.assign(process.env, parse(await readFile('.env.verification.local')), {
+  const localEnvironment = await readFile('.env.verification.local', 'utf8').catch(
+    (error: unknown) => {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return '';
+      throw error;
+    },
+  );
+  Object.assign(process.env, parse(localEnvironment), {
     CACHE_DISABLED: 'true',
     VERIFICATION_DISPOSABLE: 'true',
     SESSION_COOKIE_TENANT: 'alcassa_verify_tenant',

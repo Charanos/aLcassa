@@ -72,7 +72,9 @@ async function main() {
     assert(subscription);
     await owned.admin`insert into plan_entitlements(plan_id,key,kind,limit_value,display_name)
       values(${subscription.plan_id},'seats','limit',8,'Team seats'),(${subscription.plan_id},'audit_retention_days','limit',30,'Activity history')`;
-    worker = await applicationWorker(3100);
+    worker = await applicationWorker(3100, {
+      VERIFICATION_WORKER_LOG: '.test-report/phase-one/account-worker-private.log',
+    });
     browser = await chromium.launch({ channel: 'chrome', headless: true });
     const primary = await browser.newContext();
     const secondary = await browser.newContext();

@@ -7,7 +7,9 @@ import { httpFixtures, applicationWorker, signIn } from './verification-http-fix
 
 async function main() {
   const owned = await httpFixtures(5);
-  let worker: ChildProcess | undefined;
+  const workerCount = Number(process.env.VERIFICATION_LOAD_WORKERS ?? '1');
+  assert(Number.isInteger(workerCount) && workerCount >= 1 && workerCount <= 4);
+  const workers: ChildProcess[] = [];
   let master: { id: string; current_version_id: string | null; updated_at: Date } | undefined;
   const masterVersion = randomUUID();
   let temporaryMaster = false;
@@ -57,20 +59,30 @@ async function main() {
       });
       temporaryMaster = true;
     }
-    worker = await applicationWorker(3121, { CACHE_DISABLED: 'true' });
+    for (let index = 0; index < workerCount; index++)
+      workers.push(await applicationWorker(3121 + index, { CACHE_DISABLED: 'true' }));
     for (let index = 0; index < 50; index++)
       sessions.push(await signIn(3121, owned.fixtures[index % 5]!));
     const [count] = await owned.admin<{ n: number }[]>`select count(*)::int as n from sessions
       where user_id=any(${owned.fixtures.map((f) => f.userId)}::uuid[]) and kind='tenant' and revoked_at is null`;
     assert.equal(count?.n, 50);
-    async function read(index: number, route: string, record: boolean) {
+    async function read(
+      index: number,
+      route: string,
+      record: boolean,
+      workerIndex = index % workerCount,
+    ) {
       const start = performance.now();
-      const response = await fetch(`http://127.0.0.1:3121${route}`, {
+      const response = await fetch(`http://127.0.0.1:${3121 + workerIndex}${route}`, {
         headers: { cookie: sessions[index]! },
         redirect: 'manual',
         signal: AbortSignal.timeout(30_000),
       });
       const body = await response.text();
+      if (response.status === 200 && route === '/api/v1/me') {
+        const identity = JSON.parse(body) as { data: { tenant: { id: string } } };
+        assert.equal(identity.data.tenant.id, owned.fixtures[index % 5]!.tenantId);
+      }
       if (record) {
         const sample = measurements.get(route)!;
         sample.times.push(performance.now() - start);
@@ -79,13 +91,20 @@ async function main() {
           sample.errors++;
       } else assert.equal(response.status, 200, `Warm-up ${route} must succeed`);
     }
-    for (const route of routes) await read(0, route, false);
+    for (let workerIndex = 0; workerIndex < workerCount; workerIndex++)
+      for (const route of routes) await read(0, route, false, workerIndex);
     const steadyStart = performance.now();
     await Promise.all(
       sessions.map(async (_, index) => {
         let request = 0;
         while (performance.now() - steadyStart < 60_000) {
-          await read(index, routes[(index + request++) % routes.length]!, true);
+          const round = request++;
+          await read(
+            index,
+            routes[(index + round) % routes.length]!,
+            true,
+            (index + round) % workerCount,
+          );
           await new Promise((done) => setTimeout(done, 100));
         }
       }),
@@ -115,6 +134,8 @@ async function main() {
       localOnly: true,
       productionBuild: true,
       sessions: 50,
+      applicationWorkers: workerCount,
+      applicationConnectionBudget: workerCount * 10,
       workspaces: 5,
       durationMs: Math.round(duration),
       cache: 'disabled',
@@ -128,16 +149,16 @@ async function main() {
           route.refused === 0 &&
           (route.targetMs === null || route.p95Ms < route.targetMs),
       ),
-      boundary:
-        'Local Windows/Docker loopback server-request timings, including response body. Five routes rotate across 50 concurrent sessions, with 100ms think time for 60 seconds after one warm-up per route. Cold/warm cache phases, loaded propagation, server query fan-out and memory targets remain additional qualification.',
+      boundary: `Local Windows/Docker loopback server-request timings, including response body. ${workerCount} production application workers share the restricted database; sessions rotate across workers without sticky authorization. Five routes rotate across 50 concurrent sessions with 100ms think time for 60 seconds after each worker/route warm-up. Redis is disabled. Loaded rule freshness and recovery have separate receipts.`,
     };
     accepted = (result as { passed: boolean }).passed;
   } finally {
     clearInterval(timer);
-    if (worker && worker.exitCode === null) {
-      worker.kill();
-      await new Promise<void>((done) => worker!.once('exit', () => done()));
-    }
+    for (const worker of workers)
+      if (worker.exitCode === null) {
+        worker.kill();
+        await new Promise<void>((done) => worker.once('exit', () => done()));
+      }
     if (temporaryMaster && master) {
       await owned.admin`update master_ai_rules set current_version_id=${master.current_version_id},updated_at=${master.updated_at}
         where id=${master.id} and current_version_id=${masterVersion}`;

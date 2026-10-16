@@ -1,0 +1,1248 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "aLcassa Phase One rules and service contract",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/service/v1/health": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Health",
+        "description": "Process liveness only; does not assert database or tenant readiness.",
+        "operationId": "health_service_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/service/v1/ready": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Ready",
+        "description": "Database-role and RLS readiness, independent of process liveness.",
+        "operationId": "ready_service_v1_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/service/v1/tenant": {
+      "get": {
+        "tags": [
+          "Workspace"
+        ],
+        "summary": "Tenant",
+        "operationId": "tenant_service_v1_tenant_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/service/v1/ai-rules": {
+      "get": {
+        "tags": [
+          "Assistant rules"
+        ],
+        "summary": "Ai Rules",
+        "operationId": "ai_rules_service_v1_ai_rules_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulesResponse"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Published rules unchanged"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ai-rules": {
+      "get": {
+        "security": [
+          {
+            "TenantSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SessionRules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRules"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ai-rules/publish": {
+      "post": {
+        "security": [
+          {
+            "TenantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RulePublication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "RuleVersion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleVersion"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ai-rules/rollback/{versionId}": {
+      "post": {
+        "security": [
+          {
+            "TenantSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "versionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleRestoration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "RuleVersion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleVersion"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SessionError",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorData": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "requestId": {
+            "type": "string",
+            "title": "Requestid"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "requestId"
+        ],
+        "title": "ErrorData"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse"
+      },
+      "HealthData": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status",
+            "default": "ok"
+          },
+          "service": {
+            "type": "string",
+            "const": "alcassa-service",
+            "title": "Service",
+            "default": "alcassa-service"
+          }
+        },
+        "type": "object",
+        "title": "HealthData"
+      },
+      "HealthResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/HealthData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "HealthResponse"
+      },
+      "ReadinessData": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status"
+          },
+          "database": {
+            "type": "string",
+            "const": "ready",
+            "title": "Database"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "database"
+        ],
+        "title": "ReadinessData"
+      },
+      "ReadinessResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ReadinessData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ReadinessResponse"
+      },
+      "RulesData": {
+        "properties": {
+          "tenantId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tenantid"
+          },
+          "compiledAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Compiledat"
+          },
+          "masterVersion": {
+            "type": "integer",
+            "title": "Masterversion"
+          },
+          "tenantVersion": {
+            "type": "integer",
+            "title": "Tenantversion"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/RulesDocument"
+          },
+          "provenance": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "master",
+                "tenant",
+                "master+tenant"
+              ]
+            },
+            "type": "object",
+            "title": "Provenance"
+          },
+          "locked": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenantId",
+          "compiledAt",
+          "masterVersion",
+          "tenantVersion",
+          "rules",
+          "provenance",
+          "locked"
+        ],
+        "title": "RulesData"
+      },
+      "RulesDocument": {
+        "properties": {
+          "tone": {
+            "type": "string",
+            "title": "Tone"
+          },
+          "responseGuidelines": {
+            "type": "string",
+            "title": "Responseguidelines"
+          },
+          "businessInformation": {
+            "type": "string",
+            "title": "Businessinformation"
+          },
+          "escalationInstructions": {
+            "type": "string",
+            "title": "Escalationinstructions"
+          },
+          "prohibitedTopics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Prohibitedtopics"
+          },
+          "customInstructions": {
+            "type": "string",
+            "title": "Custominstructions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RulesDocument"
+      },
+      "RulesResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RulesData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "RulesResponse"
+      },
+      "TenantData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "trial",
+              "active",
+              "past_due"
+            ],
+            "title": "Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "timezone",
+          "locale",
+          "status"
+        ],
+        "title": "TenantData"
+      },
+      "TenantResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TenantData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "TenantResponse"
+      },
+      "SessionRules": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "master": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "content": {
+                    "type": "object",
+                    "properties": {
+                      "tone": {
+                        "type": "string"
+                      },
+                      "responseGuidelines": {
+                        "type": "string"
+                      },
+                      "businessInformation": {
+                        "type": "string"
+                      },
+                      "escalationInstructions": {
+                        "type": "string"
+                      },
+                      "prohibitedTopics": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "customInstructions": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "lockedFields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "versionNumber": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  }
+                },
+                "required": [
+                  "id",
+                  "updatedAt",
+                  "versionId",
+                  "content",
+                  "lockedFields",
+                  "versionNumber"
+                ],
+                "additionalProperties": false
+              },
+              "current": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "versionNumber": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0
+                      },
+                      "content": {
+                        "type": "object",
+                        "properties": {
+                          "tone": {
+                            "type": "string"
+                          },
+                          "responseGuidelines": {
+                            "type": "string"
+                          },
+                          "businessInformation": {
+                            "type": "string"
+                          },
+                          "escalationInstructions": {
+                            "type": "string"
+                          },
+                          "prohibitedTopics": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "customInstructions": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "publishedAt": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "versionNumber",
+                      "content",
+                      "publishedAt"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "revision": {
+                "type": "object",
+                "properties": {
+                  "currentVersionId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "updatedAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "masterVersionId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "masterUpdatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "currentVersionId",
+                  "updatedAt",
+                  "masterVersionId",
+                  "masterUpdatedAt"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "master",
+              "current",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "RulePublication": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "object",
+            "properties": {
+              "tone": {
+                "type": "string",
+                "maxLength": 1000
+              },
+              "responseGuidelines": {
+                "type": "string",
+                "maxLength": 10000
+              },
+              "businessInformation": {
+                "type": "string",
+                "maxLength": 10000
+              },
+              "escalationInstructions": {
+                "type": "string",
+                "maxLength": 10000
+              },
+              "prohibitedTopics": {
+                "type": "string",
+                "maxLength": 10000
+              },
+              "customInstructions": {
+                "type": "string",
+                "maxLength": 10000
+              }
+            },
+            "required": [
+              "tone",
+              "responseGuidelines",
+              "businessInformation",
+              "escalationInstructions",
+              "prohibitedTopics",
+              "customInstructions"
+            ],
+            "additionalProperties": false
+          },
+          "revision": {
+            "type": "object",
+            "properties": {
+              "currentVersionId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "updatedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "masterVersionId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "masterUpdatedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "currentVersionId",
+              "updatedAt",
+              "masterVersionId",
+              "masterUpdatedAt"
+            ],
+            "additionalProperties": false
+          },
+          "changeNote": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "fields",
+          "revision",
+          "changeNote"
+        ],
+        "additionalProperties": false
+      },
+      "RuleRestoration": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "object",
+            "properties": {
+              "currentVersionId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "updatedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "masterVersionId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "masterUpdatedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "currentVersionId",
+              "updatedAt",
+              "masterVersionId",
+              "masterUpdatedAt"
+            ],
+            "additionalProperties": false
+          },
+          "changeNote": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "revision",
+          "changeNote"
+        ],
+        "additionalProperties": false
+      },
+      "RuleVersion": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "versionId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "versionNumber": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "versionId",
+              "versionNumber"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "SessionError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "code",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "requestId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "description": "An owner-issued aLcassa credential with the required scope.",
+        "scheme": "bearer"
+      },
+      "TenantSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "aLcassa_tenant_session",
+        "description": "Provider identity plus live application session and membership; sandbox cookie names are environment-configurable."
+      }
+    }
+  }
+}

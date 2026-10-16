@@ -1,0 +1,228 @@
+{
+  "checkedAt": "2026-10-16T01:07:26.439Z",
+  "passed": true,
+  "localOnly": true,
+  "fixtureCleanup": true,
+  "phases": [
+    {
+      "mode": "cache-disabled",
+      "passed": true,
+      "fixtureCleanup": true,
+      "concurrentReaders": 8,
+      "maximumMs": 2908,
+      "restartMs": 2471,
+      "restartPreservedConditionalRead": true,
+      "backgroundReads": 248,
+      "conditionalReads": 138,
+      "backgroundErrors": 0,
+      "samples": [
+        {
+          "operation": "tenant.publish.1",
+          "operationStartToReadMs": 668,
+          "publicationResolvedToReadMs": 331,
+          "masterVersion": 8,
+          "tenantVersion": 2,
+          "status": 200
+        },
+        {
+          "operation": "tenant.restore.1",
+          "operationStartToReadMs": 704,
+          "publicationResolvedToReadMs": 270,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.publish.1",
+          "operationStartToReadMs": 559,
+          "publicationResolvedToReadMs": 391,
+          "masterVersion": 9,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.restore.1",
+          "operationStartToReadMs": 735,
+          "publicationResolvedToReadMs": 444,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "tenant.publish.2",
+          "operationStartToReadMs": 794,
+          "publicationResolvedToReadMs": 230,
+          "masterVersion": 8,
+          "tenantVersion": 3,
+          "status": 200
+        },
+        {
+          "operation": "tenant.restore.2",
+          "operationStartToReadMs": 1004,
+          "publicationResolvedToReadMs": 322,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.publish.2",
+          "operationStartToReadMs": 447,
+          "publicationResolvedToReadMs": 240,
+          "masterVersion": 10,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.restore.2",
+          "operationStartToReadMs": 385,
+          "publicationResolvedToReadMs": 324,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "tenant.publish.3",
+          "operationStartToReadMs": 616,
+          "publicationResolvedToReadMs": 236,
+          "masterVersion": 8,
+          "tenantVersion": 4,
+          "status": 200
+        },
+        {
+          "operation": "tenant.restore.3",
+          "operationStartToReadMs": 2908,
+          "publicationResolvedToReadMs": 1916,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.publish.3",
+          "operationStartToReadMs": 1211,
+          "publicationResolvedToReadMs": 633,
+          "masterVersion": 11,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.restore.3",
+          "operationStartToReadMs": 418,
+          "publicationResolvedToReadMs": 272,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "mode": "unreachable-cache",
+      "passed": true,
+      "fixtureCleanup": true,
+      "concurrentReaders": 8,
+      "maximumMs": 4237,
+      "restartMs": 2193,
+      "restartPreservedConditionalRead": true,
+      "backgroundReads": 139,
+      "conditionalReads": 29,
+      "backgroundErrors": 0,
+      "samples": [
+        {
+          "operation": "tenant.publish.1",
+          "operationStartToReadMs": 4159,
+          "publicationResolvedToReadMs": 3991,
+          "masterVersion": 8,
+          "tenantVersion": 2,
+          "status": 200
+        },
+        {
+          "operation": "tenant.restore.1",
+          "operationStartToReadMs": 2231,
+          "publicationResolvedToReadMs": 2126,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.publish.1",
+          "operationStartToReadMs": 2144,
+          "publicationResolvedToReadMs": 2102,
+          "masterVersion": 9,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.restore.1",
+          "operationStartToReadMs": 4237,
+          "publicationResolvedToReadMs": 4208,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "tenant.publish.2",
+          "operationStartToReadMs": 3732,
+          "publicationResolvedToReadMs": 3578,
+          "masterVersion": 8,
+          "tenantVersion": 3,
+          "status": 200
+        },
+        {
+          "operation": "tenant.restore.2",
+          "operationStartToReadMs": 2434,
+          "publicationResolvedToReadMs": 2334,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.publish.2",
+          "operationStartToReadMs": 2197,
+          "publicationResolvedToReadMs": 2158,
+          "masterVersion": 10,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.restore.2",
+          "operationStartToReadMs": 2184,
+          "publicationResolvedToReadMs": 2147,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "tenant.publish.3",
+          "operationStartToReadMs": 3960,
+          "publicationResolvedToReadMs": 3825,
+          "masterVersion": 8,
+          "tenantVersion": 4,
+          "status": 200
+        },
+        {
+          "operation": "tenant.restore.3",
+          "operationStartToReadMs": 2315,
+          "publicationResolvedToReadMs": 2197,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.publish.3",
+          "operationStartToReadMs": 2166,
+          "publicationResolvedToReadMs": 2125,
+          "masterVersion": 11,
+          "tenantVersion": 1,
+          "status": 200
+        },
+        {
+          "operation": "master.restore.3",
+          "operationStartToReadMs": 2154,
+          "publicationResolvedToReadMs": 2118,
+          "masterVersion": 8,
+          "tenantVersion": 1,
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "milestone": "M6",
+  "targetMs": 400,
+  "passed": false,
+  "singleWorker": {
+    "checkedAt": "2026-10-15T21:02:42.428Z",
+    "sessions": 50,
+    "productionBuild": true,
+    "localOnly": true,
+    "passed": false,
+    "fixtureCleanup": true,
+    "integrityPassed": true,
+    "routes": [
+      {
+        "route": "/app",
+        "requests": 170,
+        "p50Ms": 3753,
+        "p95Ms": 5139,
+        "p99Ms": 5580,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/app/settings/company",
+        "requests": 161,
+        "p50Ms": 3738,
+        "p95Ms": 5048,
+        "p99Ms": 5707,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/app/settings/ai-rules",
+        "requests": 162,
+        "p50Ms": 3724,
+        "p95Ms": 5173,
+        "p99Ms": 5363,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/api/v1/me",
+        "requests": 163,
+        "p50Ms": 3241,
+        "p95Ms": 4919,
+        "p99Ms": 5300,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": null
+      },
+      {
+        "route": "/api/v1/ai-rules",
+        "requests": 166,
+        "p50Ms": 2706,
+        "p95Ms": 4182,
+        "p99Ms": 4461,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": null
+      }
+    ],
+    "boundary": "Local Windows/Docker loopback server-request timings, including response body. Five routes rotate across 50 concurrent sessions, with 100ms think time for 60 seconds after one warm-up per route. Cold/warm cache phases, loaded propagation, server query fan-out and memory targets remain additional qualification."
+  },
+  "fourWorkers": {
+    "checkedAt": "2026-10-15T21:05:51.253Z",
+    "sessions": 50,
+    "productionBuild": true,
+    "localOnly": true,
+    "passed": false,
+    "fixtureCleanup": true,
+    "integrityPassed": true,
+    "routes": [
+      {
+        "route": "/app",
+        "requests": 165,
+        "p50Ms": 3599,
+        "p95Ms": 7056,
+        "p99Ms": 8010,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/app/settings/company",
+        "requests": 163,
+        "p50Ms": 3603,
+        "p95Ms": 7207,
+        "p99Ms": 7781,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/app/settings/ai-rules",
+        "requests": 164,
+        "p50Ms": 3762,
+        "p95Ms": 7130,
+        "p99Ms": 7526,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": 400
+      },
+      {
+        "route": "/api/v1/me",
+        "requests": 162,
+        "p50Ms": 3151,
+        "p95Ms": 6327,
+        "p99Ms": 7302,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": null
+      },
+      {
+        "route": "/api/v1/ai-rules",
+        "requests": 165,
+        "p50Ms": 2821,
+        "p95Ms": 6067,
+        "p99Ms": 6703,
+        "errors": 0,
+        "refused": 0,
+        "targetMs": null
+      }
+    ],
+    "boundary": "Local Windows/Docker loopback server-request timings, including response body. 4 production application workers share the restricted database; sessions rotate across workers without sticky authorization. Five routes rotate across 50 concurrent sessions with 100ms think time for 60 seconds after each worker/route warm-up. Redis is disabled. Loaded rule freshness and recovery have separate receipts."
+  }
+}

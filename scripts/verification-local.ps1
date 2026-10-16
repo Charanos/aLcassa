@@ -117,6 +117,7 @@ if ($Mode -in @('Start', 'Stop')) {
   if (-not (Test-Path -LiteralPath $verificationEnv)) {
     $verificationValues.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" } | Set-Content -LiteralPath $verificationEnv -Encoding utf8
   }
+  Invoke-Checked node @('--import','tsx','scripts/verification-auth-pool.ts')
   Write-Output 'Local stack started. Environment saved locally; secrets are not printed.'
   exit
 }

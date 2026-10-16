@@ -14,6 +14,8 @@ import operational from '@/lib/presentation/operationalGatesVerification.json';
 import followup from '@/lib/presentation/operationalFollowupVerification.json';
 import workflows from '@/lib/presentation/accountWorkflowsVerification.json';
 import evidenceIndex from '@/lib/presentation/phaseOneEvidenceIndex.json';
+import tenantSettings from '@/lib/presentation/tenantSettingsVerification.json';
+import rulesClosure from '@/lib/presentation/rulesClosureVerification.json';
 import {
   projectTestEvidence,
   projectCredentialEvidence,
@@ -112,10 +114,22 @@ describe('Public verification evidence boundary', () => {
       workflows.results,
       workflows.manifest,
       evidenceIndex.manifest,
+      tenantSettings.results,
+      tenantSettings.tests,
+      tenantSettings.contracts,
+      tenantSettings.consoleResults,
+      tenantSettings.defaults,
+      tenantSettings.manifest,
+      rulesClosure.results,
+      rulesClosure.responses,
+      rulesClosure.tests,
+      rulesClosure.schema,
+      rulesClosure.m6Latency,
+      rulesClosure.manifest,
     ];
     for (const file of files) {
       expect(file.path).toMatch(
-        /^\/verification\/2026-10-(?:08|09|10|12|13)\/[a-z0-9-]+\.(?:json|jpg|png)$/,
+        /^\/verification\/2026-10-(?:0[1-9]|[12]\d|3[01])\/[a-z0-9-]+\.(?:json|jpg|png)$/,
       );
       const bytes = readFileSync(`public${file.path}`);
       expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);
@@ -229,7 +243,9 @@ describe('Public verification evidence boundary', () => {
       evidenceIndex.checkpointCount,
     );
     for (const entry of index.checkpoints) {
-      expect(entry.path).toMatch(/^\/verification\/2026-10-(?:08|09|10|12|13)\/[a-z0-9-]+\.json$/);
+      expect(entry.path).toMatch(
+        /^\/verification\/2026-10-(?:0[1-9]|[12]\d|3[01])\/[a-z0-9-]+\.json$/,
+      );
       expect(
         createHash('sha256')
           .update(readFileSync(`public${entry.path}`))

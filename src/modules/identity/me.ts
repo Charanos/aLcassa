@@ -1,14 +1,5 @@
 import 'server-only';
-import { and, eq, gt, gte, isNull, sql } from 'drizzle-orm';
-import {
-  auditLog,
-  plans,
-  sessions,
-  subscriptions,
-  tenantMembers,
-  tenants,
-  userProfiles,
-} from '@/db/schema';
+import { sql } from 'drizzle-orm';
 import { withTenantContext } from '@/lib/db';
 import type { ResolvedContext } from '@/lib/db/context';
 import { getEntitlementSnapshot, type Entitlement } from '@/modules/entitlements';
@@ -75,44 +66,38 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
   const snapshot = await getEntitlementSnapshot(ctx);
 
   return withTenantContext(ctx, async (tx) => {
-    const [profile] = await tx
-      .select({
-        id: userProfiles.id,
-        fullName: userProfiles.fullName,
-        avatarPath: userProfiles.avatarPath,
-      })
-      .from(userProfiles)
-      .where(eq(userProfiles.id, ctx.actorId))
-      .limit(1);
-
-    const [tenant] = await tx
-      .select({
-        id: tenants.id,
-        name: tenants.name,
-        slug: tenants.slug,
-        status: tenants.status,
-      })
-      .from(tenants)
-      .where(eq(tenants.id, ctx.tenantId))
-      .limit(1);
-
-    const [membership] = await tx
-      .select({ role: tenantMembers.role, status: tenantMembers.status })
-      .from(tenantMembers)
-      .where(and(eq(tenantMembers.userId, ctx.actorId), eq(tenantMembers.tenantId, ctx.tenantId)))
-      .limit(1);
-
-    const [subscription] = await tx
-      .select({
-        status: subscriptions.status,
-        currentPeriodEnd: subscriptions.currentPeriodEnd,
-        planCode: plans.code,
-        planName: plans.name,
-      })
-      .from(subscriptions)
-      .innerJoin(plans, eq(plans.id, subscriptions.planId))
-      .where(eq(subscriptions.tenantId, ctx.tenantId))
-      .limit(1);
+    // One RLS-bound statement preserves independent nullable projections without six network trips.
+    const [row] = await tx.execute<{
+      profile: { id: string; fullName: string; avatarPath: string | null } | null;
+      tenant: NonNullable<Me['tenant']> | null;
+      membership: Me['membership'];
+      subscription: NonNullable<Me['subscription']> | null;
+      support: {
+        id: string;
+        expiresAt: string;
+        supportContext: { platformAdminName?: string; reason?: string } | null;
+      } | null;
+      writesSoFar: number;
+    }>(sql`with visible_support as (
+      select id,created_at,expires_at,support_context from public.sessions
+      where tenant_id=${ctx.tenantId}::uuid and kind='support'
+        and revoked_at is null and expires_at>now() limit 1
+    ) select
+      (select jsonb_build_object('id',id,'fullName',full_name,'avatarPath',avatar_path)
+       from public.user_profiles where id=${ctx.actorId}::uuid limit 1) as profile,
+      (select jsonb_build_object('id',id,'name',name,'slug',slug,'status',status)
+       from public.tenants where id=${ctx.tenantId}::uuid limit 1) as tenant,
+      (select jsonb_build_object('role',role,'status',status) from public.tenant_members
+       where user_id=${ctx.actorId}::uuid and tenant_id=${ctx.tenantId}::uuid limit 1) as membership,
+      (select jsonb_build_object('status',s.status,'currentPeriodEnd',s.current_period_end,
+        'planCode',p.code,'planName',p.name) from public.subscriptions s
+       join public.plans p on p.id=s.plan_id where s.tenant_id=${ctx.tenantId}::uuid limit 1) as subscription,
+      (select jsonb_build_object('id',id,'expiresAt',expires_at,'supportContext',support_context)
+       from visible_support) as support,
+      (select count(*)::int from public.audit_log a join visible_support s on a.occurred_at>=s.created_at
+       where a.tenant_id=${ctx.tenantId}::uuid and a.support_mode=true) as "writesSoFar"`);
+    if (!row) throw new Error('Workspace identity could not be read.');
+    const { profile, tenant, membership, subscription, support, writesSoFar } = row;
 
     /**
      * 09 §7 · design sheet 07. The support session the TENANT can see.
@@ -124,23 +109,6 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
      * boundary frame is for. An owner must see the frame while a support
      * session is open even though their own session is perfectly ordinary.
      */
-    const [support] = await tx
-      .select({
-        id: sessions.id,
-        createdAt: sessions.createdAt,
-        expiresAt: sessions.expiresAt,
-        supportContext: sessions.supportContext,
-      })
-      .from(sessions)
-      .where(
-        and(
-          eq(sessions.tenantId, ctx.tenantId),
-          eq(sessions.kind, 'support'),
-          isNull(sessions.revokedAt),
-          gt(sessions.expiresAt, new Date()),
-        ),
-      )
-      .limit(1);
 
     /**
      * The write count on the receipt.
@@ -155,20 +123,6 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
      * visit ever made, which is what "so far" means on a frame that is
      * describing what is happening right now.
      */
-    const writesSoFar = support
-      ? ((
-          await tx
-            .select({ count: sql<number>`count(*)::int` })
-            .from(auditLog)
-            .where(
-              and(
-                eq(auditLog.tenantId, ctx.tenantId),
-                eq(auditLog.supportMode, true),
-                gte(auditLog.occurredAt, support.createdAt),
-              ),
-            )
-        )[0]?.count ?? 0)
-      : 0;
 
     return {
       user: {
@@ -183,7 +137,9 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
             planCode: subscription.planCode,
             planName: subscription.planName,
             status: subscription.status,
-            currentPeriodEnd: subscription.currentPeriodEnd?.toISOString() ?? null,
+            currentPeriodEnd: subscription.currentPeriodEnd
+              ? new Date(subscription.currentPeriodEnd).toISOString()
+              : null,
           }
         : null,
       // Ordered by the key list rather than by object insertion, so the usage
@@ -192,7 +148,7 @@ export async function loadMe(ctx: ResolvedContext): Promise<Me> {
       supportMode: support
         ? {
             active: true,
-            expiresAt: support.expiresAt.toISOString(),
+            expiresAt: new Date(support.expiresAt).toISOString(),
             tenantName: tenant?.name ?? 'this workspace',
             /* Doc 24 · S0.4. This was the operator's UUID: the customer cannot
                read platform_admins, so the name is written into the session

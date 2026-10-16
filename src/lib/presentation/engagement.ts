@@ -114,12 +114,12 @@ export type MilestoneStatus = 'complete' | 'active' | 'blocked' | 'upcoming';
 
 /** Qualified local checkpoint; milestone acceptance is recorded separately. */
 export const PHASE_ONE_VERIFICATION = {
-  date: '15 October 2026',
-  applicationTests: 726,
-  applicationFiles: 65,
-  serviceTests: 34,
+  date: '16 October 2026',
+  applicationTests: 727,
+  applicationFiles: 66,
+  serviceTests: 35,
   bridgeChecks: 5,
-  propagationChecks: 12,
+  propagationChecks: 24,
 } as const;
 
 export const MILESTONES = [
@@ -202,8 +202,8 @@ export const MILESTONES = [
     gate: 'Demo: a rules edit live through the API in 5 seconds',
     tranche: null,
     status: 'active' as MilestoneStatus,
-    progress: 84,
-    note: `Workspace publication and restoration use immutable history, retention and transactional audit records. Platform safeguards and stale-edit checks pass real database cases. FastAPI passes ${PHASE_ONE_VERIFICATION.serviceTests} local cases; ${PHASE_ONE_VERIFICATION.bridgeChecks} Node-to-HTTP checks pass integration CI. ${PHASE_ONE_VERIFICATION.propagationChecks} actual publish/restore samples reached the local service within five seconds. Native publication, comparison, restoration, stale-draft and desktop/phone checks pass. Real Redis tenant budgets now pass eight scenarios across both runtimes. Provider-backed Node HTTP contention now passes. Broader browser failure states, load and complete merged API conformance remain open in the agreed local service-hosting scope.`,
+    progress: 100,
+    note: `Engineering complete in the agreed local service-hosting scope; client demonstration remains pending. All seven rules/service HTTP operations pass 23 real response-schema checks, including refusals, missing guidance, stale publication and revocation before conditional reads. All 24 master/workspace publish and restore operations pass under eight concurrent readers, with two service restarts and caching disabled or unavailable; the slowest change takes 4.237 seconds. Native recovery, immutable history, audit, retention, default guidance and isolated knowledge/customer seams are verified. All ${PHASE_ONE_VERIFICATION.applicationTests} application and ${PHASE_ONE_VERIFICATION.serviceTests} service cases pass. The separate 400ms, 50-session dashboard/settings gate remains open under M6, as assigned by architecture section 10.`,
   },
   {
     id: 'M6',
@@ -286,7 +286,7 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
     ],
   },
   M4a: {
-    previous: 82,
+    previous: 84,
     evidence: [
       '12 database rule lifecycle cases and six session-route cases',
       'Native publication, comparison, restore, stale-draft and responsive checks',
@@ -295,10 +295,12 @@ export const MILESTONE_PROGRESS_REVIEW: Record<
       'Actual UI-created credentials reach FastAPI; authenticated conditional reads, grace/expiry and revocation pass; source inventory distinguishes 42 HTTP operations, 47 actions and four service reads',
       'Final native rules recovery passes offline/lost replies, stale editors, changed master locks, missing guidance, stable/changed FastAPI ETags and exact customer Activity',
       'Published default conversation guidance in local and hosted sandbox databases: six fields, three platform safeguards, immutable version and audited publication',
+      'Complete seven-operation rules/service contract: 23 actual schema-checked responses, strict public projections and shared generated input schemas',
+      '24 loaded master/workspace changes under eight readers: maximum 4.237 seconds, two service restarts and disabled/unreachable cache; fixture cleanup confirmed',
+      '727 application cases across 66 files and 35 real-database service cases pass; the separate 400ms dashboard/settings requirement remains assigned to M6',
     ],
     remaining: [
-      'Complete merged response-schema and endpoint conformance beyond the generated route/action inventory and qualified service reads',
-      'Loaded publication/restoration within five seconds and shared latency qualification in the agreed local service-hosting scope',
+      'Presentation, client demonstration and final acceptance; engineering checks complete in the agreed sandbox scope',
     ],
   },
   M4: {
@@ -446,6 +448,13 @@ export const COMPLIANCE = [
  * document rather than an update.
  */
 export const UPDATES = [
+  {
+    date: '2026-10-16',
+    title: 'AI rules and service seams complete; demonstration pending',
+    body: 'M4a reaches 100% engineering completion. All 24 loaded master/workspace changes meet the five-second gate, including cache failure and two service restarts. All seven rules/service operations pass 23 real response-schema checks. The verification record includes downloadable contracts, immutable results and regression evidence. Auth pooling and query fan-out are improved without weakening identity checks. The 400ms dashboard/settings requirement remains open under M6, matching the governing architecture.',
+    milestone: 'M4a, M6',
+    kind: 'delivery' as const,
+  },
   {
     date: '2026-10-15',
     title: 'Tenant settings complete; default conversation guidance published',

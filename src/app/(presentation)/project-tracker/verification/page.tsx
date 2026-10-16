@@ -24,6 +24,7 @@ import consoleAcceptance from '@/lib/presentation/consoleOperationsVerification.
 import platformReview from '@/lib/presentation/platformConsoleVerification.json';
 import credentialReview from '@/lib/presentation/credentialWorkflowsVerification.json';
 import tenantReview from '@/lib/presentation/tenantSettingsVerification.json';
+import rulesReview from '@/lib/presentation/rulesClosureVerification.json';
 import { TrackerNavigation } from '@/components/presentation/TrackerNavigation';
 import {
   MILESTONES,
@@ -110,6 +111,63 @@ export default function VerificationRecordPage() {
       </header>
 
       <section
+        id="rules-closure-checkpoint"
+        aria-labelledby="rules-closure-title"
+        className="mt-12 scroll-mt-8 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 md:p-8"
+      >
+        <p className="t-eyebrow text-[var(--text-tertiary)]">16 October · M4a</p>
+        <h2 id="rules-closure-title" className="t-heading mt-3">
+          Rules and service contracts verified. Demo pending.
+        </h2>
+        <p className="t-body mt-4 text-[var(--text-secondary)]">
+          Master and workspace rule changes reach FastAPI within five seconds under eight concurrent
+          readers. Both service restarts preserve conditional reads. The same checks pass with
+          caching disabled and Redis unavailable, with live authorization intact.
+        </p>
+        <dl className="mt-6 grid gap-5 border-y border-[var(--border-subtle)] py-6 sm:grid-cols-3">
+          <Metric
+            plain
+            value={String(rulesReview.samples)}
+            label="Loaded rule changes"
+            detail="Publication and restoration · all pass"
+          />
+          <Metric
+            plain
+            value={`${(rulesReview.maximumMs / 1000).toFixed(3)}s`}
+            label="Slowest effective change"
+            detail="Five-second contractual limit"
+          />
+          <Metric
+            plain
+            value={String(rulesReview.responseChecks)}
+            label="Schema-checked responses"
+            detail="All seven rules and service operations"
+          />
+        </dl>
+        <p className="t-compact mt-5 text-[var(--text-secondary)]">
+          Fixtures were removed and the existing master guidance restored. The separate 50-session
+          dashboard/settings latency requirement belongs to M6; its failed measurements remain
+          visible and open. Presentation and client demonstration remain pending.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
+          <EvidenceDownload
+            href={rulesReview.results.path}
+            label="Loaded freshness and restart results"
+          />
+          <EvidenceDownload
+            href={rulesReview.responses.path}
+            label="Response conformance results"
+          />
+          <EvidenceDownload href={rulesReview.schema.path} label="Merged rules API contract" />
+          <EvidenceDownload href={rulesReview.tests.path} label="Regression results" />
+          <EvidenceDownload
+            href={rulesReview.m6Latency.path}
+            label="M6 latency measurements · open"
+          />
+        </div>
+      </section>
+
+      <section
         id="tenant-settings-checkpoint"
         aria-labelledby="tenant-settings-title"
         className="mt-12 scroll-mt-8 rounded-panel border border-[var(--border-subtle)] bg-[var(--surface-raised)] p-5 md:p-8"
@@ -147,8 +205,8 @@ export default function VerificationRecordPage() {
         <p className="t-compact mt-5 text-[var(--text-secondary)]">
           All {tenantReview.consoleChecks} shared console regressions also pass. Existing
           screen-reader proof is retained as sufficient; repeat screen-reader testing is off the
-          itinerary. Presentation and client demonstration remain pending. M4a contract and
-          loaded-performance qualification, and M6 handover, remain separately tracked.
+          itinerary. Presentation and client demonstration remain pending. The M4a closure above and
+          the remaining M6 handover gates are tracked separately.
         </p>
         <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
           <EvidenceDownload href={tenantReview.results.path} label="Tenant functional results" />

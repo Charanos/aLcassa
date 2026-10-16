@@ -1690,3 +1690,45 @@ four service reads. M4a rules recovery is verified; full merged response-schema
 conformance and loaded latency/freshness remain open. M6 remains 68%. New-revision
 CI and deployment qualification follow the release push and are not implied by
 the local results. Acceptance and confirmed payments remain unchanged.
+
+### M4a engineering closure — 16 October 2026
+
+M4a is 100% engineering-complete in the agreed local FastAPI hosting scope,
+pending presentation and client demonstration. This does not record client
+acceptance or another payment.
+
+- All seven M4a HTTP operations pass 23 real response-schema checks against
+  shared Zod-generated Node schemas and the live FastAPI OpenAPI document.
+  Success, validation, role/origin refusal, stale writes, absent guidance,
+  unknown restoration and revocation before conditional reads are covered.
+- All 24 actual master/workspace publication and restoration operations pass
+  under eight independent authenticated readers. Cache-disabled maximum:
+  2,908ms; unreachable-cache maximum: 4,237ms. All meet the five-second gate.
+  Two owned service restarts take 2,471ms and 2,193ms; unchanged credentials and
+  conditional ETags continue to work. Background reads: 248 and 139, including
+  138 and 29 empty conditional responses; no reader errors. Cleanup restores
+  the original master pointer and removes all owned rule/credential fixtures.
+- 727 application cases across 66 files and all 35 real-database service cases
+  pass. Prior native rules recovery, tenant isolation, immutable history,
+  retention, Activity and default conversation-guidance evidence is retained.
+- The disposable Supabase Auth provider now explicitly retains 20 idle/open
+  connections. The installed Auth release otherwise disables pooling when its
+  idle limit is absent. A measured 50-way diagnostic improves provider p95 from
+  3,407ms to 163ms. Refresh middleware no longer repeats identity lookup;
+  server identity resolution still validates the provider user and current
+  application session. Identity/entitlement query fan-out is consolidated within
+  the existing RLS transaction. No authorization TTL or bypass is introduced.
+
+Scope correction: architecture section 10 explicitly assigns the contractual
+400ms p95 dashboard/settings gate at 50 sessions to **M6**. The earlier joint
+closure plan incorrectly made that separate gate an M4a dependency. Current
+single/four-worker 50-session measurements still fail latency, retain passing
+integrity and zero errors/refusals, and remain open under M6. Their failed
+receipts are downloadable beside the M4a results; the target is unchanged.
+
+Public checkpoint: `/project-tracker/verification#rules-closure-checkpoint`.
+Immutable 16 October results include loaded timings, response conformance,
+merged OpenAPI, regression catalogue and retained M6 latency failures. Every
+prior checkpoint is preserved and its fingerprint rechecked in the new index.
+Exact candidate CI and deployment qualification follow the Git push; local
+results do not assert those remote outcomes in advance.

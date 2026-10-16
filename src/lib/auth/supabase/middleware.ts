@@ -19,8 +19,8 @@ import { supabasePublishableKey, supabaseUrl } from './env';
  * cookies land on the caller's response, the caller keeps its headers, and
  * there is exactly one `NextResponse` per request.
  *
- * ⚠ IT REFRESHES; IT DOES NOT AUTHORISE. `getUser()` is called for its side
- * effect — validating the token with Supabase and writing rotated cookies.
+ * It refreshes; it does not authorize. `getSession()` rotates expired tokens
+ * and writes cookies, but its returned identity is never trusted here.
  * The coarse redirect for an unauthenticated request stays in
  * `src/middleware.ts`, and the real authorisation happens in the request
  * pipeline where a database transaction can set tenant context on the same
@@ -47,8 +47,7 @@ export async function refreshSupabaseSession(
     },
   });
 
-  // Deliberately `getUser()` and not `getSession()`. getSession reads the
-  // cookie and trusts it; getUser revalidates against Supabase. At the edge,
-  // on a token we did not mint this request, only the second is worth having.
-  await supabase.auth.getUser();
+  // The server resolver still calls getUser() and reads live session/membership rows.
+  // Avoid a duplicate provider identity lookup before every protected request.
+  await supabase.auth.getSession();
 }

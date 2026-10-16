@@ -10,6 +10,9 @@ runs:
         npx --yes supabase@2.119.0 start --workdir verification/local \
           --exclude realtime,studio,postgres-meta,edge-runtime,logflare,vector,supavisor \
           > "$RUNNER_TEMP/alcassa-provider-start.log" 2>&1
+    - name: Configure disposable Auth connection reuse
+      shell: bash
+      run: node --import tsx scripts/verification-auth-pool.ts
     - name: Verify provider schema
       shell: bash
       run: node --import tsx scripts/verification-provider-check.ts

@@ -1,0 +1,126 @@
+{
+  "checkedAt": "2026-10-16T01:08:28.301Z",
+  "passed": true,
+  "localOnly": true,
+  "productionBuild": true,
+  "fixtureCleanup": true,
+  "operations": 7,
+  "checks": [
+    {
+      "operation": "GET /service/v1/health",
+      "status": 200,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /service/v1/ready",
+      "status": 200,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /service/v1/tenant",
+      "status": 200,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /service/v1/ai-rules",
+      "status": 401,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /service/v1/ai-rules",
+      "status": 403,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /api/v1/ai-rules",
+      "status": 401,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /api/v1/ai-rules",
+      "status": 200,
+      "schemaPassed": true
+    },
+    {
+      "operation": "POST /api/v1/ai-rules/publish",
+      "status": 403,
+      "schemaPassed": true
+    },
+    {
+      "operation": "POST /api/v1/ai-rules/publish",
+      "status": 403,
+      "schemaPassed": true
+    },
+    {
+      "operation": "POST /api/v1/ai-rules/publish",
+      "status": 422,
+      "schemaPassed": true
+    },
+    {
+      "operation": "POST /api/v1/ai-rules/publish",
+      "status": 201,
+      "schemaPassed": true
+    },
+    {
+      "operation": "POST /api/v1/ai-rules/publish",
+      "status": 409,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /service/v1/ai-rules",
+      "status": 200,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /service/v1/ai-rules",
+      "status": 304,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /api/v1/ai-rules",
+      "status": 200,
+      "schemaPassed": true
+    },
+    {
+      "operation": "POST /api/v1/ai-rules/publish",
+      "status": 201,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /api/v1/ai-rules",
+      "status": 200,
+      "schemaPassed": true
+    },
+    {
+      "operation": "POST /api/v1/ai-rules/rollback/{versionId}",
+      "status": 200,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /api/v1/ai-rules",
+      "status": 200,
+      "schemaPassed": true
+    },
+    {
+      "operation": "POST /api/v1/ai-rules/rollback/{versionId}",
+      "status": 404,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /api/v1/ai-rules",
+      "status": 503,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /service/v1/ai-rules",
+      "status": 503,
+      "schemaPassed": true
+    },
+    {
+      "operation": "GET /service/v1/ai-rules",
+      "status": 401,
+      "schemaPassed": true
+    }
+  ],
+  "boundary": "Complete M4a rules/service HTTP scope, using shared Node input schemas, generated response schemas and live FastAPI OpenAPI. Private Server Actions retain their dedicated tests. This does not claim response conformance for unrelated platform/account endpoints."
+}
