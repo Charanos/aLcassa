@@ -7,12 +7,23 @@ async function main() {
   const name = 'supabase_auth_alcassa-phase-one-verification';
   const inspected = JSON.parse(
     execFileSync('docker', ['inspect', name], { encoding: 'utf8', windowsHide: true }),
-  ) as { Name: string; Config: { Image: string; Env: string[] } }[];
+  ) as { Name: string; Image: string; Config: { Image: string; Env: string[] } }[];
   const container = inspected[0];
+  assert(container?.Name === `/${name}`, 'Only the owned disposable provider may be configured.');
+  const image = JSON.parse(
+    execFileSync('docker', ['image', 'inspect', container.Image], {
+      encoding: 'utf8',
+      windowsHide: true,
+    }),
+  ) as { RepoTags: string[] | null; RepoDigests: string[] | null }[];
+  // The CLI can use its official GHCR/Docker Hub mirrors or a resolved image digest.
+  const official =
+    /^(?:(?:public\.ecr\.aws|ghcr\.io|docker\.io)\/)?supabase\/gotrue(?::v[\w.-]+)?(?:@sha256:[a-f0-9]{64})?$/;
   assert(
-    container?.Name === `/${name}` &&
-      container.Config.Image.startsWith('public.ecr.aws/supabase/gotrue:'),
-    'Only the owned disposable provider may be configured.',
+    [container.Config.Image, ...(image[0]?.RepoTags ?? []), ...(image[0]?.RepoDigests ?? [])].some(
+      (reference) => official.test(reference),
+    ),
+    `Owned provider must resolve to the official Supabase Auth image: ${container.Config.Image}`,
   );
   const configured = container.Config.Env.filter((value) =>
     /^GOTRUE_DB_MAX_(?:IDLE_)?POOL_SIZE=/.test(value),
@@ -49,9 +60,14 @@ async function main() {
     await new Promise((done) => setTimeout(done, 250));
   }
   assert(ready, 'Disposable Auth must recover after pool configuration');
-  const captured = spawnSync('docker', ['logs', '--tail', '150', name], {
+  const startedAt = execFileSync('docker', ['inspect', '--format', '{{.State.StartedAt}}', name], {
     encoding: 'utf8',
     windowsHide: true,
+  }).trim();
+  const captured = spawnSync('docker', ['logs', '--since', startedAt, name], {
+    encoding: 'utf8',
+    windowsHide: true,
+    maxBuffer: 16 * 1024 * 1024,
   });
   assert.equal(captured.status, 0);
   const logs = captured.stdout + captured.stderr;
