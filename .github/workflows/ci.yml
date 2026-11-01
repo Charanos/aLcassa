@@ -126,7 +126,7 @@ jobs:
       # point and a job that quietly fixed drift would hide its cause.
       - name: Usage reconciliation
         run: pnpm reconcile:usage
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: isolation-evidence
@@ -161,7 +161,7 @@ jobs:
       - run: pnpm db:app-role
       - run: pnpm db:seed
       - run: pnpm run test --reporter=default --reporter=json --outputFile=.test-report/phase-one/tests.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: tests-evidence
@@ -223,7 +223,7 @@ jobs:
       - name: Platform accessibility matrix
         if: ${{ !cancelled() && steps.console_build.outcome == 'success' }}
         run: node --conditions=react-server --import tsx scripts/verification-platform-accessibility.ts
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: cache-disabled-evidence
@@ -248,7 +248,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check:security
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: dependency-security-evidence
